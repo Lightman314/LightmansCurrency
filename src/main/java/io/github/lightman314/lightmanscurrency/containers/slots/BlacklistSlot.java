@@ -1,36 +1,36 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class BlacklistSlot extends Slot {
 
-	IInventory blacklistInventory;
+	Container blacklistInventory;
 	int blacklistIndex;
 	
-	public BlacklistSlot(IInventory inventory, int index, int x, int y, IInventory blacklistInventory, int blacklistIndex)
+	public BlacklistSlot(Container inventory, int index, int x, int y, Container blacklistInventory, int blacklistIndex)
 	{
 		super(inventory, index, x, y);
 		setBlacklist(blacklistInventory, blacklistIndex);
 	}
 	
-	public void setBlacklist(IInventory blacklistInventory, int blacklistIndex)
+	public void setBlacklist(Container blacklistInventory, int blacklistIndex)
 	{
 		this.blacklistInventory = blacklistInventory;
 		this.blacklistIndex = blacklistIndex;
 	}
 	
-	ItemStack getItem()
+	ItemStack getBlacklistItem()
 	{
-		return this.inventory.getStackInSlot(this.blacklistIndex);
+		return this.container.getItem(this.blacklistIndex);
 	}
 	
 	@Override
-	public boolean isItemValid(ItemStack item)
+	public boolean mayPlace(ItemStack item)
 	{
 		if(this.blacklistIndex >= 0)
-			return item != this.getItem();
+			return item != this.getBlacklistItem();
 		return true;
 	}
 	

@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.atm.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
@@ -15,13 +13,13 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor.PacketTarget;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 
 public class LightmansCurrencyPacketHandler {
 	
@@ -105,32 +103,14 @@ public class LightmansCurrencyPacketHandler {
 		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
 	}
 	
-	public static PacketTarget getTarget(PlayerEntity player)
+	public static PacketTarget getTarget(Player player)
 	{
-		return getTarget((ServerPlayerEntity)player);
+		return getTarget((ServerPlayer)player);
 	}
 	
-	public static PacketTarget getTarget(ServerPlayerEntity player)
+	public static PacketTarget getTarget(ServerPlayer player)
 	{
-		return PacketDistributor.PLAYER.with(new PlayerProvider(player));
-	}
-	
-	private static class PlayerProvider implements Supplier<ServerPlayerEntity>
-	{
-		
-		ServerPlayerEntity player;
-		
-		public PlayerProvider(ServerPlayerEntity player)
-		{
-			this.player = player;
-		}
-
-		@Override
-		public ServerPlayerEntity get() {
-			return this.player;
-		}
-		
-		
+		return PacketDistributor.PLAYER.with(() -> player);
 	}
 	
 }

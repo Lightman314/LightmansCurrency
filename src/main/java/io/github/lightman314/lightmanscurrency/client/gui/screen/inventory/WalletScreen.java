@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
@@ -9,17 +9,15 @@ import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-//import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-//import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
-public class WalletScreen extends ContainerScreen<WalletContainer>{
+public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
 
 	private final int BASEHEIGHT = 114;
 	
@@ -29,50 +27,51 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	Button buttonConvert;
 	boolean autoConvert = false;
 	
-	public WalletScreen(WalletContainer container, PlayerInventory inventory, ITextComponent title)
+	public WalletScreen(WalletContainer container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.ySize = BASEHEIGHT + this.container.getRowCount() * 18;
-		this.xSize = 176;
+		this.imageHeight = BASEHEIGHT + this.menu.getRowCount() * 18;
+		this.imageWidth = 176;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
 	{
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (this.width - this.xSize) / 2;
-		int startY = (this.height - this.ySize) / 2;
+		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		int startX = (this.width - this.imageWidth) / 2;
+		int startY = (this.height - this.imageHeight) / 2;
 		
 		//Draw the top
-		this.blit(matrix, startX, startY, 0, 0, this.xSize, 17);
+		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, 17);
 		//Draw the middle strips
-		for(int y = 0; y < this.container.getRowCount(); y++)
+		for(int y = 0; y < this.menu.getRowCount(); y++)
 		{
-			this.blit(matrix, startX, startY + 17 + y * 18, 0, 17, this.xSize, 18);
+			this.blit(matrix, startX, startY + 17 + y * 18, 0, 17, this.imageWidth, 18);
 		}
 		//Draw the bottom
-		this.blit(matrix, startX, startY + 17 + this.container.getRowCount() * 18, 0, 35, this.xSize, BASEHEIGHT - 17);
+		this.blit(matrix, startX, startY + 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
 		
 		//Draw the slots
-		for(int y = 0; y * 9 < this.container.getSlotCount(); y++)
+		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
 		{
-			for(int x = 1; x < 9 && x + y * 9 < this.container.getSlotCount(); x++)
+			for(int x = 1; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
 			{
 				this.blit(matrix, startX + 7 + x * 18, startY + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
 		}
 		
-		CoinSlot.drawEmptyCoinSlots(this, this.container, matrix, startX, startY);
+		CoinSlot.drawEmptyCoinSlots(this, this.menu, matrix, startX, startY);
 		
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, this.container.title.getString(), 8.0f, 6.0f, 0x404040);
-		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
+		this.font.draw(matrix, this.menu.title.getString(), 8.0f, 6.0f, 0x404040);
+		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -80,14 +79,14 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	{
 		super.init();
 		
-		if(this.container.canConvert())
+		if(this.menu.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressConvertButton, GUI_TEXTURE, this.xSize, 0));
+			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressConvertButton, GUI_TEXTURE, this.imageWidth, 0));
 			
-			if(this.container.canPickup())
+			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 20, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.xSize, 16));
+				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 20, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.imageWidth, 16));
 				this.updateToggleButton();
 			}
 			
@@ -96,44 +95,43 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	}
 	
 	@Override
-	public void tick()
+	public void containerTick()
 	{
 		
 		if(this.buttonToggleAutoConvert != null)
 		{
 			//CurrencyMod.LOGGER.info("Local AC: " + this.autoConvert + " Stack AC: " + this.container.getAutoConvert());
-			if(this.container.getAutoConvert() != this.autoConvert)
+			if(this.menu.getAutoConvert() != this.autoConvert)
 				this.updateToggleButton();
 		}
 		
-		super.tick();
 	}
 	
 	private void updateToggleButton()
 	{
 		//CurrencyMod.LOGGER.info("Updating AutoConvert Button");
-		this.autoConvert = this.container.getAutoConvert();
-		this.buttonToggleAutoConvert.setResource(GUI_TEXTURE, this.xSize, this.autoConvert ? 16 : 32);
+		this.autoConvert = this.menu.getAutoConvert();
+		this.buttonToggleAutoConvert.setResource(GUI_TEXTURE, this.imageWidth, this.autoConvert ? 16 : 32);
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
+		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
 		if(this.buttonConvert != null && this.buttonConvert.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
 		}
 		else if(this.buttonToggleAutoConvert != null && this.buttonToggleAutoConvert.isMouseOver(mouseX, mouseY))
 		{
 			if(this.autoConvert)
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
 		}
 	}
 	
@@ -144,7 +142,7 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	
 	public void PressAutoConvertToggleButton(Button button)
 	{
-		this.container.ToggleAutoConvert();
+		this.menu.ToggleAutoConvert();
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletToggleAutoConvert());
 	}
 	

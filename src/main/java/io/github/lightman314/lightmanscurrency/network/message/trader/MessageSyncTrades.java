@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageSyncTrades implements IMessage<MessageSyncTrades> {
 	
@@ -18,27 +18,27 @@ public class MessageSyncTrades implements IMessage<MessageSyncTrades> {
 	
 	
 	@Override
-	public void encode(MessageSyncTrades message, PacketBuffer buffer) {
+	public void encode(MessageSyncTrades message, FriendlyByteBuf buffer) {
 		//buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageSyncTrades decode(PacketBuffer buffer) {
+	public MessageSyncTrades decode(FriendlyByteBuf buffer) {
 		return new MessageSyncTrades();
 	}
 
 	@Override
-	public void handle(MessageSyncTrades message, Supplier<Context> supplier) {
+	public void handle(MessageSyncTrades message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer != null)
+				if(entity.containerMenu != null)
 				{
-					if(entity.openContainer instanceof ITraderStorageContainer)
+					if(entity.containerMenu instanceof ITraderStorageContainer)
 					{
-						ITraderStorageContainer container = (ITraderStorageContainer)entity.openContainer;
+						ITraderStorageContainer container = (ITraderStorageContainer)entity.containerMenu;
 						container.SyncTrades();
 					}
 				}

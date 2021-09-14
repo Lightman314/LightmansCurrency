@@ -2,14 +2,13 @@ package io.github.lightman314.lightmanscurrency;
 
 
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-//import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData {
@@ -53,7 +52,7 @@ public class ItemTradeData {
 	{
 		if(this.customName == "")
 			return getSellItem();
-		return getSellItem().setDisplayName(new StringTextComponent("§6" + this.customName));
+		return getSellItem().setHoverName(new TextComponent("§6" + this.customName));
 	}
 	
 	public void setSellItem(ItemStack itemStack)
@@ -112,16 +111,16 @@ public class ItemTradeData {
 		this.restriction = restriction;
 	}
 	
-	public static EquipmentSlotType getSlotFromRestriction(TradeRestrictions restriction)
+	public static EquipmentSlot getSlotFromRestriction(TradeRestrictions restriction)
 	{
 		if(restriction == TradeRestrictions.ARMOR_HEAD)
-			return EquipmentSlotType.HEAD;
+			return EquipmentSlot.HEAD;
 		if(restriction == TradeRestrictions.ARMOR_CHEST)
-			return EquipmentSlotType.CHEST;
+			return EquipmentSlot.CHEST;
 		if(restriction == TradeRestrictions.ARMOR_LEGS)
-			return EquipmentSlotType.LEGS;
+			return EquipmentSlot.LEGS;
 		if(restriction == TradeRestrictions.ARMOR_FEET)
-			return EquipmentSlotType.FEET;
+			return EquipmentSlot.FEET;
 		
 		return null;
 	}
@@ -132,21 +131,21 @@ public class ItemTradeData {
 	}
 	
 	
-	public boolean hasStock(IInventory storage)
+	public boolean hasStock(Container storage)
 	{
 		if(this.sellItem.isEmpty())
 			return false;
 		return stockCount(storage) > 0;
 	}
 	
-	public int stockCount(IInventory storage)
+	public int stockCount(Container storage)
 	{
 		if(this.sellItem.isEmpty())
 			return 0;
 		int itemCount = 0;
-		for(int i = 0; i < storage.getSizeInventory(); i++)
+		for(int i = 0; i < storage.getContainerSize(); i++)
 		{
-			ItemStack itemStack = storage.getStackInSlot(i);
+			ItemStack itemStack = storage.getItem(i);
 			if(itemStack.getItem() == sellItem.getItem())
 			{
 				if(itemStack.hasTag() == sellItem.hasTag())
@@ -168,9 +167,10 @@ public class ItemTradeData {
 		return itemCount / sellItem.getCount();
 	}
 	
-	public CompoundNBT getAsNBT() {
-		CompoundNBT tradeNBT = new CompoundNBT();
-		sellItem.write(tradeNBT);
+	public CompoundTag getAsNBT()
+	{
+		CompoundTag tradeNBT = new CompoundTag();
+		sellItem.save(tradeNBT);
 		this.cost.writeToNBT(tradeNBT,"Price");
 		tradeNBT.putString("TradeDirection", this.tradeDirection.name());
 		
@@ -180,14 +180,14 @@ public class ItemTradeData {
 		return tradeNBT;
 	}
 	
-	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data)
+	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data)
 	{
 		return saveAllData(nbt, data, "Trades");
 	}
 	
-	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data, String key)
+	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data, String key)
 	{
-		ListNBT listNBT = new ListNBT();
+		ListTag listNBT = new ListTag();
 		
 		for(int i = 0; i < data.size(); i++)
 		{
@@ -200,14 +200,14 @@ public class ItemTradeData {
 		return nbt;
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(CompoundNBT nbt, int arraySize)
+	public static NonNullList<ItemTradeData> loadAllData(CompoundTag nbt, int arraySize)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, arraySize);
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(String key, CompoundNBT nbt, int arraySize)
+	public static NonNullList<ItemTradeData> loadAllData(String key, CompoundTag nbt, int arraySize)
 	{
-		ListNBT listNBT = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
+		ListTag listNBT = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
 		
 		NonNullList<ItemTradeData> data = listOfSize(arraySize);
 		
@@ -220,9 +220,9 @@ public class ItemTradeData {
 		return data;
 	}
 	
-	public void loadFromNBT(CompoundNBT nbt)
+	public void loadFromNBT(CompoundTag nbt)
 	{
-		sellItem = ItemStack.read(nbt);
+		sellItem = ItemStack.of(nbt);
 		if(nbt.contains("Price", Constants.NBT.TAG_INT))
 			cost.readFromOldValue(nbt.getInt("Price"));
 		else if(nbt.contains("Price", Constants.NBT.TAG_LIST))
@@ -293,12 +293,12 @@ public class ItemTradeData {
 		return coinValue / price;
 	}
 	
-	public int tradesPossibleInStorage(IInventory inventory)
+	public int tradesPossibleInStorage(Container inventory)
 	{
 		int itemCount = 0;
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			ItemStack itemStack = inventory.getStackInSlot(i);
+			ItemStack itemStack = inventory.getItem(i);
 			if(itemStack.getItem() == sellItem.getItem())
 			{
 				itemCount += itemStack.getCount();

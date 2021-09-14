@@ -5,30 +5,30 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.Constants;
 
 public class CashRegisterItem extends BlockItem{
 		
-	private static final SoundEvent soundEffect = new SoundEvent(new ResourceLocation("minecraft","entity.experience_orb.pickup"));
+	private static final SoundEvent soundEffect = SoundEvents.EXPERIENCE_ORB_PICKUP;
 	
 	public CashRegisterItem(Block block, Properties properties)
 	{
@@ -36,64 +36,61 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public ActionResultType onItemUse(ItemUseContext context) {
+	public InteractionResult useOn(UseOnContext context) {
 		
-		BlockPos lookPos = context.getPos();
-		World world = context.getWorld();
+		BlockPos lookPos = context.getClickedPos();
+		Level level = context.getLevel();
 		if(lookPos != null)
 		{
-			if(world.getBlockState(lookPos).getBlock() instanceof ITraderBlock)
+			if(level.getBlockState(lookPos).getBlock() instanceof ITraderBlock)
 			{
-				ITraderBlock block = (ITraderBlock)world.getBlockState(lookPos).getBlock();
-				TileEntity tileEntity = block.getTileEntity(world.getBlockState(lookPos), world, lookPos);
-				if(!HasEntity(context.getItem(), tileEntity) && tileEntity instanceof TraderTileEntity)
+				ITraderBlock block = (ITraderBlock)level.getBlockState(lookPos).getBlock();
+				BlockEntity tileEntity = block.getTileEntity(level.getBlockState(lookPos), level, lookPos);
+				if(!HasEntity(context.getItemInHand(), tileEntity) && tileEntity instanceof TraderBlockEntity)
 				{
-					AddEntity(context.getItem(), tileEntity);
+					AddEntity(context.getItemInHand(), tileEntity);
 					
-					if(world.isRemote)
+					if(level.isClientSide)
 					{
 						//CurrencyMod.LOGGER.info("Client-test");
-						world.playSound(context.getPlayer(), tileEntity.getPos(), soundEffect, SoundCategory.NEUTRAL, 1f, 0f);
+						level.playSound(context.getPlayer(), tileEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 0f);
 					}
 					
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				}
-				else if(tileEntity instanceof TraderTileEntity) //Return even if we have the entity to prevent any accidental placements.
+				else if(tileEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
 				{
-					if(world.isRemote)
+					if(level.isClientSide)
 					{
 						//CurrencyMod.LOGGER.info("Client-test");
-						world.playSound(context.getPlayer(), tileEntity.getPos(), soundEffect, SoundCategory.NEUTRAL, 1f, 1.35f);
+						level.playSound(context.getPlayer(), tileEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 1.35f);
 					}
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				}
 			}
 		}
 		
-		return super.onItemUse(context);
+		return super.useOn(context);
 		
 	}
 	
-	private boolean HasEntity(ItemStack stack, TileEntity tileEntity)
+	private boolean HasEntity(ItemStack stack, BlockEntity blockEntity)
 	{
 		
 		//Get the tag
-		if(!stack.hasTag())
-			return false;
-		
-		CompoundNBT tag = stack.getTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		
 		if(!tag.contains("TraderPos"))
 			return false;
 		
-		ListNBT storageList = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+		ListTag storageList = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
 		
 		for(int i = 0; i < storageList.size(); i++)
 		{
-			CompoundNBT thisEntry = storageList.getCompound(i);
+			CompoundTag thisEntry = storageList.getCompound(i);
 			if(thisEntry.contains("x") && thisEntry.contains("y") && thisEntry.contains("z"))
 			{
-				if(thisEntry.getInt("x") == tileEntity.getPos().getX() && thisEntry.getInt("y") == tileEntity.getPos().getY() && thisEntry.getInt("z") == tileEntity.getPos().getZ())
+				if(thisEntry.getInt("x") == blockEntity.getBlockPos().getX() && thisEntry.getInt("y") == blockEntity.getBlockPos().getY() && thisEntry.getInt("z") == blockEntity.getBlockPos().getZ())
 					return true;
 			}
 		}
@@ -102,25 +99,23 @@ public class CashRegisterItem extends BlockItem{
 		
 	}
 	
-	private void AddEntity(ItemStack stack, TileEntity tileEntity)
+	private void AddEntity(ItemStack stack, BlockEntity blockEntity)
 	{
 		//Get the tag
-		if(!stack.hasTag())
-			stack.setTag(new CompoundNBT());
-		CompoundNBT tag = stack.getTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		
 		//If the tag contains the TraderPos list, get it. Otherwise create a new list
-		ListNBT storageList;
+		ListTag storageList;
 		if(tag.contains("TraderPos"))
 			storageList = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
 		else
-			storageList = new ListNBT();
+			storageList = new ListTag();
 		
 		//Create the new entry to the list
-		CompoundNBT newEntry = new CompoundNBT();
-		newEntry.putInt("x", tileEntity.getPos().getX());
-		newEntry.putInt("y", tileEntity.getPos().getY());
-		newEntry.putInt("z", tileEntity.getPos().getZ());
+		CompoundTag newEntry = new CompoundTag();
+		newEntry.putInt("x", blockEntity.getBlockPos().getX());
+		newEntry.putInt("y", blockEntity.getBlockPos().getY());
+		newEntry.putInt("z", blockEntity.getBlockPos().getZ());
 		
 		//Add the new entry to the list
 		storageList.add(newEntry);
@@ -138,13 +133,13 @@ public class CashRegisterItem extends BlockItem{
 		if(!stack.hasTag())
 			return positions;
 		
-		CompoundNBT tag = stack.getTag();
+		CompoundTag tag = stack.getTag();
 		if(tag.contains("TraderPos"))
 		{
-			ListNBT list = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			ListTag list = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); i++)
 			{
-				CompoundNBT thisPos = list.getCompound(i);
+				CompoundTag thisPos = list.getCompound(i);
 				if(thisPos.contains("x") && thisPos.contains("y") && thisPos.contains("z"))
 				{
 					positions.add(new BlockPos(thisPos.getInt("x"),thisPos.getInt("y"),thisPos.getInt("z")));
@@ -157,27 +152,27 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
 	{
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  worldIn,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);
 		
-		tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.cash_register", data.size()));
+		tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register", data.size()));
 		
 		if(!Screen.hasShiftDown() || data.size() <= 0)
-			tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.cash_register.instructions"));
+			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.instructions"));
 		
 		if(Screen.hasShiftDown())
 		{
 			//Display details of the 
 			for(int i = 0; i < data.size(); i++)
 			{
-				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.cash_register.details", i + 1, data.get(i).getX(), data.get(i).getY(), data.get(i).getZ()));
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.cash_register.details", i + 1, data.get(i).getX(), data.get(i).getY(), data.get(i).getZ()));
 			}
 		}
 		else if(data.size() > 0)
 		{
-			tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.cash_register.holdshift"));
+			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.holdshift"));
 		}
 	}
 	

@@ -1,14 +1,16 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,27 +19,28 @@ public class WalletSlot extends Slot{
 	public static final int EMPTY_SLOT_X = 0;
 	public static final int EMPTY_SLOT_Y = 0;
 	
-	public WalletSlot(IInventory inventory, int index, int x, int y)
+	public WalletSlot(Container inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
 	
 	@Override
-	public boolean isItemValid(ItemStack stack) {
+	public boolean mayPlace(ItemStack stack) {
         return stack.getItem() instanceof WalletItem;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public static void drawEmptyWalletSlots(Screen screen, Container container, MatrixStack matrix, int startX, int startY)
+	public static void drawEmptyWalletSlots(Screen screen, AbstractContainerMenu container, PoseStack matrix, int startX, int startY)
 	{
-		screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
-		for(Slot slot : container.inventorySlots)
+		//screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
+		RenderSystem.setShaderTexture(1, LightmansCurrency.EMPTY_SLOTS);
+		for(Slot slot : container.slots)
 		{
 			if(slot instanceof WalletSlot)
 			{
-				if(!slot.getHasStack())
+				if(!slot.hasItem())
 				{
-					screen.blit(matrix, startX + slot.xPos, startY + slot.yPos, EMPTY_SLOT_X, EMPTY_SLOT_Y, 16, 16);
+					screen.blit(matrix, startX + slot.x, startY + slot.y, EMPTY_SLOT_X, EMPTY_SLOT_Y, 16, 16);
 				}
 			}
 		}

@@ -3,129 +3,127 @@ package io.github.lightman314.lightmanscurrency.integration.backpacked.container
 import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.extendedinventory.ExtendedPlayerInventory;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.Mob;
 
-import com.mrcrayfish.backpacked.inventory.container.ExtendedPlayerContainer;
-import com.mrcrayfish.backpacked.item.BackpackItem;
+//import com.mrcrayfish.backpacked.inventory.container.ExtendedPlayerContainer;
+//import com.mrcrayfish.backpacked.item.BackpackItem;
 
-/**
- * Author: MrCrayfish
- */
-public class SuperExtendedPlayerContainer extends ExtendedPlayerContainer
+public class SuperExtendedPlayerContainer extends InventoryMenu//ExtendedPlayerContainer
 {
-    public SuperExtendedPlayerContainer(PlayerInventory playerInventory, boolean localWorld, PlayerEntity playerIn)
+    public SuperExtendedPlayerContainer(Inventory playerInventory, boolean localWorld, Player playerIn)
     {
         super(playerInventory, localWorld, playerIn);
         //CurrencyMod.LOGGER.info("Adding wallet container slot (SUPER EXTENDED).");
-        this.addSlot(new WalletSlot(playerInventory, ExtendedPlayerInventory.WALLETINDEX, 152, 62));
+        for(int i = 0; i < ExtendedPlayerInventory.WALLET_INDEXES.size(); i++)
+        {
+        	this.addSlot(new WalletSlot(playerInventory, ExtendedPlayerInventory.WALLET_INDEXES.get(i), 152, 62 - (18 * i)));
+        }
     }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity playerIn, int index)
+    public ItemStack quickMoveStack(Player playerIn, int index)
     {
         ItemStack copy = ItemStack.EMPTY;
-        Slot slot = this.inventorySlots.get(index);
-        if(slot != null && slot.getHasStack())
+        Slot slot = this.slots.get(index);
+        if(slot != null && slot.hasItem())
         {
-            ItemStack slotStack = slot.getStack();
+            ItemStack slotStack = slot.getItem();
             copy = slotStack.copy();
-            EquipmentSlotType equipmentslottype = MobEntity.getSlotForItemStack(copy);
-            if(index != 47 && copy.getItem() instanceof WalletItem)
+            EquipmentSlot equipmentslottype = Mob.getEquipmentSlotForItem(copy);
+            if(index < 47 && copy.getItem() instanceof WalletItem)
             {
-                if(!this.inventorySlots.get(47).getHasStack())
+            	if(!this.moveItemStackTo(slotStack, 47, this.slots.size(), false))
                 {
-                    if(!this.mergeItemStack(slotStack, 47, 48, false))
+                    return ItemStack.EMPTY;
+                }
+            }
+            /*else if(index != 46 && copy.getItem() instanceof BackpackItem) //Backpacked integration
+            {
+                if(!this.slots.get(46).hasItem())
+                {
+                    if(!this.moveItemStackTo(slotStack, 46, 47, false))
                     {
                         return ItemStack.EMPTY;
                     }
                 }
-            }
-            else if(index != 46 && copy.getItem() instanceof BackpackItem) //Backpacked integration
-            {
-                if(!this.inventorySlots.get(46).getHasStack())
-                {
-                    if(!this.mergeItemStack(slotStack, 46, 47, false))
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            }
+            }*/
             else if(index == 0)
             {
-                if(!this.mergeItemStack(slotStack, 9, 45, true))
+                if(!this.moveItemStackTo(slotStack, 9, 45, true))
                 {
                     return ItemStack.EMPTY;
                 }
 
-                slot.onSlotChange(slotStack, copy);
+                //slot.onSlotChange(slotStack, copy);
             }
             else if(index < 5)
             {
-                if(!this.mergeItemStack(slotStack, 9, 45, false))
+                if(!this.moveItemStackTo(slotStack, 9, 45, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else if(index < 9)
             {
-                if(!this.mergeItemStack(slotStack, 9, 45, false))
+                if(!this.moveItemStackTo(slotStack, 9, 45, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else if(equipmentslottype.getSlotType() == EquipmentSlotType.Group.ARMOR && !this.inventorySlots.get(8 - equipmentslottype.getIndex()).getHasStack())
+            else if(equipmentslottype.getType() == EquipmentSlot.Type.ARMOR && !this.slots.get(8 - equipmentslottype.getIndex()).hasItem())
             {
                 int i = 8 - equipmentslottype.getIndex();
-                if(!this.mergeItemStack(slotStack, i, i + 1, false))
+                if(!this.moveItemStackTo(slotStack, i, i + 1, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else if(equipmentslottype == EquipmentSlotType.OFFHAND && !this.inventorySlots.get(45).getHasStack())
+            else if(equipmentslottype == EquipmentSlot.OFFHAND && !this.slots.get(45).hasItem())
             {
-                if(!this.mergeItemStack(slotStack, 45, 46, false))
+                if(!this.moveItemStackTo(slotStack, 45, 46, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else if(index == 46)
+            else if(index >= 46)
             {
-                if(!this.mergeItemStack(slotStack, 9, 45, false))
+                if(!this.moveItemStackTo(slotStack, 9, 45, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else if(index < 36)
             {
-                if(!this.mergeItemStack(slotStack, 36, 45, false))
+                if(!this.moveItemStackTo(slotStack, 36, 45, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else if(index < 45)
             {
-                if(!this.mergeItemStack(slotStack, 9, 36, false))
+                if(!this.moveItemStackTo(slotStack, 9, 36, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else if(!this.mergeItemStack(slotStack, 9, 45, false))
+            else if(!this.moveItemStackTo(slotStack, 9, 45, false))
             {
                 return ItemStack.EMPTY;
             }
 
             if(slotStack.isEmpty())
             {
-                slot.putStack(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             }
             else
             {
-                slot.onSlotChanged();
+                slot.setChanged();
             }
 
             if(slotStack.getCount() == copy.getCount())
@@ -133,11 +131,11 @@ public class SuperExtendedPlayerContainer extends ExtendedPlayerContainer
                 return ItemStack.EMPTY;
             }
 
-            ItemStack itemstack2 = slot.onTake(playerIn, slotStack);
-            if(index == 0)
-            {
-                playerIn.dropItem(itemstack2, false);
-            }
+            /*ItemStack itemstack2 = */slot.onTake(playerIn, slotStack);
+            //if(index == 0)
+            //{
+            //    playerIn.dropItem(itemstack2, false);
+            //}
         }
 
         return copy;

@@ -1,32 +1,28 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import com.mojang.math.Vector3f;
+
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-//import net.minecraft.util.Mirror;
-//import net.minecraft.state.Property;
-//import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
 
 public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
-	
-	private final VoxelShape SHAPE;
 	
 	public CoinpileBlock(Properties properties, Item coinItem)
 	{
 		super(properties, coinItem);
-		SHAPE = makeCuboidShape(0d,0d,0d,16d,8d,16d);
 	}
 	
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -38,28 +34,28 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
 	}
 	
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context)
+	public BlockState getStateForPlacement(BlockPlaceContext context)
 	{
-		return super.getStateForPlacement(context).with(FACING, context.getPlacementHorizontalFacing());
+		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
 	}
 	
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation)
 	{
-		return state.with(FACING, rotation.rotate(state.get(FACING)));
+		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 	
 	@Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
-        super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
         builder.add(FACING);
     }
 	
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext contect)
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
 	{
-		return SHAPE;
+		return LazyShapes.SHORT_BOX_T;
 	}
 	
 	public BlockPos getRightPos(BlockPos pos, Direction facing) {
@@ -193,7 +189,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
 	@Override
 	public Direction getFacing(BlockState state)
 	{
-		return state.get(FACING);
+		return state.getValue(FACING);
 	}
 	
 	

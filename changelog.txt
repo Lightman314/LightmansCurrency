@@ -1,3 +1,58 @@
+1.0.0.2
+-Fixed an issue where the "Back To Terminal" button only appears if you own the universal trader you have open.
+-Added a shop log to the traders, accessible from the storage screen.
+-Added config options to disable the minting/melting of specific coins.
+
+1.0.0.1
+-Updated the default client-config "renderBlocksAsItems" value to include new 1.17.1 items that would otherwise render improperly spaced in a trader.
+*(Note: You will need to delete the entry for this to take effect for existing configs.)
+-Minor Wallet API changes in how equipped wallets are collected. We now operate under the assumption that it's possible for more than 1 wallet to be equipped. Hotkey still only opens the first equipped wallet available.
+*(Old functions are still available)
+-The "Store Coins" button is now only visible when there are coins in the store coins slots.
+-Fixed an error that occurred when you tried to store more than 1 stack of coins at a time.
+-Fixed an issue where the coins in the store coin slots would be lost to the void when the storage screen is closed.
+-Fixed an issue where the Collect Coin button won't reappear if the trader is removed from creative mode, or coins are added to storage via the store coins button.
+
+1.0.0.0
+-Wallets now render on the players hip while equipped in a curios belt slot.
+
+0.8.2.5
+-Fixed an issue where the wallet opening sounds would play when you press the open wallet key with no wallet equipped, but with a wallet in your inventory.
+-Fixed an issue where the mod would not run on forge version 37.0.31 or newer due to changes made to the tool that affected the blocks that are mineable with a pickaxe.
+
+0.8.2.4
+-Re-added optional Curios integration for 1.17, allowing the wallets to be equipped in the belt slot. (Note that the wallet rendering is still non-functional.)
+
+0.8.2.3
+-Added a WalletUtil that contains functions and classes that allows easy interaction with all wallets within the players inventory.
+-Wallets can now pick up coins while not equipped (if capable of picking up coins).
+-Trading Machines can now interface with wallets that aren't equipped.
+
+0.8.2.2
+-Updated to 1.17.1
+-Fixed an issue where the new boss coin drops would not spawn if the boss wasn't killed by a player for entity entries.
+-Fixed an issue where some traders didn't drop their items when mined (namely the Armor Display trader and the new Vending Machine colors)
+
+^^^^1.17.1^^^^
+||||||||||||||
+
+0.8.3.2
+-Added a shop log to the traders, accessible from the storage screen.
+
+0.8.3.1
+-Fixed an issue where the "Back To Terminal" button only appears if you own the universal trader you have open.
+
+0.8.3.0
+-Fixed an issue where the new boss coin drops would not spawn if the boss wasn't killed by a player for entity entries.
+-Fixed an error that occurred when you tried to store more than 1 stack of coins at a time.
+-Fixed an issue where the coins in the store coin slots would be lost to the void when the storage screen is closed.
+-Fixed an issue where the Collect Coin button won't reappear if the trader is removed from creative mode, or coins are added to storage via the store coins button.
+-The "Store Coins" button is now only visible when there are coins in the store coins slots.
+-Added config options to disable the minting/melting of specific coins.
+
+0.8.2.1-patched
+-Fixed an issue where some traders didn't drop their items when mined (namely the Armor Display trader and the new Vending Machine colors)
+
 0.8.2.1
 -Added the remaining vending machine colors (orange, magenta, gray, light gray, cyan, purple, brown) for both types of vending machines.
 -Tweaked the vending machine textures to match the vanilla coloration's.

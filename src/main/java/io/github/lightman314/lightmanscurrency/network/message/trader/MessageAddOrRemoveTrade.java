@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTraderContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageAddOrRemoveTrade implements IMessage<MessageAddOrRemoveTrade> {
 	
@@ -24,25 +24,25 @@ public class MessageAddOrRemoveTrade implements IMessage<MessageAddOrRemoveTrade
 	
 	
 	@Override
-	public void encode(MessageAddOrRemoveTrade message, PacketBuffer buffer) {
+	public void encode(MessageAddOrRemoveTrade message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.isTradeAdd);
 	}
 
 	@Override
-	public MessageAddOrRemoveTrade decode(PacketBuffer buffer) {
+	public MessageAddOrRemoveTrade decode(FriendlyByteBuf buffer) {
 		return new MessageAddOrRemoveTrade(buffer.readBoolean());
 	}
 
 	@Override
-	public void handle(MessageAddOrRemoveTrade message, Supplier<Context> supplier) {
+	public void handle(MessageAddOrRemoveTrade message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer instanceof ICreativeTraderContainer)
+				if(entity.containerMenu instanceof ICreativeTraderContainer)
 				{
-					ICreativeTraderContainer container = (ICreativeTraderContainer)entity.openContainer;
+					ICreativeTraderContainer container = (ICreativeTraderContainer)entity.containerMenu;
 					if(message.isTradeAdd)
 						container.AddTrade();
 					else

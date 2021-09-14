@@ -9,33 +9,25 @@ import io.github.lightman314.lightmanscurrency.containers.slots.TicketMasterSlot
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.IWorldPosCallable;
 
-public class TicketMachineContainer extends Container{
+public class TicketMachineContainer extends AbstractContainerMenu{
 
 	private final int SLOTCOUNT = 3;
 	
-	private final IInventory objectInputs = new Inventory(SLOTCOUNT);
-	private final IWorldPosCallable callable;
+	private final Container objectInputs = new SimpleContainer(SLOTCOUNT);
 	
-	public TicketMachineContainer(int windowId, PlayerInventory inventory)
-	{
-		this(windowId, inventory, IWorldPosCallable.DUMMY);
-	}
-	
-	public TicketMachineContainer(int windowId, PlayerInventory inventory, final IWorldPosCallable callable)
+	public TicketMachineContainer(int windowId, Inventory inventory)
 	{
 		super(ModContainers.TICKET_MACHINE, windowId);
-		this.callable = callable;
 		
 		//Slots
 		this.addSlot(new TicketMasterSlot(this.objectInputs, 0, 20, 21));
@@ -59,52 +51,50 @@ public class TicketMachineContainer extends Container{
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
+	public boolean stillValid(Player playerIn)
 	{
-		return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
+		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
+		return true;
 	}
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
-		super.onContainerClosed(playerIn);
-		this.callable.consume((world,pos) ->
-		{
-			this.clearContainer(playerIn,  world,  this.objectInputs);
-		});
+		super.removed(playerIn);
+		this.clearContainer(playerIn, this.objectInputs);
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.objectInputs.getSizeInventory())
+			if(index < this.objectInputs.getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack, this.objectInputs.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack, this.objectInputs.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.objectInputs.getSizeInventory() - 1, true))
+			else if(!this.moveItemStackTo(slotStack, 0, this.objectInputs.getContainerSize() - 1, true))
 			{
 				return ItemStack.EMPTY;
 			}
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
@@ -115,12 +105,12 @@ public class TicketMachineContainer extends Container{
 	
 	public boolean validInputs()
 	{
-		return !this.objectInputs.getStackInSlot(1).isEmpty();
+		return !this.objectInputs.getItem(1).isEmpty();
 	}
 	
 	public boolean validOutputs()
 	{
-		ItemStack outputStack = this.objectInputs.getStackInSlot(2);
+		ItemStack outputStack = this.objectInputs.getItem(2);
 		if(outputStack.isEmpty())
 			return true;
 		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET)
@@ -140,7 +130,7 @@ public class TicketMachineContainer extends Container{
 	
 	public boolean hasMasterTicket()
 	{
-		ItemStack masterTicket = this.objectInputs.getStackInSlot(0);
+		ItemStack masterTicket = this.objectInputs.getItem(0);
 		if(masterTicket.isEmpty() || !TicketItem.isMasterTicket(masterTicket))
 			return false;
 		return true;
@@ -162,18 +152,18 @@ public class TicketMachineContainer extends Container{
 		{
 			int count = 1;
 			if(fullStack)
-				count = objectInputs.getStackInSlot(1).getCount();
+				count = objectInputs.getItem(1).getCount();
 			
 			//Create a normal ticket
-			ItemStack outputStack = this.objectInputs.getStackInSlot(2);
+			ItemStack outputStack = this.objectInputs.getItem(2);
 			if(outputStack.isEmpty())
 			{
 				//Create a new ticket stack
 				ItemStack newTicket = new ItemStack(ModItems.TICKET, count);
-				CompoundNBT compound = new CompoundNBT();
-				compound.putUniqueId("TicketID", this.getTicketID());
+				CompoundTag compound = new CompoundTag();
+				compound.putUUID("TicketID", this.getTicketID());
 				newTicket.setTag(compound);
-				this.objectInputs.setInventorySlotContents(2, newTicket);
+				this.objectInputs.setItem(2, newTicket);
 			}
 			else
 			{
@@ -184,21 +174,21 @@ public class TicketMachineContainer extends Container{
 			}
 			
 			//Remove the crafting materials
-			this.objectInputs.decrStackSize(1, count);
+			this.objectInputs.removeItem(1, count);
 		}
 		else
 		{
 			//Create a master ticket
 			ItemStack newTicket = new ItemStack(ModItems.TICKET, 1);
-			CompoundNBT compound = new CompoundNBT();
+			CompoundTag compound = new CompoundTag();
 			compound.putBoolean("Master", true);
-			compound.putUniqueId("TicketID", UUID.randomUUID());
+			compound.putUUID("TicketID", UUID.randomUUID());
 			newTicket.setTag(compound);
 			
-			this.objectInputs.setInventorySlotContents(2, newTicket);
+			this.objectInputs.setItem(2, newTicket);
 			
 			//Remove the crafting materials
-			this.objectInputs.decrStackSize(1, 1);
+			this.objectInputs.removeItem(1, 1);
 		}
 		
 		
@@ -206,7 +196,7 @@ public class TicketMachineContainer extends Container{
 	
 	public UUID getTicketID()
 	{
-		ItemStack masterTicket = this.objectInputs.getStackInSlot(0);
+		ItemStack masterTicket = this.objectInputs.getItem(0);
 		if(TicketItem.isMasterTicket(masterTicket))
 		{
 			return TicketItem.GetTicketID(masterTicket);

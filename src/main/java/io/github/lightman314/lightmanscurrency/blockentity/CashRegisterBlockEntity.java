@@ -1,55 +1,56 @@
-package io.github.lightman314.lightmanscurrency.tileentity;
+package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Constants;
 
-public class CashRegisterTileEntity extends TileEntity{
+public class CashRegisterBlockEntity extends BlockEntity{
 	
 	List<BlockPos> positions = new ArrayList<>();
 	
-	public CashRegisterTileEntity()
+	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.CASH_REGISTER);
+		super(ModBlockEntities.CASH_REGISTER, pos, state);
 	}
 	
-	public void loadDataFromItems(CompoundNBT itemTag)
+	public void loadDataFromItems(CompoundTag itemTag)
 	{
 		if(itemTag == null)
 			return;
 		readPositions(itemTag);
 	}
 	
-	public void OpenContainer(PlayerEntity player)
+	public void OpenContainer(Player player)
 	{
 		OpenContainer(-1,0,1, player);
 	}
 	
-	public void OpenContainer(int oldIndex, int newIndex, int direction, PlayerEntity player)
+	public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
 	{
+		//Only open the container server-side
+		if(this.level.isClientSide)
+			return;
+		
 		//Validate the direction
 		if(direction == 0)
 			direction = 1;
 		else
 			direction = MathUtil.clamp(direction, -1, 1);
-		//Only open the container server-side
-		if(this.world.isRemote)
-			return;
 		//Confirm we have any tile entities that can be opened
 		if(this.positions.size() <= 0)
 		{
@@ -67,11 +68,11 @@ public class CashRegisterTileEntity extends TileEntity{
 			return;
 		}
 		
-		TraderTileEntity tileEntity = this.getTrader(newIndex);
-		if(tileEntity != null)
+		TraderBlockEntity blockEntity = this.getTrader(newIndex);
+		if(blockEntity != null)
 		{
 			//Open the container
-			tileEntity.openCashRegisterTradeMenu((ServerPlayerEntity)player, this);
+			blockEntity.openCashRegisterTradeMenu((ServerPlayer)player, this);
 			return;
 		}
 		else
@@ -89,21 +90,21 @@ public class CashRegisterTileEntity extends TileEntity{
 		
 	}
 	
-	public TraderTileEntity getTrader(int index)
+	public TraderBlockEntity getTrader(int index)
 	{
 		if(index < 0 || index >= positions.size())
 			return null;
-		TileEntity tileEntity = this.world.getTileEntity(positions.get(index));
-		if(tileEntity instanceof ItemTraderTileEntity)
-			return (ItemTraderTileEntity)tileEntity;
+		BlockEntity blockEntity = this.level.getBlockEntity(positions.get(index));
+		if(blockEntity instanceof ItemTraderBlockEntity)
+			return (ItemTraderBlockEntity)blockEntity;
 		return null;
 	}
 	
-	public int getTraderIndex(ItemTraderTileEntity tileEntity)
+	public int getTraderIndex(ItemTraderBlockEntity blockEntity)
 	{
 		for(int i = 0; i < positions.size(); i++)
 		{
-			if(positions.get(i).equals(tileEntity.getPos()))
+			if(positions.get(i).equals(blockEntity.getBlockPos()))
 				return i;
 		}
 		return -1;
@@ -115,13 +116,13 @@ public class CashRegisterTileEntity extends TileEntity{
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		
-		ListNBT storageList = new ListNBT();
+		ListTag storageList = new ListTag();
 		for(int i = 0; i < positions.size(); i++)
 		{
-			CompoundNBT thisEntry = new CompoundNBT();
+			CompoundTag thisEntry = new CompoundTag();
 			BlockPos thisPos = positions.get(i);
 			thisEntry.putInt("x", thisPos.getX());
 			thisEntry.putInt("y", thisPos.getY());
@@ -134,28 +135,28 @@ public class CashRegisterTileEntity extends TileEntity{
 			compound.put("TraderPos", storageList);
 		}
 		
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		readPositions(compound);
 		
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 	
-	private void readPositions(CompoundNBT compound)
+	private void readPositions(CompoundTag compound)
 	{
 		if(compound.contains("TraderPos"))
 		{
 			this.positions = new ArrayList<>();
-			ListNBT storageList = compound.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			ListTag storageList = compound.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); i++)
 			{
-				CompoundNBT thisEntry = storageList.getCompound(i);
+				CompoundTag thisEntry = storageList.getCompound(i);
 				if(thisEntry.contains("x") && thisEntry.contains("y") && thisEntry.contains("z"))
 				{
 					BlockPos thisPos = new BlockPos(thisEntry.getInt("x"), thisEntry.getInt("y"), thisEntry.getInt("z"));
@@ -167,17 +168,17 @@ public class CashRegisterTileEntity extends TileEntity{
 	
 	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
+	public ClientboundBlockEntityDataPacket getUpdatePacket()
 	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
+		return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, this.save(new CompoundTag()));
 	}
 	
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
 	{
-		CompoundNBT compound = pkt.getNbtCompound();
+		CompoundTag compound = pkt.getTag();
 		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.read(this.getBlockState(), compound);
+		this.load(compound);
 	}
 	
 }

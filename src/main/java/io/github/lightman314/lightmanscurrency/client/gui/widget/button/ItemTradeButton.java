@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 import java.util.UUID;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
@@ -12,13 +12,13 @@ import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -42,20 +42,20 @@ public class ItemTradeButton extends Button{
 	ITradeButtonContainer container;
 	UUID traderID;
 	
-	FontRenderer font;
+	Font font;
 	
-	public ItemTradeButton(int x, int y, IPressable pressable, ItemTradeData trade, FontRenderer font, Supplier<ITradeButtonStockSource> source)
+	public ItemTradeButton(int x, int y, OnPress pressable, ItemTradeData trade, Font font, Supplier<ITradeButtonStockSource> source)
 	{
 		this(x,y,pressable,trade,font,source, null);
 	}
 	
-	public ItemTradeButton(int x, int y, IPressable pressable, ItemTradeData trade, FontRenderer font, Supplier<ITradeButtonStockSource> source, ITradeButtonContainer container)
+	public ItemTradeButton(int x, int y, OnPress pressable, ItemTradeData trade, Font font, Supplier<ITradeButtonStockSource> source, ITradeButtonContainer menu)
 	{
-		super(x, y, WIDTH, HEIGHT, ITextComponent.getTextComponentOrEmpty(""), pressable);
+		super(x, y, WIDTH, HEIGHT, TextComponent.EMPTY, pressable);
 		this.trade = trade;
 		this.font = font;
 		this.source = source;
-		this.container = container;
+		this.container = menu;
 	}
 	
 	/**
@@ -67,25 +67,26 @@ public class ItemTradeButton extends Button{
 		this.trade = trade;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set active status
-		this.active = isActive();
-		Minecraft.getInstance().getTextureManager().bindTexture(TRADE_TEXTURES);
+		this.active = shouldBeActive();
+		//Minecraft.getInstance().getTextureManager().bindTexture(TRADE_TEXTURES);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, TRADE_TEXTURES);
 		
 		if(this.active)
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		else
-			RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
+			RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
 		int offset = getRenderYOffset(this.trade.getTradeDirection());
 		if(this.isHovered)
 			offset += HEIGHT;
 		//Draw Button BG
 		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
-		this.font.drawString(matrixStack, getTradeText(this.trade, hasStock(), hasSpace()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.trade, canAfford(), hasStock()));
+		this.font.draw(matrixStack, getTradeText(this.trade, hasStock(), hasSpace()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.trade, canAfford(), hasStock()));
 		
 		/*if(trade.isValid() && !trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative()) //Display the No Stock message if the trade is valid, but we're out of stock
 			this.font.drawString(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString(), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);
@@ -99,11 +100,11 @@ public class ItemTradeButton extends Button{
 	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace)
 	{
 		if(trade.isValid() && !hasStock)
-			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
+			return new TranslatableComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(trade.isValid() && !hasSpace)
-			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
+			return new TranslatableComponent("tooltip.lightmanscurrency.outofspace").getString();
 		else if(trade.isFree())
-			return new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
+			return new TranslatableComponent("gui.button.lightmanscurrency.free").getString();
 		else
 			return trade.getCost().getString();
 	}
@@ -161,7 +162,7 @@ public class ItemTradeButton extends Button{
 		return true;
 	}
 	
-	protected boolean isActive()
+	protected boolean shouldBeActive()
 	{
 		if(trade.isValid())
 		{

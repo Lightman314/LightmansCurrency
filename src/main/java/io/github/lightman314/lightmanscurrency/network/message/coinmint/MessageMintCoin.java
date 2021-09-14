@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.network.message.coinmint;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.MintContainer;
+//import io.github.lightman314.lightmanscurrency.containers.MintContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageMintCoin implements IMessage<MessageMintCoin> {
 
@@ -24,25 +25,25 @@ public class MessageMintCoin implements IMessage<MessageMintCoin> {
 	
 	
 	@Override
-	public void encode(MessageMintCoin message, PacketBuffer buffer) {
+	public void encode(MessageMintCoin message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.fullStack);
 	}
 
 	@Override
-	public MessageMintCoin decode(PacketBuffer buffer) {
+	public MessageMintCoin decode(FriendlyByteBuf buffer) {
 		return new MessageMintCoin(buffer.readBoolean());
 	}
 
 	@Override
-	public void handle(MessageMintCoin message, Supplier<Context> supplier) {
+	public void handle(MessageMintCoin message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer instanceof MintContainer)
+				if(entity.containerMenu instanceof MintContainer)
 				{
-					MintContainer container = (MintContainer) entity.openContainer;
+					MintContainer container = (MintContainer) entity.containerMenu;
 					if(container.validMintOutput() > 0)
 					{
 						container.mintCoins(message.fullStack);

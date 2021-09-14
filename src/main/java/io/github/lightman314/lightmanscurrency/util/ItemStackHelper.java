@@ -1,24 +1,25 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Constants;
 
 public class ItemStackHelper {
 	
-	public static CompoundNBT saveAllItems(String key, CompoundNBT tag, NonNullList<ItemStack> list)
+	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
 	{
-		ListNBT listTag = new ListNBT();
+		ListTag listTag = new ListTag();
 		for(int i = 0; i < list.size(); ++i)
 		{
 			ItemStack stack = list.get(i);
 			if(!stack.isEmpty())
 			{
-				CompoundNBT itemCompound = new CompoundNBT();
+				CompoundTag itemCompound = new CompoundTag();
 				itemCompound.putByte("Slot", (byte)i);
-				stack.write(itemCompound);
+				stack.save(itemCompound);
 				listTag.add(itemCompound);
 			}
 		}
@@ -26,16 +27,35 @@ public class ItemStackHelper {
 		return tag;
 	}
 	
-	public static void loadAllItems(String key, CompoundNBT tag, NonNullList<ItemStack> list)
+	public static CompoundTag saveAllItems(String key, CompoundTag tag, Container inventory)
 	{
-		ListNBT listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
+		return saveAllItems(key, tag, InventoryUtil.buildList(inventory));
+	}
+	
+	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
+	{
+		ListTag listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < listTag.size(); i++)
 		{
-			CompoundNBT slotCompound = listTag.getCompound(i);
+			CompoundTag slotCompound = listTag.getCompound(i);
 			int index = slotCompound.getByte("Slot") & 255;
 			if(index < list.size())
 			{
-				list.set(index, ItemStack.read(slotCompound));
+				list.set(index, ItemStack.of(slotCompound));
+			}
+		}
+	}
+	
+	public static void loadAllItems(String key, CompoundTag tag, Container inventory)
+	{
+		ListTag listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
+		for(int i = 0; i < listTag.size(); i++)
+		{
+			CompoundTag slotCompound = listTag.getCompound(i);
+			int index = slotCompound.getByte("Slot") & 255;
+			if(index < inventory.getContainerSize())
+			{
+				inventory.setItem(index, ItemStack.of(slotCompound));
 			}
 		}
 	}
@@ -43,6 +63,15 @@ public class ItemStackHelper {
 	public static boolean TagEquals(ItemStack stack1, ItemStack stack2)
 	{
 		return (!stack1.hasTag() && !stack2.hasTag()) || (stack1.getTag().equals(stack2.getTag()));
+	}
+	
+	public static ItemStack getAndSplit(NonNullList<ItemStack> inventory, int index, int count)
+	{
+		ItemStack stack = inventory.get(index);
+		ItemStack copy = stack.copy();
+		copy.setCount(MathUtil.clamp(count, 0, stack.getCount()));
+		stack.setCount(stack.getCount() - count);
+		return copy;
 	}
 	
 }

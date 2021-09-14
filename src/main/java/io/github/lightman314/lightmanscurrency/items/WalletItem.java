@@ -12,28 +12,28 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 public class WalletItem extends Item{
 	
@@ -77,7 +77,7 @@ public class WalletItem extends Item{
 	
 	@Nullable
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt)
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
 	{
 		if(!LightmansCurrency.isCuriosLoaded())
 		{
@@ -87,62 +87,62 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		
 		if(this.canPickup)
 		{
-			tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.pickup"));
+			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup"));
 		}
 		if(this.canConvert)
 		{
 			if(this.canPickup)
 			{
-				ITextComponent onOffText = getAutoConvert(stack) ? new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert.on") : new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert.off");
-				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText));
+				Component onOffText = getAutoConvert(stack) ? new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.on") : new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.off");
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText));
 			}
 			else
 			{
-				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.manualConvert"));
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.manualConvert"));
 			}
 		}
 		
-		tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.storedmoney", "§2" + new CoinValue(getWalletInventory(stack)).getString() ));
+		tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", "§2" + new CoinValue(getWalletInventory(stack)).getString() ));
 		
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand)
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand)
 	{
 		
 		//CurrencyMod.LOGGER.info("Wallet was used.");
 		
-		ItemStack wallet = player.getHeldItem(hand);
+		ItemStack wallet = player.getItemInHand(hand);
 		
-		if(!world.isRemote)
+		if(!level.isClientSide)
 		{
 			//CurrencyMod.LOGGER.info("Opening Wallet UI?");
 			
 			//Determine which slot the wallet is in.
-			int walletSlot = GetWalletSlot(player.inventory, wallet);
+			int walletSlot = GetWalletSlot(player.getInventory(), wallet);
 			
 			//Open the UI
 			if(walletSlot >= 0)
-				NetworkHooks.openGui((ServerPlayerEntity)player, (INamedContainerProvider) new WalletContainerProvider(walletSlot), new DataWriter(walletSlot));
+				NetworkHooks.openGui((ServerPlayer)player, (MenuProvider) new WalletContainerProvider(walletSlot), new DataWriter(walletSlot));
 			else
 				LightmansCurrency.LogError("Could not find the wallet in the players inventory!");
 			
 		}
 		else
 		{
-			player.world.playSound(player, player.getPosition(), emptyOpenSound, SoundCategory.PLAYERS, 0.75f, 1.25f + player.world.rand.nextFloat() * 0.5f);
+			player.level.playSound(player, player.blockPosition(), emptyOpenSound, SoundSource.PLAYERS, 0.75f, 1.25f + player.level.random.nextFloat() * 0.5f);
 			if(!isEmpty(wallet))
-				player.world.playSound(player, player.getPosition(), CurrencySoundEvents.COINS_CLINKING, SoundCategory.PLAYERS, 0.4f, 1f);
+				player.level.playSound(player, player.blockPosition(), CurrencySoundEvents.COINS_CLINKING, SoundSource.PLAYERS, 0.4f, 1f);
 		}
 		
-		return ActionResult.resultSuccess(wallet);
+		return InteractionResultHolder.success(wallet);
 		
 	}
 	
@@ -157,11 +157,11 @@ public class WalletItem extends Item{
 		return true;
 	}
 	
-	private static int GetWalletSlot(PlayerInventory inventory, ItemStack wallet)
+	private static int GetWalletSlot(Inventory inventory, ItemStack wallet)
 	{
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			if(inventory.getStackInSlot(i) == wallet)
+			if(inventory.getItem(i) == wallet)
 				return i;
 		}
 		return -1;
@@ -221,14 +221,14 @@ public class WalletItem extends Item{
 	 */
 	public static void putWalletInventory(ItemStack wallet, NonNullList<ItemStack> inventory)
 	{
-		CompoundNBT compound = wallet.getOrCreateTag();
-		ListNBT invList = new ListNBT();
+		CompoundTag compound = wallet.getOrCreateTag();
+		ListTag invList = new ListTag();
 		for(int i = 0; i < inventory.size(); i++)
 		{
 			ItemStack thisStack = inventory.get(i);
 			if(!thisStack.isEmpty())
 			{
-				CompoundNBT thisItemCompound = thisStack.write(new CompoundNBT());
+				CompoundTag thisItemCompound = thisStack.save(new CompoundTag());
 				thisItemCompound.putByte("Slot", (byte)i);
 				invList.add(thisItemCompound);
 			}
@@ -243,17 +243,17 @@ public class WalletItem extends Item{
 	public static NonNullList<ItemStack> getWalletInventory(ItemStack wallet)
 	{
 		
-		CompoundNBT compound = wallet.getOrCreateTag();
+		CompoundTag compound = wallet.getOrCreateTag();
 		
 		NonNullList<ItemStack> value = NonNullList.withSize(WalletItem.InventorySize((WalletItem)wallet.getItem()), ItemStack.EMPTY);
 		if(!compound.contains("Items"))
 			return value;
 		
-		ListNBT invList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
+		ListTag invList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < invList.size(); i++)
 		{
-			CompoundNBT thisCompound = invList.getCompound(i);
-			ItemStack thisStack = ItemStack.read(thisCompound);
+			CompoundTag thisCompound = invList.getCompound(i);
+			ItemStack thisStack = ItemStack.of(thisCompound);
 			int j = (int)thisCompound.getByte("Slot") & 255;
 			if(j >= 0 && j < value.size())
 				value.set(j, thisStack);
@@ -270,7 +270,7 @@ public class WalletItem extends Item{
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return false;
 		
-		CompoundNBT tag = wallet.getOrCreateTag();
+		CompoundTag tag = wallet.getOrCreateTag();
 		if(!tag.contains("AutoConvert"))
 		{
 			tag.putBoolean("AutoConvert", true);
@@ -286,7 +286,7 @@ public class WalletItem extends Item{
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()))
 			return;
 		
-		CompoundNBT tag = wallet.getOrCreateTag();
+		CompoundTag tag = wallet.getOrCreateTag();
 		boolean oldValue = WalletItem.getAutoConvert(wallet);
 		tag.putBoolean("AutoConvert", !oldValue);
 		
@@ -327,7 +327,7 @@ public class WalletItem extends Item{
 		}
 	}
 	
-	public static class DataWriter implements Consumer<PacketBuffer>
+	public static class DataWriter implements Consumer<FriendlyByteBuf>
 	{
 
 		private int slotIndex;
@@ -338,7 +338,7 @@ public class WalletItem extends Item{
 		}
 		
 		@Override
-		public void accept(PacketBuffer buffer) {
+		public void accept(FriendlyByteBuf buffer) {
 			
 			buffer.writeInt(this.slotIndex);
 			

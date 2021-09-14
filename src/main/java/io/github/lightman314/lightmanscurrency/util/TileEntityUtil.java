@@ -1,37 +1,37 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.stream.Stream;
 
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.entity.player.ServerPlayerEntity;
 
 public class TileEntityUtil
 {
     /**
      * Sends an update packet to clients tracking a tile entity.
      *
-     * @param tileEntity the tile entity to update
+     * @param blockEntity the tile entity to update
      */
-    public static void sendUpdatePacket(TileEntity tileEntity)
+    public static void sendUpdatePacket(BlockEntity blockEntity)
     {
-        SUpdateTileEntityPacket packet = tileEntity.getUpdatePacket();
+        ClientboundBlockEntityDataPacket packet = blockEntity.getUpdatePacket();
         if(packet != null)
         {
-            sendUpdatePacket(tileEntity.getWorld(), tileEntity.getPos(), packet);
+            sendUpdatePacket(blockEntity.getLevel(), blockEntity.getBlockPos(), packet);
         }
         else
         {
-        	LightmansCurrency.LogError(tileEntity.getClass().getName() + ".getUpdatePacket() returned null!");
+        	LightmansCurrency.LogError(blockEntity.getClass().getName() + ".getUpdatePacket() returned null!");
         }
     }
 
@@ -40,21 +40,21 @@ public class TileEntityUtil
      *
      * @param tileEntity the tile entity to update
      */
-    public static void sendUpdatePacket(TileEntity tileEntity, CompoundNBT compound)
+    public static void sendUpdatePacket(BlockEntity tileEntity, CompoundTag compound)
     {
-        SUpdateTileEntityPacket packet = new SUpdateTileEntityPacket(tileEntity.getPos(), 0, compound);
-        sendUpdatePacket(tileEntity.getWorld(), tileEntity.getPos(), packet);
+    	ClientboundBlockEntityDataPacket packet = new ClientboundBlockEntityDataPacket(tileEntity.getBlockPos(), 0, compound);
+        sendUpdatePacket(tileEntity.getLevel(), tileEntity.getBlockPos(), packet);
     }
 
-    private static void sendUpdatePacket(World world, BlockPos pos, SUpdateTileEntityPacket packet)
+    private static void sendUpdatePacket(Level level, BlockPos pos, ClientboundBlockEntityDataPacket packet)
     {
-        if(world instanceof ServerWorld)
+        if(level instanceof ServerLevel)
         {
         	//CurrencyMod.LOGGER.info("Sending Tile Entity Update Packet to the connected clients.");
-            ServerWorld server = (ServerWorld) world;
+        	ServerLevel server = (ServerLevel) level;
             @SuppressWarnings("resource")
-			Stream<ServerPlayerEntity> players = server.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(pos), false);
-            players.forEach(player -> player.connection.sendPacket(packet));
+			Stream<ServerPlayer> players = server.getChunkSource().chunkMap.getPlayers(new ChunkPos(pos), false);
+            players.forEach(player -> player.connection.send(packet));
         }
         else
         {
@@ -62,9 +62,9 @@ public class TileEntityUtil
         }
     }
     
-    public static void requestUpdatePacket(World world, BlockPos pos)
+    public static void requestUpdatePacket(Level level, BlockPos pos)
     {
-    	if(world.isRemote)
+    	if(level.isClientSide)
     		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(pos));
     }
     

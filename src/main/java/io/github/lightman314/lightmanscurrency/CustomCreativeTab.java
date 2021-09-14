@@ -5,21 +5,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CustomItemGroup extends ItemGroup {
+public class CustomCreativeTab extends CreativeModeTab {
 
 	private final ItemSorter itemSorter;
 	
-	Supplier<IItemProvider> iconItem;
+	Supplier<ItemLike> iconItem;
 	
-	public CustomItemGroup(String label, Supplier<IItemProvider> iconItem)
+	public CustomCreativeTab(String label, Supplier<ItemLike> iconItem)
 	{
 		super(label);
 		this.iconItem = iconItem;
@@ -27,7 +27,7 @@ public class CustomItemGroup extends ItemGroup {
 	}
 	
 	@Override
-	public ItemStack createIcon()
+	public ItemStack makeIcon()
 	{
 		if(this.iconItem != null)
 			return new ItemStack(this.iconItem.get());
@@ -36,9 +36,9 @@ public class CustomItemGroup extends ItemGroup {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void fill(NonNullList<ItemStack> items) {
+	public void fillItemList(NonNullList<ItemStack> items) {
 		
-		super.fill(items);
+		super.fillItemList(items);
 
 		// Sort the item list using the ItemSorter instance
 		Collections.sort(items, itemSorter);

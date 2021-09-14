@@ -6,28 +6,30 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Function;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+//import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class TradingOffice extends WorldSavedData{
+public class TradingOffice extends SavedData{
 	
 	private static final String DATA_NAME = LightmansCurrency.MODID + "_trading_office";
 	
@@ -35,24 +37,24 @@ public class TradingOffice extends WorldSavedData{
 	
 	public TradingOffice()
 	{
-		super(DATA_NAME);
+		//super(DATA_NAME);
 	}
 	
-	public TradingOffice(String name)
+	public TradingOffice(CompoundTag compound)
 	{
-		super(name);
+		this.load(compound);
 	}
 
-	@Override
-	public void read(CompoundNBT compound) {
+	//@Override //No longer an override, as it's loaded via function
+	public void load(CompoundTag compound) {
 		
 		universalTraderMap.clear();
 		if(compound.contains("UniversalTraders", Constants.NBT.TAG_LIST))
 		{
-			ListNBT universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
+			ListTag universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
 			universalTraderDataList.forEach(nbt ->{
-				CompoundNBT traderNBT = (CompoundNBT)nbt;
-				UUID traderID = traderNBT.getUniqueId("ID");
+				CompoundTag traderNBT = (CompoundTag)nbt;
+				UUID traderID = traderNBT.getUUID("ID");
 				UniversalTraderData data = IUniversalDataDeserializer.Deserialize(traderNBT);
 				universalTraderMap.put(traderID, data);
 			});
@@ -61,14 +63,13 @@ public class TradingOffice extends WorldSavedData{
 	}
 
 	@Override
-	public CompoundNBT write(CompoundNBT compound) {
-		ListNBT universalTraderDataList = new ListNBT();
+	public CompoundTag save(CompoundTag compound) {
+		ListTag universalTraderDataList = new ListTag();
 		this.universalTraderMap.forEach((traderID, traderData) ->
 		{
 			if(traderData != null)
 			{
-				CompoundNBT traderNBT = traderData.write(new CompoundNBT());
-				traderNBT.putUniqueId("ID", traderID);
+				CompoundTag traderNBT = traderData.write(new CompoundTag());
 				universalTraderDataList.add(traderNBT);
 			}
 		});
@@ -102,7 +103,7 @@ public class TradingOffice extends WorldSavedData{
 		return null;
 	}
 	
-	public static List<UniversalTraderData> getTraders(ServerPlayerEntity player)
+	public static List<UniversalTraderData> getTraders(ServerPlayer player)
 	{
 		TradingOffice office = get(player.server);
 		return office.universalTraderMap.values().stream().collect(Collectors.toList());
@@ -112,7 +113,7 @@ public class TradingOffice extends WorldSavedData{
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
-			get(server).markDirty();
+			get(server).setDirty();
 	}
 	
 	public static void MarkDirty(UUID traderID)
@@ -134,7 +135,7 @@ public class TradingOffice extends WorldSavedData{
 			}
 			LightmansCurrency.LogInfo("Successfully registered the universal trader with id '" + traderID + "'!");
 			office.universalTraderMap.put(traderID, data);
-			office.markDirty();
+			office.setDirty();
 		}
 	}
 	
@@ -145,15 +146,16 @@ public class TradingOffice extends WorldSavedData{
 		if(office.universalTraderMap.containsKey(traderID))
 		{
 			office.universalTraderMap.remove(traderID);
-			office.markDirty();
+			office.setDirty();
 			LightmansCurrency.LogInfo("Successfully removed the universal trader with id '" + traderID + "'!");
 		}
 	}
 	
+	//Need to determine how to add to the save file at this point.
 	private static TradingOffice get(MinecraftServer server)
     {
-        ServerWorld world = server.getWorld(World.OVERWORLD);
-        return world.getSavedData().getOrCreate(TradingOffice::new, DATA_NAME);
+        ServerLevel world = server.overworld();
+        return world.getDataStorage().computeIfAbsent(deserializer, () -> new TradingOffice(), DATA_NAME);
     }
 	
 	/**
@@ -169,24 +171,34 @@ public class TradingOffice extends WorldSavedData{
 			return;
 		
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null && server.getTickCounter() % 1200 == 0)
+		if(server != null && server.getTickCount() % 1200 == 0)
 		{
 			TradingOffice office = get(server);
 			office.universalTraderMap.values().removeIf(traderData ->{
 				BlockPos pos = traderData.getPos();
-				ServerWorld world = server.getWorld(traderData.getWorld());
-				if(world.isAreaLoaded(pos, 0))
+				ServerLevel level = server.getLevel(traderData.getWorld());
+				if(level != null && level.isAreaLoaded(pos, 0))
 				{
-					TileEntity tileEntity = world.getTileEntity(pos);
-					if(tileEntity instanceof UniversalTraderTileEntity)
+					BlockEntity blockEntity = level.getBlockEntity(pos);
+					if(blockEntity instanceof UniversalTraderBlockEntity)
 					{
-						UniversalTraderTileEntity traderEntity = (UniversalTraderTileEntity)tileEntity;
+						UniversalTraderBlockEntity traderEntity = (UniversalTraderBlockEntity)blockEntity;
 						return traderEntity.getTraderID() == null || !traderEntity.getTraderID().equals(traderData.getTraderID());
 					}
 					return true;
 				}
 				return false;
 			});
+		}
+	}
+	
+	private static final Deserializer deserializer = new Deserializer();
+	
+	private static class Deserializer implements Function<CompoundTag,TradingOffice>
+	{
+		@Override
+		public TradingOffice apply(CompoundTag input) {
+			return new TradingOffice(input);
 		}
 	}
 	

@@ -3,12 +3,12 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
+//import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
 	
@@ -25,26 +25,26 @@ public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
 	}
 	
 	@Override
-	public void encode(MessageItemEditSet message, PacketBuffer buffer) {
-		buffer.writeCompoundTag(message.item.write(new CompoundNBT()));
+	public void encode(MessageItemEditSet message, FriendlyByteBuf buffer) {
+		buffer.writeItem(message.item);
 	}
 
 	@Override
-	public MessageItemEditSet decode(PacketBuffer buffer) {
-		return new MessageItemEditSet(ItemStack.read(buffer.readCompoundTag()));
+	public MessageItemEditSet decode(FriendlyByteBuf buffer) {
+		return new MessageItemEditSet(buffer.readItem());
 	}
 
 	@Override
-	public void handle(MessageItemEditSet message, Supplier<Context> supplier) {
+	public void handle(MessageItemEditSet message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer instanceof ItemEditContainer)
+				if(entity.containerMenu instanceof ItemEditContainer)
 				{
-					ItemEditContainer container = (ItemEditContainer)entity.openContainer;
+					ItemEditContainer container = (ItemEditContainer)entity.containerMenu;
 					container.setItem(message.item);
 				}
 			}

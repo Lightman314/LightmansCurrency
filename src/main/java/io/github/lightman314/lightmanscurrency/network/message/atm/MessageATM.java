@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.network.message.atm;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
+//import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageATM implements IMessage<MessageATM> {
 	
@@ -24,25 +25,25 @@ public class MessageATM implements IMessage<MessageATM> {
 	
 	
 	@Override
-	public void encode(MessageATM message, PacketBuffer buffer) {
+	public void encode(MessageATM message, FriendlyByteBuf buffer) {
 		buffer.writeInt(message.buttonHit);
 	}
 
 	@Override
-	public MessageATM decode(PacketBuffer buffer) {
+	public MessageATM decode(FriendlyByteBuf buffer) {
 		return new MessageATM(buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageATM message, Supplier<Context> supplier) {
+	public void handle(MessageATM message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer instanceof ATMContainer)
+				if(entity.containerMenu instanceof ATMContainer)
 				{
-					ATMContainer container = (ATMContainer) entity.openContainer;
+					ATMContainer container = (ATMContainer) entity.containerMenu;
 					container.ConvertCoins(message.buttonHit);
 				}
 			}

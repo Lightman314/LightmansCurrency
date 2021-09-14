@@ -9,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageSetItemPrice2 implements IMessage<MessageSetItemPrice2> {
 
@@ -39,22 +39,22 @@ public class MessageSetItemPrice2 implements IMessage<MessageSetItemPrice2> {
 	
 	
 	@Override
-	public void encode(MessageSetItemPrice2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public void encode(MessageSetItemPrice2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeCompoundTag(message.newPrice.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.newPrice.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
 		buffer.writeBoolean(message.isFree);
-		buffer.writeString(message.customName);
-		buffer.writeString(message.newDirection);
+		buffer.writeUtf(message.customName);
+		buffer.writeUtf(message.newDirection);
 	}
 
 	@Override
-	public MessageSetItemPrice2 decode(PacketBuffer buffer) {
-		return new MessageSetItemPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeDirectionStringLength()));
+	public MessageSetItemPrice2 decode(FriendlyByteBuf buffer) {
+		return new MessageSetItemPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), buffer.readBoolean(), buffer.readUtf(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readUtf(ItemTradeData.MaxTradeDirectionStringLength()));
 	}
 
 	@Override
-	public void handle(MessageSetItemPrice2 message, Supplier<Context> supplier) {
+	public void handle(MessageSetItemPrice2 message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");

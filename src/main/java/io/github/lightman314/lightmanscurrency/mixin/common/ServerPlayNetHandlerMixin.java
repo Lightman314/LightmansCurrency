@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.mixin.common;
 
-import org.spongepowered.asm.mixin.Mixin;
+/*import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.At;
@@ -56,3 +56,4 @@ public class ServerPlayNetHandlerMixin {
 	}
 
 }
+*/

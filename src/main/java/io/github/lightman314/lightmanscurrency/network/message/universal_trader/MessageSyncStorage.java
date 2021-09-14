@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IUniversalTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageSyncStorage implements IMessage<MessageSyncStorage> {
 	
@@ -18,27 +18,27 @@ public class MessageSyncStorage implements IMessage<MessageSyncStorage> {
 	
 	
 	@Override
-	public void encode(MessageSyncStorage message, PacketBuffer buffer) {
+	public void encode(MessageSyncStorage message, FriendlyByteBuf buffer) {
 		//buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageSyncStorage decode(PacketBuffer buffer) {
+	public MessageSyncStorage decode(FriendlyByteBuf buffer) {
 		return new MessageSyncStorage();
 	}
 
 	@Override
-	public void handle(MessageSyncStorage message, Supplier<Context> supplier) {
+	public void handle(MessageSyncStorage message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer != null)
+				if(entity.containerMenu != null)
 				{
-					if(entity.openContainer instanceof IUniversalTraderStorageContainer)
+					if(entity.containerMenu instanceof IUniversalTraderStorageContainer)
 					{
-						IUniversalTraderStorageContainer container = (IUniversalTraderStorageContainer)entity.openContainer;
+						IUniversalTraderStorageContainer container = (IUniversalTraderStorageContainer)entity.containerMenu;
 						container.CheckStorage();
 					}
 				}

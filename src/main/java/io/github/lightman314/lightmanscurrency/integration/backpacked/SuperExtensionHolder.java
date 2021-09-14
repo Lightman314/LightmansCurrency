@@ -1,23 +1,23 @@
 package io.github.lightman314.lightmanscurrency.integration.backpacked;
 
 import io.github.lightman314.lightmanscurrency.integration.backpacked.container.SuperExtendedPlayerContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.PlayerContainer;
 
 public class SuperExtensionHolder {
 
 	private SuperExtendedPlayerInventory superInventory;
 	private SuperExtendedPlayerContainer superContainer;
 	
-	public SuperExtensionHolder(PlayerEntity player, boolean localWorld)  throws ClassNotFoundException
+	public SuperExtensionHolder(Player player, boolean localWorld)  throws ClassNotFoundException
 	{
 		if(!setupExtension(player, localWorld))
 			throw new ClassNotFoundException();
 	}
 	
-	private boolean setupExtension(PlayerEntity player, boolean localWorld)
+	private boolean setupExtension(Player player, boolean localWorld)
 	{
 		if(!LightmansCurrency.isBackpackedLoaded())
 			return false;
@@ -28,12 +28,12 @@ public class SuperExtensionHolder {
 		return true;
 	}
 	
-	public PlayerInventory getInventory()
+	public Inventory getInventory()
 	{
 		return this.superInventory;
 	}
 	
-	public PlayerContainer getContainer()
+	public InventoryMenu getContainer()
 	{
 		return this.superContainer;
 	}

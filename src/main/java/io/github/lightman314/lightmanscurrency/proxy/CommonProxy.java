@@ -1,14 +1,17 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraft.nbt.CompoundTag;
 
 public class CommonProxy {
 	
 	public void setupClient() {}
 	
-	public void updateTraders(CompoundNBT compound) {}
+	public void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event) {}	
 	
-	public void openTerminalScreen(PlayerEntity player) {}
+	public void updateTraders(CompoundTag compound) {}
+	
+	public void openTerminalScreen(Player player) {}
 	
 }

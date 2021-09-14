@@ -2,15 +2,15 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageRequestSyncUsers implements IMessage<MessageRequestSyncUsers> {
 	
@@ -27,27 +27,27 @@ public class MessageRequestSyncUsers implements IMessage<MessageRequestSyncUsers
 	}
 	
 	@Override
-	public void encode(MessageRequestSyncUsers message, PacketBuffer buffer) {
+	public void encode(MessageRequestSyncUsers message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageRequestSyncUsers decode(PacketBuffer buffer) {
+	public MessageRequestSyncUsers decode(FriendlyByteBuf buffer) {
 		return new MessageRequestSyncUsers(buffer.readBlockPos());
 	}
 
 	@Override
-	public void handle(MessageRequestSyncUsers message, Supplier<Context> supplier) {
+	public void handle(MessageRequestSyncUsers message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				World world = entity.getEntityWorld();
-				TileEntity tileEntity = world.getTileEntity(message.pos);
-				if(tileEntity instanceof ItemTraderTileEntity)
+				Level world = entity.level;
+				BlockEntity blockEntity = world.getBlockEntity(message.pos);
+				if(blockEntity instanceof ItemTraderBlockEntity)
 				{
-					ItemTraderTileEntity trader = (ItemTraderTileEntity)tileEntity;
+					ItemTraderBlockEntity trader = (ItemTraderBlockEntity)blockEntity;
 					LightmansCurrencyPacketHandler.instance.reply(new MessageSyncUsers(message.pos, trader.getUserCount()), supplier.get());
 					//LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(entity), new MessageSyncUsers(message.pos, trader.getUserCount()));
 				}

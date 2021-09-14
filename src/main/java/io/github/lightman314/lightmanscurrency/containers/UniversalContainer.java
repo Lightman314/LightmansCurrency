@@ -9,18 +9,18 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateContainerData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
-public abstract class UniversalContainer extends Container{
+public abstract class UniversalContainer extends AbstractContainerMenu {
 	
 	private static final List<UniversalContainer> activeContainers = new ArrayList<>();
 	
 	public final UUID traderID;
 	private UniversalTraderData clientCopy;
-	public final PlayerEntity player;
+	public final Player player;
 	
 	public UniversalTraderData getRawData()
 	{
@@ -30,10 +30,10 @@ public abstract class UniversalContainer extends Container{
 			return clientCopy;
 	}
 	
-	public boolean isClient() { return this.player.world.isRemote; }
-	public boolean isServer() { return !this.player.world.isRemote; }
+	public boolean isClient() { return this.player.level.isClientSide; }
+	public boolean isServer() { return !this.player.level.isClientSide; }
 	
-	protected UniversalContainer(ContainerType<?> type, int windowID, UUID traderID, PlayerEntity player, CompoundNBT traderData)
+	protected UniversalContainer(MenuType<?> type, int windowID, UUID traderID, Player player, CompoundTag traderData)
 	{
 		super(type, windowID);
 		this.player = player;
@@ -42,7 +42,7 @@ public abstract class UniversalContainer extends Container{
 		this.clientCopy = IUniversalDataDeserializer.Deserialize(traderData);
 	}
 	
-	protected UniversalContainer(ContainerType<?> type, int windowID, UUID traderID, PlayerEntity player)
+	protected UniversalContainer(MenuType<?> type, int windowID, UUID traderID, Player player)
 	{
 		super(type, windowID);
 		this.player = player;
@@ -58,14 +58,14 @@ public abstract class UniversalContainer extends Container{
 				if(container.isServer())
 				{
 					//Send an update packet to the client
-					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(container.player), new MessageUpdateContainerData(container.player.getUniqueID(), container.getRawData().write(new CompoundNBT())));
+					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(container.player), new MessageUpdateContainerData(container.player.getUUID(), container.getRawData().write(new CompoundTag())));
 				}
 				container.onDataModified();
 			}
 		});
 	}
 	
-	public void onDataUpdated(CompoundNBT traderData)
+	public void onDataUpdated(CompoundTag traderData)
 	{
 		this.clientCopy = IUniversalDataDeserializer.Deserialize(traderData);
 		onDataModified();
@@ -90,7 +90,7 @@ public abstract class UniversalContainer extends Container{
 	protected abstract void onForceReopen();
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
 		if(activeContainers.contains(this))
 			activeContainers.remove(this);

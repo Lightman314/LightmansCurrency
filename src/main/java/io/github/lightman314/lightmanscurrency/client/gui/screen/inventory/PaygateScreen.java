@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
@@ -14,71 +14,74 @@ import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageAc
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageSetPaygateTicket;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageUpdatePaygateData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 
 
 
-public class PaygateScreen extends ContainerScreen<PaygateContainer> implements ICoinValueInput{
+public class PaygateScreen extends AbstractContainerScreen<PaygateContainer> implements ICoinValueInput{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/paygate.png");
 	
 	private static final int GUI_HEIGHT = 151;
 	
 	CoinValueInput priceInput;
-	TextFieldWidget durationInput;
+	EditBox durationInput;
 	
 	private IconButton buttonCollectMoney;
 	private IconButton buttonPay;
 	private IconButton buttonSetTicket;
 	
-	public PaygateScreen(PaygateContainer container, PlayerInventory inventory, ITextComponent title)
+	public PaygateScreen(PaygateContainer container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.ySize = this.container.isOwner() ? GUI_HEIGHT + CoinValueInput.HEIGHT : GUI_HEIGHT;
-		this.xSize = 176;
+		this.imageHeight = this.menu.isOwner() ? GUI_HEIGHT + CoinValueInput.HEIGHT : GUI_HEIGHT;
+		this.imageWidth = 176;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (this.width - this.xSize) / 2;
-		int startY = (this.height - this.ySize) / 2;
+		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		int startX = (this.width - this.imageWidth) / 2;
+		int startY = (this.height - this.imageHeight) / 2;
 		
-		if(this.container.isOwner())
-			this.blit(matrix, startX, startY + this.container.priceInputOffset, 0, 0, this.xSize, this.ySize - this.container.priceInputOffset);
+		if(this.menu.isOwner())
+			this.blit(matrix, startX, startY + this.menu.priceInputOffset, 0, 0, this.imageWidth, this.imageHeight - this.menu.priceInputOffset);
 		else
-			this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
+			this.blit(matrix, startX, startY, 0, 0, this.imageWidth, this.imageHeight);
 		
-		CoinSlot.drawEmptyCoinSlots(this, this.container, matrix, startX, startY);
-		TicketSlot.drawEmptyTicketSlots(this, this.container, matrix, startX, startY);
+		CoinSlot.drawEmptyCoinSlots(this, this.menu, matrix, startX, startY);
+		TicketSlot.drawEmptyTicketSlots(this, this.menu, matrix, startX, startY);
 		
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, this.title.getString(), 8.0f, 6.0f + this.container.priceInputOffset, 0x404040);
-		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
+		this.font.draw(matrix, this.title.getString(), 8.0f, 6.0f + this.menu.priceInputOffset, 0x404040);
+		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, (this.imageHeight - 94), 0x404040);
 		
-		this.font.drawString(matrix, new TranslationTextComponent("tooltip.lightmanscurrency.paygate.price", this.container.tileEntity.getPrice().getString()).getString(), 8f, 16f + this.container.priceInputOffset, 0x000000);
-		this.font.drawString(matrix, new TranslationTextComponent("tooltip.lightmanscurrency.paygate.duration", this.container.tileEntity.getDuration()).getString(), 8f, 25f + this.container.priceInputOffset, 0x000000);
+		this.font.draw(matrix, new TranslatableComponent("tooltip.lightmanscurrency.paygate.price", this.menu.blockEntity.getPrice().getString()).getString(), 8f, 16f + this.menu.priceInputOffset, 0x000000);
+		this.font.draw(matrix, new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration", this.menu.blockEntity.getDuration()).getString(), 8f, 25f + this.menu.priceInputOffset, 0x000000);
 		
-		this.font.drawString(matrix, new TranslationTextComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.container.GetCoinValue())).getString(), 80f, this.ySize - 124f, 0x404040);
+		this.font.draw(matrix, new TranslatableComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.menu.GetCoinValue())).getString(), 80f, this.imageHeight - 124f, 0x404040);
 		
 	}
 	
@@ -87,36 +90,33 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 	{
 		super.init();
 		
-		if(this.container.isOwner())
+		if(this.menu.isOwner())
 		{
 			
-			this.priceInput = new CoinValueInput(this.guiTop, new TranslationTextComponent("gui.lightmanscurrency.changeprice"), this.container.tileEntity.getPrice(), this);
-			this.children.add(this.priceInput);
+			this.priceInput = this.addWidget(new CoinValueInput(this.topPos, new TranslatableComponent("gui.lightmanscurrency.changeprice"), this.menu.blockEntity.getPrice(), this));
 			
-			this.durationInput = new TextFieldWidget(this.font, guiLeft + 8, guiTop + 35 + this.container.priceInputOffset, 30, 18, ITextComponent.getTextComponentOrEmpty(""));
-			this.durationInput.setText(String.valueOf(this.container.tileEntity.getDuration()));
-			this.durationInput.setMaxStringLength(3);
-			this.children.add(this.durationInput);
+			this.durationInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 8, this.topPos + 35 + this.menu.priceInputOffset, 30, 18, TextComponent.EMPTY));
+			this.durationInput.setValue(String.valueOf(this.menu.blockEntity.getDuration()));
+			this.durationInput.setMaxLength(3);
 			
-			this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + this.container.priceInputOffset, this::PressCollectionButton, GUI_TEXTURE, this.xSize + 16, 0));
+			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + this.menu.priceInputOffset, this::PressCollectionButton, GUI_TEXTURE, this.imageWidth + 16, 0));
 			this.buttonCollectMoney.active = false;
 			
-			this.buttonSetTicket = this.addButton(new IconButton(this.guiLeft + 40, this.guiTop + 34 + this.container.priceInputOffset, this::PressTicketButton, GUI_TEXTURE, this.xSize + 32, 0));
+			this.buttonSetTicket = this.addRenderableWidget(new IconButton(this.leftPos + 40, this.topPos + 34 + this.menu.priceInputOffset, this::PressTicketButton, GUI_TEXTURE, this.imageWidth + 32, 0));
 			this.buttonSetTicket.visible = false;
 			
 		}
 		
-		this.buttonPay = this.addButton((new IconButton(this.guiLeft + 149, this.guiTop + 6 + this.container.priceInputOffset, this::PressActivateButton, GUI_TEXTURE, this.xSize, 0)));
+		this.buttonPay = this.addRenderableWidget(new IconButton(this.leftPos + 149, this.topPos + 6 + this.menu.priceInputOffset, this::PressActivateButton, GUI_TEXTURE, this.imageWidth, 0));
 		this.buttonPay.active = false;
 		
-		tick();
+		containerTick();
 		
 	}
 	
 	@Override
-	public void tick()
+	public void containerTick()
 	{
-		super.tick();
 		
 		if(this.priceInput != null)
 			this.priceInput.tick();
@@ -124,39 +124,39 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 		if(this.durationInput != null)
 		{
 			this.durationInput.tick();
-			int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
+			int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateBlockEntity.DURATION_MIN, PaygateBlockEntity.DURATION_MAX);
 			
-			if(duration != container.tileEntity.getDuration())
+			if(duration != menu.blockEntity.getDuration())
 			{
 				//CurrencyMod.LOGGER.info("Sending update paygate data message to the server.");
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.container.tileEntity.getPos(), this.priceInput.getCoinValue().copy(), duration));
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.menu.blockEntity.getBlockPos(), this.priceInput.getCoinValue().copy(), duration));
 				
-				this.container.tileEntity.setDuration(duration);
+				this.menu.blockEntity.setDuration(duration);
 				
-				if(this.durationInput.getText() != "")
-					this.durationInput.setText(String.valueOf(this.container.tileEntity.getDuration()));
+				if(this.durationInput.getValue() != "")
+					this.durationInput.setValue(String.valueOf(this.menu.blockEntity.getDuration()));
 				
 			}
 		}
 		
 		if(this.buttonCollectMoney != null)
 		{
-			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.active = this.menu.blockEntity.getStoredMoney().getRawValue() > 0;
 		}
 		
 		if(this.buttonSetTicket != null)
 		{
-			this.buttonSetTicket.visible = this.container.HasMasterTicket() && !this.container.tileEntity.validTicket(this.container.GetTicketID());
+			this.buttonSetTicket.visible = this.menu.HasMasterTicket() && !this.menu.blockEntity.validTicket(this.menu.GetTicketID());
 		}
 		
-		this.buttonPay.active = (this.container.GetCoinValue() >= this.container.tileEntity.getPrice().getRawValue() || this.container.HasValidTicket()) && !this.container.tileEntity.isActive();
+		this.buttonPay.active = (this.menu.GetCoinValue() >= this.menu.blockEntity.getPrice().getRawValue() || this.menu.HasValidTicket()) && !this.menu.blockEntity.isActive();
 
 	}
 	
 	
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		this.renderBackground(matrixStack);
@@ -164,21 +164,21 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 		if(this.priceInput != null)
 			this.priceInput.render(matrixStack, mouseX, mouseY, partialTicks);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		if(this.durationInput != null)
-			this.durationInput.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
+		//if(this.durationInput != null)
+		//	this.durationInput.render(matrixStack, mouseX, mouseY, partialTicks);
+		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
 		if(this.buttonPay != null && this.buttonPay.active && this.buttonPay.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.paygate.paybutton"), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.paygate.paybutton"), mouseX, mouseY);
 		}
 		else if(this.buttonCollectMoney != null && this.buttonCollectMoney.active && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.collectcoins", this.container.tileEntity.getStoredMoney().getString()), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.blockEntity.getStoredMoney().getString()), mouseX, mouseY);
 		}
 		else if(this.buttonSetTicket != null && this.buttonSetTicket.visible && this.buttonSetTicket.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.paygate.setticket", this.container.tileEntity.getStoredMoney()), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket", this.menu.blockEntity.getStoredMoney()), mouseX, mouseY);
 		}
 		
 	}
@@ -190,20 +190,20 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 	
 	private void PressCollectionButton(Button button)
 	{
-		if(this.container.isOwner())
+		if(this.menu.isOwner())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 	}
 	
 	private void PressTicketButton(Button button)
 	{
-		if(this.container.isOwner())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetPaygateTicket(this.container.tileEntity.getPos(), this.container.GetTicketID()));
+		if(this.menu.isOwner())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetPaygateTicket(this.menu.blockEntity.getBlockPos(), this.menu.GetTicketID()));
 	}
 	
-	private int inputValue(TextFieldWidget textField)
+	private int inputValue(EditBox textField)
 	{
-		if(isNumeric(textField.getText()))
-			return Integer.parseInt(textField.getText());
+		if(isNumeric(textField.getValue()))
+			return Integer.parseInt(textField.getValue());
 		return 0;
 	}
 	
@@ -224,8 +224,8 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 	}
 
 	@Override
-	public <T extends Button> T addButton(T button) {
-		return super.addButton(button);
+	public <T extends AbstractWidget> T addCustomWidget(T widget) {
+		return super.addRenderableWidget(widget);
 	}
 
 	@Override
@@ -236,16 +236,16 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 	@Override
 	public void OnCoinValueChanged(CoinValueInput input) {
 		
-		this.container.tileEntity.setPrice(input.getCoinValue());
+		this.menu.blockEntity.setPrice(input.getCoinValue());
 		
-		int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
+		int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateBlockEntity.DURATION_MIN, PaygateBlockEntity.DURATION_MAX);
 		
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.container.tileEntity.getPos(), this.priceInput.getCoinValue().copy(), duration));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.menu.blockEntity.getPos(), this.priceInput.getCoinValue().copy(), duration));
 		
 	}
 
 	@Override
-	public FontRenderer getFont() {
+	public Font getFont() {
 		return this.font;
 	}
 	

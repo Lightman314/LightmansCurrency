@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 public class ItemSet<T> implements IItemSet<T>{
 

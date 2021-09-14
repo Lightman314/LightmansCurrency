@@ -7,11 +7,11 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageRequestTraders implements IMessage<MessageRequestTraders> {
 	
@@ -23,26 +23,26 @@ public class MessageRequestTraders implements IMessage<MessageRequestTraders> {
 	
 	
 	@Override
-	public void encode(MessageRequestTraders message, PacketBuffer buffer) {
+	public void encode(MessageRequestTraders message, FriendlyByteBuf buffer) {
 		//buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageRequestTraders decode(PacketBuffer buffer) {
+	public MessageRequestTraders decode(FriendlyByteBuf buffer) {
 		return new MessageRequestTraders();
 	}
 
 	@Override
-	public void handle(MessageRequestTraders message, Supplier<Context> supplier) {
+	public void handle(MessageRequestTraders message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
 				List<UniversalTraderData> traders = TradingOffice.getTraders(entity);
-				CompoundNBT compound = new CompoundNBT();
-				ListNBT traderList = new ListNBT();
-				traders.forEach(trader -> traderList.add(trader.write(new CompoundNBT())));
+				CompoundTag compound = new CompoundTag();
+				ListTag traderList = new ListTag();
+				traders.forEach(trader -> traderList.add(trader.write(new CompoundTag())));
 				compound.put("Traders", traderList);
 				LightmansCurrencyPacketHandler.instance.reply(new MessageUpdateTraders(compound), supplier.get());
 			}

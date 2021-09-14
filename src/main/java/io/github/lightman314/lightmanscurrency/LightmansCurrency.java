@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
@@ -16,24 +17,24 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.extendedinventory.ExtendedPlayerInventory;
 import io.github.lightman314.lightmanscurrency.extendedinventory.IWalletInventory;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.screen.inventory.CreativeScreen;
-import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -45,14 +46,15 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
@@ -69,9 +71,9 @@ public class LightmansCurrency {
 	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
     
-    public static final CustomItemGroup COIN_GROUP = new CustomItemGroup(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
-    public static final CustomItemGroup MACHINE_GROUP = new CustomItemGroup(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
-    public static final CustomItemGroup TRADING_GROUP = new CustomItemGroup(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
+    public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
+    public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
+    public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
     
     public LightmansCurrency() {
     	
@@ -79,6 +81,8 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
         //Client
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        //Layer Registration
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerLayers);
         //Inter-mod coms
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEnqueueIMC);
         //Config loading
@@ -87,12 +91,13 @@ public class LightmansCurrency {
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.commonSpec);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
         curiosLoaded = ModList.get().isLoaded("curios");
-        backpackedLoaded = ModList.get().isLoaded("backpacked");
+        //backpackedLoaded = ModList.get().isLoaded("backpacked");
         
     }
     
@@ -163,6 +168,11 @@ public class LightmansCurrency {
 		
     }
     
+    private void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
+    {
+    	PROXY.registerLayers(event);
+    }
+    
     private void onEnqueueIMC(InterModEnqueueEvent event)
     {
     	
@@ -180,32 +190,32 @@ public class LightmansCurrency {
     }
     
     //Ensures synchronization between the server and the clients for the "extra" item wallet slot on login
-    @SubscribeEvent
+    //@SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event)
     {
     	
     	if(curiosLoaded)
     		return;
     	
-    	PlayerEntity player = event.getPlayer();
-    	if(player.inventory instanceof IWalletInventory)
+    	Player player = event.getPlayer();
+    	if(player.getInventory() instanceof IWalletInventory)
     	{
     		
     		ItemStack wallet = ItemStack.EMPTY;
     		//Get the wallet
-    		if(player.inventory instanceof IWalletInventory)
-    			wallet = ((IWalletInventory) player.inventory).getWalletItems().get(0);
+    		if(player.getInventory() instanceof IWalletInventory)
+    			wallet = ((IWalletInventory) player.getInventory()).getWalletItems().get(0);
     		
     		if(!wallet.isEmpty() && wallet.getItem() instanceof WalletItem)
     		{
-    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getEntityId(), wallet));
+    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getId(), wallet));
     		}
     		
     	}
     	
     }
     
-    @SubscribeEvent
+    //@SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event)
     {
     	
@@ -215,19 +225,19 @@ public class LightmansCurrency {
     	if(event.phase != TickEvent.Phase.START)
     		return;
     	
-    	PlayerEntity player = event.player;
-    	if(!player.world.isRemote && player.inventory instanceof IWalletInventory)
+    	Player player = event.player;
+    	if(!player.level.isClientSide && player.getInventory() instanceof IWalletInventory)
     	{
-    		IWalletInventory inventory = (IWalletInventory)player.inventory;
+    		IWalletInventory inventory = (IWalletInventory)player.getInventory();
     		if(!inventory.getWalletArray().get(0).equals(inventory.getWalletItems().get(0)))
     		{
-    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getEntityId(), inventory.getWalletItems().get(0)));
+    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getId(), inventory.getWalletItems().get(0)));
     			inventory.getWalletArray().set(0, inventory.getWalletItems().get(0));
     		}
     	}
     }
     
-    @SubscribeEvent
+    //@SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public void onPlayerRenderScreen(GuiContainerEvent.DrawBackground event)
     {
@@ -235,63 +245,67 @@ public class LightmansCurrency {
     	if(curiosLoaded)
     		return;
     	
-    	ContainerScreen<?> screen = event.getGuiContainer();
+    	AbstractContainerScreen<?> screen = event.getGuiContainer();
     	
         if(screen instanceof InventoryScreen)
         {
         	InventoryScreen inventoryScreen = (InventoryScreen) screen;
             int left = inventoryScreen.getGuiLeft();
             int top = inventoryScreen.getGuiTop();
-            inventoryScreen.getMinecraft().getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
+            
+            RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
+            //inventoryScreen.getMinecraft().getTextureManager().bindTexture(AbstractContainerScreen.INVENTORY_LOCATION);
             Screen.blit(event.getMatrixStack(), left + 151, top + 61, 7, 7, 18, 18, 256, 256);
             
-            WalletSlot.drawEmptyWalletSlots(screen, screen.getContainer(), event.getMatrixStack(), left, top);
+            WalletSlot.drawEmptyWalletSlots(screen, screen.getMenu(), event.getMatrixStack(), left, top);
         }
-        else if(screen instanceof CreativeScreen)
+        else if(screen instanceof CreativeModeInventoryScreen)
         {
-            CreativeScreen creativeScreen = (CreativeScreen) screen;
-            if(creativeScreen.getSelectedTabIndex() == ItemGroup.INVENTORY.getIndex())
+        	CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen) screen;
+            if(creativeScreen.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId())
             {
                 int left = creativeScreen.getGuiLeft();
                 int top = creativeScreen.getGuiTop();
-                creativeScreen.getMinecraft().getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
+                RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
+                //creativeScreen.getMinecraft().getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
                 Screen.blit(event.getMatrixStack(), left + 152, top + 32, 7, 7, 18, 18, 256, 256);
                 
-                int walletSlotIndex = ExtendedPlayerInventory.WALLETINDEX + 5;
-                if(walletSlotIndex < 0 && walletSlotIndex >= screen.getContainer().inventorySlots.size())
+                int walletSlotIndex = ExtendedPlayerInventory.WALLET_INDEXES.get(0) + 5;
+                if(walletSlotIndex < 0 && walletSlotIndex >= screen.getMenu().slots.size())
                 {
                 	LightmansCurrency.LogError("Calculated wallet slot index is out of bounds.");
                 	return;
                 }
-                Slot walletSlot = screen.getContainer().inventorySlots.get(walletSlotIndex);
-                if(!walletSlot.getHasStack())
+                Slot walletSlot = screen.getMenu().slots.get(walletSlotIndex);
+                if(!walletSlot.hasItem())
                 {
-                	screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
+                	RenderSystem.setShaderTexture(0, LightmansCurrency.EMPTY_SLOTS);
+                	//screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
                 	screen.blit(event.getMatrixStack(), left + 153, top + 33, WalletSlot.EMPTY_SLOT_X, WalletSlot.EMPTY_SLOT_Y, 16, 16);
                 }
                 
-                //WalletSlot.drawEmptyWalletSlots(screen, screen.getContainer(), event.getMatrixStack(), left, top);
+                //WalletSlot.drawEmptyWalletSlots(screen, screen.getMenu(), event.getMatrixStack(), left, top);
                 
             }
         }
     }
     
-    @SubscribeEvent
+    //@SubscribeEvent
     public void onPlayerClone(PlayerEvent.Clone event)
     {
     	
     	if(curiosLoaded)
     		return;
     	
-    	PlayerEntity oldPlayer = event.getOriginal();
-    	if(oldPlayer.inventory instanceof IWalletInventory && event.getPlayer().inventory instanceof IWalletInventory)
+    	Player oldPlayer = event.getOriginal();
+    	if(oldPlayer.getInventory() instanceof IWalletInventory && event.getPlayer().getInventory() instanceof IWalletInventory)
     	{
-    		((IWalletInventory) event.getPlayer().inventory).copyWallet((IWalletInventory) oldPlayer.inventory);
+    		((IWalletInventory) event.getPlayer().getInventory()).copyWallet((IWalletInventory) oldPlayer.getInventory());
     	}
     	
     }
     
-    private void onConfigLoad(ModConfig.Loading event)
+    private void onConfigLoad(ModConfigEvent.Loading event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
@@ -308,29 +322,7 @@ public class LightmansCurrency {
     	LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageSyncConfig(Config.getSyncData()));
     }
     
-    /**
-     * Easy public access to the equipped wallet that functions regardless of which system (stand-alone, backpacked compatibility, curios) is being used to store the slot.
-     */
-    public static ItemStack getWalletStack(PlayerEntity player)
-    {
-    	AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
-    	
-    	if(curiosLoaded)
-    	{
-    		wallet.set(Curios.getWalletStack(player));
-    	}
-    	else
-    	{
-    		if(player.inventory instanceof IWalletInventory)
-        	{
-    			IWalletInventory inventory = (IWalletInventory)player.inventory;
-        		wallet.set(inventory.getWalletItems().get(0));
-        	}
-    	}
-    	
-    	return wallet.get();
-    	
-    }
+    
     
     public static void LogDebug(String message)
     {

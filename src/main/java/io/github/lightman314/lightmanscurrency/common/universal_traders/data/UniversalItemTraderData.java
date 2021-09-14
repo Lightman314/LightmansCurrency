@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
@@ -13,33 +14,32 @@ import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditConta
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader{
 	
-	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
+	public static final int TRADELIMIT = ItemTraderBlockEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	public static final Deserializer DESERIALIZER = new Deserializer();
@@ -49,23 +49,23 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	int tradeCount = 1;
 	NonNullList<ItemTradeData> trades = null;
 	
-	IInventory inventory;
+	Container inventory;
 	
 	public final ItemShopLogger logger = new ItemShopLogger();
 	
-	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
+	public UniversalItemTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
 	{
-		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
+		super(owner.getUUID(), owner.getDisplayName().getString(), pos, world, traderID);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
-		this.inventory = new Inventory(this.inventorySize());
+		this.inventory = new SimpleContainer(this.inventorySize());
 	}
 
-	public UniversalItemTraderData(CompoundNBT compound)
+	public UniversalItemTraderData(CompoundTag compound)
 	{
 		
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderBlockEntity.TRADELIMIT);
 		
 		this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
@@ -116,18 +116,18 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 			this.trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		IInventory oldInventory = this.inventory;
-		this.inventory = new Inventory(this.inventorySize());
-		for(int i = 0; i < this.inventory.getSizeInventory() && i < oldInventory.getSizeInventory(); i++)
+		Container oldInventory = this.inventory;
+		this.inventory = new SimpleContainer(this.inventorySize());
+		for(int i = 0; i < this.inventory.getContainerSize() && i < oldInventory.getContainerSize(); i++)
 		{
-			this.inventory.setInventorySlotContents(i, oldInventory.getStackInSlot(i));
+			this.inventory.setItem(i, oldInventory.getItem(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldInventory.getSizeInventory() > this.inventorySize())
+		if(oldInventory.getContainerSize() > this.inventorySize())
 		{
-			for(int i = this.inventorySize(); i < oldInventory.getSizeInventory(); i++)
+			for(int i = this.inventorySize(); i < oldInventory.getContainerSize(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getStackInSlot(i));
+				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
 			}
 		}
 		//Mark as dirty
@@ -164,13 +164,13 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		return this.tradeCount * 9;
 	}
 	
-	public IInventory getStorage()
+	public Container getStorage()
 	{
 		return this.inventory;
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag write(CompoundTag compound)
 	{
 		compound.putInt("TradeLimit", this.trades.size());
 		ItemTradeData.saveAllData(compound, trades);
@@ -186,48 +186,46 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	}
 	
 	@Override
-	protected ITextComponent getDefaultName()
+	protected Component getDefaultName()
 	{
-		return new TranslationTextComponent("gui.lightmanscurrency.universaltrader.item");
+		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.item");
 	}
 
 	@Override
-	protected INamedContainerProvider getTradeMenuProvider() {
+	protected MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this.traderID);
 	}
 
 	@Override
-	protected INamedContainerProvider getStorageMenuProvider() {
+	protected MenuProvider getStorageMenuProvider() {
 		return new StorageProvider(this.traderID);
 	}
 	
-	protected INamedContainerProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditProvider(this.traderID, tradeIndex); }
+	protected MenuProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditProvider(this.traderID, tradeIndex); }
 	
-	public void openItemEditMenu(PlayerEntity player, int tradeIndex)
+	public void openItemEditMenu(Player player, int tradeIndex)
 	{
-		INamedContainerProvider provider = getItemEditMenuProvider(tradeIndex);
+		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getDeserializerType().toString());
 			return;
 		}
-		if(player instanceof ServerPlayerEntity)
-			NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), this.write(new CompoundNBT()), tradeIndex));
+		if(player instanceof ServerPlayer)
+			NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), this.write(new CompoundTag()), tradeIndex));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
 	
 	private static class Deserializer implements IUniversalDataDeserializer<UniversalItemTraderData>
 	{
-
 		@Override
-		public UniversalItemTraderData deserialize(CompoundNBT compound) {
+		public UniversalItemTraderData deserialize(CompoundTag compound) {
 			return new UniversalItemTraderData(compound);
 		}
-		
 	}
 	
-	private static class TraderProvider implements INamedContainerProvider
+	private static class TraderProvider implements MenuProvider
 	{
 		final UUID traderID;
 		
@@ -237,18 +235,18 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		}
 
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalItemTraderContainer(menuID, inventory, this.traderID);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("");
+		public Component getDisplayName() {
+			return new TextComponent("");
 		}
 		
 	}
 	
-	private static class StorageProvider implements INamedContainerProvider
+	private static class StorageProvider implements MenuProvider
 	{
 		final UUID traderID;
 		
@@ -258,18 +256,18 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		}
 
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalItemTraderStorageContainer(menuID, inventory, this.traderID);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("");
+		public Component getDisplayName() {
+			return new TextComponent("");
 		}
 		
 	}
 	
-	private static class ItemEditProvider implements INamedContainerProvider
+	private static class ItemEditProvider implements MenuProvider
 	{
 		
 		final UUID traderID;
@@ -290,13 +288,13 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		}
 		
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalItemEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("");
+		public Component getDisplayName() {
+			return new TextComponent("");
 		}
 	}
 	

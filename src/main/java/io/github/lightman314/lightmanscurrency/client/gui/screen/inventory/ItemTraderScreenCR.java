@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
@@ -14,16 +14,17 @@ import io.github.lightman314.lightmanscurrency.network.message.cashregister.Mess
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
-public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
+public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContainerCR>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
@@ -37,35 +38,31 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	Button buttonLeft;
 	Button buttonRight;
 	
-	TextFieldWidget pageInput;
+	EditBox pageInput;
 	Button buttonSkipToPage;
 	
 	protected List<ItemTradeButton> tradeButtons = new ArrayList<>();
 	
-	public ItemTraderScreenCR(ItemTraderContainerCR container, PlayerInventory inventory, ITextComponent title)
+	public ItemTraderScreenCR(ItemTraderContainerCR container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.ySize = 133 + ItemTraderUtil.getTradeDisplayHeight(this.container.getTradeCount());
-		this.xSize = ItemTraderUtil.getWidth(this.container.getTradeCount());
+		this.imageHeight = 133 + ItemTraderUtil.getTradeDisplayHeight(this.menu.getTradeCount());
+		this.imageWidth= ItemTraderUtil.getWidth(this.menu.getTradeCount());
 	}
 	
 	@Override
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
 	{
-		
-		ItemTraderScreen.drawTraderBackground(matrix, this, this.container, this.minecraft, this.xSize, this.ySize, this.container.getTradeCount());
-		
+		ItemTraderScreen.drawTraderBackground(matrix, this, this.menu, this.minecraft, this.imageWidth, this.imageHeight, this.menu.getTradeCount());
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		
-		ItemTraderScreen.drawTraderForeground(matrix, this.font, this.container.getTradeCount(), this.ySize,
-				new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.container.tileEntity.getName(), new TranslationTextComponent("gui.lightmanscurrency.trading.list", this.container.getThisIndex() + 1, this.container.getTotalCount())),
-				this.playerInventory.getDisplayName(),
-				new TranslationTextComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.container.GetCoinValue())));
-		
+		ItemTraderScreen.drawTraderForeground(matrix, this.font, this.menu.getTradeCount(), this.imageHeight,
+				new TranslatableComponent("gui.lightmanscurrency.trading.title", this.menu.blockEntity.getName(), new TranslatableComponent("gui.lightmanscurrency.trading.list", this.menu.getThisIndex() + 1, this.menu.getTotalCount())),
+				this.playerInventoryTitle,
+				new TranslatableComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.menu.GetCoinValue())));
 	}
 	
 	@Override
@@ -73,29 +70,28 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	{
 		super.init();
 		
-		int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.container.getTradeCount());
+		int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.menu.getTradeCount());
 		
 		//From the cash register, there is no acknowledged owner.
-		if(this.container.cashRegister.getPairedTraderSize() > 1)
+		if(this.menu.cashRegister.getPairedTraderSize() > 1)
 		{
 			
-			this.buttonLeft = this.addButton(new IconButton(this.guiLeft + tradeOffset - 20, this.guiTop, this::PressArrowButton, GUI_TEXTURE, 176, 16));
-			this.buttonRight = this.addButton(new IconButton(this.guiLeft + this.xSize - tradeOffset, this.guiTop, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176, 16));
+			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
 			
-			this.pageInput = new TextFieldWidget(this.font, this.guiLeft + 50, this.guiTop - 19, this.xSize - 120, 18, ITextComponent.getTextComponentOrEmpty(""));
-			this.pageInput.setMaxStringLength(9);
-			this.pageInput.setText(String.valueOf(this.container.getThisIndex() + 1));
-			this.children.add(this.pageInput);
+			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, TextComponent.EMPTY));
+			this.pageInput.setMaxLength(9);
+			this.pageInput.setValue(String.valueOf(this.menu.getThisIndex() + 1));
+			//this.children.add(this.pageInput);
 			
-			this.buttonSkipToPage = this.addButton(new IconButton(this.guiLeft + this.xSize - 68, this.guiTop - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageHeight - 68, this.topPos - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
 			this.buttonSkipToPage.active = false;
 			
 		}
 		
-		if(this.container.isOwner())
+		if(this.menu.isOwner())
 		{
-			
-			this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
+			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
 			this.buttonCollectMoney.active = false;
 		}
 		
@@ -105,10 +101,10 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	
 	protected void initTradeButtons()
 	{
-		int tradeCount = this.container.getTradeCount();
+		int tradeCount = this.menu.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addButton(new ItemTradeButton(this.guiLeft + ItemTraderUtil.getButtonPosX(tradeCount, i), this.guiTop + ItemTraderUtil.getButtonPosY(tradeCount, i), this::PressTradeButton, container.tileEntity.getTrade(i), this.font, () -> this.container.tileEntity, this.container)));
+			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(tradeCount, i), this.topPos + ItemTraderUtil.getButtonPosY(tradeCount, i), this::PressTradeButton, menu.blockEntity.getTrade(i), this.font, () -> this.menu.blockEntity, this.menu)));
 		}
 	}
 	
@@ -118,43 +114,42 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	}
 	
 	@Override
-	public void tick()
+	public void containerTick()
 	{
-		super.tick();
 		
-		this.container.tick();
+		this.menu.tick();
 		
 		for(int i = 0; i < tradeButtons.size(); i++)
 		{
-			tradeButtons.get(i).UpdateTrade(container.tileEntity.getTrade(i));
+			tradeButtons.get(i).UpdateTrade(menu.blockEntity.getTrade(i));
 		}
 		
 		if(this.buttonCollectMoney != null)
 		{
-			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.active = this.menu.blockEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.container.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.menu.blockEntity.isCreative();
 		}
 		if(this.buttonSkipToPage != null)
 		{
-			this.buttonSkipToPage.active = this.getPageInput() >= 0 && this.getPageInput() < this.container.getTotalCount() && this.getPageInput() != this.container.getThisIndex();
+			this.buttonSkipToPage.active = this.getPageInput() >= 0 && this.getPageInput() < this.menu.getTotalCount() && this.getPageInput() != this.menu.getThisIndex();
 		}
 		
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
+		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
 		if(this.pageInput != null)
 			this.pageInput.render(matrixStack, mouseX, mouseY, partialTicks);
 		
 		if(this.buttonCollectMoney != null && this.buttonCollectMoney.active && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.collectcoins", this.container.tileEntity.getStoredMoney().getString()), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.blockEntity.getStoredMoney().getString()), mouseX, mouseY);
 		}
 	}
 	
@@ -174,7 +169,7 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(menu.isOwner())
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
@@ -203,9 +198,9 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	{
 		if(this.pageInput != null)
 		{
-			if(isNumeric(this.pageInput.getText()))
+			if(isNumeric(this.pageInput.getValue()))
 			{
-				return Integer.parseInt(this.pageInput.getText()) - 1;
+				return Integer.parseInt(this.pageInput.getValue()) - 1;
 			}
 			return 0;
 		}

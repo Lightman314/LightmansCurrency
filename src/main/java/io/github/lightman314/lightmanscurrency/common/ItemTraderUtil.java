@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
-//import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 public class ItemTraderUtil {
 	

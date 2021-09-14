@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.extendedinventory;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
 
 public interface IWalletInventory {
 	

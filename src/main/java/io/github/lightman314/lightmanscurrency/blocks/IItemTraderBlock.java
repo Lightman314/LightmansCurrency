@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import java.util.List;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

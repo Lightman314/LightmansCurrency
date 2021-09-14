@@ -2,14 +2,14 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageOpenStorage implements IMessage<MessageOpenStorage> {
 	
@@ -27,29 +27,29 @@ public class MessageOpenStorage implements IMessage<MessageOpenStorage> {
 	
 	
 	@Override
-	public void encode(MessageOpenStorage message, PacketBuffer buffer) {
+	public void encode(MessageOpenStorage message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageOpenStorage decode(PacketBuffer buffer) {
+	public MessageOpenStorage decode(FriendlyByteBuf buffer) {
 		return new MessageOpenStorage(buffer.readBlockPos());
 	}
 
 	@Override
-	public void handle(MessageOpenStorage message, Supplier<Context> supplier) {
+	public void handle(MessageOpenStorage message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				World world = entity.getEntityWorld();
+				Level world = entity.level;
 				if(world != null)
 				{
-					TileEntity tileEntity = world.getTileEntity(message.pos);
-					if(tileEntity instanceof TraderTileEntity)
+					BlockEntity blockEntity = world.getBlockEntity(message.pos);
+					if(blockEntity instanceof TraderBlockEntity)
 					{
-						TraderTileEntity traderEntity = (TraderTileEntity)tileEntity;
+						TraderBlockEntity traderEntity = (TraderBlockEntity)blockEntity;
 						traderEntity.openStorageMenu(entity);
 					}
 				}

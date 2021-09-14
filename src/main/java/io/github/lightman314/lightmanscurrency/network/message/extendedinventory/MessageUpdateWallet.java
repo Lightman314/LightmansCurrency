@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.extendedinventory.IWalletInventory;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageUpdateWallet implements IMessage<MessageUpdateWallet>{
 
@@ -28,16 +28,16 @@ public class MessageUpdateWallet implements IMessage<MessageUpdateWallet>{
 	}
 	
 	@Override
-	public void encode(MessageUpdateWallet message, PacketBuffer buffer)
+	public void encode(MessageUpdateWallet message, FriendlyByteBuf buffer)
 	{
 		buffer.writeInt(message.entityId);
-		buffer.writeItemStack(message.wallet);
+		buffer.writeItem(message.wallet);
 	}
 	
 	@Override
-	public MessageUpdateWallet decode(PacketBuffer buffer)
+	public MessageUpdateWallet decode(FriendlyByteBuf buffer)
 	{
-		return new MessageUpdateWallet(buffer.readInt(), buffer.readItemStack());
+		return new MessageUpdateWallet(buffer.readInt(), buffer.readItem());
 	}
 	
 	@Override
@@ -46,15 +46,15 @@ public class MessageUpdateWallet implements IMessage<MessageUpdateWallet>{
 		supplier.get().enqueueWork(() ->
 		{
 			Minecraft minecraft = Minecraft.getInstance();
-			if(minecraft.world != null)
+			if(minecraft.level != null)
 			{
-				Entity entity = minecraft.world.getEntityByID(message.entityId);
-				if(entity instanceof PlayerEntity)
+				Entity entity = minecraft.level.getEntity(message.entityId);
+				if(entity instanceof Player)
 				{
-					PlayerEntity player = (PlayerEntity)entity;
-					if(player.inventory instanceof IWalletInventory)
+					Player player = (Player)entity;
+					if(player.getInventory() instanceof IWalletInventory)
 					{
-						((IWalletInventory)player.inventory).getWalletItems().set(0, message.wallet);
+						((IWalletInventory)player.getInventory()).getWalletItems().set(0, message.wallet);
 					}
 				}
 			}

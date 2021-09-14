@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IUniversalDataDeserializer<T extends UniversalTraderData> {
 
@@ -28,7 +28,7 @@ public interface IUniversalDataDeserializer<T extends UniversalTraderData> {
 		registeredDeserializers.put(type, deserializer);
 	}
 	
-	public static UniversalTraderData Deserialize(CompoundNBT compound)
+	public static UniversalTraderData Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.getString("type");
 		AtomicReference<UniversalTraderData> data = new AtomicReference<UniversalTraderData>();
@@ -44,6 +44,6 @@ public interface IUniversalDataDeserializer<T extends UniversalTraderData> {
 		return null;
 	}
 	
-	public T deserialize(CompoundNBT compound);
+	public T deserialize(CompoundTag compound);
 	
 }

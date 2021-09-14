@@ -3,38 +3,40 @@ package io.github.lightman314.lightmanscurrency.extendedinventory;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
+import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ExtendedPlayerInventory extends PlayerInventory implements IWalletInventory
+public class ExtendedPlayerInventory extends Inventory implements IWalletInventory
 {
 	
-	public static int WALLETINDEX = -1;
+	public static List<Integer> WALLET_INDEXES = new ArrayList<>();
+	public static void setWalletIndex(int index) { if(!WALLET_INDEXES.contains(index)) WALLET_INDEXES.add(index); }
+	public static boolean isWalletIndex(int index) { return WALLET_INDEXES.contains(index); }
 	
     public final NonNullList<ItemStack> walletArray = NonNullList.withSize(1, ItemStack.EMPTY);
     public final NonNullList<ItemStack> walletInventory = NonNullList.withSize(1, ItemStack.EMPTY);
-    private final List<NonNullList<ItemStack>> allInventories = ImmutableList.of(this.mainInventory, this.armorInventory, this.offHandInventory, this.walletInventory);
+    private final List<NonNullList<ItemStack>> allInventories = ImmutableList.of(this.items, this.armor, this.offhand, this.walletInventory);
 
-    public ExtendedPlayerInventory(PlayerEntity player)
+    public ExtendedPlayerInventory(Player player)
     {
         super(player);
         
-        if(WALLETINDEX < 0)
+        int index = -1;
+    	for(NonNullList<ItemStack> inventory : this.allInventories)
         {
-        	for(NonNullList<ItemStack> inventory : this.allInventories)
-            {
-            	WALLETINDEX += inventory.size(); 
-            }
-        	LightmansCurrency.LogInfo("Wallet slot index in inventory is " + WALLETINDEX);
+    		index += inventory.size(); 
         }
+    	setWalletIndex(index);
+    	LightmansCurrency.LogInfo("Wallet slot index in inventory is " + index);
     }
     
     @Override
@@ -56,7 +58,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public ItemStack decrStackSize(int index, int count)
+    public ItemStack removeItem(int index, int count)
     {
         NonNullList<ItemStack> targetInventory = null;
         for(NonNullList<ItemStack> inventory : this.allInventories)
@@ -71,7 +73,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
         return targetInventory != null && !targetInventory.get(index).isEmpty() ? ItemStackHelper.getAndSplit(targetInventory, index, count) : ItemStack.EMPTY;
     }
 
-    @Override
+    /*@Override
     public void deleteStack(ItemStack stack)
     {
         for(NonNullList<ItemStack> inventory : this.allInventories)
@@ -85,10 +87,10 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
                 }
             }
         }
-    }
+    }*/
 
     @Override
-    public ItemStack removeStackFromSlot(int index)
+    public ItemStack removeItemNoUpdate(int index)
     {
         NonNullList<ItemStack> targetInventory = null;
         for(NonNullList<ItemStack> inventory : this.allInventories)
@@ -114,7 +116,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack)
+    public void setItem(int index, ItemStack stack)
     {
         NonNullList<ItemStack> targetInventory = null;
         for(NonNullList<ItemStack> inventory : this.allInventories)
@@ -133,7 +135,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public ItemStack getStackInSlot(int index)
+    public ItemStack getItem(int index)
     {
         List<ItemStack> list = null;
         for(NonNullList<ItemStack> inventory : this.allInventories)
@@ -151,16 +153,16 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     private final int WRITESLOT = 213;
     
     @Override
-    public ListNBT write(ListNBT list)
+    public ListTag save(ListTag list)
     {
-        list = super.write(list);
+        list = super.save(list);
         for(int i = 0; i < this.walletInventory.size(); i++)
         {
             if(!this.walletInventory.get(i).isEmpty())
             {
-                CompoundNBT compound = new CompoundNBT();
+                CompoundTag compound = new CompoundTag();
                 compound.putByte("Slot", (byte) (i + WRITESLOT));
-                this.walletInventory.get(i).write(compound);
+                this.walletInventory.get(i).save(compound);
                 list.add(compound);
             }
         }
@@ -168,14 +170,14 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public void read(ListNBT list)
+    public void load(ListTag list)
     {
-        super.read(list);
+        super.load(list);
         for(int i = 0; i < list.size(); ++i)
         {
-            CompoundNBT compound = list.getCompound(i);
+        	CompoundTag compound = list.getCompound(i);
             int slot = compound.getByte("Slot") & 255;
-            ItemStack stack = ItemStack.read(compound);
+            ItemStack stack = ItemStack.of(compound);
             if(!stack.isEmpty())
             {
                 if(slot >= WRITESLOT && slot < this.walletInventory.size() + WRITESLOT)
@@ -187,9 +189,9 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public int getSizeInventory()
+    public int getContainerSize()
     {
-        return super.getSizeInventory() + this.walletInventory.size();
+        return super.getContainerSize() + this.walletInventory.size();
     }
 
     @Override
@@ -206,7 +208,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public boolean hasItemStack(ItemStack targetStack)
+    public boolean contains(ItemStack targetStack)
     {
         for(NonNullList<ItemStack> inventory : this.allInventories)
         {
@@ -218,7 +220,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
                     return false;
                 }
                 ItemStack stack = (ItemStack) iterator.next();
-                if(!stack.isEmpty() && stack.isItemEqual(targetStack))
+                if(!stack.isEmpty() && ItemStack.isSameItemSameTags(stack, targetStack))
                 {
                     break;
                 }
@@ -229,7 +231,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public void clear()
+    public void clearContent()
     {
         for(List<ItemStack> list : this.allInventories)
         {
@@ -238,7 +240,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
     }
 
     @Override
-    public void dropAllItems()
+    public void dropAll()
     {
     	for(List<ItemStack> list : this.allInventories)
         {
@@ -247,7 +249,7 @@ public class ExtendedPlayerInventory extends PlayerInventory implements IWalletI
                 ItemStack itemstack = list.get(i);
                 if(!itemstack.isEmpty())
                 {
-                    this.player.dropItem(itemstack, true, false);
+                    this.player.drop(itemstack, true, false);
                     list.set(i, ItemStack.EMPTY);
                 }
             }

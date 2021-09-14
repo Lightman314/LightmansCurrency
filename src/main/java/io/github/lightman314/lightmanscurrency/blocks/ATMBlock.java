@@ -1,155 +1,149 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-//import java.util.List;
-
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.PushReaction;
-//import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-//import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-//import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class ATMBlock extends RotatableBlock{
 	
-	private static final TranslationTextComponent TITLE = new TranslationTextComponent("gui.lightmanscurrency.atm.title");
+	private static final TranslatableComponent TITLE = new TranslatableComponent("gui.lightmanscurrency.atm.title");
 	
-	private static final VoxelShape SHAPE_BOTTOM = makeCuboidShape(0d,0d,0d,16d,32d,16d);
-	private static final VoxelShape SHAPE_TOP = makeCuboidShape(0d,-16d,0d,16d,16d,16d);
-	
-	static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
-	
+	private static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	
 	public ATMBlock(Properties properties)
 	{
 		super(properties, null);
-		this.setDefaultState(
-			this.stateContainer.getBaseState()
-				.with(FACING, Direction.NORTH)
-				.with(ISBOTTOM, true)
+		this.registerDefaultState(
+			this.stateDefinition.any()
+				.setValue(FACING, Direction.NORTH)
+				.setValue(ISBOTTOM, true)
 		);
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext contect)
+	public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
 	{
-		if(state.get(ISBOTTOM))
-			return SHAPE_BOTTOM;
-		else
-			return SHAPE_TOP;
+		return Shapes.empty();
 	}
 	
 	@Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	{
+		if(state.getValue(ISBOTTOM))
+			return LazyShapes.TALL_BOX_T;
+		return LazyShapes.moveDown(LazyShapes.TALL_BOX_T);
+	}
+	
+	@Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
-        super.fillStateContainer(builder);
+		super.createBlockStateDefinition(builder);
         builder.add(ISBOTTOM);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(BlockItemUseContext context)
+	public BlockState getStateForPlacement(BlockPlaceContext context)
 	{
-		return super.getStateForPlacement(context).with(ISBOTTOM,true);
+		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
 	@Override
-	public boolean isValidPosition(BlockState state, IWorldReader reader, BlockPos pos)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		return reader.getBlockState(pos.up()).getBlock() == Blocks.AIR;
-	}
-	
-	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
-	{
-		if(!worldIn.isRemote && player.isCreative())
+		if(!level.isClientSide && player.isCreative())
 		{
 			//Destroy the other half of the ATM Machine
-			if(!state.get(ISBOTTOM))
+			if(!state.getValue(ISBOTTOM))
 			{
 				//Get ATM block below and destroy it.
-				BlockState downState = worldIn.getBlockState(pos.down());
+				BlockState downState = level.getBlockState(pos.below());
 				if(downState.getBlock() instanceof ATMBlock)
 				{
-					worldIn.setBlockState(pos.down(), Blocks.AIR.getDefaultState(),35);
-					worldIn.playEvent(player, 2001, pos.down(), Block.getStateId(downState));
+					level.setBlock(pos.below(), Blocks.AIR.defaultBlockState(),35);
+					level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos.below());
 				}
 			}
 		}
 		
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 		
 	}
 	
 	@Override
-	public PushReaction getPushReaction(BlockState state)
+	public PushReaction getPistonPushReaction(BlockState state)
 	{
 		return PushReaction.BLOCK;
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos)
+	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
 	{
 		
-		if((facing == Direction.UP && stateIn.get(ISBOTTOM)) || (facing == Direction.DOWN && !stateIn.get(ISBOTTOM)))
+		if((facing == Direction.UP && stateIn.getValue(ISBOTTOM)) || (facing == Direction.DOWN && !stateIn.getValue(ISBOTTOM)))
 		{
-			if(facingState.isIn(this))
+			if(facingState.is(this))
 			{
 				return stateIn;
 			}
 			else
 			{
-				return Blocks.AIR.getDefaultState();
+				return Blocks.AIR.defaultBlockState();
 			}
 		}
 		
-		return super.updatePostPlacement(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+		return super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
 		
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		worldIn.setBlockState(pos.up(), this.getDefaultState().with(ISBOTTOM, false).with(FACING, state.get(FACING)));
+		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
+			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
+		else
+			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		playerEntity.openContainer(state.getContainer(world, pos));
-		return ActionResultType.SUCCESS;
+		player.openMenu(state.getMenuProvider(level, pos));
+		return InteractionResult.SUCCESS;
 	}
 	
 	@Nullable
 	@Override
-	public INamedContainerProvider getContainer(BlockState state, World world, BlockPos pos)
+	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
-		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new ATMContainer(windowId, playerInventory, IWorldPosCallable.of(world,pos));}, TITLE);
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMContainer(windowId, playerInventory);}, TITLE);
 	}
 	
 	

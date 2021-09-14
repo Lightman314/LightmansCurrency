@@ -7,8 +7,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+//import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -17,26 +18,30 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRequestTraders;
+//import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+//import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
+//import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRequestTraders;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-public class UniversalTraderSelectionScreen extends Screen{
+public class TerminalScreen extends Screen{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	
 	private int xSize = 176;
 	private int ySize = 187;
 	
-	PlayerEntity player;
+	Player player;
 	
-	private TextFieldWidget searchField;
+	private EditBox searchField;
 	static int page = 0;
 	
 	Button buttonNextPage;
@@ -46,9 +51,9 @@ public class UniversalTraderSelectionScreen extends Screen{
 	private List<UniversalTraderData> traderList = new ArrayList<>();
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
-	public UniversalTraderSelectionScreen(PlayerEntity player)
+	public TerminalScreen(Player player)
 	{
-		super(new TranslationTextComponent("block.lightmanscurrency.terminal"));
+		super(new TranslatableComponent("block.lightmanscurrency.terminal"));
 		this.player = player;
 	}
 	
@@ -61,14 +66,13 @@ public class UniversalTraderSelectionScreen extends Screen{
 		int guiLeft = (this.width - this.xSize) / 2;
 		int guiTop = (this.height - this.ySize) / 2;
 		
-		this.searchField = new TextFieldWidget(this.font, guiLeft + 28, guiTop + 6, 101, 9, new TranslationTextComponent("gui.lightmanscurrency.terminal.search"));
-		this.searchField.setEnableBackgroundDrawing(false);;
-		this.searchField.setMaxStringLength(32);
+		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField.setBordered(false);
+		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
-		this.children.add(this.searchField);
 		
-		this.buttonPreviousPage = this.addButton(new IconButton(guiLeft - 6, guiTop + 18, this::PreviousPage, GUI_TEXTURE, this.xSize, 0));
-		this.buttonNextPage = this.addButton(new IconButton(guiLeft + this.xSize - 14, guiTop + 18, this::NextPage, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPreviousPage = this.addRenderableWidget(new IconButton(guiLeft - 6, guiTop + 18, this::PreviousPage, GUI_TEXTURE, this.xSize, 0));
+		this.buttonNextPage = this.addRenderableWidget(new IconButton(guiLeft + this.xSize - 14, guiTop + 18, this::NextPage, GUI_TEXTURE, this.xSize + 16, 0));
 		
 		this.initTraderButtons(guiLeft, guiTop);
 		
@@ -85,7 +89,7 @@ public class UniversalTraderSelectionScreen extends Screen{
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 5; y++)
 		{
-			UniversalTraderButton newButton = this.addButton(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::OpenTrader, this.font));
+			UniversalTraderButton newButton = this.addRenderableWidget(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::OpenTrader, this.font));
 			this.traderButtons.add(newButton);
 		}
 	}
@@ -102,14 +106,15 @@ public class UniversalTraderSelectionScreen extends Screen{
 		this.buttonNextPage.active = page < this.pageLimit();
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(matrixStack);
 		
-		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-		this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
 		//Render the background
@@ -124,10 +129,10 @@ public class UniversalTraderSelectionScreen extends Screen{
 	@Override
 	public boolean charTyped(char c, int code)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.charTyped(c, code))
 		{
-			if(!Objects.equals(s, this.searchField.getText()))
+			if(!Objects.equals(s, this.searchField.getValue()))
 			{
 				this.updateTraderList();
 			}
@@ -139,16 +144,16 @@ public class UniversalTraderSelectionScreen extends Screen{
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.keyPressed(key, scanCode, mods))
 		{
-			if(!Objects.equals(s,  this.searchField.getText()))
+			if(!Objects.equals(s,  this.searchField.getValue()))
 			{
 				this.updateTraderList();
 			}
 			return true;
 		}
-		return this.searchField.isFocused() && this.searchField.getVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
 	}
 	
 	private void PreviousPage(Button button)
@@ -205,7 +210,7 @@ public class UniversalTraderSelectionScreen extends Screen{
 	
 	private void updateTraderList()
 	{
-		if(this.searchField.getText().isEmpty())
+		if(this.searchField.getValue().isEmpty())
 		{
 			this.filteredTraderList = this.traderList;
 			updateTraderButtons();
@@ -213,7 +218,7 @@ public class UniversalTraderSelectionScreen extends Screen{
 		else
 		{
 			Stream<UniversalTraderData> stream = this.traderList.stream().filter(entry ->{
-				String searchText = this.searchField.getText().toLowerCase(Locale.ENGLISH).trim();
+				String searchText = this.searchField.getValue().toLowerCase(Locale.ENGLISH).trim();
 				//Search the display name of the traders
 				if(entry.getName().getString().toLowerCase().contains(searchText))
 					return true;

@@ -19,40 +19,40 @@ import io.github.lightman314.lightmanscurrency.network.message.item_trader.Messa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditSet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
 
-public class ItemEditContainer extends Container{
+public class ItemEditContainer extends AbstractContainerMenu{
 	
 	
-	public static List<ItemGroup> ITEM_GROUP_BLACKLIST = ImmutableList.of(ItemGroup.HOTBAR, ItemGroup.INVENTORY, ItemGroup.SEARCH);
+	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
 	public static final int columnCount = 9;
 	public static final int rowCount = 6;
 	
 	private static List<ItemStack> allItems = null;
 	
-	public final PlayerEntity player;
+	public final Player player;
 	public final Supplier<IItemTrader> traderSource;
 	private final int tradeIndex;
 	public final ItemTradeData tradeData;
 	
 	List<ItemStack> searchResultItems;
-	IInventory tradeDisplay;
-	IInventory displayInventory;
+	Container tradeDisplay;
+	Container displayInventory;
 	
 	private String searchString;
 	private int stackCount = 1;
@@ -62,14 +62,14 @@ public class ItemEditContainer extends Container{
 	
 	final List<Slot> tradeSlots;
 	
-	protected boolean isClient() { return this.player.world.isRemote; }
+	protected boolean isClient() { return this.player.level.isClientSide; }
 	
-	public ItemEditContainer(int windowId, PlayerInventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex)
+	public ItemEditContainer(int windowId, Inventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex)
 	{
 		this(ModContainers.ITEM_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
 	}
 	
-	protected ItemEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex, ItemTradeData tradeData)
+	protected ItemEditContainer(MenuType<?> type, int windowId, Inventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex, ItemTradeData tradeData)
 	{
 		super(type, windowId);
 		
@@ -79,9 +79,9 @@ public class ItemEditContainer extends Container{
 		this.traderSource = traderSource;
 		this.tradeSlots = new ArrayList<>();
 		
-		this.tradeDisplay = new Inventory(1);
-		this.tradeDisplay.setInventorySlotContents(0, tradeData.getSellItem());
-		this.displayInventory = new Inventory(columnCount * rowCount);
+		this.tradeDisplay = new SimpleContainer(1);
+		this.tradeDisplay.setItem(0, tradeData.getSellItem());
+		this.displayInventory = new SimpleContainer(columnCount * rowCount);
 		
 		//Trade slot
 		this.addSlot(new DisplaySlot(this.tradeDisplay, 0, ItemTradeButton.SLOT_OFFSET_X, ItemTradeButton.SLOT_OFFSET_Y - ItemTradeButton.HEIGHT));
@@ -107,31 +107,29 @@ public class ItemEditContainer extends Container{
 	}
 	
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, PlayerEntity player)
+	public void clicked(int slotId, int dragType, ClickType clickType, Player player)
 	{
 		
 		if(!this.isClient()) //Only function on client, as the server will be desynchronized
-			return ItemStack.EMPTY;
+			return;
 		
 		//LightmansCurrency.LOGGER.info("ItemTraderStorageContainer.slotClick(" + slotId + ", " + dragType + ", " + clickType + ", " + player.getName().getString() + ")");
-		if(slotId >= 0 && slotId < inventorySlots.size())
+		if(slotId >= 0 && slotId < slots.size())
 		{
-			Slot slot = inventorySlots.get(slotId);
+			Slot slot = slots.get(slotId);
 			if(slot == null)
-				return ItemStack.EMPTY;
+				return;
 			if(slot instanceof DisplaySlot) //Ignore the display slot as it's purely for display purposes
-				return ItemStack.EMPTY;
+				return;
 			//Get the item stack in the slot
-			ItemStack stack = slot.getStack();
+			ItemStack stack = slot.getItem();
 			//Define the item
 			if(!stack.isEmpty())
 			{
 				this.setItem(stack);
-				return ItemStack.EMPTY;
+				return;
 			}
 		}
-		return ItemStack.EMPTY;
-		
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -143,14 +141,14 @@ public class ItemEditContainer extends Container{
 		allItems = new ArrayList<>();
 		
 		//Go through all of the item groups to avoid allowing sales of hidden items
-		for(ItemGroup group : ItemGroup.GROUPS)
+		for(CreativeModeTab group : CreativeModeTab.TABS)
 		{
 			if(!ITEM_GROUP_BLACKLIST.contains(group))
 			{
 				//LightmansCurrency.LogInfo("Getting items from " + group.getGroupName().getString() + ".");
 				//Get all of the items in this group
 				NonNullList<ItemStack> items = NonNullList.create();
-				group.fill(items);
+				group.fillItemList(items);
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
@@ -195,13 +193,13 @@ public class ItemEditContainer extends Container{
 	
 	//Nothing to do here
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		return ItemStack.EMPTY;
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
+	public boolean stillValid(Player playerIn)
 	{
 		return true;
 	}
@@ -234,7 +232,7 @@ public class ItemEditContainer extends Container{
 					enchantments.forEach((enchantment, level) ->{
 						if(enchantment.getRegistryName().toString().contains(this.searchString))
 							enchantmentMatch.set(true);
-						else if(enchantment.getDisplayName(level).getString().toLowerCase().contains(this.searchString))
+						else if(enchantment.getFullname(level).getString().toLowerCase().contains(this.searchString))
 							enchantmentMatch.set(true);
 					});
 					if(enchantmentMatch.get())
@@ -255,9 +253,9 @@ public class ItemEditContainer extends Container{
 	public void modifyStackSize(int deltaCount)
 	{
 		this.stackCount = MathUtil.clamp(this.stackCount + deltaCount, 1, 64);
-		for(int i = 0; i < this.displayInventory.getSizeInventory(); i++)
+		for(int i = 0; i < this.displayInventory.getContainerSize(); i++)
 		{
-			ItemStack stack = this.displayInventory.getStackInSlot(i);
+			ItemStack stack = this.displayInventory.getItem(i);
 			if(!stack.isEmpty())
 				stack.setCount(MathUtil.clamp(this.stackCount, 1, stack.getMaxStackSize()));
 		}
@@ -265,7 +263,7 @@ public class ItemEditContainer extends Container{
 	
 	public int maxPage()
 	{
-		return (this.searchResultItems.size() - 1) / this.displayInventory.getSizeInventory();
+		return (this.searchResultItems.size() - 1) / this.displayInventory.getContainerSize();
 	}
 	
 	public void modifyPage(int deltaPage)
@@ -286,18 +284,18 @@ public class ItemEditContainer extends Container{
 		
 		int startIndex = this.page * columnCount * rowCount;
 		//Define the display inventories contents
-		for(int i = 0; i < this.displayInventory.getSizeInventory(); i++)
+		for(int i = 0; i < this.displayInventory.getContainerSize(); i++)
 		{
 			int thisIndex = startIndex + i;
 			if(thisIndex < this.searchResultItems.size()) //Set to search result item
 			{
 				ItemStack stack = this.searchResultItems.get(thisIndex).copy();
 				stack.setCount(MathUtil.clamp(this.stackCount, 1, stack.getMaxStackSize()));
-				this.displayInventory.setInventorySlotContents(i, stack);
+				this.displayInventory.setItem(i, stack);
 			}
 			else
 			{
-				this.displayInventory.setInventorySlotContents(i, ItemStack.EMPTY);
+				this.displayInventory.setItem(i, ItemStack.EMPTY);
 			}
 		}
 		
@@ -305,7 +303,7 @@ public class ItemEditContainer extends Container{
 	
 	public void setItem(ItemStack stack)
 	{
-		this.tradeDisplay.setInventorySlotContents(0, stack.copy());
+		this.tradeDisplay.setItem(0, stack.copy());
 		if(isClient())
 		{
 			//Send message to server

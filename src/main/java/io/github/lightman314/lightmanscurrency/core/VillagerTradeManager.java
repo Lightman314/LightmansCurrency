@@ -15,48 +15,47 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentData;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.merchant.villager.VillagerTrades.ITrade;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.item.SuspiciousStewItem;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.MapData;
-import net.minecraft.world.storage.MapDecoration;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.SuspiciousStewItem;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraftforge.common.BasicTrade;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.village.WandererTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fmllegacy.common.registry.GameRegistry;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
 
 	
 	
-	private static final List<ITrade> GENERIC_TRADES_WANDERER = ImmutableList.of(
+	private static final List<ItemListing> GENERIC_TRADES_WANDERER = ImmutableList.of(
 			//Machines
 			new LazyTrade(ModItems.COIN_GOLD, 1, ModBlocks.MACHINE_ATM.item),
 			new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.CASH_REGISTER.item),
 			new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.TERMINAL.item)
 			);
-	private static final List<ITrade> RARE_TRADES_WANDERER = ImmutableList.of(
+	private static final List<ItemListing> RARE_TRADES_WANDERER = ImmutableList.of(
 			//Traders
 			new LazyTrade(ModItems.COIN_GOLD, 2, ModItems.COIN_IRON, 4, ModBlocks.DISPLAY_CASE),
 			new LazyTrade(ModItems.COIN_GOLD, 4, ModBlocks.ARMOR_DISPLAY.item)
@@ -64,7 +63,7 @@ public class VillagerTradeManager {
 	
 	//Bankers sell miscellaneous trade-related stuff
 	//Can also trade raw materials for coins to allow bypassing of the coin-mint
-	private static final Map<Integer,List<ITrade>> TRADES_BANKER = ImmutableMap.of(
+	private static final Map<Integer,List<ItemListing>> TRADES_BANKER = ImmutableMap.of(
 			1,
 			ImmutableList.of(
 					//Sell Coin Mint
@@ -82,9 +81,9 @@ public class VillagerTradeManager {
 			2,
 			ImmutableList.of(
 					//Sell first 4 shelves
-					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new IItemProvider[] {ModBlocks.SHELF.get(WoodType.OAK), ModBlocks.SHELF.get(WoodType.BIRCH), ModBlocks.SHELF.get(WoodType.SPRUCE), ModBlocks.SHELF.get(WoodType.JUNGLE)}, 12, 5, 0.05f),
+					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF.get(WoodType.OAK), ModBlocks.SHELF.get(WoodType.BIRCH), ModBlocks.SHELF.get(WoodType.SPRUCE), ModBlocks.SHELF.get(WoodType.JUNGLE)}, 12, 5, 0.05f),
 					//Sell 4 "rare" shelves
-					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new IItemProvider[] {ModBlocks.SHELF.get(WoodType.ACACIA), ModBlocks.SHELF.get(WoodType.DARK_OAK), ModBlocks.SHELF.get(WoodType.WARPED), ModBlocks.SHELF.get(WoodType.CRIMSON)}, 12, 5, 0.05f),
+					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF.get(WoodType.ACACIA), ModBlocks.SHELF.get(WoodType.DARK_OAK), ModBlocks.SHELF.get(WoodType.WARPED), ModBlocks.SHELF.get(WoodType.CRIMSON)}, 12, 5, 0.05f),
 					//Sell display case
 					new LazyTrade(5, ModItems.COIN_IRON, 10, ModBlocks.DISPLAY_CASE)
 					//Coin for ingot & ingot for coin trades (iron level)
@@ -94,9 +93,9 @@ public class VillagerTradeManager {
 			3,
 			ImmutableList.of(
 					//Sell first 4 card displays
-					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new IItemProvider[] {ModBlocks.CARD_DISPLAY.get(WoodType.OAK), ModBlocks.CARD_DISPLAY.get(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.get(WoodType.SPRUCE), ModBlocks.CARD_DISPLAY.get(WoodType.JUNGLE) }, 12, 10, 0.05f),
+					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY.get(WoodType.OAK), ModBlocks.CARD_DISPLAY.get(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.get(WoodType.SPRUCE), ModBlocks.CARD_DISPLAY.get(WoodType.JUNGLE) }, 12, 10, 0.05f),
 					//Sell second 4 card displays
-					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new IItemProvider[] {ModBlocks.CARD_DISPLAY.get(WoodType.ACACIA), ModBlocks.CARD_DISPLAY.get(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.get(WoodType.CRIMSON), ModBlocks.CARD_DISPLAY.get(WoodType.WARPED) }, 12, 10, 0.05f),
+					new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY.get(WoodType.ACACIA), ModBlocks.CARD_DISPLAY.get(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.get(WoodType.CRIMSON), ModBlocks.CARD_DISPLAY.get(WoodType.WARPED) }, 12, 10, 0.05f),
 					//Sell armor display
 					new LazyTrade(10, ModItems.COIN_IRON, 20, ModBlocks.ARMOR_DISPLAY),
 					//Sell small trader server
@@ -139,7 +138,7 @@ public class VillagerTradeManager {
 	
 	//Cashiers are a mashup of every vanilla trade where the player buys items from the trader, however the payment is in coins instead of emeralds.
 	//Will not buy items and give coins, it will only sell items for coins
-	private static final Map<Integer,List<ITrade>> TRADES_CASHIER = ImmutableMap.of(
+	private static final Map<Integer,List<ItemListing>> TRADES_CASHIER = ImmutableMap.of(
 			1,
 			ImmutableList.of(
 					//Farmer
@@ -192,7 +191,7 @@ public class VillagerTradeManager {
 					new EnchantedBookForCoinsTrade(5),
 					new BasicTrade(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Blocks.LANTERN), 12, 5, 0.05f),
 					//Cartographer
-					new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 3), Structure.MONUMENT, MapDecoration.Type.MONUMENT, 12, 5),
+					new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 3), StructureFeature.OCEAN_MONUMENT, MapDecoration.Type.MONUMENT, 12, 5),
 					//Cleric
 					new BasicTrade(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Items.LAPIS_LAZULI), 12, 5, 0.05f),
 					//Armorer
@@ -221,7 +220,7 @@ public class VillagerTradeManager {
 					new EnchantedBookForCoinsTrade(10),
 					new BasicTrade(new ItemStack(ModItems.COIN_IRON, 3), new ItemStack(Blocks.GLASS,4), 12, 10, 0.05f),
 					//Cartographer
-					new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 4), Structure.WOODLAND_MANSION, MapDecoration.Type.MANSION, 12, 10),
+					new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 4), StructureFeature.WOODLAND_MANSION, MapDecoration.Type.MANSION, 12, 10),
 					//Cleric
 					new BasicTrade(new ItemStack(ModItems.COIN_GOLD), new ItemStack(Blocks.GLOWSTONE), 12, 10, 0.05f),
 					//Armorer
@@ -245,12 +244,12 @@ public class VillagerTradeManager {
 			ImmutableList.of(
 					//Farmer
 					new BasicTrade(new ItemStack(ModItems.COIN_GOLD, 2), new ItemStack(Blocks.CAKE), 12, 15, 0.05f),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.NIGHT_VISION, 100, 15),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.JUMP_BOOST, 160, 15),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.WEAKNESS, 100, 15),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.BLINDNESS, 120, 15),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.POISON, 100, 15),
-					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), Effects.SATURATION, 7, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.NIGHT_VISION, 100, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.JUMP, 160, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.WEAKNESS, 100, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.BLINDNESS, 120, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.POISON, 100, 15),
+					new SuspiciousStewForItemTrade(new ItemStack(ModItems.COIN_EMERALD, 1), MobEffects.SATURATION, 7, 15),
 					//Fisherman (none)
 					//Shepherd (none)
 					//Fletcher
@@ -289,7 +288,7 @@ public class VillagerTradeManager {
 					//Librarian
 					new BasicTrade(new ItemStack(ModItems.COIN_GOLD, 1), new ItemStack(Items.NAME_TAG), 12, 30, 0.05f),
 					//Cartographer
-					new BasicTrade(new ItemStack(ModItems.COIN_GOLD, 1), new ItemStack(Items.GLOBE_BANNER_PATTERN), 12, 30, 0.05f),
+					new BasicTrade(new ItemStack(ModItems.COIN_GOLD, 1), new ItemStack(Items.GLOBE_BANNER_PATTER), 12, 30, 0.05f),
 					//Cleric
 					new BasicTrade(new ItemStack(ModItems.COIN_EMERALD, 1), new ItemStack(Blocks.NETHER_WART, 12), 12, 30, 0.05f),
 					new BasicTrade(new ItemStack(ModItems.COIN_IRON, 5), new ItemStack(Items.EXPERIENCE_BOTTLE), 12, 30, 0.05f),
@@ -318,8 +317,8 @@ public class VillagerTradeManager {
 			
 			for(int i = 1; i <= 5; i++)
 			{
-				List<ITrade> currentTrades = event.getTrades().get(i);
-				List<ITrade> newTrades = TRADES_BANKER.get(i);
+				List<ItemListing> currentTrades = event.getTrades().get(i);
+				List<ItemListing> newTrades = TRADES_BANKER.get(i);
 				newTrades.forEach(trade -> currentTrades.add(trade));
 			}
 			
@@ -331,8 +330,8 @@ public class VillagerTradeManager {
 			
 			for(int i = 1; i <= 5; i++)
 			{
-				List<ITrade> currentTrades = event.getTrades().get(i);
-				List<ITrade> newTrades = TRADES_CASHIER.get(i);
+				List<ItemListing> currentTrades = event.getTrades().get(i);
+				List<ItemListing> newTrades = TRADES_CASHIER.get(i);
 				newTrades.forEach(trade -> currentTrades.add(trade));
 			}
 		}
@@ -345,8 +344,8 @@ public class VillagerTradeManager {
 		if(!Config.COMMON.addCustomWanderingTrades.get())
 			return;
 		
-		List<ITrade> genericTrades = event.getGenericTrades();
-		List<ITrade> rareTrades = event.getRareTrades();
+		List<ItemListing> genericTrades = event.getGenericTrades();
+		List<ItemListing> rareTrades = event.getRareTrades();
 		
 		GENERIC_TRADES_WANDERER.forEach(trade -> genericTrades.add(trade));
 		RARE_TRADES_WANDERER.forEach(trade -> rareTrades.add(trade));
@@ -359,42 +358,42 @@ public class VillagerTradeManager {
 		private static final int MAX_COUNT = 12;
 		private static final float PRICE_MULT = 0.05f;
 		
-		public LazyTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
+		public LazyTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem)
 		{
 			this(1, priceItem, priceCount, forsaleItem);
 		}
 		
-		public LazyTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
+		public LazyTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
 		{
 			this(1, priceItem, priceCount, forsaleItem, forsaleCount);
 		}
 		
-		public LazyTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
+		public LazyTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem)
 		{
 			this(xpValue, priceItem, priceCount, forsaleItem, 1);
 		}
 		
-		public LazyTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
+		public LazyTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
 		{
 			super(new ItemStack(priceItem, priceCount), new ItemStack(forsaleItem, forsaleCount), MAX_COUNT, xpValue, PRICE_MULT);
 		}
 		
-		public LazyTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
+		public LazyTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
 		{
 			this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem);
 		}
 		
-		public LazyTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
+		public LazyTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
 		{
 			this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, forsaleCount);
 		}
 		
-		public LazyTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
+		public LazyTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
 		{
 			this(xpValue, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, 1);
 		}
 		
-		public LazyTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
+		public LazyTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
 		{
 			super(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), new ItemStack(forsaleItem, forsaleCount), MAX_COUNT, xpValue, PRICE_MULT);
 		}
@@ -407,63 +406,63 @@ public class VillagerTradeManager {
 		private static final int MAX_COUNT = 12;
 		private static final float PRICE_MULT = 0.05f;
 		
-		public SetTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
+		public SetTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem)
 		{
 			this(1, priceItem, priceCount, forsaleItem);
 		}
 		
-		public SetTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
+		public SetTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
 		{
 			this(1, priceItem, priceCount, forsaleItem, forsaleCount);
 		}
 		
-		public SetTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
+		public SetTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem)
 		{
 			this(xpValue, priceItem, priceCount, forsaleItem, 1);
 		}
 		
-		public SetTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
+		public SetTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
 		{
 			super(new ItemStack(priceItem, priceCount), new ItemStack(forsaleItem, forsaleCount), MAX_COUNT, xpValue, PRICE_MULT);
 		}
 		
-		public SetTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
+		public SetTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
 		{
 			this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem);
 		}
 		
-		public SetTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
+		public SetTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
 		{
 			this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, forsaleCount);
 		}
 		
-		public SetTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
+		public SetTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
 		{
 			this(xpValue, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, 1);
 		}
 		
-		public SetTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
+		public SetTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
 		{
 			super(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), new ItemStack(forsaleItem, forsaleCount), MAX_COUNT, xpValue, PRICE_MULT);
 		}
 		
 	}
 	
-	private static class SuspiciousStewForItemTrade implements ITrade
+	private static class SuspiciousStewForItemTrade implements ItemListing
 	{
 		
 		private final ItemStack price1;
 		private final ItemStack price2;
-		private final Effect effect;
+		private final MobEffect effect;
 		private final int duration;
 		private final int xpValue;
 		
-		private SuspiciousStewForItemTrade(ItemStack price, Effect effect, int duration, int xpValue)
+		private SuspiciousStewForItemTrade(ItemStack price, MobEffect effect, int duration, int xpValue)
 		{
 			this(price, ItemStack.EMPTY, effect, duration, xpValue);
 		}
 		
-		private SuspiciousStewForItemTrade(ItemStack price1, ItemStack price2, Effect effect, int duration, int xpValue)
+		private SuspiciousStewForItemTrade(ItemStack price1, ItemStack price2, MobEffect effect, int duration, int xpValue)
 		{
 			this.price1 = price1;
 			this.price2 = price2;
@@ -475,7 +474,7 @@ public class VillagerTradeManager {
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random rand) {
 			ItemStack itemstack = new ItemStack(Items.SUSPICIOUS_STEW, 1);
-			SuspiciousStewItem.addEffect(itemstack, this.effect, this.duration);
+			SuspiciousStewItem.saveMobEffect(itemstack, this.effect, this.duration);
 			return new MerchantOffer(this.price1, this.price2, itemstack, 12, this.xpValue, 0.05f);
 		}
 		
@@ -483,7 +482,7 @@ public class VillagerTradeManager {
 		
 	}
 	
-	private static class EnchantedItemForCoinsTrade implements ITrade
+	private static class EnchantedItemForCoinsTrade implements ItemListing
 	{
 		
 		private final Item baseCoin;
@@ -494,7 +493,7 @@ public class VillagerTradeManager {
 		private final float priceMultiplier;
 		private final double basePriceModifier;
 		
-		private EnchantedItemForCoinsTrade(IItemProvider baseCoin, int baseCoinCount, IItemProvider sellItem, int maxUses, int xpValue, float priceMultiplier, double basePriceModifier)
+		private EnchantedItemForCoinsTrade(ItemLike baseCoin, int baseCoinCount, ItemLike sellItem, int maxUses, int xpValue, float priceMultiplier, double basePriceModifier)
 		{
 			this.baseCoin = baseCoin.asItem();
 			this.baseCoinCount = baseCoinCount;
@@ -508,7 +507,7 @@ public class VillagerTradeManager {
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random rand) {
 			int i = 5 + rand.nextInt(15);
-			ItemStack itemstack = EnchantmentHelper.addRandomEnchantment(rand, new ItemStack(sellItem), i, false);
+			ItemStack itemstack = EnchantmentHelper.enchantItem(rand, new ItemStack(sellItem), i, false);
 			
 			long coinValue = MoneyUtil.getValue(this.baseCoin);
 			long baseValue = coinValue * this.baseCoinCount;
@@ -535,7 +534,7 @@ public class VillagerTradeManager {
 		
 	}
 	
-	private static class EnchantedBookForCoinsTrade implements ITrade
+	private static class EnchantedBookForCoinsTrade implements ItemListing
 	{
 		
 		private static final Item baseCoin = ModItems.COIN_GOLD;
@@ -551,18 +550,20 @@ public class VillagerTradeManager {
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random rand) {
 			
-			List<Enchantment> list = GameRegistry.findRegistry(Enchantment.class).getValues().stream().filter(Enchantment::canVillagerTrade).collect(Collectors.toList());
+			List<Enchantment> list = GameRegistry.findRegistry(Enchantment.class).getValues().stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
 			Enchantment enchantment = list.get(rand.nextInt(list.size()));
 			
-			int level = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
-			ItemStack itemstack = EnchantedBookItem.getEnchantedItemStack(new EnchantmentData(enchantment, level));
+			//int level = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
+			int level = rand.nextInt(enchantment.getMaxLevel() - 1) + 1;
+			ItemStack itemstack = new ItemStack(Items.ENCHANTED_BOOK);
+			EnchantedBookItem.addEnchantment(itemstack, new EnchantmentInstance(enchantment, level));
 			
 			long coinValue = MoneyUtil.getValue(baseCoin);
 			long baseValue = coinValue * baseCoinAmount;
 			
 			int valueRandom = rand.nextInt(5 + level * 10);
 			long value = baseValue + coinValue * (level + valueRandom);
-			if (enchantment.isTreasureEnchantment()) {
+			if (enchantment.isTreasureOnly()) {
 				value *= 2;
 			}
 
@@ -589,22 +590,22 @@ public class VillagerTradeManager {
 		
 	}
 	
-	private static class ItemsForMapTrade implements ITrade
+	private static class ItemsForMapTrade implements ItemListing
 	{
 		
 		private final ItemStack price1;
 		private final ItemStack price2;
-		private final Structure<?> structureName;
+		private final StructureFeature<?> structureName;
 		private final MapDecoration.Type mapDecorationType;
 		private final int maxUses;
 		private final int xpValue;
 		
-		public ItemsForMapTrade(ItemStack price, Structure<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+		public ItemsForMapTrade(ItemStack price, StructureFeature<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
 		{
 			this(price, ItemStack.EMPTY, structureName, mapDecorationType, maxUses, xpValue);
 		}
 		
-		public ItemsForMapTrade(ItemStack price1, ItemStack price2, Structure<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+		public ItemsForMapTrade(ItemStack price1, ItemStack price2, StructureFeature<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
 		{
 			this.price1 = price1;
 			this.price2 = price2;
@@ -617,18 +618,18 @@ public class VillagerTradeManager {
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random rand) {
 			
-			if(!(trader.world instanceof ServerWorld))
+			if(!(trader.level instanceof ServerLevel))
 				return null;
 			else
 			{
-				ServerWorld serverworld = (ServerWorld)trader.world;
-				BlockPos blockPos = serverworld.func_241117_a_(this.structureName, trader.getPosition(), 100, true);
+				ServerLevel serverLevel = (ServerLevel)trader.level;
+				BlockPos blockPos = serverLevel.findNearestMapFeature(this.structureName, trader.blockPosition(), 100, true);
 				if(blockPos != null)
 				{
-					ItemStack itemstack = FilledMapItem.setupNewMap(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
-					FilledMapItem.func_226642_a_(serverworld, itemstack);
-					MapData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
-					itemstack.setDisplayName(new TranslationTextComponent("filled_map." + this.structureName.getStructureName().toLowerCase(Locale.ROOT)));
+					ItemStack itemstack = MapItem.create(serverLevel, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
+					MapItem.lockMap(serverLevel, itemstack);
+					MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
+					itemstack.setHoverName(new TranslatableComponent("filled_map." + this.structureName.getFeatureName().toLowerCase(Locale.ROOT)));
 					return new MerchantOffer(this.price1, this.price2, itemstack, this.maxUses, this.xpValue, 0.05f);
 				}
 				else
@@ -638,7 +639,7 @@ public class VillagerTradeManager {
 		
 	}
 	
-	public static class RandomItemSetForItemTrade implements ITrade
+	public static class RandomItemSetForItemTrade implements ItemListing
 	{
 		private final ItemStack price1;
 		private final ItemStack price2;
@@ -673,22 +674,22 @@ public class VillagerTradeManager {
 		}
 	}
 	
-	public static class RandomItemForItemTrade implements ITrade
+	public static class RandomItemForItemTrade implements ItemListing
 	{
 
 		private final ItemStack price1;
 		private final ItemStack price2;
-		private final IItemProvider[] sellItemOptions;
+		private final ItemLike[] sellItemOptions;
 		private final int maxTrades;
 		private final int xpValue;
 		private final float priceMult;
 		
-		public RandomItemForItemTrade(ItemStack price, IItemProvider[] sellItemOptions, int maxTrades, int xpValue, float priceMult)
+		public RandomItemForItemTrade(ItemStack price, ItemLike[] sellItemOptions, int maxTrades, int xpValue, float priceMult)
 		{
 			this(price, ItemStack.EMPTY, sellItemOptions, maxTrades, xpValue, priceMult);
 		}
 		
-		public RandomItemForItemTrade(ItemStack price1, ItemStack price2, IItemProvider[] sellItemOptions, int maxTrades, int xpValue, float priceMult)
+		public RandomItemForItemTrade(ItemStack price1, ItemStack price2, ItemLike[] sellItemOptions, int maxTrades, int xpValue, float priceMult)
 		{
 			this.price1 = price1;
 			this.price2 = price2;

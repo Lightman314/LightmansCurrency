@@ -2,11 +2,12 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+//import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public class MessageActivatePaygate implements IMessage<MessageActivatePaygate> {
 	
@@ -17,25 +18,25 @@ public class MessageActivatePaygate implements IMessage<MessageActivatePaygate> 
 	
 	
 	@Override
-	public void encode(MessageActivatePaygate message, PacketBuffer buffer) {
+	public void encode(MessageActivatePaygate message, FriendlyByteBuf buffer) {
 	}
 
 	@Override
-	public MessageActivatePaygate decode(PacketBuffer buffer) {
+	public MessageActivatePaygate decode(FriendlyByteBuf buffer) {
 		return new MessageActivatePaygate();
 	}
 
 	@Override
-	public void handle(MessageActivatePaygate message, Supplier<Context> supplier) {
+	public void handle(MessageActivatePaygate message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayerEntity entity = supplier.get().getSender();
+			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.openContainer instanceof PaygateContainer)
+				if(entity.containerMenu instanceof PaygateContainer)
 				{
-					PaygateContainer container = (PaygateContainer)entity.openContainer;
+					PaygateContainer container = (PaygateContainer)entity.containerMenu;
 					container.Activate();
 				}
 			}

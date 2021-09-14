@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:shelf_oak",
+    "lightmanscurrency:shelf_birch",
+    "lightmanscurrency:shelf_spruce",
+    "lightmanscurrency:shelf_jungle",
+    "lightmanscurrency:shelf_acacia",
+    "lightmanscurrency:shelf_dark_oak",
+    "lightmanscurrency:shelf_crimson",
+    "lightmanscurrency:shelf_warped",
+    "lightmanscurrency:card_display_oak",
+    "lightmanscurrency:card_display_birch",
+    "lightmanscurrency:card_display_spruce",
+    "lightmanscurrency:card_display_jungle",
+    "lightmanscurrency:card_display_acacia",
+    "lightmanscurrency:card_display_dark_oak",
+    "lightmanscurrency:card_display_crimson",
+    "lightmanscurrency:card_display_warped"
+  ]
+}

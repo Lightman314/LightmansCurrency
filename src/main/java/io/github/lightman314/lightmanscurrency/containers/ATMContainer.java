@@ -4,32 +4,25 @@ import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class ATMContainer extends Container{
+public class ATMContainer extends AbstractContainerMenu{
 	
-	private final IInventory coinInput = new Inventory(9);
-	private final IWorldPosCallable callable;
+	private final Container coinInput = new SimpleContainer(9);
+	//private final IWorldPosCallable callable;
 	
-	public ATMContainer(int windowId, PlayerInventory inventory)
-	{
-		this(windowId, inventory, IWorldPosCallable.DUMMY);
-	}
-	
-	public ATMContainer(int windowId, PlayerInventory inventory, final IWorldPosCallable callable)
+	public ATMContainer(int windowId, Inventory inventory)
 	{
 		super(ModContainers.ATM, windowId);
-		this.callable = callable;
 		
 		//Coinslots
-		for(int x = 0; x < coinInput.getSizeInventory(); x++)
+		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + x * 18, 98, false));
 		}
@@ -50,56 +43,53 @@ public class ATMContainer extends Container{
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
+	public boolean stillValid(Player playerIn)
 	{
-		return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
+		return true;
 	}
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
-		super.onContainerClosed(playerIn);
-		this.callable.consume((world,pos) ->
-		{
-			this.clearContainer(playerIn,  world,  this.coinInput);
-		});
+		super.removed(playerIn);
+		this.clearContainer(playerIn, this.coinInput);
 	}
 
 	
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getSizeInventory())
+			if(index < this.coinInput.getContainerSize())
 			{
 				if(MoneyUtil.isCoin(slotStack.getItem()))
 				{
-					if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory(), this.inventorySlots.size(), true))
+					if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory(), false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize(), false))
 			{
 				return ItemStack.EMPTY;
 			}
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
