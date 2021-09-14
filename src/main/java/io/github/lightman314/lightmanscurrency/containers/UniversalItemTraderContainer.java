@@ -398,7 +398,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		{
 			ItemTradeData trade = this.getData().getTrade(i);
 			if(trade != null)
-				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem());
+				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem(this.getData().getStorage(), this.getData().isCreative()));
 			else
 				tradeDisplays.setInventorySlotContents(i, ItemStack.EMPTY);
 		}

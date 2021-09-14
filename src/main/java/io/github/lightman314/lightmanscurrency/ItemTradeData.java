@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData {
@@ -18,7 +17,7 @@ public class ItemTradeData {
 	public enum TradeDirection { SALE, PURCHASE }
 	
 	public static int MaxTradeDirectionStringLength()
-	{
+	{ 
 		int length = 0;
 		for(TradeDirection value : TradeDirection.values())
 		{
@@ -49,11 +48,19 @@ public class ItemTradeData {
 		return this.sellItem.copy();
 	}
 	
-	public ItemStack getDisplayItem()
+	public ItemStack getDisplayItem(IInventory storage, boolean isCreative)
 	{
-		if(this.customName == "")
-			return getSellItem();
-		return getSellItem().setDisplayName(new StringTextComponent("§6" + this.customName));
+		ItemStack displayItem = getSellItem();
+		//Get the item tag if there is one, if not just create a blank one
+		CompoundNBT itemTag = displayItem.getOrCreateTag();
+		itemTag.putBoolean("LC_DisplayItem", true);
+		//Always to custom name data first, as it will re-load the item tag after setting the name.
+		if(this.customName != "")
+			itemTag.putString("LC_CustomName", this.customName);
+		//Get amount in stock
+		itemTag.putInt("LC_StockAmount", isCreative ? -1 : this.stockCount(storage));
+		displayItem.setTag(itemTag);
+		return displayItem;
 	}
 	
 	public void setSellItem(ItemStack itemStack)

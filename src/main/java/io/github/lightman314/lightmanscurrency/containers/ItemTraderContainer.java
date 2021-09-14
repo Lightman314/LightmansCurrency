@@ -389,7 +389,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		{
 			ItemTradeData trade = tileEntity.getTrade(i);
 			if(trade != null)
-				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem());
+				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem(this.tileEntity.getStorage(), this.tileEntity.isCreative()));
 			else
 				tradeDisplays.setInventorySlotContents(i, ItemStack.EMPTY);
 		}
