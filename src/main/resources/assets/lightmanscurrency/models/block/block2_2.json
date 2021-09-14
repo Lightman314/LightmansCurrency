@@ -1,0 +1,16 @@
+{
+	"credit": "Made with Blockbench",
+    "parent": "lightmanscurrency:block/block",
+	"display": {
+		"gui": {
+            "rotation": [30, -45, 0],
+			"scale": [0.35, 0.35, 0.35],
+            "translation": [-2, -1, 0]
+		},
+        "fixed": {
+            "rotation": [0, 180, 0],
+            "scale" : [0.5, 0.5, 0.5],
+            "translation" : [4, -4, 0]
+        }
+	}
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "g",
+    "x",
+    "w"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "w": {
+      "item": "minecraft:white_wool"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:display_case"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "item_trader_server",
+  "pattern":[
+    "ggg",
+    "gxg",
+    "gcg"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:item_trader_server_lrg"
+    },
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "c": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:item_trader_server_xlrg"
+  }
+}

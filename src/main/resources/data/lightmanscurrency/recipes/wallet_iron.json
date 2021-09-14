@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "wallet_crafting",
+  "pattern":[
+    "lcl"
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "c": {
+      "item": "lightmanscurrency:coin_iron"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:wallet_iron"
+  }
+}

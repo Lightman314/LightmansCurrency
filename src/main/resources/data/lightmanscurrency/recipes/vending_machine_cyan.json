@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "vending_machine_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:vending_machine"
+    },
+    {
+      "item": "minecraft:cyan_dye"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:vending_machine_cyan"
+  }
+}

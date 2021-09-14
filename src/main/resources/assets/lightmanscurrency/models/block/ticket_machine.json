@@ -1,0 +1,37 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block",
+	"textures": {
+		"main": "lightmanscurrency:blocks/ticket_machine",
+		"particle": "lightmanscurrency:blocks/ticket_machine"
+	},
+	"elements": [
+		{
+			"name": "Top",
+			"from": [4, 8, 0],
+			"to": [12, 16, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 8, 13]},
+			"faces": {
+				"north": {"uv": [4, 8, 8, 12], "texture": "#main"},
+				"east": {"uv": [12, 8, 16, 12], "texture": "#main"},
+				"south": {"uv": [0, 8, 4, 12], "texture": "#main"},
+				"west": {"uv": [8, 8, 12, 12], "texture": "#main"},
+				"up": {"uv": [4, 0, 8, 4], "texture": "#main"},
+				"down": {"uv": [0, 0, 4, 4], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Base",
+			"from": [4, 0, 0],
+			"to": [12, 8, 6],
+			"rotation": {"angle": 0, "axis": "y", "origin": [15, 8, 12]},
+			"faces": {
+				"north": {"uv": [4, 12, 8, 16], "texture": "#main"},
+				"east": {"uv": [13, 12, 16, 16], "texture": "#main"},
+				"south": {"uv": [0, 12, 4, 16], "texture": "#main"},
+				"west": {"uv": [8, 12, 11, 16], "texture": "#main"},
+				"down": {"uv": [0, 1, 4, 4], "texture": "#main"}
+			}
+		}
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/vendingmachinelarge/vending_machine_large_white_top_right",
+	"textures": {
+		"particle": "lightmanscurrency:blocks/vendingmachine2/largebase_magenta",
+		"base": "lightmanscurrency:blocks/vendingmachine2/largebase_magenta",
+		"shelves": "lightmanscurrency:blocks/vendingmachine2/largeshelves"
+	}
+}

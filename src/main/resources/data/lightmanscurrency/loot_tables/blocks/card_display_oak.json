@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "lightmanscurrency:card_display_oak"
+        }
+      ]
+    }
+  ]
+}

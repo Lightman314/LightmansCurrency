@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "coinpile_from_block",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:coinblock_gold"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:coinpile_gold",
+    "count": 4
+  }
+}

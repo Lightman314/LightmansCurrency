@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "item_trader_server",
+  "pattern":[
+    "ici",
+    "ixi",
+    "iei"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "c": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:item_trader_server_sml"
+  }
+}

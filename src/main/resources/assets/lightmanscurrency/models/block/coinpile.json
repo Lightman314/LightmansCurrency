@@ -1,0 +1,44 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block",
+	"elements": [
+		{
+			"name": "Pile1",
+			"from": [8, 0, 8],
+			"to": [16, 1, 16],
+			"faces": {
+				"north": {"uv": [0, 1, 8, 2], "texture": "#side"},
+				"east": {"uv": [0, 1, 8, 2], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 1, 8, 2], "texture": "#side", "cullface": "south"},
+				"up": {"uv": [4, 4, 12, 12], "texture": "#coin"},
+				"down": {"uv": [4, 4, 12, 12], "texture": "#coin", "cullface": "down"}
+			}
+		},
+		{
+			"name": "Pile2",
+			"from": [0, 0, 8],
+			"to": [8, 5, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 5], "texture": "#side"},
+				"east": {"uv": [0, 0, 8, 5], "texture": "#side"},
+				"south": {"uv": [0, 0, 8, 5], "texture": "#side", "cullface": "south"},
+				"west": {"uv": [0, 0, 8, 5], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [4, 4, 12, 12], "texture": "#coin"},
+				"down": {"uv": [4, 4, 12, 12], "texture": "#coin", "cullface": "down"}
+			}
+		},
+		{
+			"name": "Pile3",
+			"from": [4, 0, 0],
+			"to": [12, 10, 8],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 10], "texture": "#side", "cullface": "north"},
+				"east": {"uv": [0, 0, 8, 10], "texture": "#side"},
+				"south": {"uv": [0, 0, 8, 10], "texture": "#side"},
+				"west": {"uv": [0, 0, 8, 10], "texture": "#side"},
+				"up": {"uv": [4, 4, 12, 12], "texture": "#coin"},
+				"down": {"uv": [4, 4, 12, 12], "texture": "#coin", "cullface": "down"}
+			}
+		}
+	]
+}

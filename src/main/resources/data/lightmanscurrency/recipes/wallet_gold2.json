@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "wallet_crafting",
+  "pattern":[
+    "lcl",
+    " r "
+  ],
+  "key": {
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "c": {
+      "item": "lightmanscurrency:coin_gold"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:wallet_gold"
+  }
+}

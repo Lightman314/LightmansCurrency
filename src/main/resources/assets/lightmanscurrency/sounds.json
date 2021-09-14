@@ -1,0 +1,9 @@
+{
+    
+    "coins_clinking":{
+        "category": "block",
+        "subtitle": "lightmanscurrency.subtitle.coins_clinking",
+        "sounds": ["lightmanscurrency:coins1", "lightmanscurrency:coins2", "lightmanscurrency:coins3"]
+    }
+    
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "igi",
+    "igi",
+    "rrr"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "g": {
+      "item": "minecraft:ink_sac"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:ticket_machine"
+  }
+}

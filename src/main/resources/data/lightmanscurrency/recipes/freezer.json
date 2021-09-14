@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "igi",
+    "igi",
+    "cxc"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "i": {
+      "item": "minecraft:black_concrete_powder"
+    },
+    "c": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:freezer"
+  }
+}

@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lightmanscurrency:block/coinmint",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lightmanscurrency:block/coinmint",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lightmanscurrency:block/coinmint",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lightmanscurrency:block/coinmint",
+            "y": 270
+        }
+    }
+}

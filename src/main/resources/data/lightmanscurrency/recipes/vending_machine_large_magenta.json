@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "vending_machine_large_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:vending_machine_large"
+    },
+    {
+      "item": "minecraft:magenta_dye"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:vending_machine_large_magenta"
+  }
+}

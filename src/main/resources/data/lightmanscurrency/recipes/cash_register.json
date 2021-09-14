@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "iii",
+    "ede",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "d": {
+      "item": "minecraft:dropper"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:cash_register"
+  }
+}

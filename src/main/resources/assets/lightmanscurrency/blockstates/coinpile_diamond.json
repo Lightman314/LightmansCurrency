@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lightmanscurrency:block/coinpile_diamond",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lightmanscurrency:block/coinpile_diamond",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lightmanscurrency:block/coinpile_diamond",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lightmanscurrency:block/coinpile_diamond",
+            "y": 270
+        }
+    }
+}

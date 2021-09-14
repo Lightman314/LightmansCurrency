@@ -1,0 +1,45 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "vending_machine_large_washing",
+  "ingredients": [
+    [
+      {
+        "item": "lightmanscurrency:vending_machine_large_orange"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_magenta"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_lightblue"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_yellow"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_lime"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_pink"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_gray"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_lightgray"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_cyan"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_purple"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_blue"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_brown"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_green"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_red"
+      },{
+        "item": "lightmanscurrency:vending_machine_large_black"
+      }
+    ],
+    {
+      "item": "minecraft:water_bucket"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:vending_machine_large"
+  }
+}

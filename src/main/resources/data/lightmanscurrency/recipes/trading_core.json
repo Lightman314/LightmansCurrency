@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "rqr",
+    "rdr",
+    "rpr"
+  ],
+  "key": {
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "q": {
+      "item": "minecraft:quartz"
+    },
+    "d": {
+      "item": "minecraft:dropper"
+    },
+    "p": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:trading_core"
+  }
+}

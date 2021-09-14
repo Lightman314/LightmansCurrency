@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "coinblock",
+  "pattern":[
+    "xx",
+    "xx"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:coinpile_copper"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:coinblock_copper"
+  }
+}

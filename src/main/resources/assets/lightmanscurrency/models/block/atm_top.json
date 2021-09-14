@@ -1,0 +1,84 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "lightmanscurrency:blocks/atm",
+		"base": "lightmanscurrency:blocks/atm"
+	},
+	"elements": [
+		{
+			"name": "topbase",
+			"from": [0, 0, 0],
+			"to": [16, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 24, 8]},
+			"faces": {
+				"north": {"uv": [8, 8, 12, 12], "texture": "#base", "cullface": "north"},
+				"east": {"uv": [4.75, 8, 8, 12], "texture": "#base", "cullface": "east"},
+				"south": {"uv": [0, 8, 4, 12], "texture": "#base", "cullface": "south"},
+				"west": {"uv": [12, 8, 15.25, 12], "texture": "#base", "cullface": "west"},
+				"up": {"uv": [0, 4, 4, 7.25], "texture": "#base", "cullface": "up"}
+			}
+		},
+		{
+			"name": "topfront",
+			"from": [0, 10, 13],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 34, 21]},
+			"faces": {
+				"east": {"uv": [4, 8, 4.75, 9.5], "texture": "#base", "cullface": "east"},
+				"south": {"uv": [0, 0, 4, 1.5], "texture": "#base", "cullface": "south"},
+				"west": {"uv": [15.25, 8, 16, 9.5], "texture": "#base", "cullface": "west"},
+				"up": {"uv": [0, 7.25, 4, 8], "texture": "#base", "cullface": "up"},
+				"down": {"uv": [0, 1.5, 4, 2.25], "texture": "#base", "cullface": "down"}
+			}
+		},
+		{
+			"name": "angletop",
+			"from": [0, 5.7, 26.3],
+			"to": [16, 9.7, 29.3],
+			"rotation": {"angle": 45, "axis": "x", "origin": [8, 26, 23]},
+			"faces": {
+				"east": {"uv": [4, 9, 4.75, 10], "texture": "#base"},
+				"south": {"uv": [0, 8, 4, 9], "texture": "#base"},
+				"west": {"uv": [15.25, 9, 16, 10], "texture": "#base"},
+				"down": {"uv": [0, 3.25, 4, 4], "texture": "#base"}
+			}
+		},
+		{
+			"name": "anglebottom",
+			"from": [0, -4.3, 25.355],
+			"to": [16, -0.3, 29.355],
+			"rotation": {"angle": 45, "axis": "x", "origin": [8, 16, 23]},
+			"faces": {
+				"east": {"uv": [4, 11, 5, 12], "texture": "#base"},
+				"west": {"uv": [15, 11, 16, 12], "texture": "#base"},
+				"up": {"uv": [0, 9, 4, 10], "texture": "#base"}
+			}
+		},
+		{
+			"name": "cardslot1",
+			"from": [11, 4, 13],
+			"to": [15, 5, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [19, 28, 21]},
+			"faces": {
+				"east": {"uv": [3.5, 10.75, 3.75, 11], "texture": "#base"},
+				"south": {"uv": [2.75, 10.75, 3.75, 11], "texture": "#base"},
+				"west": {"uv": [2.75, 10.75, 3, 11], "texture": "#base"},
+				"up": {"uv": [2.75, 10.75, 3.75, 11], "texture": "#base"},
+				"down": {"uv": [2.75, 10.75, 3.75, 11], "texture": "#base"}
+			}
+		},
+		{
+			"name": "cardslot2",
+			"from": [11, 6, 13],
+			"to": [15, 7, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [19, 28, 21]},
+			"faces": {
+				"east": {"uv": [3.5, 10.25, 3.75, 10.5], "texture": "#base"},
+				"south": {"uv": [2.75, 10.25, 3.75, 10.5], "texture": "#base"},
+				"west": {"uv": [2.75, 10.25, 3, 10.5], "texture": "#base"},
+				"up": {"uv": [2.75, 10.25, 3.75, 10.5], "texture": "#base"},
+				"down": {"uv": [2.75, 10.25, 3.75, 10.5], "texture": "#base"}
+			}
+		}
+	]
+}

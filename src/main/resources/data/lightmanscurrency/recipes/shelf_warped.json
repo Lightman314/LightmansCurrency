@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "trading_shelf",
+  "pattern":[
+    "x",
+    "s"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "s": {
+      "item": "minecraft:warped_slab"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:shelf_warped"
+  }
+}

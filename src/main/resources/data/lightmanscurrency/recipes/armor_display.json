@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "ggg",
+    "gag",
+    "ixi"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "a": {
+      "item": "minecraft:armor_stand"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:armor_display"
+  }
+}
