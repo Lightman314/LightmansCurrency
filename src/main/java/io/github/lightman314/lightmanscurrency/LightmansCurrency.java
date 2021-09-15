@@ -22,6 +22,10 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
 import io.github.lightman314.lightmanscurrency.proxy.*;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleDeserializer;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerBlacklist;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerTradeLimit;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -117,6 +121,11 @@ public class LightmansCurrency {
 		
     	//Initialize the UniversalTraderData deserializers
     	IUniversalDataDeserializer.RegisterDeserializer(UniversalItemTraderData.TYPE, UniversalItemTraderData.DESERIALIZER);
+    	
+    	//Initialize the Trade Rule deserializers
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit.DESERIALIZER);
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist.DESERIALIZER);
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist.DESERIALIZER);
     	
     	//Initialized the sorting lists
 		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,

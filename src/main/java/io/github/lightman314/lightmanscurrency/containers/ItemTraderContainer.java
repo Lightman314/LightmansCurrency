@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCont
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
@@ -27,6 +29,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 public class ItemTraderContainer extends Container implements ITraderContainer, ITradeButtonContainer{
@@ -202,14 +205,45 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	
 	public IInventory GetItemInventory() { return itemSlots; }
 	
+	public boolean PermissionToTrade(int tradeIndex)
+	{
+		ItemTradeData trade = tileEntity.getTrade(tradeIndex);
+		if(trade == null)
+			return false;
+		PreTradeEvent event = new PreTradeEvent(this.player, trade, this);
+		if(!event.isCanceled())
+			this.tileEntity.beforeTrade(event);
+		if(!event.isCanceled())
+			trade.beforeTrade(event);
+		if(!event.isCanceled())
+			MinecraftForge.EVENT_BUS.post(event);
+		
+		return !event.isCanceled();
+	}
+	
+	public ItemTradeData GetTrade(int tradeIndex)
+	{
+		return this.tileEntity.getTrade(tradeIndex);
+	}
+	
+	private void PostTradeEvent(ItemTradeData trade)
+	{
+		PostTradeEvent event = new PostTradeEvent(this.player, trade, this);
+		this.tileEntity.afterTrade(event);
+		trade.afterTrade(event);
+		MinecraftForge.EVENT_BUS.post(event);
+	}
+	
 	public void ExecuteTrade(int tradeIndex)
 	{
+		
 		//LightmansCurrency.LOGGER.info("Executing trade at index " + tradeIndex);
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeScreen();
 			return;
 		}
+		
 		ItemTradeData trade = tileEntity.getTrade(tradeIndex);
 		//Abort if the trade is null
 		if(trade == null)
@@ -224,6 +258,11 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return;
 		}
+		
+		//Check if the player is allowed to do the trade
+		if(!PermissionToTrade(tradeIndex))
+			return;
+		
 		//Process a sale
 		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
@@ -283,6 +322,9 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
+			//Push the post-trade event
+			PostTradeEvent(trade);
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.isCreative())
 			{
@@ -321,6 +363,9 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
+			//Push the post-trade event
+			PostTradeEvent(trade);
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.isCreative())
 			{
@@ -331,9 +376,6 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			}
 			
 		}
-		
-		
-		
 		
 	}
 	

@@ -12,7 +12,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.Constants;
 
-public class ItemTradeData extends TradeData<ItemTradeData> {
+public class ItemTradeData extends TradeData {
 	
 	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET }
 	public enum ItemTradeType { SALE, PURCHASE, BARTER }
@@ -29,18 +29,12 @@ public class ItemTradeData extends TradeData<ItemTradeData> {
 		return length;
 	}
 	
-	
 	public static final int MAX_CUSTOMNAME_LENGTH = 30;
 	
 	ItemTradeRestrictions restriction = ItemTradeRestrictions.NONE;
 	ItemStack sellItem = ItemStack.EMPTY;
 	ItemTradeType tradeDirection = ItemTradeType.SALE;
 	String customName = "";
-	
-	public ItemTradeData()
-	{
-		
-	}
 	
 	public ItemStack getSellItem()
 	{

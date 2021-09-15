@@ -36,7 +36,7 @@ public class ItemTradeButton extends Button{
 	public static final int SLOT_OFFSET_X = 1;
 	public static final int SLOT_OFFSET_Y = 1;
 	
-	ItemTradeData trade;
+	int tradeIndex;
 	Slot itemDisplaySlot;
 	Supplier<ITradeButtonStockSource> source;
 	ITradeButtonContainer container;
@@ -44,28 +44,22 @@ public class ItemTradeButton extends Button{
 	
 	FontRenderer font;
 	
-	public ItemTradeButton(int x, int y, IPressable pressable, ItemTradeData trade, FontRenderer font, Supplier<ITradeButtonStockSource> source)
+	public ItemTradeButton(int x, int y, IPressable pressable, int tradeIndex, FontRenderer font, Supplier<ITradeButtonStockSource> source)
 	{
-		this(x,y,pressable,trade,font,source, null);
+		this(x,y,pressable, tradeIndex,font,source, null);
 	}
 	
-	public ItemTradeButton(int x, int y, IPressable pressable, ItemTradeData trade, FontRenderer font, Supplier<ITradeButtonStockSource> source, ITradeButtonContainer container)
+	public ItemTradeButton(int x, int y, IPressable pressable, int tradeIndex, FontRenderer font, Supplier<ITradeButtonStockSource> source, ITradeButtonContainer container)
 	{
 		super(x, y, WIDTH, HEIGHT, ITextComponent.getTextComponentOrEmpty(""), pressable);
-		this.trade = trade;
+		this.tradeIndex = tradeIndex;
+		this.tradeIndex = tradeIndex;
 		this.font = font;
 		this.source = source;
 		this.container = container;
 	}
 	
-	/**
-	 * Updates the trade data for this buttons trade.
-	 * @param trade The updated trade data.
-	 */
-	public void UpdateTrade(ItemTradeData trade)
-	{
-		this.trade = trade;
-	}
+	private ItemTradeData getTrade() { return this.container.GetTrade(this.tradeIndex); }
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -79,13 +73,14 @@ public class ItemTradeButton extends Button{
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		else
 			RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
-		int offset = getRenderYOffset(this.trade.getTradeDirection());
+		int offset = getRenderYOffset(this.getTrade().getTradeDirection());
 		if(this.isHovered)
 			offset += HEIGHT;
 		//Draw Button BG
 		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
-		this.font.drawString(matrixStack, getTradeText(this.trade, hasStock(), hasSpace()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.trade, canAfford(), hasStock()));
+		boolean hasPermission = hasPermission();
+		this.font.drawString(matrixStack, getTradeText(this.getTrade(), hasStock(), hasSpace(), hasPermission), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission));
 		
 		/*if(trade.isValid() && !trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative()) //Display the No Stock message if the trade is valid, but we're out of stock
 			this.font.drawString(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString(), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);
@@ -96,9 +91,11 @@ public class ItemTradeButton extends Button{
 		
 	}
 	
-	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace)
+	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace, boolean hasPermission)
 	{
-		if(trade.isValid() && !hasStock)
+		if(trade.isValid() && !hasPermission)
+			return new TranslationTextComponent("tooltip.lightmanscurrenct.denied").getString();
+		else if(trade.isValid() && !hasStock)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(trade.isValid() && !hasSpace)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
@@ -108,9 +105,9 @@ public class ItemTradeButton extends Button{
 			return trade.getCost().getString();
 	}
 	
-	public static int getTradeTextColor(ItemTradeData trade, boolean canAfford, boolean hasStock)
+	public static int getTradeTextColor(ItemTradeData trade, boolean canAfford, boolean hasStock, boolean hasPermission)
 	{
-		if((trade.isValid() && !hasStock) || !canAfford)
+		if((trade.isValid() && !hasStock) || !canAfford || !hasPermission)
 			return 0xFF0000;
 		return 0xFFFFFF;
 	}
@@ -125,56 +122,61 @@ public class ItemTradeButton extends Button{
 	
 	protected boolean canAfford()
 	{
-		if(this.trade.getTradeDirection() == ItemTradeType.SALE)
+		if(this.getTrade().getTradeDirection() == ItemTradeType.SALE)
 		{
-			if(this.trade.isFree())
+			if(this.getTrade().isFree())
 				return true;
 			else if(this.container != null)
 			{
-				return this.container.GetCoinValue() >= this.trade.getCost().getRawValue();
+				return this.container.GetCoinValue() >= this.getTrade().getCost().getRawValue();
 			}
 		}
-		else if(this.trade.getTradeDirection() == ItemTradeType.PURCHASE)
+		else if(this.getTrade().getTradeDirection() == ItemTradeType.PURCHASE)
 		{
-			return InventoryUtil.GetItemCount(this.container.GetItemInventory(), this.trade.getSellItem()) >= this.trade.getSellItem().getCount();
+			return InventoryUtil.GetItemCount(this.container.GetItemInventory(), this.getTrade().getSellItem()) >= this.getTrade().getSellItem().getCount();
 		}
 		return true;
 	}
 	
 	protected boolean hasStock()
 	{
-		if(trade.getTradeDirection() == ItemTradeType.SALE)
+		if(getTrade().getTradeDirection() == ItemTradeType.SALE)
 		{
-			return trade.hasStock(this.source.get().getStorage()) || this.source.get().isCreative();
+			return getTrade().hasStock(this.source.get().getStorage()) || this.source.get().isCreative();
 		}
-		else if(trade.getTradeDirection() == ItemTradeType.PURCHASE)
+		else if(getTrade().getTradeDirection() == ItemTradeType.PURCHASE)
 		{
-			return trade.hasEnoughMoney(this.source.get().getStoredMoney()) || this.source.get().isCreative();
+			return getTrade().hasEnoughMoney(this.source.get().getStoredMoney()) || this.source.get().isCreative();
 		}
 		return false;
 	}
 	
 	protected boolean hasSpace()
 	{
-		if(trade.getTradeDirection() == ItemTradeType.PURCHASE)
-			return InventoryUtil.CanPutItemStack(this.source.get().getStorage(), this.trade.getSellItem());
+		if(getTrade().getTradeDirection() == ItemTradeType.PURCHASE)
+			return InventoryUtil.CanPutItemStack(this.source.get().getStorage(), this.getTrade().getSellItem());
 		return true;
+	}
+	
+	protected boolean hasPermission()
+	{
+		return this.container.PermissionToTrade(this.tradeIndex);
 	}
 	
 	protected boolean isActive()
 	{
-		if(trade.isValid())
+		if(getTrade().isValid())
 		{
-			if(trade.getTradeDirection() == ItemTradeType.SALE)
+			if(getTrade().getTradeDirection() == ItemTradeType.SALE)
 			{
 				//Return whether we have enough of the item we're selling in stock.
-				return this.source.get().isCreative() || trade.hasStock(this.source.get().getStorage());
+				return this.source.get().isCreative() || getTrade().hasStock(this.source.get().getStorage());
 			}
-			else if(trade.getTradeDirection() == ItemTradeType.PURCHASE)
+			else if(getTrade().getTradeDirection() == ItemTradeType.PURCHASE)
 			{
 				//Return whether we have enough money to pay for the items we're buying.
 				//Confirm that there's enough room to place the intended items in storage
-				return (this.source.get().isCreative() || trade.hasEnoughMoney(this.source.get().getStoredMoney())) && hasSpace();
+				return (this.source.get().isCreative() || getTrade().hasEnoughMoney(this.source.get().getStoredMoney())) && hasSpace();
 			}
 		}
 		return false;

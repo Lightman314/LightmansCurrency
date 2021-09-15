@@ -13,8 +13,11 @@ import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditConta
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.entity.Entity;
@@ -38,7 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>{
+public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
 	
@@ -341,6 +344,17 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
 			}
 		}
+		
+	}
+
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		
+	}
+
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		
 		
 	}
 

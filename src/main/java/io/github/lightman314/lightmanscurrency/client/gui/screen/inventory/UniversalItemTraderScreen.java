@@ -91,7 +91,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 		int tradeCount = this.container.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addButton(new ItemTradeButton(this.guiLeft + ItemTraderUtil.getButtonPosX(tradeCount, i), this.guiTop + ItemTraderUtil.getButtonPosY(tradeCount, i), this::PressTradeButton, container.getData().getTrade(i), this.font, () -> this.container.getData(), this.container)));
+			this.tradeButtons.add(this.addButton(new ItemTradeButton(this.guiLeft + ItemTraderUtil.getButtonPosX(tradeCount, i), this.guiTop + ItemTraderUtil.getButtonPosY(tradeCount, i), this::PressTradeButton, i, this.font, () -> this.container.getData(), this.container)));
 		}
 	}
 	
@@ -101,11 +101,6 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 		super.tick();
 		
 		this.container.tick();
-		
-		for(int i = 0; i < tradeButtons.size(); i++)
-		{
-			tradeButtons.get(i).UpdateTrade(container.getData().getTrade(i));
-		}
 		
 		if(this.buttonCollectMoney != null)
 		{

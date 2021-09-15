@@ -11,7 +11,10 @@ import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -42,7 +45,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>{
+public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
@@ -660,6 +663,18 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 					InventoryUtil.dumpContents(this.world, pos, InventoryUtil.buildInventory(tradeStack));
 			}
 		}
+		
+	}
+
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		
+		
+	}
+
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		
 		
 	}
 	
