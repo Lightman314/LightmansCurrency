@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.containers.slots;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -38,13 +38,13 @@ public class TradeInputSlot extends Slot{
 	
 	public boolean isTradeItemValid(ItemStack stack)
 	{
-		if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_HEAD)
+		if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD)
 			return stack.canEquip(EquipmentSlotType.HEAD, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_CHEST)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST)
 			return stack.canEquip(EquipmentSlotType.CHEST, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_LEGS)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS)
 			return stack.canEquip(EquipmentSlotType.LEGS, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_FEET)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
 			return stack.canEquip(EquipmentSlotType.FEET, this.player);
 		
         return true;
@@ -66,13 +66,13 @@ public class TradeInputSlot extends Slot{
 	@OnlyIn(Dist.CLIENT)
 	@Override
     public Pair<ResourceLocation, ResourceLocation> getBackground() {
-		if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_HEAD)
+		if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD)
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_CHEST)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST)
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_LEGS)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS)
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_FEET)
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
        return super.getBackground();
     }

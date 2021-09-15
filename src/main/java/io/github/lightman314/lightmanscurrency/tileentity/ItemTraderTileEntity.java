@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -18,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -89,7 +89,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 	}
 	
-	public void restrictTrade(int index, ItemTradeData.TradeRestrictions restriction)
+	public void restrictTrade(int index, ItemTradeData.ItemTradeRestrictions restriction)
 	{
 		getTrade(index).setRestriction(restriction);
 	}

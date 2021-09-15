@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;

@@ -24,8 +24,8 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpe
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageToggleCreative;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

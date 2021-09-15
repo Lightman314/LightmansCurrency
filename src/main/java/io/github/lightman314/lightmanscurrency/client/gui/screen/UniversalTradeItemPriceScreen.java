@@ -8,10 +8,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import net.minecraft.client.gui.FontRenderer;
@@ -36,7 +36,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	Button buttonSetSell;
 	Button buttonSetPurchase;
 	
-	TradeType localDirection;
+	ItemTradeType localDirection;
 	
 	CoinValueInput priceInput;
 	
@@ -82,8 +82,8 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	{
 		super.tick();
 		
-		this.buttonSetSell.active = this.localDirection != TradeType.SALE;
-		this.buttonSetPurchase.active = this.localDirection != TradeType.PURCHASE;
+		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
+		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		
 		this.priceInput.tick();
 		this.nameField.tick();
@@ -132,9 +132,9 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	protected void SetTradeDirection(Button button)
 	{
 		if(button == buttonSetSell)
-			this.localDirection = TradeType.SALE;
+			this.localDirection = ItemTradeType.SALE;
 		else if(button == buttonSetPurchase)
-			this.localDirection = TradeType.PURCHASE;
+			this.localDirection = ItemTradeType.PURCHASE;
 		else
 			LightmansCurrency.LogWarning("Invalid button triggered SetTradeDirection");
 	}

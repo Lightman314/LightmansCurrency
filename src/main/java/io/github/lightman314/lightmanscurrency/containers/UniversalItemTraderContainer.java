@@ -14,11 +14,11 @@ import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeType;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -245,7 +245,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			return;
 		}
 		//Execute a sale
-		if(trade.getTradeDirection() == TradeType.SALE)
+		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
 			//Abort if not enough items in inventory
 			if(InventoryUtil.GetItemCount(getData().getStorage(), trade.getSellItem()) < trade.getSellItem().getCount() && !this.getData().isCreative())
@@ -313,7 +313,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			}
 		}
 		//Process a purchase
-		else if(trade.getTradeDirection() == TradeType.PURCHASE)
+		else if(trade.getTradeDirection() == ItemTradeType.PURCHASE)
 		{
 			//Abort if not enough items in the item slots
 			if(InventoryUtil.GetItemCount(this.itemSlots, trade.getSellItem()) < trade.getSellItem().getCount())

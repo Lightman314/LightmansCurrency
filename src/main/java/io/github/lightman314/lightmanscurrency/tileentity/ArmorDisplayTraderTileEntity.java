@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
@@ -55,13 +55,13 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 	private void validateTradeLimitations()
 	{
 		if(this.tradeCount > 0)
-			this.restrictTrade(0, ItemTradeData.TradeRestrictions.ARMOR_HEAD);
+			this.restrictTrade(0, ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD);
 		if(this.tradeCount > 1)
-			this.restrictTrade(1, ItemTradeData.TradeRestrictions.ARMOR_CHEST);
+			this.restrictTrade(1, ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST);
 		if(this.tradeCount > 2)
-			this.restrictTrade(2, ItemTradeData.TradeRestrictions.ARMOR_LEGS);
+			this.restrictTrade(2, ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS);
 		if(this.tradeCount > 3)
-			this.restrictTrade(3, ItemTradeData.TradeRestrictions.ARMOR_FEET);
+			this.restrictTrade(3, ItemTradeData.ItemTradeRestrictions.ARMOR_FEET);
 	}
 	
 	@Override

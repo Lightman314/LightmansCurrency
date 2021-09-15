@@ -1,6 +1,7 @@
-package io.github.lightman314.lightmanscurrency;
+package io.github.lightman314.lightmanscurrency.tradedata;
 
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
@@ -11,15 +12,15 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.Constants;
 
-public class ItemTradeData {
+public class ItemTradeData extends TradeData<ItemTradeData> {
 	
-	public enum TradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET }
-	public enum TradeType { SALE, PURCHASE }
+	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET }
+	public enum ItemTradeType { SALE, PURCHASE, BARTER }
 	
 	public static int MaxTradeDirectionStringLength()
 	{ 
 		int length = 0;
-		for(TradeType value : TradeType.values())
+		for(ItemTradeType value : ItemTradeType.values())
 		{
 			int thisLength = value.name().length();
 			if(thisLength > length)
@@ -28,19 +29,17 @@ public class ItemTradeData {
 		return length;
 	}
 	
-	public static final String DEFAULT_KEY = "Trades";
+	
 	public static final int MAX_CUSTOMNAME_LENGTH = 30;
 	
+	ItemTradeRestrictions restriction = ItemTradeRestrictions.NONE;
 	ItemStack sellItem = ItemStack.EMPTY;
-	CoinValue cost = new CoinValue();
-	TradeType tradeDirection = TradeType.SALE;
-	boolean isFree = false;
+	ItemTradeType tradeDirection = ItemTradeType.SALE;
 	String customName = "";
-	TradeRestrictions restriction = TradeRestrictions.NONE;
 	
 	public ItemTradeData()
 	{
-		clear();
+		
 	}
 	
 	public ItemStack getSellItem()
@@ -53,13 +52,13 @@ public class ItemTradeData {
 		ItemStack displayItem = getSellItem();
 		//Get the item tag
 		CompoundNBT itemTag = displayItem.getOrCreateTag();
-		if(this.tradeDirection == TradeType.PURCHASE)
+		if(this.tradeDirection == ItemTradeType.PURCHASE)
 		{
 			//No custom names for purchases
 			if(this.cost.getRawValue() != 0)
 			{
 				itemTag.putBoolean("LC_DisplayItem", true);
-				itemTag.putInt("LC_StockAmount", isCreative ? -1 : (int)(storedMoney.getRawValue() / this.cost.getRawValue()));
+				itemTag.putInt("LC_StockAmount", isCreative ? -1 : (int)this.tradesPossibleWithStoredMoney(storedMoney));
 			}
 		}
 		else
@@ -90,56 +89,35 @@ public class ItemTradeData {
 		this.customName = customName;
 	}
 	
-	public boolean isFree()
-	{
-		return this.isFree && cost.getRawValue() <= 0;
-	}
-	
-	public void setFree(boolean isFree)
-	{
-		this.isFree = isFree;
-		LightmansCurrency.LogInfo("Set free state of a trade to " + isFree);
-	}
-	
-	public CoinValue getCost()
-	{
-		return this.cost;
-	}
-	
-	public void setCost(CoinValue value)
-	{
-		this.cost = value;
-	}
-	
-	public TradeType getTradeDirection()
+	public ItemTradeType getTradeDirection()
 	{
 		return this.tradeDirection;
 	}
 	
-	public void setTradeDirection(TradeType tradeDirection)
+	public void setTradeDirection(ItemTradeType tradeDirection)
 	{
 		this.tradeDirection = tradeDirection;
 	}
 	
-	public TradeRestrictions getRestriction()
+	public ItemTradeRestrictions getRestriction()
 	{
 		return this.restriction;
 	}
 	
-	public void setRestriction(TradeRestrictions restriction)
+	public void setRestriction(ItemTradeRestrictions restriction)
 	{
 		this.restriction = restriction;
 	}
 	
-	public static EquipmentSlotType getSlotFromRestriction(TradeRestrictions restriction)
+	public static EquipmentSlotType getSlotFromRestriction(ItemTradeRestrictions restriction)
 	{
-		if(restriction == TradeRestrictions.ARMOR_HEAD)
+		if(restriction == ItemTradeRestrictions.ARMOR_HEAD)
 			return EquipmentSlotType.HEAD;
-		if(restriction == TradeRestrictions.ARMOR_CHEST)
+		if(restriction == ItemTradeRestrictions.ARMOR_CHEST)
 			return EquipmentSlotType.CHEST;
-		if(restriction == TradeRestrictions.ARMOR_LEGS)
+		if(restriction == ItemTradeRestrictions.ARMOR_LEGS)
 			return EquipmentSlotType.LEGS;
-		if(restriction == TradeRestrictions.ARMOR_FEET)
+		if(restriction == ItemTradeRestrictions.ARMOR_FEET)
 			return EquipmentSlotType.FEET;
 		
 		return null;
@@ -149,7 +127,6 @@ public class ItemTradeData {
 	{
 		return !this.sellItem.isEmpty() && (this.cost.getRawValue() > 0 || this.isFree);
 	}
-	
 	
 	public boolean hasStock(IInventory storage)
 	{
@@ -187,21 +164,19 @@ public class ItemTradeData {
 		return itemCount / sellItem.getCount();
 	}
 	
+	@Override
 	public CompoundNBT getAsNBT() {
-		CompoundNBT tradeNBT = new CompoundNBT();
+		CompoundNBT tradeNBT = super.getAsNBT();
 		sellItem.write(tradeNBT);
-		this.cost.writeToNBT(tradeNBT,"Price");
 		tradeNBT.putString("TradeDirection", this.tradeDirection.name());
-		
 		tradeNBT.putString("Restrictions", this.restriction.name());
-		tradeNBT.putBoolean("IsFree", this.isFree);
 		tradeNBT.putString("CustomName", this.customName);
 		return tradeNBT;
 	}
 	
 	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data)
 	{
-		return saveAllData(nbt, data, "Trades");
+		return saveAllData(nbt, data, DEFAULT_KEY);
 	}
 	
 	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data, String key)
@@ -239,30 +214,26 @@ public class ItemTradeData {
 		return data;
 	}
 	
+	@Override
 	public void loadFromNBT(CompoundNBT nbt)
 	{
+		
+		super.loadFromNBT(nbt);
+		
 		sellItem = ItemStack.read(nbt);
-		if(nbt.contains("Price", Constants.NBT.TAG_INT))
-			cost.readFromOldValue(nbt.getInt("Price"));
-		else if(nbt.contains("Price", Constants.NBT.TAG_LIST))
-			cost.readFromNBT(nbt, "Price");
+		
 		
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
 			this.tradeDirection = loadTradeDirection(nbt.getString("TradeDirection"));
 		else
-			this.tradeDirection = TradeType.SALE;
+			this.tradeDirection = ItemTradeType.SALE;
 		
 		//Set the restrictions
 		if(nbt.contains("Restrictions"))
 			this.restriction = loadRestriction(nbt.getString("Restrictions"));
 		else
-			this.restriction = TradeRestrictions.NONE;
-		//Set whether it's free or not
-		if(nbt.contains("IsFree"))
-			this.isFree = nbt.getBoolean("IsFree");
-		else
-			this.isFree = false;
+			this.restriction = ItemTradeRestrictions.NONE;
 		
 		if(nbt.contains("CustomName"))
 			this.customName = nbt.getString("CustomName");
@@ -270,11 +241,11 @@ public class ItemTradeData {
 			this.customName = "";
 	}
 	
-	private static TradeRestrictions loadRestriction(String name)
+	private static ItemTradeRestrictions loadRestriction(String name)
 	{
-		TradeRestrictions value = TradeRestrictions.NONE;
+		ItemTradeRestrictions value = ItemTradeRestrictions.NONE;
 		try {
-			value = TradeRestrictions.valueOf(name);
+			value = ItemTradeRestrictions.valueOf(name);
 		}
 		catch (IllegalArgumentException exception)
 		{
@@ -283,33 +254,17 @@ public class ItemTradeData {
 		return value;
 	}
 	
-	public static TradeType loadTradeDirection(String name)
+	public static ItemTradeType loadTradeDirection(String name)
 	{
-		TradeType value = TradeType.SALE;
+		ItemTradeType value = ItemTradeType.SALE;
 		try {
-			value = TradeType.valueOf(name);
+			value = ItemTradeType.valueOf(name);
 		}
 		catch (IllegalArgumentException exception)
 		{
 			LightmansCurrency.LogError("Could not load '" + name + "' as a TradeDirection.");
 		}
 		return value;
-	}
-	
-	public boolean hasEnoughMoney(CoinValue coinStorage)
-	{
-		return tradesPossibleWithStoredMoney(coinStorage) > 0;
-	}
-	
-	public long tradesPossibleWithStoredMoney(CoinValue coinStorage)
-	{
-		if(this.isFree)
-			return 1;
-		if(this.cost.getRawValue() == 0) //To avoid dividing by 0
-			return 0;
-		long coinValue = coinStorage.getRawValue();
-		long price = this.cost.getRawValue();
-		return coinValue / price;
 	}
 	
 	public int tradesPossibleInStorage(IInventory inventory)
@@ -324,12 +279,6 @@ public class ItemTradeData {
 			}
 		}
 		return itemCount / sellItem.getCount();
-	}
-	
-	public void clear()
-	{
-		sellItem = ItemStack.EMPTY;
-		cost = new CoinValue();
 	}
 	
 	public static NonNullList<ItemTradeData> listOfSize(int tradeCount)

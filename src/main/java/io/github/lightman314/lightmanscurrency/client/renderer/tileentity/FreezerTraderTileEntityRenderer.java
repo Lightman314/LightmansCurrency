@@ -5,10 +5,10 @@ import java.util.List;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.tileentity.FreezerTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.containers.inventories;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;

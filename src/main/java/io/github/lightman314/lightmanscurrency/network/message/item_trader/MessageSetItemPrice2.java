@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;

@@ -5,7 +5,6 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderCon
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.entity.Entity;

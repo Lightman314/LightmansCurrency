@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;

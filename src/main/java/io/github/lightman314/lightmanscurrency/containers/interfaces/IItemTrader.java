@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.containers.interfaces;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface IItemTrader {
