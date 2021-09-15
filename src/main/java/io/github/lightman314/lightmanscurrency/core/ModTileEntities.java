@@ -90,6 +90,8 @@ public class ModTileEntities {
 	//Paygate
 	public static final TileEntityType<PaygateTileEntity> PAYGATE = buildType("paygate", TileEntityType.Builder.create(PaygateTileEntity::new, ModBlocks.PAYGATE.block));
 	
+	//Coin Jars
+	public static final TileEntityType<CoinJarTileEntity> COIN_JAR = buildType("coin_jar", TileEntityType.Builder.create(CoinJarTileEntity::new, ModBlocks.PIGGY_BANK.block));
 	
 	//Code
 	private static <T extends TileEntity> TileEntityType<T> buildType(String id, TileEntityType.Builder<T> builder)

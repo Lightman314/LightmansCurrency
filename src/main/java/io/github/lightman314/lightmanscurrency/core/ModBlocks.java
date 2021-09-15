@@ -8,6 +8,7 @@ import com.google.common.base.Supplier;
 import io.github.lightman314.lightmanscurrency.blocks.*;
 import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
+import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.BlockItemPair;
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -28,7 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
 
-	private enum BlockItemType { DEFAULT, COIN, CASH_REGISTER };
+	private enum BlockItemType { DEFAULT, COIN, CASH_REGISTER, COIN_JAR };
 	
 	
 	private static final List<Block> BLOCKS = new ArrayList<>();
@@ -335,6 +336,27 @@ public class ModBlocks {
 			)
 	);
 	
+	//Coin Jars
+	public static final BlockItemPair PIGGY_BANK = register("piggy_bank", ItemGroup.DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
+			Block.Properties.create(Material.ROCK)
+			.notSolid()
+			.hardnessAndResistance(0.1f, 2.0f)
+			.sound(SoundType.STONE),
+			Block.makeCuboidShape(4d, 0d, 4d, 12d, 8d, 12d)
+			)
+	);
+	
+	//Jar Blue
+	public static final BlockItemPair COINJAR_BLUE = register("coinjar_blue", ItemGroup.DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
+			Block.Properties.create(Material.ROCK)
+			.notSolid()
+			.hardnessAndResistance(0.1f, 2.0f)
+			.sound(SoundType.STONE),
+			Block.makeCuboidShape(4d, 0d, 4d, 12d, 8d, 12d)
+			)
+	);
+	
+	
 	/*
 	* Block Registration Code
 	*/
@@ -350,12 +372,20 @@ public class ModBlocks {
 		if(block.getRegistryName() != null)
 		{
 			Item item = null;
-			if(type == BlockItemType.DEFAULT)
-				item = new BlockItem(block, new Item.Properties().group(itemGroup));
-			else if(type == BlockItemType.CASH_REGISTER)
+			switch(type)
+			{
+			case CASH_REGISTER:
 				item = new CashRegisterItem(block, new Item.Properties().group(itemGroup).maxStackSize(1));
-			else if(type == BlockItemType.COIN)
+				break;
+			case COIN:
 				item = new CoinBlockItem(block, new Item.Properties().group(itemGroup));
+				break;
+			case COIN_JAR:
+				item = new CoinJarItem(block, new Item.Properties().group(itemGroup));
+				break;
+			default:
+				item = new BlockItem(block, new Item.Properties().group(itemGroup));
+			}
 			if(item != null)
 			{
 				item.setRegistryName(name);
@@ -369,16 +399,6 @@ public class ModBlocks {
 	/*
 	 * Colored block registration code
 	 */
-	/*private static BlockItemSet<Reference.Colors> registerColored(String name, ItemGroup itemGroup, Supplier<Block> block)
-	{
-		return registerColored(name, itemGroup, BlockItemType.DEFAULT, block);
-	}
-	
-	private static BlockItemSet<Colors> registerColored(String name, ItemGroup itemGroup, BlockItemType type, Supplier<Block> block)
-	{
-		return registerColored(name, itemGroup, type, block, true);
-	}*/
-	
 	private static BlockItemSet<Colors> registerColored(String name, ItemGroup itemGroup, Supplier<Block> block, boolean whiteNamed)
 	{
 		return registerColored(name, itemGroup, BlockItemType.DEFAULT, block, whiteNamed);

@@ -51,7 +51,7 @@ public class ItemTradeData {
 	public ItemStack getDisplayItem(IInventory storage, boolean isCreative)
 	{
 		ItemStack displayItem = getSellItem();
-		//Get the item tag if there is one, if not just create a blank one
+		//Get the item tag
 		CompoundNBT itemTag = displayItem.getOrCreateTag();
 		itemTag.putBoolean("LC_DisplayItem", true);
 		//Always to custom name data first, as it will re-load the item tag after setting the name.

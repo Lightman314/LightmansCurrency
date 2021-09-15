@@ -303,12 +303,24 @@ public class MoneyUtil {
      */
     public static boolean isCoin(Item item)
     {
+    	return isCoin(item, true);
+    }
+    
+    /**
+     * Checks if the given item is in the master coin list.
+     * @param item The item to check.
+     * @param allowHidden Whether hidden coins should return true.
+     */
+    public static boolean isCoin(Item item, boolean allowHidden)
+    {
     	if(item == null)
     		return false;
     	for(CoinData coinData : coinList)
     	{
     		if(coinData.getCoinItem().equals(item))
-    			return true;
+    		{
+				return allowHidden || !coinData.isHidden;
+    		}
     	}
     	return false;
     }
@@ -335,9 +347,19 @@ public class MoneyUtil {
      */
     public static boolean isCoin(@Nonnull ItemStack stack)
     {
-    	return isCoin(stack.getItem());
+    	return isCoin(stack, true);
     }
 	
+    /**
+     * Checks if the given item is in the master coin list.
+     * @param stack The ItemStack to check.
+     * @param allowHidden Whether hidden coins should return true.
+     */
+    public static boolean isCoin(@Nonnull ItemStack stack, boolean allowHidden)
+    {
+    	return isCoin(stack.getItem(), allowHidden);
+    }
+    
     /**
      * Gets the value of the given item.
      * @param coinItem The coin to get the value of.
@@ -1179,10 +1201,10 @@ public class MoneyUtil {
     	{
     		if(newOtherCoin == this.worthOtherCoin && newOtherCoinAmount == this.worthOtherCoinCount)
     		{
-    			LightmansCurrency.LogInfo("Conversion for " + this.coinItem.getRegistryName() + " does not need changing.");
+    			LightmansCurrency.LogDebug("Conversion for " + this.coinItem.getRegistryName() + " does not need changing.");
     			return false;
     		}
-    		LightmansCurrency.LogInfo("Conversion for " + this.coinItem.getRegistryName() + " changed from " + this.worthOtherCoinCount + "x'" + this.worthOtherCoin.getRegistryName() + "' to " + newOtherCoinAmount + "x'" + newOtherCoin.getRegistryName() + "'");
+    		LightmansCurrency.LogDebug("Conversion for " + this.coinItem.getRegistryName() + " changed from " + this.worthOtherCoinCount + "x'" + this.worthOtherCoin.getRegistryName() + "' to " + newOtherCoinAmount + "x'" + newOtherCoin.getRegistryName() + "'");
     		this.worthOtherCoin = newOtherCoin;
     		this.worthOtherCoinCount = newOtherCoinAmount;
     		return true;
