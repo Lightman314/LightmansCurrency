@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "coinjar_piggy",
+  "pattern":[
+    "  b",
+    "bbb",
+    "bdb"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:brick"
+    },
+    "d": {
+      "item": "minecraft:pink_dye"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:piggy_bank"
+  }
+}

@@ -37,7 +37,9 @@ public class UniversalTraderSelectionScreen extends Screen{
 	PlayerEntity player;
 	
 	private TextFieldWidget searchField;
-	static int page = 0;
+	private int page = 0;
+	private static boolean loadedTraders = false;
+	private static int pageWhenClosed = 0;
 	
 	Button buttonNextPage;
 	Button buttonPreviousPage;
@@ -175,6 +177,8 @@ public class UniversalTraderSelectionScreen extends Screen{
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades2(this.filteredTraderList.get(index).getTraderID()));
+			pageWhenClosed = this.page;
+			loadedTraders = false;
 		}
 	}
 	
@@ -200,6 +204,12 @@ public class UniversalTraderSelectionScreen extends Screen{
 	public void updateTraders(List<UniversalTraderData> traders)
 	{
 		this.traderList = traders;
+		if(!loadedTraders)
+		{
+			this.page = pageWhenClosed;
+			loadedTraders = true;
+		}
+		
 		updateTraderList();
 	}
 	

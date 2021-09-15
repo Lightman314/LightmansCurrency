@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -115,9 +115,9 @@ public class ItemTradeButton extends Button{
 		return 0xFFFFFF;
 	}
 	
-	public static int getRenderYOffset(ItemTradeData.TradeDirection tradeDirection)
+	public static int getRenderYOffset(ItemTradeData.TradeType tradeDirection)
 	{
-		if(tradeDirection == ItemTradeData.TradeDirection.PURCHASE)
+		if(tradeDirection == ItemTradeData.TradeType.PURCHASE)
 			return HEIGHT * 2;
 		//LightmansCurrency.LogWarning("Could not get Y render offset for TradeDirection." + tradeDirection.name());
 		return 0;
@@ -125,7 +125,7 @@ public class ItemTradeButton extends Button{
 	
 	protected boolean canAfford()
 	{
-		if(this.trade.getTradeDirection() == TradeDirection.SALE)
+		if(this.trade.getTradeDirection() == TradeType.SALE)
 		{
 			if(this.trade.isFree())
 				return true;
@@ -134,7 +134,7 @@ public class ItemTradeButton extends Button{
 				return this.container.GetCoinValue() >= this.trade.getCost().getRawValue();
 			}
 		}
-		else if(this.trade.getTradeDirection() == TradeDirection.PURCHASE)
+		else if(this.trade.getTradeDirection() == TradeType.PURCHASE)
 		{
 			return InventoryUtil.GetItemCount(this.container.GetItemInventory(), this.trade.getSellItem()) >= this.trade.getSellItem().getCount();
 		}
@@ -143,11 +143,11 @@ public class ItemTradeButton extends Button{
 	
 	protected boolean hasStock()
 	{
-		if(trade.getTradeDirection() == TradeDirection.SALE)
+		if(trade.getTradeDirection() == TradeType.SALE)
 		{
 			return trade.hasStock(this.source.get().getStorage()) || this.source.get().isCreative();
 		}
-		else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
+		else if(trade.getTradeDirection() == TradeType.PURCHASE)
 		{
 			return trade.hasEnoughMoney(this.source.get().getStoredMoney()) || this.source.get().isCreative();
 		}
@@ -156,7 +156,7 @@ public class ItemTradeButton extends Button{
 	
 	protected boolean hasSpace()
 	{
-		if(trade.getTradeDirection() == TradeDirection.PURCHASE)
+		if(trade.getTradeDirection() == TradeType.PURCHASE)
 			return InventoryUtil.CanPutItemStack(this.source.get().getStorage(), this.trade.getSellItem());
 		return true;
 	}
@@ -165,12 +165,12 @@ public class ItemTradeButton extends Button{
 	{
 		if(trade.isValid())
 		{
-			if(trade.getTradeDirection() == TradeDirection.SALE)
+			if(trade.getTradeDirection() == TradeType.SALE)
 			{
 				//Return whether we have enough of the item we're selling in stock.
 				return this.source.get().isCreative() || trade.hasStock(this.source.get().getStorage());
 			}
-			else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
+			else if(trade.getTradeDirection() == TradeType.PURCHASE)
 			{
 				//Return whether we have enough money to pay for the items we're buying.
 				//Confirm that there's enough room to place the intended items in storage

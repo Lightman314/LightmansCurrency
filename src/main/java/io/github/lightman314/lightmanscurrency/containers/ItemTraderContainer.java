@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeType;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -225,7 +225,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			return;
 		}
 		//Process a sale
-		if(trade.getTradeDirection() == TradeDirection.SALE)
+		if(trade.getTradeDirection() == TradeType.SALE)
 		{
 			//Abort if not enough items in inventory
 			if(InventoryUtil.GetItemCount(this.tileEntity, trade.getSellItem()) < trade.getSellItem().getCount() && !this.tileEntity.isCreative())
@@ -293,7 +293,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			}
 		}
 		//Process a purchase
-		else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
+		else if(trade.getTradeDirection() == TradeType.PURCHASE)
 		{
 			//Abort if not enough items in the item slots
 			if(InventoryUtil.GetItemCount(this.itemSlots, trade.getSellItem()) < trade.getSellItem().getCount())
@@ -389,7 +389,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		{
 			ItemTradeData trade = tileEntity.getTrade(i);
 			if(trade != null)
-				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem(this.tileEntity.getStorage(), this.tileEntity.isCreative()));
+				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem(this.tileEntity.getStorage(), this.tileEntity.isCreative(), this.tileEntity.getStoredMoney()));
 			else
 				tradeDisplays.setInventorySlotContents(i, ItemStack.EMPTY);
 		}

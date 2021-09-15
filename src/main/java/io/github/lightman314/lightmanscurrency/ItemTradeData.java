@@ -14,12 +14,12 @@ import net.minecraftforge.common.util.Constants;
 public class ItemTradeData {
 	
 	public enum TradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET }
-	public enum TradeDirection { SALE, PURCHASE }
+	public enum TradeType { SALE, PURCHASE }
 	
 	public static int MaxTradeDirectionStringLength()
 	{ 
 		int length = 0;
-		for(TradeDirection value : TradeDirection.values())
+		for(TradeType value : TradeType.values())
 		{
 			int thisLength = value.name().length();
 			if(thisLength > length)
@@ -33,7 +33,7 @@ public class ItemTradeData {
 	
 	ItemStack sellItem = ItemStack.EMPTY;
 	CoinValue cost = new CoinValue();
-	TradeDirection tradeDirection = TradeDirection.SALE;
+	TradeType tradeDirection = TradeType.SALE;
 	boolean isFree = false;
 	String customName = "";
 	TradeRestrictions restriction = TradeRestrictions.NONE;
@@ -48,17 +48,29 @@ public class ItemTradeData {
 		return this.sellItem.copy();
 	}
 	
-	public ItemStack getDisplayItem(IInventory storage, boolean isCreative)
+	public ItemStack getDisplayItem(IInventory storage, boolean isCreative, CoinValue storedMoney)
 	{
 		ItemStack displayItem = getSellItem();
 		//Get the item tag
 		CompoundNBT itemTag = displayItem.getOrCreateTag();
-		itemTag.putBoolean("LC_DisplayItem", true);
-		//Always to custom name data first, as it will re-load the item tag after setting the name.
-		if(this.customName != "")
-			itemTag.putString("LC_CustomName", this.customName);
-		//Get amount in stock
-		itemTag.putInt("LC_StockAmount", isCreative ? -1 : this.stockCount(storage));
+		if(this.tradeDirection == TradeType.PURCHASE)
+		{
+			//No custom names for purchases
+			if(this.cost.getRawValue() != 0)
+			{
+				itemTag.putBoolean("LC_DisplayItem", true);
+				itemTag.putInt("LC_StockAmount", isCreative ? -1 : (int)(storedMoney.getRawValue() / this.cost.getRawValue()));
+			}
+		}
+		else
+		{
+			itemTag.putBoolean("LC_DisplayItem", true);
+			//Always to custom name data first, as it will re-load the item tag after setting the name.
+			if(this.customName != "")
+				itemTag.putString("LC_CustomName", this.customName);
+			//Get amount in stock
+			itemTag.putInt("LC_StockAmount", isCreative ? -1 : this.stockCount(storage));
+		}
 		displayItem.setTag(itemTag);
 		return displayItem;
 	}
@@ -99,12 +111,12 @@ public class ItemTradeData {
 		this.cost = value;
 	}
 	
-	public TradeDirection getTradeDirection()
+	public TradeType getTradeDirection()
 	{
 		return this.tradeDirection;
 	}
 	
-	public void setTradeDirection(TradeDirection tradeDirection)
+	public void setTradeDirection(TradeType tradeDirection)
 	{
 		this.tradeDirection = tradeDirection;
 	}
@@ -239,7 +251,7 @@ public class ItemTradeData {
 		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
 			this.tradeDirection = loadTradeDirection(nbt.getString("TradeDirection"));
 		else
-			this.tradeDirection = TradeDirection.SALE;
+			this.tradeDirection = TradeType.SALE;
 		
 		//Set the restrictions
 		if(nbt.contains("Restrictions"))
@@ -271,11 +283,11 @@ public class ItemTradeData {
 		return value;
 	}
 	
-	public static TradeDirection loadTradeDirection(String name)
+	public static TradeType loadTradeDirection(String name)
 	{
-		TradeDirection value = TradeDirection.SALE;
+		TradeType value = TradeType.SALE;
 		try {
-			value = TradeDirection.valueOf(name);
+			value = TradeType.valueOf(name);
 		}
 		catch (IllegalArgumentException exception)
 		{

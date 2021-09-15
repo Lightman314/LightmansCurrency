@@ -16,7 +16,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.4-0.8.3.3'
+version = '1.16.4-0.8.3.4'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 

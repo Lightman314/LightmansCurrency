@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 //import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import net.minecraft.client.gui.FontRenderer;
@@ -38,7 +38,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	Button buttonSetSell;
 	Button buttonSetPurchase;
 	
-	TradeDirection localDirection;
+	TradeType localDirection;
 	
 	CoinValueInput priceInput;
 	
@@ -88,8 +88,8 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 			this.player.closeScreen();
 			return;
 		}
-		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
-		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
+		this.buttonSetSell.active = this.localDirection != TradeType.SALE;
+		this.buttonSetPurchase.active = this.localDirection != TradeType.PURCHASE;
 		
 		super.tick();
 		this.priceInput.tick();
@@ -140,9 +140,9 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	protected void SetTradeDirection(Button button)
 	{
 		if(button == buttonSetSell)
-			this.localDirection = TradeDirection.SALE;
+			this.localDirection = TradeType.SALE;
 		else if(button == buttonSetPurchase)
-			this.localDirection = TradeDirection.PURCHASE;
+			this.localDirection = TradeType.PURCHASE;
 		else
 			LightmansCurrency.LogWarning("Invalid button triggered SetTradeDirection");
 	}
