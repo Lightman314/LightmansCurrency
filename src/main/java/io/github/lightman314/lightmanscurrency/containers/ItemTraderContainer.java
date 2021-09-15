@@ -280,7 +280,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			}
 			
 			//Log the successful trade
-			this.tileEntity.logger.AddLog(player, trade, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Ignore editing internal storage if this is flagged as creative.
@@ -318,7 +318,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, trade.getCost());
 			
 			//Log the successful trade
-			this.tileEntity.logger.AddLog(player, trade, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Ignore editing internal storage if this is flagged as creative.

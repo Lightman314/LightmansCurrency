@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.ITextComponent;
@@ -13,12 +14,14 @@ public abstract class TextLogger {
 	public final List<ITextComponent> logText = new ArrayList<>();
 	protected final String tag;
 	
+	protected static final int getLogLimit() { return Config.SERVER.logLimit.get(); }
+	
 	protected TextLogger(String tagName)
 	{
 		this.tag = tagName;
 	}
 	
-	protected final void clear()
+	public final void clear()
 	{
 		this.logText.clear();
 	}
@@ -26,7 +29,11 @@ public abstract class TextLogger {
 	protected final void AddLog(ITextComponent text)
 	{
 		if(text != null)
+		{
 			this.logText.add(text);
+			while(this.logText.size() > getLogLimit())
+				this.logText.remove(0);
+		}
 	}
 	
 	public void write(CompoundNBT compound)

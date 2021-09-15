@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import net.minecraft.block.Block;
@@ -41,14 +42,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, ITradeButtonStockSource, IItemTrader{
+public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
 	
 	protected NonNullList<ItemStack> inventory;
 	
-	public final ItemShopLogger logger = new ItemShopLogger();
+	private final ItemShopLogger logger = new ItemShopLogger();
 	
 	protected int tradeCount = 1;
 	
@@ -202,6 +203,14 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
 		}
 		this.markDirty();
+	}
+	
+	public ItemShopLogger getLogger() {return this.logger; }
+	
+	public void clearLogger()
+	{
+		this.logger.clear();
+		markLoggerDirty();
 	}
 	
 	public void markLoggerDirty()

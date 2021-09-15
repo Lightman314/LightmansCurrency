@@ -407,12 +407,28 @@ public class Config {
 	public static class Server
 	{
 		
+		public final ForgeConfigSpec.IntValue logLimit;
+		
+		Server(ForgeConfigSpec.Builder builder)
+		{
+			
+			builder.comment("Server Config Settings").push("server");
+			
+			this.logLimit = builder.comment("The maximum amount of entries allowed in a text log.")
+					.defineInRange("logLimit", 100, 1, Integer.MAX_VALUE);
+			
+			builder.pop();
+			
+		}
+		
 	}
 	
 	public static final ForgeConfigSpec clientSpec;
 	public static final Config.Client CLIENT;
 	public static final ForgeConfigSpec commonSpec;
 	public static final Config.Common COMMON;
+	public static final ForgeConfigSpec serverSpec;
+	public static final Config.Server SERVER;
 	
 	static
 	{
@@ -424,6 +440,10 @@ public class Config {
 		final Pair<Common,ForgeConfigSpec> commonPair = new ForgeConfigSpec.Builder().configure(Config.Common::new);
 		commonSpec = commonPair.getRight();
 		COMMON = commonPair.getLeft();
+		//Server
+		final Pair<Server,ForgeConfigSpec> serverPair = new ForgeConfigSpec.Builder().configure(Config.Server::new);
+		serverSpec = serverPair.getRight();
+		SERVER = serverPair.getLeft();
 		
 	}
 	

@@ -148,6 +148,7 @@
     "tooltip.lightmanscurrency.trader.changeName": "Change Trader Name",
     "tooltip.lightmanscurrency.trader.log.show": "Show Log",
     "tooltip.lightmanscurrency.trader.log.hide": "Hide Log",
+    "tooltip.lightmanscurrency.trader.log.clear": "Clear Log",
     "tooltip.lightmanscurrency.trader.creative.enable": "Enable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.disable": "Disable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.addTrade": "Add Additional Trade",
@@ -168,6 +169,7 @@
     "gui.button.lightmanscurrency.dollarsign": "$$",
     "gui.button.lightmanscurrency.changename": "Aa",
     "gui.button.lightmanscurrency.showlog": "Log",
+    "gui.button.lightmanscurrency.clearlog": "CL",
     "gui.button.lightmanscurrency.save": "Save",
     "gui.button.lightmanscurrency.free": "FREE!",
     "gui.button.lightmanscurrency.back": "Back",
@@ -177,10 +179,10 @@
     "gui.lightmanscurrency.terminal.page": "Page %1$s of %2$s",
     "key.wallet": "Open Wallet",
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
-    "log.shoplog.item.format": "%1$s§4%2$s§r %3$s %4$s for %5$s",
-    "log.shoplog.item.itemformat": "%1$s x %2$s",
+    "log.shoplog.item.format": "%1$s%2$s %3$s %4$s for %5$s",
+    "log.shoplog.item.itemformat": "%1$sx %2$s",
     "log.shoplog.sale": "bought",
     "log.shoplog.purchase": "sold",
-    "log.shoplog.creative": "[C] "
+    "log.shoplog.creative": "§e[C] "
     
 }

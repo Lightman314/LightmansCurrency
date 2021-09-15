@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageConta
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.TradeInputSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
@@ -45,6 +46,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	Button buttonChangeName;
 	
 	Button buttonShowLog;
+	Button buttonClearLog;
 	
 	TextLogWindow logWindow;
 	
@@ -89,6 +91,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		
 		this.buttonChangeName = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.changename"), this::PressTraderNameButton));
 		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
+		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 80, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
 		
 		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
 		this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2);
@@ -99,7 +102,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		this.buttonRemoveTrade.visible = this.container.getData().isCreative();
 		this.buttonRemoveTrade.active = this.container.getData().getTradeCount() > 1;
 		
-		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.getData().logger, this.font);
+		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.getData().getLogger(), this.font);
 		this.addListener(this.logWindow);
 		this.logWindow.visible = false;
 		
@@ -118,8 +121,12 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		{
 			this.logWindow.render(matrixStack, mouseX, mouseY, partialTicks);
 			this.buttonShowLog.render(matrixStack, mouseX, mouseY, partialTicks);
+			if(this.buttonClearLog.visible)
+				this.buttonClearLog.render(matrixStack, mouseX, mouseY, partialTicks);
 			if(this.buttonShowLog.isMouseOver(mouseX, mouseY))
 				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.hide"), mouseX, mouseY);
+			else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
 			return;
 		}
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -160,6 +167,10 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.show"), mouseX, mouseY);
 		}
+		else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
+		{
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
+		}
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
 			this.container.inventorySlots.forEach(slot ->{
@@ -186,6 +197,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		this.buttonCollectMoney.active = this.container.getData().getStoredMoney().getRawValue() > 0;
 		
 		this.buttonStoreMoney.visible = this.container.HasCoinsToAdd();
+		this.buttonClearLog.visible = this.container.getData().getLogger().logText.size() > 0;
 		
 		this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2);
 		if(this.buttonToggleCreative.visible)
@@ -283,6 +295,11 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	private void PressLogButton(Button button)
 	{
 		this.logWindow.visible = !this.logWindow.visible;
+	}
+	
+	private void PressClearLogButton(Button button)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearUniversalLogger(this.container.traderID));
 	}
 	
 }

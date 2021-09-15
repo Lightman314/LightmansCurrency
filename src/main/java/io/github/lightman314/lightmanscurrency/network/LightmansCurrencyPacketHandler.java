@@ -6,9 +6,10 @@ import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.atm.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
-import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
+import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.*;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
+import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
@@ -93,6 +94,10 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageUpdateTraders.class, new MessageUpdateTraders());
 		register(MessageUpdateContainerData.class, new MessageUpdateContainerData());
 		register(MessageSetCustomName2.class, new MessageSetCustomName2());
+		
+		//Logger
+		register(MessageClearLogger.class, new MessageClearLogger());
+		register(MessageClearUniversalLogger.class, new MessageClearUniversalLogger());
 		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());

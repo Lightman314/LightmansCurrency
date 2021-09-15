@@ -300,7 +300,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			}
 			
 			//Log the successful trade
-			this.getData().logger.AddLog(player, trade, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, this.getData().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Ignore editing internal storage if this is flagged as creative.
@@ -338,7 +338,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, trade.getCost());
 			
 			//Log the successful trade
-			this.getData().logger.AddLog(player, trade, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, this.getData().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Ignore editing internal storage if this is flagged as creative.

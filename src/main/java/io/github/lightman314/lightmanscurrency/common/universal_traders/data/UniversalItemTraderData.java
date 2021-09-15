@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
@@ -37,7 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader{
+public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>{
 	
 	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
 	
@@ -51,7 +52,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	
 	IInventory inventory;
 	
-	public final ItemShopLogger logger = new ItemShopLogger();
+	private final ItemShopLogger logger = new ItemShopLogger();
 	
 	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
@@ -152,6 +153,14 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	public void markTradesDirty()
 	{
 		this.markDirty();
+	}
+	
+	public ItemShopLogger getLogger() { return this.logger; }
+	
+	public void clearLogger()
+	{
+		this.logger.clear();
+		this.markLoggerDirty();
 	}
 	
 	public void markLoggerDirty()
