@@ -11,24 +11,15 @@ import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -183,42 +174,6 @@ public class EventHandler {
 		}
 		//else
 			//LightmansCurrency.LOGGER.info("Player is NOT crafting a wallet.");
-	}
-	
-	//Item Tooltip event for special lore for item trader items
-	@SubscribeEvent
-	public static void onItemTooltip(ItemTooltipEvent event)
-	{
-		ItemStack item = event.getItemStack();
-		if(item.hasTag())
-		{
-			CompoundNBT itemTag = item.getTag();
-			if(itemTag.contains("LC_DisplayItem") && itemTag.getBoolean("LC_DisplayItem"))
-			{
-				
-				List<ITextComponent> addedTags = new ArrayList<>();
-				
-				//Add original name info
-				if(itemTag.contains("LC_CustomName", Constants.NBT.TAG_STRING))
-				{
-					ITextComponent originalName = event.getToolTip().get(0);
-					event.getToolTip().set(0, new StringTextComponent("§6" + itemTag.getString("LC_CustomName")));
-					addedTags.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
-				}
-				//Add stock info
-				if(itemTag.contains("LC_StockAmount", Constants.NBT.TAG_INT))
-				{
-					int stockAmount = itemTag.getInt("LC_StockAmount");
-					addedTags.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", stockAmount >= 0 ? new StringTextComponent("§6" + stockAmount) : new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite")));
-				}
-				
-				if(addedTags.size() > 0)
-				{
-					event.getToolTip().add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.info"));
-					addedTags.forEach(tag -> event.getToolTip().add(tag));
-				}
-			}
-		}
 	}
 	
 }
