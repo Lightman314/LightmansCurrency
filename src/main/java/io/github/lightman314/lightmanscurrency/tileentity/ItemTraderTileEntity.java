@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
@@ -381,6 +382,10 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		//Load the shop logger
 		this.logger.read(compound);
 		
+		//Load the trade rules
+		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
+		
 		super.read(state, compound);
 		
 	}
@@ -697,12 +702,17 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		for(int i = 0; i < this.tradeRules.size(); i++)
 		{
 			if(newRule.type == this.tradeRules.get(i).type)
+			{
+				LightmansCurrency.LogInfo("Blocked rule addition due to rule of same type already present.");
 				return;
+			}
 		}
 		this.tradeRules.add(newRule);
 	}
 	
 	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
 	
 	public void removeRule(TradeRule rule)
 	{
@@ -752,6 +762,13 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.pos));
 		}
+		
+		@Override
+		public void updateServer(List<TradeRule> newRules)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.pos, newRules));
+		}
+		
 	}
 	
 }

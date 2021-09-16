@@ -7,6 +7,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeItemPriceScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderNameScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -59,7 +60,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	
 	TextLogWindow logWindow;
 	
-	//Button buttonTradeRules;
+	Button buttonTradeRules;
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
@@ -221,7 +222,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		this.buttonRemoveTrade.visible = this.container.tileEntity.isCreative();
 		this.buttonRemoveTrade.active = this.container.tileEntity.getTradeCount() > 1;
 		
-		//this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressTradeRulesButton, GUI_TEXTURE, 176 + 16, 16));
+		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressTradeRulesButton, GUI_TEXTURE, 176 + 16, 16));
 		
 		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.tileEntity.getLogger(), this.font);
 		this.addListener(this.logWindow);
@@ -292,10 +293,10 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
 		}
-		/*else if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
+		else if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
-		}*/
+		}
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
 			this.container.inventorySlots.forEach(slot ->{
@@ -435,9 +436,9 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearLogger(this.container.tileEntity.getPos()));
 	}
 	
-	/*private void PressTradeRulesButton(Button button)
+	private void PressTradeRulesButton(Button button)
 	{
 		Minecraft.getInstance().displayGuiScreen(new TradeRuleScreen(this.container.tileEntity.GetRuleScreenBackHandler()));
-	}*/
+	}
 	
 }

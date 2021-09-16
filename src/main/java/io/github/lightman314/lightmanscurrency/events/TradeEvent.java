@@ -35,10 +35,29 @@ public abstract class TradeEvent extends Event{
 	
 	public static class PostTradeEvent extends TradeEvent
 	{
+		
+		private boolean isDirty = false;
+		
 		public PostTradeEvent(PlayerEntity player, TradeData trade, Container container)
 		{
 			super(player, trade, container);
 		}
+		
+		public boolean isDirty()
+		{
+			return this.isDirty;
+		}
+		
+		public void markDirty()
+		{
+			this.isDirty = true;
+		}
+		
+		public void clean()
+		{
+			this.isDirty = false;
+		}
+		
 	}
 	
 }

@@ -1,19 +1,24 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
+import java.util.List;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -78,7 +83,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
-		//this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, GUI_TEXTURE, this.xSize, 0));
+		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, GUI_TEXTURE, this.xSize, 0));
 		
 		tick();
 		
@@ -121,7 +126,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		
 		this.nameField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		if(this.buttonTradeRules != null && this.buttonTradeRules.isMouseOver(mouseX, mouseY))
+		if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
 		}
@@ -182,11 +187,16 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 			this.player = player;
 		}
 		
-		public ITradeRuleHandler ruleHandler() { return this.tileEntity; }
+		public ITradeRuleHandler ruleHandler() { return this.tileEntity.getTrade(this.tradeIndex); }
 		
 		@Override
 		public void reopenLastScreen() {
 			Minecraft.getInstance().displayGuiScreen(new TradeItemPriceScreen(this.tileEntity, this.tradeIndex, this.player));
+		}
+		
+		public void updateServer(List<TradeRule> newRules)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.getPos(), newRules, this.tradeIndex));
 		}
 		
 	}

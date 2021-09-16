@@ -94,7 +94,7 @@ public class ItemTradeButton extends Button{
 	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace, boolean hasPermission)
 	{
 		if(trade.isValid() && !hasPermission)
-			return new TranslationTextComponent("tooltip.lightmanscurrenct.denied").getString();
+			return new TranslationTextComponent("tooltip.lightmanscurrency.denied").getString();
 		else if(trade.isValid() && !hasStock)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(trade.isValid() && !hasSpace)

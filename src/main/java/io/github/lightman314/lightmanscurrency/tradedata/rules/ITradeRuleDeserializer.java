@@ -21,10 +21,11 @@ public interface ITradeRuleDeserializer<T extends TradeRule> {
 	{
 		if(registeredDeserializers.containsKey(type))
 		{
-			LightmansCurrency.LogWarning("A deserializer of type '" + type + "' has already been registered.");
+			LightmansCurrency.LogWarning("A trade rule deserializer of type '" + type + "' has already been registered.");
 			return;
 		}
 		registeredDeserializers.put(type, deserializer);
+		LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
 	
 	public static TradeRule Deserialize(CompoundNBT compound)
@@ -33,13 +34,11 @@ public interface ITradeRuleDeserializer<T extends TradeRule> {
 		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
 		registeredDeserializers.forEach((type,deserializer) -> {
 			if(thisType.equals(type))
-			{
 				data.set(deserializer.deserialize(compound));
-			}
 		});
 		if(data.get() != null)
 			return data.get();
-		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Universal Trader Data from the world save.");
+		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
 	

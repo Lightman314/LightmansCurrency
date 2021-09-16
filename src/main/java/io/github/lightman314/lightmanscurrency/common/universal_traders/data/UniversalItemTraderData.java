@@ -85,6 +85,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		
 		this.logger.read(compound);
 		
+		this.tradeRules = TradeRule.readRules(compound);
+		
 		super.read(compound);
 		
 	}
@@ -196,6 +198,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		ItemTradeData.saveAllData(compound, trades);
 		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
 		this.logger.write(compound);
+		TradeRule.writeRules(compound, this.tradeRules);
 		
 		return super.write(compound);
 	}
@@ -352,21 +355,21 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
 			}
 		}
-		
 	}
-
+	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-		
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
 	}
 
 	@Override
 	public void afterTrade(PostTradeEvent event) {
-		
-		
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
 	}
 
 	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
 	
 	public void addRule(TradeRule newRule)
 	{
@@ -417,6 +420,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
 		}
+		
+		public void updateServer(List<TradeRule> newRules)
+		{
+			
+		}
+		
 	}
 	
 	

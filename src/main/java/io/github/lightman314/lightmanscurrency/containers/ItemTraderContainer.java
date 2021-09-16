@@ -230,7 +230,17 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	{
 		PostTradeEvent event = new PostTradeEvent(this.player, trade, this);
 		this.tileEntity.afterTrade(event);
+		if(event.isDirty())
+		{
+			this.tileEntity.markRulesDirty();
+			event.clean();
+		}
 		trade.afterTrade(event);
+		if(event.isDirty())
+		{
+			this.tileEntity.markTradesDirty();
+			event.clean();
+		}
 		MinecraftForge.EVENT_BUS.post(event);
 	}
 	

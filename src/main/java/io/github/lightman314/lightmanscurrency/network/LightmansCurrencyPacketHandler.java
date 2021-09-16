@@ -99,6 +99,9 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageClearLogger.class, new MessageClearLogger());
 		register(MessageClearUniversalLogger.class, new MessageClearUniversalLogger());
 		
+		//Trade Rules
+		register(MessageSetTraderRules.class, new MessageSetTraderRules());
+		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());
 		register(MessageSyncConfig.class, new MessageSyncConfig());

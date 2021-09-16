@@ -123,9 +123,9 @@ public class LightmansCurrency {
     	IUniversalDataDeserializer.RegisterDeserializer(UniversalItemTraderData.TYPE, UniversalItemTraderData.DESERIALIZER);
     	
     	//Initialize the Trade Rule deserializers
-    	ITradeRuleDeserializer.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit.DESERIALIZER);
-    	ITradeRuleDeserializer.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist.DESERIALIZER);
     	ITradeRuleDeserializer.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist.DESERIALIZER);
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist.DESERIALIZER);
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit.DESERIALIZER);
     	
     	//Initialized the sorting lists
 		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,

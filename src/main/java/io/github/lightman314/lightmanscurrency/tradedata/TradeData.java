@@ -6,12 +6,10 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleDeserializer;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 
 public abstract class TradeData implements ITradeRuleHandler {
@@ -67,17 +65,7 @@ public abstract class TradeData implements ITradeRuleHandler {
 			this.isFree = false;
 		
 		this.rules.clear();
-		if(nbt.contains("Rules", Constants.NBT.TAG_LIST))
-		{
-			ListNBT ruleData = nbt.getList("Rules", Constants.NBT.TAG_COMPOUND);
-			for(int i = 0; i < ruleData.size(); i++)
-			{
-				CompoundNBT thisRuleData = ruleData.getCompound(i);
-				TradeRule thisRule = ITradeRuleDeserializer.Deserialize(thisRuleData);
-				if(thisRule != null)
-					this.rules.add(thisRule);
-			}
-		}
+		this.rules = TradeRule.readRules(nbt);
 		
 	}
 	
@@ -121,6 +109,8 @@ public abstract class TradeData implements ITradeRuleHandler {
 	}
 	
 	public List<TradeRule> getRules() { return this.rules; }
+	
+	public void setRules(List<TradeRule> rules) { this.rules = rules; }
 	
 	public void removeRule(TradeRule rule)
 	{

@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.tradedata.rules;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Supplier;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -15,10 +17,12 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public abstract class TradeRule {
 	
-	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderules.png");
+	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderuleicons.png");
+	public static final String DEFAULT_TAG = "TradeRules";
 	
 	public final ResourceLocation type;
 	public final ITextComponent getName() { return new TranslationTextComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
@@ -42,13 +46,14 @@ public abstract class TradeRule {
 	
 	public abstract void readNBT(CompoundNBT compound);
 	
+	public ITextComponent getButtonText() { return null; }
 	public ResourceLocation getButtonGUI() { return ICON_TEXTURE; }
 	public int getGUIX() { return 0; }
 	public int getGUIY() { return 0; }
 	
 	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules)
 	{
-		return writeRules(compound, rules, "TradeRules");
+		return writeRules(compound, rules, DEFAULT_TAG);
 	}
 	
 	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules, String tag)
@@ -64,16 +69,55 @@ public abstract class TradeRule {
 		return compound;
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	public abstract void initTab(TradeRuleScreen screen);
+	public static List<TradeRule> readRules(CompoundNBT compound)
+	{
+		return readRules(compound, DEFAULT_TAG);
+	}
+	
+	public static List<TradeRule> readRules(CompoundNBT compound, String tag)
+	{
+		List<TradeRule> rules = new ArrayList<>();
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
+		{
+			ListNBT ruleData = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < ruleData.size(); i++)
+			{
+				CompoundNBT thisRuleData = ruleData.getCompound(i);
+				TradeRule thisRule = ITradeRuleDeserializer.Deserialize(thisRuleData);
+				if(thisRule != null)
+					rules.add(thisRule);
+			}
+		}
+		return rules;
+	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public abstract void renderTab(TradeRuleScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks);
+	public abstract GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule);
 	
 	@OnlyIn(Dist.CLIENT)
-	public abstract void onTabClose(TradeRuleScreen screen);
+	public static abstract class GUIHandler
+	{
+		
+		protected final TradeRuleScreen screen;
+		private final Supplier<TradeRule> rule;
+		protected final TradeRule getRule() { return rule.get(); }
+		
+		protected GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
+		{
+			this.screen = screen;
+			this.rule = rule;
+		}
+		
+		public abstract void initTab();
+		
+		public abstract void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks);
+		
+		public abstract void onTabClose();
+		
+		public void onScreenTick() { }
+		
+	}
 	
-	@OnlyIn(Dist.CLIENT)
-	public void onScreenTick(TradeRuleScreen screen) { }
+	
 	
 }

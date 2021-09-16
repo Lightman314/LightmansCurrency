@@ -14,6 +14,7 @@ public interface ITradeRuleHandler {
 	public void addRule(TradeRule newRule);
 	public void removeRule(TradeRule rule);
 	public void clearRules();
+	public void setRules(List<TradeRule> rules);
 	public void markRulesDirty();
 	
 }
