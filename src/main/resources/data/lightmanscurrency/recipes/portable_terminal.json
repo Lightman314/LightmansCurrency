@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "pattern":[
     "igi",
-    "geg",
-    "igi"
+    "igi",
+    "iei"
   ],
   "key": {
     "e": {
@@ -14,9 +14,6 @@
     },
     "i": {
       "item": "minecraft:iron_ingot"
-    },
-    "s": {
-      "item": "minecraft:stone"
     }
   },
   "result": {

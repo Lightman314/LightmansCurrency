@@ -59,6 +59,8 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	
 	TextLogWindow logWindow;
 	
+	//Button buttonTradeRules;
+	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
 	public ItemTraderStorageScreen(ItemTraderStorageContainer container, PlayerInventory inventory, ITextComponent title)
@@ -210,14 +212,16 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
 		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 80, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
 		
-		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
+		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
 		this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2);
-		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 30, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
+		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
 		this.buttonAddTrade.visible = this.container.tileEntity.isCreative();
 		this.buttonAddTrade.active = this.container.tileEntity.getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
-		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 30, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
+		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
 		this.buttonRemoveTrade.visible = this.container.tileEntity.isCreative();
 		this.buttonRemoveTrade.active = this.container.tileEntity.getTradeCount() > 1;
+		
+		//this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressTradeRulesButton, GUI_TEXTURE, 176 + 16, 16));
 		
 		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.tileEntity.getLogger(), this.font);
 		this.addListener(this.logWindow);
@@ -288,6 +292,10 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
 		}
+		/*else if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
+		{
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
+		}*/
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
 			this.container.inventorySlots.forEach(slot ->{
@@ -426,5 +434,10 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearLogger(this.container.tileEntity.getPos()));
 	}
+	
+	/*private void PressTradeRulesButton(Button button)
+	{
+		Minecraft.getInstance().displayGuiScreen(new TradeRuleScreen(this.container.tileEntity.GetRuleScreenBackHandler()));
+	}*/
 	
 }

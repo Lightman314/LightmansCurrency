@@ -42,7 +42,7 @@ public class ItemStackHelper {
 	
 	public static boolean TagEquals(ItemStack stack1, ItemStack stack2)
 	{
-		return (!stack1.hasTag() && !stack2.hasTag()) || (stack1.getTag().equals(stack2.getTag()));
+		return stack1.hasTag() == stack2.hasTag() && (!stack1.hasTag() && !stack2.hasTag() || stack1.getTag().equals(stack2.getTag()));
 	}
 	
 }

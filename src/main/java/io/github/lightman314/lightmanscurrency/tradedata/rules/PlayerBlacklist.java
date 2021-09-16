@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -13,7 +16,7 @@ import net.minecraftforge.common.util.Constants;
 
 public class PlayerBlacklist extends TradeRule{
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_blacklist");
+	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "blacklist");
 	public static final ITradeRuleDeserializer<PlayerBlacklist> DESERIALIZER = new Deserializer();
 	
 	List<String> bannedPlayerNames = new ArrayList<>();
@@ -84,6 +87,9 @@ public class PlayerBlacklist extends TradeRule{
 		
 	}
 	
+	@Override
+	public int getGUIX() { return 32; }
+	
 	public static class Deserializer implements ITradeRuleDeserializer<PlayerBlacklist>
 	{
 		@Override
@@ -92,6 +98,24 @@ public class PlayerBlacklist extends TradeRule{
 			value.readNBT(compound);
 			return value;
 		}
+	}
+
+	@Override
+	public void initTab(TradeRuleScreen screen) {
+		
+		
+	}
+
+	@Override
+	public void renderTab(TradeRuleScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		
+		
+	}
+
+	@Override
+	public void onTabClose(TradeRuleScreen screen) {
+		
+		
 	}
 
 }

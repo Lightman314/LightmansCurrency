@@ -49,14 +49,7 @@ public abstract class TradeData implements ITradeRuleHandler {
 		CompoundNBT tradeNBT = new CompoundNBT();
 		this.cost.writeToNBT(tradeNBT,"Price");
 		tradeNBT.putBoolean("IsFree", this.isFree);
-		ListNBT ruleData = new ListNBT();
-		for(int i = 0; i < rules.size(); i++)
-		{
-			CompoundNBT thisRuleData = rules.get(i).getNBT();
-			if(thisRuleData != null)
-				ruleData.add(thisRuleData);
-		}
-		tradeNBT.put("Rules", ruleData);
+		TradeRule.writeRules(tradeNBT, this.rules);
 		
 		return tradeNBT;
 	}
@@ -112,6 +105,32 @@ public abstract class TradeData implements ITradeRuleHandler {
 	@Override
 	public void afterTrade(PostTradeEvent event) {
 		this.rules.forEach(rule -> rule.afterTrade(event));
+	}
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.rules.size(); i++)
+		{
+			if(newRule.type == this.rules.get(i).type)
+				return;
+		}
+		this.rules.add(newRule);
+	}
+	
+	public List<TradeRule> getRules() { return this.rules; }
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.rules.contains(rule))
+			this.rules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.rules.clear();
 	}
 	
 }

@@ -164,6 +164,7 @@
     "tooltip.lightmanscurrency.trader.originalname": "§6Original Name: §r%s",
     "tooltip.lightmanscurrency.trader.stock": "%s§6 trades in-stock.",
     "tooltip.lightmanscurrency.trader.stock.infinite": "§6Infinite",
+    "tooltip.lightmanscurrency.trader.traderules": "Trade Rules",
     "gui.button.lightmanscurrency.mint": "Mint Coin",
     "gui.button.lightmanscurrency.melt": "Melt Coin",
     "gui.button.lightmanscurrency.craft_ticket": "Craft Ticket",
@@ -185,6 +186,9 @@
     "log.shoplog.item.itemformat": "%1$sx %2$s",
     "log.shoplog.sale": "bought",
     "log.shoplog.purchase": "sold",
-    "log.shoplog.creative": "§e[C] "
+    "log.shoplog.creative": "§e[C] ",
+    "traderule.lightmanscurrency.whitelist": "Whitelist",
+    "traderule.lightmanscurrency.blacklist": "Blacklist",
+    "traderule.lightmanscurrency.tradelimit": "Trade Limit"
     
 }

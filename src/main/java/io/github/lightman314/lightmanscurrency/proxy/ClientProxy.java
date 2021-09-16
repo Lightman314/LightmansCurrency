@@ -7,6 +7,7 @@ import java.util.Map;
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.UniversalTraderSelectionScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
@@ -17,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
@@ -64,6 +66,11 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	ClientRegistry.bindTileEntityRenderer(ModTileEntities.ITEM_TRADER, ItemTraderTileEntityRenderer::new);
     	ClientRegistry.bindTileEntityRenderer(ModTileEntities.FREEZER_TRADER, FreezerTraderTileEntityRenderer::new);
+    	
+    	//Register Addable Trade Rules
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerBlacklist());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
     	
     	//Register ClientEvents
     	MinecraftForge.EVENT_BUS.register(new ClientEvents());

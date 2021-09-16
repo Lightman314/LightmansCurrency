@@ -52,7 +52,7 @@ public class MessageUpdateContainerData implements IMessage<MessageUpdateContain
 					{
 						UniversalContainer container = (UniversalContainer)player.openContainer;
 						container.onDataUpdated(message.traderData);
-						LightmansCurrency.LogInfo("Data synced on client-side.");
+						LightmansCurrency.LogDebug("Data synced on client-side.");
 					}
 					else
 						LightmansCurrency.LogWarning("Open container is not a UniversalContainer?");

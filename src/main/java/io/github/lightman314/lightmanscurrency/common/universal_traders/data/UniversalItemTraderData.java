@@ -1,10 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -15,9 +18,12 @@ import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderSto
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.entity.Entity;
@@ -56,6 +62,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	IInventory inventory;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
+	
+	List<TradeRule> tradeRules = new ArrayList<>();
 	
 	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
@@ -358,6 +366,58 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		
 	}
 
+	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+				return;
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		this.markDirty();
+	}
+	
+	public ITradeRuleScreenHandler GetRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	
+	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
+	{
+		
+		private final UniversalItemTraderData trader;
+		
+		public TradeRuleScreenHandler(UniversalItemTraderData trader)
+		{
+			this.trader = trader;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { return this.trader; }
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
+		}
+	}
 	
 	
 }

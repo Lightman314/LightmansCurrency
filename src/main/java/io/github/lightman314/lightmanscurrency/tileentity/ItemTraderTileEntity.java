@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
@@ -13,8 +14,11 @@ import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -61,6 +65,8 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	protected NonNullList<ItemTradeData> trades;
 	
 	List<ItemTraderStorageContainer> storageContainers = new ArrayList<>();
+	
+	List<TradeRule> tradeRules = new ArrayList<>();
 	
 	public ItemTraderTileEntity()
 	{
@@ -176,7 +182,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			//Send update packet
 			CompoundNBT compound = this.writeTrades(new CompoundNBT());
 			this.writeItems(compound);
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		
 	}
@@ -203,7 +209,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		{
 			//Send update packet
 			CompoundNBT compound = this.writeTrades(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		this.markDirty();
 	}
@@ -223,7 +229,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		{
 			//Send update packet
 			CompoundNBT compound = this.writeLogger(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		this.markDirty();
 	}
@@ -318,6 +324,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		this.writeItems(compound);
 		this.writeTrades(compound);
 		this.writeLogger(compound);
+		this.writeTradeRules(compound);
 		
 		return super.write(compound);
 		
@@ -339,6 +346,12 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	public CompoundNBT writeLogger(CompoundNBT compound)
 	{
 		this.logger.write(compound);
+		return compound;
+	}
+	
+	public CompoundNBT writeTradeRules(CompoundNBT compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
 		return compound;
 	}
 	
@@ -668,14 +681,77 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-		
-		
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
 	}
 
 	@Override
 	public void afterTrade(PostTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
+	}
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+				return;
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		//Send an update to the client
+		if(!this.world.isRemote)
+		{
+			//Send update packet
+			CompoundNBT compound = this.writeTradeRules(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.markDirty();
+	}
+	
+	public void closeRuleScreen(PlayerEntity player)
+	{
+		this.openStorageMenu(player);
+	}
+	
+	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }
+	
+	private static class TraderScreenHandler implements ITradeRuleScreenHandler
+	{
 		
+		private final ItemTraderTileEntity tileEntity;
 		
+		public TraderScreenHandler(ItemTraderTileEntity tileEntity)
+		{
+			this.tileEntity = tileEntity;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { return this.tileEntity; }
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.pos));
+		}
 	}
 	
 }
