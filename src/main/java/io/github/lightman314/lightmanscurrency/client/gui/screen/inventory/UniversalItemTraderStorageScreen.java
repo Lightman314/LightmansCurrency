@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.UniversalTradeItemPriceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.UniversalTraderNameScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
@@ -23,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageTog
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
@@ -49,6 +51,8 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	Button buttonClearLog;
 	
 	TextLogWindow logWindow;
+	
+	Button buttonTradeRules;
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
@@ -93,14 +97,16 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
 		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 80, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
 		
-		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
+		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
 		this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2);
-		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 30, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
+		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
 		this.buttonAddTrade.visible = this.container.getData().isCreative();
 		this.buttonAddTrade.active = this.container.getData().getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
-		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 30, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
+		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
 		this.buttonRemoveTrade.visible = this.container.getData().isCreative();
 		this.buttonRemoveTrade.active = this.container.getData().getTradeCount() > 1;
+		
+		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressTradeRulesButton, GUI_TEXTURE, 176 + 16, 16));
 		
 		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.getData().getLogger(), this.font);
 		this.addListener(this.logWindow);
@@ -170,6 +176,10 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
+		}
+		else if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
+		{
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
 		}
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
@@ -258,7 +268,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		if(tradePriceButtons.contains(button))
 			tradeIndex = tradePriceButtons.indexOf(button);
 		
-		this.minecraft.displayGuiScreen(new UniversalTradeItemPriceScreen(this.container.traderID, this.container.getData().getTrade(tradeIndex), tradeIndex));
+		this.minecraft.displayGuiScreen(new UniversalTradeItemPriceScreen(this.container.traderID, this.container.getData().getTrade(tradeIndex), tradeIndex, this.playerInventory.player));
 		
 	}
 	
@@ -300,6 +310,11 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	private void PressClearLogButton(Button button)
 	{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearUniversalLogger(this.container.traderID));
+	}
+	
+	private void PressTradeRulesButton(Button button)
+	{
+		Minecraft.getInstance().displayGuiScreen(new TradeRuleScreen(this.container.getData().GetRuleScreenHandler()));
 	}
 	
 }

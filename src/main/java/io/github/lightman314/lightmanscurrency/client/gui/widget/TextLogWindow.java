@@ -19,8 +19,8 @@ public class TextLogWindow extends Widget{
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/textlog.png");
 	
-	public static final int WIDTH = 176;
-	public static final int HEIGHT = 176;
+	public static final int WIDTH = 256;
+	public static final int HEIGHT = 256;
 	
 	//private static final int LINE_LIMIT = 10;
 	private static final int TEXT_WIDTH = WIDTH - 20;

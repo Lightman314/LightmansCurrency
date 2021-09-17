@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
@@ -423,10 +424,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		
 		public void updateServer(List<TradeRule> newRules)
 		{
-			
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
 		}
 		
 	}
+	
+	
 	
 	
 }

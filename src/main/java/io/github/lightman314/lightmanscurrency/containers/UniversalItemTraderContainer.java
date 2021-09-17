@@ -257,6 +257,11 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		PostTradeEvent event = new PostTradeEvent(this.player, trade, this);
 		this.getData().afterTrade(event);
 		trade.afterTrade(event);
+		if(event.isDirty())
+		{
+			this.getData().markDirty();
+			event.clean();
+		}
 		MinecraftForge.EVENT_BUS.post(event);
 	}
 	
@@ -269,8 +274,6 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
 			return;
 		}
-		
-		
 		
 		//Abort if the trade is not valid
 		if(!trade.isValid())

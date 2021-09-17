@@ -101,6 +101,7 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Trade Rules
 		register(MessageSetTraderRules.class, new MessageSetTraderRules());
+		register(MessageSetTraderRules2.class, new MessageSetTraderRules2());
 		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());

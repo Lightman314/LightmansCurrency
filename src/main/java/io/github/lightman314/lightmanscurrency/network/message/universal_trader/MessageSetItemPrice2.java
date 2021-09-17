@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.network.message.item_trader;
+package io.github.lightman314.lightmanscurrency.network.message.universal_trader;
 
 import java.util.UUID;
 import java.util.function.Supplier;
