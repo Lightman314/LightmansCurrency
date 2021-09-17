@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -17,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -144,9 +146,24 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 		}
 	}
 	
+	public boolean HasPairedTicket()
+	{
+		return this.ticketID != null;
+	}
+	
+	public boolean validTicket(ItemStack ticket)
+	{
+		if(ticket.isEmpty())
+			return false;
+		if(ticket.getItem() instanceof TicketItem)
+			return !TicketItem.isMasterTicket(ticket) && validTicket(TicketItem.GetTicketID(ticket));
+		else
+			return false;
+	}
+	
 	public boolean validTicket(UUID ticketID)
 	{
-		if(this.ticketID == null)
+		if(this.ticketID == null || ticketID == null)
 			return false;
 		else
 		{

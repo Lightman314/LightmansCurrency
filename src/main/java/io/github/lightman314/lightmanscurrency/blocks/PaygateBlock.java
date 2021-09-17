@@ -59,6 +59,8 @@ public class PaygateBlock extends RotatableBlock{
 	{
 		if(!world.isRemote())
 		{
+			
+			//Get the item in the players hand
 			//Open UI
 			TileEntity tileEntity = world.getTileEntity(pos);
 			if(tileEntity instanceof PaygateTileEntity)
@@ -69,6 +71,12 @@ public class PaygateBlock extends RotatableBlock{
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
 					trader.setOwner(playerEntity);
+				}
+				if(!trader.isActive() && trader.validTicket(playerEntity.getHeldItem(hand)))
+				{
+					trader.activate();
+					playerEntity.getHeldItem(hand).shrink(1);
+					return ActionResultType.SUCCESS;
 				}
 				TileEntityUtil.sendUpdatePacket(tileEntity);
 				NetworkHooks.openGui((ServerPlayerEntity)playerEntity, (INamedContainerProvider) tileEntity, pos);
@@ -128,7 +136,5 @@ public class PaygateBlock extends RotatableBlock{
 		return 0;
 		
 	}
-	
-	
 	
 }

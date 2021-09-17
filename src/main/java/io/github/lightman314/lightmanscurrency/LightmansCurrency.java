@@ -134,19 +134,19 @@ public class LightmansCurrency {
 				ModBlocks.COINPILE_DIAMOND.item, ModBlocks.COINPILE_NETHERITE.item, ModBlocks.COINBLOCK_COPPER.item,
 				ModBlocks.COINBLOCK_IRON.item, ModBlocks.COINBLOCK_GOLD.item, ModBlocks.COINBLOCK_EMERALD.item,
 				ModBlocks.COINBLOCK_DIAMOND.item, ModBlocks.COINBLOCK_NETHERITE.item, ModItems.TRADING_CORE, ModItems.TICKET,
-				ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.WALLET_GOLD, ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND,
-				ModItems.WALLET_NETHERITE
+				ModItems.TICKET_MASTER, ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.WALLET_GOLD, ModItems.WALLET_EMERALD,
+				ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE
 			));
 		
-		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM.item, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
-				ModBlocks.TERMINAL.item, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
+		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
+				ModBlocks.TERMINAL, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
 			));
 		
 		TRADING_GROUP.initSortingList(Arrays.asList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
 				ModBlocks.SHELF.getItem(WoodType.SPRUCE), ModBlocks.SHELF.getItem(WoodType.JUNGLE),
 				ModBlocks.SHELF.getItem(WoodType.ACACIA), ModBlocks.SHELF.getItem(WoodType.DARK_OAK),
 				ModBlocks.SHELF.getItem(WoodType.CRIMSON), ModBlocks.SHELF.getItem(WoodType.WARPED),
-				ModBlocks.DISPLAY_CASE.item, ModBlocks.ARMOR_DISPLAY.item, ModBlocks.CARD_DISPLAY.getItem(WoodType.OAK),
+				ModBlocks.DISPLAY_CASE, ModBlocks.ARMOR_DISPLAY, ModBlocks.CARD_DISPLAY.getItem(WoodType.OAK),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.getItem(WoodType.SPRUCE),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.JUNGLE), ModBlocks.CARD_DISPLAY.getItem(WoodType.ACACIA),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.getItem(WoodType.CRIMSON),
@@ -158,7 +158,7 @@ public class LightmansCurrency {
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.CYAN), ModBlocks.VENDING_MACHINE1.getItem(Colors.PURPLE),
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLUE), ModBlocks.VENDING_MACHINE1.getItem(Colors.BROWN),
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.GREEN), ModBlocks.VENDING_MACHINE1.getItem(Colors.RED),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLACK), ModBlocks.FREEZER.item,
+				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLACK), ModBlocks.FREEZER,
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.WHITE), ModBlocks.VENDING_MACHINE2.getItem(Colors.ORANGE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.MAGENTA), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIGHTBLUE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.YELLOW), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIME),
@@ -167,8 +167,8 @@ public class LightmansCurrency {
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.PURPLE), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLUE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.BROWN), ModBlocks.VENDING_MACHINE2.getItem(Colors.GREEN),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.RED), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLACK),
-				ModBlocks.ITEM_TRADER_SERVER_SMALL.item, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.item, ModBlocks.ITEM_TRADER_SERVER_LARGE.item,
-				ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.item
+				ModBlocks.TICKET_KIOSK, ModBlocks.ITEM_TRADER_SERVER_SMALL, ModBlocks.ITEM_TRADER_SERVER_MEDIUM,
+				ModBlocks.ITEM_TRADER_SERVER_LARGE, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE
 			));
 		
     }

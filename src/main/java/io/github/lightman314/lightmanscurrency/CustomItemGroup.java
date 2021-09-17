@@ -45,7 +45,7 @@ public class CustomItemGroup extends ItemGroup {
 		
 	}
 	
-	public void addToSortingList(List<Item> extras)
+	public void addToSortingList(List<IItemProvider> extras)
 	{
 		this.itemSorter.addToSortingList(extras);
 	}
@@ -53,7 +53,7 @@ public class CustomItemGroup extends ItemGroup {
 	/**
 	 * Initializes the sorting list of the item group. Should be called in the FMLCommonSetupEvent.
 	 */
-	public void initSortingList(List<Item> defaultList)
+	public void initSortingList(List<IItemProvider> defaultList)
 	{
 		this.itemSorter.initSortingList(defaultList);
 	}
@@ -66,14 +66,14 @@ public class CustomItemGroup extends ItemGroup {
 			
 		}
 		
-		private List<Item> sortList = null;
-		public void initSortingList(List<Item> sortList)
+		private List<IItemProvider> sortList = null;
+		public void initSortingList(List<IItemProvider> sortList)
 		{
 			if(this.sortList == null)
 				this.sortList = sortList;
 			else
 			{
-				List<Item> copyList = this.sortList;
+				List<IItemProvider> copyList = this.sortList;
 				this.sortList = sortList;
 				for(int i = 0; i < copyList.size(); i++)
 				{
@@ -82,7 +82,7 @@ public class CustomItemGroup extends ItemGroup {
 			}
 		}
 		
-		public void addToSortingList(List<Item> extras)
+		public void addToSortingList(List<IItemProvider> extras)
 		{
 			if(this.sortList == null)
 			{

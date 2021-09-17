@@ -25,11 +25,6 @@ public class TicketItem extends Item{
 	@Override
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
 	{
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
-		if(isMasterTicket(stack))
-		{
-			tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.ticket.master"));
-		}
 		if(Screen.hasShiftDown())
 		{
 			UUID ticketID = GetTicketID(stack);
@@ -40,26 +35,34 @@ public class TicketItem extends Item{
 	
 	public static boolean isMasterTicket(ItemStack ticket)
 	{
-		if(ticket.isEmpty() || ticket.getItem() != ModItems.TICKET || !ticket.hasTag())
+		if(ticket.isEmpty() || !ticket.hasTag())
 			return false;
-		CompoundNBT ticketTag = ticket.getTag();
-		if(!ticketTag.contains("TicketID"))
-			return false;
-		if(ticketTag.contains("Master"))
-			return ticketTag.getBoolean("Master");
-		else
-			return false;
+		return ticket.getItem() == ModItems.TICKET_MASTER;
 	}
 	
 	public static UUID GetTicketID(ItemStack ticket)
 	{
 		//Get the ticket item
-		if(ticket.isEmpty() || ticket.getItem() != ModItems.TICKET || !ticket.hasTag())
+		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
 			return null;
 		CompoundNBT ticketTag = ticket.getTag();
 		if(!ticketTag.contains("TicketID"))
 			return null;
 		return ticketTag.getUniqueId("TicketID");
+	}
+	
+	public static ItemStack CreateMasterTicket(UUID ticketID)
+	{
+		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
+		ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		return ticket;
+	}
+	
+	public static ItemStack CreateTicket(UUID ticketID, int count)
+	{
+		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
+		ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		return ticket;
 	}
 	
 }

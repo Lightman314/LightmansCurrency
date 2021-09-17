@@ -5,9 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.TicketTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -37,16 +36,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class VendingMachineBlock extends RotatableBlock implements IItemTraderBlock{
+public class TicketKioskBlock extends RotatableBlock implements IItemTraderBlock{
 	
-	public static final int TRADECOUNT = 6;
+	public static final int TRADECOUNT = 4;
 	
-	private static final VoxelShape SHAPE_BOTTOM = makeCuboidShape(0d,0d,0d,16d,32d,16d);
-	private static final VoxelShape SHAPE_TOP = makeCuboidShape(0d,-16d,0d,16d,16d,16d);
+	private static final VoxelShape SHAPE_BOTTOM = makeCuboidShape(3d,0d,3d,13d,32d,13d);
+	private static final VoxelShape SHAPE_TOP = makeCuboidShape(3d,-16d,3d,13d,16d,13d);
 	
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	
-	public VendingMachineBlock(Properties properties)
+	public TicketKioskBlock(Properties properties)
 	{
 		super(properties, null);
 		this.setDefaultState(
@@ -89,7 +88,7 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 	{
 		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)getTileEntity(state, worldIn, pos);
+		TicketTraderTileEntity tileEntity = (TicketTraderTileEntity)getTileEntity(state, worldIn, pos);
 		if(tileEntity != null)
 		{
 			if(!tileEntity.canBreak(player))
@@ -98,12 +97,10 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 				tileEntity.dumpContents(worldIn, pos);
 		}
 		
-		//Destroy the other half of the ATM Machine
 		if(state.get(ISBOTTOM))
 		{
-			//Get ATM block above and destroy it.
 			BlockState upState = worldIn.getBlockState(pos.up());
-			if(upState.getBlock() instanceof VendingMachineBlock)
+			if(upState.getBlock() instanceof TicketKioskBlock)
 			{
 				worldIn.setBlockState(pos.up(), Blocks.AIR.getDefaultState(),35);
 				worldIn.playEvent(player, 2001, pos.up(), Block.getStateId(upState));
@@ -113,7 +110,7 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 		{
 			//Get ATM block below and destroy it.
 			BlockState downState = worldIn.getBlockState(pos.down());
-			if(downState.getBlock() instanceof VendingMachineBlock)
+			if(downState.getBlock() instanceof TicketKioskBlock)
 			{
 				worldIn.setBlockState(pos.down(), Blocks.AIR.getDefaultState(),35);
 				worldIn.playEvent(player, 2001, pos.up(), Block.getStateId(downState));
@@ -136,7 +133,7 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 		worldIn.setBlockState(pos.up(), this.getDefaultState().with(ISBOTTOM, false).with(FACING, state.get(FACING)));
 		if(!worldIn.isRemote())
 		{
-			ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)worldIn.getTileEntity(pos);
+			TicketTraderTileEntity tileEntity = (TicketTraderTileEntity)worldIn.getTileEntity(pos);
 			if(tileEntity != null)
 			{
 				tileEntity.setOwner(player);
@@ -153,9 +150,9 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 		{
 			//Open UI
 			TileEntity tileEntity = getTileEntity(state, world, pos);
-			if(tileEntity instanceof ItemTraderTileEntity)
+			if(tileEntity instanceof TicketTraderTileEntity)
 			{
-				ItemTraderTileEntity trader = (ItemTraderTileEntity)tileEntity;
+				TicketTraderTileEntity trader = (TicketTraderTileEntity)tileEntity;
 				//Validate the trade count
 				//if(trader.getTradeCount() != TRADECOUNT && !trader.isCreative())
 				//	trader.overrideTradeCount(TRADECOUNT);
@@ -190,97 +187,32 @@ public class VendingMachineBlock extends RotatableBlock implements IItemTraderBl
 	@Override
 	public TileEntity createTileEntity(BlockState state, IBlockReader world)
 	{
-		return new ItemTraderTileEntity(TRADECOUNT);
+		return new TicketTraderTileEntity(TRADECOUNT);
 	}
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
-		//Get facing
-		Direction facing = this.getFacing(state);
-		//Define directions for easy positional handling
-		Vector3f forward = this.getForwardVect(facing);
-		Vector3f right = this.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
-		Vector3f offset = this.getOffsetVect(facing);
-		
-		Vector3f forwardOffset = MathUtil.VectorMult(forward, 6f/16f);
-		
-		Vector3f firstPosition = null;
-		
-		if(tradeSlot == 0)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 3.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 27f/16f);
-			firstPosition = MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		else if(tradeSlot == 1)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 9.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 27f/16f);
-			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		else if(tradeSlot == 2)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 3.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 20f/16f);
-			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		else if(tradeSlot == 3)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 9.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 20f/16f);
-			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		else if(tradeSlot == 4)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 3.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 13f/16f);
-			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		else if(tradeSlot == 5)
-		{
-			Vector3f rightOffset = MathUtil.VectorMult(right, 9.5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 13f/16f);
-			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
-		}
-		
-		List<Vector3f> posList = new ArrayList<>(3);
-		if(firstPosition != null)
-		{
-			posList.add(firstPosition);
-			for(float distance = isBlock ? 3.2f : 0.5f; distance < 7; distance += isBlock ? 3.2f : 0.5f)
-			{
-				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16F)));
-			}
-		}
-		else
-		{
-			posList.add(new Vector3f(0F, 1f, 0F));
-		}
-		return posList;
+		return new ArrayList<>();
 	}
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
 	{
-		List<Quaternion> rotation = new ArrayList<>();
-		int facing = state.get(FACING).getHorizontalIndex();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
-		return rotation;
+		return new ArrayList<>();
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(0.4f, 0.4f, 0.4f);
+		return new Vector3f(1f,1f,1f);
 	}
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public int maxRenderIndex()
 	{
-		return TRADECOUNT;
+		return -1;
 	}
 	
 }

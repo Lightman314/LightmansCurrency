@@ -6,6 +6,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.item.Item;
+import net.minecraft.item.Rarity;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,6 +24,7 @@ public class ModItems {
 	public static final Item COIN_NETHERITE = register("coin_netherite", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
 	
 	public static final Item TRADING_CORE = register("trading_core", new Item(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
+	public static final Item TICKET_MASTER = register("master_ticket", new TicketItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE)));
 	public static final Item TICKET = register("ticket", new TicketItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
 	
 	public static final Item WALLET_COPPER = register("wallet_copper", new WalletItem(false, false, 6, "wallet_copper", new Item.Properties().group(LightmansCurrency.COIN_GROUP).maxStackSize(1)));

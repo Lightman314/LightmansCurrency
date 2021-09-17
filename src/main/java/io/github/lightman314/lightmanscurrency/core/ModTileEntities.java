@@ -80,12 +80,17 @@ public class ModTileEntities {
 	public static final TileEntityType<ArmorDisplayTraderTileEntity> ARMOR_TRADER = buildType("armor_trader", TileEntityType.Builder.create(ArmorDisplayTraderTileEntity::new, ModBlocks.ARMOR_DISPLAY.block));
 	//Freezer variant of the trader
 	public static final TileEntityType<FreezerTraderTileEntity> FREEZER_TRADER = buildType("freezer_trader", TileEntityType.Builder.create(FreezerTraderTileEntity::new, ModBlocks.FREEZER.block));
+	//Ticket variant of the trader
+	public static final TileEntityType<TicketTraderTileEntity> TICKET_TRADER = buildType("ticket_trader", TileEntityType.Builder.create(TicketTraderTileEntity::new, ModBlocks.TICKET_KIOSK.block));
 	
 	//Universal Item Trader
 	public static final TileEntityType<UniversalItemTraderTileEntity> UNIVERSAL_ITEM_TRADER = buildType("universal_item_trader", TileEntityType.Builder.create(UniversalItemTraderTileEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.block, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.block, ModBlocks.ITEM_TRADER_SERVER_LARGE.block));
 	
 	//Cash Register
 	public static final TileEntityType<CashRegisterTileEntity> CASH_REGISTER = buildType("cash_register", TileEntityType.Builder.create(CashRegisterTileEntity::new, ModBlocks.CASH_REGISTER.block));
+	
+	//Ticket Machine
+	public static final TileEntityType<TicketMachineTileEntity> TICKET_MACHINE = buildType("ticket_machine", TileEntityType.Builder.create(TicketMachineTileEntity::new, ModBlocks.TICKET_MACHINE.block));
 	
 	//Paygate
 	public static final TileEntityType<PaygateTileEntity> PAYGATE = buildType("paygate", TileEntityType.Builder.create(PaygateTileEntity::new, ModBlocks.PAYGATE.block));

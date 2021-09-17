@@ -246,6 +246,8 @@ public class ModBlocks {
 			)
 	);
 	
+	
+	
 	//Small Network Trader
 	public static final BlockItemPair ITEM_TRADER_SERVER_SMALL = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.create(Material.IRON)
@@ -317,6 +319,16 @@ public class ModBlocks {
 	
 	//Paygate
 	public static final BlockItemPair PAYGATE = register("paygate", LightmansCurrency.MACHINE_GROUP, new PaygateBlock(
+			Block.Properties.create(Material.IRON)
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			.harvestLevel(0)
+			.harvestTool(ToolType.PICKAXE)
+		)
+	);
+	
+	//Ticket Kiosk
+	public static final BlockItemPair TICKET_KIOSK = register("ticket_kiosk",LightmansCurrency.TRADING_GROUP, new TicketKioskBlock(
 			Block.Properties.create(Material.IRON)
 			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)

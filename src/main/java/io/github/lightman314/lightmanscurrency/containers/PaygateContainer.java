@@ -151,7 +151,7 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		//Cannot consume master tickets
 		if(TicketItem.isMasterTicket(ticket))
 			return false;
-		return this.tileEntity.validTicket(TicketItem.GetTicketID(ticket));
+		return this.tileEntity.validTicket(ticket);
 	}
 	
 	public UUID GetTicketID()
@@ -174,8 +174,28 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		return value;
 	}
 	
+	public boolean CanActivate()
+	{
+		if(this.tileEntity.isActive())
+			return false;
+		if(this.tileEntity.HasPairedTicket())
+		{
+			if(this.tileEntity.getPrice().getRawValue() <= 0)
+				return this.HasValidTicket();
+			else
+				return this.HasValidTicket() || this.GetCoinValue() >= this.tileEntity.getPrice().getRawValue();
+		}
+		else
+		{
+			return this.GetCoinValue() >= this.tileEntity.getPrice().getRawValue();
+		}
+	}
+	
 	public void Activate()
 	{
+		
+		if(!CanActivate())
+			return;
 		
 		//Check if a valid ticket is present
 		if(HasValidTicket())

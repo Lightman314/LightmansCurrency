@@ -123,4 +123,6 @@ public abstract class TradeData implements ITradeRuleHandler {
 		this.rules.clear();
 	}
 	
+	public void markRulesDirty() { }
+	
 }

@@ -3,14 +3,16 @@ package io.github.lightman314.lightmanscurrency.blocks;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
+import io.github.lightman314.lightmanscurrency.tileentity.TicketMachineTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -18,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class TicketMachineBlock extends RotatableBlock{
 
@@ -34,9 +37,20 @@ public class TicketMachineBlock extends RotatableBlock{
 	}
 	
 	@Override
+	public boolean hasTileEntity(BlockState state) { return true;}
+	
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader world)
+	{
+		return new TicketMachineTileEntity();
+	}
+	
+	@Override
 	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
 	{
-		playerEntity.openContainer(state.getContainer(world, pos));
+		if(!world.isRemote)
+			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, getContainer(state, world, pos), pos);
 		return ActionResultType.SUCCESS;
 	}
 	
@@ -44,7 +58,7 @@ public class TicketMachineBlock extends RotatableBlock{
 	@Override
 	public INamedContainerProvider getContainer(BlockState state, World world, BlockPos pos)
 	{
-		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineContainer(windowId, playerInventory, IWorldPosCallable.of(world,pos));}, TITLE);
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineContainer(windowId, playerInventory, (TicketMachineTileEntity)world.getTileEntity(pos));}, TITLE);
 	}
 	
 	@Override

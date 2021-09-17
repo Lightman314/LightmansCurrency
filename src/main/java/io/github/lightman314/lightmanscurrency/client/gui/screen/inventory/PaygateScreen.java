@@ -149,7 +149,7 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 			this.buttonSetTicket.visible = this.container.HasMasterTicket() && !this.container.tileEntity.validTicket(this.container.GetTicketID());
 		}
 		
-		this.buttonPay.active = (this.container.GetCoinValue() >= this.container.tileEntity.getPrice().getRawValue() || this.container.HasValidTicket()) && !this.container.tileEntity.isActive();
+		this.buttonPay.active = this.container.CanActivate();
 
 	}
 	

@@ -99,7 +99,7 @@ public class CashRegisterTileEntity extends TileEntity{
 		return null;
 	}
 	
-	public int getTraderIndex(ItemTraderTileEntity tileEntity)
+	public int getTraderIndex(TraderTileEntity tileEntity)
 	{
 		for(int i = 0; i < positions.size(); i++)
 		{

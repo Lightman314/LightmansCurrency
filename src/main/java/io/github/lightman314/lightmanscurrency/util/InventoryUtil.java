@@ -12,6 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -133,6 +134,38 @@ public class InventoryUtil {
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count -= amountToTake;
+    			if(amountToTake == stack.getCount())
+    				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+    			else
+    				stack.shrink(amountToTake);
+    		}
+    	}
+    	return true;
+    }
+    
+    public static int GetItemTagCount(IInventory inventory, ResourceLocation itemTag)
+    {
+    	int count = 0;
+    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	{
+    		ItemStack stack = inventory.getStackInSlot(i);
+    		if(stack.getItem().getTags().contains(itemTag))
+    			count += stack.getCount();
+    	}
+    	return count;
+    }
+    
+    public static boolean RemoveItemTagCount(IInventory inventory, ResourceLocation itemTag, int count)
+    {
+    	if(GetItemTagCount(inventory, itemTag) < count)
+    		return false;
+    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	{
+    		ItemStack stack = inventory.getStackInSlot(i);
+    		if(stack.getItem().getTags().contains(itemTag))
+    		{
+    			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
+    			count-= amountToTake;
     			if(amountToTake == stack.getCount())
     				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
     			else

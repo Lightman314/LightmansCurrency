@@ -1,0 +1,90 @@
+{
+	"credit": "Made with Blockbench",
+    "parent": "lightmanscurrency:block/block1_2",
+	"textures": {
+		"main": "lightmanscurrency:blocks/ticket_kiosk",
+		"particle": "lightmanscurrency:blocks/ticket_kiosk"
+	},
+	"elements": [
+		{
+			"name": "Base",
+			"from": [4, 0, 4],
+			"to": [12, 4, 12],
+			"faces": {
+				"north": {"uv": [7.75, 9.5, 9.75, 10.5], "texture": "#main"},
+				"east": {"uv": [5.25, 9.5, 7.25, 10.5], "texture": "#main"},
+				"south": {"uv": [2.75, 9.5, 4.75, 10.5], "texture": "#main"},
+				"west": {"uv": [0.25, 9.5, 2.25, 10.5], "texture": "#main"},
+				"down": {"uv": [0.25, 10.75, 2.25, 12.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Body",
+			"from": [3, 4, 3],
+			"to": [13, 16, 13],
+			"faces": {
+				"north": {"uv": [7.5, 6.5, 10, 9.5], "texture": "#main"},
+				"east": {"uv": [5, 6.5, 7.5, 9.5], "texture": "#main"},
+				"south": {"uv": [2.5, 6.5, 5, 9.5], "texture": "#main"},
+				"west": {"uv": [0, 6.5, 2.5, 9.5], "texture": "#main"},
+				"down": {"uv": [0, 10.5, 2.5, 13], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Body",
+			"from": [3, 16, 3],
+			"to": [13, 20, 13],
+			"faces": {
+				"north": {"uv": [7.5, 6, 10, 6.5], "texture": "#main"},
+				"east": {"uv": [5, 6, 7.5, 6.5], "texture": "#main"},
+				"south": {"uv": [2.5, 6, 5, 6.5], "texture": "#main"},
+				"west": {"uv": [0, 6, 2.5, 6.5], "texture": "#main"},
+				"up": {"uv": [10, 2.5, 12.5, 5], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Left Wall",
+			"from": [3, 20, 8],
+			"to": [4, 30, 13],
+			"faces": {
+				"east": {"uv": [10, 0, 11.25, 2.5], "texture": "#main"},
+				"south": {"uv": [2.5, 3, 2.75, 5.5], "texture": "#main"},
+				"west": {"uv": [1.25, 3, 2.5, 5.5], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Right Wall",
+			"from": [12, 20, 8],
+			"to": [13, 30, 13],
+			"faces": {
+				"east": {"uv": [5, 3, 6.25, 5.5], "texture": "#main"},
+				"south": {"uv": [4.75, 3, 5, 5.5], "texture": "#main"},
+				"west": {"uv": [11.25, 0, 12.5, 2.5], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Back Wall",
+			"from": [3, 20, 3],
+			"to": [13, 30, 8],
+			"faces": {
+				"north": {"uv": [7.5, 3, 10, 5.5], "texture": "#main"},
+				"east": {"uv": [6.25, 3, 7.5, 5.5], "texture": "#main"},
+				"south": {"uv": [2.5, 3, 5, 5.5], "texture": "#main"},
+				"west": {"uv": [0, 3, 1.25, 5.5], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Top",
+			"from": [3, 30, 3],
+			"to": [13, 32, 13],
+			"faces": {
+				"north": {"uv": [7.5, 2.5, 10, 3], "texture": "#main"},
+				"east": {"uv": [5, 2.5, 7.5, 3], "texture": "#main"},
+				"south": {"uv": [2.5, 2.5, 5, 3], "texture": "#main"},
+				"west": {"uv": [0, 2.5, 2.5, 3], "texture": "#main"},
+				"up": {"uv": [0, 0, 2.5, 2.5], "texture": "#main"},
+				"down": {"uv": [10, 5, 12.5, 7.5], "texture": "#main"}
+			}
+		}
+	]
+}

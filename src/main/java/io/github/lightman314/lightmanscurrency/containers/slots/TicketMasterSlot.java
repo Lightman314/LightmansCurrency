@@ -4,7 +4,6 @@ package io.github.lightman314.lightmanscurrency.containers.slots;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.inventory.IInventory;
@@ -26,7 +25,7 @@ public class TicketMasterSlot extends Slot{
 	
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return stack.getItem() == ModItems.TICKET && TicketItem.isMasterTicket(stack);
+		return stack.getItem() == ModItems.TICKET_MASTER;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
