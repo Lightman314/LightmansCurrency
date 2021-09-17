@@ -277,7 +277,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
 			//Abort if not enough items in inventory
-			if(InventoryUtil.GetItemCount(this.tileEntity, trade.getSellItem()) < trade.getSellItem().getCount() && !this.tileEntity.isCreative())
+			if(!trade.hasStock(this.tileEntity.getStorage()) && !this.tileEntity.isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -339,10 +339,12 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			if(!this.tileEntity.isCreative())
 			{
 				//Remove the sold items from storage
-				InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
+				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
+				trade.RemoveItemsFromStorage(this.tileEntity.getStorage());
 				//Give the payed cost to storage
 				tileEntity.addStoredMoney(trade.getCost());
 			}
+			
 		}
 		//Process a purchase
 		else if(trade.getTradeDirection() == ItemTradeType.PURCHASE)

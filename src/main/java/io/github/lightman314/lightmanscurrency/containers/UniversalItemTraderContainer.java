@@ -290,7 +290,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
 			//Abort if not enough items in inventory
-			if(InventoryUtil.GetItemCount(getData().getStorage(), trade.getSellItem()) < trade.getSellItem().getCount() && !this.getData().isCreative())
+			if(!trade.hasStock(this.getData().getStorage()) && !this.getData().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -352,9 +352,11 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			if(!this.getData().isCreative())
 			{
 				//Remove the sold items from storage
-				InventoryUtil.RemoveItemCount(this.getData().getStorage(), trade.getSellItem());
+				//InventoryUtil.RemoveItemCount(this.getData().getStorage(), trade.getSellItem());
+				trade.RemoveItemsFromStorage(this.getData().getStorage());
 				//Give the payed cost to storage
 				this.getData().addStoredMoney(trade.getCost());
+				
 			}
 		}
 		//Process a purchase

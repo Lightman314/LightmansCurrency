@@ -43,27 +43,6 @@ public class ModContainers {
 		
 	});
 	
-	public static final ContainerType<TicketTraderContainer> TICKETTRADER = register("ticket_trader", (IContainerFactory<TicketTraderContainer>)(windowId, playerInventory, data)->{
-		
-		TicketTraderTileEntity tileEntity = (TicketTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new TicketTraderContainer(windowId, playerInventory, tileEntity);
-		
-	});
-	public static final ContainerType<TicketTraderStorageContainer> TICKETTRADERSTORAGE = register("ticket_trader_storage", (IContainerFactory<TicketTraderStorageContainer>)(windowId, playerInventory, data)->{
-		
-		TicketTraderTileEntity tileEntity = (TicketTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new TicketTraderStorageContainer(windowId, playerInventory, tileEntity);
-		
-	});
-	public static final ContainerType<TicketTraderContainerCR> TICKETTRADERCR = register("ticket_trader_cr", (IContainerFactory<TicketTraderContainerCR>)(windowId, playerInventory, data)->{
-		
-		TicketTraderTileEntity traderEntity = (TicketTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new TicketTraderContainerCR(windowId, playerInventory, traderEntity, registerEntity);
-		
-	});
-	
-	
 	public static final ContainerType<UniversalItemTraderContainer> UNIVERSAL_ITEMTRADER = register("universal_item_trader", (IContainerFactory<UniversalItemTraderContainer>)(windowId, playerInventory, data)->{
 		
 		return new UniversalItemTraderContainer(windowId, playerInventory, data.readUniqueId(), data.readCompoundTag());

@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
-import io.github.lightman314.lightmanscurrency.network.message.ticket_trader.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -105,10 +104,6 @@ public class LightmansCurrencyPacketHandler {
 		//Trade Rules
 		register(MessageSetTraderRules.class, new MessageSetTraderRules());
 		register(MessageSetTraderRules2.class, new MessageSetTraderRules2());
-		register(MessageSetTraderRules3.class, new MessageSetTraderRules3());
-		
-		//Ticket Trader
-		register(MessageSetItemPrice3.class, new MessageSetItemPrice3());
 		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());

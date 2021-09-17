@@ -5,18 +5,23 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 public class TicketItem extends Item{
 
+	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
+	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
+	
 	public TicketItem(Properties properties)
 	{
 		super(properties);
@@ -54,14 +59,16 @@ public class TicketItem extends Item{
 	public static ItemStack CreateMasterTicket(UUID ticketID)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
-		ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		if(ticketID != null)
+			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
 		return ticket;
 	}
 	
 	public static ItemStack CreateTicket(UUID ticketID, int count)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
-		ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		if(ticketID != null)
+			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
 		return ticket;
 	}
 	

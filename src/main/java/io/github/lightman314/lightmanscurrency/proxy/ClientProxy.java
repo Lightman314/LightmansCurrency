@@ -55,9 +55,6 @@ public class ClientProxy extends CommonProxy{
     	ScreenManager.registerFactory(ModContainers.ITEMTRADER, ItemTraderScreen::new);
     	ScreenManager.registerFactory(ModContainers.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
     	ScreenManager.registerFactory(ModContainers.ITEMTRADERCR, ItemTraderScreenCR::new);
-    	ScreenManager.registerFactory(ModContainers.TICKETTRADER, TicketTraderScreen::new);
-    	ScreenManager.registerFactory(ModContainers.TICKETTRADERSTORAGE, TicketTraderStorageScreen::new);
-    	ScreenManager.registerFactory(ModContainers.TICKETTRADERCR, TicketTraderScreenCR::new);
     	ScreenManager.registerFactory(ModContainers.ITEM_EDIT, ItemEditScreen::new);
     	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
     	ScreenManager.registerFactory(ModContainers.WALLET, WalletScreen::new);

@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.tradedata;
 
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
@@ -13,7 +15,7 @@ import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData extends TradeData {
 	
-	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET }
+	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET, TICKET }
 	public enum ItemTradeType { SALE, PURCHASE, BARTER }
 	
 	public static int MaxTradeDirectionStringLength()
@@ -69,7 +71,10 @@ public class ItemTradeData extends TradeData {
 	
 	public void setSellItem(ItemStack itemStack)
 	{
-		this.sellItem = itemStack.copy();
+		if(this.restriction == ItemTradeRestrictions.TICKET)
+			this.sellItem = TicketItem.CreateTicket(TicketItem.GetTicketID(itemStack), 1);
+		else
+			this.sellItem = itemStack.copy();
 	}
 	
 	public String getCustomName()
@@ -132,29 +137,27 @@ public class ItemTradeData extends TradeData {
 	{
 		if(this.sellItem.isEmpty())
 			return 0;
-		int itemCount = 0;
-		for(int i = 0; i < storage.getSizeInventory(); i++)
+		if(this.restriction == ItemTradeRestrictions.TICKET)
 		{
-			ItemStack itemStack = storage.getStackInSlot(i);
-			if(itemStack.getItem() == sellItem.getItem())
+			return InventoryUtil.GetItemTagCount(storage, TicketItem.TICKET_MATERIAL_TAG) / this.sellItem.getCount();
+		}
+		else
+		{
+			return InventoryUtil.GetItemCount(storage, this.sellItem) / this.sellItem.getCount();
+		}
+	}
+	
+	public void RemoveItemsFromStorage(IInventory storage)
+	{
+		if(this.restriction == ItemTradeRestrictions.TICKET)
+		{
+			if(!InventoryUtil.RemoveItemCount(storage, this.getSellItem()))
 			{
-				if(itemStack.hasTag() == sellItem.hasTag())
-				{
-					if(itemStack.hasTag())
-					{
-						if(itemStack.getTag().equals(sellItem.getTag()))
-						{
-							itemCount += itemStack.getCount();
-						}
-					}
-					else
-					{
-						itemCount += itemStack.getCount();
-					}
-				}
+				InventoryUtil.RemoveItemTagCount(storage, TicketItem.TICKET_MATERIAL_TAG, this.sellItem.getCount());
 			}
 		}
-		return itemCount / sellItem.getCount();
+		else
+			InventoryUtil.RemoveItemCount(storage, this.getSellItem());
 	}
 	
 	@Override
