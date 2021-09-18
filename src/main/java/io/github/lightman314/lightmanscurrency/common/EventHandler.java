@@ -128,7 +128,6 @@ public class EventHandler {
 					event.setCanceled(true);
 				}
 			}
-		
 		}
 		
 	}

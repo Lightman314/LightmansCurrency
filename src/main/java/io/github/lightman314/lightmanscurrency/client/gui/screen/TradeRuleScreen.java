@@ -20,7 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class TradeRuleScreen extends Screen{
 	
-	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderules.png");
+	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderules.png");
 	private static final List<Supplier<TradeRule>> REGISTERED_RULES = new ArrayList<>();
 	
 	public static void RegisterTradeRule(Supplier<TradeRule> rule)

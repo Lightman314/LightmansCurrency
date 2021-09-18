@@ -454,4 +454,9 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		return tileEntity.isOwner(player);
 	}
 	
+	public boolean hasPermissions()
+	{
+		return tileEntity.hasPermissions(player);
+	}
+	
 }

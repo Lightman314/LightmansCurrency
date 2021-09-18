@@ -146,7 +146,7 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 	{
 		super.init();
 		
-		if(this.container.isOwner())
+		if(this.container.hasPermissions())
 		{
 			
 			int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.container.getTradeCount());

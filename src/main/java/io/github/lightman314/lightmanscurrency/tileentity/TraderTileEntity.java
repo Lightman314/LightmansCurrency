@@ -23,6 +23,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -41,12 +42,14 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity{
+public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions{
 	
 	String customName = "";
 	
 	protected UUID ownerID = null;
 	protected String ownerName = "";
+	
+	protected List<String> allies = new ArrayList<>();
 	
 	protected boolean isCreative = false;
 	
@@ -113,21 +116,35 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 * Whether or not the given player is the owner of the trader.
 	 * How this result is determined changed based on whether this is a creative trader or not.
 	 */
-	public boolean isOwner(Entity entity)
-	{
-		if(this.isCreative && entity instanceof PlayerEntity)
+	public boolean isOwner(PlayerEntity player)
+	{	
+		if(this.ownerID != null)
 		{
-			PlayerEntity player = (PlayerEntity)entity;
-			return player.hasPermissionLevel(2) && player.isCreative();
-		}
-		else if(this.ownerID != null)
-		{
-			return entity.getUniqueID().equals(ownerID);
+			return player.getUniqueID().equals(ownerID);
 		}
 		else
 		{
 			LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
 			return true;
+		}
+	}
+	
+	public boolean hasPermissions(PlayerEntity player)
+	{
+		return isOwner(player) || this.allies.contains(player.getName().getString()) || (this.isCreative && player.hasPermissionLevel(2) && player.isCreative());
+	}
+	
+	public List<String> getAllies()
+	{
+		return this.allies;
+	}
+	
+	public void markAlliesDirty()
+	{
+		if(!this.world.isRemote)
+		{
+			CompoundNBT compound = this.writeAllies(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
 		}
 	}
 	
@@ -367,6 +384,18 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		return compound;
 	}
 	
+	protected CompoundNBT writeAllies(CompoundNBT compound)
+	{
+		ListNBT allyList = new ListNBT();
+		this.allies.forEach(ally ->{
+			CompoundNBT thisAlly = new CompoundNBT();
+			thisAlly.putString("name", ally);
+			allyList.add(thisAlly);
+		});
+		compound.put("Allies", allyList);
+		return compound;
+	}
+	
 	@Override
 	public void read(BlockState state, CompoundNBT compound)
 	{
@@ -397,6 +426,15 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		//Validate the version #
 		if(oldVersion < this.GetCurrentVersion())
 			this.versionUpdate = true; //Flag this to perform a version update later once the world has been defined
+		
+		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
+		{
+			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < allyList.size(); i++)
+			{
+				
+			}
+		}
 		
 		super.read(state, compound);
 	}

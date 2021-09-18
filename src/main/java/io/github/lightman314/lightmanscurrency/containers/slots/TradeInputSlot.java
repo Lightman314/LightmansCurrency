@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.containers.slots;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import net.minecraft.entity.Entity;
@@ -78,10 +77,8 @@ public class TradeInputSlot extends Slot{
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
 		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
 			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
-		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
-			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(LightmansCurrency.MODID,"items/ticket_frame"));
 		
-       return super.getBackground();
+		return super.getBackground();
     }
 	
 	@OnlyIn(Dist.CLIENT)
