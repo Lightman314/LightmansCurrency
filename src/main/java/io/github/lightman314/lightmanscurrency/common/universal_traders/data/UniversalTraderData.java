@@ -1,15 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -22,7 +26,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public abstract class UniversalTraderData {
+public abstract class UniversalTraderData implements IPermissions{
 
 	public static final ResourceLocation ICON_RESOURCE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png");
 	
@@ -42,6 +46,8 @@ public abstract class UniversalTraderData {
 	public void toggleCreative() { this.creative = !this.creative; this.markDirty(); LightmansCurrency.LogInfo("Creative has been toggled on a Universal Trader.");}
 	CoinValue storedMoney = new CoinValue();
 	public CoinValue getStoredMoney() { return this.storedMoney; }
+	
+	List<String> allies = new ArrayList<>();
 	
 	public void markDirty()
 	{
@@ -107,6 +113,19 @@ public abstract class UniversalTraderData {
 		if(compound.contains("StoredMoney"))
 			this.storedMoney.readFromNBT(compound, "StoredMoney");
 		
+		//Read allies
+		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
+		{
+			this.allies.clear();
+			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < allyList.size(); i++)
+			{
+				CompoundNBT thisAlly = allyList.getCompound(i);
+				if(thisAlly.contains("name", Constants.NBT.TAG_STRING))
+					this.allies.add(thisAlly.getString("name"));
+			}
+		}
+		
 		//Version Validation
 		int oldVersion = 0;
 		if(compound.contains("TraderVersion", Constants.NBT.TAG_INT))
@@ -117,15 +136,23 @@ public abstract class UniversalTraderData {
 	
 	public boolean isOwner(PlayerEntity player)
 	{
-		if(this.creative && player.isCreative() && player.hasPermissionLevel(2))
-		{
-			return true;
-		}
-		else if(this.ownerID != null)
+		if(this.ownerID != null)
 			return player.getUniqueID().equals(this.ownerID);
-		//Owner is not defined, so everyone is the owner
+		LightmansCurrency.LogError("Owner ID for the universal trading machine is null. Unable to determine if the owner is valid.");
 		return true;
 	}
+	
+	public boolean hasPermissions(PlayerEntity player)
+	{
+		return isOwner(player) || this.allies.contains(player.getName().getString()) || (this.creative && player.hasPermissionLevel(2) && player.isCreative());
+	}
+	
+	public List<String> getAllies()
+	{
+		return this.allies;
+	}
+	
+	public void markAlliesDirty() { this.markDirty(); }
 	
 	public void updateOwnerName(String ownerName)
 	{
@@ -162,6 +189,15 @@ public abstract class UniversalTraderData {
 			compound.putString("World", this.world.getLocation().toString());
 		//Stored Money
 		this.storedMoney.writeToNBT(compound, "StoredMoney");
+		
+		//Allies
+		ListNBT allyList = new ListNBT();
+		this.allies.forEach(ally ->{
+			CompoundNBT thisAlly = new CompoundNBT();
+			thisAlly.putString("name", ally);
+			allyList.add(thisAlly);
+		});
+		compound.put("Allies", allyList);
 		
 		compound.putInt("TraderVersion", this.GetCurrentVersion());
 		

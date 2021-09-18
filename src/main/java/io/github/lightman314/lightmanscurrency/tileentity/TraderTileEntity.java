@@ -119,14 +119,9 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	public boolean isOwner(PlayerEntity player)
 	{	
 		if(this.ownerID != null)
-		{
 			return player.getUniqueID().equals(ownerID);
-		}
-		else
-		{
-			LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
-			return true;
-		}
+		LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
+		return true;
 	}
 	
 	public boolean hasPermissions(PlayerEntity player)
@@ -342,6 +337,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		writeCreative(compound);
 		writeCustomName(compound);
 		writeVersion(compound);
+		writeAllies(compound);
 		
 		return super.write(compound);
 	}
@@ -420,21 +416,25 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		if(compound.contains("CustomName", Constants.NBT.TAG_STRING))
 			this.customName = compound.getString("CustomName");
 		
+		//Read Allies
+		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
+		{
+			this.allies.clear();
+			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < allyList.size(); i++)
+			{
+				CompoundNBT thisAlly = allyList.getCompound(i);
+				if(thisAlly.contains("name", Constants.NBT.TAG_STRING))
+					this.allies.add(thisAlly.getString("name"));
+			}
+		}
+		
 		//Version
 		if(compound.contains("TraderVersion", Constants.NBT.TAG_INT))
 			oldVersion = compound.getInt("TraderVersion");
 		//Validate the version #
 		if(oldVersion < this.GetCurrentVersion())
 			this.versionUpdate = true; //Flag this to perform a version update later once the world has been defined
-		
-		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
-		{
-			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
-			for(int i = 0; i < allyList.size(); i++)
-			{
-				
-			}
-		}
 		
 		super.read(state, compound);
 	}

@@ -356,6 +356,11 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		return tileEntity.isOwner(player);
 	}
 	
+	public boolean hasPermissions()
+	{
+		return tileEntity.hasPermissions(player);
+	}
+	
 	public void openItemEditScreenForSlot(int slotIndex)
 	{
 		int tradeIndex = slotIndex - this.tileEntity.getSizeInventory();

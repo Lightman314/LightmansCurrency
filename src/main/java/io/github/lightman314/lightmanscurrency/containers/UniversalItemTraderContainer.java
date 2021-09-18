@@ -458,6 +458,11 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	{
 		return this.getData().isOwner(player);
 	}
+	
+	public boolean hasPermissions()
+	{
+		return this.getData().hasPermissions(player);
+	}
 
 	@Override
 	protected void onDataModified() {

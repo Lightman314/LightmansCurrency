@@ -361,6 +361,11 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		return getData().isOwner(player);
 	}
 	
+	public boolean hasPermissions()
+	{
+		return getData().hasPermissions(player);
+	}
+	
 	public void openItemEditScreenForSlot(int slotIndex)
 	{
 		int tradeIndex = slotIndex - this.storage.getSizeInventory();

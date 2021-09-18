@@ -153,8 +153,11 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 			
 			this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop, this::PressStorageButton, GUI_TEXTURE, 176, 0));
 			
-			this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-			this.buttonCollectMoney.active = false;
+			if(this.container.isOwner())
+			{
+				this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
+				this.buttonCollectMoney.active = false;
+			}
 			
 		}
 		
@@ -208,13 +211,13 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 	private void PressStorageButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(container.hasPermissions())
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to open the Trader's Storage.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.container.tileEntity.getPos()));
 		}
 		else
-			LightmansCurrency.LogWarning("Non-owner attempted to open the Trader's Storage.");
+			LightmansCurrency.LogWarning("Player without permissions attempted to open the Trader's Storage.");
 	}
 	
 	private void PressCollectionButton(Button button)

@@ -80,7 +80,7 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 			if(tileEntity != null)
 			{
 				//Update the owner
-				if(tileEntity.isOwner(playerEntity))
+				if(tileEntity.hasPermissions(playerEntity))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
 					tileEntity.updateOwner(playerEntity);

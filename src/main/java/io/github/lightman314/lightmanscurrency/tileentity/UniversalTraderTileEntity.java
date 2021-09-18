@@ -63,9 +63,17 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
 			return true;
 		}
-		//else
-		//	LightmansCurrency.LOGGER.info("Trader Data for trader of id '" + this.traderID + "' is NOT NULL (tileEntity.updateOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
 		return this.getData().isOwner(player);
+	}
+	
+	public boolean hasPermissions(PlayerEntity player)
+	{
+		if(this.getData() == null)
+		{
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			return true;
+		}
+		return this.getData().hasPermissions(player);
 	}
 	
 	public boolean canBreak(PlayerEntity player)

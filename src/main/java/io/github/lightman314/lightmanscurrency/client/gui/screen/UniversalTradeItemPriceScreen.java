@@ -163,7 +163,6 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	
 	protected void PressTradeRuleButton(Button button)
 	{
-		SaveChanges();
 		Minecraft.getInstance().displayGuiScreen(new TradeRuleScreen(GetRuleScreenBackHandler()));
 	}
 	

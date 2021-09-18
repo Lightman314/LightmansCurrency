@@ -50,7 +50,7 @@ public class MessageSetItemPrice2 implements IMessage<MessageSetItemPrice2> {
 
 	@Override
 	public MessageSetItemPrice2 decode(PacketBuffer buffer) {
-		return new MessageSetItemPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeDirectionStringLength()));
+		return new MessageSetItemPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeTypeStringLength()));
 	}
 
 	@Override

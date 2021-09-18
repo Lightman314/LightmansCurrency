@@ -24,8 +24,8 @@ public class ModItems {
 	public static final Item COIN_NETHERITE = register("coin_netherite", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
 	
 	public static final Item TRADING_CORE = register("trading_core", new Item(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
-	public static final Item TICKET_MASTER = register("master_ticket", new TicketItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE)));
 	public static final Item TICKET = register("ticket", new TicketItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
+	public static final Item TICKET_MASTER = register("master_ticket", new TicketItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE).maxStackSize(1)));
 	
 	public static final Item WALLET_COPPER = register("wallet_copper", new WalletItem(false, false, 6, "wallet_copper", new Item.Properties().group(LightmansCurrency.COIN_GROUP).maxStackSize(1)));
 	public static final Item WALLET_IRON = register("wallet_iron", new WalletItem(false, false, 12, "wallet_iron" , new Item.Properties().group(LightmansCurrency.COIN_GROUP).maxStackSize(1)));

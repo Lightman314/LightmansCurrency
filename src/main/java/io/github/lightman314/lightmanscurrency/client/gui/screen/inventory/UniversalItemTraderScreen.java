@@ -27,9 +27,6 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
-	public static final int TRADEBUTTON_SPACER = 4;
-	public static final int TRADEBUTTON_VERTICALITY = ItemTradeButton.HEIGHT + TRADEBUTTON_SPACER;
-	
 	Button buttonShowStorage;
 	Button buttonCollectMoney;
 	Button buttonBack;
@@ -72,14 +69,16 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 		
 		this.buttonBack = this.addButton(new IconButton(this.guiLeft -20 + inventoryOffset, this.guiTop + this.ySize - 20, this::PressBackButton, GUI_TEXTURE, 176 + 32, 0));
 		
-		if(this.container.isOwner())
+		if(this.container.hasPermissions())
 		{
 			
 			this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop, this::PressStorageButton, GUI_TEXTURE, 176, 0));
 			
-			this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-			this.buttonCollectMoney.active = false;
-			
+			if(this.container.isOwner())
+			{
+				this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
+				this.buttonCollectMoney.active = false;
+			}
 		}
 		
 		initTradeButtons();
@@ -136,7 +135,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 	private void PressStorageButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(container.hasPermissions())
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to open the Trader's Storage.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.container.getData().getTraderID()));

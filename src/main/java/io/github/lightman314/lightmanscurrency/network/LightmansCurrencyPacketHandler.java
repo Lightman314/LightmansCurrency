@@ -58,6 +58,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageAddOrRemoveTrade.class, new MessageAddOrRemoveTrade());
 		register(MessageSyncUsers.class, new MessageSyncUsers());
 		register(MessageRequestSyncUsers.class, new MessageRequestSyncUsers());
+		register(MessageAddOrRemoveAlly.class, new MessageAddOrRemoveAlly());
 		
 		//Item Trader
 		register(MessageSetItemPrice.class, new MessageSetItemPrice());
@@ -96,6 +97,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageUpdateContainerData.class, new MessageUpdateContainerData());
 		register(MessageSetCustomName2.class, new MessageSetCustomName2());
 		register(MessageSetItemPrice2.class, new MessageSetItemPrice2());
+		register(MessageAddOrRemoveAlly2.class, new MessageAddOrRemoveAlly2());
 		
 		//Logger
 		register(MessageClearLogger.class, new MessageClearLogger());

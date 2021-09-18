@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.tradedata;
 
 
+import java.util.UUID;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -18,7 +20,7 @@ public class ItemTradeData extends TradeData {
 	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET, TICKET }
 	public enum ItemTradeType { SALE, PURCHASE, BARTER }
 	
-	public static int MaxTradeDirectionStringLength()
+	public static int MaxTradeTypeStringLength()
 	{ 
 		int length = 0;
 		for(ItemTradeType value : ItemTradeType.values())
@@ -72,7 +74,13 @@ public class ItemTradeData extends TradeData {
 	public void setSellItem(ItemStack itemStack)
 	{
 		if(this.restriction == ItemTradeRestrictions.TICKET)
-			this.sellItem = TicketItem.CreateTicket(TicketItem.GetTicketID(itemStack), 1);
+		{
+			UUID ticketID = TicketItem.GetTicketID(itemStack);
+			if(ticketID == null)
+				this.sellItem = ItemStack.EMPTY;
+			else
+				this.sellItem = TicketItem.CreateTicket(ticketID, 1);
+		}
 		else
 			this.sellItem = itemStack.copy();
 	}
