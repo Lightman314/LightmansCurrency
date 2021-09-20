@@ -129,9 +129,10 @@ public class ItemTradeData extends TradeData {
 		return null;
 	}
 	
+	@Override
 	public boolean isValid()
 	{
-		return !this.sellItem.isEmpty() && (this.cost.getRawValue() > 0 || this.isFree);
+		return !this.sellItem.isEmpty() && super.isValid();
 	}
 	
 	public boolean hasStock(IInventory storage)

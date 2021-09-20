@@ -1729,6 +1729,13 @@ public class MoneyUtil {
     		return value;
     	}
     	
+    	public CoinValue ApplyMultiplier(double costMultiplier)
+    	{
+    		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 1d);
+    		long rawValue = (long)(this.getRawValue() * costMultiplier);
+    		return new CoinValue(rawValue);
+    	}
+    	
     	/**
     	 * Gets the two most significant coin stacks from the given value for use as a villager price
     	 */

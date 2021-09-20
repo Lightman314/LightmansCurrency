@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api;
 
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -15,7 +16,7 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(PlayerEntity player, ItemTradeData trade, boolean isCreative)
+	public void AddLog(PlayerEntity player, ItemTradeData trade, CoinValue pricePayed, boolean isCreative)
 	{
 		
 		ITextComponent creativeText = isCreative ? new TranslationTextComponent("log.shoplog.creative") : new StringTextComponent("");
@@ -29,7 +30,7 @@ public class ItemShopLogger extends TextLogger{
 		}
 		
 		ITextComponent itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
-		ITextComponent cost = new StringTextComponent("§e" + trade.getCost().getString());
+		ITextComponent cost = new StringTextComponent("§e" + pricePayed.getString());
 		
 		AddLog(new TranslationTextComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
 		

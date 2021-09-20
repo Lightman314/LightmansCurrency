@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
@@ -28,6 +29,7 @@ public abstract class TradeRule {
 	public final ITextComponent getName() { return new TranslationTextComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
 	
 	public void beforeTrade(PreTradeEvent event) {}
+	public void tradeCost(TradeCostEvent event) {}
 	public void afterTrade(PostTradeEvent event) {}
 	
 	protected TradeRule(ResourceLocation type)

@@ -4,10 +4,12 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 
 public interface ITradeRuleHandler {
 
 	public void beforeTrade(PreTradeEvent event);
+	public void tradeCost(TradeCostEvent event);
 	public void afterTrade(PostTradeEvent event);
 	
 	public List<TradeRule> getRules();

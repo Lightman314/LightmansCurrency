@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderSto
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
@@ -361,6 +362,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
+	}
+	
+	@Override
+	public void tradeCost(TradeCostEvent event) {
+		this.tradeRules.forEach(rule -> rule.tradeCost(event));
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -19,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -226,6 +228,15 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		return this.tileEntity.getTrade(tradeIndex);
 	}
 	
+	public CoinValue TradeCostEvent(ItemTradeData trade)
+	{
+		TradeCostEvent event = new TradeCostEvent(this.player, trade, this);
+		this.tileEntity.tradeCost(event);
+		trade.tradeCost(event);
+		MinecraftForge.EVENT_BUS.post(event);
+		return event.multipliedCost();
+	}
+	
 	private void PostTradeEvent(ItemTradeData trade)
 	{
 		PostTradeEvent event = new PostTradeEvent(this.player, trade, this);
@@ -273,6 +284,9 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		if(!PermissionToTrade(tradeIndex))
 			return;
 		
+		//Get the cost of the trade
+		CoinValue price = this.TradeCostEvent(trade);
+		
 		//Process a sale
 		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
@@ -290,7 +304,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 				return;
 			}
 			
-			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, trade.getCost()))
+			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, price))
 			{
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -304,7 +318,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			{
 				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
 				//Give a refund
-				List<ItemStack> refundCoins = MoneyUtil.getCoinsOfValue(trade.getCost());
+				List<ItemStack> refundCoins = MoneyUtil.getCoinsOfValue(price);
 				ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 				
 				for(int i = 0; i < refundCoins.size(); i++)
@@ -329,7 +343,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			}
 			
 			//Log the successful trade
-			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
@@ -342,7 +356,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
 				trade.RemoveItemsFromStorage(this.tileEntity.getStorage());
 				//Give the payed cost to storage
-				tileEntity.addStoredMoney(trade.getCost());
+				tileEntity.addStoredMoney(price);
 			}
 			
 		}
@@ -369,10 +383,10 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			//Passed the checks. Take the item(s) from the input slot
 			InventoryUtil.RemoveItemCount(this.itemSlots, trade.getSellItem());
 			//Put the payment in the purchasers wallet, coin slot, etc.
-			MoneyUtil.ProcessChange(this.coinSlots, this.player, trade.getCost());
+			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
 			//Log the successful trade
-			this.tileEntity.getLogger().AddLog(player, trade, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
@@ -384,7 +398,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.tileEntity, trade.getSellItem());
 				//Remove the coins from storage
-				this.tileEntity.removeStoredMoney(trade.getCost());
+				this.tileEntity.removeStoredMoney(price);
 			}
 			
 		}

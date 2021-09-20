@@ -80,7 +80,7 @@ public class ItemTradeButton extends Button{
 		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
 		boolean hasPermission = hasPermission();
-		this.font.drawString(matrixStack, getTradeText(this.getTrade(), hasStock(), hasSpace(), hasPermission), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission));
+		this.font.drawString(matrixStack, getTradeText(this.getTrade(), hasStock(), hasSpace(), hasPermission, this.container), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission));
 		
 		/*if(trade.isValid() && !trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative()) //Display the No Stock message if the trade is valid, but we're out of stock
 			this.font.drawString(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString(), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);
@@ -91,7 +91,7 @@ public class ItemTradeButton extends Button{
 		
 	}
 	
-	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace, boolean hasPermission)
+	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace, boolean hasPermission, ITradeButtonContainer container)
 	{
 		if(trade.isValid() && !hasPermission)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.denied").getString();
@@ -101,6 +101,8 @@ public class ItemTradeButton extends Button{
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
 		else if(trade.isFree())
 			return new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
+		else if(container != null)
+			return container.TradeCostEvent(trade).getString();
 		else
 			return trade.getCost().getString();
 	}

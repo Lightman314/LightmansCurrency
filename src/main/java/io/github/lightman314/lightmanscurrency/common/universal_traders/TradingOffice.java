@@ -156,6 +156,14 @@ public class TradingOffice extends WorldSavedData{
         return world.getSavedData().getOrCreate(TradingOffice::new, DATA_NAME);
     }
 	
+	public static ServerWorld getWorld()
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.getWorld(World.OVERWORLD);
+		return null;
+	}
+	
 	/**
 	 * Clean up invalid traders
 	 */

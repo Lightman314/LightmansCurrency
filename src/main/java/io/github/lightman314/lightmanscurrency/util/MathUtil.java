@@ -53,4 +53,48 @@ public class MathUtil {
 		return value;
 	}
 	
+	/**
+	 * Restricts an integer between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static float clamp(float value, float min, float max)
+	{
+		if(min > max)
+		{
+			float temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts an integer between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static double clamp(double value, double min, double max)
+	{
+		if(min > max)
+		{
+			double temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
 }

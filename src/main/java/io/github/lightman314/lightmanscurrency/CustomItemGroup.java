@@ -122,10 +122,10 @@ public class CustomItemGroup extends ItemGroup {
 			}
 			
 			//If both items are on the sort list, sort by index
-			if(sortList.contains(item1) && sortList.contains(item2))
+			if(sortListContains(item1) && sortListContains(item2))
 			{
-				int index1 = sortList.indexOf(item1);
-				int index2 = sortList.indexOf(item2);
+				int index1 = indexOf(item1);
+				int index2 = indexOf(item2);
 				//CurrencyMod.LOGGER.info("Sorting items at index " + index1 + " & " + index2);
 				if(index1 < index2)
 					return -1;
@@ -137,6 +137,21 @@ public class CustomItemGroup extends ItemGroup {
 			//No other sort method found, do nothing.
 			return 0;
 			
+		}
+		
+		private boolean sortListContains(Item item)
+		{
+			return indexOf(item) >= 0;
+		}
+		
+		private int indexOf(Item item)
+		{
+			for(int i = 0; i < sortList.size(); i++)
+			{
+				if(item == sortList.get(i).asItem())
+					return i;
+			}
+			return -1;
 		}
 		
 	}

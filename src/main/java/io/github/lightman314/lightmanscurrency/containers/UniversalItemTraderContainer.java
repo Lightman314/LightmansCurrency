@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
@@ -20,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -252,6 +254,15 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		return this.getData().getTrade(tradeIndex);
 	}
 	
+	public CoinValue TradeCostEvent(ItemTradeData trade)
+	{
+		TradeCostEvent event = new TradeCostEvent(this.player, trade, this);
+		this.getData().tradeCost(event);
+		trade.tradeCost(event);
+		MinecraftForge.EVENT_BUS.post(event);
+		return event.multipliedCost();
+	}
+	
 	private void PostTradeEvent(ItemTradeData trade)
 	{
 		PostTradeEvent event = new PostTradeEvent(this.player, trade, this);
@@ -286,6 +297,8 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		if(!PermissionToTrade(tradeIndex))
 			return;
 		
+		CoinValue price = this.TradeCostEvent(trade);
+		
 		//Execute a sale
 		if(trade.getTradeDirection() == ItemTradeType.SALE)
 		{
@@ -303,7 +316,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			}
 			
 			
-			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, trade.getCost()))
+			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, price))
 			{
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -317,7 +330,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			{
 				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
 				//Give a refund
-				List<ItemStack> refundCoins = MoneyUtil.getCoinsOfValue(trade.getCost());
+				List<ItemStack> refundCoins = MoneyUtil.getCoinsOfValue(price);
 				ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 				
 				for(int i = 0; i < refundCoins.size(); i++)
@@ -342,7 +355,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			}
 			
 			//Log the successful trade
-			this.getData().getLogger().AddLog(player, trade, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
@@ -355,7 +368,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				//InventoryUtil.RemoveItemCount(this.getData().getStorage(), trade.getSellItem());
 				trade.RemoveItemsFromStorage(this.getData().getStorage());
 				//Give the payed cost to storage
-				this.getData().addStoredMoney(trade.getCost());
+				this.getData().addStoredMoney(price);
 				
 			}
 		}
@@ -382,10 +395,10 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			//Passed the checks. Take the item(s) from the input slot
 			InventoryUtil.RemoveItemCount(this.itemSlots, trade.getSellItem());
 			//Put the payment in the purchasers wallet, coin slot, etc.
-			MoneyUtil.ProcessChange(this.coinSlots, this.player, trade.getCost());
+			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
 			//Log the successful trade
-			this.getData().getLogger().AddLog(player, trade, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
@@ -397,7 +410,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.getData().getStorage(), trade.getSellItem());
 				//Remove the coins from storage
-				this.getData().removeStoredMoney(trade.getCost());
+				this.getData().removeStoredMoney(price);
 			}
 			
 		}

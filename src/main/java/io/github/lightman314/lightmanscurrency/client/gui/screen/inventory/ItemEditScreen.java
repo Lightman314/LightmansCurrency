@@ -78,7 +78,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		this.font.drawString(matrix, new TranslationTextComponent("gui.lightmanscurrency.item_edit.title").getString(), 8.0f, 6.0f, 0x404040);
 		
 		//Draw the trade price text
-		this.font.drawString(matrix, ItemTradeButton.getTradeText(container.tradeData, true, true, true), ItemTradeButton.TEXTPOS_X, ItemTradeButton.TEXTPOS_Y - ItemTradeButton.HEIGHT, ItemTradeButton.getTradeTextColor(container.tradeData, true, true, true));
+		this.font.drawString(matrix, ItemTradeButton.getTradeText(container.tradeData, true, true, true, null), ItemTradeButton.TEXTPOS_X, ItemTradeButton.TEXTPOS_Y - ItemTradeButton.HEIGHT, ItemTradeButton.getTradeTextColor(container.tradeData, true, true, true));
 		
 	}
 	
