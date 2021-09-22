@@ -20,7 +20,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
@@ -48,7 +47,7 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		if(getTradeCount(event.getPlayer().getUniqueID(), event.getWorld()) >= this.limit)
+		if(getTradeCount(event.getPlayer().getUniqueID()) >= this.limit)
 			event.setCanceled(true);
 		
 	}
@@ -56,15 +55,15 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public void afterTrade(PostTradeEvent event) {
 		
-		this.clearExpiredData(event.getWorld());
+		this.clearExpiredData();
 		
-		this.memory.add(new MemoryData(event.getPlayer().getUniqueID(), event.getWorld().getWorldInfo().getGameTime()));
+		this.memory.add(new MemoryData(event.getPlayer().getUniqueID(), 0));
 		
 		event.markDirty();
 		
 	}
 	
-	private void clearExpiredData(World world)
+	private void clearExpiredData()
 	{
 		if(!this.enforceTimeLimit())
 			return;
@@ -80,9 +79,9 @@ public class PlayerTradeLimit extends TradeRule{
 		}
 	}
 	
-	private int getTradeCount(UUID playerID, World world)
+	private int getTradeCount(UUID playerID)
 	{
-		long ignoredTime = this.enforceTimeLimit() ? world.getWorldInfo().getGameTime() - this.timeLimit : 0;
+		long ignoredTime = 0;
 		int count = 0;
 		for(int i = 0; i < this.memory.size(); i++)
 		{

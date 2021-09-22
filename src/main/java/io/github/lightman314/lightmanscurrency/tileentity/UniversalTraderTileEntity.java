@@ -83,12 +83,12 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 		return player.hasPermissionLevel(2) && player.isCreative();
 	}
 	
-	public void init(Entity owner)
+	public void init(PlayerEntity owner)
 	{
 		this.init(owner, null);
 	}
 	
-	public void init(Entity owner, String customName)
+	public void init(PlayerEntity owner, String customName)
 	{
 		if(this.world.isRemote)
 			return;
@@ -100,7 +100,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 			{
 				traderData.setName(customName);
 			}
-			TradingOffice.registerTrader(this.traderID, traderData);
+			TradingOffice.registerTrader(this.traderID, traderData, owner);
 			TileEntityUtil.sendUpdatePacket(this);
 		}
 	}

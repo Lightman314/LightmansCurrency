@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
+import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -19,6 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -121,7 +124,7 @@ public class TradingOffice extends WorldSavedData{
 		UniversalContainer.onDataModified(traderID);
 	}
 	
-	public static void registerTrader(UUID traderID, UniversalTraderData data)
+	public static void registerTrader(UUID traderID, UniversalTraderData data, PlayerEntity owner)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -135,6 +138,7 @@ public class TradingOffice extends WorldSavedData{
 			LightmansCurrency.LogInfo("Successfully registered the universal trader with id '" + traderID + "'!");
 			office.universalTraderMap.put(traderID, data);
 			office.markDirty();
+			MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
 		}
 	}
 	
@@ -144,9 +148,11 @@ public class TradingOffice extends WorldSavedData{
 		TradingOffice office = get(server);
 		if(office.universalTraderMap.containsKey(traderID))
 		{
+			UniversalTraderData removedData = office.universalTraderMap.get(traderID);
 			office.universalTraderMap.remove(traderID);
 			office.markDirty();
 			LightmansCurrency.LogInfo("Successfully removed the universal trader with id '" + traderID + "'!");
+			MinecraftForge.EVENT_BUS.post(new UniversalTradeRemoveEvent(traderID, removedData));
 		}
 	}
 	
@@ -155,14 +161,6 @@ public class TradingOffice extends WorldSavedData{
         ServerWorld world = server.getWorld(World.OVERWORLD);
         return world.getSavedData().getOrCreate(TradingOffice::new, DATA_NAME);
     }
-	
-	public static ServerWorld getWorld()
-	{
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null)
-			return server.getWorld(World.OVERWORLD);
-		return null;
-	}
 	
 	/**
 	 * Clean up invalid traders

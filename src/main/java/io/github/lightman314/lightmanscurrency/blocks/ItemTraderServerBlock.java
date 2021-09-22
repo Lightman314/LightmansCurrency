@@ -43,12 +43,12 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 		if(!worldIn.isRemote())
 		{
 			UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)worldIn.getTileEntity(pos);
-			if(tileEntity != null)
+			if(tileEntity != null && player instanceof PlayerEntity)
 			{
 				if(stack.hasDisplayName())
-					tileEntity.init(player, stack.getDisplayName().getString());
+					tileEntity.init((PlayerEntity)player, stack.getDisplayName().getString());
 				else
-					tileEntity.init(player);
+					tileEntity.init((PlayerEntity)player);
 			}
 		}
 	}
