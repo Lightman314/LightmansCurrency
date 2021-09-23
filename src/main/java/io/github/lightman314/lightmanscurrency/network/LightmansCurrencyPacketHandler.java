@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
+import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -110,6 +111,7 @@ public class LightmansCurrencyPacketHandler {
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());
 		register(MessageSyncConfig.class, new MessageSyncConfig());
+		register(MessageSyncClientTime.class, new MessageSyncClientTime());
 		
 	}
 

@@ -9,9 +9,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
@@ -80,7 +82,16 @@ public class ItemTradeButton extends Button{
 		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
 		boolean hasPermission = hasPermission();
-		this.font.drawString(matrixStack, getTradeText(this.getTrade(), hasStock(), hasSpace(), hasPermission, this.container), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission));
+		boolean hasDiscount = false;
+		CoinValue cost = this.getTrade().getCost();
+		if(container != null)
+		{
+			TradeCostEvent event = container.TradeCostEvent(this.getTrade());
+			cost = event.getCostResult();
+			hasDiscount = event.getCostMultiplier() < 1d;
+		}
+			
+		this.font.drawString(matrixStack, getTradeText(cost, this.getTrade().isValid(), hasStock(), hasSpace(), hasPermission), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission, hasDiscount));
 		
 		/*if(trade.isValid() && !trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative()) //Display the No Stock message if the trade is valid, but we're out of stock
 			this.font.drawString(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString(), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);
@@ -91,26 +102,26 @@ public class ItemTradeButton extends Button{
 		
 	}
 	
-	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace, boolean hasPermission, ITradeButtonContainer container)
+	public static String getTradeText(CoinValue cost, boolean isValid, boolean hasStock, boolean hasSpace, boolean hasPermission)
 	{
-		if(trade.isValid() && !hasPermission)
+		if(isValid && !hasPermission)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.denied").getString();
-		else if(trade.isValid() && !hasStock)
+		else if(isValid && !hasStock)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
-		else if(trade.isValid() && !hasSpace)
+		else if(isValid && !hasSpace)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(trade.isFree())
+		else if(cost.getRawValue() == 0) //Is free
 			return new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
-		else if(container != null)
-			return container.TradeCostEvent(trade).getString();
 		else
-			return trade.getCost().getString();
+			return cost.getString();
 	}
 	
-	public static int getTradeTextColor(ItemTradeData trade, boolean canAfford, boolean hasStock, boolean hasPermission)
+	public static int getTradeTextColor(ItemTradeData trade, boolean canAfford, boolean hasStock, boolean hasPermission, boolean hasDiscount)
 	{
 		if((trade.isValid() && !hasStock) || !canAfford || !hasPermission)
 			return 0xFF0000;
+		if(hasDiscount)
+			return 0x00FF00;
 		return 0xFFFFFF;
 	}
 	

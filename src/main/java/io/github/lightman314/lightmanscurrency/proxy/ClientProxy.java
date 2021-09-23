@@ -38,6 +38,8 @@ import net.minecraft.nbt.ListNBT;
 
 public class ClientProxy extends CommonProxy{
 	
+	private long timeOffset = 0;
+	
 	@Override
 	public void setupClient() {
 		
@@ -71,6 +73,7 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerBlacklist());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
     	
     	//Register ClientEvents
     	MinecraftForge.EVENT_BUS.register(new ClientEvents());
@@ -123,6 +126,22 @@ public class ClientProxy extends CommonProxy{
 	public void openTerminalScreen(PlayerEntity player)
 	{
 		Minecraft.getInstance().displayGuiScreen(new UniversalTraderSelectionScreen(player));
+	}
+	
+	@Override
+	public long getTimeDesync()
+	{
+		return timeOffset;
+	}
+	
+	@Override
+	public void setTimeDesync(long serverTime)
+	{
+		this.timeOffset = serverTime - System.currentTimeMillis();
+		//Round the time offset to the nearest second
+		this.timeOffset = (timeOffset / 1000) * 1000;
+		if(this.timeOffset < 10000) //Ignore offset if less than 10s, as it's likely due to ping
+			this.timeOffset = 0;
 	}
 	
 }

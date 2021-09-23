@@ -21,9 +21,11 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
+import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleDeserializer;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerBlacklist;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerDiscounts;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -126,6 +128,7 @@ public class LightmansCurrency {
     	ITradeRuleDeserializer.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist.DESERIALIZER);
     	ITradeRuleDeserializer.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist.DESERIALIZER);
     	ITradeRuleDeserializer.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit.DESERIALIZER);
+    	ITradeRuleDeserializer.RegisterDeserializer(PlayerDiscounts.TYPE, PlayerDiscounts.DESERIALIZER);
     	
     	//Initialized the sorting lists
 		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
@@ -314,8 +317,11 @@ public class LightmansCurrency {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
+    	
     	LightmansCurrency.LogDebug("Player has logged in to the server. Sending config syncronization message.");
     	LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageSyncConfig(Config.getSyncData()));
+    	LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageSyncClientTime());
+    	
     }
     
     /**

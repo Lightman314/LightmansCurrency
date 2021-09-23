@@ -11,4 +11,8 @@ public class CommonProxy {
 	
 	public void openTerminalScreen(PlayerEntity player) {}
 	
+	public long getTimeDesync() { return 0; }
+	
+	public void setTimeDesync(long currentTime) { }
+	
 }

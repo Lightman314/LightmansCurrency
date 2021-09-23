@@ -254,13 +254,13 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		return this.getData().getTrade(tradeIndex);
 	}
 	
-	public CoinValue TradeCostEvent(ItemTradeData trade)
+	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
 	{
 		TradeCostEvent event = new TradeCostEvent(this.player, trade, this);
 		this.getData().tradeCost(event);
 		trade.tradeCost(event);
 		MinecraftForge.EVENT_BUS.post(event);
-		return event.multipliedCost();
+		return event;
 	}
 	
 	private void PostTradeEvent(ItemTradeData trade)
@@ -297,7 +297,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		if(!PermissionToTrade(tradeIndex))
 			return;
 		
-		CoinValue price = this.TradeCostEvent(trade);
+		CoinValue price = this.TradeCostEvent(trade).getCostResult();
 		
 		//Execute a sale
 		if(trade.getTradeDirection() == ItemTradeType.SALE)

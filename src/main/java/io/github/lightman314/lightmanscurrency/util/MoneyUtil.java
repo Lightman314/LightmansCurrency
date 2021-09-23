@@ -1731,9 +1731,28 @@ public class MoneyUtil {
     	
     	public CoinValue ApplyMultiplier(double costMultiplier)
     	{
-    		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 1d);
-    		long rawValue = (long)(this.getRawValue() * costMultiplier);
-    		return new CoinValue(rawValue);
+    		CoinValue multipliedValue = new CoinValue();
+    		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 10d);
+    		
+    		for(int i = 0; i < this.coinValues.size(); i++)
+    		{
+    			int amount = this.coinValues.get(i).amount;
+    			Item coin = this.coinValues.get(i).coin;
+    			double newAmount = amount * costMultiplier;
+    			double leftoverAmount = newAmount % 1d;
+    			multipliedValue.addValue(coin, (int)newAmount);
+    			CoinData coinData = MoneyUtil.getData(coin);
+    			while(coinData != null && coinData.convertsDownwards() && leftoverAmount > 0d)
+    			{
+    				Pair<Item,Integer> conversion = coinData.getDownwardConversion();
+    				coin = conversion.getFirst();
+    				coinData = MoneyUtil.getData(coin);
+    				newAmount = leftoverAmount * conversion.getSecond();
+    				leftoverAmount = newAmount % 1d;
+    				multipliedValue.addValue(coin, (int)newAmount);
+    			}
+    		}
+    		return multipliedValue;
     	}
     	
     	/**

@@ -40,11 +40,12 @@ public abstract class TradeEvent extends Event{
 		
 		private double costMultiplier;
 		public double getCostMultiplier() { return this.costMultiplier; }
-		public void setCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(newCostMultiplier, 0d, 1d); }
+		public void applyCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(this.costMultiplier * newCostMultiplier, 0d, 2d); }
+		public void setCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(newCostMultiplier, 0d, 2d); }
 		
 		CoinValue currentCost;
-		public CoinValue getCost() { return this.currentCost; }
-		public CoinValue multipliedCost() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
+		public CoinValue getBaseCost() { return this.currentCost; }
+		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
 		
 		public TradeCostEvent(PlayerEntity player, TradeData trade, Container container)
 		{

@@ -228,13 +228,13 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		return this.tileEntity.getTrade(tradeIndex);
 	}
 	
-	public CoinValue TradeCostEvent(ItemTradeData trade)
+	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
 	{
 		TradeCostEvent event = new TradeCostEvent(this.player, trade, this);
 		this.tileEntity.tradeCost(event);
 		trade.tradeCost(event);
 		MinecraftForge.EVENT_BUS.post(event);
-		return event.multipliedCost();
+		return event;
 	}
 	
 	private void PostTradeEvent(ItemTradeData trade)
@@ -285,7 +285,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			return;
 		
 		//Get the cost of the trade
-		CoinValue price = this.TradeCostEvent(trade);
+		CoinValue price = this.TradeCostEvent(trade).getCostResult();
 		
 		//Process a sale
 		if(trade.getTradeDirection() == ItemTradeType.SALE)

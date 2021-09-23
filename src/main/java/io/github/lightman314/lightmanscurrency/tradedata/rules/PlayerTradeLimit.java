@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
@@ -38,7 +39,6 @@ public class PlayerTradeLimit extends TradeRule{
 	public long getTimeLimit() { return this.timeLimit; }
 	public void setTimeLimit(int newValue) { this.timeLimit = newValue; }
 	
-	//Map<UUID,Integer> tradeHistory = new HashMap<>();
 	List<MemoryData> memory = new ArrayList<>();
 	public void resetMemory() { this.memory.clear(); }
 	
@@ -57,7 +57,7 @@ public class PlayerTradeLimit extends TradeRule{
 		
 		this.clearExpiredData();
 		
-		this.memory.add(new MemoryData(event.getPlayer().getUniqueID(), 0));
+		this.memory.add(new MemoryData(event.getPlayer().getUniqueID(), TimeUtil.getCurrentTime()));
 		
 		event.markDirty();
 		
@@ -67,11 +67,9 @@ public class PlayerTradeLimit extends TradeRule{
 	{
 		if(!this.enforceTimeLimit())
 			return;
-		long currentTime = 0;
-		long ignoredTime = currentTime - this.timeLimit;
 		for(int i = 0; i < this.memory.size(); i++)
 		{
-			if(memory.get(i).timeOfEvent < ignoredTime)
+			if(!TimeUtil.compareTime(this.timeLimit, memory.get(i).timeOfEvent))
 			{
 				memory.remove(i);
 				i--;
@@ -81,12 +79,13 @@ public class PlayerTradeLimit extends TradeRule{
 	
 	private int getTradeCount(UUID playerID)
 	{
-		long ignoredTime = 0;
 		int count = 0;
 		for(int i = 0; i < this.memory.size(); i++)
 		{
-			if(this.memory.get(i).playerID.equals(playerID) && this.memory.get(i).timeOfEvent >= ignoredTime)
+			if(this.memory.get(i).playerID.equals(playerID))
 			{
+				//Validate time
+				if(!this.enforceTimeLimit() || TimeUtil.compareTime(this.timeLimit, this.memory.get(i).timeOfEvent))
 				count++;
 			}
 		}
@@ -121,7 +120,7 @@ public class PlayerTradeLimit extends TradeRule{
 			{
 				CompoundNBT thisMemory = memoryList.getCompound(i);
 				UUID id = null;
-				int count = 0;
+				int count = 1;
 				long time = 0;
 				if(thisMemory.contains("id"))
 					id = thisMemory.getUniqueId("id");
@@ -275,7 +274,7 @@ public class PlayerTradeLimit extends TradeRule{
 		}
 		
 	}
-
+	
 	private static class MemoryData
 	{
 		public final UUID playerID;
