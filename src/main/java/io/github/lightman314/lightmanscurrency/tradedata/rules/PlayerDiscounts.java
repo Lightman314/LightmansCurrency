@@ -16,6 +16,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,7 +26,6 @@ import net.minecraftforge.common.util.Constants;
 public class PlayerDiscounts extends TradeRule {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "discount_list");
-	public static final ITradeRuleDeserializer<PlayerDiscounts> DESERIALIZER = new Deserializer();
 	
 	List<String> playerList = new ArrayList<>();
 	int discount = 10;
@@ -91,17 +91,7 @@ public class PlayerDiscounts extends TradeRule {
 	}
 	
 	@Override
-	public int getGUIX() { return 16; }
-	
-	public static class Deserializer implements ITradeRuleDeserializer<PlayerDiscounts>
-	{
-		@Override
-		public PlayerDiscounts deserialize(CompoundNBT compound) {
-			PlayerDiscounts value = new PlayerDiscounts();
-			value.readNBT(compound);
-			return value;
-		}
-	}
+	public ITextComponent getButtonText() { return new TranslationTextComponent("gui.button.lightmanscurrency.discount_list"); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -114,10 +104,10 @@ public class PlayerDiscounts extends TradeRule {
 	private static class GUIHandler extends TradeRule.GUIHandler
 	{
 		
-		protected final PlayerWhitelist getWhitelistRule()
+		protected final PlayerDiscounts getRule()
 		{
-			if(getRule() instanceof PlayerWhitelist)
-				return (PlayerWhitelist)getRule();
+			if(getRuleRaw() instanceof PlayerDiscounts)
+				return (PlayerDiscounts)getRuleRaw();
 			return null;
 		}
 		
@@ -152,7 +142,7 @@ public class PlayerDiscounts extends TradeRule {
 		@Override
 		public void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 			
-			if(getWhitelistRule() == null)
+			if(getRule() == null)
 				return;
 			
 			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 55, 0, this.screen.ySize, this.screen.xSize, 80);
@@ -160,12 +150,13 @@ public class PlayerDiscounts extends TradeRule {
 			
 			this.nameInput.render(matrixStack, mouseX, mouseY, partialTicks);
 			this.discountInput.render(matrixStack, mouseX, mouseY, partialTicks);
+			this.discountInput.render(matrixStack, mouseX, mouseY, partialTicks);
 			
 			int x = 0;
 			int y = 0;
-			for(int i = 0; i < getWhitelistRule().whitelistPlayerNames.size() && i < this.namesPerPage * 2; i++)
+			for(int i = 0; i < getRule().playerList.size() && i < this.namesPerPage * 2; i++)
 			{
-				screen.getFont().drawString(matrixStack, getWhitelistRule().whitelistPlayerNames.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 57 + 10 * y, 0xFFFFFF);
+				screen.getFont().drawString(matrixStack, getRule().playerList.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 57 + 10 * y, 0xFFFFFF);
 				y++;
 				if(y >= this.namesPerPage)
 				{
@@ -192,9 +183,9 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getText();
 			if(name != "")
 			{
-				if(!getWhitelistRule().whitelistPlayerNames.contains(name))
+				if(!getRule().playerList.contains(name))
 				{
-					getWhitelistRule().whitelistPlayerNames.add(name);
+					getRule().playerList.add(name);
 					screen.markRulesDirty();
 				}
 				nameInput.setText("");
@@ -206,9 +197,9 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getText();
 			if(name != "")
 			{
-				if(getWhitelistRule().whitelistPlayerNames.contains(name))
+				if(getRule().playerList.contains(name))
 				{
-					getWhitelistRule().whitelistPlayerNames.remove(name);
+					getRule().playerList.remove(name);
 					screen.markRulesDirty();
 				}
 				nameInput.setText("");

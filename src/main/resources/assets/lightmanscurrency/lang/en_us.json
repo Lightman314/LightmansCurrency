@@ -190,11 +190,15 @@
     "gui.button.lightmanscurrency.whitelist.remove": "Forget",
     "gui.button.lightmanscurrency.allies.add": "Add",
     "gui.button.lightmanscurrency.allies.remove": "Remove",
+    "gui.button.lightmanscurrency.discount_list": "D",
     "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit.info": "Players can do %s trade(s).",
     "gui.button.lightmanscurrency.playerlimit.setlimit": "Set",
     "gui.button.lightmanscurrency.playerlimit.clearmemory": "Clear Memory",
     "gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip": "Clears the memory of how many trades have been handled.",
+    "gui.button.lightmanscurrency.time_widget.settime": "Set Duration",
+    "gui.widget.lightmanscurrency.time_widget.info": "%1$sh %2$sm %3$ss",
+    "gui.widget.lightmanscurrency.playerlimit.noduration": "Never reset.",
     "gui.lightmanscurrency.terminal.search": "Search Traders",
     "gui.lightmanscurrency.terminal.page": "Page %1$s of %2$s",
     "key.wallet": "Open Wallet",
@@ -206,6 +210,8 @@
     "log.shoplog.creative": "§e[C] ",
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
-    "traderule.lightmanscurrency.tradelimit": "Trade Limit"
+    "traderule.lightmanscurrency.tradelimit": "Trade Limit",
+    "traderule.lightmanscurrency.discount_list": "Discount",
+    "traderule.lightmanscurrency.sale": "Sale"
     
 }

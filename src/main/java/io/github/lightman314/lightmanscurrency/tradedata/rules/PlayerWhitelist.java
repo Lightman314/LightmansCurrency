@@ -23,7 +23,6 @@ import net.minecraftforge.common.util.Constants;
 public class PlayerWhitelist extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
-	public static final ITradeRuleDeserializer<PlayerWhitelist> DESERIALIZER = new Deserializer();
 	
 	List<String> whitelistPlayerNames = new ArrayList<>();
 	
@@ -72,16 +71,6 @@ public class PlayerWhitelist extends TradeRule{
 	
 	@Override
 	public int getGUIX() { return 16; }
-	
-	public static class Deserializer implements ITradeRuleDeserializer<PlayerWhitelist>
-	{
-		@Override
-		public PlayerWhitelist deserialize(CompoundNBT compound) {
-			PlayerWhitelist value = new PlayerWhitelist();
-			value.readNBT(compound);
-			return value;
-		}
-	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -96,8 +85,8 @@ public class PlayerWhitelist extends TradeRule{
 		
 		protected final PlayerWhitelist getWhitelistRule()
 		{
-			if(getRule() instanceof PlayerWhitelist)
-				return (PlayerWhitelist)getRule();
+			if(getRuleRaw() instanceof PlayerWhitelist)
+				return (PlayerWhitelist)getRuleRaw();
 			return null;
 		}
 		

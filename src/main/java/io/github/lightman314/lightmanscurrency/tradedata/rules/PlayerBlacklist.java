@@ -23,7 +23,6 @@ import net.minecraftforge.common.util.Constants;
 public class PlayerBlacklist extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "blacklist");
-	public static final ITradeRuleDeserializer<PlayerBlacklist> DESERIALIZER = new Deserializer();
 	
 	List<String> bannedPlayerNames = new ArrayList<>();
 	
@@ -72,16 +71,6 @@ public class PlayerBlacklist extends TradeRule{
 	
 	@Override
 	public int getGUIX() { return 32; }
-	
-	public static class Deserializer implements ITradeRuleDeserializer<PlayerBlacklist>
-	{
-		@Override
-		public PlayerBlacklist deserialize(CompoundNBT compound) {
-			PlayerBlacklist value = new PlayerBlacklist();
-			value.readNBT(compound);
-			return value;
-		}
-	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -96,8 +85,8 @@ public class PlayerBlacklist extends TradeRule{
 		
 		protected final PlayerBlacklist getBlacklistRule()
 		{
-			if(getRule() instanceof PlayerBlacklist)
-				return (PlayerBlacklist)getRule();
+			if(getRuleRaw() instanceof PlayerBlacklist)
+				return (PlayerBlacklist)getRuleRaw();
 			return null;
 		}
 		

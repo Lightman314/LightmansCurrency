@@ -54,7 +54,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts an integer between a min & max value
+	 * Restricts a float between a min & max value
 	 * @param value
 	 * @param min
 	 * @param max
@@ -76,7 +76,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Restricts an integer between a min & max value
+	 * Restricts a double between a min & max value
 	 * @param value
 	 * @param min
 	 * @param max
@@ -87,6 +87,28 @@ public class MathUtil {
 		if(min > max)
 		{
 			double temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts a long between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static long clamp(long value, long min, long max)
+	{
+		if(min > max)
+		{
+			long temp = min;
 			min = max;
 			max = temp;
 		}

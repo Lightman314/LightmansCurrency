@@ -1,7 +1,10 @@
 package io.github.lightman314.lightmanscurrency.tradedata.rules;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -11,6 +14,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
@@ -85,7 +90,7 @@ public abstract class TradeRule {
 			for(int i = 0; i < ruleData.size(); i++)
 			{
 				CompoundNBT thisRuleData = ruleData.getCompound(i);
-				TradeRule thisRule = ITradeRuleDeserializer.Deserialize(thisRuleData);
+				TradeRule thisRule = Deserialize(thisRuleData);
 				if(thisRule != null)
 					rules.add(thisRule);
 			}
@@ -102,7 +107,7 @@ public abstract class TradeRule {
 		
 		protected final TradeRuleScreen screen;
 		private final Supplier<TradeRule> rule;
-		protected final TradeRule getRule() { return rule.get(); }
+		protected final TradeRule getRuleRaw() { return rule.get(); }
 		
 		protected GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
 		{
@@ -118,8 +123,58 @@ public abstract class TradeRule {
 		
 		public void onScreenTick() { }
 		
+		public <T extends Button> T addButton(T button)
+		{
+			return screen.addCustomButton(button);
+		}
+		
+		public <T extends IGuiEventListener> T addListener(T listener)
+		{
+			return screen.addCustomListener(listener);
+		}
+		
 	}
 	
+	
+	
+	/**
+	 * Trade Rule Deserialization
+	 */
+	static final Map<String,Supplier<TradeRule>> registeredDeserializers = new HashMap<>();
+	
+	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer)
+	{
+		RegisterDeserializer(type.toString(), deserializer);
+	}
+	
+	public static void RegisterDeserializer(String type, Supplier<TradeRule> deserializer)
+	{
+		if(registeredDeserializers.containsKey(type))
+		{
+			LightmansCurrency.LogWarning("A trade rule deserializer of type '" + type + "' has already been registered.");
+			return;
+		}
+		registeredDeserializers.put(type, deserializer);
+		LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
+	}
+	
+	public static TradeRule Deserialize(CompoundNBT compound)
+	{
+		String thisType = compound.getString("type");
+		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
+		registeredDeserializers.forEach((type,deserializer) -> {
+			if(thisType.equals(type))
+			{
+				TradeRule rule = deserializer.get();
+				rule.readNBT(compound);
+				data.set(rule);
+			}	
+		});
+		if(data.get() != null)
+			return data.get();
+		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
+		return null;
+	}
 	
 	
 }

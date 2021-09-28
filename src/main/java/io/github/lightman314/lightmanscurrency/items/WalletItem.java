@@ -221,6 +221,9 @@ public class WalletItem extends Item{
 	 */
 	public static void putWalletInventory(ItemStack wallet, NonNullList<ItemStack> inventory)
 	{
+		if(!(wallet.getItem() instanceof WalletItem))
+			return;
+		
 		CompoundNBT compound = wallet.getOrCreateTag();
 		ListNBT invList = new ListNBT();
 		for(int i = 0; i < inventory.size(); i++)
@@ -244,7 +247,9 @@ public class WalletItem extends Item{
 	{
 		
 		CompoundNBT compound = wallet.getOrCreateTag();
-		
+		 if(!(wallet.getItem() instanceof WalletItem))
+			 return NonNullList.withSize(6, ItemStack.EMPTY);
+
 		NonNullList<ItemStack> value = NonNullList.withSize(WalletItem.InventorySize((WalletItem)wallet.getItem()), ItemStack.EMPTY);
 		if(!compound.contains("Items"))
 			return value;
@@ -267,6 +272,7 @@ public class WalletItem extends Item{
 	{
 		if(!(wallet.getItem() instanceof WalletItem))
 			return false;
+		
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return false;
 		
@@ -283,6 +289,10 @@ public class WalletItem extends Item{
 	
 	public static void toggleAutoConvert(ItemStack wallet)
 	{
+		
+		if(!(wallet.getItem() instanceof WalletItem))
+			return;
+		
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()))
 			return;
 		
