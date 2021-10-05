@@ -88,7 +88,7 @@ public class ItemTradeButton extends Button{
 		{
 			TradeCostEvent event = container.TradeCostEvent(this.getTrade());
 			cost = event.getCostResult();
-			hasDiscount = event.getCostMultiplier() < 1d;
+			hasDiscount = event.getCostMultiplier() != 1d;
 		}
 			
 		this.font.drawString(matrixStack, getTradeText(cost, this.getTrade().isValid(), hasStock(), hasSpace(), hasPermission), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.getTrade(), canAfford(), hasStock(), hasPermission, hasDiscount));
@@ -110,7 +110,7 @@ public class ItemTradeButton extends Button{
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(isValid && !hasSpace)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(cost.getRawValue() == 0) //Is free
+		else if(isValid && cost.getRawValue() == 0) //Is free
 			return new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
 		else
 			return cost.getString();
@@ -120,7 +120,7 @@ public class ItemTradeButton extends Button{
 	{
 		if((trade.isValid() && !hasStock) || !canAfford || !hasPermission)
 			return 0xFF0000;
-		if(hasDiscount)
+		else if(hasDiscount)
 			return 0x00FF00;
 		return 0xFFFFFF;
 	}

@@ -70,6 +70,19 @@ public class TimeUtil {
 			this.minutes = time.minutes;
 			this.seconds = time.seconds;
 		}
+		
+		public String toString()
+		{
+			String text = "";
+			if(hours > 0)
+				text += Long.toString(hours) + "h ";
+			if(minutes > 0)
+				text += Long.toString(minutes) + "m ";
+			if(text == "" || seconds > 0)
+				text += Long.toString(seconds) + "s";
+			return text;
+		}
+		
 	}
 	
 }

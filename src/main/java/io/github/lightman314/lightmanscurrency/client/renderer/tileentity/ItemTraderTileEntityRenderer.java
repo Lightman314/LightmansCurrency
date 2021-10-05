@@ -19,6 +19,19 @@ import net.minecraft.util.math.vector.Vector3f;
 
 public class ItemTraderTileEntityRenderer extends TileEntityRenderer<ItemTraderTileEntity>{
 
+	public static int positionLimit()
+	{
+		switch(Config.CLIENT.traderRenderType.get())
+		{
+		case PARTIAL:
+			return 1;
+		case NONE:
+			return 0;
+			default:
+				return Integer.MAX_VALUE;
+		}
+	}
+	
 	public ItemTraderTileEntityRenderer(TileEntityRendererDispatcher dispatcher)
 	{
 		super(dispatcher);
@@ -53,7 +66,7 @@ public class ItemTraderTileEntityRenderer extends TileEntityRenderer<ItemTraderT
 				//Get scale
 				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < positionLimit(); pos++)
 				{
 					
 					matrixStack.push();

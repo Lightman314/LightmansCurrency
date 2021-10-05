@@ -91,6 +91,11 @@ public class TimeWidget extends Widget{
 		
 	}
 	
+	public void tick()
+	{
+		this.getListeners().forEach(listener -> listener.tick());
+	}
+	
 	public List<Button> getButtons()
 	{
 		return ImmutableList.of(setTimeButton);

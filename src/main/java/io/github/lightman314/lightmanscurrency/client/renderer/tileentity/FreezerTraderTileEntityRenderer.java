@@ -61,7 +61,7 @@ public class FreezerTraderTileEntityRenderer extends TileEntityRenderer<FreezerT
 				//Get scale
 				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < ItemTraderTileEntityRenderer.positionLimit(); pos++)
 				{
 					
 					matrixStack.push();

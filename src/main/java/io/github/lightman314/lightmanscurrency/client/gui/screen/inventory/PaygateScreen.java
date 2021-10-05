@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
@@ -124,7 +125,7 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 		if(this.durationInput != null)
 		{
 			this.durationInput.tick();
-			int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
+			int duration = this.getDuration();
 			
 			if(duration != container.tileEntity.getDuration())
 			{
@@ -200,27 +201,9 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetPaygateTicket(this.container.tileEntity.getPos(), this.container.GetTicketID()));
 	}
 	
-	private int inputValue(TextFieldWidget textField)
+	private int getDuration()
 	{
-		if(isNumeric(textField.getText()))
-			return Integer.parseInt(textField.getText());
-		return 0;
-	}
-	
-	private static boolean isNumeric(String string)
-	{
-		if(string == null)
-			return false;
-		try
-		{
-			@SuppressWarnings("unused")
-			int i = Integer.parseInt(string);
-		} 
-		catch(NumberFormatException nfe)
-		{
-			return false;
-		}
-		return true;
+		return MathUtil.clamp(TextInputUtil.getIntegerValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
 	}
 
 	@Override
@@ -238,7 +221,7 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 		
 		this.container.tileEntity.setPrice(input.getCoinValue());
 		
-		int duration = MathUtil.clamp(inputValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
+		int duration = this.getDuration();
 		
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.container.tileEntity.getPos(), this.priceInput.getCoinValue().copy(), duration));
 		

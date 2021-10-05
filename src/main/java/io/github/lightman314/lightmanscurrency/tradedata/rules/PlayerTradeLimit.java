@@ -12,6 +12,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeWidget;
+import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -195,8 +196,6 @@ public class PlayerTradeLimit extends TradeRule{
 		Button buttonClearMemory;
 		TimeWidget timeInput;
 		
-		private final String allowedChars = "0123456789";
-		
 		@Override
 		public void initTab() {
 			
@@ -241,54 +240,15 @@ public class PlayerTradeLimit extends TradeRule{
 		@Override
 		public void onScreenTick() {
 			
-			StringBuilder limitText = new StringBuilder(this.limitInput.getText());
-			for(int i = 0; i < limitText.length(); i++)
-			{
-				boolean allowed = false;
-				for(int x = 0; x < allowedChars.length() && !allowed; x++)
-				{
-					if(allowedChars.charAt(x) == limitText.charAt(i))
-						allowed = true;
-				}
-				if(!allowed)
-				{
-					limitText.deleteCharAt(i);
-				}
-			}
-			this.limitInput.setText(limitText.toString());
+			this.limitInput.tick();
+			this.timeInput.tick();
+			TextInputUtil.whitelistInteger(this.limitInput, 1, 100);
 			
-			if(inputValue() <= 0)
-				this.limitInput.setText("1");
-			else if(inputValue() > 100)
-				this.limitInput.setText("100");
-		}
-		
-		private int inputValue()
-		{
-			if(isNumeric(this.limitInput.getText()))
-				return Integer.parseInt(this.limitInput.getText());
-			return 1;
-		}
-		
-		private static boolean isNumeric(String string)
-		{
-			if(string == null)
-				return false;
-			try
-			{
-				@SuppressWarnings("unused")
-				int i = Integer.parseInt(string);
-			} 
-			catch(NumberFormatException nfe)
-			{
-				return false;
-			}
-			return true;
 		}
 		
 		void PressSetLimitButton(Button button)
 		{
-			this.getRule().limit = MathUtil.clamp(inputValue(), 1, 100);
+			this.getRule().limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
 			this.screen.markRulesDirty();
 		}
 		

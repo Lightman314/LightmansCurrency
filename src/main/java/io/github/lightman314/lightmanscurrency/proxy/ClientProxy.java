@@ -73,7 +73,8 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerBlacklist());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
-    	//TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
+    	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
     	
     	//Register ClientEvents
     	MinecraftForge.EVENT_BUS.register(new ClientEvents());

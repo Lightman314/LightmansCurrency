@@ -112,8 +112,11 @@ public class Config {
 	public static class Client
 	{
 		
+		public enum TraderRenderType { FULL, PARTIAL, NONE }
+		
 		//Render options
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> renderBlocksAsItems;
+		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -122,6 +125,15 @@ public class Config {
 			this.renderBlocksAsItems = builder
 					.comment("BlockItems that should be spaced out as though they were normal items.")
 					.defineList("renderBlocksAsItems", CLIENT_DEFAULT_RENDER_AS_BLOCK, o -> o instanceof String);
+			
+			builder.comment("Quality Settings").push("settings");
+			this.traderRenderType = builder
+					.comment("How many items the traders should render as stock. Useful to avoid lag in trader-rich areas.",
+							"FULL: Renders all items based on stock as intended.",
+							"PARTIAL: Renders only 1 item per trade slot regardless of stock.",
+							"NONE: Traders do not render items.")
+					.defineEnum("traderRenderType", TraderRenderType.FULL);
+			builder.pop();
 			
 		}
 		

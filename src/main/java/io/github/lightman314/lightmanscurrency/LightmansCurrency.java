@@ -27,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerBlacklist;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerDiscounts;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.PlayerWhitelist;
+import io.github.lightman314.lightmanscurrency.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.gui.screen.Screen;
@@ -129,6 +130,7 @@ public class LightmansCurrency {
     	TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, () -> new PlayerBlacklist());
     	TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, () -> new PlayerTradeLimit());
     	TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, () -> new PlayerDiscounts());
+    	TradeRule.RegisterDeserializer(TimedSale.TYPE, () -> new TimedSale());
     	
     	//Initialized the sorting lists
 		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,

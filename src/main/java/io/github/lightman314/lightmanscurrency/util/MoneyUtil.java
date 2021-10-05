@@ -1829,7 +1829,8 @@ public class MoneyUtil {
     	
     	public static CoinValue easyBuild2(IInventory inventory)
     	{
-    		List<CoinValuePair> pairs = new ArrayList<>();
+    		return new CoinValue(MoneyUtil.getValue(inventory));
+    		/*List<CoinValuePair> pairs = new ArrayList<>();
     		for(int i = 0; i < inventory.getSizeInventory(); i++)
     		{
     			Item item = inventory.getStackInSlot(i).getItem();
@@ -1850,7 +1851,7 @@ public class MoneyUtil {
     				}
     			}
     		}
-    		return new CoinValue(pairs);
+    		return new CoinValue(pairs);*/
     	}
     	
     	/*public static boolean canAfford(CoinValue price, CoinValue availableMoney)
