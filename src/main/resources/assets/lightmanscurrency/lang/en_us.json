@@ -207,23 +207,50 @@
     "gui.button.lightmanscurrency.timed_sale.stop.tooltip": "Stop the Sale early",
     "gui.button.lightmanscurrency.timed_sale.info.active": "%s until the sale ends.",
     "gui.button.lightmanscurrency.timed_sale.info.inactive": "Pending Duration: %s",
+    
     "gui.button.lightmanscurrency.time_widget.settime": "Set Duration",
     "gui.widget.lightmanscurrency.time_widget.info": "%1$sh %2$sm %3$ss",
     "gui.widget.lightmanscurrency.playerlimit.noduration": "Never reset.",
     "gui.widget.lightmanscurrency.timed_sale.noduration": "",
+    
     "gui.lightmanscurrency.terminal.search": "Search Traders",
     "gui.lightmanscurrency.terminal.page": "Page %1$s of %2$s",
+    
     "key.wallet": "Open Wallet",
+    
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
+    
     "log.shoplog.item.format": "%1$s%2$s %3$s %4$s for %5$s",
     "log.shoplog.item.itemformat": "%1$sx %2$s",
     "log.shoplog.sale": "bought",
     "log.shoplog.purchase": "sold",
     "log.shoplog.creative": "§e[C] ",
+    
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
     "traderule.lightmanscurrency.tradelimit": "Trade Limit",
     "traderule.lightmanscurrency.discount_list": "Discount",
-    "traderule.lightmanscurrency.timed_sale": "Sale"
+    "traderule.lightmanscurrency.timed_sale": "Sale",
     
+    "command.lightmanscurrency.lcadmin.help.help": "%sDisplay sub-command info",
+    "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mode: %s",
+    "command.lightmanscurrency.lcadmin.toggleadmin.enabled": "§aENABLED",
+    "command.lightmanscurrency.lcadmin.toggleadmin.disabled": "§4DISABLED",
+    "command.lightmanscurrency.lcadmin.toggleadmin.help": "%sToggle admin mode. Admin mode allows you to open other players traders or break their corresponding blocks.",
+    "command.lightmanscurrency.lcadmin.universaldata.list.title": "-----Universal Trader Data List-----",
+    "command.lightmanscurrency.lcadmin.universaldata.list.traderid": "Trader ID: %s",
+    "command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip": "Copy Trader ID",
+    "command.lightmanscurrency.lcadmin.universaldata.list.type": "Type: %s",
+    "command.lightmanscurrency.lcadmin.universaldata.list.owner": "Owner: %1$s (%2$s)",
+    "command.lightmanscurrency.lcadmin.universaldata.list.name": "Custom Name: %s",
+    "command.lightmanscurrency.lcadmin.universaldata.list.dimension": "Dimension: %s",
+    "command.lightmanscurrency.lcadmin.universaldata.list.position": "BlockPos: %s",
+    "command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip": "Teleport to Trader",
+    "command.lightmanscurrency.lcadmin.universaldata.list.none": "There is no universal trader data stored in the server.",
+    "command.lightmanscurrency.lcadmin.universaldata.list.help": "%sLists core data about the registered universal traders including id, owner, world & position.",
+    "command.lightmanscurrency.lcadmin.universaldata.delete.noid": "Please input a valid trader id.",
+    "command.lightmanscurrency.lcadmin.universaldata.delete.notfound": "No trader found with id %s",
+    "command.lightmanscurrency.lcadmin.universaldata.delete.success": "Successfully deleted the universal trader of id %s",
+    "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration."
 }
+    

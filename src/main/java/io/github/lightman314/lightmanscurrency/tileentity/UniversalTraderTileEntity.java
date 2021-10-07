@@ -78,9 +78,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	
 	public boolean canBreak(PlayerEntity player)
 	{
-		if(this.isOwner(player))
-			return true;
-		return player.hasPermissionLevel(2) && player.isCreative();
+		return this.isOwner(player);
 	}
 	
 	public void init(PlayerEntity owner)

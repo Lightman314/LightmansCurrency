@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 
 import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
@@ -57,6 +58,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
@@ -320,9 +322,15 @@ public class LightmansCurrency {
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
     	
+    	//Preload target
+    	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+    	//Sync config
     	LightmansCurrency.LogDebug("Player has logged in to the server. Sending config syncronization message.");
-    	LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageSyncConfig(Config.getSyncData()));
-    	LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageSyncClientTime());
+    	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncConfig(Config.getSyncData()));
+    	//Sync time
+    	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
+    	//Sync admin list
+    	LightmansCurrencyPacketHandler.instance.send(target, TradingOffice.getAdminSyncMessage());
     	
     }
     

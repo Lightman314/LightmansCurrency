@@ -137,14 +137,14 @@ public abstract class UniversalTraderData implements IPermissions{
 	public boolean isOwner(PlayerEntity player)
 	{
 		if(this.ownerID != null)
-			return player.getUniqueID().equals(this.ownerID);
+			return player.getUniqueID().equals(this.ownerID) || TradingOffice.isAdminPlayer(player);
 		LightmansCurrency.LogError("Owner ID for the universal trading machine is null. Unable to determine if the owner is valid.");
 		return true;
 	}
 	
 	public boolean hasPermissions(PlayerEntity player)
 	{
-		return isOwner(player) || this.allies.contains(player.getName().getString()) || (this.creative && player.hasPermissionLevel(2) && player.isCreative());
+		return isOwner(player) || this.allies.contains(player.getName().getString());
 	}
 	
 	public List<String> getAllies()
@@ -250,6 +250,7 @@ public abstract class UniversalTraderData implements IPermissions{
 	public void setName(String newName)
 	{
 		this.traderName = newName;
+		this.markDirty();
 	}
 	
 	public boolean hasCustomName() { return this.traderName != ""; }

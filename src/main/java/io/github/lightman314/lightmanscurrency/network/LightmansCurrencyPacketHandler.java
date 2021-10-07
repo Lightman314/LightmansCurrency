@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network;
 
-import java.util.function.Supplier;
-
 import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.atm.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
+import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.*;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
@@ -113,6 +112,9 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSyncConfig.class, new MessageSyncConfig());
 		register(MessageSyncClientTime.class, new MessageSyncClientTime());
 		
+		//Command/Admin
+		register(MessageSyncAdminList.class, new MessageSyncAdminList());
+		
 	}
 
 	private static <T> void register(Class<T> clazz, IMessage<T> message)
@@ -127,25 +129,7 @@ public class LightmansCurrencyPacketHandler {
 	
 	public static PacketTarget getTarget(ServerPlayerEntity player)
 	{
-		return PacketDistributor.PLAYER.with(new PlayerProvider(player));
-	}
-	
-	private static class PlayerProvider implements Supplier<ServerPlayerEntity>
-	{
-		
-		ServerPlayerEntity player;
-		
-		public PlayerProvider(ServerPlayerEntity player)
-		{
-			this.player = player;
-		}
-
-		@Override
-		public ServerPlayerEntity get() {
-			return this.player;
-		}
-		
-		
+		return PacketDistributor.PLAYER.with(() -> player);
 	}
 	
 }

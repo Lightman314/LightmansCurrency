@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -14,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
@@ -143,6 +145,12 @@ public class ClientProxy extends CommonProxy{
 		this.timeOffset = (timeOffset / 1000) * 1000;
 		if(this.timeOffset < 10000) //Ignore offset if less than 10s, as it's likely due to ping
 			this.timeOffset = 0;
+	}
+	
+	@Override
+	public void loadAdminPlayers(List<UUID> serverAdminList)
+	{
+		TradingOffice.loadAdminPlayers(serverAdminList);
 	}
 	
 }

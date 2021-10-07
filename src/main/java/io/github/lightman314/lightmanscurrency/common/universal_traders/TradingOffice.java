@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
@@ -27,12 +29,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TradingOffice extends WorldSavedData{
 	
 	private static final String DATA_NAME = LightmansCurrency.MODID + "_trading_office";
+	
+	private static List<UUID> adminPlayers = new ArrayList<>();
 	
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	
@@ -105,11 +110,12 @@ public class TradingOffice extends WorldSavedData{
 		return null;
 	}
 	
-	public static List<UniversalTraderData> getTraders(ServerPlayerEntity player)
+	public static List<UniversalTraderData> getTraders()
 	{
-		TradingOffice office = get(player.server);
+		TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
 		return office.universalTraderMap.values().stream().collect(Collectors.toList());
 	}
+	
 	
 	private static void MarkDirty()
 	{
@@ -117,6 +123,7 @@ public class TradingOffice extends WorldSavedData{
 		if(server != null)
 			get(server).markDirty();
 	}
+	
 	
 	public static void MarkDirty(UUID traderID)
 	{
@@ -141,6 +148,7 @@ public class TradingOffice extends WorldSavedData{
 			MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
 		}
 	}
+	
 	
 	public static void removeTrader(UUID traderID)
 	{
@@ -194,6 +202,38 @@ public class TradingOffice extends WorldSavedData{
 				return false;
 			});
 		}
+	}
+	
+	public static boolean isAdminPlayer(PlayerEntity player)
+	{
+		return adminPlayers.contains(player.getUniqueID());
+	}
+	
+	public static void toggleAdminPlayer(PlayerEntity player)
+	{
+		UUID playerID = player.getUniqueID();
+		if(adminPlayers.contains(playerID))
+		{
+			adminPlayers.remove(playerID);
+		}
+		else
+		{
+			adminPlayers.add(playerID);
+			if(!player.world.isRemote)
+			{
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
+			}
+		}
+	}
+	
+	public static MessageSyncAdminList getAdminSyncMessage()
+	{
+		return new MessageSyncAdminList(adminPlayers);
+	}
+	
+	public static void loadAdminPlayers(List<UUID> serverAdminList)
+	{
+		adminPlayers = serverAdminList;
 	}
 	
 }

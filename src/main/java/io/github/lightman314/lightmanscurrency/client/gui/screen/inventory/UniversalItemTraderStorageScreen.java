@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.TradeInputSlot;
@@ -103,19 +104,21 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		
 		int tradeCount = this.container.getData().getTradeCount();
 		this.buttonStoreMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 176 + 32, this.guiTop + 25 + ItemTraderStorageUtil.getRowCount(tradeCount) * 18, this::PressStoreCoinsButton, GUI_TEXTURE, 176, 16));
+		this.buttonStoreMoney.visible = false;
 		
 		this.buttonChangeName = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.changename"), this::PressTraderNameButton));
 		this.buttonChangeName.visible = this.container.isOwner();
 		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
 		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 80, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
+		this.buttonClearLog.visible = this.container.getData().getLogger().logText.size() > 0 && this.container.isOwner();
 		
 		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
-		this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2) && this.container.isOwner();
+		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.container.player);
 		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
-		this.buttonAddTrade.visible = this.container.getData().isCreative() && this.container.isOwner();
+		this.buttonAddTrade.visible = this.container.getData().isCreative() && TradingOffice.isAdminPlayer(this.container.player);;
 		this.buttonAddTrade.active = this.container.getData().getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
 		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
-		this.buttonRemoveTrade.visible = this.container.getData().isCreative() && this.container.isOwner();
+		this.buttonRemoveTrade.visible = this.container.getData().isCreative() && TradingOffice.isAdminPlayer(this.container.player);;
 		this.buttonRemoveTrade.active = this.container.getData().getTradeCount() > 1;
 		
 		if(this.container.isOwner())
@@ -260,7 +263,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 		
 		if(this.container.isOwner())
 		{
-			this.buttonToggleCreative.visible = this.playerInventory.player.isCreative() && this.playerInventory.player.hasPermissionLevel(2);
+			this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.container.player);;
 			if(this.buttonToggleCreative.visible)
 			{
 				if(this.container.getData().isCreative())

@@ -39,7 +39,7 @@ public class MessageRequestTraders implements IMessage<MessageRequestTraders> {
 			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				List<UniversalTraderData> traders = TradingOffice.getTraders(entity);
+				List<UniversalTraderData> traders = TradingOffice.getTraders();
 				CompoundNBT compound = new CompoundNBT();
 				ListNBT traderList = new ListNBT();
 				traders.forEach(trader -> traderList.add(trader.write(new CompoundNBT())));

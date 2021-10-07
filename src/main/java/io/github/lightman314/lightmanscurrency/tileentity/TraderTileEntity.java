@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
@@ -114,19 +115,18 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	/**
 	 * Whether or not the given player is the owner of the trader.
-	 * How this result is determined changed based on whether this is a creative trader or not.
 	 */
 	public boolean isOwner(PlayerEntity player)
 	{	
 		if(this.ownerID != null)
-			return player.getUniqueID().equals(ownerID);
+			return player.getUniqueID().equals(ownerID) || TradingOffice.isAdminPlayer(player);
 		LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
 		return true;
 	}
 	
 	public boolean hasPermissions(PlayerEntity player)
 	{
-		return isOwner(player) || this.allies.contains(player.getName().getString()) || (this.isCreative && player.hasPermissionLevel(2) && player.isCreative());
+		return isOwner(player) || this.allies.contains(player.getName().getString());
 	}
 	
 	public List<String> getAllies()
@@ -150,8 +150,10 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	public void setOwner(Entity player)
 	{
 		//CurrencyMod.LOGGER.info("Defining the tile's owner. UUID: " + player.getUniqueID() + " Name: " + player.getName().getString());
-		this.ownerID = player.getUniqueID();
-		this.ownerName = player.getName().getString();
+		if(this.ownerID == null)
+			this.ownerID = player.getUniqueID();
+		if(this.ownerID.equals(player.getUniqueID())) //Don't update the name if it's not actually the owner
+			this.ownerName = player.getName().getString();
 		
 		if(!this.world.isRemote)
 		{
@@ -166,9 +168,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 */
 	public boolean canBreak(PlayerEntity player)
 	{
-		if(isOwner(player))
-			return true;
-		return player.hasPermissionLevel(2) && player.isCreative();
+		return isOwner(player);
 	}
 	
 	public boolean isCreative()
