@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -76,6 +79,12 @@ public class PaygateBlock extends RotatableBlock{
 				{
 					trader.activate();
 					playerEntity.getHeldItem(hand).shrink(1);
+					//Attempt to give the player a ticket stub
+					ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
+					if(!playerEntity.inventory.addItemStackToInventory(ticketStub))
+					{
+						InventoryUtil.dumpContents(world, playerEntity.getPosition(), ImmutableList.of(ticketStub));
+					}
 					return ActionResultType.SUCCESS;
 				}
 				TileEntityUtil.sendUpdatePacket(tileEntity);

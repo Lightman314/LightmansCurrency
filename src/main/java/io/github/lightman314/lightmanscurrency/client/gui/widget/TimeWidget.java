@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
-import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule.GUIHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule.GUIHandler;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;

@@ -23,6 +23,7 @@
     "item.lightmanscurrency.trading_core": "Trading Core",
     "item.lightmanscurrency.ticket": "Ticket",
     "item.lightmanscurrency.master_ticket": "Master Ticket",
+    "item.lightmanscurrency.ticket_stub": "Ticket Stub",
     "item.lightmanscurrency.portable_terminal": "Trading Terminal",
     "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
     "block.lightmanscurrency.coinpile_copper" : "Copper Coinpile",

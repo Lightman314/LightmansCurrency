@@ -3,6 +3,7 @@
     "values": [
         "minecraft:paper",
         "lightmanscurrency:ticket",
-        "lightmanscurrency:master_ticket"
+        "lightmanscurrency:master_ticket",
+        "lightmanscurrency:ticket_stub"
     ]
 }

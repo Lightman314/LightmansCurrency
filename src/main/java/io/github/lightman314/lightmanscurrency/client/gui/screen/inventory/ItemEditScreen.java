@@ -66,7 +66,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		
 		//Render the trade button
 		minecraft.getTextureManager().bindTexture(ItemTradeButton.TRADE_TEXTURES);
-		int yOffset = ItemTradeButton.getRenderYOffset(container.tradeData.getTradeDirection());
+		int yOffset = ItemTradeButton.getRenderYOffset(container.tradeData.getTradeType());
 		this.blit(matrix, startX, startY - ItemTradeButton.HEIGHT, 0, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
 		
 	}

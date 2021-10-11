@@ -17,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncTrades;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;

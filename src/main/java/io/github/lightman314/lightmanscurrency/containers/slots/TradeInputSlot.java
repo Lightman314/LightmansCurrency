@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.containers.slots;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;

@@ -28,7 +28,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSto
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageToggleCreative;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
@@ -164,7 +164,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		minecraft.getTextureManager().bindTexture(ItemTradeButton.TRADE_TEXTURES);
 		for(int i = 0; i < tradeCount; i++)
 		{
-			int yOffset = ItemTradeButton.getRenderYOffset(trades.get(i).getTradeDirection());
+			int yOffset = ItemTradeButton.getRenderYOffset(trades.get(i).getTradeType());
 			if(ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i))
 				screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), ItemTradeButton.WIDTH, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
 			else

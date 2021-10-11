@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.tradedata;
+package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
@@ -17,10 +17,14 @@ public abstract class TradeData implements ITradeRuleHandler {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
+	public enum TradeDirection { SALE, PURCHASE, NONE }
+	
 	protected CoinValue cost = new CoinValue();
 	protected boolean isFree = false;
 	
 	List<TradeRule> rules = new ArrayList<>();
+	
+	public abstract TradeDirection getTradeDirection();
 	
 	public boolean isFree()
 	{

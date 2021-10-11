@@ -23,9 +23,9 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.entity.Entity;

@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -65,7 +65,7 @@ public class MessageSetItemPrice2 implements IMessage<MessageSetItemPrice2> {
 				data2.getTrade(message.tradeIndex).setCost(message.newPrice);
 				data2.getTrade(message.tradeIndex).setFree(message.isFree);
 				data2.getTrade(message.tradeIndex).setCustomName(message.customName);
-				data2.getTrade(message.tradeIndex).setTradeDirection(ItemTradeData.loadTradeDirection(message.newDirection));
+				data2.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeDirection(message.newDirection));
 				
 				//Mark the trader as dirty
 				TradingOffice.MarkDirty(message.traderID);

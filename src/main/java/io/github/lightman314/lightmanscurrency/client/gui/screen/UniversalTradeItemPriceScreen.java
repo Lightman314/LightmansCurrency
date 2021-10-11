@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData.ItemTradeType;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
@@ -59,7 +59,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		this.traderID = traderID;
 		this.trade = tradeData;
 		this.tradeIndex = tradeIndex;
-		this.localDirection = this.trade.getTradeDirection();
+		this.localDirection = this.trade.getTradeType();
 	}
 	
 	@Override

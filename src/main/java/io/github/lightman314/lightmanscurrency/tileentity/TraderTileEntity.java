@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -43,11 +44,13 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions{
+public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions, ITrader{
 	
 	String customName = "";
 	
 	protected UUID ownerID = null;
+	@Override
+	public UUID getOwnerID() { return this.ownerID; }
 	protected String ownerName = "";
 	
 	protected List<String> allies = new ArrayList<>();

@@ -7,9 +7,11 @@ import java.util.UUID;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainerPrimitive;
+import io.github.lightman314.lightmanscurrency.containers.inventories.TicketInventory;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
@@ -33,7 +35,7 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
 	
 	protected final IInventory coinInput = new Inventory(5);
-	protected final IInventory ticketInput = new Inventory(1);
+	protected final IInventory ticketInput = new TicketInventory(1);
 	public final PaygateTileEntity tileEntity;
 	
 	public final int priceInputOffset;
@@ -202,6 +204,18 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		{
 			//Remove the ticket
 			ticketInput.decrStackSize(0, 1);
+			//Generate a ticket stub
+			ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
+			//Try to put it in the ticket slot
+			if(ticketInput.getStackInSlot(0).isEmpty())
+				ticketInput.setInventorySlotContents(0, ticketStub);
+			else
+			{
+				//Otherwise force it into the players inventory
+				IInventory temp = new Inventory(1);
+				temp.setInventorySlotContents(0, ticketStub);
+				this.clearContainer(this.player, this.player.world, temp);
+			}
 		}
 		else
 		{

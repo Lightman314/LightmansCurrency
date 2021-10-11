@@ -14,7 +14,6 @@ public abstract class UniversalTraderEvent extends Event{
 	public final UUID getOwnerID() { return this.getData() == null ? null : this.getData().getOwnerID(); }
 	public UniversalTraderData getData() { return TradingOffice.getData(this.traderID); }
 	
-	
 	protected UniversalTraderEvent(UUID traderID)
 	{
 		this.traderID = traderID;
@@ -44,7 +43,6 @@ public abstract class UniversalTraderEvent extends Event{
 		{
 			super(traderID);
 			this.data = removedData;
-			
 		}
 	}
 	

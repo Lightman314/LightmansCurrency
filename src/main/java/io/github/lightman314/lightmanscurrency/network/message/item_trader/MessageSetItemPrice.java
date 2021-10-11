@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -71,7 +71,7 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
 						traderEntity.getTrade(message.tradeIndex).setFree(message.isFree);
 						traderEntity.getTrade(message.tradeIndex).setCustomName(message.customName);
-						traderEntity.getTrade(message.tradeIndex).setTradeDirection(ItemTradeData.loadTradeDirection(message.newDirection));
+						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeDirection(message.newDirection));
 						//Send update packet to the clients
 						CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
 						TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));

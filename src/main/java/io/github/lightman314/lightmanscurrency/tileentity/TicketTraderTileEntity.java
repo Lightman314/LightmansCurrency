@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.tileentity;
 
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 
 
 public class TicketTraderTileEntity extends ItemTraderTileEntity{

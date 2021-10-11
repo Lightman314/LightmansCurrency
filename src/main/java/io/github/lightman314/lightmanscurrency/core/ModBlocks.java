@@ -29,7 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
 
-	private enum BlockItemType { DEFAULT, COIN, CASH_REGISTER, COIN_JAR };
+	private enum BlockItemType { DEFAULT, COIN, NETHERITE_COIN, CASH_REGISTER, COIN_JAR };
 	
 	
 	private static final List<Block> BLOCKS = new ArrayList<>();
@@ -86,7 +86,7 @@ public class ModBlocks {
 			ModItems.COIN_EMERALD
 			)
 	);
-	public static final BlockItemPair COINPILE_NETHERITE = register("coinpile_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
+	public static final BlockItemPair COINPILE_NETHERITE = register("coinpile_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.NETHERITE_COIN, new CoinpileBlock(
 			Block.Properties.create(Material.IRON)
 			.notSolid()
 			.hardnessAndResistance(3.0f, 6.0f)
@@ -144,7 +144,7 @@ public class ModBlocks {
 			ModItems.COIN_DIAMOND
 			)
 	);
-	public static final BlockItemPair COINBLOCK_NETHERITE = register("coinblock_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinBlock(
+	public static final BlockItemPair COINBLOCK_NETHERITE = register("coinblock_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.NETHERITE_COIN, new CoinBlock(
 			Block.Properties.create(Material.IRON)
 			.hardnessAndResistance(3.0f, 6.0f)
 			.sound(SoundType.METAL)
@@ -391,6 +391,9 @@ public class ModBlocks {
 				break;
 			case COIN:
 				item = new CoinBlockItem(block, new Item.Properties().group(itemGroup));
+				break;
+			case NETHERITE_COIN:
+				item = new CoinBlockItem(block, new Item.Properties().group(itemGroup).isImmuneToFire());
 				break;
 			case COIN_JAR:
 				item = new CoinJarItem(block, new Item.Properties().group(itemGroup));

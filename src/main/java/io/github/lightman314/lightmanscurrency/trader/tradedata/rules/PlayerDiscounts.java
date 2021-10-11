@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.tradedata.rules;
+package io.github.lightman314.lightmanscurrency.trader.tradedata.rules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -42,16 +41,16 @@ public class PlayerDiscounts extends TradeRule {
 	{
 		if(this.playerList.contains(event.getPlayer().getDisplayName().getString()))
 		{
-			if(event.getTrade() instanceof ItemTradeData)
+			switch(event.getTrade().getTradeDirection())
 			{
-				ItemTradeData tradeData = (ItemTradeData)event.getTrade();
-				if(tradeData.getTradeDirection() == ItemTradeData.ItemTradeType.PURCHASE)
-					event.applyCostMultiplier(this.getIncreaseMult());
-				else
-					event.applyCostMultiplier(this.getDiscountMult());
-			}
-			else
+			case SALE:
 				event.applyCostMultiplier(this.getDiscountMult());
+				break;
+			case PURCHASE:
+				event.applyCostMultiplier(this.getIncreaseMult());
+				break;
+				default: //Nothing by default
+			}
 		}
 	}
 	

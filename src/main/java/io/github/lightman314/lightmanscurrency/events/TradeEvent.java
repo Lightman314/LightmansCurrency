@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.events;
 
-import io.github.lightman314.lightmanscurrency.tradedata.TradeData;
+import com.google.common.base.Supplier;
+
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,19 +18,22 @@ public abstract class TradeEvent extends Event{
 	public final TradeData getTrade() { return this.trade; }
 	private final Container container;
 	public final Container getContainer() { return this.container; }
+	private final Supplier<ITrader> traderSource;
+	public final ITrader getTrader() { return this.traderSource.get(); }
 	
-	protected TradeEvent(PlayerEntity player, TradeData trade, Container container)
+	protected TradeEvent(PlayerEntity player, TradeData trade, Container container, Supplier<ITrader> trader)
 	{
 		this.player = player;
 		this.trade = trade;
 		this.container = container;
+		this.traderSource = trader;
 	}
 	
 	public static class PreTradeEvent extends TradeEvent
 	{
-		public PreTradeEvent(PlayerEntity player, TradeData trade, Container container)
+		public PreTradeEvent(PlayerEntity player, TradeData trade, Container container, Supplier<ITrader> trader)
 		{
-			super(player, trade, container);
+			super(player, trade, container, trader);
 		}
 		
 		@Override
@@ -47,9 +53,9 @@ public abstract class TradeEvent extends Event{
 		public CoinValue getBaseCost() { return this.currentCost; }
 		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
 		
-		public TradeCostEvent(PlayerEntity player, TradeData trade, Container container)
+		public TradeCostEvent(PlayerEntity player, TradeData trade, Container container, Supplier<ITrader> trader)
 		{
-			super(player, trade, container);
+			super(player, trade, container, trader);
 			this.costMultiplier = 1f;
 			this.currentCost = trade.getCost();
 		}
@@ -59,10 +65,13 @@ public abstract class TradeEvent extends Event{
 	{
 		
 		private boolean isDirty = false;
+		private final CoinValue pricePaid;
+		public CoinValue getPricePaid() { return this.pricePaid; }
 		
-		public PostTradeEvent(PlayerEntity player, TradeData trade, Container container)
+		public PostTradeEvent(PlayerEntity player, TradeData trade, Container container, Supplier<ITrader> trader, CoinValue pricePaid)
 		{
-			super(player, trade, container);
+			super(player, trade, container, trader);
+			this.pricePaid = pricePaid;
 		}
 		
 		public boolean isDirty()

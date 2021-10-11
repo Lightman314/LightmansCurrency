@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.tradedata.rules;
+package io.github.lightman314.lightmanscurrency.trader.tradedata.rules;
 
 import java.util.ArrayList;
 import java.util.HashMap;

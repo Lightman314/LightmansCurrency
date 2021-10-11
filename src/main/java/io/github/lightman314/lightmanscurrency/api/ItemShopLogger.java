@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api;
 
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -21,7 +21,7 @@ public class ItemShopLogger extends TextLogger{
 		
 		ITextComponent creativeText = isCreative ? new TranslationTextComponent("log.shoplog.creative") : new StringTextComponent("");
 		ITextComponent playerName = new StringTextComponent("§a" + player.getName().getString());
-		ITextComponent boughtText = new TranslationTextComponent("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
+		ITextComponent boughtText = new TranslationTextComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only
 		IFormattableTextComponent itemName = (new StringTextComponent("")).append(trade.getSellItem().getDisplayName()).mergeStyle(trade.getSellItem().getRarity().color);

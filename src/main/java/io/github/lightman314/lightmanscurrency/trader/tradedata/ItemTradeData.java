@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.tradedata;
+package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
 
 import java.util.UUID;
@@ -36,7 +36,7 @@ public class ItemTradeData extends TradeData {
 	
 	ItemTradeRestrictions restriction = ItemTradeRestrictions.NONE;
 	ItemStack sellItem = ItemStack.EMPTY;
-	ItemTradeType tradeDirection = ItemTradeType.SALE;
+	ItemTradeType tradeType = ItemTradeType.SALE;
 	String customName = "";
 	
 	public ItemStack getSellItem()
@@ -49,7 +49,7 @@ public class ItemTradeData extends TradeData {
 		ItemStack displayItem = getSellItem();
 		//Get the item tag
 		CompoundNBT itemTag = displayItem.getOrCreateTag();
-		if(this.tradeDirection == ItemTradeType.PURCHASE)
+		if(this.tradeType == ItemTradeType.PURCHASE)
 		{
 			//No custom names for purchases
 			if(this.cost.getRawValue() != 0)
@@ -95,14 +95,28 @@ public class ItemTradeData extends TradeData {
 		this.customName = customName;
 	}
 	
-	public ItemTradeType getTradeDirection()
+	@Override
+	public TradeDirection getTradeDirection()
 	{
-		return this.tradeDirection;
+		switch(this.tradeType)
+		{
+		case SALE:
+			return TradeDirection.SALE;
+		case PURCHASE:
+			return TradeDirection.PURCHASE;
+			default:
+				return TradeDirection.NONE;
+		}
 	}
 	
-	public void setTradeDirection(ItemTradeType tradeDirection)
+	public ItemTradeType getTradeType()
 	{
-		this.tradeDirection = tradeDirection;
+		return this.tradeType;
+	}
+	
+	public void setTradeType(ItemTradeType tradeDirection)
+	{
+		this.tradeType = tradeDirection;
 	}
 	
 	public ItemTradeRestrictions getRestriction()
@@ -173,7 +187,7 @@ public class ItemTradeData extends TradeData {
 	public CompoundNBT getAsNBT() {
 		CompoundNBT tradeNBT = super.getAsNBT();
 		sellItem.write(tradeNBT);
-		tradeNBT.putString("TradeDirection", this.tradeDirection.name());
+		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("Restrictions", this.restriction.name());
 		tradeNBT.putString("CustomName", this.customName);
 		return tradeNBT;
@@ -230,9 +244,9 @@ public class ItemTradeData extends TradeData {
 		
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
-			this.tradeDirection = loadTradeDirection(nbt.getString("TradeDirection"));
+			this.tradeType = loadTradeDirection(nbt.getString("TradeDirection"));
 		else
-			this.tradeDirection = ItemTradeType.SALE;
+			this.tradeType = ItemTradeType.SALE;
 		
 		//Set the restrictions
 		if(nbt.contains("Restrictions"))

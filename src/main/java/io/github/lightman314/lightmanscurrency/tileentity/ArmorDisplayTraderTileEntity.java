@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;

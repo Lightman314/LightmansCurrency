@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.tradedata.rules;
+package io.github.lightman314.lightmanscurrency.trader.tradedata.rules;
 
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
@@ -44,16 +43,16 @@ public class TimedSale extends TradeRule {
 	{
 		if(isActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
-			if(event.getTrade() instanceof ItemTradeData)
+			switch(event.getTrade().getTradeDirection())
 			{
-				ItemTradeData tradeData = (ItemTradeData)event.getTrade();
-				if(tradeData.getTradeDirection() == ItemTradeData.ItemTradeType.PURCHASE)
-					event.applyCostMultiplier(this.getIncreaseMult());
-				else
-					event.applyCostMultiplier(this.getDiscountMult());
-			}
-			else
+			case SALE:
 				event.applyCostMultiplier(this.getDiscountMult());
+				break;
+			case PURCHASE:
+				event.applyCostMultiplier(this.getIncreaseMult());
+				break;
+				default: //Nothing if direction is NONE
+			}
 		}
 	}
 	
