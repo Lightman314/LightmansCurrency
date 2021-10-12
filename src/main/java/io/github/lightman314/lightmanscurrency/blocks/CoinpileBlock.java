@@ -37,6 +37,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, IWaterL
 	{
 		super(properties, coinItem);
 		SHAPE = makeCuboidShape(0d,0d,0d,16d,8d,16d);
+		this.setDefaultState(this.getDefaultState().with(WATERLOGGED, false));
 	}
 	
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

@@ -206,7 +206,7 @@ public class TradingOffice extends WorldSavedData{
 	
 	public static boolean isAdminPlayer(PlayerEntity player)
 	{
-		return adminPlayers.contains(player.getUniqueID());
+		return adminPlayers.contains(player.getUniqueID()) && player.hasPermissionLevel(2);
 	}
 	
 	public static void toggleAdminPlayer(PlayerEntity player)
