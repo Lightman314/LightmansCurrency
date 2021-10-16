@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,6 +10,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
@@ -223,12 +223,15 @@ public class UniversalTraderSelectionScreen extends Screen{
 		else
 		{
 			Stream<UniversalTraderData> stream = this.traderList.stream().filter(entry ->{
-				String searchText = this.searchField.getText().toLowerCase(Locale.ENGLISH).trim();
+				String searchText = this.searchField.getText().toLowerCase().trim();
 				//Search the display name of the traders
 				if(entry.getName().getString().toLowerCase().contains(searchText))
 					return true;
 				//Search the owner name of the traders
-				return entry.getOwnerName().toLowerCase().contains(searchText);
+				if(entry.getOwnerName().toLowerCase().contains(searchText))
+					return true;
+				//Search any custom filters
+				return TraderSearchFilter.checkFilters(entry, searchText);
 			});
 			this.filteredTraderList = stream.collect(Collectors.toList());
 			//Limit the page
