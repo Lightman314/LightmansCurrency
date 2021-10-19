@@ -75,6 +75,11 @@ public class CoinValueInput extends Widget{
 	@Override
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		//Match the buttons visibility to our visibility.
+		this.increaseButtons.forEach(button -> button.visible = this.visible);
+		this.decreaseButtons.forEach(button -> button.visible = this.visible);
+		if(!this.visible) //If not visible, render nothing
+			return;
 		
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);

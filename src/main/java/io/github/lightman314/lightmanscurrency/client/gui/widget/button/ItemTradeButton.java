@@ -206,7 +206,7 @@ public class ItemTradeButton extends Button{
 		ItemStack itemStack = slot == 1 ? trade.getBarterItem() : trade.getSellItem();
 		if(itemStack.isEmpty())
 			return null;
-		if(!trade.getCustomName().isEmpty() && trade.isSale())
+		if(!trade.getCustomName().isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
 			itemStack.setDisplayName(new StringTextComponent("§6" + trade.getCustomName()));
 		List<ITextComponent> tooltips = screen.getTooltipFromItem(itemStack);
 		//If this is the sell item, give tooltips otherwise do nothing
@@ -216,7 +216,7 @@ public class ItemTradeButton extends Button{
 			tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.info"));
 			//Custom Name
 			if(!trade.getCustomName().isEmpty())
-				tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.originalname", (slot == 1 ? trade.getBarterItem() : trade.getSellItem()).getDisplayName()));
+				tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.originalname", trade.getSellItem().getDisplayName()));
 			//Stock
 			tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("§6" + trade.stockCount(trader))));
 			

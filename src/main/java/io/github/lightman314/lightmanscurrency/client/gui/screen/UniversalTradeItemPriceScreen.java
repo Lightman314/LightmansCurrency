@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeRestrictions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -46,6 +47,8 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	Button buttonSetBarter;
 	
 	Button buttonTradeRules;
+	
+	Button buttonSetFree;
 	
 	ItemTradeType localDirection;
 	
@@ -84,7 +87,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::SaveChanges));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::Back));
-		this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::SetFree));
+		this.buttonSetFree = this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::SetFree));
 		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, GUI_TEXTURE, this.xSize, 0));
 		
 		tick();
@@ -97,7 +100,12 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		super.tick();
 		
 		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
-		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
+		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE && this.trade.getRestriction() != ItemTradeRestrictions.TICKET;
+		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
+		
+		this.buttonSetFree.active = this.localDirection != ItemTradeType.BARTER;
+		
+		this.priceInput.visible = this.localDirection != ItemTradeType.BARTER;
 		
 		this.priceInput.tick();
 		this.nameField.tick();
