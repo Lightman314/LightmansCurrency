@@ -71,7 +71,7 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
 						traderEntity.getTrade(message.tradeIndex).setFree(message.isFree);
 						traderEntity.getTrade(message.tradeIndex).setCustomName(message.customName);
-						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeDirection(message.newDirection));
+						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
 						//Send update packet to the clients
 						CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
 						TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));

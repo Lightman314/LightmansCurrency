@@ -9,6 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
@@ -18,7 +19,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -101,7 +101,7 @@ public class CoinValueInput extends Widget{
 		for(int x = 0; x < buttonCount; x++)
 		{
 			//Draw sprite
-			this.drawItemStack(new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26);
+			ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
 			//Draw string
 			String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
 			int width = this.parent.getFont().getStringWidth(countString);
@@ -115,26 +115,6 @@ public class CoinValueInput extends Widget{
 		this.parent.getFont().drawString(matrixStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
 		
 	}
-	
-	/**
-    * Draws an ItemStack.
-    *  
-    * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
-    */
-	@SuppressWarnings("deprecation")
-	private void drawItemStack(ItemStack stack, int x, int y) {
-		
-		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-	   
-      	RenderSystem.translatef(0.0F, 0.0F, 32.0F);
-      	this.setBlitOffset(200);
-      	itemRenderer.zLevel = 200.0F;
-      	net.minecraft.client.gui.FontRenderer font = stack.getItem().getFontRenderer(stack);
-      	if (font == null) font = this.parent.getFont();
-      	itemRenderer.renderItemAndEffectIntoGUI(stack, x, y);
-      	this.setBlitOffset(0);
-      	itemRenderer.zLevel = 0.0F;
-   	}
 	
 	public void tick()
 	{

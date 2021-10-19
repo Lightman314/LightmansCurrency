@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.trader.tradedata;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -34,7 +33,7 @@ public abstract class TradeData implements ITradeRuleHandler {
 	public void setFree(boolean isFree)
 	{
 		this.isFree = isFree;
-		LightmansCurrency.LogInfo("Set free state of a trade to " + isFree);
+		//LightmansCurrency.LogInfo("Set free state of a trade to " + isFree);
 	}
 	
 	public final boolean validCost()
@@ -82,22 +81,6 @@ public abstract class TradeData implements ITradeRuleHandler {
 		this.rules.clear();
 		this.rules = TradeRule.readRules(nbt);
 		
-	}
-	
-	public boolean hasEnoughMoney(CoinValue coinStorage)
-	{
-		return tradesPossibleWithStoredMoney(coinStorage) > 0;
-	}
-	
-	public long tradesPossibleWithStoredMoney(CoinValue coinStorage)
-	{
-		if(this.isFree)
-			return 1;
-		if(this.cost.getRawValue() == 0)
-			return 0;
-		long coinValue = coinStorage.getRawValue();
-		long price = this.cost.getRawValue();
-		return coinValue / price;
 	}
 	
 	@Override

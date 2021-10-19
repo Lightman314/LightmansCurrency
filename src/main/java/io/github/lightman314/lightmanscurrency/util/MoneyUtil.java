@@ -257,7 +257,8 @@ public class MoneyUtil {
     	CoinData changedData = getData(changedCoin);
     	if(changedData == null)
     	{
-    		LightmansCurrency.LogError("Cannot change the coin conversion as '" + changedCoin.getRegistryName() + "' has not been registered as a coin.");
+    		if(initialized()) //Only throw the coin conversion error if the coins have been initialized.
+    			LightmansCurrency.LogError("Cannot change the coin conversion as '" + changedCoin.getRegistryName() + "' has not been registered as a coin.");
     		return;
     	}
     	//Confirm that nothing else uses the new dependent (unless this is a hidden coin)
@@ -1813,6 +1814,8 @@ public class MoneyUtil {
     		}
     		
     	}
+    	
+    	public static final CoinValue EMPTY = new CoinValue();
     	
     	public static CoinValue easyBuild1(ItemStack... stack)
     	{

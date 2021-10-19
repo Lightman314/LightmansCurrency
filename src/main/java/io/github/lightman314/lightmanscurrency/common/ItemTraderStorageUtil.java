@@ -39,7 +39,7 @@ public class ItemTraderStorageUtil {
 	
 	public static boolean isFakeTradeButtonInverted(int tradeCount, int slot)
 	{
-		if(slot < getHalfwayPoint(tradeCount))
+		if(slot >= getHalfwayPoint(tradeCount)) //Now the right side has them inverted as opposed to the left side
 			return true;
 		return false;
 	}
@@ -67,7 +67,7 @@ public class ItemTraderStorageUtil {
 	
 	public static int getTradePriceButtonPosX(int tradeCount, int slot)
 	{
-		if(isFakeTradeButtonInverted(tradeCount, slot))
+		if(!isFakeTradeButtonInverted(tradeCount, slot))
 			return getFakeTradeButtonPosX(tradeCount, slot) + ItemTradeButton.WIDTH;
 		return getFakeTradeButtonPosX(tradeCount, slot) - 20;
 	}
@@ -80,9 +80,9 @@ public class ItemTraderStorageUtil {
 	public static int getTradeSlotPosX(int tradeCount, int slot)
 	{
 		if(isFakeTradeButtonInverted(tradeCount, slot))
-			return getFakeTradeButtonPosX(tradeCount, slot) + ItemTradeButton.WIDTH - ItemTradeButton.SLOT_OFFSET_X - 16;
+			return getFakeTradeButtonPosX(tradeCount, slot) + ItemTradeButton.WIDTH - ItemTradeButton.SLOT_OFFSET1_X - 16;
 		else
-			return getFakeTradeButtonPosX(tradeCount, slot) + ItemTradeButton.SLOT_OFFSET_X;
+			return getFakeTradeButtonPosX(tradeCount, slot) + ItemTradeButton.SLOT_OFFSET1_X;
 	}
 	
 	public static int getTradeSlotPosY(int tradeCount, int slot)

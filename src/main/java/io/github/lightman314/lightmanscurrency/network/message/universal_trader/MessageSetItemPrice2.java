@@ -65,7 +65,7 @@ public class MessageSetItemPrice2 implements IMessage<MessageSetItemPrice2> {
 				data2.getTrade(message.tradeIndex).setCost(message.newPrice);
 				data2.getTrade(message.tradeIndex).setFree(message.isFree);
 				data2.getTrade(message.tradeIndex).setCustomName(message.customName);
-				data2.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeDirection(message.newDirection));
+				data2.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
 				
 				//Mark the trader as dirty
 				TradingOffice.MarkDirty(message.traderID);

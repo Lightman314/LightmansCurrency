@@ -13,25 +13,28 @@ import net.minecraftforge.fml.network.NetworkEvent.Context;
 public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
 	
 	private ItemStack item;
+	private int slot;
 	
 	public MessageItemEditSet()
 	{
 		
 	}
 	
-	public MessageItemEditSet(ItemStack item)
+	public MessageItemEditSet(ItemStack item, int slot)
 	{
 		this.item = item;
+		this.slot = slot;
 	}
 	
 	@Override
 	public void encode(MessageItemEditSet message, PacketBuffer buffer) {
 		buffer.writeCompoundTag(message.item.write(new CompoundNBT()));
+		buffer.writeInt(message.slot);
 	}
 
 	@Override
 	public MessageItemEditSet decode(PacketBuffer buffer) {
-		return new MessageItemEditSet(ItemStack.read(buffer.readCompoundTag()));
+		return new MessageItemEditSet(ItemStack.read(buffer.readCompoundTag()), buffer.readInt());
 	}
 
 	@Override
@@ -45,7 +48,7 @@ public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
 				if(entity.openContainer instanceof ItemEditContainer)
 				{
 					ItemEditContainer container = (ItemEditContainer)entity.openContainer;
-					container.setItem(message.item);
+					container.setItem(message.item, message.slot);
 				}
 			}
 		});

@@ -8,14 +8,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -23,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -49,7 +48,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
 	
@@ -158,6 +157,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 			return this.trades.get(tradeIndex);
 		}
 		return new ItemTradeData();
+	}
+	
+	public int getTradeStock(int tradeIndex)
+	{
+		return getTrade(tradeIndex).stockCount(this);
 	}
 	
 	public NonNullList<ItemTradeData> getAllTrades()

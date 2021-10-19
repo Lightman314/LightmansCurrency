@@ -1,13 +1,16 @@
-package io.github.lightman314.lightmanscurrency.containers.interfaces;
+package io.github.lightman314.lightmanscurrency.trader;
 
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import java.util.List;
+
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
 
 public interface IItemTrader extends ITrader {
 
 	public ItemTradeData getTrade(int index);
-	public int getTradeCount();
+	public List<ItemTradeData> getAllTrades();
+	public IInventory getStorage();
 	public void markTradesDirty();
 	public void openTradeMenu(PlayerEntity player);
 	public void openStorageMenu(PlayerEntity player);

@@ -5,12 +5,10 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
@@ -18,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -51,7 +50,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, ITradeButtonStockSource, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
@@ -65,8 +64,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	private long rotationTime = 0;
 	
 	protected NonNullList<ItemTradeData> trades;
-	
-	List<ItemTraderStorageContainer> storageContainers = new ArrayList<>();
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
@@ -245,7 +242,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 				return Integer.MAX_VALUE;
 			else
 			{
-				return trade.stockCount(this);
+				return (int)trade.stockCount(this);
 			}
 		}
 		return 0;
@@ -368,7 +365,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
 		{
 			this.trades = ItemTradeData.loadAllData(compound, this.getTradeCount());
-			SyncContainerListeners();
 		}
 		
 		//Load the inventory
@@ -414,26 +410,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		super.tick();
 		if(this.world.isRemote)
 			this.rotationTime++;
-	}
-	
-	public void AddContainerListener(ItemTraderStorageContainer container)
-	{
-		if(!storageContainers.contains(container))
-			storageContainers.add(container);
-	}
-	
-	public void RemoveContainerListener(ItemTraderStorageContainer container)
-	{
-		if(storageContainers.contains(container))
-			storageContainers.remove(container);
-	}
-	
-	private void SyncContainerListeners()
-	{
-		storageContainers.forEach(container ->
-		{
-			container.resyncTrades();
-		});
 	}
 
 	@Override

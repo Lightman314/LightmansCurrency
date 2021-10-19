@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.containers.slots.TradeInputSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveAlly;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
@@ -28,8 +28,9 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSto
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageToggleCreative;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -40,7 +41,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.util.NonNullList;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -90,14 +91,15 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		drawTraderStorageBackground(matrix, this, this.container, this.container.tileEntity.getAllTrades(), this.minecraft, this.xSize, this.ySize);
+		drawTraderStorageBackground(matrix, this, this.font, this.container, this.container.tileEntity, this.minecraft, this.xSize, this.ySize);
 		
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static void drawTraderStorageBackground(MatrixStack matrix, Screen screen, Container container, List<ItemTradeData> trades, Minecraft minecraft, int xSize, int ySize)
+	public static void drawTraderStorageBackground(MatrixStack matrix, Screen screen, FontRenderer font, Container container, IItemTrader trader, Minecraft minecraft, int xSize, int ySize)
 	{
 		
+		List<ItemTradeData> trades = trader.getAllTrades();
 		int tradeCount = trades.size();
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
@@ -160,15 +162,16 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		//Draw the bottom
 		screen.blit(matrix, startX + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount), startY + 25 + rowCount * 18, 0, 43, 176 + 32, 100);
 		
-		//Render the trade "button" BG's
+		//Render the fake trade buttons
 		minecraft.getTextureManager().bindTexture(ItemTradeButton.TRADE_TEXTURES);
 		for(int i = 0; i < tradeCount; i++)
 		{
-			int yOffset = ItemTradeButton.getRenderYOffset(trades.get(i).getTradeType());
-			if(ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i))
-				screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), ItemTradeButton.WIDTH, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
-			else
-				screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), 0, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
+			boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
+			ItemTradeButton.renderItemTradeButton(matrix, screen, font, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), i, trader, null, false, true, inverted);
+			//if(inverted)
+			//	screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), ItemTradeButton.WIDTH, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
+			//else
+			//	screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), 0, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
 		}
 		
 		//Render the coin slot bg
@@ -180,31 +183,18 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
 		
-		drawTraderStorageForeground(matrix, this.font, this.container.tileEntity.getTradeCount(), this.ySize, this.container.tileEntity.getName(), this.playerInventory.getDisplayName(), this.container.tileEntity.getAllTrades());
+		drawTraderStorageForeground(matrix, this.font, this.container.tileEntity.getTradeCount(), this.ySize, this.container.tileEntity.getName(), this.playerInventory.getDisplayName());
 		
 	}
 	
-	public static void drawTraderStorageForeground(MatrixStack matrix, FontRenderer font, int tradeCount, int ySize, ITextComponent title, ITextComponent inventoryTitle, NonNullList<ItemTradeData> data)
+	//Trade count is now only required to get the proper positioning for the inventory label
+	public static void drawTraderStorageForeground(MatrixStack matrix, FontRenderer font, int tradeCount, int ySize, ITextComponent title, ITextComponent inventoryTitle)
 	{
 		
 		font.drawString(matrix, title.getString(), 8.0f + SCREEN_EXTENSION, 6.0f, 0x404040);
 
 		font.drawString(matrix, inventoryTitle.getString(), ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 8.0f + SCREEN_EXTENSION, (ySize - 94), 0x404040);
 		
-		for(int i = 0; i < tradeCount; i++)
-		{
-			//Determine what text to display
-			String text;
-			if(data.get(i).isFree())
-				text = new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
-			else
-				text = MoneyUtil.getStringOfValue(data.get(i).getCost());
-			//Determine where it should be displayed
-			float xPos = ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i) + ItemTradeButton.TEXTPOS_X;
-			if(ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i))
-				xPos = ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i) + ItemTradeButton.WIDTH - ItemTradeButton.TEXTPOS_X - font.getStringWidth(text);
-			font.drawString(matrix, text, xPos, ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i) + ItemTradeButton.TEXTPOS_Y, 0xFFFFFF);
-		}
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -381,20 +371,15 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		}
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
-			this.container.inventorySlots.forEach(slot ->{
-				if(slot instanceof TradeInputSlot && slot.getStack().isEmpty())
-				{
-					TradeInputSlot inputSlot = (TradeInputSlot)slot;
-					if(inputSlot.isMouseOver(mouseX, mouseY, this.guiLeft, this.guiTop))
-					{
-						this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
-					}
-				}
-			});
+			int tradeCount = this.container.tileEntity.getTradeCount();
+			for(int i = 0; i < this.container.tileEntity.getTradeCount(); i++)
+			{
+				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
+				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tileEntity.getTrade(i), this.container.tileEntity, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY);
+				if(result < 0) //Result is negative if the mouse is over a slot, but the slot is empty.
+					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
+			}
 		}
-		
-		
-		
 	}
 	
 	@Override
@@ -447,7 +432,6 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 			
 		}
 		
-		
 	}
 	
 	@Override
@@ -457,6 +441,101 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		if(this.minecraft.gameSettings.keyBindInventory.isActiveAndMatches(mouseKey) && this.allyScreenOpen)
 			return false;
 		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+	
+	//0 for left-click. 1 for right-click
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button)
+	{
+		ItemStack heldItem = this.container.player.inventory.getItemStack();
+		int tradeCount = this.container.tileEntity.getTradeCount();
+		for(int i = 0; i < tradeCount; ++i)
+		{
+			ItemTradeData trade = this.container.tileEntity.getTrade(i);
+			if(ItemTradeButton.isMouseOverSlot(0, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), (int)mouseX, (int)mouseY, ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i)))
+			{
+				ItemStack currentSellItem = trade.getSellItem();
+				//LightmansCurrency.LogInfo("Clicked on sell item. Click Type: " + button + "; Sell Item: " + currentSellItem.getCount() + "x" + currentSellItem.getItem().getRegistryName() + "; Held Item: " + heldItem.getCount() + "x" + heldItem.getItem().getRegistryName());
+				if(heldItem.isEmpty() && currentSellItem.isEmpty())
+				{
+					//Open the item edit screen if both the sell item and held items are empty
+					this.container.openItemEditScreenForTrade(i);
+					return true;
+				}
+				else if(heldItem.isEmpty())
+				{
+					//If held item is empty, right-click to decrease by 1, left-click to empty
+					currentSellItem.shrink(button == 0 ? currentSellItem.getCount() : 1);
+					if(currentSellItem.getCount() <= 0)
+						currentSellItem = ItemStack.EMPTY;
+					trade.setSellItem(currentSellItem);
+					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentSellItem, 0));
+					return true;
+				}
+				else
+				{
+					//If the held item is empty, right-click to increase by 1, left click to set to current held count
+					if(button == 1)
+					{
+						if(InventoryUtil.ItemMatches(currentSellItem, heldItem))
+						{
+							if(currentSellItem.getCount() < currentSellItem.getMaxStackSize()) //Limit to the max stack size.
+								currentSellItem.grow(1);
+						}
+						else
+						{
+							currentSellItem = heldItem.copy();
+							currentSellItem.setCount(1);
+						}
+					}
+					else
+						currentSellItem = heldItem.copy();
+					trade.setSellItem(currentSellItem);
+					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentSellItem, 0));
+				}
+			}
+			else if(this.container.tileEntity.getTrade(i).isBarter() && ItemTradeButton.isMouseOverSlot(1, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), (int)mouseX, (int)mouseY, ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i)))
+			{
+				ItemStack currentBarterItem = trade.getBarterItem();
+				if(heldItem.isEmpty() && currentBarterItem.isEmpty())
+				{
+					//Open the item edit screen if both the sell item and held items are empty
+					this.container.openItemEditScreenForTrade(i);
+					return true;
+				}
+				else if(heldItem.isEmpty())
+				{
+					//If held item is empty, right-click to decrease by 1, left-click to empty
+					currentBarterItem.shrink(button == 0 ? currentBarterItem.getCount() : 1);
+					if(currentBarterItem.getCount() <= 0)
+						currentBarterItem = ItemStack.EMPTY;
+					trade.setBarterItem(currentBarterItem);
+					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentBarterItem, 1));
+					return true;
+				}
+				else
+				{
+					//If the held item is empty, right-click to increase by 1, left click to set to current held count
+					if(button == 1)
+					{
+						if(InventoryUtil.ItemMatches(currentBarterItem, heldItem))
+							if(currentBarterItem.getCount() < currentBarterItem.getMaxStackSize())
+								currentBarterItem.grow(1);
+						else
+						{
+							currentBarterItem = heldItem.copy();
+							currentBarterItem.setCount(1);
+						}
+					}
+					else
+						currentBarterItem = heldItem.copy();
+					trade.setBarterItem(currentBarterItem);
+					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentBarterItem, 1));
+				}
+			}
+		}
+		//LightmansCurrency.LogInfo("Did not click on any trade definition slots.");
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
 	private void PressTradesButton(Button button)

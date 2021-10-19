@@ -9,13 +9,12 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditClose;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditSet;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -47,11 +46,11 @@ public class ItemEditContainer extends Container{
 	
 	public final PlayerEntity player;
 	public final Supplier<IItemTrader> traderSource;
-	private final int tradeIndex;
+	public final int tradeIndex;
 	public final ItemTradeData tradeData;
 	
 	List<ItemStack> searchResultItems;
-	IInventory tradeDisplay;
+	//IInventory tradeDisplay;
 	IInventory displayInventory;
 	
 	private String searchString;
@@ -59,6 +58,8 @@ public class ItemEditContainer extends Container{
 	public int getStackCount() { return this.stackCount; }
 	private int page = 0;
 	public int getPage() { return this.page; }
+	private int editSlot = 0;
+	public int getEditSlot() { return this.editSlot; }
 	
 	final List<Slot> tradeSlots;
 	
@@ -79,12 +80,12 @@ public class ItemEditContainer extends Container{
 		this.traderSource = traderSource;
 		this.tradeSlots = new ArrayList<>();
 		
-		this.tradeDisplay = new Inventory(1);
-		this.tradeDisplay.setInventorySlotContents(0, tradeData.getSellItem());
+		//this.tradeDisplay = new Inventory(1);
+		//this.tradeDisplay.setInventorySlotContents(0, tradeData.getSellItem());
 		this.displayInventory = new Inventory(columnCount * rowCount);
 		
 		//Trade slot
-		this.addSlot(new DisplaySlot(this.tradeDisplay, 0, ItemTradeButton.SLOT_OFFSET_X, ItemTradeButton.SLOT_OFFSET_Y - ItemTradeButton.HEIGHT));
+		//this.addSlot(new DisplaySlot(this.tradeDisplay, 0, ItemTradeButton.SLOT_OFFSET1_X, ItemTradeButton.SLOT_OFFSET_Y - ItemTradeButton.HEIGHT));
 		
 		if(!this.isClient())
 			return;
@@ -126,7 +127,7 @@ public class ItemEditContainer extends Container{
 			//Define the item
 			if(!stack.isEmpty())
 			{
-				this.setItem(stack);
+				this.setItem(stack, this.editSlot);
 				return ItemStack.EMPTY;
 			}
 		}
@@ -303,18 +304,30 @@ public class ItemEditContainer extends Container{
 		
 	}
 	
-	public void setItem(ItemStack stack)
+	public void toggleEditSlot()
 	{
-		this.tradeDisplay.setInventorySlotContents(0, stack.copy());
+		if(this.tradeData.isBarter())
+			this.editSlot = this.editSlot == 1 ? 0 : 1;
+	}
+	
+	public void setItem(ItemStack stack, int slot)
+	{
 		if(isClient())
 		{
 			//Send message to server
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageItemEditSet(stack));
+			if(this.editSlot == 1)
+				this.tradeData.setBarterItem(stack);
+			else
+				this.tradeData.setSellItem(stack);
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageItemEditSet(stack, this.editSlot));
 		}
 		else
 		{
 			//Set the trade
-			this.traderSource.get().getTrade(this.tradeIndex).setSellItem(stack);
+			if(slot == 1)
+				this.traderSource.get().getTrade(this.tradeIndex).setBarterItem(stack);
+			else
+				this.traderSource.get().getTrade(this.tradeIndex).setSellItem(stack);
 			this.traderSource.get().markTradesDirty();
 		}
 	}

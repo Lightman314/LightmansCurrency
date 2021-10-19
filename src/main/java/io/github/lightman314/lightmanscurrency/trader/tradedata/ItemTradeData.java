@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -36,6 +36,7 @@ public class ItemTradeData extends TradeData {
 	
 	ItemTradeRestrictions restriction = ItemTradeRestrictions.NONE;
 	ItemStack sellItem = ItemStack.EMPTY;
+	ItemStack barterItem = ItemStack.EMPTY;
 	ItemTradeType tradeType = ItemTradeType.SALE;
 	String customName = "";
 	
@@ -44,31 +45,9 @@ public class ItemTradeData extends TradeData {
 		return this.sellItem.copy();
 	}
 	
-	public ItemStack getDisplayItem(IInventory storage, boolean isCreative, CoinValue storedMoney)
+	public ItemStack getBarterItem()
 	{
-		ItemStack displayItem = getSellItem();
-		//Get the item tag
-		CompoundNBT itemTag = displayItem.getOrCreateTag();
-		if(this.tradeType == ItemTradeType.PURCHASE)
-		{
-			//No custom names for purchases
-			if(this.cost.getRawValue() != 0)
-			{
-				itemTag.putBoolean("LC_DisplayItem", true);
-				itemTag.putInt("LC_StockAmount", isCreative ? -1 : (int)this.tradesPossibleWithStoredMoney(storedMoney));
-			}
-		}
-		else
-		{
-			itemTag.putBoolean("LC_DisplayItem", true);
-			//Always to custom name data first, as it will re-load the item tag after setting the name.
-			if(this.customName != "")
-				itemTag.putString("LC_CustomName", this.customName);
-			//Get amount in stock
-			itemTag.putInt("LC_StockAmount", isCreative ? -1 : this.stockCount(storage));
-		}
-		displayItem.setTag(itemTag);
-		return displayItem;
+		return this.barterItem.copy();
 	}
 	
 	public void setSellItem(ItemStack itemStack)
@@ -83,6 +62,11 @@ public class ItemTradeData extends TradeData {
 		}
 		else
 			this.sellItem = itemStack.copy();
+	}
+	
+	public void setBarterItem(ItemStack itemStack)
+	{
+		this.barterItem = itemStack.copy();
 	}
 	
 	public String getCustomName()
@@ -109,14 +93,20 @@ public class ItemTradeData extends TradeData {
 		}
 	}
 	
-	public ItemTradeType getTradeType()
-	{
-		return this.tradeType;
-	}
+	public ItemTradeType getTradeType() { return this.tradeType; }
+	
+	public boolean isSale() { return this.tradeType == ItemTradeType.SALE; }
+	public boolean isPurchase() { return this.tradeType == ItemTradeType.PURCHASE; }
+	public boolean isBarter() { return this.tradeType == ItemTradeType.BARTER; }
 	
 	public void setTradeType(ItemTradeType tradeDirection)
 	{
 		this.tradeType = tradeDirection;
+	}
+	
+	public int getSlotCount()
+	{
+		return this.tradeType == ItemTradeType.BARTER ? 2 : 1;
 	}
 	
 	public ItemTradeRestrictions getRestriction()
@@ -146,28 +136,59 @@ public class ItemTradeData extends TradeData {
 	@Override
 	public boolean isValid()
 	{
-		return !this.sellItem.isEmpty() && super.isValid();
+		if(this.tradeType == ItemTradeType.BARTER)
+			return !this.sellItem.isEmpty() && !this.barterItem.isEmpty();
+		return super.isValid() && !this.sellItem.isEmpty();
 	}
 	
-	public boolean hasStock(IInventory storage)
+	public boolean hasStock(IItemTrader trader)
 	{
 		if(this.sellItem.isEmpty())
 			return false;
-		return stockCount(storage) > 0;
+		return stockCount(trader) > 0;
 	}
 	
-	public int stockCount(IInventory storage)
+	public boolean hasSpace(IItemTrader trader)
+	{
+		switch(this.tradeType)
+		{
+		case PURCHASE:
+			return InventoryUtil.CanPutItemStack(trader.getStorage(), this.getSellItem());
+		case BARTER:
+			return InventoryUtil.CanPutItemStack(trader.getStorage(), this.getBarterItem());
+			default:
+				return true;
+		}
+	}
+	
+	public int stockCount(IItemTrader trader)
 	{
 		if(this.sellItem.isEmpty())
 			return 0;
-		if(this.restriction == ItemTradeRestrictions.TICKET)
+		
+		if(this.tradeType == ItemTradeType.PURCHASE)
 		{
-			return InventoryUtil.GetItemTagCount(storage, TicketItem.TICKET_MATERIAL_TAG) / this.sellItem.getCount();
+			if(this.isFree)
+				return 1;
+			if(this.cost.getRawValue() == 0)
+				return 0;
+			long coinValue = trader.getStoredMoney().getRawValue();
+			long price = this.cost.getRawValue();
+			return (int)(coinValue / price);
 		}
-		else
+		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
-			return InventoryUtil.GetItemCount(storage, this.sellItem) / this.sellItem.getCount();
+			if(this.restriction == ItemTradeRestrictions.TICKET)
+			{
+				return InventoryUtil.GetItemTagCount(trader.getStorage(), TicketItem.TICKET_MATERIAL_TAG) / this.sellItem.getCount();
+			}
+			else
+			{
+				return InventoryUtil.GetItemCount(trader.getStorage(), this.sellItem) / this.sellItem.getCount();
+			}
 		}
+		else //Other types are not handled yet.
+			return 0;
 	}
 	
 	public void RemoveItemsFromStorage(IInventory storage)
@@ -186,7 +207,12 @@ public class ItemTradeData extends TradeData {
 	@Override
 	public CompoundNBT getAsNBT() {
 		CompoundNBT tradeNBT = super.getAsNBT();
-		sellItem.write(tradeNBT);
+		CompoundNBT sellItemCompound = new CompoundNBT();
+		sellItem.write(sellItemCompound);
+		tradeNBT.put("SellItem", sellItemCompound);
+		CompoundNBT barterItemCompound = new CompoundNBT();
+		barterItem.write(barterItemCompound);
+		tradeNBT.put("BarterItem", barterItemCompound);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("Restrictions", this.restriction.name());
 		tradeNBT.putString("CustomName", this.customName);
@@ -239,12 +265,21 @@ public class ItemTradeData extends TradeData {
 		
 		super.loadFromNBT(nbt);
 		
-		sellItem = ItemStack.read(nbt);
+		//Load the Sell Item
+		if(nbt.contains("SellItem", Constants.NBT.TAG_COMPOUND))
+			sellItem = ItemStack.read(nbt.getCompound("SellItem"));
+		else //Load old format from before the bartering system was made
+			sellItem = ItemStack.read(nbt);
 		
+		//Load the Barter Item
+		if(nbt.contains("BarterItem", Constants.NBT.TAG_COMPOUND))
+			barterItem = ItemStack.read(nbt.getCompound("BarterItem"));
+		else
+			barterItem = ItemStack.EMPTY;
 		
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
-			this.tradeType = loadTradeDirection(nbt.getString("TradeDirection"));
+			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
 			this.tradeType = ItemTradeType.SALE;
 		
@@ -273,7 +308,7 @@ public class ItemTradeData extends TradeData {
 		return value;
 	}
 	
-	public static ItemTradeType loadTradeDirection(String name)
+	public static ItemTradeType loadTradeType(String name)
 	{
 		ItemTradeType value = ItemTradeType.SALE;
 		try {
@@ -284,20 +319,6 @@ public class ItemTradeData extends TradeData {
 			LightmansCurrency.LogError("Could not load '" + name + "' as a TradeDirection.");
 		}
 		return value;
-	}
-	
-	public int tradesPossibleInStorage(IInventory inventory)
-	{
-		int itemCount = 0;
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
-		{
-			ItemStack itemStack = inventory.getStackInSlot(i);
-			if(itemStack.getItem() == sellItem.getItem())
-			{
-				itemCount += itemStack.getCount();
-			}
-		}
-		return itemCount / sellItem.getCount();
 	}
 	
 	public static NonNullList<ItemTradeData> listOfSize(int tradeCount)

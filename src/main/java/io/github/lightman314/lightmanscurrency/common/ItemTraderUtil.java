@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 //import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 
 public class ItemTraderUtil {
 	
@@ -10,86 +11,112 @@ public class ItemTraderUtil {
 	public static final int TRADEBUTTON_HORIZ_SPACER = 6;
 	public static final int TRADEBUTTON_HORIZONTAL = ItemTradeButton.WIDTH + TRADEBUTTON_HORIZ_SPACER;
 	
-	public static int getWidth(int tradeCount)
+	/*public static int validTradeCount(IItemTrader trader)
 	{
-		return Math.max(176, getTradeDisplayWidth(tradeCount));
+		int valid = 0;
+		for(int i = 0; i < trader.getTradeCount(); ++i)
+			if(trader.getTrade(i).isValid())
+				++valid;
+		return valid;
 	}
 	
-	public static int getTradeDisplayWidth(int tradeCount)
+	public static int getTradeIndexFromValid(IItemTrader trader, int validTradeIndex)
 	{
-		return 12 + (getTradeDisplayColumnCount(tradeCount) * (TRADEBUTTON_HORIZONTAL)) - TRADEBUTTON_HORIZ_SPACER;
+		int currentIndex = 0;
+		for(int i = 0; i < trader.getTradeCount(); ++i)
+		{
+			if(trader.getTrade(i).isValid())
+			{
+				if(currentIndex == validTradeIndex)
+					return i;
+				++currentIndex;
+			}
+		}
+		return -1;
+	}*/
+	
+	public static int getWidth(IItemTrader trader)
+	{
+		return Math.max(176, getTradeDisplayWidth(trader));
 	}
 	
-	public static int getTradeDisplayHeight(int tradecount)
+	public static int getTradeDisplayWidth(IItemTrader trader)
 	{
-		return 17 + (getTradeDisplayRowCount(tradecount) * TRADEBUTTON_VERTICALITY) + 7;
+		return 12 + (getTradeDisplayColumnCount(trader) * (TRADEBUTTON_HORIZONTAL)) - TRADEBUTTON_HORIZ_SPACER;
 	}
 	
-	public static int getTradeDisplayOffset(int tradeCount)
+	public static int getTradeDisplayHeight(IItemTrader trader)
 	{
-		if(getTradeDisplayWidth(tradeCount) > 176)
+		return 17 + (getTradeDisplayRowCount(trader) * TRADEBUTTON_VERTICALITY) + 7;
+	}
+	
+	public static int getTradeDisplayOffset(IItemTrader trader)
+	{
+		if(getTradeDisplayWidth(trader) > 176)
 			return 0;
-		return (176 - getTradeDisplayWidth(tradeCount)) / 2;
+		return (176 - getTradeDisplayWidth(trader)) / 2;
 	}
 	
-	public static int getInventoryDisplayOffset(int tradeCount)
+	public static int getInventoryDisplayOffset(IItemTrader trader)
 	{
-		if(getTradeDisplayWidth(tradeCount) <= 176)
+		if(getTradeDisplayWidth(trader) <= 176)
 			return 0;
 		else
-			return (getTradeDisplayWidth(tradeCount) - 176) / 2;
+			return (getTradeDisplayWidth(trader) - 176) / 2;
 	}
 	
-	public static int getTradeDisplayColumnCount(int tradeCount)
+	public static int getTradeDisplayColumnCount(IItemTrader trader)
 	{
-		if(tradeCount <= 6)
+		if(trader.getTradeCount() <= 6)
 			return 2;
 		else
 			return 4;
 	}
 	
-	public static int getTradeDisplayRowCount(int tradeCount)
+	public static int getTradeDisplayRowCount(IItemTrader trader)
 	{
-		return ((tradeCount - 1)/getTradeDisplayColumnCount(tradeCount)) + 1;
+		return ((trader.getTradeCount() - 1)/getTradeDisplayColumnCount(trader)) + 1;
 	}
 	
-	public static int getColumnOf(int tradeCount, int slotIndex)
+	public static int getColumnOf(IItemTrader trader, int validSlotIndex)
 	{
-		return slotIndex % getTradeDisplayColumnCount(tradeCount);
+		return validSlotIndex % getTradeDisplayColumnCount(trader);
 	}
 	
-	public static int getRowOf(int tradeCount, int slotIndex)
+	public static int getRowOf(IItemTrader trader, int validSlotIndex)
 	{
-		return (slotIndex / getTradeDisplayColumnCount(tradeCount));
+		return (validSlotIndex / getTradeDisplayColumnCount(trader));
 	}
 	
-	public static int getButtonPosX(int tradeCount, int slotIndex)
+	public static int getButtonPosX(IItemTrader trader, int validSlotIndex)
 	{
 		float offset = 0f;
 		/*if(tradeCount == 1 && slotIndex == 0)
 		{
 			offset = 0.5f;
 		}*/
-		if(getRowOf(tradeCount, slotIndex) == getTradeDisplayRowCount(tradeCount) - 1 && tradeCount % getTradeDisplayColumnCount(tradeCount) != 0)
+		if(getRowOf(trader, validSlotIndex) == getTradeDisplayRowCount(trader) - 1 && trader.getTradeCount() % getTradeDisplayColumnCount(trader) != 0)
 		{
-			offset = (0.5f * getTradeDisplayColumnCount(tradeCount)) - (0.5f * (tradeCount % getTradeDisplayColumnCount(tradeCount)));
+			offset = (0.5f * getTradeDisplayColumnCount(trader)) - (0.5f * (trader.getTradeCount() % getTradeDisplayColumnCount(trader)));
 		}
-		return (int)(6 + getTradeDisplayOffset(tradeCount) + (((slotIndex % getTradeDisplayColumnCount(tradeCount)) + offset) * (ItemTradeButton.WIDTH + 6f)));
+		return (int)(6 + getTradeDisplayOffset(trader) + (((validSlotIndex % getTradeDisplayColumnCount(trader)) + offset) * (ItemTradeButton.WIDTH + 6f)));
 	}
 	
-	public static int getButtonPosY(int tradeCount, int slotIndex)
+	public static int getButtonPosY(IItemTrader trader, int validSlotIndex)
 	{
-		return 17 + (getRowOf(tradeCount, slotIndex) * (ItemTradeButton.HEIGHT + TRADEBUTTON_VERT_SPACER));
+		return 17 + (getRowOf(trader, validSlotIndex) * (ItemTradeButton.HEIGHT + TRADEBUTTON_VERT_SPACER));
 	}
 	
-	public static int getSlotPosX(int tradeCount, int slotIndex)
+	@Deprecated
+	public static int getSlotPosX(IItemTrader trader, int validSlotIndex)
 	{
-		return getButtonPosX(tradeCount, slotIndex) + ItemTradeButton.SLOT_OFFSET_X;
+		return getButtonPosX(trader, validSlotIndex) + ItemTradeButton.SLOT_OFFSET1_X;
 	}
 	
-	public static int getSlotPosY(int tradeCount, int slotIndex)
+	@Deprecated
+	public static int getSlotPosY(IItemTrader trader, int validSlotIndex)
 	{
-		return getButtonPosY(tradeCount, slotIndex) + ItemTradeButton.SLOT_OFFSET_Y;
+		return getButtonPosY(trader, validSlotIndex) + ItemTradeButton.SLOT_OFFSET_Y;
 	}
 	
 }

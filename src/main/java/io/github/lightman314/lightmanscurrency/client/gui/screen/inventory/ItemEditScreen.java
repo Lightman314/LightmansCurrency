@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -31,6 +32,8 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	
 	private TextFieldWidget searchField;
 	
+	Button buttonToggleSlot;
+	
 	Button buttonPageLeft;
 	Button buttonPageRight;
 	
@@ -38,6 +41,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	Button buttonCountDown;
 	
 	Button buttonChangeName;
+	int setSlot = 0;
 	
 	boolean firstTick = false;
 	
@@ -64,10 +68,8 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		//Render the BG
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
 		
-		//Render the trade button
-		minecraft.getTextureManager().bindTexture(ItemTradeButton.TRADE_TEXTURES);
-		int yOffset = ItemTradeButton.getRenderYOffset(container.tradeData.getTradeType());
-		this.blit(matrix, startX, startY - ItemTradeButton.HEIGHT, 0, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
+		//Render the fake trade button
+		ItemTradeButton.renderItemTradeButton(matrix, (Screen)this, font, startX, startY - ItemTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), null, false, true, false);
 		
 	}
 	
@@ -76,9 +78,6 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	{
 		
 		this.font.drawString(matrix, new TranslationTextComponent("gui.lightmanscurrency.item_edit.title").getString(), 8.0f, 6.0f, 0x404040);
-		
-		//Draw the trade price text
-		this.font.drawString(matrix, ItemTradeButton.getTradeText(container.tradeData.getCost(), true, true, true, true), ItemTradeButton.TEXTPOS_X, ItemTradeButton.TEXTPOS_Y - ItemTradeButton.HEIGHT, ItemTradeButton.getTradeTextColor(container.tradeData, true, true, true, false));
 		
 	}
 	
@@ -95,6 +94,10 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		this.children.add(this.searchField);
 		
 		//Initialize the buttons
+		//Toggle button
+		this.buttonToggleSlot = this.addButton(new Button(this.guiLeft + this.xSize - 80, this.guiTop - 20, 80, 20, new TranslationTextComponent("gui.button.lightmanscurrency.item_edit.toggle.sell"), this::PressToggleSlotButton));
+		this.buttonToggleSlot.visible = this.container.tradeData.isBarter();
+		
 		//Page Buttons
 		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize, 0));
 		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize + 16, 0));
@@ -117,6 +120,8 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		
 		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeData, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
+		
 	}
 	
 	@Override
@@ -124,6 +129,8 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	{
 		
 		this.searchField.tick();
+		
+		this.buttonToggleSlot.setMessage(new TranslationTextComponent(this.container.getEditSlot() == 1 ? "gui.button.lightmanscurrency.item_edit.toggle.barter" : "gui.button.lightmanscurrency.item_edit.toggle.sell"));
 		
 		this.buttonPageLeft.active = this.container.getPage() > 0;
 		this.buttonPageRight.active = this.container.getPage() < this.container.maxPage();
@@ -167,6 +174,11 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 			return true;
 		}
 		return this.searchField.isFocused() && this.searchField.getVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+	}
+	
+	private void PressToggleSlotButton(Button button)
+	{
+		this.container.toggleEditSlot();
 	}
 	
 	private void PressPageButton(Button button)

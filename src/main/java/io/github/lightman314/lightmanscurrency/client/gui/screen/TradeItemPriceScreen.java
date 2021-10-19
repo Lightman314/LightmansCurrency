@@ -43,6 +43,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	Button buttonSetSell;
 	Button buttonSetPurchase;
+	Button buttonSetBarter;
 	
 	Button buttonTradeRules;
 	
@@ -77,8 +78,9 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.nameField.setMaxStringLength(ItemTradeData.MAX_CUSTOMNAME_LENGTH);
 		this.children.add(this.nameField);
 		
-		this.buttonSetSell = this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 6, 80, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.sale"), this::SetTradeDirection));
-		this.buttonSetPurchase = this.addButton(new Button(guiLeft + 90, guiTop + CoinValueInput.HEIGHT + 6, 80, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.purchase"), this::SetTradeDirection));
+		this.buttonSetSell = this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 6, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.sale"), this::SetTradeDirection));
+		this.buttonSetPurchase = this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 6, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.purchase"), this::SetTradeDirection));
+		this.buttonSetBarter = this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 6, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.barter"), this::SetTradeDirection));
 		
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
@@ -99,6 +101,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		}
 		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
 		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
+		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
 		super.tick();
 		this.priceInput.tick();
@@ -161,6 +164,8 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 			this.localDirection = ItemTradeType.SALE;
 		else if(button == buttonSetPurchase)
 			this.localDirection = ItemTradeType.PURCHASE;
+		else if(button == buttonSetBarter)
+			this.localDirection = ItemTradeType.BARTER;
 		else
 			LightmansCurrency.LogWarning("Invalid button triggered SetTradeDirection");
 	}
