@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.UniversalTraderSelectionScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.ItemTraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.TraderSearchFilter;
@@ -118,14 +118,14 @@ public class ClientProxy extends CommonProxy{
 	public void updateTraders(CompoundNBT compound)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.currentScreen instanceof UniversalTraderSelectionScreen)
+		if(minecraft.currentScreen instanceof TradingTerminalScreen)
 		{
 			if(compound.contains("Traders", Constants.NBT.TAG_LIST))
 			{
 				List<UniversalTraderData> traders = new ArrayList<>();
 				ListNBT traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
 				traderList.forEach(nbt -> traders.add(IUniversalDataDeserializer.Deserialize((CompoundNBT)nbt)));
-				((UniversalTraderSelectionScreen)minecraft.currentScreen).updateTraders(traders);
+				((TradingTerminalScreen)minecraft.currentScreen).updateTraders(traders);
 			}
 		}
 	}
@@ -133,7 +133,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void openTerminalScreen(PlayerEntity player)
 	{
-		Minecraft.getInstance().displayGuiScreen(new UniversalTraderSelectionScreen(player));
+		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen(player));
 	}
 	
 	@Override

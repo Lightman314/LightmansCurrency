@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,9 +28,10 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-public class UniversalTraderSelectionScreen extends Screen{
+public class TradingTerminalScreen extends Screen{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
+	private static final Comparator<UniversalTraderData> TRADER_SORTER = new TraderSorter();
 	
 	private int xSize = 176;
 	private int ySize = 187;
@@ -48,7 +50,7 @@ public class UniversalTraderSelectionScreen extends Screen{
 	private List<UniversalTraderData> traderList = new ArrayList<>();
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
-	public UniversalTraderSelectionScreen(PlayerEntity player)
+	public TradingTerminalScreen(PlayerEntity player)
 	{
 		super(new TranslationTextComponent("block.lightmanscurrency.terminal"));
 		this.player = player;
@@ -204,6 +206,7 @@ public class UniversalTraderSelectionScreen extends Screen{
 	public void updateTraders(List<UniversalTraderData> traders)
 	{
 		this.traderList = traders;
+		this.traderList.sort(TRADER_SORTER);
 		if(!loadedTraders)
 		{
 			this.page = pageWhenClosed;
@@ -251,6 +254,23 @@ public class UniversalTraderSelectionScreen extends Screen{
 			else
 				this.traderButtons.get(i).SetData(null);
 		}
+	}
+	
+	private static class TraderSorter implements Comparator<UniversalTraderData>
+	{
+
+		@Override
+		public int compare(UniversalTraderData a, UniversalTraderData b) {
+			
+			//(lowercase since lowercase letters apparently get sorted after uppercase letters)
+			//Sort by trader name
+			int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
+			//Sort by owner name if trader name is equal
+			if(sort == 0)
+				sort = a.getOwnerName().toLowerCase().compareTo(b.getOwnerName().toLowerCase());
+			return sort;
+		}
+		
 	}
 
 }

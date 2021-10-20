@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.UniversalTraderSelectionScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
@@ -173,7 +173,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 	
 	private void PressBackButton(Button button)
 	{
-		Minecraft.getInstance().displayGuiScreen(new UniversalTraderSelectionScreen(this.container.player));
+		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen(this.container.player));
 	}
 	
 }

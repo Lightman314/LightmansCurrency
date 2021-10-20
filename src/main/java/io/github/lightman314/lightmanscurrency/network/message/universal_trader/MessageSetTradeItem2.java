@@ -56,7 +56,7 @@ public class MessageSetTradeItem2 implements IMessage<MessageSetTradeItem2> {
 			if(data1 != null && data1 instanceof UniversalItemTraderData)
 			{
 				UniversalItemTraderData data2 = (UniversalItemTraderData)data1;
-				ItemTradeData trade = data2.getTrade(tradeIndex);
+				ItemTradeData trade = data2.getTrade(message.tradeIndex);
 				if(message.slot == 1)
 					trade.setBarterItem(message.newItem);
 				else
