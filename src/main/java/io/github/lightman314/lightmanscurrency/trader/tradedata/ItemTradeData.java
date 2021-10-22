@@ -4,6 +4,7 @@ package io.github.lightman314.lightmanscurrency.trader.tradedata;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -54,11 +55,23 @@ public class ItemTradeData extends TradeData {
 	{
 		if(this.restriction == ItemTradeRestrictions.TICKET)
 		{
-			UUID ticketID = TicketItem.GetTicketID(itemStack);
-			if(ticketID == null)
-				this.sellItem = ItemStack.EMPTY;
+			//Only let it define the ticket via master ticket to confirm that the ticket is being made by the owner.
+			if(TicketItem.isMasterTicket(itemStack))
+			{
+				UUID ticketID = TicketItem.GetTicketID(itemStack);
+				if(ticketID == null)
+					this.sellItem = ItemStack.EMPTY;
+				else
+					this.sellItem = TicketItem.CreateTicket(ticketID, 1);
+			}
+			//Allow ticket kiosks to buy or sell ticket materials such as paper & ticket stubs
+			//Manually blacklist tickets
+			else if(itemStack.getItem().getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET)
+			{
+				this.sellItem = itemStack;
+			}
 			else
-				this.sellItem = TicketItem.CreateTicket(ticketID, 1);
+				this.sellItem = ItemStack.EMPTY;
 		}
 		else
 			this.sellItem = itemStack.copy();
