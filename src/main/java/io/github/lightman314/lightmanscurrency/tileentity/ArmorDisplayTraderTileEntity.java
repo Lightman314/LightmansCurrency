@@ -5,6 +5,8 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.EquipmentRestriction;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -55,13 +57,13 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 	private void validateTradeLimitations()
 	{
 		if(this.tradeCount > 0)
-			this.restrictTrade(0, ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD);
+			this.restrictTrade(0, ItemTradeRestriction.ARMOR_HEAD);
 		if(this.tradeCount > 1)
-			this.restrictTrade(1, ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST);
+			this.restrictTrade(1, ItemTradeRestriction.ARMOR_CHEST);
 		if(this.tradeCount > 2)
-			this.restrictTrade(2, ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS);
+			this.restrictTrade(2, ItemTradeRestriction.ARMOR_LEGS);
 		if(this.tradeCount > 3)
-			this.restrictTrade(3, ItemTradeData.ItemTradeRestrictions.ARMOR_FEET);
+			this.restrictTrade(3, ItemTradeRestriction.ARMOR_FEET);
 	}
 	
 	@Override
@@ -95,7 +97,13 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 				{
 					ItemTradeData thisTrade = this.getTrade(i);
 					//Trade restrictions shall determine the slot type
-					EquipmentSlotType slot = ItemTradeData.getSlotFromRestriction(thisTrade.getRestriction());
+					ItemTradeRestriction r = thisTrade.getRestriction();
+					EquipmentSlotType slot = null;
+					if(r instanceof EquipmentRestriction)
+					{
+						EquipmentRestriction er = (EquipmentRestriction)r;
+						slot = er.getEquipmentSlot();
+					}
 					if(slot != null)
 					{
 						if(thisTrade.hasStock(this) || this.isCreative())

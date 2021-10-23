@@ -30,6 +30,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -206,7 +207,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	
 	public IInventory GetItemInventory() { return itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex)
+	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput)
 	{
 		ItemTradeData trade = tileEntity.getTrade(tradeIndex);
 		if(trade == null)
@@ -218,6 +219,9 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			trade.beforeTrade(event);
 		if(!event.isCanceled())
 			MinecraftForge.EVENT_BUS.post(event);
+		
+		if(denialOutput != null)
+			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
 		
 		return !event.isCanceled();
 	}
@@ -289,7 +293,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex))
+		if(!PermissionToTrade(tradeIndex, null))
 			return;
 		
 		//Get the cost of the trade

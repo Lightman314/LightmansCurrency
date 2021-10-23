@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.tileentity;
 
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 
 
 public class TicketTraderTileEntity extends ItemTraderTileEntity{
@@ -22,7 +22,7 @@ public class TicketTraderTileEntity extends ItemTraderTileEntity{
 	{
 		for(int i = 0; i < this.tradeCount; i++)
 		{
-			this.restrictTrade(i, ItemTradeData.ItemTradeRestrictions.TICKET);
+			this.restrictTrade(i, ItemTradeRestriction.TICKET_KIOSK);
 		}
 	}
 	

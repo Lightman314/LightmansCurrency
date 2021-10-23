@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.network.message.item_trader.Messa
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeRestrictions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -103,7 +102,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 			return;
 		}
 		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
-		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE && this.trade.getRestriction() != ItemTradeRestrictions.TICKET;
+		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
 		this.buttonSetFree.active = this.localDirection != ItemTradeType.BARTER;

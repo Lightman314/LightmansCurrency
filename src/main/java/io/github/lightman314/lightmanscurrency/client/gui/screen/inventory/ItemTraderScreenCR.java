@@ -153,7 +153,7 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.container.tileEntity, false, mouseX, mouseY);
+			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.container.tileEntity, false, mouseX, mouseY, this.container);
 		}
 	}
 	

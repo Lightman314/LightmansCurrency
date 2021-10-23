@@ -32,8 +32,7 @@ public class PlayerBlacklist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(bannedPlayerNames.contains(event.getPlayer().getDisplayName().getString()))
-			event.setCanceled(true);
-		
+			event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.blacklist.denial"));
 	}
 
 	@Override

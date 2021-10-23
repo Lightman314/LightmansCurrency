@@ -13,6 +13,9 @@ import net.minecraft.item.ItemStack;
 
 public class ItemRenderUtil {
 
+	public static final int ITEM_BLIT_OFFSET = 200;
+	
+	
 	/**
     * Draws an ItemStack.
     *  

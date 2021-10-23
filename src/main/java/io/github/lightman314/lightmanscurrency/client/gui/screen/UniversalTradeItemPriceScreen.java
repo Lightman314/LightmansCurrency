@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeRestrictions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -100,7 +99,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		super.tick();
 		
 		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
-		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE && this.trade.getRestriction() != ItemTradeRestrictions.TICKET;
+		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
 		this.buttonSetFree.active = this.localDirection != ItemTradeType.BARTER;

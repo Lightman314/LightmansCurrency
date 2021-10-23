@@ -31,6 +31,7 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -242,7 +243,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	
 	public IInventory GetItemInventory() { return this.itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex)
+	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput)
 	{
 		ItemTradeData trade = this.getData().getTrade(tradeIndex);
 		if(trade == null)
@@ -254,6 +255,9 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			trade.beforeTrade(event);
 		if(!event.isCanceled())
 			MinecraftForge.EVENT_BUS.post(event);
+		
+		if(denialOutput != null)
+			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
 		
 		return !event.isCanceled();
 	}
@@ -308,7 +312,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex))
+		if(!PermissionToTrade(tradeIndex, null))
 			return;
 		
 		CoinValue price = this.TradeCostEvent(trade).getCostResult();

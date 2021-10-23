@@ -32,7 +32,7 @@ public class PlayerWhitelist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(!whitelistPlayerNames.contains(event.getPlayer().getDisplayName().getString()))
-			event.setCanceled(true);
+			event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.whitelist.denial"));
 		
 	}
 

@@ -232,8 +232,13 @@
     "log.shoplog.creative": "§e[C] ",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
+    "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
+    "traderule.lightmanscurrency.blacklist.denial": "§4You are blacklisted.",
     "traderule.lightmanscurrency.tradelimit": "Trade Limit",
+    "traderule.lightmanscurrency.tradelimit.denial": "§4You have done this trade %s §4times already.",
+    "traderule.lightmanscurrency.tradelimit.denial.timed": "§4You have done this trade %1$s §4times within the last %2$s§4.",
+    "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Limit is %s§4.",
     "traderule.lightmanscurrency.discount_list": "Discount",
     "traderule.lightmanscurrency.timed_sale": "Sale",
     

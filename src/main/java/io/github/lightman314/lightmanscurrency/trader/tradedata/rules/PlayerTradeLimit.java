@@ -50,8 +50,15 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		if(getTradeCount(event.getPlayer().getUniqueID()) >= this.limit)
-			event.setCanceled(true);
+		int tradeCount = getTradeCount(event.getPlayer().getUniqueID());
+		if(tradeCount >= this.limit)
+		{
+			if(this.enforceTimeLimit())
+				event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.tradelimit.denial.timed", tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).toString()));
+			else
+				event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.tradelimit.denial", tradeCount));
+			event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
+		}
 	}
 
 	@Override

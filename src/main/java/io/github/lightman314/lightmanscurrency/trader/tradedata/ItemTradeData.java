@@ -1,14 +1,9 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
-
-import java.util.UUID;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,7 +13,7 @@ import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData extends TradeData {
 	
-	public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET, TICKET }
+	//public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET, TICKET }
 	public enum ItemTradeType { SALE, PURCHASE, BARTER }
 	
 	public static int MaxTradeTypeStringLength()
@@ -35,7 +30,7 @@ public class ItemTradeData extends TradeData {
 	
 	public static final int MAX_CUSTOMNAME_LENGTH = 30;
 	
-	ItemTradeRestrictions restriction = ItemTradeRestrictions.NONE;
+	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
 	ItemStack sellItem = ItemStack.EMPTY;
 	ItemStack barterItem = ItemStack.EMPTY;
 	ItemTradeType tradeType = ItemTradeType.SALE;
@@ -53,28 +48,7 @@ public class ItemTradeData extends TradeData {
 	
 	public void setSellItem(ItemStack itemStack)
 	{
-		if(this.restriction == ItemTradeRestrictions.TICKET)
-		{
-			//Only let it define the ticket via master ticket to confirm that the ticket is being made by the owner.
-			if(TicketItem.isMasterTicket(itemStack))
-			{
-				UUID ticketID = TicketItem.GetTicketID(itemStack);
-				if(ticketID == null)
-					this.sellItem = ItemStack.EMPTY;
-				else
-					this.sellItem = TicketItem.CreateTicket(ticketID, 1);
-			}
-			//Allow ticket kiosks to buy or sell ticket materials such as paper & ticket stubs
-			//Manually blacklist tickets
-			else if(itemStack.getItem().getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET)
-			{
-				this.sellItem = itemStack;
-			}
-			else
-				this.sellItem = ItemStack.EMPTY;
-		}
-		else
-			this.sellItem = itemStack.copy();
+		this.sellItem = this.restriction.filterSellItem(itemStack).copy();
 	}
 	
 	public void setBarterItem(ItemStack itemStack)
@@ -122,28 +96,14 @@ public class ItemTradeData extends TradeData {
 		return this.tradeType == ItemTradeType.BARTER ? 2 : 1;
 	}
 	
-	public ItemTradeRestrictions getRestriction()
+	public ItemTradeRestriction getRestriction()
 	{
 		return this.restriction;
 	}
 	
-	public void setRestriction(ItemTradeRestrictions restriction)
+	public void setRestriction(ItemTradeRestriction restriction)
 	{
 		this.restriction = restriction;
-	}
-	
-	public static EquipmentSlotType getSlotFromRestriction(ItemTradeRestrictions restriction)
-	{
-		if(restriction == ItemTradeRestrictions.ARMOR_HEAD)
-			return EquipmentSlotType.HEAD;
-		if(restriction == ItemTradeRestrictions.ARMOR_CHEST)
-			return EquipmentSlotType.CHEST;
-		if(restriction == ItemTradeRestrictions.ARMOR_LEGS)
-			return EquipmentSlotType.LEGS;
-		if(restriction == ItemTradeRestrictions.ARMOR_FEET)
-			return EquipmentSlotType.FEET;
-		
-		return null;
 	}
 	
 	@Override
@@ -191,14 +151,7 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
-			if(this.restriction == ItemTradeRestrictions.TICKET)
-			{
-				return InventoryUtil.GetItemTagCount(trader.getStorage(), TicketItem.TICKET_MATERIAL_TAG) / this.sellItem.getCount();
-			}
-			else
-			{
-				return InventoryUtil.GetItemCount(trader.getStorage(), this.sellItem) / this.sellItem.getCount();
-			}
+			return this.restriction.getSaleStock(this.sellItem, trader.getStorage());
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -206,15 +159,7 @@ public class ItemTradeData extends TradeData {
 	
 	public void RemoveItemsFromStorage(IInventory storage)
 	{
-		if(this.restriction == ItemTradeRestrictions.TICKET)
-		{
-			if(!InventoryUtil.RemoveItemCount(storage, this.getSellItem()))
-			{
-				InventoryUtil.RemoveItemTagCount(storage, TicketItem.TICKET_MATERIAL_TAG, this.sellItem.getCount());
-			}
-		}
-		else
-			InventoryUtil.RemoveItemCount(storage, this.getSellItem());
+		this.restriction.removeItemsFromStorage(this.sellItem, storage);
 	}
 	
 	@Override
@@ -227,7 +172,7 @@ public class ItemTradeData extends TradeData {
 		barterItem.write(barterItemCompound);
 		tradeNBT.put("BarterItem", barterItemCompound);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
-		tradeNBT.putString("Restrictions", this.restriction.name());
+		tradeNBT.putString("Restrictions", this.restriction.getRegistryName().toString());
 		tradeNBT.putString("CustomName", this.customName);
 		return tradeNBT;
 	}
@@ -298,27 +243,14 @@ public class ItemTradeData extends TradeData {
 		
 		//Set the restrictions
 		if(nbt.contains("Restrictions"))
-			this.restriction = loadRestriction(nbt.getString("Restrictions"));
+			this.restriction = ItemTradeRestriction.get(nbt.getString("Restrictions"));
 		else
-			this.restriction = ItemTradeRestrictions.NONE;
+			this.restriction = ItemTradeRestriction.NONE;
 		
 		if(nbt.contains("CustomName"))
 			this.customName = nbt.getString("CustomName");
 		else
 			this.customName = "";
-	}
-	
-	private static ItemTradeRestrictions loadRestriction(String name)
-	{
-		ItemTradeRestrictions value = ItemTradeRestrictions.NONE;
-		try {
-			value = ItemTradeRestrictions.valueOf(name);
-		}
-		catch (IllegalArgumentException exception)
-		{
-			LightmansCurrency.LogError("Could not load '" + name + "' as a TradeRestriction.");
-		}
-		return value;
 	}
 	
 	public static ItemTradeType loadTradeType(String name)

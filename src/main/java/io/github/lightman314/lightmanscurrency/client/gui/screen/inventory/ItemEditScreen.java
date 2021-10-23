@@ -120,7 +120,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		
 		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeData, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY, null);
 		
 	}
 	

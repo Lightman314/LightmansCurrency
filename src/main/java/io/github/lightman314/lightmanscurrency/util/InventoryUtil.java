@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.inventory.IInventory;
@@ -143,26 +144,28 @@ public class InventoryUtil {
     	return true;
     }
     
-    public static int GetItemTagCount(IInventory inventory, ResourceLocation itemTag)
+    public static int GetItemTagCount(IInventory inventory, ResourceLocation itemTag, Item... blacklistItems)
     {
+    	List<Item> blacklist = Lists.newArrayList(blacklistItems);
     	int count = 0;
     	for(int i = 0; i < inventory.getSizeInventory(); i++)
     	{
     		ItemStack stack = inventory.getStackInSlot(i);
-    		if(stack.getItem().getTags().contains(itemTag))
+    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
     			count += stack.getCount();
     	}
     	return count;
     }
     
-    public static boolean RemoveItemTagCount(IInventory inventory, ResourceLocation itemTag, int count)
+    public static boolean RemoveItemTagCount(IInventory inventory, ResourceLocation itemTag, int count, Item... blacklistItems)
     {
-    	if(GetItemTagCount(inventory, itemTag) < count)
+    	if(GetItemTagCount(inventory, itemTag, blacklistItems) < count)
     		return false;
+    	List<Item> blacklist = Lists.newArrayList(blacklistItems);
     	for(int i = 0; i < inventory.getSizeInventory(); i++)
     	{
     		ItemStack stack = inventory.getStackInSlot(i);
-    		if(stack.getItem().getTags().contains(itemTag))
+    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count-= amountToTake;

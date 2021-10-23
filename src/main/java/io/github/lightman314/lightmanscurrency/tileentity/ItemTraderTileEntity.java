@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.network.message.item_trader.Messa
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -97,7 +98,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 	}
 	
-	public void restrictTrade(int index, ItemTradeData.ItemTradeRestrictions restriction)
+	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
 		getTrade(index).setRestriction(restriction);
 	}

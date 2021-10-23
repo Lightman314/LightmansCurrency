@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.events;
 
+import java.util.List;
+
 import com.google.common.base.Supplier;
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
@@ -8,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class TradeEvent extends Event{
@@ -31,13 +35,25 @@ public abstract class TradeEvent extends Event{
 	
 	public static class PreTradeEvent extends TradeEvent
 	{
+		
+		private final List<ITextComponent> denialText = Lists.newArrayList();
+		
 		public PreTradeEvent(PlayerEntity player, TradeData trade, Container container, Supplier<ITrader> trader)
 		{
 			super(player, trade, container, trader);
 		}
 		
+		public void denyTrade(ITextComponent reason)
+		{
+			denialText.add(reason);
+			this.setCanceled(true);
+		}
+		
+		public List<ITextComponent> getDenialReasons() { return this.denialText; }
+		
 		@Override
 		public boolean isCancelable() { return true; }
+		
 		
 	}
 	

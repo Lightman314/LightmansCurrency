@@ -375,7 +375,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 			for(int i = 0; i < this.container.tileEntity.getTradeCount(); i++)
 			{
 				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tileEntity.getTrade(i), this.container.tileEntity, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY);
+				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.container.tileEntity, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY, null);
 				if(result < 0) //Result is negative if the mouse is over a slot, but the slot is empty.
 					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
 			}
@@ -492,6 +492,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 						currentSellItem = heldItem.copy();
 					trade.setSellItem(currentSellItem);
 					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentSellItem, 0));
+					return true;
 				}
 			}
 			else if(this.container.tileEntity.getTrade(i).isBarter() && ItemTradeButton.isMouseOverSlot(1, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), (int)mouseX, (int)mouseY, ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i)))
@@ -515,12 +516,14 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 				}
 				else
 				{
-					//If the held item is empty, right-click to increase by 1, left click to set to current held count
+					//If the held item is not empty, right-click to increase by 1, left click to set to current held count
 					if(button == 1)
 					{
 						if(InventoryUtil.ItemMatches(currentBarterItem, heldItem))
+						{
 							if(currentBarterItem.getCount() < currentBarterItem.getMaxStackSize())
 								currentBarterItem.grow(1);
+						}
 						else
 						{
 							currentBarterItem = heldItem.copy();
@@ -531,6 +534,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 						currentBarterItem = heldItem.copy();
 					trade.setBarterItem(currentBarterItem);
 					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.container.tileEntity.getPos(), i, currentBarterItem, 1));
+					return true;
 				}
 			}
 		}
