@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.events.TradeEditEvent.TradePriceEditEvent;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
@@ -68,10 +70,26 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 					if(tileEntity instanceof ItemTraderTileEntity)
 					{
 						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)tileEntity;
+						CoinValue oldPrice = traderEntity.getTrade(message.tradeIndex).getCost();
+						boolean wasFree = traderEntity.getTrade(message.tradeIndex).isFree();
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
 						traderEntity.getTrade(message.tradeIndex).setFree(message.isFree);
 						traderEntity.getTrade(message.tradeIndex).setCustomName(message.customName);
 						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
+						
+						if(oldPrice.getRawValue() != message.newPrice.getRawValue() || wasFree != message.isFree)
+						{
+							//Throw price change event
+							TradePriceEditEvent e = new TradePriceEditEvent(() -> {
+								//Create safe supplier, just in case the event saves it for later
+								TileEntity te = entity.world.getTileEntity(message.pos);
+								if(te instanceof ItemTraderTileEntity)
+									return (ItemTraderTileEntity)te;
+								return null;
+							}, message.tradeIndex, oldPrice, wasFree);
+							MinecraftForge.EVENT_BUS.post(e);
+						}
+						
 						//Send update packet to the clients
 						CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
 						TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));
