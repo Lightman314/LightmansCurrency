@@ -45,13 +45,13 @@ public class ModContainers {
 	
 	public static final ContainerType<UniversalItemTraderContainer> UNIVERSAL_ITEMTRADER = register("universal_item_trader", (IContainerFactory<UniversalItemTraderContainer>)(windowId, playerInventory, data)->{
 		
-		return new UniversalItemTraderContainer(windowId, playerInventory, data.readUniqueId(), data.readCompoundTag());
+		return new UniversalItemTraderContainer(windowId, playerInventory, data.readUniqueId());
 		
 	});
 	
 	public static final ContainerType<UniversalItemTraderStorageContainer> UNIVERSAL_ITEMTRADERSTORAGE = register("universal_item_trader_storage", (IContainerFactory<UniversalItemTraderStorageContainer>)(windowId, playerInventory, data)->{
 		
-		return new UniversalItemTraderStorageContainer(windowId, playerInventory, data.readUniqueId(), data.readCompoundTag());
+		return new UniversalItemTraderStorageContainer(windowId, playerInventory, data.readUniqueId());
 		
 	});
 	

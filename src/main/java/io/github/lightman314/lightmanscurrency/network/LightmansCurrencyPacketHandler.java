@@ -91,13 +91,13 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenTrades2.class, new MessageOpenTrades2());
 		register(MessageOpenStorage2.class, new MessageOpenStorage2());
 		register(MessageSyncStorage.class, new MessageSyncStorage());
-		register(MessageRequestTraders.class, new MessageRequestTraders());
-		register(MessageUpdateTraders.class, new MessageUpdateTraders());
-		register(MessageUpdateContainerData.class, new MessageUpdateContainerData());
+		register(MessageInitializeClientTraders.class, new MessageInitializeClientTraders());
+		register(MessageUpdateClientData.class, new MessageUpdateClientData());
 		register(MessageSetCustomName2.class, new MessageSetCustomName2());
 		register(MessageSetItemPrice2.class, new MessageSetItemPrice2());
 		register(MessageAddOrRemoveAlly2.class, new MessageAddOrRemoveAlly2());
 		register(MessageSetTradeItem2.class, new MessageSetTradeItem2());
+		register(MessageRemoveClientTrader.class, new MessageRemoveClientTrader());
 		
 		//Logger
 		register(MessageClearLogger.class, new MessageClearLogger());

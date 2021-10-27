@@ -222,7 +222,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 			return;
 		}
 		if(playerEntity instanceof ServerPlayerEntity)
-			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, provider, new DataWriter(this.getTraderID(), this.write(new CompoundNBT())));
+			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
@@ -238,7 +238,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 			return;
 		}
 		if(playerEntity instanceof ServerPlayerEntity)
-			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, provider, new DataWriter(this.getTraderID(), this.write(new CompoundNBT())));
+			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
@@ -274,18 +274,15 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	{
 		
 		UUID traderID;
-		CompoundNBT traderCompound;
 		
-		public DataWriter(UUID traderID, CompoundNBT traderCompound)
+		public DataWriter(UUID traderID)
 		{
 			this.traderID = traderID;
-			this.traderCompound = traderCompound;
 		}
 		
 		@Override
 		public void accept(PacketBuffer buffer) {
 			buffer.writeUniqueId(this.traderID);
-			buffer.writeCompoundTag(this.traderCompound);
 		}
 	}
 	

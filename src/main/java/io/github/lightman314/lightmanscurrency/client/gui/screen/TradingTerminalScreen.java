@@ -11,13 +11,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRequestTraders;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -39,15 +39,17 @@ public class TradingTerminalScreen extends Screen{
 	PlayerEntity player;
 	
 	private TextFieldWidget searchField;
-	private int page = 0;
-	private static boolean loadedTraders = false;
-	private static int pageWhenClosed = 0;
+	private static int page = 0;
 	
 	Button buttonNextPage;
 	Button buttonPreviousPage;
 	List<UniversalTraderButton> traderButtons;
 	
-	private List<UniversalTraderData> traderList = new ArrayList<>();
+	private List<UniversalTraderData> traderList(){
+		List<UniversalTraderData> traderList = ClientTradingOffice.getTraderList();
+		traderList.sort(TRADER_SORTER);
+		return traderList;
+	}
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
 	public TradingTerminalScreen(PlayerEntity player)
@@ -80,7 +82,7 @@ public class TradingTerminalScreen extends Screen{
 		
 		this.tick();
 		
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestTraders());
+		this.updateTraderList();
 		
 	}
 	
@@ -179,8 +181,6 @@ public class TradingTerminalScreen extends Screen{
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades2(this.filteredTraderList.get(index).getTraderID()));
-			pageWhenClosed = this.page;
-			loadedTraders = false;
 		}
 	}
 	
@@ -203,29 +203,17 @@ public class TradingTerminalScreen extends Screen{
 		return this.traderButtons.size();
 	}
 	
-	public void updateTraders(List<UniversalTraderData> traders)
-	{
-		this.traderList = traders;
-		this.traderList.sort(TRADER_SORTER);
-		if(!loadedTraders)
-		{
-			this.page = pageWhenClosed;
-			loadedTraders = true;
-		}
-		
-		updateTraderList();
-	}
 	
 	private void updateTraderList()
 	{
 		if(this.searchField.getText().isEmpty())
 		{
-			this.filteredTraderList = this.traderList;
+			this.filteredTraderList = this.traderList();
 			updateTraderButtons();
 		}
 		else
 		{
-			Stream<UniversalTraderData> stream = this.traderList.stream().filter(entry ->{
+			Stream<UniversalTraderData> stream = this.traderList().stream().filter(entry ->{
 				String searchText = this.searchField.getText().toLowerCase().trim();
 				//Search the display name of the traders
 				if(entry.getName().getString().toLowerCase().contains(searchText))

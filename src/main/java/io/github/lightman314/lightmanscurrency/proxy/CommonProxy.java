@@ -10,7 +10,11 @@ public class CommonProxy {
 	
 	public void setupClient() {}
 	
-	public void updateTraders(CompoundNBT compound) {}
+	public void initializeTraders(CompoundNBT compound) {}
+	
+	public void updateTrader(CompoundNBT compound) {}
+	
+	public void removeTrader(UUID traderID) {}
 	
 	public void openTerminalScreen(PlayerEntity player) {}
 	

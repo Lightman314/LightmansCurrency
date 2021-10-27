@@ -24,12 +24,10 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-//import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 
 public class UniversalItemTraderStorageContainer extends UniversalContainer implements IUniversalTraderStorageContainer, ICreativeTraderContainer, IItemEditCapable{
 
@@ -49,15 +47,15 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		return (UniversalItemTraderData)this.getRawData();
 	}
 	
-	public UniversalItemTraderStorageContainer(int windowId, PlayerInventory inventory, UUID traderID, CompoundNBT traderCompound)
+	public UniversalItemTraderStorageContainer(int windowId, PlayerInventory inventory, UUID traderID)
 	{
-		super(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player, traderCompound);
+		
+		super(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player);
 		
 		//Init storage inventory as a supplied inventory
 		this.storage = new SuppliedInventory(() -> this.getData().getStorage());
 		
 		this.copyStorage = InventoryUtil.copyInventory(this.storage);
-		
 		int tradeCount = this.getData().getTradeCount();
 		int rowCount = ItemTraderStorageUtil.getRowCount(tradeCount);
 		int columnCount = 9 * ItemTraderStorageUtil.getColumnCount(tradeCount);
@@ -70,76 +68,6 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 				this.addSlot(new Slot(this.storage, x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
 			}
 		}
-		
-		/*this.tradeInventory = new Inventory(tradeCount);
-		this.tradeSlots = new ArrayList<>(tradeCount);
-		//Trade Slots
-		for(int y = 0; y < tradeInventory.getSizeInventory(); y++)
-		{
-			ItemTradeData trade = getData().getTrade(y);
-			TradeInputSlot newSlot = new TradeInputSlot(tradeInventory, y, ItemTraderStorageUtil.getTradeSlotPosX(tradeCount, y), ItemTraderStorageUtil.getTradeSlotPosY(tradeCount, y), trade, this.player);
-			this.addSlot(newSlot);
-			this.tradeSlots.add(newSlot);
-			this.tradeInventory.setInventorySlotContents(y, trade.getSellItem());
-		}*/
-		
-		int inventoryOffset = ItemTraderStorageUtil.getInventoryOffset(tradeCount);
-		
-		//Coin slots
-		this.coinSlots = new Inventory(5);
-		for(int i = 0; i < 5; i++)
-		{
-			this.addSlot(new CoinSlot(this.coinSlots, i, inventoryOffset + 176 + 8 + SCREEN_EXTENSION, getStorageBottom() + 3 + i * 18));
-		}
-		
-		//Player inventory
-		for(int y = 0; y < 3; y++)
-		{
-			for(int x = 0; x < 9; x++)
-			{
-				this.addSlot(new Slot(inventory, x + y * 9 + 9, inventoryOffset + 8 + x * 18 + SCREEN_EXTENSION, getStorageBottom() + 15 + y * 18));
-			}
-		}
-		
-		//Player hotbar
-		for(int x = 0; x < 9; x++)
-		{
-			this.addSlot(new Slot(inventory, x, inventoryOffset + 8 + x * 18 + SCREEN_EXTENSION, getStorageBottom() + 15 + 58));
-		}
-	}
-	
-	public UniversalItemTraderStorageContainer(int windowId, PlayerInventory inventory, UUID traderID)
-	{
-		
-		super(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player);
-		
-		//Init storage inventory as a supplied inventory
-		this.storage = new SuppliedInventory(() -> this.getData().getStorage());
-		
-		this.copyStorage = InventoryUtil.copyInventory(this.storage);
-		
-		//Storage Slots
-		for(int y = 0; y < this.getData().getTradeCount(); y++)
-		{
-			for(int x = 0; x < 18 && x + y * 18 < this.storage.getSizeInventory(); x++)
-			{
-				this.addSlot(new Slot(this.storage, x + y * 18, 8 + x * 18 + SCREEN_EXTENSION, 18 + y * 18));
-			}
-		}
-		
-		int tradeCount = this.getData().getTradeCount();
-		
-		/*this.tradeInventory = new Inventory(tradeCount);
-		this.tradeSlots = new ArrayList<>(tradeCount);
-		//Trade Slots
-		for(int y = 0; y < tradeInventory.getSizeInventory(); y++)
-		{
-			ItemTradeData trade = getData().getTrade(y);
-			TradeInputSlot newSlot = new TradeInputSlot(tradeInventory, y, ItemTraderStorageUtil.getTradeSlotPosX(tradeCount, y), ItemTraderStorageUtil.getTradeSlotPosY(tradeCount, y), trade, this.player);
-			this.addSlot(newSlot);
-			this.tradeSlots.add(newSlot);
-			this.tradeInventory.setInventorySlotContents(y, trade.getSellItem());
-		}*/
 		
 		int inventoryOffset = ItemTraderStorageUtil.getInventoryOffset(tradeCount);
 		
@@ -436,12 +364,6 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 			return;
 		}
 		this.getData().toggleCreative();
-	}
-
-	@Override
-	protected void onDataModified() {
-		//this.resyncTrades();
-		//Don't need to resync storage as it's already syncronized both client-side & server-side
 	}
 
 	@Override

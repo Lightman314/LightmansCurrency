@@ -8,6 +8,7 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -115,19 +116,27 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void updateTraders(CompoundNBT compound)
+	public void initializeTraders(CompoundNBT compound)
 	{
-		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.currentScreen instanceof TradingTerminalScreen)
+		if(compound.contains("Traders", Constants.NBT.TAG_LIST))
 		{
-			if(compound.contains("Traders", Constants.NBT.TAG_LIST))
-			{
-				List<UniversalTraderData> traders = new ArrayList<>();
-				ListNBT traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
-				traderList.forEach(nbt -> traders.add(IUniversalDataDeserializer.Deserialize((CompoundNBT)nbt)));
-				((TradingTerminalScreen)minecraft.currentScreen).updateTraders(traders);
-			}
+			List<UniversalTraderData> traders = new ArrayList<>();
+			ListNBT traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
+			traderList.forEach(nbt -> traders.add(IUniversalDataDeserializer.Deserialize((CompoundNBT)nbt)));
+			ClientTradingOffice.initData(traders);
 		}
+	}
+	
+	@Override
+	public void updateTrader(CompoundNBT compound)
+	{
+		ClientTradingOffice.updateTrader(IUniversalDataDeserializer.Deserialize(compound));
+	}
+	
+	@Override
+	public void removeTrader(UUID traderID)
+	{
+		ClientTradingOffice.removeTrader(traderID);
 	}
 	
 	@Override

@@ -30,7 +30,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -49,48 +48,6 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		if(this.getRawData() == null || !(this.getRawData() instanceof UniversalItemTraderData))
 			return null;
 		return (UniversalItemTraderData)this.getRawData();
-	}
-	
-	public UniversalItemTraderContainer(int windowId, PlayerInventory inventory, UUID traderID, CompoundNBT traderCompound)
-	{
-		
-		super(ModContainers.UNIVERSAL_ITEMTRADER, windowId, traderID, inventory.player, traderCompound);
-		
-		//int tradeCount = this.getTradeCount();
-		
-		//Coinslots
-		for(int x = 0; x < coinSlots.getSizeInventory(); x++)
-		{
-			this.addSlot(new CoinSlot(this.coinSlots, x, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + (x + 4) * 18, getCoinSlotHeight()));
-		}
-		
-		//Item Output Slots
-		for(int x = 0; x < itemSlots.getSizeInventory(); x++)
-		{
-			this.addSlot(new Slot(this.itemSlots, x, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + x * 18, getCoinSlotHeight()));
-		}
-		
-		//Player inventory
-		for(int y = 0; y < 3; y++)
-		{
-			for(int x = 0; x < 9; x++)
-			{
-				this.addSlot(new Slot(inventory, x + y * 9 + 9, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + x * 18, getPlayerInventoryStartHeight() + y * 18));
-			}
-		}
-		//Player hotbar
-		for(int x = 0; x < 9; x++)
-		{
-			this.addSlot(new Slot(inventory, x, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + x * 18, getPlayerInventoryStartHeight() + 58));
-		}
-		
-		/*tradeDisplays = new Inventory(this.getData().getTradeCount());
-		UpdateTradeDisplays();
-		Trade displays
-		for(int i = 0; i < tradeCount; i++)
-		{
-			this.addSlot(new DisplaySlot(tradeDisplays, i, ItemTraderUtil.getSlotPosX(tradeCount, i), ItemTraderUtil.getSlotPosY(tradeCount, i)));
-		}*/
 	}
 	
 	public UniversalItemTraderContainer(int windowId, PlayerInventory inventory, UUID traderID)
@@ -545,13 +502,6 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	public boolean hasPermissions()
 	{
 		return this.getData().hasPermissions(player);
-	}
-
-	@Override
-	protected void onDataModified() {
-		
-		//UpdateTradeDisplays();
-		
 	}
 
 	@Override
