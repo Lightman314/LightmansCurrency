@@ -12,8 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.ItemTraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
@@ -73,9 +71,6 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	ClientRegistry.bindTileEntityRenderer(ModTileEntities.ITEM_TRADER, ItemTraderTileEntityRenderer::new);
     	ClientRegistry.bindTileEntityRenderer(ModTileEntities.FREEZER_TRADER, FreezerTraderTileEntityRenderer::new);
-    	
-    	//Register Trader Search Filters
-    	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
     	
     	//Register Addable Trade Rules
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());

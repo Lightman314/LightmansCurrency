@@ -13,14 +13,12 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IWorld;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -130,49 +128,6 @@ public class EventHandler {
 			}
 		}
 		
-	}
-	
-	//Crafting event for wallet upgrade crafting recipes
-	@SubscribeEvent
-	public static void onItemCrafted(ItemCraftedEvent event)
-	{
-		if(event.getCrafting().getItem() instanceof WalletItem)
-		{
-			//LightmansCurrency.LOGGER.info("Player is crafting a wallet.");
-			//Store the output wallet
-			ItemStack walletOut = event.getCrafting();
-			ItemStack walletIn = ItemStack.EMPTY;
-			//Search the crafting matrix for a wallet.
-			for(int i = 0; i < event.getInventory().getSizeInventory() && walletIn.isEmpty(); i++)
-			{
-				if(event.getInventory().getStackInSlot(i).getItem() instanceof WalletItem)
-					walletIn = event.getInventory().getStackInSlot(i);
-			}
-			if(walletIn.isEmpty())
-			{
-				//A wallet wasn't used to craft this one, so nothing needs to be done.
-				//LightmansCurrency.LOGGER.info("No wallet is consumed in the crafting of this wallet. Nothing needs to be done.");
-				return;
-			}
-			//Copy the wallet output's inventory contents to the newly crafted wallet.
-			//LightmansCurrency.LOGGER.info("Copying wallet storage from the old wallet to the new wallet.");
-			WalletItem.CopyWalletContents(walletIn, walletOut);
-			
-			//Copy the wallets display name if one is present.
-			if(walletIn.hasDisplayName())
-				walletOut.setDisplayName(walletIn.getDisplayName());
-			
-			//Copy the wallets enchantments if any are present
-			if(walletIn.isEnchanted())
-			{
-				EnchantmentHelper.getEnchantments(walletIn).forEach((enchantment, level) ->{
-					walletOut.addEnchantment(enchantment, level);
-				});
-			}
-			
-		}
-		//else
-			//LightmansCurrency.LOGGER.info("Player is NOT crafting a wallet.");
 	}
 	
 }

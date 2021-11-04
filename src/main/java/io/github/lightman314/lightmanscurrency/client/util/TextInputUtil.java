@@ -10,6 +10,8 @@ public class TextInputUtil {
 	
 	public static boolean isInteger(TextFieldWidget textInput)
 	{
+		if(textInput == null)
+			return false;
 		return isInteger(textInput.getText());
 	}
 	

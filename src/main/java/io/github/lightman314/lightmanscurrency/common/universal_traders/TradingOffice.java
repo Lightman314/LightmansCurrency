@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
@@ -107,6 +109,29 @@ public class TradingOffice extends WorldSavedData{
 		return office.universalTraderMap.values().stream().collect(Collectors.toList());
 	}
 	
+	public static List<UniversalTraderData> filterTraders(String searchFilter, List<UniversalTraderData> traders)
+	{
+		if(searchFilter.isEmpty())
+			return traders;
+		Stream<UniversalTraderData> stream = traders.stream().filter(entry ->{
+			String searchText = searchFilter.toLowerCase().trim();
+			//Search the display name of the traders
+			if(entry.getName().getString().toLowerCase().contains(searchText))
+				return true;
+			//Search the owner name of the traders
+			if(entry.getOwnerName().toLowerCase().contains(searchText))
+				return true;
+			//Search any custom filters
+			return TraderSearchFilter.checkFilters(entry, searchText);
+		});
+		return stream.collect(Collectors.toList());
+	}
+	
+	public static List<UniversalTraderData> getTraders(String searchFilter)
+	{
+		return filterTraders(searchFilter, getTraders());
+	}
+	
 	public static void MarkDirty(UUID traderID)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -121,7 +146,6 @@ public class TradingOffice extends WorldSavedData{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			}
 		}
-			
 	}
 	
 	public static void registerTrader(UUID traderID, UniversalTraderData data, PlayerEntity owner)

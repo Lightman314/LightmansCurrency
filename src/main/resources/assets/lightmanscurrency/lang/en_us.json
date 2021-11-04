@@ -257,6 +257,7 @@
     "command.lightmanscurrency.lcadmin.universaldata.list.position": "BlockPos: %s",
     "command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip": "Teleport to Trader",
     "command.lightmanscurrency.lcadmin.universaldata.list.none": "There is no universal trader data stored in the server.",
+    "command.lightmanscurrency.lcadmin.universaldata.list.search.none": "No universal traders were found in that search.",
     "command.lightmanscurrency.lcadmin.universaldata.list.help": "%sLists core data about the registered universal traders including id, owner, world & position.",
     "command.lightmanscurrency.lcadmin.universaldata.delete.noid": "Please input a valid trader id.",
     "command.lightmanscurrency.lcadmin.universaldata.delete.notfound": "No trader found with id %s",

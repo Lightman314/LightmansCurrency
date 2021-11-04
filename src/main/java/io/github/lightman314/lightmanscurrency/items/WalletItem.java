@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -305,13 +306,13 @@ public class WalletItem extends Item{
 	/**
 	 * Used to copy a wallets inventory contents to a newly crafted one. Also copies over any auto-conversion settings.
 	 * @param walletIn The wallet inventory being copied.
-	 * @param walletOut The wallet whose inventory will be filled with
+	 * @param walletOut The wallet whose inventory will be filled
 	 */
 	public static void CopyWalletContents(ItemStack walletIn, ItemStack walletOut)
 	{
 		if(!(walletIn.getItem() instanceof WalletItem && walletIn.getItem() instanceof WalletItem))
 		{
-			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the walelt stacks are not WalletItems.");
+			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
 			return;
 		}
 		WalletItem walletItemIn = (WalletItem)walletIn.getItem();
@@ -335,6 +336,16 @@ public class WalletItem extends Item{
 				toggleAutoConvert(walletOut);
 			}
 		}
+		
+		//Copy custom name
+		if(walletIn.hasDisplayName())
+			walletOut.setDisplayName(walletIn.getDisplayName());
+		
+		//Copy enchantments
+		EnchantmentHelper.getEnchantments(walletIn).forEach((enchantment,level) ->{
+			walletOut.addEnchantment(enchantment, level);
+		});
+		
 	}
 	
 	public static class DataWriter implements Consumer<PacketBuffer>

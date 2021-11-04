@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching;
+package io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching;
 
 import java.util.ArrayList;
 import java.util.List;

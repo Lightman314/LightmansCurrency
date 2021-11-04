@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching;
+package io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,6 +37,23 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 					});
 					if(foundEnchantment.get())
 						return true;
+					
+					//Check the barter item if applicable
+					if(trades.get(i).isBarter())
+					{
+						ItemStack barterItem = trades.get(i).getBarterItem();
+						//Search item name
+						if(barterItem.getDisplayName().getString().toLowerCase().contains(searchText))
+							return true;
+						//Search enchantments
+						foundEnchantment.set(false);
+						EnchantmentHelper.getEnchantments(barterItem).forEach((enchantment, level) ->{
+							if(enchantment.getDisplayName(level).getString().toLowerCase().contains(searchText))
+								foundEnchantment.set(true);
+						});
+						if(foundEnchantment.get())
+							return true;
+					}
 				}
 			}
 		}

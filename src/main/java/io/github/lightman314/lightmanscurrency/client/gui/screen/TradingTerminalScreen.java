@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
@@ -206,30 +204,12 @@ public class TradingTerminalScreen extends Screen{
 	
 	private void updateTraderList()
 	{
-		if(this.searchField.getText().isEmpty())
-		{
-			this.filteredTraderList = this.traderList();
-			updateTraderButtons();
-		}
-		else
-		{
-			Stream<UniversalTraderData> stream = this.traderList().stream().filter(entry ->{
-				String searchText = this.searchField.getText().toLowerCase().trim();
-				//Search the display name of the traders
-				if(entry.getName().getString().toLowerCase().contains(searchText))
-					return true;
-				//Search the owner name of the traders
-				if(entry.getOwnerName().toLowerCase().contains(searchText))
-					return true;
-				//Search any custom filters
-				return TraderSearchFilter.checkFilters(entry, searchText);
-			});
-			this.filteredTraderList = stream.collect(Collectors.toList());
-			//Limit the page
-			if(page > pageLimit())
-				page = pageLimit();
-			updateTraderButtons();
-		}
+		//Filtering of results moved to the TradingOffice.filterTraders
+		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getText(), this.traderList());
+		this.updateTraderButtons();
+		//Limit the page
+		if(page > pageLimit())
+			page = pageLimit();
 	}
 	
 	private void updateTraderButtons()
