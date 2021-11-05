@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -93,6 +94,8 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEnqueueIMC);
         //Config loading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
+        //Color registration
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterColorEvent());
         
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
@@ -197,7 +200,18 @@ public class LightmansCurrency {
     private void doClientStuff(final FMLClientSetupEvent event) {
     	
         PROXY.setupClient();
+        
+    }
+    
+    private static class RegisterColorEvent implements DistExecutor.SafeRunnable
+    {
     	
+		private static final long serialVersionUID = -7312388538529889615L;
+
+		@Override
+		public void run() {
+			FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientEvents::registerItemColors);
+		}
     }
     
     //Ensures synchronization between the server and the clients for the "extra" item wallet slot on login

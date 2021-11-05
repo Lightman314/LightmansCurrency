@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
@@ -41,6 +42,10 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	public ItemTradeRestriction() { this.classicType = ""; }
 	
 	public ItemTradeRestriction(String classicType) { this.classicType = classicType; }
+	
+	public ItemStack modifySellItem(ItemStack sellItem, ItemTradeData trade) { return sellItem; }
+	
+	public boolean allowSellItem(ItemStack itemStack) { return true; }
 	
 	public ItemStack filterSellItem(ItemStack itemStack) { return itemStack; }
 	

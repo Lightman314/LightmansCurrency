@@ -13,7 +13,6 @@ import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData extends TradeData {
 	
-	//public enum ItemTradeRestrictions { NONE, ARMOR_HEAD, ARMOR_CHEST, ARMOR_LEGS, ARMOR_FEET, TICKET }
 	public enum ItemTradeType { SALE, PURCHASE, BARTER }
 	
 	public static int MaxTradeTypeStringLength()
@@ -38,7 +37,7 @@ public class ItemTradeData extends TradeData {
 	
 	public ItemStack getSellItem()
 	{
-		return this.sellItem.copy();
+		return this.restriction.modifySellItem(this.sellItem.copy(), this);
 	}
 	
 	public ItemStack getBarterItem()
@@ -48,13 +47,16 @@ public class ItemTradeData extends TradeData {
 	
 	public void setSellItem(ItemStack itemStack)
 	{
-		this.sellItem = this.restriction.filterSellItem(itemStack).copy();
+		if(this.restriction.allowSellItem(itemStack) || itemStack.isEmpty())
+			this.sellItem = this.restriction.filterSellItem(itemStack).copy();
 	}
 	
 	public void setBarterItem(ItemStack itemStack)
 	{
 		this.barterItem = itemStack.copy();
 	}
+	
+	public boolean hasCustomName() { return !this.customName.isEmpty(); }
 	
 	public String getCustomName()
 	{

@@ -27,11 +27,9 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	public EquipmentSlotType getEquipmentSlot() { return this.equipmentType; }
 	
 	@Override
-	public ItemStack filterSellItem(ItemStack itemStack)
+	public boolean allowSellItem(ItemStack itemStack)
 	{
-		if(itemStack.canEquip(this.equipmentType, null))
-			return itemStack;
-		return ItemStack.EMPTY;
+		return itemStack.canEquip(this.equipmentType, null);
 	}
 	
 	@Override

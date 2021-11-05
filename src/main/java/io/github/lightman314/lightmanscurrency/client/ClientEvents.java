@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.client;
 
 import org.lwjgl.glfw.GLFW;
 
+import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWallet;
@@ -14,6 +16,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvents;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -50,6 +53,13 @@ public class ClientEvents {
 				}
 			}
 		}
+	}
+	
+	//Registered in LightmansCurrency constructor due to how the event bus works.
+	public static void registerItemColors(ColorHandlerEvent.Item event)
+	{
+		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
+		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
 	}
 	
 }

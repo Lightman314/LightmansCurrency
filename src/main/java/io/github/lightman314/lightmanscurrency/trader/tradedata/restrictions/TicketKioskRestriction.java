@@ -2,9 +2,11 @@ package io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions;
 
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.StringTextComponent;
 
 public class TicketKioskRestriction extends ItemTradeRestriction{
 
@@ -13,6 +15,22 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public TicketKioskRestriction(String classicType)
 	{
 		super(classicType);
+	}
+	
+	@Override
+	public ItemStack modifySellItem(ItemStack sellItem, ItemTradeData trade)
+	{
+		if(sellItem.getItem() instanceof TicketItem && trade.hasCustomName())
+			sellItem.setDisplayName(new StringTextComponent(trade.getCustomName()));
+		return sellItem;
+	}
+	
+	@Override
+	public boolean allowSellItem(ItemStack itemStack)
+	{
+		if(TicketItem.isMasterTicket(itemStack))
+			return true;
+		return itemStack.getItem().getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET;
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/master_ticket"
+    "layer0": "lightmanscurrency:items/master_ticket",
+    "layer1": "lightmanscurrency:items/master_ticket_overlay"
   }
 }
