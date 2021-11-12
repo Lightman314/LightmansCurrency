@@ -89,6 +89,8 @@ public class ModTileEntities {
 	//Cash Register
 	public static final TileEntityType<CashRegisterTileEntity> CASH_REGISTER = buildType("cash_register", TileEntityType.Builder.create(CashRegisterTileEntity::new, ModBlocks.CASH_REGISTER.block));
 	
+	//Coin Mint
+	public static final TileEntityType<CoinMintTileEntity> COIN_MINT = buildType("coin_mint",TileEntityType.Builder.create(CoinMintTileEntity::new, ModBlocks.MACHINE_MINT.block));
 	//Ticket Machine
 	public static final TileEntityType<TicketMachineTileEntity> TICKET_MACHINE = buildType("ticket_machine", TileEntityType.Builder.create(TicketMachineTileEntity::new, ModBlocks.TICKET_MACHINE.block));
 	

@@ -68,7 +68,7 @@ public class MintScreen extends ContainerScreen<MintContainer>{
 		super.tick();
 		
 		//this.buttonMint.active = this.container.validMintInput();
-		this.buttonMint.visible = this.container.validMintInput();
+		this.buttonMint.visible = this.container.tileEntity.validMintInput();
 		
 	}
 	
@@ -91,7 +91,7 @@ public class MintScreen extends ContainerScreen<MintContainer>{
 	
 	private void mintCoin(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown()));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown(), this.container.tileEntity.getPos()));
 	}
 	
 }

@@ -21,7 +21,12 @@ public class ModContainers {
 	
 	public static final ContainerType<ATMContainer> ATM = register("atm",ATMContainer::new);
 	
-	public static final ContainerType<MintContainer> MINT = register("coinmint", MintContainer::new);
+	public static final ContainerType<MintContainer> MINT = register("coinmint", (IContainerFactory<MintContainer>)(windowId, playerInventory, data)->{
+		
+		CoinMintTileEntity tileEntity = (CoinMintTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
+		return new MintContainer(windowId, playerInventory, tileEntity);
+
+	});
 	
 	public static final ContainerType<ItemTraderContainer> ITEMTRADER = register("item_trader", (IContainerFactory<ItemTraderContainer>)(windowId, playerInventory, data)->{
 		
