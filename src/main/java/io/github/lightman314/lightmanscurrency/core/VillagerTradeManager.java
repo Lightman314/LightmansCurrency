@@ -311,7 +311,7 @@ public class VillagerTradeManager {
 	@SubscribeEvent
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
-		if(event.getType() == CustomProfessions.BANKER)
+		if(event.getType() == CustomProfessions.BANKER && Config.COMMON.addBankerVillager.get())
 		{
 			
 			LightmansCurrency.LogInfo("Registering banker trades.");
@@ -324,7 +324,7 @@ public class VillagerTradeManager {
 			}
 			
 		}
-		else if(event.getType() == CustomProfessions.CASHIER)
+		else if(event.getType() == CustomProfessions.CASHIER && Config.COMMON.addCashierVillager.get())
 		{
 			
 			LightmansCurrency.LogInfo("Registering cashier trades.");

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -24,7 +23,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -50,10 +48,8 @@ public class ItemTradeButton extends Button{
 	public static final int SLOT_OFFSET_Y = 1;
 	
 	int tradeIndex;
-	Slot itemDisplaySlot;
 	Supplier<IItemTrader> source;
 	ITradeButtonContainer container;
-	UUID traderID;
 	Screen screen;
 	
 	FontRenderer font;
@@ -62,22 +58,21 @@ public class ItemTradeButton extends Button{
 	{
 		super(x, y, WIDTH, HEIGHT, ITextComponent.getTextComponentOrEmpty(""), pressable);
 		this.tradeIndex = tradeIndex;
-		this.tradeIndex = tradeIndex;
 		this.screen = screen;
 		this.font = font;
 		this.source = source;
 		this.container = container;
 	}
 	
-	private ItemTradeData getTrade() { return this.container.GetTrade(this.tradeIndex); }
+	private ItemTradeData getTrade() { return this.source.get().getTrade(this.tradeIndex); }
 	
 	@Override
 	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		//Set active status
-		this.active = isActive(this.getTrade(), this.container.getTrader());
-		renderItemTradeButton(matrixStack, this.screen, this.font, this.x, this.y, this.tradeIndex, this.container.getTrader(), this.container, this.isHovered, false, false);
+		this.active = isActive(this.getTrade(), this.source.get());
+		renderItemTradeButton(matrixStack, this.screen, this.font, this.x, this.y, this.tradeIndex, this.source.get(), this.container, this.isHovered, false, false);
 		
 	}
 	
@@ -109,7 +104,7 @@ public class ItemTradeButton extends Button{
 		if(!forceActive && container != null)
 		{
 			//Discount check
-			TradeCostEvent event = container.TradeCostEvent(trader.getTrade(tradeIndex));
+			TradeCostEvent event = container.TradeCostEvent(trade);
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
 			//Permission

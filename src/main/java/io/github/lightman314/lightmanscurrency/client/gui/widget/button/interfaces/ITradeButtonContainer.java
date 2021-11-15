@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfa
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.text.ITextComponent;
@@ -17,8 +16,5 @@ public interface ITradeButtonContainer {
 	public TradeEvent.TradeCostEvent TradeCostEvent(ItemTradeData trade);
 	
 	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput);
-	
-	public ItemTradeData GetTrade(int tradeIndex);
-	public IItemTrader getTrader();
 	
 }

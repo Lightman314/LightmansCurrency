@@ -163,6 +163,8 @@ public class Config {
 		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
+		public final ForgeConfigSpec.BooleanValue addBankerVillager;
+		public final ForgeConfigSpec.BooleanValue addCashierVillager;
 		
 		//Debug
 		public final ForgeConfigSpec.IntValue debugLevel;
@@ -259,9 +261,20 @@ public class Config {
 					.define("canMeltNetherite", true);
 			builder.pop();
 			
+			builder.comment("Villager Related Settings.").push("villagers");
+			
 			this.addCustomWanderingTrades = builder
 					.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
 					.define("addCustomWanderingTrades", true);
+			
+			this.addBankerVillager = builder
+					.comment("Whether the banker villager profession will have any registered trades. The banker sells Lightman's Currency items for coins.")
+					.define("addBanker", true);
+			this.addCashierVillager = builder
+					.comment("Whether the cashier villager profession will have any registered trades.. The cashier sells an amalgamation of vanilla traders products for coins.")
+					.define("addCashier", true);
+			
+			builder.pop();
 			
 			this.debugLevel = builder
 					.comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")

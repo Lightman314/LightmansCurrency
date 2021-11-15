@@ -42,7 +42,7 @@ public class ItemTraderUtil {
 	
 	public static int getTradeDisplayWidth(IItemTrader trader)
 	{
-		return 12 + (getTradeDisplayColumnCount(trader) * (TRADEBUTTON_HORIZONTAL)) - TRADEBUTTON_HORIZ_SPACER;
+		return 12 + (getTradeDisplayColumnCount(trader) * TRADEBUTTON_HORIZONTAL) - TRADEBUTTON_HORIZ_SPACER;
 	}
 	
 	public static int getTradeDisplayHeight(IItemTrader trader)
