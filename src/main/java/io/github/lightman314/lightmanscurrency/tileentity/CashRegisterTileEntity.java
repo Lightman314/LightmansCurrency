@@ -94,8 +94,8 @@ public class CashRegisterTileEntity extends TileEntity{
 		if(index < 0 || index >= positions.size())
 			return null;
 		TileEntity tileEntity = this.world.getTileEntity(positions.get(index));
-		if(tileEntity instanceof ItemTraderTileEntity)
-			return (ItemTraderTileEntity)tileEntity;
+		if(tileEntity instanceof TraderTileEntity)
+			return (TraderTileEntity)tileEntity;
 		return null;
 	}
 	
