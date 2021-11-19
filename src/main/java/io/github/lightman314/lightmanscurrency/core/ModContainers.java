@@ -2,9 +2,11 @@ package io.github.lightman314.lightmanscurrency.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.containers.*;
 import io.github.lightman314.lightmanscurrency.tileentity.*;
+import io.github.lightman314.lightmanscurrency.util.SafeTradingOffice;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import net.minecraft.inventory.container.Container;
@@ -85,11 +87,8 @@ public class ModContainers {
 	});
 	
 	public static final ContainerType<UniversalItemEditContainer> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditContainer>)(windowId, playerInventory, data)->{
-		
-		data.readUniqueId();
-		UniversalItemTraderData traderData = new UniversalItemTraderData(data.readCompoundTag());
-		return new UniversalItemEditContainer(windowId, playerInventory, () -> traderData, data.readInt());
-		
+		UUID traderID = data.readUniqueId();
+		return new UniversalItemEditContainer(windowId, playerInventory, () -> (UniversalItemTraderData)SafeTradingOffice.getData(traderID), data.readInt());
 	});
 	
 	//Code

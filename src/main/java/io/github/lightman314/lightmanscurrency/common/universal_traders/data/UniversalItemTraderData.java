@@ -77,6 +77,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public UniversalItemTraderData(CompoundNBT compound)
 	{
 		
+		super(compound);
+		
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
 		
@@ -88,7 +90,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		
 		this.tradeRules = TradeRule.readRules(compound);
 		
-		super.read(compound);
+		this.readVersion(compound);
 		
 	}
 	
@@ -148,7 +150,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		//Mark as dirty
 		this.markDirty();
 	}
-	
 	
 	public ItemTradeData getTrade(int tradeIndex)
 	{
@@ -210,8 +211,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	}
 	
 	@Override
-	public String getDeserializerType() {
-		return TYPE.toString();
+	public ResourceLocation getDeserializerType() {
+		return TYPE;
 	}
 	
 	@Override
@@ -241,7 +242,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			return;
 		}
 		if(player instanceof ServerPlayerEntity)
-			NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), this.write(new CompoundNBT()), tradeIndex));
+			NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}

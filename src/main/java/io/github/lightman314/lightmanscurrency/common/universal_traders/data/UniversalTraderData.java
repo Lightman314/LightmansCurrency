@@ -50,7 +50,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	List<String> allies = new ArrayList<>();
 	
-	public void markDirty()
+	public final void markDirty()
 	{
 		TradingOffice.MarkDirty(this.traderID);
 	}
@@ -84,12 +84,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		this.world = world;
 	}
 	
-	public UniversalTraderData()
-	{
-		
-	}
-	
-	protected void read(CompoundNBT compound)
+	public UniversalTraderData(CompoundNBT compound)
 	{
 		//ID
 		if(compound.contains("ID"))
@@ -126,7 +121,11 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 					this.allies.add(thisAlly.getString("name"));
 			}
 		}
-		
+	}
+	
+	//Make final to ensure that it's not overridden
+	protected final void readVersion(CompoundNBT compound)
+	{
 		//Version Validation
 		int oldVersion = 0;
 		if(compound.contains("TraderVersion", Constants.NBT.TAG_INT))
@@ -169,7 +168,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		if(this.traderID != null)
 			compound.putUniqueId("ID", this.traderID);
 		//Deserializer Type
-		compound.putString("type", getDeserializerType());
+		compound.putString("type", getDeserializerType().toString());
 		//Owner ID & Name
 		if(this.ownerID != null)
 			compound.putUniqueId("OwnerID", this.ownerID);
@@ -209,7 +208,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public int GetCurrentVersion() { return 0; }
 	
-	public abstract String getDeserializerType();
+	public abstract ResourceLocation getDeserializerType();
 	
 	protected abstract INamedContainerProvider getTradeMenuProvider();
 	
@@ -288,21 +287,18 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	protected class TradeIndexDataWriter implements Consumer<PacketBuffer>
 	{
-		UUID traderID;
-		CompoundNBT traderCompound;
-		int tradeIndex;
+		final UUID traderID;
+		final int tradeIndex;
 		
-		public TradeIndexDataWriter(UUID traderID, CompoundNBT traderCompound, int tradeIndex)
+		public TradeIndexDataWriter(UUID traderID, int tradeIndex)
 		{
 			this.traderID = traderID;
-			this.traderCompound = traderCompound;
 			this.tradeIndex = tradeIndex;
 		}
 		
 		@Override
 		public void accept(PacketBuffer buffer) {
 			buffer.writeUniqueId(this.traderID);
-			buffer.writeCompoundTag(this.traderCompound);
 			buffer.writeInt(this.tradeIndex);
 		}
 	}
