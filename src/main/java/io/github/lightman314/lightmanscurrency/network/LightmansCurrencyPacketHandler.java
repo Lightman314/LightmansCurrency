@@ -6,13 +6,13 @@ import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
-import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.*;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
+import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
@@ -76,8 +76,10 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageWalletToggleAutoConvert.class, new MessageWalletToggleAutoConvert());
 		register(MessageOpenWallet.class, new MessageOpenWallet());
 		
-		//Extended Inventory
-		register(MessageUpdateWallet.class, new MessageUpdateWallet());
+		//Wallet Inventory Slot
+		register(SPacketSyncWallet.class, new SPacketSyncWallet());
+		register(MessageWalletSlotClick.class, new MessageWalletSlotClick());
+		register(MessageSlotShiftClick.class, new MessageSlotShiftClick());
 		
 		//Paygate
 		register(MessageActivatePaygate.class, new MessageActivatePaygate());

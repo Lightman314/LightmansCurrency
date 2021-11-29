@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,13 +33,17 @@ public class ClientTradingOffice {
 	{
 		loadedTraders.clear();
 		data.forEach(trader ->{
-			loadedTraders.put(trader.getTraderID(), trader);
+			loadedTraders.put(trader.getTraderID(), trader.flagAsClient());
 		});
 	}
 	
-	public static void updateTrader(UniversalTraderData updateData)
+	public static void updateTrader(CompoundNBT compound)
 	{
-		loadedTraders.put(updateData.getTraderID(), updateData);
+		UUID traderID = compound.getUniqueId("ID");
+		if(loadedTraders.containsKey(traderID)) //Have existing trader read the data if present
+			loadedTraders.get(traderID).read(compound);
+		else //New trader was added, so deserialize the data and add it to the map
+			loadedTraders.put(traderID, TradingOffice.Deserialize(compound).flagAsClient());
 	}
 	
 	public static void removeTrader(UUID traderID)

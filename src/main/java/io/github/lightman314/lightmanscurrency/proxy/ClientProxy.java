@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -120,7 +119,7 @@ public class ClientProxy extends CommonProxy{
 		{
 			List<UniversalTraderData> traders = new ArrayList<>();
 			ListNBT traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
-			traderList.forEach(nbt -> traders.add(IUniversalDataDeserializer.Deserialize((CompoundNBT)nbt)));
+			traderList.forEach(nbt -> traders.add(TradingOffice.Deserialize((CompoundNBT)nbt)));
 			ClientTradingOffice.initData(traders);
 		}
 	}
@@ -128,7 +127,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void updateTrader(CompoundNBT compound)
 	{
-		ClientTradingOffice.updateTrader(IUniversalDataDeserializer.Deserialize(compound));
+		ClientTradingOffice.updateTrader(compound);
 	}
 	
 	@Override

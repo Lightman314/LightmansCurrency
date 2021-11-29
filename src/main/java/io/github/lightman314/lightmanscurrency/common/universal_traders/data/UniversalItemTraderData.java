@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditContainer;
@@ -53,7 +52,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
-	public static final Deserializer DESERIALIZER = new Deserializer();
 	
 	public static final int VERSION = 1;
 	
@@ -66,6 +64,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
+	public UniversalItemTraderData() {}
+	
 	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
 		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
@@ -74,24 +74,62 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.inventory = new Inventory(this.inventorySize());
 	}
 
-	public UniversalItemTraderData(CompoundNBT compound)
+	@Override
+	public void read(CompoundNBT compound)
 	{
-		
-		super(compound);
-		
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
 		
-		this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
-		this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
+			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
 		
 		this.logger.read(compound);
 		
-		this.tradeRules = TradeRule.readRules(compound);
+		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
-		this.readVersion(compound);
+		super.read(compound);
+	}
+	
+	@Override
+	public CompoundNBT write(CompoundNBT compound)
+	{
+
+		this.writeTrades(compound);
+		this.writeStorage(compound);
+		this.writeLogger(compound);
+		this.writeRules(compound);
 		
+		return super.write(compound);
+		
+	}
+	
+	protected final CompoundNBT writeTrades(CompoundNBT compound)
+	{
+		compound.putInt("TradeLimit", this.trades.size());
+		ItemTradeData.saveAllData(compound, trades);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeStorage(CompoundNBT compound)
+	{
+		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeLogger(CompoundNBT compound)
+	{
+		this.logger.write(compound);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeRules(CompoundNBT compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
+		return compound;
 	}
 	
 	public int getTradeCount()
@@ -147,8 +185,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getStackInSlot(i));
 			}
 		}
-		//Mark as dirty
-		this.markDirty();
+		//Mark as dirty (both trades & storage)
+		CompoundNBT compound = this.writeTrades(new CompoundNBT());
+		this.writeStorage(compound);
+		this.markDirty(compound);
 	}
 	
 	public ItemTradeData getTrade(int tradeIndex)
@@ -172,7 +212,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public void markTradesDirty()
 	{
-		this.markDirty();
+		//Send update to the client with only the trade data.
+		this.markDirty(this::writeTrades);
 	}
 	
 	public ItemShopLogger getLogger() { return this.logger; }
@@ -185,7 +226,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public void markLoggerDirty()
 	{
-		this.markDirty();
+		this.markDirty(this::writeLogger);
 	}
 	
 	public int inventorySize()
@@ -198,20 +239,23 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return this.inventory;
 	}
 	
-	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public void markStorageDirty()
 	{
-		compound.putInt("TradeLimit", this.trades.size());
-		ItemTradeData.saveAllData(compound, trades);
-		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
-		this.logger.write(compound);
-		TradeRule.writeRules(compound, this.tradeRules);
-		
-		return super.write(compound);
+		this.markDirty(this::writeStorage);
+	}
+	
+	/**
+	 * Marks the storage and stored coins dirty
+	 */
+	public void markDirtyAfterTrade()
+	{
+		CompoundNBT compound = this.writeStorage(new CompoundNBT());
+		this.writeStoredMoney(compound);
+		this.markDirty(compound);
 	}
 	
 	@Override
-	public ResourceLocation getDeserializerType() {
+	public ResourceLocation getTraderType() {
 		return TYPE;
 	}
 	
@@ -238,7 +282,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		INamedContainerProvider provider = getItemEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
-			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getDeserializerType().toString());
+			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getTraderType().toString());
 			return;
 		}
 		if(player instanceof ServerPlayerEntity)
@@ -247,69 +291,35 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
 	
-	private static class Deserializer implements IUniversalDataDeserializer<UniversalItemTraderData>
-	{
-
-		@Override
-		public UniversalItemTraderData deserialize(CompoundNBT compound) {
-			return new UniversalItemTraderData(compound);
-		}
-		
-	}
-	
 	private static class TraderProvider implements INamedContainerProvider
 	{
 		final UUID traderID;
-		
-		private TraderProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
 			return new UniversalItemTraderContainer(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("");
-		}
-		
+		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
 	}
 	
 	private static class StorageProvider implements INamedContainerProvider
 	{
 		final UUID traderID;
-		
-		private StorageProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
 			return new UniversalItemTraderStorageContainer(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("");
-		}
-		
+		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
 	}
 	
 	private static class ItemEditProvider implements INamedContainerProvider
 	{
-		
 		final UUID traderID;
 		final int tradeIndex;
-		
-		private ItemEditProvider(UUID traderID, int tradeIndex)
-		{
-			this.traderID = traderID;
-			this.tradeIndex = tradeIndex;
-		}
+		private ItemEditProvider(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
 
 		private UniversalItemTraderData getData()
 		{
@@ -409,7 +419,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public void markRulesDirty()
 	{
-		this.markDirty();
+		this.markDirty(this::writeRules);
 	}
 	
 	public ITradeRuleScreenHandler GetRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
@@ -439,8 +449,5 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		}
 		
 	}
-	
-	
-	
 	
 }

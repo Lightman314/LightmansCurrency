@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.containers.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -18,6 +17,10 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class WalletContainer extends Container{
 	
@@ -31,11 +34,11 @@ public class WalletContainer extends Container{
 	
 	private ItemStack getWallet()
 	{
-		
-		if(LightmansCurrency.isCuriosLoaded() && this.walletStackIndex < 0)
-			return Curios.getWalletStack(this.inventory.player);
-		
-		return this.inventory.getStackInSlot(walletStackIndex);
+		if(this.walletStackIndex < 0)
+			return LightmansCurrency.getWalletStack(this.inventory.player);
+		if(this.inventory == null)
+			return ItemStack.EMPTY;
+		return this.inventory.getStackInSlot(this.walletStackIndex);
 	}
 	
 	private final IInventory coinInput;
@@ -49,6 +52,8 @@ public class WalletContainer extends Container{
 	{
 		
 		super(ModContainers.WALLET, windowId);
+		
+		MinecraftForge.EVENT_BUS.register(this);
 		
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
@@ -110,26 +115,45 @@ public class WalletContainer extends Container{
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
 		return true;
 	}
 	
 	@Override
 	public void onContainerClosed(PlayerEntity playerIn)
 	{
+		
 		super.onContainerClosed(playerIn);
 		
+		this.saveWalletContents();
+		
+		MinecraftForge.EVENT_BUS.unregister(this);
+		
+	}
+	
+	@SubscribeEvent
+	public void onTick(WorldTickEvent event)
+	{
+		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
+			return;
+		if(this.getWallet().isEmpty())
+		{
+			this.inventory.player.closeScreen();
+			return;
+		}
+		this.saveWalletContents();
+	}
+	
+	public void saveWalletContents()
+	{
 		//Write the bag contents back into the item stack
 		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
 		for(int i = 0; i < walletInventory.size() && i < this.coinInput.getSizeInventory(); i++)
 		{
 			walletInventory.set(i, this.coinInput.getStackInSlot(i));
 		}
-		
 		WalletItem.putWalletInventory(this.getWallet(), walletInventory);
 		if(this.autoConvert != WalletItem.getAutoConvert(getWallet()))
 			WalletItem.toggleAutoConvert(getWallet());
-		
 	}
 
 	public boolean canConvert()

@@ -9,7 +9,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
@@ -115,8 +114,6 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 		
 		//Draw the bottom (player inventory/coin slots)
 		screen.blit(matrix, startX + ItemTraderUtil.getInventoryDisplayOffset(trader), startY + ItemTraderUtil.getTradeDisplayHeight(trader), 0, 50, 176, 133);
-		
-		CoinSlot.drawEmptyCoinSlots(screen, container, matrix, startX, startY);
 	}
 	
 	@Override

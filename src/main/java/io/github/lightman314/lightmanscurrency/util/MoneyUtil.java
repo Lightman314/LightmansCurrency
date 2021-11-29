@@ -13,12 +13,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.CoinValuePair;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -33,7 +30,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 public class MoneyUtil {
 	
@@ -605,8 +601,6 @@ public class MoneyUtil {
     	if(rawInventoryValue < valueToTake)
     		return false;
     	
-    	boolean walletUpdate = false;
-    	
     	//Otherwise take the payment
     	//Take from the inventory first
     	if(inventory != null)
@@ -614,7 +608,6 @@ public class MoneyUtil {
     	//Then take from the wallet
     	if(valueToTake > 0 && !wallet.isEmpty())
     	{
-    		walletUpdate = true;
     		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(wallet);
     		valueToTake = takeObjectsOfValue(valueToTake, walletInventory);
     		WalletItem.putWalletInventory(wallet, walletInventory);
@@ -630,7 +623,6 @@ public class MoneyUtil {
     			if(!wallet.isEmpty())
     			{
     				coinStack = WalletItem.PickupCoin(wallet, coinStack);
-    				walletUpdate = true;
     			}
     			if(!coinStack.isEmpty() && inventory != null)
     			{
@@ -650,14 +642,6 @@ public class MoneyUtil {
     			}
     		}
     	}
-    	
-    	//Send wallet update packet if the wallet was changed
-		if(!wallet.isEmpty() && walletUpdate && !LightmansCurrency.isCuriosLoaded())
-		{
-			//CurrencyMod.LOGGER.info("Sending wallet update message to the player.");
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new MessageUpdateWallet(player.getEntityId(), wallet));
-		}
-    	
     	
     	return true;
     }
@@ -679,14 +663,12 @@ public class MoneyUtil {
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
     	
     	List<ItemStack> changeCoins = getCoinsOfValue(change);
-    	boolean walletUpdate = false;
     	for(ItemStack coinStack : changeCoins)
 		{
 			//Put them in the wallet first
 			if(!wallet.isEmpty())
 			{
 				coinStack = WalletItem.PickupCoin(wallet, coinStack);
-				walletUpdate = true;
 			}
 			if(!coinStack.isEmpty() && inventory != null)
 			{
@@ -704,13 +686,6 @@ public class MoneyUtil {
 					player.world.addEntity(itemEntity);
 				}
 			}
-		}
-    	
-    	//Send wallet update packet if the wallet was changed
-		if(!wallet.isEmpty() && walletUpdate && !LightmansCurrency.isCuriosLoaded())
-		{
-			//CurrencyMod.LOGGER.info("Sending wallet update message to the player.");
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new MessageUpdateWallet(player.getEntityId(), wallet));
 		}
     	
     }

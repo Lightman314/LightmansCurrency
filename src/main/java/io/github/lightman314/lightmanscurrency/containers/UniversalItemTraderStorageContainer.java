@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemEditCapable;
@@ -196,38 +195,6 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		
 	}
 	
-	
-	
-	/**
-	 * Checks for changes to the trade inventory contents
-	 */
-	/*public void SyncTrades()
-	{
-		boolean changed = false;
-		boolean isServer = !player.world.isRemote;
-		for(int i = 0; i < getData().getTradeCount() && !changed; i++)
-		{
-			if(!ItemStack.areItemStacksEqual(getData().getTrade(i).getSellItem(), this.tradeInventory.getStackInSlot(i)))
-			{
-				if(isServer)
-					getData().getTrade(i).setSellItem(this.tradeInventory.getStackInSlot(i));
-				changed = true;
-			}
-		}
-		if(changed && isServer)
-		{
-			//Change detected server-side, so flag this trader's data as dirty (replaced tile entity update message)
-			//LightmansCurrency.LOGGER.info("Server-side trade change detected. Flagging the data as dirty.");
-			TradingOffice.MarkDirty(this.traderID);
-		}
-		else if(changed)
-		{
-			//Change was detected client-side, so inform the server that it needs to check for changes.
-			//LightmansCurrency.LOGGER.info("Client-side trade change detected. Requesting the server to check for changes to the trades.");
-			//LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSyncTrades());
-		}
-	}*/
-	
 	/**
 	 * Checks for changes to the trader's storage contents
 	 */
@@ -247,7 +214,8 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		{
 			//Change detected server-side, so flag this trader's data as dirty
 			//LightmansCurrency.LOGGER.info("Server-side storage change detected. Flagging the data as dirty.");
-			TradingOffice.MarkDirty(this.traderID);
+			
+			this.getData().markStorageDirty();
 			this.copyStorage = InventoryUtil.copyInventory(this.storage);
 		}
 		else if(changed)

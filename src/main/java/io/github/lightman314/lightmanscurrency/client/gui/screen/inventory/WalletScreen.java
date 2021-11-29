@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
@@ -63,8 +62,6 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 				this.blit(matrix, startX + 7 + x * 18, startY + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
 		}
-		
-		CoinSlot.drawEmptyCoinSlots(this, this.container, matrix, startX, startY);
 		
 	}
 	

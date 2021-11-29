@@ -8,22 +8,17 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
-import io.github.lightman314.lightmanscurrency.client.ClientEvents;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.client.ClientModEvents;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.ItemTraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.extendedinventory.ExtendedPlayerInventory;
-import io.github.lightman314.lightmanscurrency.extendedinventory.IWalletInventory;
 import io.github.lightman314.lightmanscurrency.integration.Curios;
-import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
-import io.github.lightman314.lightmanscurrency.network.message.extendedinventory.MessageUpdateWallet;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerBlacklist;
@@ -33,20 +28,10 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.screen.inventory.CreativeScreen;
-import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -59,7 +44,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
@@ -74,8 +58,6 @@ public class LightmansCurrency {
 	
 	private static boolean curiosLoaded = false;
 	private static boolean backpackedLoaded = false;
-	
-	public static final ResourceLocation EMPTY_SLOTS = new ResourceLocation(MODID, "textures/gui/empty_slots.png");
 	
 	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
@@ -95,7 +77,7 @@ public class LightmansCurrency {
         //Config loading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         //Color registration
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterColorEvent());
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterClientModEvents());
         
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
@@ -128,8 +110,11 @@ public class LightmansCurrency {
     	//Initialize coinList
     	MoneyUtil.init();
 		
+    	//Register the Wallet Capability
+    	WalletCapability.register();
+    	
     	//Initialize the UniversalTraderData deserializers
-    	IUniversalDataDeserializer.RegisterDeserializer(UniversalItemTraderData.TYPE, UniversalItemTraderData.DESERIALIZER);
+    	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());
     	
     	//Initialize the Trade Rule deserializers
     	TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, () -> new PlayerWhitelist());
@@ -203,127 +188,13 @@ public class LightmansCurrency {
         
     }
     
-    private static class RegisterColorEvent implements DistExecutor.SafeRunnable
+    private static class RegisterClientModEvents implements DistExecutor.SafeRunnable
     {
-    	
 		private static final long serialVersionUID = -7312388538529889615L;
-
 		@Override
 		public void run() {
-			FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientEvents::registerItemColors);
+			FMLJavaModLoadingContext.get().getModEventBus().register(new ClientModEvents());//.addListener(ClientEvents::registerItemColors);
 		}
-    }
-    
-    //Ensures synchronization between the server and the clients for the "extra" item wallet slot on login
-    @SubscribeEvent
-    public void onStartTracking(PlayerEvent.StartTracking event)
-    {
-    	
-    	if(curiosLoaded)
-    		return;
-    	
-    	PlayerEntity player = event.getPlayer();
-    	if(player.inventory instanceof IWalletInventory)
-    	{
-    		
-    		ItemStack wallet = ItemStack.EMPTY;
-    		//Get the wallet
-    		if(player.inventory instanceof IWalletInventory)
-    			wallet = ((IWalletInventory) player.inventory).getWalletItems().get(0);
-    		
-    		if(!wallet.isEmpty() && wallet.getItem() instanceof WalletItem)
-    		{
-    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getEntityId(), wallet));
-    		}
-    		
-    	}
-    	
-    }
-    
-    @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event)
-    {
-    	
-    	if(curiosLoaded)
-    		return;
-    	
-    	if(event.phase != TickEvent.Phase.START)
-    		return;
-    	
-    	PlayerEntity player = event.player;
-    	if(!player.world.isRemote && player.inventory instanceof IWalletInventory)
-    	{
-    		IWalletInventory inventory = (IWalletInventory)player.inventory;
-    		if(!inventory.getWalletArray().get(0).equals(inventory.getWalletItems().get(0)))
-    		{
-    			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY.with(() -> player), new MessageUpdateWallet(player.getEntityId(), inventory.getWalletItems().get(0)));
-    			inventory.getWalletArray().set(0, inventory.getWalletItems().get(0));
-    		}
-    	}
-    }
-    
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public void onPlayerRenderScreen(GuiContainerEvent.DrawBackground event)
-    {
-    	
-    	if(curiosLoaded)
-    		return;
-    	
-    	ContainerScreen<?> screen = event.getGuiContainer();
-    	
-        if(screen instanceof InventoryScreen)
-        {
-        	InventoryScreen inventoryScreen = (InventoryScreen) screen;
-            int left = inventoryScreen.getGuiLeft();
-            int top = inventoryScreen.getGuiTop();
-            inventoryScreen.getMinecraft().getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
-            Screen.blit(event.getMatrixStack(), left + 151, top + 61, 7, 7, 18, 18, 256, 256);
-            
-            WalletSlot.drawEmptyWalletSlots(screen, screen.getContainer(), event.getMatrixStack(), left, top);
-        }
-        else if(screen instanceof CreativeScreen)
-        {
-            CreativeScreen creativeScreen = (CreativeScreen) screen;
-            if(creativeScreen.getSelectedTabIndex() == ItemGroup.INVENTORY.getIndex())
-            {
-                int left = creativeScreen.getGuiLeft();
-                int top = creativeScreen.getGuiTop();
-                creativeScreen.getMinecraft().getTextureManager().bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
-                Screen.blit(event.getMatrixStack(), left + 152, top + 32, 7, 7, 18, 18, 256, 256);
-                
-                int walletSlotIndex = ExtendedPlayerInventory.WALLETINDEX + 5;
-                if(walletSlotIndex < 0 && walletSlotIndex >= screen.getContainer().inventorySlots.size())
-                {
-                	LightmansCurrency.LogError("Calculated wallet slot index is out of bounds.");
-                	return;
-                }
-                Slot walletSlot = screen.getContainer().inventorySlots.get(walletSlotIndex);
-                if(!walletSlot.getHasStack())
-                {
-                	screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
-                	screen.blit(event.getMatrixStack(), left + 153, top + 33, WalletSlot.EMPTY_SLOT_X, WalletSlot.EMPTY_SLOT_Y, 16, 16);
-                }
-                
-                //WalletSlot.drawEmptyWalletSlots(screen, screen.getContainer(), event.getMatrixStack(), left, top);
-                
-            }
-        }
-    }
-    
-    @SubscribeEvent
-    public void onPlayerClone(PlayerEvent.Clone event)
-    {
-    	
-    	if(curiosLoaded)
-    		return;
-    	
-    	PlayerEntity oldPlayer = event.getOriginal();
-    	if(oldPlayer.inventory instanceof IWalletInventory && event.getPlayer().inventory instanceof IWalletInventory)
-    	{
-    		((IWalletInventory) event.getPlayer().inventory).copyWallet((IWalletInventory) oldPlayer.inventory);
-    	}
-    	
     }
     
     private void onConfigLoad(ModConfig.Loading event)
@@ -365,13 +236,10 @@ public class LightmansCurrency {
     	}
     	else
     	{
-    		if(player.inventory instanceof IWalletInventory)
-        	{
-    			IWalletInventory inventory = (IWalletInventory)player.inventory;
-        		wallet.set(inventory.getWalletItems().get(0));
-        	}
+    		WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+    			wallet.set(walletHandler.getWallet());
+    		});
     	}
-    	
     	return wallet.get();
     	
     }

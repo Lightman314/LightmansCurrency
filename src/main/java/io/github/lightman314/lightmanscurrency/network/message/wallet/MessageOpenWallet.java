@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.providers.WalletContainerProvider;
-import io.github.lightman314.lightmanscurrency.extendedinventory.ExtendedPlayerInventory;
 import io.github.lightman314.lightmanscurrency.items.WalletItem.DataWriter;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -21,7 +20,7 @@ public class MessageOpenWallet implements IMessage<MessageOpenWallet> {
 	
 	@Override
 	public void encode(MessageOpenWallet message, PacketBuffer buffer) {
-		//buffer.writeInt(message.playerId);
+		
 	}
 
 	@Override
@@ -36,8 +35,7 @@ public class MessageOpenWallet implements IMessage<MessageOpenWallet> {
 			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
-				int walletSlot = ExtendedPlayerInventory.WALLETINDEX;
-				NetworkHooks.openGui((ServerPlayerEntity)player, (INamedContainerProvider) new WalletContainerProvider(walletSlot), new DataWriter(walletSlot));
+				NetworkHooks.openGui((ServerPlayerEntity)player, (INamedContainerProvider) new WalletContainerProvider(-1), new DataWriter(-1));
 			}
 		});
 		supplier.get().setPacketHandled(true);

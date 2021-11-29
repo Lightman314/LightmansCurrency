@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.TicketMasterSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -42,8 +41,6 @@ public class TicketMachineScreen extends ContainerScreen<TicketMachineContainer>
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
-		
-		TicketMasterSlot.drawEmptyTicketSlots(this, this.container, matrix, startX, startY);
 		
 	}
 	

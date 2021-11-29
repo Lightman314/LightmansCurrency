@@ -139,7 +139,7 @@ public class CommandLCAdmin {
 		String traderID = thisTrader.getTraderID().toString();
 		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid", new StringTextComponent(traderID).mergeStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), true);
 		//Type
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getDeserializerType()), true);
+		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getTraderType()), true);
 		//Owner / Owner ID
 		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwnerName(), thisTrader.getOwnerID().toString()), true);
 		//Dimension

@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.atm.MessageATM;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -61,10 +60,6 @@ public class ATMScreen extends ContainerScreen<ATMContainer>{
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
-		
-		//CoinSlot.drawEmptyCoinSlots(matrix, startX, startY, this.container, this);
-		
-		CoinSlot.drawEmptyCoinSlots(this, this.container, matrix, startX, startY);
 		
 	}
 	

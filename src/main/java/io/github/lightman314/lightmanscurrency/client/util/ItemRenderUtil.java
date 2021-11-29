@@ -1,15 +1,19 @@
-package io.github.lightman314.lightmanscurrency.client.gui.util;
+package io.github.lightman314.lightmanscurrency.client.util;
 
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class ItemRenderUtil {
 
@@ -57,5 +61,16 @@ public class ItemRenderUtil {
       	screen.setBlitOffset(0);
       	itemRenderer.zLevel = 0.0F;
    	}
+	
+	/**
+	 * Renders an item slots background
+	 */
+	public static void drawSlotBackground(MatrixStack matrixStack, int x, int y, Pair<ResourceLocation,ResourceLocation> background)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		TextureAtlasSprite textureatlassprite = minecraft.getAtlasSpriteGetter(background.getFirst()).apply(background.getSecond());
+		minecraft.getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
+        Screen.blit(matrixStack, x, y, 100, 16, 16, textureatlassprite);
+	}
 	
 }

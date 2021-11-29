@@ -1,22 +1,18 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.ResourceLocation;
 
 public class CoinSlot extends Slot{
 	
-	public static final int EMPTY_SLOT_X = 16;
-	public static final int EMPTY_SLOT_Y = 0;
+	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_coin_slot");
 	
 	private boolean acceptHiddenCoins = true;
 	
@@ -39,21 +35,9 @@ public class CoinSlot extends Slot{
 			return MoneyUtil.isCoin(stack.getItem()) && !MoneyUtil.isCoinHidden(stack.getItem());
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	public static void drawEmptyCoinSlots(Screen screen, Container container, MatrixStack matrix, int startX, int startY)
-	{
-		screen.getMinecraft().getTextureManager().bindTexture(LightmansCurrency.EMPTY_SLOTS);
-		for(Slot slot : container.inventorySlots)
-		{
-			if(slot instanceof CoinSlot)
-			{
-				if(!slot.getHasStack())
-				{
-					//CurrencyMod.LOGGER.info("Drawing empty coin slot at ATM slot index " + this.container.inventorySlots.indexOf(slot));
-					screen.blit(matrix, startX + slot.xPos, startY + slot.yPos, EMPTY_SLOT_X, EMPTY_SLOT_Y, 16, 16);
-				}
-			}
-		}
+	@Override
+	public Pair<ResourceLocation,ResourceLocation> getBackground() {
+		return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, EMPTY_COIN_SLOT);
 	}
 
 }

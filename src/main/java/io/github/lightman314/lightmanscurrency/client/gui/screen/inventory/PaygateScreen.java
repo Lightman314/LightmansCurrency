@@ -8,8 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageActivatePaygate;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageSetPaygateTicket;
@@ -64,9 +62,6 @@ public class PaygateScreen extends ContainerScreen<PaygateContainer> implements 
 			this.blit(matrix, startX, startY + this.container.priceInputOffset, 0, 0, this.xSize, this.ySize - this.container.priceInputOffset);
 		else
 			this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
-		
-		CoinSlot.drawEmptyCoinSlots(this, this.container, matrix, startX, startY);
-		TicketSlot.drawEmptyTicketSlots(this, this.container, matrix, startX, startY);
 		
 	}
 	

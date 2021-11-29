@@ -8,10 +8,12 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
+@Deprecated //Use TradingOffice Counterparts
 public interface IUniversalDataDeserializer<T extends UniversalTraderData> {
 
 	static final Map<ResourceLocation,IUniversalDataDeserializer<?>> registeredDeserializers = new HashMap<>();
 	
+	@Deprecated //Use TradingOffice.RegisterDataType
 	public static void RegisterDeserializer(ResourceLocation type, IUniversalDataDeserializer<?> deserializer)
 	{
 		if(registeredDeserializers.containsKey(type))
@@ -22,7 +24,14 @@ public interface IUniversalDataDeserializer<T extends UniversalTraderData> {
 		registeredDeserializers.put(type, deserializer);
 	}
 	
+	@Deprecated //Use TradingOffice.Deserialize for new deserialization methods
 	public static UniversalTraderData Deserialize(CompoundNBT compound)
+	{
+		return TradingOffice.Deserialize(compound);
+	}
+	
+	@Deprecated //Used in TradingOffice.Deserialize to allow temporary use of deprecated deserializers
+	public static UniversalTraderData ClassicDeserialize(CompoundNBT compound)
 	{
 		ResourceLocation thisType = new ResourceLocation(compound.getString("type"));
 		if(registeredDeserializers.containsKey(thisType))

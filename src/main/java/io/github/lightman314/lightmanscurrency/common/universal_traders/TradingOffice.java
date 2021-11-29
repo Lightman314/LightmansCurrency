@@ -8,6 +8,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
@@ -23,6 +26,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -40,6 +44,19 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TradingOffice extends WorldSavedData{
 	
+	private static final Map<ResourceLocation,Supplier<? extends UniversalTraderData>> registeredDeserializers = Maps.newHashMap();
+	
+	public static final void RegisterDataType(ResourceLocation key, Supplier<? extends UniversalTraderData> source)
+	{
+		if(registeredDeserializers.containsKey(key))
+		{
+			LightmansCurrency.LogError("A universal trader type of key " + key + " has already been registered.");
+			return;
+		}
+		else
+			registeredDeserializers.put(key, source);
+	}
+	
 	private static final String DATA_NAME = LightmansCurrency.MODID + "_trading_office";
 	
 	private static List<UUID> adminPlayers = new ArrayList<>();
@@ -56,6 +73,21 @@ public class TradingOffice extends WorldSavedData{
 		super(name);
 	}
 
+	@SuppressWarnings("deprecation")
+	public static UniversalTraderData Deserialize(CompoundNBT compound)
+	{
+		ResourceLocation thisType = new ResourceLocation(compound.getString("type"));
+		//New method
+		if(registeredDeserializers.containsKey(thisType))
+		{
+			UniversalTraderData data = registeredDeserializers.get(thisType).get();
+			data.read(compound);
+			return data;
+		}
+		//Fall back onto the old method to allow older addon mods
+		return IUniversalDataDeserializer.ClassicDeserialize(compound);
+	}
+	
 	@Override
 	public void read(CompoundNBT compound) {
 		
@@ -65,9 +97,11 @@ public class TradingOffice extends WorldSavedData{
 			ListNBT universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
 			universalTraderDataList.forEach(nbt ->{
 				CompoundNBT traderNBT = (CompoundNBT)nbt;
-				UUID traderID = traderNBT.getUniqueId("ID");
-				UniversalTraderData data = IUniversalDataDeserializer.Deserialize(traderNBT);
-				universalTraderMap.put(traderID, data);
+				//UUID traderID = traderNBT.getUniqueId("ID");
+				//UniversalTraderData data = IUniversalDataDeserializer.Deserialize(traderNBT);
+				UniversalTraderData data = Deserialize(traderNBT);
+				if(data != null)
+					universalTraderMap.put(data.getTraderID(), data);
 			});
 		}
 		
@@ -145,6 +179,19 @@ public class TradingOffice extends WorldSavedData{
 				CompoundNBT compound = data.write(new CompoundNBT());
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			}
+		}
+	}
+	
+	public static void MarkDirty(UUID traderID, CompoundNBT updateMessage)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			get(server).markDirty();
+			//Send update packet to all connected clients
+			UniversalTraderData data = getData(traderID);
+			if(data != null)
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(updateMessage));
 		}
 	}
 	

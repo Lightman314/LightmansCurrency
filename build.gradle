@@ -7,24 +7,24 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        //classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
+//apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.4-0.8.5.9'
+version = '1.16.4-0.8.6.0'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
-mixin {
-    add sourceSets.main, "lightmanscurrency.refmap.json"
-}
+//mixin {
+//    add sourceSets.main, "lightmanscurrency.refmap.json"
+//}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -38,7 +38,7 @@ minecraft {
 			property 'mixin.env.disableRefMap', 'true'
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            arg '-mixin.config=lightmanscurrency.mixins.json'
+            //arg '-mixin.config=lightmanscurrency.mixins.json'
 
             mods {
                 lightmanscurrency {
@@ -86,7 +86,7 @@ repositories {
 dependencies {
 
     minecraft 'net.minecraftforge:forge:1.16.4-35.1.37'
-    compile fg.deobf('curse.maven:curios-309927:3343065')
+    compileOnly fg.deobf('curse.maven:curios-309927:3343065')
 	compile fg.deobf('curse.maven:backpacked-352835:3108379')
 }
 
@@ -100,8 +100,8 @@ jar {
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"lightman314",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "lightmanscurrency.mixins.json"
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")//,
+            //"MixinConfigs": "lightmanscurrency.mixins.json"
         ])
     }
 }

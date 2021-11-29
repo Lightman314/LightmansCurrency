@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExe
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
@@ -173,7 +172,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 	
 	private void PressBackButton(Button button)
 	{
-		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen(this.container.player));
+		this.minecraft.displayGuiScreen(new TradingTerminalScreen(this.container.player));
 	}
 	
 }
