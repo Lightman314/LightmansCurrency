@@ -36,8 +36,6 @@ public class WalletContainer extends Container{
 	{
 		if(this.walletStackIndex < 0)
 			return LightmansCurrency.getWalletStack(this.inventory.player);
-		if(this.inventory == null)
-			return ItemStack.EMPTY;
 		return this.inventory.getStackInSlot(this.walletStackIndex);
 	}
 	
@@ -52,8 +50,6 @@ public class WalletContainer extends Container{
 	{
 		
 		super(ModContainers.WALLET, windowId);
-		
-		MinecraftForge.EVENT_BUS.register(this);
 		
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
@@ -100,6 +96,9 @@ public class WalletContainer extends Container{
 		
 		this.autoConvert = WalletItem.getAutoConvert(getWallet());
 		
+		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
+		MinecraftForge.EVENT_BUS.register(this);
+		
 	}
 	
 	public int getRowCount()
@@ -134,6 +133,8 @@ public class WalletContainer extends Container{
 	public void onTick(WorldTickEvent event)
 	{
 		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
+			return;
+		if(this.inventory == null)
 			return;
 		if(this.getWallet().isEmpty())
 		{
