@@ -87,7 +87,7 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.16.4-35.1.37'
     compileOnly fg.deobf('curse.maven:curios-309927:3343065')
-	compile fg.deobf('curse.maven:backpacked-352835:3108379')
+	//compile fg.deobf('curse.maven:backpacked-352835:3108379')
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

@@ -57,7 +57,6 @@ public class LightmansCurrency {
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	
 	private static boolean curiosLoaded = false;
-	private static boolean backpackedLoaded = false;
 	
 	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
@@ -88,13 +87,7 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(this);
         
         curiosLoaded = ModList.get().isLoaded("curios");
-        backpackedLoaded = ModList.get().isLoaded("backpacked");
         
-    }
-    
-    public static boolean isBackpackedLoaded()
-    {
-    	return backpackedLoaded;
     }
     
     public static boolean isCuriosLoaded()
@@ -202,7 +195,6 @@ public class LightmansCurrency {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
     		//Only need to sync the common config
-    		//LightmansCurrency.LOGGER.info("MONEY_CONFIG COMMON IS LOADED!!!!!");
     		Config.syncConfig();
     	}
     }
