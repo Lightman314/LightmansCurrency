@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
@@ -28,6 +29,7 @@ public class ClientModEvents {
 			event.addSprite(CoinSlot.EMPTY_COIN_SLOT);
 			event.addSprite(TicketSlot.EMPTY_TICKET_SLOT);
 			event.addSprite(WalletSlot.EMPTY_WALLET_SLOT);
+			event.addSprite(ItemTradeButton.DEFAULT_BACKGROUND);
 		}
 	}
 	

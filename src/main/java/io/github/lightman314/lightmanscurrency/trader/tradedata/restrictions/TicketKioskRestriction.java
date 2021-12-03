@@ -1,12 +1,19 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions;
 
+import com.mojang.datafixers.util.Pair;
+
+import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TicketKioskRestriction extends ItemTradeRestriction{
 
@@ -64,6 +71,13 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		}
 		else
 			super.removeItemsFromStorage(sellItem, traderStorage);
+	}
+	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
+	{
+		return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, TicketSlot.EMPTY_TICKET_SLOT);
 	}
 	
 }

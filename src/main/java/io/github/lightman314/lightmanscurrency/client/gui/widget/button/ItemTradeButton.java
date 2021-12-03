@@ -22,7 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -35,6 +35,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ItemTradeButton extends Button{
 	
 	public static final ResourceLocation TRADE_TEXTURES = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderbuttons.png");
+	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, DEFAULT_BACKGROUND);
 	
 	public static final int WIDTH = 79;
 	public static final int HEIGHT = 18;
@@ -118,8 +120,16 @@ public class ItemTradeButton extends Button{
 			
 			//Render the barter item
 			int xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
-			ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y, true);
+			if(trade.getBarterItem().isEmpty() && forceActive)
+			{
+				//Render empty slot background for empty barter slot
+				xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
+				ItemRenderUtil.drawSlotBackground(matrixStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
+			}
+			else if(!trade.getBarterItem().isEmpty())
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y, true);
 			
+			//Render barter item text
 			String text = getTradeText(CoinValue.EMPTY, false, isValid, hasStock, hasSpace, hasPermission);
 			int textColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, false);
 			if(text == "" && !canAfford)
@@ -151,19 +161,20 @@ public class ItemTradeButton extends Button{
 		int xPos = x + (inverted ? SLOT_OFFSET2_X : SLOT_OFFSET1_X);
 		//Render the sell item
 		ItemStack sellItem = trade.getSellItem();
-		if(sellItem.isEmpty())
+		if(sellItem.isEmpty() && forceActive)
 		{
-			//Render empty slot backgrounds for armor restricted trades
+			//Render empty slot backgrounds for special trade types
 			Pair<ResourceLocation,ResourceLocation> background = trade.getRestriction().getEmptySlotBG();
+			if(background == null)
+				background = BACKGROUND;
 			if(background != null)
 			{
-				TextureAtlasSprite textureatlassprite = Minecraft.getInstance().getAtlasSpriteGetter(background.getFirst()).apply(background.getSecond());
-				Minecraft.getInstance().getTextureManager().bindTexture(textureatlassprite.getAtlasTexture().getTextureLocation());
-	            blit(matrixStack, xPos, y + SLOT_OFFSET_Y, screen.getBlitOffset(), 16, 16, textureatlassprite);
+				ItemRenderUtil.drawSlotBackground(matrixStack, xPos, y + SLOT_OFFSET_Y, background);
 			}
 		}
-		else
+		else if(!trade.getSellItem().isEmpty())
 			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y, true);
+		
 		
 	}
 	

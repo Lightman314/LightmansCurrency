@@ -241,7 +241,7 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 		if(tradeButtons.contains(button))
 			tradeIndex = tradeButtons.indexOf(button);
 		
-		LightmansCurrency.LogWarning("Trade Button clicked for index " + tradeIndex + ".");
+		//LightmansCurrency.LogWarning("Trade Button clicked for index " + tradeIndex + ".");
 		
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(tradeIndex));
 		

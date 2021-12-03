@@ -78,8 +78,9 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, new SPacketSyncWallet());
-		register(MessageWalletSlotClick.class, new MessageWalletSlotClick());
-		register(MessageSlotShiftClick.class, new MessageSlotShiftClick());
+		register(CPacketOpenVanilla.class, new CPacketOpenVanilla());
+		register(CPacketOpenWallet.class, new CPacketOpenWallet());
+		register(SPacketGrabbedItem.class, new SPacketGrabbedItem());
 		
 		//Paygate
 		register(MessageActivatePaygate.class, new MessageActivatePaygate());

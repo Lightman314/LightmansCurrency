@@ -21,6 +21,8 @@ public class ModContainers {
 	
 	private static final List<ContainerType<?>> CONTAINER_TYPES = new ArrayList<>();
 	
+	public static final ContainerType<PlayerInventoryWalletContainer> INVENTORY_WALLET = register("inventory_wallet", PlayerInventoryWalletContainer::new);
+	
 	public static final ContainerType<ATMContainer> ATM = register("atm",ATMContainer::new);
 	
 	public static final ContainerType<MintContainer> MINT = register("coinmint", (IContainerFactory<MintContainer>)(windowId, playerInventory, data)->{

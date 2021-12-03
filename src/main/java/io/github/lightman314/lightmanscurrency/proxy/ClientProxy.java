@@ -57,6 +57,7 @@ public class ClientProxy extends CommonProxy{
     	RenderTypeLookup.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.getCutout());
     	
     	//Register Screens
+    	ScreenManager.registerFactory(ModContainers.INVENTORY_WALLET, PlayerInventoryWalletScreen::new);
     	ScreenManager.registerFactory(ModContainers.ATM, ATMScreen::new);
     	ScreenManager.registerFactory(ModContainers.MINT, MintScreen::new);
     	ScreenManager.registerFactory(ModContainers.ITEMTRADER, ItemTraderScreen::new);

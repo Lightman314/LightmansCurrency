@@ -16,7 +16,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 //apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.4-0.8.6.1'
+version = '1.16.4-0.8.6.2'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
@@ -35,7 +35,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-			property 'mixin.env.disableRefMap', 'true'
+			//property 'mixin.env.disableRefMap', 'true'
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             //arg '-mixin.config=lightmanscurrency.mixins.json'
