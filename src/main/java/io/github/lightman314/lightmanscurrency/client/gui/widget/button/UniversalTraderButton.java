@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -23,11 +23,11 @@ public class UniversalTraderButton extends Button{
 	
 	UniversalTraderData data;
 	
-	Font font;
+	FontRenderer font;
 	
-	public UniversalTraderButton(int x, int y, OnPress pressable, Font font)
+	public UniversalTraderButton(int x, int y, IPressable pressable, FontRenderer font)
 	{
-		super(x, y, WIDTH, HEIGHT, Component.nullToEmpty(""), pressable);
+		super(x, y, WIDTH, HEIGHT, ITextComponent.getTextComponentOrEmpty(""), pressable);
 		this.font = font;
 	}
 	
@@ -39,8 +39,9 @@ public class UniversalTraderButton extends Button{
 		this.data = data;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set active status
 		this.active = this.data != null;
@@ -48,28 +49,26 @@ public class UniversalTraderButton extends Button{
 		if(this.data == null)
 			return;
 		
-		//Minecraft.getInstance().getTextureManager().bindTexture(BUTTON_TEXTURES);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		Minecraft.getInstance().getTextureManager().bindTexture(BUTTON_TEXTURES);
+		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		int offset = 0;
 		if(this.isHovered)
 			offset = HEIGHT;
 		//Draw Button BG
-		this.blit(poseStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
+		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
 		//Draw the icon
 		ResourceLocation iconResource = this.data.IconLocation();
 		if(iconResource != null)
 		{
-			RenderSystem.setShaderTexture(0, iconResource);
-			this.blit(poseStack, this.x + 4, this.y + 7, this.data.IconPositionX(), this.data.IconPositionY(), 16, 16);
+			Minecraft.getInstance().getTextureManager().bindTexture(iconResource);
+			this.blit(matrixStack, this.x + 4, this.y + 7, this.data.IconPositionX(), this.data.IconPositionY(), 16, 16);
 		}
 		
 		//Draw the name & owner of the trader
-		this.font.draw(poseStack, this.data.getName().getString(), this.x + 24f, this.y + 6f, 0x404040);
-		this.font.draw(poseStack, this.data.getOwnerName(), this.x + 24f, this.y + 16f, 0x404040);
+		this.font.drawString(matrixStack, this.data.getName().getString(), this.x + 24f, this.y + 6f, 0x404040);
+		this.font.drawString(matrixStack, this.data.getOwnerName(), this.x + 24f, this.y + 16f, 0x404040);
 		
 	}
 

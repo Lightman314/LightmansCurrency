@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageOpenItemEdit implements IMessage<MessageOpenItemEdit> {
 	
@@ -23,26 +23,26 @@ public class MessageOpenItemEdit implements IMessage<MessageOpenItemEdit> {
 	}
 	
 	@Override
-	public void encode(MessageOpenItemEdit message, FriendlyByteBuf buffer) {
+	public void encode(MessageOpenItemEdit message, PacketBuffer buffer) {
 		buffer.writeInt(message.tradeIndex);
 	}
 
 	@Override
-	public MessageOpenItemEdit decode(FriendlyByteBuf buffer) {
+	public MessageOpenItemEdit decode(PacketBuffer buffer) {
 		return new MessageOpenItemEdit(buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageOpenItemEdit message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageOpenItemEdit message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof IItemEditCapable)
+				if(entity.openContainer instanceof IItemEditCapable)
 				{
-					IItemEditCapable container = (IItemEditCapable)entity.containerMenu;
+					IItemEditCapable container = (IItemEditCapable)entity.openContainer;
 					container.openItemEditScreenForTrade(message.tradeIndex);
 				}
 			}

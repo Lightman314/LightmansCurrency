@@ -1,21 +1,23 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import javax.annotation.Nullable;
 
-public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
+import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
+import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+
+public class CashRegisterBlock extends RotatableBlock {
 
 	public CashRegisterBlock(Properties properties)
 	{
@@ -28,39 +30,46 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
+	public boolean hasTileEntity(BlockState state)
 	{
-		return new CashRegisterBlockEntity(pos, state);
+		return true;
+	}
+	
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader world)
+	{
+		return new CashRegisterTileEntity();
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(!level.isClientSide)
+		if(!worldIn.isRemote())
 		{
-			CashRegisterBlockEntity blockEntity = (CashRegisterBlockEntity)level.getBlockEntity(pos);
-			if(blockEntity != null)
+			CashRegisterTileEntity tileEntity = (CashRegisterTileEntity)worldIn.getTileEntity(pos);
+			if(tileEntity != null)
 			{
-				blockEntity.loadDataFromItems(stack.getTag());
+				tileEntity.loadDataFromItems(stack.getTag());
 			}
 		}
 	}
 	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
 	{
-		if(!level.isClientSide)
+		if(!world.isRemote())
 		{
 			//Open UI
-			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CashRegisterBlockEntity)
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if(tileEntity instanceof CashRegisterTileEntity)
 			{
-				CashRegisterBlockEntity register = (CashRegisterBlockEntity)tileEntity;
+				CashRegisterTileEntity register = (CashRegisterTileEntity)tileEntity;
 				TileEntityUtil.sendUpdatePacket(tileEntity);
-				register.OpenContainer(player);
+				register.OpenContainer(playerEntity);
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 	}
 	
 }

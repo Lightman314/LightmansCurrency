@@ -1,18 +1,18 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
 public class OutputSlot extends Slot{
 	
-	public OutputSlot(Container inventory, int index, int x, int y)
+	public OutputSlot(IInventory inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean isItemValid(ItemStack stack) {
         return false;
 	}
 

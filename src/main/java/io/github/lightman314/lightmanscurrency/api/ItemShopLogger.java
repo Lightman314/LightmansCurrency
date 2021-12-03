@@ -1,10 +1,15 @@
 package io.github.lightman314.lightmanscurrency.api;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
+import javax.annotation.Nonnull;
+
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class ItemShopLogger extends TextLogger{
 	
@@ -13,16 +18,34 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(Player player, ItemTradeData trade, boolean isCreative)
+	public void AddLog(PlayerEntity player, ItemTradeData trade, @Nonnull CoinValue pricePayed, boolean isCreative)
 	{
 		
-		String playerName = player.getName().getString();
-		MutableComponent boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
-		MutableComponent itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), trade.getSellItem().getDisplayName());
-		String cost = trade.getCost().getString();
-		MutableComponent creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
+		ITextComponent creativeText = isCreative ? new TranslationTextComponent("log.shoplog.creative") : new StringTextComponent("");
+		ITextComponent playerName = new StringTextComponent("§a" + player.getName().getString());
+		ITextComponent boughtText = new TranslationTextComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
-		AddLog(new TranslatableComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
+		//Copy/pasted from the getTooltip function that is client-side only
+		IFormattableTextComponent itemName = (new StringTextComponent("")).append(trade.getSellItem().getDisplayName()).mergeStyle(trade.getSellItem().getRarity().color);
+		if (trade.getSellItem().hasDisplayName()) {
+			itemName.mergeStyle(TextFormatting.ITALIC);
+		}
+		
+		ITextComponent itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
+		ITextComponent cost = new StringTextComponent("§e" + pricePayed.getString());
+		if(trade.isBarter())
+		{
+			//Flip the sell item to the cost position
+			cost = itemText;
+			IFormattableTextComponent barterItemName = (new StringTextComponent("")).append(trade.getBarterItem().getDisplayName()).mergeStyle(trade.getSellItem().getRarity().color);
+			if (trade.getBarterItem().hasDisplayName()) {
+				itemName.mergeStyle(TextFormatting.ITALIC);
+			}
+			//Put the barter item in the front so that it comes out as "Player bartered BarterItem for SellItem"
+			itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getBarterItem().getCount(), barterItemName);
+		}
+		
+		AddLog(new TranslationTextComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
 		
 	}
 	

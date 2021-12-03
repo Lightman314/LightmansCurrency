@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageExecuteTrade implements IMessage<MessageExecuteTrade> {
 
@@ -25,25 +25,25 @@ public class MessageExecuteTrade implements IMessage<MessageExecuteTrade> {
 	
 	
 	@Override
-	public void encode(MessageExecuteTrade message, FriendlyByteBuf buffer) {
+	public void encode(MessageExecuteTrade message, PacketBuffer buffer) {
 		buffer.writeInt(message.tradeIndex);
 	}
 
 	@Override
-	public MessageExecuteTrade decode(FriendlyByteBuf buffer) {
+	public MessageExecuteTrade decode(PacketBuffer buffer) {
 		return new MessageExecuteTrade(buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageExecuteTrade message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageExecuteTrade message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof ITraderContainer)
+				if(entity.openContainer instanceof ITraderContainer)
 				{
-					ITraderContainer container = (ITraderContainer) entity.containerMenu;
+					ITraderContainer container = (ITraderContainer) entity.openContainer;
 					container.ExecuteTrade(message.tradeIndex);
 				}
 				else

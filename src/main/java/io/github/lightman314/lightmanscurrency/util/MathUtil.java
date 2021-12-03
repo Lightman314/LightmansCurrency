@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import com.mojang.math.Vector3f;
-
-import net.minecraft.core.Direction;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class MathUtil {
 
@@ -11,7 +9,7 @@ public class MathUtil {
 	 */
 	public static Vector3f VectorMult(Vector3f vector, float num)
 	{
-		return new Vector3f(vector.x() * num, vector.y() * num, vector.z() * num);
+		return new Vector3f(vector.getX() * num, vector.getY() * num, vector.getZ() * num);
 	}
 	
 	/**
@@ -25,9 +23,9 @@ public class MathUtil {
 		
 		for(Vector3f vector : vectors)
 		{
-			x += vector.x();
-			y += vector.y();
-			z += vector.z();
+			x += vector.getX();
+			y += vector.getY();
+			z += vector.getZ();
 		}
 		
 		return new Vector3f(x, y, z);
@@ -55,19 +53,70 @@ public class MathUtil {
 		return value;
 	}
 	
-	public static int getHorizontalFacing(Direction dir)
+	/**
+	 * Restricts a float between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static float clamp(float value, float min, float max)
 	{
-		switch(dir)
+		if(min > max)
 		{
-			case WEST:
-				return 1;
-			case NORTH:
-				return 2;
-			case EAST:
-				return 3;
-			default:
-				return 0;
+			float temp = min;
+			min = max;
+			max = temp;
 		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts a double between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static double clamp(double value, double min, double max)
+	{
+		if(min > max)
+		{
+			double temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts a long between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static long clamp(long value, long min, long max)
+	{
+		if(min > max)
+		{
+			long temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
 	}
 	
 }

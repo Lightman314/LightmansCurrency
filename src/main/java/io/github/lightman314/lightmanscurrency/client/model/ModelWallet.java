@@ -1,58 +1,40 @@
 package io.github.lightman314.lightmanscurrency.client.model;
 
-import javax.annotation.Nonnull;
-
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.LivingEntity;
 
-
-public class ModelWallet<T extends LivingEntity> extends HumanoidModel<T> {
+public class ModelWallet<T extends LivingEntity> extends BipedModel<T> {
 	
-	public final ModelPart wallet;
+	public final ModelRenderer wallet;
 	
-	public ModelWallet(ModelPart part)
+	public ModelWallet()
 	{
-		super(part);
-		this.wallet = part.getChild("wallet");
-	}
-	
-	public static LayerDefinition createLayer()
-	{
-		CubeDeformation cube = CubeDeformation.NONE;
-		MeshDefinition mesh = HumanoidModel.createMesh(cube, 0.0f);
-		PartDefinition part = mesh.getRoot();
-		part.addOrReplaceChild("wallet", CubeListBuilder.create().texOffs(0, 0).addBox(4f, 11.5f, -2f, 2f, 4f, 4f, cube),
-				PartPose.offsetAndRotation(0f, 0f, 0f, 0f, 0f, 0f));
-		return LayerDefinition.create(mesh, 32, 16);
+		super(0.0f);
+		this.textureWidth = 32;
+		this.textureHeight = 16;
+		this.wallet = new ModelRenderer(this, 0, 0);
+		this.wallet.setRotationPoint(0f, 0f, 0f);
+		this.wallet.addBox(4F, 11.5F, -2.0F, 2, 4, 4, 0.0F);
 	}
 	
 	@Override
-	@Nonnull
-	protected Iterable<ModelPart> headParts()
+	protected Iterable<ModelRenderer> getHeadParts()
 	{
 		return ImmutableList.of();
 	}
 	
 	@Override
-	@Nonnull
-	protected Iterable<ModelPart> bodyParts()
+	protected Iterable<ModelRenderer> getBodyParts()
 	{
 		return ImmutableList.of(this.wallet);
 	}
-
-	@Override
-	public void setupAnim(@Nonnull T t, float v, float v1, float v2, float v3, float v4)
-	{
-		
-	}
 	
+	public void setupAngles(BipedModel<T> model)
+	{
+		this.wallet.copyModelAngles(model.bipedBody);
+	}
+
 }

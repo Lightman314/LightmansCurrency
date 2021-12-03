@@ -1,80 +1,135 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.fml.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader{
+public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
-	public static final int TRADELIMIT = ItemTraderBlockEntity.TRADELIMIT;
+	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
-	public static final Deserializer DESERIALIZER = new Deserializer();
 	
 	public static final int VERSION = 1;
 	
 	int tradeCount = 1;
 	NonNullList<ItemTradeData> trades = null;
 	
-	Container inventory;
+	IInventory inventory;
 	
-	public final ItemShopLogger logger = new ItemShopLogger();
+	private final ItemShopLogger logger = new ItemShopLogger();
 	
-	public UniversalItemTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
+	List<TradeRule> tradeRules = new ArrayList<>();
+	
+	public UniversalItemTraderData() {}
+	
+	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
-		super(owner.getUUID(), owner.getDisplayName().getString(), pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
+		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
-		this.inventory = new SimpleContainer(this.inventorySize());
+		this.inventory = new Inventory(this.inventorySize());
 	}
 
-	public UniversalItemTraderData(CompoundTag compound)
+	@Override
+	public void read(CompoundNBT compound)
 	{
-		
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderBlockEntity.TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
 		
-		this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
-		this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
+			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
 		
 		this.logger.read(compound);
 		
-		super.read(compound);
+		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
+		super.read(compound);
+	}
+	
+	@Override
+	public CompoundNBT write(CompoundNBT compound)
+	{
+
+		this.writeTrades(compound);
+		this.writeStorage(compound);
+		this.writeLogger(compound);
+		this.writeRules(compound);
+		
+		return super.write(compound);
+		
+	}
+	
+	protected final CompoundNBT writeTrades(CompoundNBT compound)
+	{
+		compound.putInt("TradeLimit", this.trades.size());
+		ItemTradeData.saveAllData(compound, trades);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeStorage(CompoundNBT compound)
+	{
+		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeLogger(CompoundNBT compound)
+	{
+		this.logger.write(compound);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeRules(CompoundNBT compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
+		return compound;
 	}
 	
 	public int getTradeCount()
@@ -116,24 +171,25 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 			this.trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		Container oldInventory = this.inventory;
-		this.inventory = new SimpleContainer(this.inventorySize());
-		for(int i = 0; i < this.inventory.getContainerSize() && i < oldInventory.getContainerSize(); i++)
+		IInventory oldInventory = this.inventory;
+		this.inventory = new Inventory(this.inventorySize());
+		for(int i = 0; i < this.inventory.getSizeInventory() && i < oldInventory.getSizeInventory(); i++)
 		{
-			this.inventory.setItem(i, oldInventory.getItem(i));
+			this.inventory.setInventorySlotContents(i, oldInventory.getStackInSlot(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldInventory.getContainerSize() > this.inventorySize())
+		if(oldInventory.getSizeInventory() > this.inventorySize())
 		{
-			for(int i = this.inventorySize(); i < oldInventory.getContainerSize(); i++)
+			for(int i = this.inventorySize(); i < oldInventory.getSizeInventory(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
+				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getStackInSlot(i));
 			}
 		}
-		//Mark as dirty
-		this.markDirty();
+		//Mark as dirty (both trades & storage)
+		CompoundNBT compound = this.writeTrades(new CompoundNBT());
+		this.writeStorage(compound);
+		this.markDirty(compound);
 	}
-	
 	
 	public ItemTradeData getTrade(int tradeIndex)
 	{
@@ -144,6 +200,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		return new ItemTradeData();
 	}
 	
+	public int getTradeStock(int tradeIndex)
+	{
+		return getTrade(tradeIndex).stockCount(this);
+	}
+	
 	public NonNullList<ItemTradeData> getAllTrades()
 	{
 		return this.trades;
@@ -151,12 +212,21 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	
 	public void markTradesDirty()
 	{
-		this.markDirty();
+		//Send update to the client with only the trade data.
+		this.markDirty(this::writeTrades);
+	}
+	
+	public ItemShopLogger getLogger() { return this.logger; }
+	
+	public void clearLogger()
+	{
+		this.logger.clear();
+		this.markLoggerDirty();
 	}
 	
 	public void markLoggerDirty()
 	{
-		this.markDirty();
+		this.markDirty(this::writeLogger);
 	}
 	
 	public int inventorySize()
@@ -164,120 +234,92 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		return this.tradeCount * 9;
 	}
 	
-	public Container getStorage()
+	public IInventory getStorage()
 	{
 		return this.inventory;
 	}
 	
-	@Override
-	public CompoundTag write(CompoundTag compound)
+	public void markStorageDirty()
 	{
-		compound.putInt("TradeLimit", this.trades.size());
-		ItemTradeData.saveAllData(compound, trades);
-		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
-		this.logger.write(compound);
-		
-		return super.write(compound);
+		this.markDirty(this::writeStorage);
+	}
+	
+	/**
+	 * Marks the storage and stored coins dirty
+	 */
+	public void markDirtyAfterTrade()
+	{
+		CompoundNBT compound = this.writeStorage(new CompoundNBT());
+		this.writeStoredMoney(compound);
+		this.markDirty(compound);
 	}
 	
 	@Override
-	public String getDeserializerType() {
-		return TYPE.toString();
+	public ResourceLocation getTraderType() {
+		return TYPE;
 	}
 	
 	@Override
-	protected Component getDefaultName()
+	protected ITextComponent getDefaultName()
 	{
-		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.item");
+		return new TranslationTextComponent("gui.lightmanscurrency.universaltrader.item");
 	}
 
 	@Override
-	protected MenuProvider getTradeMenuProvider() {
+	protected INamedContainerProvider getTradeMenuProvider() {
 		return new TraderProvider(this.traderID);
 	}
 
 	@Override
-	protected MenuProvider getStorageMenuProvider() {
+	protected INamedContainerProvider getStorageMenuProvider() {
 		return new StorageProvider(this.traderID);
 	}
 	
-	protected MenuProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditProvider(this.traderID, tradeIndex); }
+	protected INamedContainerProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditProvider(this.traderID, tradeIndex); }
 	
-	public void openItemEditMenu(Player player, int tradeIndex)
+	public void openItemEditMenu(PlayerEntity player, int tradeIndex)
 	{
-		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
+		INamedContainerProvider provider = getItemEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
-			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getDeserializerType().toString());
+			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getTraderType().toString());
 			return;
 		}
-		if(player instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), this.write(new CompoundTag()), tradeIndex));
+		if(player instanceof ServerPlayerEntity)
+			NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
 	
-	private static class Deserializer implements IUniversalDataDeserializer<UniversalItemTraderData>
-	{
-		@Override
-		public UniversalItemTraderData deserialize(CompoundTag compound) {
-			return new UniversalItemTraderData(compound);
-		}
-	}
-	
-	private static class TraderProvider implements MenuProvider
+	private static class TraderProvider implements INamedContainerProvider
 	{
 		final UUID traderID;
-		
-		private TraderProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
+		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
 			return new UniversalItemTraderContainer(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
-		}
-		
+		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
 	}
 	
-	private static class StorageProvider implements MenuProvider
+	private static class StorageProvider implements INamedContainerProvider
 	{
 		final UUID traderID;
-		
-		private StorageProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
+		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
 			return new UniversalItemTraderStorageContainer(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
-		}
-		
+		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
 	}
 	
-	private static class ItemEditProvider implements MenuProvider
+	private static class ItemEditProvider implements INamedContainerProvider
 	{
-		
 		final UUID traderID;
 		final int tradeIndex;
-		
-		private ItemEditProvider(UUID traderID, int tradeIndex)
-		{
-			this.traderID = traderID;
-			this.tradeIndex = tradeIndex;
-		}
+		private ItemEditProvider(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
 
 		private UniversalItemTraderData getData()
 		{
@@ -288,13 +330,13 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		}
 		
 		@Override
-		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
+		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
 			return new UniversalItemEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
+		public ITextComponent getDisplayName() {
+			return new StringTextComponent("");
 		}
 	}
 	
@@ -330,9 +372,82 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
 			}
 		}
-		
+	}
+	
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
+	}
+	
+	@Override
+	public void tradeCost(TradeCostEvent event) {
+		this.tradeRules.forEach(rule -> rule.tradeCost(event));
 	}
 
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
+	}
+
+	public List<TradeRule> getRules() { return this.tradeRules; }
 	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+				return;
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		this.markDirty(this::writeRules);
+	}
+	
+	public ITradeRuleScreenHandler GetRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	
+	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
+	{
+		
+		private final UniversalItemTraderData trader;
+		
+		public TradeRuleScreenHandler(UniversalItemTraderData trader)
+		{
+			this.trader = trader;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { return this.trader; }
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
+		}
+		
+		public void updateServer(List<TradeRule> newRules)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
+		}
+		
+	}
 	
 }

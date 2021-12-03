@@ -4,56 +4,58 @@ import java.util.function.Supplier;
 
 //import io.github.lightman314.currencymod.core.CurrencyMod;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageRequestNBT implements IMessage<MessageRequestNBT> {
 
 	private BlockPos pos;
+	//private int dimension;
 	
 	public MessageRequestNBT()
 	{
 		
 	}
 	
-	public MessageRequestNBT(BlockEntity blockEntity)
+	public MessageRequestNBT(TileEntity tileEntity)
 	{
-		this.pos = blockEntity.getBlockPos();
+		this.pos = tileEntity.getPos();
 	}
 	
 	public MessageRequestNBT(BlockPos pos)
 	{
 		this.pos = pos;
+		//this.dimension = dimension;
 	}
 	
 	
 	@Override
-	public void encode(MessageRequestNBT message, FriendlyByteBuf buffer) {
+	public void encode(MessageRequestNBT message, PacketBuffer buffer) {
 		buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessageRequestNBT decode(FriendlyByteBuf buffer) {
+	public MessageRequestNBT decode(PacketBuffer buffer) {
 		return new MessageRequestNBT(buffer.readBlockPos());
 	}
 
 	@Override
-	public void handle(MessageRequestNBT message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageRequestNBT message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("NBT Update Request received.");
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				Level level = entity.getLevel();
-				BlockEntity blockEntity = level.getBlockEntity(message.pos);
-				if(blockEntity != null)
+				World world = entity.getEntityWorld();
+				TileEntity tileEntity = world.getTileEntity(message.pos);
+				if(tileEntity != null)
 				{
-					TileEntityUtil.sendUpdatePacket(blockEntity);
+					TileEntityUtil.sendUpdatePacket(tileEntity);
 					//CurrencyMod.LOGGER.info("NBT Update Packet sent.");
 				}
 			}

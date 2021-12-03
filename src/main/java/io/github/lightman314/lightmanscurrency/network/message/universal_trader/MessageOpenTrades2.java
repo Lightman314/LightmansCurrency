@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageOpenTrades2 implements IMessage<MessageOpenTrades2> {
 	
@@ -26,20 +26,20 @@ public class MessageOpenTrades2 implements IMessage<MessageOpenTrades2> {
 	
 	
 	@Override
-	public void encode(MessageOpenTrades2 message, FriendlyByteBuf buffer) {
-		buffer.writeUUID(message.traderID);
+	public void encode(MessageOpenTrades2 message, PacketBuffer buffer) {
+		buffer.writeUniqueId(message.traderID);
 	}
 
 	@Override
-	public MessageOpenTrades2 decode(FriendlyByteBuf buffer) {
-		return new MessageOpenTrades2(buffer.readUUID());
+	public MessageOpenTrades2 decode(PacketBuffer buffer) {
+		return new MessageOpenTrades2(buffer.readUniqueId());
 	}
 
 	@Override
-	public void handle(MessageOpenTrades2 message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageOpenTrades2 message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				UniversalTraderData data = TradingOffice.getData(message.traderID);

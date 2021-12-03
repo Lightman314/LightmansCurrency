@@ -6,19 +6,23 @@ import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class WalletContainer extends AbstractContainerMenu{
+public class WalletContainer extends Container{
 	
 	private final int walletStackIndex;
 	public int getWalletIndex()
@@ -26,23 +30,23 @@ public class WalletContainer extends AbstractContainerMenu{
 		return this.walletStackIndex;
 	}
 	
-	private final Inventory inventory;
+	private final PlayerInventory inventory;
 	
 	private ItemStack getWallet()
 	{
 		if(this.walletStackIndex < 0)
-			return WalletUtil.getEquippedWallet(this.inventory.player);
-		return this.inventory.getItem(this.walletStackIndex);
+			return LightmansCurrency.getWalletStack(this.inventory.player);
+		return this.inventory.getStackInSlot(this.walletStackIndex);
 	}
 	
-	private final Container coinInput;
+	private final IInventory coinInput;
 	
 	private WalletItem walletItem;
-	public final Component title;
+	public final ITextComponent title;
 	
 	boolean autoConvert = false;
 	
-	public WalletContainer(int windowId, Inventory inventory, int walletStackIndex)
+	public WalletContainer(int windowId, PlayerInventory inventory, int walletStackIndex)
 	{
 		
 		super(ModContainers.WALLET, windowId);
@@ -51,19 +55,19 @@ public class WalletContainer extends AbstractContainerMenu{
 		this.inventory = inventory;
 		
 		this.walletItem = (WalletItem)getWallet().getItem();
-		this.title = this.getWallet().getHoverName();
+		this.title = this.getWallet().getDisplayName();
 		
-		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
+		this.coinInput = new Inventory(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
-		for(int i = 0; i < this.coinInput.getContainerSize() && i < walletInventory.size(); i++)
+		for(int i = 0; i < this.coinInput.getSizeInventory() && i < walletInventory.size(); i++)
 		{
-			this.coinInput.setItem(i, walletInventory.get(i));
+			this.coinInput.setInventorySlotContents(i, walletInventory.get(i));
 		}
 		
 		//Coinslots
-		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
+		for(int y = 0; (y * 9) < this.coinInput.getSizeInventory(); y++)
 		{
-			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
+			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getSizeInventory(); x++)
 			{
 				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
 			}
@@ -92,41 +96,65 @@ public class WalletContainer extends AbstractContainerMenu{
 		
 		this.autoConvert = WalletItem.getAutoConvert(getWallet());
 		
+		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
+		MinecraftForge.EVENT_BUS.register(this);
+		
 	}
 	
 	public int getRowCount()
 	{
-		return 1 + ((this.coinInput.getContainerSize() - 1)/9);
+		return 1 + ((this.coinInput.getSizeInventory() - 1)/9);
 	}
 	
 	public int getSlotCount()
 	{
-		return this.coinInput.getContainerSize();
+		return this.coinInput.getSizeInventory();
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
+	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
 		return true;
 	}
 	
 	@Override
-	public void removed(Player playerIn)
+	public void onContainerClosed(PlayerEntity playerIn)
 	{
-		super.removed(playerIn);
 		
+		super.onContainerClosed(playerIn);
+		
+		this.saveWalletContents();
+		
+		MinecraftForge.EVENT_BUS.unregister(this);
+		
+	}
+	
+	@SubscribeEvent
+	public void onTick(WorldTickEvent event)
+	{
+		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
+			return;
+		if(this.inventory == null)
+			return;
+		if(this.getWallet().isEmpty())
+		{
+			this.inventory.player.closeScreen();
+			return;
+		}
+		this.saveWalletContents();
+	}
+	
+	public void saveWalletContents()
+	{
 		//Write the bag contents back into the item stack
 		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
-		for(int i = 0; i < walletInventory.size() && i < this.coinInput.getContainerSize(); i++)
+		for(int i = 0; i < walletInventory.size() && i < this.coinInput.getSizeInventory(); i++)
 		{
-			walletInventory.set(i, this.coinInput.getItem(i));
+			walletInventory.set(i, this.coinInput.getStackInSlot(i));
 		}
-		
 		WalletItem.putWalletInventory(this.getWallet(), walletInventory);
 		if(this.autoConvert != WalletItem.getAutoConvert(getWallet()))
 			WalletItem.toggleAutoConvert(getWallet());
-		
 	}
 
 	public boolean canConvert()
@@ -151,42 +179,42 @@ public class WalletContainer extends AbstractContainerMenu{
 	}
 	
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
 	{
 		
-		if(index + this.coinInput.getContainerSize() == this.walletStackIndex)
+		if(index + this.coinInput.getSizeInventory() == this.walletStackIndex)
 			return ItemStack.EMPTY;
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.slots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 		
-		if(slot != null && slot.hasItem())
+		if(slot != null && slot.getHasStack())
 		{
-			ItemStack slotStack = slot.getItem();
+			ItemStack slotStack = slot.getStack();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getContainerSize())
+			if(index < this.coinInput.getSizeInventory())
 			{
 				if(MoneyUtil.isCoin(slotStack.getItem()))
 				{
-					if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
+					if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory(), this.inventorySlots.size(), true))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize(), false))
+			else if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory(), false))
 			{
 				return ItemStack.EMPTY;
 			}
 			
 			if(slotStack.isEmpty())
 			{
-				slot.set(ItemStack.EMPTY);
+				slot.putStack(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.setChanged();
+				slot.onSlotChanged();
 			}
 		}
 		
@@ -205,12 +233,12 @@ public class WalletContainer extends AbstractContainerMenu{
 		
 		ItemStack returnValue = stack.copy();
 		
-		for(int i = 0; i < coinInput.getContainerSize() && !returnValue.isEmpty(); i++)
+		for(int i = 0; i < coinInput.getSizeInventory() && !returnValue.isEmpty(); i++)
 		{
-			ItemStack thisStack = coinInput.getItem(i);
+			ItemStack thisStack = coinInput.getStackInSlot(i);
 			if(thisStack.isEmpty())
 			{
-				coinInput.setItem(i, returnValue.copy());
+				coinInput.setInventorySlotContents(i, returnValue.copy());
 				returnValue = ItemStack.EMPTY;
 			}
 			else if(thisStack.getItem() == returnValue.getItem())

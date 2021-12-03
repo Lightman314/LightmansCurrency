@@ -1,20 +1,21 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class TicketMaterialSlot extends Slot{
 	
-	public TicketMaterialSlot(Container inventory, int index, int x, int y)
+	public TicketMaterialSlot(IInventory inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
-		return stack.getItem().getTags().contains(new ResourceLocation("lightmanscurrency", "ticket_material"));
+	public boolean isItemValid(ItemStack stack) {
+		return stack.getItem().getTags().contains(new ResourceLocation(LightmansCurrency.MODID, "ticket_material"));
 	}
 
 }

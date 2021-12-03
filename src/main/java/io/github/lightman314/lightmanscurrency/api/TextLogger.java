@@ -3,56 +3,62 @@ package io.github.lightman314.lightmanscurrency.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
+import io.github.lightman314.lightmanscurrency.Config;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.Constants;
 
 public abstract class TextLogger {
 
-	public final List<MutableComponent> logText = new ArrayList<>();
+	public final List<ITextComponent> logText = new ArrayList<>();
 	protected final String tag;
+	
+	protected static final int getLogLimit() { return Config.SERVER.logLimit.get(); }
 	
 	protected TextLogger(String tagName)
 	{
 		this.tag = tagName;
 	}
 	
-	protected final void clear()
+	public final void clear()
 	{
 		this.logText.clear();
 	}
 	
-	protected final void AddLog(MutableComponent text)
+	protected final void AddLog(ITextComponent text)
 	{
 		if(text != null)
+		{
 			this.logText.add(text);
+			while(this.logText.size() > getLogLimit())
+				this.logText.remove(0);
+		}
 	}
 	
-	public void write(CompoundTag compound)
+	public void write(CompoundNBT compound)
 	{
-		ListTag list = new ListTag();
+		ListNBT list = new ListNBT();
 		for(int i = 0; i < logText.size(); i++)
 		{
-			MutableComponent text = logText.get(i);
-			CompoundTag thisCompound = new CompoundTag();
-			thisCompound.putString("value", TextComponent.Serializer.toJson(text));
+			ITextComponent text = logText.get(i);
+			CompoundNBT thisCompound = new CompoundNBT();
+			thisCompound.putString("value", ITextComponent.Serializer.toJson(text));
 			list.add(thisCompound);
 		}
 		compound.put(this.tag, list);
 	}
 	
-	public void read(CompoundTag compound)
+	public void read(CompoundNBT compound)
 	{
 		if(compound.contains(this.tag, Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList(this.tag, Constants.NBT.TAG_COMPOUND);
+			ListNBT list = compound.getList(this.tag, Constants.NBT.TAG_COMPOUND);
 			this.logText.clear();
 			for(int i = 0; i < list.size(); i++)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = TextComponent.Serializer.fromJson(jsonText);
+				ITextComponent text = ITextComponent.Serializer.getComponentFromJson(jsonText);
 				if(text != null)
 					this.logText.add(text);
 			}

@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 public interface ITraderBlock {
 
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos);
+	public TileEntity getTileEntity(BlockState state, IWorld world, BlockPos pos);
 	
 }

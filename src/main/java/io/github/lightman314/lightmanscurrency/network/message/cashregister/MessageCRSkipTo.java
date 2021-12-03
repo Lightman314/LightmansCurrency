@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCashRegisterContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageCRSkipTo implements IMessage<MessageCRSkipTo> {
 	
@@ -23,25 +23,25 @@ public class MessageCRSkipTo implements IMessage<MessageCRSkipTo> {
 	}
 	
 	@Override
-	public void encode(MessageCRSkipTo message, FriendlyByteBuf buffer) {
+	public void encode(MessageCRSkipTo message, PacketBuffer buffer) {
 		buffer.writeInt(message.index);
 	}
 
 	@Override
-	public MessageCRSkipTo decode(FriendlyByteBuf buffer) {
+	public MessageCRSkipTo decode(PacketBuffer buffer) {
 		return new MessageCRSkipTo(buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageCRSkipTo message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageCRSkipTo message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof ITraderCashRegisterContainer)
+				if(entity.openContainer instanceof ITraderCashRegisterContainer)
 				{
-					ITraderCashRegisterContainer container = (ITraderCashRegisterContainer) entity.containerMenu;
+					ITraderCashRegisterContainer container = (ITraderCashRegisterContainer) entity.openContainer;
 					container.OpenContainerIndex(message.index);
 				}
 			}

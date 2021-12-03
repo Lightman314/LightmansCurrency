@@ -3,49 +3,52 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-//import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
 	
 	private ItemStack item;
+	private int slot;
 	
 	public MessageItemEditSet()
 	{
 		
 	}
 	
-	public MessageItemEditSet(ItemStack item)
+	public MessageItemEditSet(ItemStack item, int slot)
 	{
 		this.item = item;
+		this.slot = slot;
 	}
 	
 	@Override
-	public void encode(MessageItemEditSet message, FriendlyByteBuf buffer) {
-		buffer.writeItem(message.item);
+	public void encode(MessageItemEditSet message, PacketBuffer buffer) {
+		buffer.writeCompoundTag(message.item.write(new CompoundNBT()));
+		buffer.writeInt(message.slot);
 	}
 
 	@Override
-	public MessageItemEditSet decode(FriendlyByteBuf buffer) {
-		return new MessageItemEditSet(buffer.readItem());
+	public MessageItemEditSet decode(PacketBuffer buffer) {
+		return new MessageItemEditSet(ItemStack.read(buffer.readCompoundTag()), buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageItemEditSet message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageItemEditSet message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof ItemEditContainer)
+				if(entity.openContainer instanceof ItemEditContainer)
 				{
-					ItemEditContainer container = (ItemEditContainer)entity.containerMenu;
-					container.setItem(message.item);
+					ItemEditContainer container = (ItemEditContainer)entity.openContainer;
+					container.setItem(message.item, message.slot);
 				}
 			}
 		});

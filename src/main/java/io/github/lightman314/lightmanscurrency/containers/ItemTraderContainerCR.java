@@ -1,16 +1,16 @@
 package io.github.lightman314.lightmanscurrency.containers;
 
-import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCashRegisterContainer;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import net.minecraft.world.entity.player.Inventory;
+import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import net.minecraft.entity.player.PlayerInventory;
 
 public class ItemTraderContainerCR extends ItemTraderContainer implements ITraderCashRegisterContainer{
 	
-	public CashRegisterBlockEntity cashRegister;
+	public CashRegisterTileEntity cashRegister;
 	
-	public ItemTraderContainerCR(int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity, CashRegisterBlockEntity cashRegister)
+	public ItemTraderContainerCR(int windowId, PlayerInventory inventory, ItemTraderTileEntity tileEntity, CashRegisterTileEntity cashRegister)
 	{
 		
 		super(ModContainers.ITEMTRADERCR, windowId, inventory, tileEntity);
@@ -20,7 +20,7 @@ public class ItemTraderContainerCR extends ItemTraderContainer implements ITrade
 	
 	public int getThisIndex()
 	{
-		return this.cashRegister.getTraderIndex(this.blockEntity);
+		return this.cashRegister.getTraderIndex(this.tileEntity);
 	}
 	
 	public int getTotalCount()

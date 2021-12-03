@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import com.mojang.datafixers.util.Pair;
+
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,13 +17,11 @@ public class TradeInputSlot extends Slot{
 	ItemTradeData trade;
 	final Entity player;
 	
-	public TradeInputSlot(Container inventory, int index, int x, int y, ItemTradeData trade, Entity player)
+	public TradeInputSlot(IInventory inventory, int index, int x, int y, ItemTradeData trade, Entity player)
 	{
 		super(inventory, index, x, y);
 		this.trade = trade;
 		this.player = player;
-		
-		this.setBackground();
 	}
 	
 	public void updateTrade(ItemTradeData trade)
@@ -31,49 +30,59 @@ public class TradeInputSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean isItemValid(ItemStack stack) {
 		return false;
 	}
 	
 	public boolean isTradeItemValid(ItemStack stack)
 	{
-		if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_HEAD)
-			return stack.canEquip(EquipmentSlot.HEAD, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_CHEST)
-			return stack.canEquip(EquipmentSlot.CHEST, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_LEGS)
-			return stack.canEquip(EquipmentSlot.LEGS, this.player);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_FEET)
-			return stack.canEquip(EquipmentSlot.FEET, this.player);
+		/*if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD)
+			return stack.canEquip(EquipmentSlotType.HEAD, this.player);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST)
+			return stack.canEquip(EquipmentSlotType.CHEST, this.player);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS)
+			return stack.canEquip(EquipmentSlotType.LEGS, this.player);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
+			return stack.canEquip(EquipmentSlotType.FEET, this.player);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.TICKET)
+			return stack.getItem().getTags().contains(TicketItem.TICKET_TAG);*/
 		
         return true;
 	}
 	
 	@Override
-	public boolean mayPickup(Player player)
+	public boolean canTakeStack(PlayerEntity player)
 	{
 		return false;
 	}
 	
-	private void setBackground()
+	@Override
+	public ItemStack decrStackSize(int amount)
 	{
-		if(!this.player.level.isClientSide)
-			return;
-		if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_HEAD)
-			this.setBackground(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_CHEST)
-			this.setBackground(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_LEGS)
-			this.setBackground(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
-		else if(this.trade.getRestriction() == ItemTradeData.TradeRestrictions.ARMOR_FEET)
-			this.setBackground(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
+		//Return nothing, as nothing can be taken
+		return ItemStack.EMPTY;
 	}
+	
+	@OnlyIn(Dist.CLIENT)
+	@Override
+    public Pair<ResourceLocation, ResourceLocation> getBackground() {
+		/*if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_HEAD)
+			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_CHEST)
+			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_LEGS)
+			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
+		else if(this.trade.getRestriction() == ItemTradeData.ItemTradeRestrictions.ARMOR_FEET)
+			return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);*/
+		
+		return super.getBackground();
+    }
 	
 	@OnlyIn(Dist.CLIENT)
 	public boolean isMouseOver(int mouseX, int mouseY, int guiLeft, int guiTop)
 	{
-		int startX = this.x + guiLeft;
-		int startY = this.y + guiTop;
+		int startX = this.xPos + guiLeft;
+		int startY = this.yPos + guiTop;
 		return (mouseX >= startX && mouseX < startX + 16) && (mouseY >= startY && mouseY < startY + 16);
 	}
 

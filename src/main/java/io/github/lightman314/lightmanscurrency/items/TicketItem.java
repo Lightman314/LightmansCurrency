@@ -5,61 +5,71 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 
 public class TicketItem extends Item{
 
+	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
+	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
+	
 	public TicketItem(Properties properties)
 	{
 		super(properties);
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
 	{
-		super.appendHoverText(stack,  worldIn,  tooltip,  flagIn);
-		if(isMasterTicket(stack))
-		{
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.ticket.master"));
-		}
 		if(Screen.hasShiftDown())
 		{
 			UUID ticketID = GetTicketID(stack);
 			if(ticketID != null)
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.ticket.id", ticketID));
+				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.ticket.id", ticketID));
 		}
 	}
 	
 	public static boolean isMasterTicket(ItemStack ticket)
 	{
-		if(ticket.isEmpty() || ticket.getItem() != ModItems.TICKET || !ticket.hasTag())
+		if(ticket.isEmpty() || !ticket.hasTag())
 			return false;
-		CompoundTag ticketTag = ticket.getTag();
-		if(!ticketTag.contains("TicketID"))
-			return false;
-		if(ticketTag.contains("Master"))
-			return ticketTag.getBoolean("Master");
-		else
-			return false;
+		return ticket.getItem() == ModItems.TICKET_MASTER;
 	}
 	
 	public static UUID GetTicketID(ItemStack ticket)
 	{
 		//Get the ticket item
-		if(ticket.isEmpty() || ticket.getItem() != ModItems.TICKET || !ticket.hasTag())
+		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
 			return null;
-		CompoundTag ticketTag = ticket.getTag();
+		CompoundNBT ticketTag = ticket.getTag();
 		if(!ticketTag.contains("TicketID"))
 			return null;
-		return ticketTag.getUUID("TicketID");
+		return ticketTag.getUniqueId("TicketID");
+	}
+	
+	public static ItemStack CreateMasterTicket(UUID ticketID)
+	{
+		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
+		if(ticketID != null)
+			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		return ticket;
+	}
+	
+	public static ItemStack CreateTicket(UUID ticketID, int count)
+	{
+		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
+		if(ticketID != null)
+			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+		return ticket;
 	}
 	
 }

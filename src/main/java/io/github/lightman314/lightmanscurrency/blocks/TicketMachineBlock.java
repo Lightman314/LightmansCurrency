@@ -2,34 +2,34 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import javax.annotation.Nullable;
 
-import com.google.common.base.Function;
-
-import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.lightman314.lightmanscurrency.tileentity.TicketMachineTileEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class TicketMachineBlock extends RotatableBlock{
 
-	private static final VoxelShape SHAPE_NORTH = box(4d,0d,0d,12d,16d,8d);
-	private static final VoxelShape SHAPE_SOUTH = box(4d,0d,8d,12d,16d,16d);
-	private static final VoxelShape SHAPE_EAST = box(8d,0d,4d,16d,16d,12d);
-	private static final VoxelShape SHAPE_WEST = box(0d,0d,4d,8d,16d,12d);
-	private static final Function<Direction,VoxelShape> LAZY_SHAPE = LazyShapes.lazyDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST);
+	private static final VoxelShape SHAPE_NORTH = makeCuboidShape(4d,0d,0d,12d,16d,8d);
+	private static final VoxelShape SHAPE_SOUTH = makeCuboidShape(4d,0d,8d,12d,16d,16d);
+	private static final VoxelShape SHAPE_EAST = makeCuboidShape(8d,0d,4d,16d,16d,12d);
+	private static final VoxelShape SHAPE_WEST = makeCuboidShape(0d,0d,4d,8d,16d,12d);
 	
-	private static final TranslatableComponent TITLE = new TranslatableComponent("gui.lightmanscurrency.ticket_machine.title");
+	private static final TranslationTextComponent TITLE = new TranslationTextComponent("gui.lightmanscurrency.ticket_machine.title");
 	
 	public TicketMachineBlock(Properties properties)
 	{
@@ -37,23 +37,40 @@ public class TicketMachineBlock extends RotatableBlock{
 	}
 	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public boolean hasTileEntity(BlockState state) { return true;}
+	
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader world)
 	{
-		player.openMenu(state.getMenuProvider(level, pos));
-		return InteractionResult.SUCCESS;
+		return new TicketMachineTileEntity();
+	}
+	
+	@Override
+	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	{
+		if(!world.isRemote)
+			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, getContainer(state, world, pos), pos);
+		return ActionResultType.SUCCESS;
 	}
 	
 	@Nullable
 	@Override
-	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
+	public INamedContainerProvider getContainer(BlockState state, World world, BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineContainer(windowId, playerInventory);}, TITLE);
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineContainer(windowId, playerInventory, (TicketMachineTileEntity)world.getTileEntity(pos));}, TITLE);
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext contect)
 	{
-		return LAZY_SHAPE.apply(state.getValue(FACING));
+		if(state.get(FACING) == Direction.NORTH)
+			return SHAPE_NORTH;
+		else if(state.get(FACING) == Direction.SOUTH)
+			return SHAPE_SOUTH;
+		else if(state.get(FACING) == Direction.EAST)
+			return SHAPE_EAST;
+		return SHAPE_WEST;
 	}
 	
 }

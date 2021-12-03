@@ -8,82 +8,73 @@ import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTr
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.containers.slots.TradeInputSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncTrades;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil.PlayerWallets;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
-public class ItemTraderStorageContainer extends AbstractContainerMenu implements ITraderStorageContainer, ICreativeTraderContainer, IItemEditCapable{
+public class ItemTraderStorageContainer extends Container implements ITraderStorageContainer, ICreativeTraderContainer, IItemEditCapable{
 
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
-	public final Player player;
+	public final PlayerEntity player;
 	
-	public final ItemTraderBlockEntity blockEntity;
+	public final ItemTraderTileEntity tileEntity;
 	
-	final Container tradeInventory;
-	final Container coinSlots;
-	final List<TradeInputSlot> tradeSlots;
+	//final IInventory tradeInventory;
+	final IInventory coinSlots;
+	//final List<TradeInputSlot> tradeSlots;
 	
-	public ItemTraderStorageContainer(int windowId, Inventory inventory, ItemTraderBlockEntity blockEntity)
+	public ItemTraderStorageContainer(int windowId, PlayerInventory inventory, ItemTraderTileEntity tileEntity)
 	{
 		super(ModContainers.ITEMTRADERSTORAGE, windowId);
-		this.blockEntity = blockEntity;
-		this.blockEntity.AddContainerListener(this);
+		this.tileEntity = tileEntity;
 		
 		this.player = inventory.player;
 		
-		this.blockEntity.userOpen(this.player);
+		this.tileEntity.userOpen(this.player);
 		
-		int tradeCount = this.blockEntity.getTradeCount();
+		int tradeCount = this.tileEntity.getTradeCount();
 		int rowCount = ItemTraderStorageUtil.getRowCount(tradeCount);
 		int columnCount = 9 * ItemTraderStorageUtil.getColumnCount(tradeCount);
 		
 		//Storage Slots
 		for(int y = 0; y < rowCount; y++)
 		{
-			for(int x = 0; x < columnCount && x + y * columnCount < blockEntity.getStorage().getContainerSize(); x++)
+			for(int x = 0; x < columnCount && x + y * columnCount < tileEntity.getSizeInventory(); x++)
 			{
-				this.addSlot(new Slot(blockEntity.getStorage(), x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
+				this.addSlot(new Slot(tileEntity, x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
 			}
 		}
 		
-		this.tradeInventory = new SimpleContainer(tradeCount);
+		/* Trade rendering is now handled by the fake trade buttons. Interactions will now be handled client-side as well.
+		this.tradeInventory = new Inventory(tradeCount);
 		this.tradeSlots = new ArrayList<>(tradeCount);
 		//Trade Slots
-		for(int y = 0; y < tradeInventory.getContainerSize(); y++)
+		for(int y = 0; y < tradeInventory.getSizeInventory(); y++)
 		{
-			ItemTradeData trade = blockEntity.getTrade(y);
+			ItemTradeData trade = tileEntity.getTrade(y);
 			TradeInputSlot newSlot = new TradeInputSlot(tradeInventory, y, ItemTraderStorageUtil.getTradeSlotPosX(tradeCount, y), ItemTraderStorageUtil.getTradeSlotPosY(tradeCount, y), trade, this.player);
 			this.addSlot(newSlot);
 			this.tradeSlots.add(newSlot);
-			this.tradeInventory.setItem(y, trade.getSellItem());
-		}
+			this.tradeInventory.setInventorySlotContents(y, trade.getSellItem());
+		}*/
 		
 		int inventoryOffset = ItemTraderStorageUtil.getInventoryOffset(tradeCount);
 		
 		//Coin slots
-		this.coinSlots = new SimpleContainer(5);
+		this.coinSlots = new Inventory(5);
 		for(int i = 0; i < 5; i++)
 		{
 			this.addSlot(new CoinSlot(this.coinSlots, i, inventoryOffset + 176 + 8 + SCREEN_EXTENSION, getStorageBottom() + 3 + i * 18));
@@ -111,38 +102,34 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 	
 	public int getStorageBottom()
 	{
-		return (ItemTraderStorageUtil.getRowCount(this.blockEntity.getTradeCount()) * 18) + 28;
+		return (ItemTraderStorageUtil.getRowCount(this.tileEntity.getTradeCount()) * 18) + 28;
 	}
 	
 	public void tick()
 	{
-		if(this.blockEntity.isRemoved())
+		if(this.tileEntity.isRemoved())
 		{
-			this.player.closeContainer();
+			this.player.closeScreen();
 			return;
 		}
-		SyncTrades();
 	}
 	
-	@Override
-	public void clicked(int slotId, int dragType, ClickType clickType, Player player)
+	/*@Override //No longer need to override the slot clicking, as changes to the trades are now handled in the screen click events
+	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, PlayerEntity player)
 	{
 		
-		if(slotClickOverride(slotId, dragType, clickType, player, this.slots, this))
+		if(slotClickOverride(slotId, dragType, clickType, player, this.inventorySlots, this))
 		{
-			this.broadcastChanges();
-			return;
+			this.detectAndSendChanges();
+			return ItemStack.EMPTY;
 		}
 		
-		super.clicked(slotId, dragType, clickType, player);
+		return super.slotClick(slotId, dragType, clickType, player);
 		
-	}
+	}*/
 	
-	public static boolean slotClickOverride(int slotId, int dragType, ClickType clickType, Player player, List<Slot> inventorySlots, AbstractContainerMenu menu)
+	/*public static boolean slotClickOverride(int slotId, int dragType, ClickType clickType, PlayerEntity player, List<Slot> inventorySlots, @Nullable IItemEditCapable itemEditCapability)
 	{
-		IItemEditCapable itemEditCapability = null;
-		if(menu instanceof IItemEditCapable)
-			itemEditCapability = (IItemEditCapable)menu;
 		//LightmansCurrency.LOGGER.info("ItemTraderStorageContainer.slotClick(" + slotId + ", " + dragType + ", " + clickType + ", " + player.getName().getString() + ")");
 		if(slotId > 0 && slotId < inventorySlots.size())
 		{
@@ -153,19 +140,19 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 				if(clickType == ClickType.PICKUP && (dragType == 0 || dragType == 1))
 				{
 					TradeInputSlot tradeSlot = (TradeInputSlot)slot;
-					Container inventory = slot.container;
+					IInventory inventory = slot.inventory;
 					int index = slot.getSlotIndex();
-					ItemStack tradeStack = inventory.getItem(index);
-					ItemStack handStack = menu.getCarried();
+					ItemStack tradeStack = inventory.getStackInSlot(index);
+					ItemStack handStack = player.inventory.getItemStack();
 					//Remove items from the trade
 					if(handStack.isEmpty())
 					{
 						if(!tradeStack.isEmpty())
 						{
 							if(dragType == 0)
-								inventory.setItem(index, ItemStack.EMPTY);
+								inventory.setInventorySlotContents(index, ItemStack.EMPTY);
 							else
-								inventory.removeItem(index, tradeStack.getCount() / 2);
+								inventory.decrStackSize(index, tradeStack.getCount() / 2);
 						}
 						else if(itemEditCapability != null)
 						{
@@ -181,12 +168,12 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 						{
 							//Replace the stack in the inventory
 							if(dragType == 0 || handStack.getCount() < 2)
-								inventory.setItem(index, handStack.copy());
+								inventory.setInventorySlotContents(index, handStack.copy());
 							else
 							{
 								ItemStack smallStack = handStack.copy();
 								smallStack.setCount(1);
-								inventory.setItem(index, smallStack);
+								inventory.setInventorySlotContents(index, smallStack);
 							}
 							
 						}
@@ -196,24 +183,24 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 							if(dragType == 0 && handStack.getCount() > 1)
 							{
 								tradeStack.setCount(MathUtil.clamp(tradeStack.getCount() + handStack.getCount(), 1, tradeStack.getMaxStackSize()));
-								inventory.setItem(index, tradeStack);
+								inventory.setInventorySlotContents(index, tradeStack);
 							}
 							else
 							{
 								tradeStack.grow(1);
-								inventory.setItem(index, tradeStack);
+								inventory.setInventorySlotContents(index, tradeStack);
 							}
 						}
 						else
 						{
 							//Override the stack in the inventory
 							if(dragType == 0 || handStack.getCount() < 2)
-								inventory.setItem(index, handStack.copy());
+								inventory.setInventorySlotContents(index, handStack.copy());
 							else
 							{
 								ItemStack smallStack = handStack.copy();
 								smallStack.setCount(1);
-								inventory.setItem(index, smallStack);
+								inventory.setInventorySlotContents(index, smallStack);
 							}
 						}
 					}
@@ -223,33 +210,33 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.slots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 		
-		if(slot != null && slot.hasItem())
+		if(slot != null && slot.getHasStack())
 		{
-			ItemStack slotStack = slot.getItem();
+			ItemStack slotStack = slot.getStack();
 			clickedStack = slotStack.copy();
 			//Merge items from storage back into the players inventory
-			if(index < this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize())
+			if(index < this.tileEntity.getSizeInventory())
 			{
-				if(!this.moveItemStackTo(slotStack,  this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))
+				if(!this.mergeItemStack(slotStack,  this.tileEntity.getSizeInventory() + this.coinSlots.getSizeInventory(), this.inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			//Merge items from the coin slots back into the players inventory
-			else if(index < this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize() + this.coinSlots.getContainerSize())
+			else if(index < this.tileEntity.getSizeInventory() + this.coinSlots.getSizeInventory())
 			{
 				LightmansCurrency.LogInfo("Merging coin slots back into inventory.");
-				if(!this.moveItemStackTo(slotStack, this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))
+				if(!this.mergeItemStack(slotStack, this.tileEntity.getSizeInventory() + this.coinSlots.getSizeInventory(), this.inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
@@ -260,24 +247,24 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 				if(MoneyUtil.isCoin(slotStack))
 				{
 					//Merge coins into the coin slots
-					if(!this.moveItemStackTo(slotStack, this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize(), this.blockEntity.getStorage().getContainerSize() + this.tradeInventory.getContainerSize() + this.coinSlots.getContainerSize(), false))
+					if(!this.mergeItemStack(slotStack, this.tileEntity.getSizeInventory(), this.tileEntity.getSizeInventory() + this.coinSlots.getSizeInventory(), false))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
 				//Merge everything else into the storage slots
-				else if(!this.moveItemStackTo(slotStack, 0, this.blockEntity.getStorage().getContainerSize(), false))
+				else if(!this.mergeItemStack(slotStack, 0, this.tileEntity.getSizeInventory(), false))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			if(slotStack.isEmpty())
 			{
-				slot.set(ItemStack.EMPTY);
+				slot.putStack(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.setChanged();
+				slot.onSlotChanged();
 			}
 		}
 		
@@ -286,84 +273,35 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
+	public boolean canInteractWith(PlayerEntity playerIn)
 	{
 		return true;
 	}
 	
 	@Override
-	public void removed(Player playerIn)
+	public void onContainerClosed(PlayerEntity playerIn)
 	{
+		clearContainer(playerIn, playerIn.world, coinSlots);
 		
-		this.clearContainer(playerIn, this.coinSlots);
+		super.onContainerClosed(playerIn);
 		
-		this.blockEntity.RemoveContainerListener(this);
+		this.tileEntity.userClose(this.player);
 		
-		super.removed(playerIn);
-		
-		this.blockEntity.userClose(this.player);
-		
-	}
-	
-	public void SyncTrades()
-	{
-		boolean changed = false;
-		boolean isServer = !player.level.isClientSide;
-		for(int i = 0; i < blockEntity.getTradeCount(); i++)
-		{
-			if(!ItemStack.isSameItemSameTags(blockEntity.getTrade(i).getSellItem(), this.tradeInventory.getItem(i)))
-			{
-				if(isServer)
-					blockEntity.getTrade(i).setSellItem(this.tradeInventory.getItem(i));
-				changed = true;
-			}
-		}
-		if(changed && isServer)
-		{
-			//Change detected server-side, so send an update packet to the relevant clients.
-			CompoundTag compound = this.blockEntity.writeTrades(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(blockEntity, this.blockEntity.superWrite(compound));
-		}
-		else if(changed)
-		{
-			//Change was detected client-side, so inform the server that it needs to check for changes.
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSyncTrades());
-		}
-	}
-	
-	public void resyncTrades()
-	{
-		for(int i = 0; i < tradeInventory.getContainerSize(); i++)
-		{
-			ItemTradeData trade = this.blockEntity.getTrade(i);
-			if(trade != null)
-			{
-				tradeInventory.setItem(i, trade.getSellItem());
-				tradeSlots.get(i).updateTrade(trade);
-			}
-			else
-			{
-				tradeInventory.setItem(i, ItemStack.EMPTY);
-				tradeSlots.get(i).updateTrade(new ItemTradeData());
-			}
-		}
 	}
 	
 	public boolean isOwner()
 	{
-		return blockEntity.isOwner(player);
+		return tileEntity.isOwner(player);
 	}
 	
-	public void openItemEditScreenForSlot(int slotIndex)
+	public boolean hasPermissions()
 	{
-		int tradeIndex = slotIndex - this.blockEntity.getStorage().getContainerSize();
-		openItemEditScreenForTrade(tradeIndex);
-		
+		return tileEntity.hasPermissions(player);
 	}
 	
 	public void openItemEditScreenForTrade(int tradeIndex)
 	{
-		if(this.player.level.isClientSide)
+		if(this.player.world.isRemote)
 		{
 			//LightmansCurrency.LogInfo("Attempting to open item edit container for tradeIndex " + tradeIndex);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenItemEdit(tradeIndex));
@@ -371,23 +309,8 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 		else
 		{
 			//LightmansCurrency.LogInfo("Attempting to open item edit container for tradeIndex " + tradeIndex);
-			this.blockEntity.openItemEditMenu(this.player, tradeIndex);
+			this.tileEntity.openItemEditMenu(this.player, tradeIndex);
 		}
-	}
-	
-	
-	
-	public void AddCoins()
-	{
-		if(this.blockEntity.isRemoved())
-		{
-			this.player.closeContainer();
-			return;
-		}
-		//Get the value of the current 
-		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
-		this.blockEntity.addStoredMoney(addValue);
-		this.coinSlots.clearContent();
 	}
 	
 	public boolean HasCoinsToAdd()
@@ -395,56 +318,69 @@ public class ItemTraderStorageContainer extends AbstractContainerMenu implements
 		return !coinSlots.isEmpty();
 	}
 	
-	public void CollectCoinStorage()
+	public void AddCoins()
 	{
-		if(this.blockEntity.isRemoved())
+		if(this.tileEntity.isRemoved())
 		{
-			this.player.closeContainer();
+			this.player.closeScreen();
 			return;
 		}
-		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(blockEntity.getStoredMoney());
-		PlayerWallets wallet = WalletUtil.getWallets(this.player);
-		if(!wallet.hasWallet())
+		//Get the value of the current 
+		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
+		this.tileEntity.addStoredMoney(addValue);
+		this.coinSlots.clear();
+	}
+	
+	public void CollectCoinStorage()
+	{
+		if(this.tileEntity.isRemoved())
+		{
+			this.player.closeScreen();
+			return;
+		}
+		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
+		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
+		if(!wallet.isEmpty())
 		{
 			List<ItemStack> spareCoins = new ArrayList<>();
 			for(int i = 0; i < coinList.size(); i++)
 			{
-				ItemStack extraCoins = wallet.PlaceCoin(coinList.get(i));
+				ItemStack extraCoins = WalletItem.PickupCoin(wallet, coinList.get(i));
 				if(!extraCoins.isEmpty())
 					spareCoins.add(extraCoins);
 			}
 			coinList = spareCoins;
 		}
-		Container inventory = new SimpleContainer(coinList.size());
+		IInventory inventory = new Inventory(coinList.size());
 		for(int i = 0; i < coinList.size(); i++)
 		{
-			inventory.setItem(i, coinList.get(i));
+			inventory.setInventorySlotContents(i, coinList.get(i));
 		}
-		this.clearContainer(player, inventory);
+		this.clearContainer(player, player.getEntityWorld(), inventory);
 		
 		//Clear the coin storage
-		blockEntity.clearStoredMoney();
+		tileEntity.clearStoredMoney();
 		
 	}
 	
 	public void ToggleCreative()
 	{
-		if(this.blockEntity.isRemoved())
+		if(this.tileEntity.isRemoved())
 		{
-			this.player.closeContainer();
+			this.player.closeScreen();
 			return;
 		}
-		this.blockEntity.toggleCreative();
+		this.tileEntity.toggleCreative();
 	}
 
 	@Override
 	public void AddTrade() {
-		this.blockEntity.addTrade();
+		this.tileEntity.addTrade();
 	}
 
 	@Override
 	public void RemoveTrade() {
-		this.blockEntity.removeTrade();
+		this.tileEntity.removeTrade();
 	}
 	
 }

@@ -10,11 +10,13 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
+	
+	
 	
 	public static final List<String> CLIENT_DEFAULT_RENDER_AS_BLOCK = ImmutableList.of(
 			"minecraft:oak_sapling", "minecraft:birch_sapling", "minecraft:spruce_sapling", "minecraft:jungle_sapling",
@@ -47,9 +49,7 @@ public class Config {
 			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
 			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
 			"minecraft:cake", "lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
-			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite",
-			"minecraft:small_amethyst_bud", "minecraft:medium_amethyst_bud", "minecraft:large_amethyst_bud", "minecraft:amethyst_cluster",
-			"minecraft:glow_berries", "minecraft:glow_lichen", "minecraft:lightning_rod"
+			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
 			);
 	
 	private static boolean canMint = false;
@@ -112,8 +112,11 @@ public class Config {
 	public static class Client
 	{
 		
+		public enum TraderRenderType { FULL, PARTIAL, NONE }
+		
 		//Render options
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> renderBlocksAsItems;
+		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -123,6 +126,13 @@ public class Config {
 					.comment("BlockItems that should be spaced out as though they were normal items.")
 					.defineList("renderBlocksAsItems", CLIENT_DEFAULT_RENDER_AS_BLOCK, o -> o instanceof String);
 			
+			builder.comment("Quality Settings").push("settings");
+			this.traderRenderType = builder
+					.comment("How many items the traders should render as stock. Useful to avoid lag in trader-rich areas.",
+							"FULL: Renders all items based on stock as intended.",
+							"PARTIAL: Renders only 1 item per trade slot regardless of stock.",
+							"NONE: Traders do not render items.")
+					.defineEnum("traderRenderType", TraderRenderType.FULL);
 			builder.pop();
 			
 		}
@@ -153,6 +163,8 @@ public class Config {
 		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
+		public final ForgeConfigSpec.BooleanValue addBankerVillager;
+		public final ForgeConfigSpec.BooleanValue addCashierVillager;
 		
 		//Debug
 		public final ForgeConfigSpec.IntValue debugLevel;
@@ -249,9 +261,20 @@ public class Config {
 					.define("canMeltNetherite", true);
 			builder.pop();
 			
+			builder.comment("Villager Related Settings.").push("villagers");
+			
 			this.addCustomWanderingTrades = builder
 					.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
 					.define("addCustomWanderingTrades", true);
+			
+			this.addBankerVillager = builder
+					.comment("Whether the banker villager profession will have any registered trades. The banker sells Lightman's Currency items for coins.")
+					.define("addBanker", true);
+			this.addCashierVillager = builder
+					.comment("Whether the cashier villager profession will have any registered trades.. The cashier sells an amalgamation of vanilla traders products for coins.")
+					.define("addCashier", true);
+			
+			builder.pop();
 			
 			this.debugLevel = builder
 					.comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")
@@ -409,25 +432,20 @@ public class Config {
 	public static class Server
 	{
 		
-		public enum WalletDropMode { KEEP, DROP_COINS, DROP_WALLET }
-		//public final ForgeConfigSpec.EnumValue<WalletDropMode> walletDropMode;
-		//public final ForgeConfigSpec.DoubleValue coinDropPercent;
+		public final ForgeConfigSpec.IntValue logLimit;
 		
 		Server(ForgeConfigSpec.Builder builder)
 		{
-			builder.comment("Server config settings.").push("server");
-			/*walletDropMode = builder
-					.comment("Determines what should happen to the players equipped wallet upon death."
-							,"1-Wallet remains in the players inventory untouched."
-							,"2-The wallet remains in the players inventory, but a defined percentage of coins fall onto the ground."
-							,"3-The wallet falls onto the ground as usual. Ignored if keepInventory is on.")
-					.defineEnum("walletDropMode",WalletDropMode.KEEP);
-			coinDropPercent = builder
-					.comment("What percentage of the players coins should drop on death."
-							,"Only effective if walletDropMode=DROP_COINS.")
-					.defineInRange("coinDropPercent", 0.1, 0.01, 1);*/
+			
+			builder.comment("Server Config Settings").push("server");
+			
+			this.logLimit = builder.comment("The maximum amount of entries allowed in a text log.")
+					.defineInRange("logLimit", 100, 1, Integer.MAX_VALUE);
+			
 			builder.pop();
+			
 		}
+		
 	}
 	
 	public static final ForgeConfigSpec clientSpec;
@@ -454,9 +472,9 @@ public class Config {
 		
 	}
 	
-	public static CompoundTag getSyncData()
+	public static CompoundNBT getSyncData()
 	{
-		CompoundTag data = new CompoundTag();
+		CompoundNBT data = new CompoundNBT();
 		
 		//Put mint/melt data
 		data.putBoolean("canMint", COMMON.allowCoinMinting.get());
@@ -478,7 +496,7 @@ public class Config {
 		data.putBoolean("meltNetherite", COMMON.meltNetherite.get());
 		
 		//Coin worth
-		CompoundTag coinValues = new CompoundTag();
+		CompoundNBT coinValues = new CompoundNBT();
 		coinValues.putInt("iron", COMMON.ironCoinWorth.get());
 		coinValues.putInt("gold", COMMON.goldCoinWorth.get());
 		coinValues.putInt("emerald", COMMON.emeraldCoinWorth.get());
@@ -486,7 +504,7 @@ public class Config {
 		coinValues.putInt("netherite", COMMON.netheriteCoinWorth.get());
 		data.put("coinValues", coinValues);
 		//Coinpile worth
-		CompoundTag coinpileValues = new CompoundTag();
+		CompoundNBT coinpileValues = new CompoundNBT();
 		coinpileValues.putInt("copper", COMMON.coinpileCopperWorth.get());
 		coinpileValues.putInt("iron", COMMON.coinpileIronWorth.get());
 		coinpileValues.putInt("gold", COMMON.coinpileGoldWorth.get());
@@ -495,7 +513,7 @@ public class Config {
 		coinpileValues.putInt("netherite", COMMON.coinpileNetheriteWorth.get());
 		data.put("coinpileValues", coinpileValues);
 		//Coinblock worth
-		CompoundTag coinblockValues = new CompoundTag();
+		CompoundNBT coinblockValues = new CompoundNBT();
 		coinblockValues.putInt("copper", COMMON.coinBlockCopperWorth.get());
 		coinblockValues.putInt("iron", COMMON.coinBlockIronWorth.get());
 		coinblockValues.putInt("gold", COMMON.coinBlockGoldWorth.get());
@@ -512,7 +530,7 @@ public class Config {
 		syncConfig(getSyncData());
 	}
 	
-	public static void syncConfig(CompoundTag data)
+	public static void syncConfig(CompoundNBT data)
 	{
 		//Can Mint/Melt
 		canMint = data.getBoolean("canMint");
@@ -533,7 +551,7 @@ public class Config {
 		meltNetherite = data.getBoolean("meltNetherite");
 		
 		//Coin worth
-		CompoundTag coinValues = data.getCompound("coinValues");
+		CompoundNBT coinValues = data.getCompound("coinValues");
 		MoneyUtil.changeCoinConversion(ModItems.COIN_IRON, ModItems.COIN_COPPER, coinValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModItems.COIN_GOLD, ModItems.COIN_IRON, coinValues.getInt("gold"));
 		MoneyUtil.changeCoinConversion(ModItems.COIN_EMERALD, ModItems.COIN_GOLD, coinValues.getInt("emerald"));
@@ -541,7 +559,7 @@ public class Config {
 		MoneyUtil.changeCoinConversion(ModItems.COIN_NETHERITE, ModItems.COIN_DIAMOND, coinValues.getInt("netherite"));
 		
 		//Coinpile worth
-		CompoundTag coinpileValues = data.getCompound("coinpileValues");
+		CompoundNBT coinpileValues = data.getCompound("coinpileValues");
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_COPPER.item, ModItems.COIN_COPPER, coinpileValues.getInt("copper"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_IRON.item, ModItems.COIN_IRON, coinpileValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_GOLD.item, ModItems.COIN_GOLD, coinpileValues.getInt("gold"));
@@ -550,7 +568,7 @@ public class Config {
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_NETHERITE.item, ModItems.COIN_NETHERITE, coinpileValues.getInt("netherite"));
 		
 		//Coinblock worth
-		CompoundTag coinblockValues = data.getCompound("coinblockValues");
+		CompoundNBT coinblockValues = data.getCompound("coinblockValues");
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_COPPER.item, ModBlocks.COINPILE_COPPER.item, coinblockValues.getInt("copper"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_IRON.item, ModBlocks.COINPILE_IRON.item, coinblockValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_GOLD.item, ModBlocks.COINPILE_GOLD.item, coinblockValues.getInt("gold"));

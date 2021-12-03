@@ -5,13 +5,13 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.SoundCategory;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessagePlayPickupSound implements IMessage<MessagePlayPickupSound> {
 	
@@ -24,27 +24,27 @@ public class MessagePlayPickupSound implements IMessage<MessagePlayPickupSound> 
 	}
 	
 	@Override
-	public void encode(MessagePlayPickupSound message, FriendlyByteBuf buffer) {
+	public void encode(MessagePlayPickupSound message, PacketBuffer buffer) {
 		//buffer.writeBlockPos(message.pos);
 	}
 
 	@Override
-	public MessagePlayPickupSound decode(FriendlyByteBuf buffer) {
+	public MessagePlayPickupSound decode(PacketBuffer buffer) {
 		return new MessagePlayPickupSound();
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handle(MessagePlayPickupSound message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessagePlayPickupSound message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			Minecraft instance = Minecraft.getInstance();
 			if(instance != null)
 			{
-				LocalPlayer player = instance.player;
+				ClientPlayerEntity player = instance.player;
 				if(player != null)
 				{
-					player.level.playSound((Player)player, player.blockPosition(), CurrencySoundEvents.COINS_CLINKING, SoundSource.PLAYERS, 0.4f, 1f);
+					player.world.playSound((PlayerEntity)player, player.getPosition(), CurrencySoundEvents.COINS_CLINKING, SoundCategory.PLAYERS, 0.4f, 1f);
 				}
 			}
 		});

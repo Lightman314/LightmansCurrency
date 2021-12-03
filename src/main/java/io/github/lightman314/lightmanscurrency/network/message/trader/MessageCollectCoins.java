@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainerPrimitive;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageCollectCoins implements IMessage<MessageCollectCoins> {
 	
@@ -18,32 +18,32 @@ public class MessageCollectCoins implements IMessage<MessageCollectCoins> {
 	
 	
 	@Override
-	public void encode(MessageCollectCoins message, FriendlyByteBuf buffer) {
+	public void encode(MessageCollectCoins message, PacketBuffer buffer) {
 		//buffer.writeInt(message.tradeIndex);
 	}
 
 	@Override
-	public MessageCollectCoins decode(FriendlyByteBuf buffer) {
+	public MessageCollectCoins decode(PacketBuffer buffer) {
 		return new MessageCollectCoins();
 	}
 
 	@Override
-	public void handle(MessageCollectCoins message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageCollectCoins message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof ITraderContainerPrimitive)
+				if(entity.openContainer instanceof ITraderContainerPrimitive)
 				{
-					ITraderContainerPrimitive container = (ITraderContainerPrimitive) entity.containerMenu;
+					ITraderContainerPrimitive container = (ITraderContainerPrimitive) entity.openContainer;
 					container.CollectCoinStorage();
 				}
 				else
 				{
 					LightmansCurrency.LogWarning("MessageCollectCoins was sent from a client that does not have a trader container open.");
-					if(entity.containerMenu != null)
-						LightmansCurrency.LogWarning("OpenContainer: " + entity.containerMenu.getClass().getName());
+					if(entity.openContainer != null)
+						LightmansCurrency.LogWarning("OpenContainer: " + entity.openContainer.getClass().getName());
 					else
 						LightmansCurrency.LogWarning("OpenContainer: NULL");
 				}

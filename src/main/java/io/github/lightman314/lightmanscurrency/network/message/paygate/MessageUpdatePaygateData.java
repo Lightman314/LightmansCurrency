@@ -2,15 +2,15 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageUpdatePaygateData implements IMessage<MessageUpdatePaygateData> {
 
@@ -32,31 +32,33 @@ public class MessageUpdatePaygateData implements IMessage<MessageUpdatePaygateDa
 	
 	
 	@Override
-	public void encode(MessageUpdatePaygateData message, FriendlyByteBuf buffer) {
+	public void encode(MessageUpdatePaygateData message, PacketBuffer buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeNbt(message.newPrice.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeCompoundTag(message.newPrice.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
 		buffer.writeInt(message.newDuration);
 	}
 
 	@Override
-	public MessageUpdatePaygateData decode(FriendlyByteBuf buffer) {
-		return new MessageUpdatePaygateData(buffer.readBlockPos(), new CoinValue(buffer.readNbt()), buffer.readInt());
+	public MessageUpdatePaygateData decode(PacketBuffer buffer) {
+		return new MessageUpdatePaygateData(buffer.readBlockPos(), new CoinValue(buffer.readCompoundTag()), buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageUpdatePaygateData message, Supplier<NetworkEvent.Context> supplier) {
+	public void handle(MessageUpdatePaygateData message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayer entity = supplier.get().getSender();
+			ServerPlayerEntity entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				BlockEntity blockEntity = entity.level.getBlockEntity(message.pos);
-				if(blockEntity != null)
+				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
+				if(tileEntity != null)
 				{
-					if(blockEntity instanceof PaygateBlockEntity)
+					if(tileEntity instanceof PaygateTileEntity)
 					{
-						PaygateBlockEntity paygateEntity = (PaygateBlockEntity)blockEntity;
+						
+						PaygateTileEntity paygateEntity = (PaygateTileEntity)tileEntity;
+						
 						paygateEntity.setPrice(message.newPrice);
 						paygateEntity.setDuration(message.newDuration);
 						

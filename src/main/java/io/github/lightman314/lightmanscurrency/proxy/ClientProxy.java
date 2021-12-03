@@ -2,64 +2,85 @@ package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
-import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
-import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
-import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 public class ClientProxy extends CommonProxy{
+	
+	private long timeOffset = 0;
 	
 	@Override
 	public void setupClient() {
 		
 		//Set Render Layers
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.block, RenderType.cutout());
+    	RenderTypeLookup.setRenderLayer(ModBlocks.DISPLAY_CASE.block, RenderType.getCutout());
     	
-    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE1, RenderType.cutout());
-    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE2, RenderType.cutout());
+    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE1, RenderType.getCutout());
+    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE2, RenderType.getCutout());
     	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.cutout());
+    	RenderTypeLookup.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.getCutout());
     	
     	//Register Screens
-    	MenuScreens.register(ModContainers.ATM, ATMScreen::new);
-    	MenuScreens.register(ModContainers.MINT, MintScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADER, ItemTraderScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADERCR, ItemTraderScreenCR::new);
-    	MenuScreens.register(ModContainers.ITEM_EDIT, ItemEditScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
-    	MenuScreens.register(ModContainers.WALLET, WalletScreen::new);
-    	MenuScreens.register(ModContainers.PAYGATE, PaygateScreen::new);
-    	MenuScreens.register(ModContainers.TICKET_MACHINE, TicketMachineScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
+    	ScreenManager.registerFactory(ModContainers.INVENTORY_WALLET, PlayerInventoryWalletScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ATM, ATMScreen::new);
+    	ScreenManager.registerFactory(ModContainers.MINT, MintScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEMTRADER, ItemTraderScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEMTRADERCR, ItemTraderScreenCR::new);
+    	ScreenManager.registerFactory(ModContainers.ITEM_EDIT, ItemEditScreen::new);
+    	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
+    	ScreenManager.registerFactory(ModContainers.WALLET, WalletScreen::new);
+    	ScreenManager.registerFactory(ModContainers.PAYGATE, PaygateScreen::new);
+    	ScreenManager.registerFactory(ModContainers.TICKET_MACHINE, TicketMachineScreen::new);
+    	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
+    	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
-    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER, FreezerTraderBlockEntityRenderer::new);
+    	ClientRegistry.bindTileEntityRenderer(ModTileEntities.ITEM_TRADER, ItemTraderTileEntityRenderer::new);
+    	ClientRegistry.bindTileEntityRenderer(ModTileEntities.FREEZER_TRADER, FreezerTraderTileEntityRenderer::new);
+    	
+    	//Register Addable Trade Rules
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerBlacklist());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
+    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
+    	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
     	
     	//Register ClientEvents
     	MinecraftForge.EVENT_BUS.register(new ClientEvents());
@@ -67,60 +88,88 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
     	
-    	//Register Curios Renderers
-    	if(LightmansCurrency.isCuriosLoaded())
+    	//Add wallet layer unless curios is loaded.
+    	if(!LightmansCurrency.isCuriosLoaded())
     	{
-    		Curios.RegisterCuriosRenderers();
+	    	Map<String, PlayerRenderer> skinMap = Minecraft.getInstance().getRenderManager().getSkinMap();
+	    	this.addWalletLayer(skinMap.get("default"));
+	    	this.addWalletLayer(skinMap.get("slim"));
     	}
-    	/*else //Add wallet layer if curios is not loaded.
-    	{
-			Map<String, EntityRenderer<? extends Player>> skinMap = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap();
-	    	this.addWalletLayer((PlayerRenderer)skinMap.get("default"));
-	    	this.addWalletLayer((PlayerRenderer)skinMap.get("slim"));
-    	}*/
     	
-	}
-	
-	@Override
-	public void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
-	{
-		event.registerLayerDefinition(ModLayerDefinitions.WALLET, ModelWallet::createLayer);
+    	
 	}
 	
 	private static void setRenderLayerForSet(BlockItemSet<?> blockItemSet, RenderType type)
 	{
-		blockItemSet.getAll().forEach(blockItemPair -> ItemBlockRenderTypes.setRenderLayer(blockItemPair.block, type));
+		blockItemSet.getAll().forEach(blockItemPair -> RenderTypeLookup.setRenderLayer(blockItemPair.block, type));
 	}
 	
-	/*private void addWalletLayer(PlayerRenderer renderer)
+	private void addWalletLayer(PlayerRenderer renderer)
 	{
-		List<RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>> layers = ObfuscationReflectionHelper.getPrivateValue(LivingEntityRenderer.class, renderer, "field_177097_h");
+		List<LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>>> layers = ObfuscationReflectionHelper.getPrivateValue(LivingRenderer.class, renderer, "field_177097_h");
 		if(layers != null)
 		{
-			layers.add(new WalletLayer<AbstractClientPlayer,PlayerModel<AbstractClientPlayer>>(renderer, new ModelWallet<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET))));
-		}
-	}*/
-	
-	@Override
-	public void updateTraders(CompoundTag compound)
-	{
-		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.screen instanceof TerminalScreen)
-		{
-			if(compound.contains("Traders", Constants.NBT.TAG_LIST))
-			{
-				List<UniversalTraderData> traders = new ArrayList<>();
-				ListTag traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
-				traderList.forEach(nbt -> traders.add(IUniversalDataDeserializer.Deserialize((CompoundTag)nbt)));
-				((TerminalScreen)minecraft.screen).updateTraders(traders);
-			}
+			layers.add(new WalletLayer<>(renderer, new ModelWallet<>()));
 		}
 	}
 	
 	@Override
-	public void openTerminalScreen(Player player)
+	public void initializeTraders(CompoundNBT compound)
 	{
-		Minecraft.getInstance().setScreen(new TerminalScreen(player));
+		if(compound.contains("Traders", Constants.NBT.TAG_LIST))
+		{
+			List<UniversalTraderData> traders = new ArrayList<>();
+			ListNBT traderList = compound.getList("Traders", Constants.NBT.TAG_COMPOUND);
+			traderList.forEach(nbt -> traders.add(TradingOffice.Deserialize((CompoundNBT)nbt)));
+			ClientTradingOffice.initData(traders);
+		}
+	}
+	
+	@Override
+	public void updateTrader(CompoundNBT compound)
+	{
+		ClientTradingOffice.updateTrader(compound);
+	}
+	
+	@Override
+	public void removeTrader(UUID traderID)
+	{
+		ClientTradingOffice.removeTrader(traderID);
+	}
+	
+	@Override
+	public void openTerminalScreen(PlayerEntity player)
+	{
+		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen(player));
+	}
+	
+	@Override
+	public long getTimeDesync()
+	{
+		return timeOffset;
+	}
+	
+	@Override
+	public void setTimeDesync(long serverTime)
+	{
+		this.timeOffset = serverTime - System.currentTimeMillis();
+		//Round the time offset to the nearest second
+		this.timeOffset = (timeOffset / 1000) * 1000;
+		if(this.timeOffset < 10000) //Ignore offset if less than 10s, as it's likely due to ping
+			this.timeOffset = 0;
+	}
+	
+	@Override
+	public void loadAdminPlayers(List<UUID> serverAdminList)
+	{
+		TradingOffice.loadAdminPlayers(serverAdminList);
+	}
+	
+	
+	public void registerItemColors(ColorHandlerEvent.Item event)
+	{
+		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
+		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
 	}
 	
 }

@@ -5,28 +5,26 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class CoinValueInput extends AbstractWidget{
+public class CoinValueInput extends Widget{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
 	
@@ -38,9 +36,9 @@ public class CoinValueInput extends AbstractWidget{
 	private CoinValue coinValue;
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
-	private Component title;
+	private ITextComponent title;
 	
-	public CoinValueInput(int y, Component title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
+	public CoinValueInput(int y, ITextComponent title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
 		super(0, y, calculateWidth(), HEIGHT, title);
 		
@@ -65,20 +63,26 @@ public class CoinValueInput extends AbstractWidget{
 		int buttonCount = MoneyUtil.getAllData().size();
 		for(int x = 0; x < buttonCount; x++)
 		{
-			increaseButtons.add(this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
-			Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
+			increaseButtons.add(this.parent.addButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
+			Button newButton = this.parent.addButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
 			newButton.active = false;
 			decreaseButtons.add(newButton);
 		}
 		this.tick();
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		//Match the buttons visibility to our visibility.
+		this.increaseButtons.forEach(button -> button.visible = this.visible);
+		this.decreaseButtons.forEach(button -> button.visible = this.visible);
+		if(!this.visible) //If not visible, render nothing
+			return;
+		
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
 		//Render the left edge
@@ -102,39 +106,20 @@ public class CoinValueInput extends AbstractWidget{
 		for(int x = 0; x < buttonCount; x++)
 		{
 			//Draw sprite
-			this.drawItemStack(new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26);
+			ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
 			//Draw string
 			String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
-			int width = this.parent.getFont().width(countString);
-			this.parent.getFont().draw(matrixStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
+			int width = this.parent.getFont().getStringWidth(countString);
+			this.parent.getFont().drawString(matrixStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
 			
 		}
 		//Render the title
-		this.parent.getFont().draw(matrixStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
+		this.parent.getFont().drawString(matrixStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
-		int priceWidth = this.parent.getFont().width(this.coinValue.getString());
-		this.parent.getFont().draw(matrixStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
+		int priceWidth = this.parent.getFont().getStringWidth(this.coinValue.getString());
+		this.parent.getFont().drawString(matrixStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
 		
 	}
-	
-	/**
-    * Draws an ItemStack.
-    *  
-    * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
-    */
-	private void drawItemStack(ItemStack stack, int x, int y) {
-		
-		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-	   
-      	//RenderSystem.translatef(0.0F, 0.0F, 32.0F);
-      	//this.setBlitOffset(200);
-      	//itemRenderer.zLevel = 200.0F;
-      	//Font font = stack.getItem().getFontRenderer(stack);
-      	//if (font == null) font = this.parent.getFont();
-      	itemRenderer.renderGuiItem(stack, x, y);
-      	//this.setBlitOffset(0);
-      	//itemRenderer.zLevel = 0.0F;
-   	}
 	
 	public void tick()
 	{
@@ -205,16 +190,10 @@ public class CoinValueInput extends AbstractWidget{
 	
 	public static interface ICoinValueInput
 	{
-		public <T extends AbstractWidget> T addCustomWidget(T widget);
+		public <T extends Button> T addButton(T button);
 		public int getWidth();
-		public Font getFont();
+		public FontRenderer getFont();
 		public void OnCoinValueChanged(CoinValueInput input);
-	}
-
-	@Override
-	public void updateNarration(NarrationElementOutput p_169152_) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

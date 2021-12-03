@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.util.IItemProvider;
 
-public class BlockItemPair implements ItemLike{
+public class BlockItemPair implements IItemProvider{
 	public final Block block;
 	public final Item item;
 	
@@ -14,7 +14,7 @@ public class BlockItemPair implements ItemLike{
 		this.item = item;
 	}
 
-	//@Override
+	@Override
 	public Item asItem() {
 		return this.item;
 	}

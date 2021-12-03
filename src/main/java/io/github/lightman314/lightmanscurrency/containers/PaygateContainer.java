@@ -7,45 +7,50 @@ import java.util.UUID;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainerPrimitive;
+import io.github.lightman314.lightmanscurrency.containers.inventories.TicketInventory;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil.PlayerWallets;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
-public class PaygateContainer extends AbstractContainerMenu implements ITraderContainerPrimitive{
+public class PaygateContainer extends Container implements ITraderContainerPrimitive{
 	
-	public final Player player;
+	public final PlayerEntity player;
 	
-	protected final Container coinInput = new SimpleContainer(5);
-	protected final Container ticketInput = new SimpleContainer(1);
-	public final PaygateBlockEntity blockEntity;
+	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
+	
+	protected final IInventory coinInput = new Inventory(5);
+	protected final IInventory ticketInput = new TicketInventory(1);
+	public final PaygateTileEntity tileEntity;
 	
 	public final int priceInputOffset;
 	
-	public PaygateContainer(int windowId, Inventory inventory, PaygateBlockEntity tileEntity)
+	public PaygateContainer(int windowId, PlayerInventory inventory, PaygateTileEntity tileEntity)
 	{
 		super(ModContainers.PAYGATE, windowId);
-		this.blockEntity = tileEntity;
+		this.tileEntity = tileEntity;
 		
 		this.player = inventory.player;
 		
 		this.priceInputOffset = this.isOwner() ? CoinValueInput.HEIGHT : 0;
 		
 		//Coinslots
-		for(int x = 0; x < coinInput.getContainerSize(); x++)
+		for(int x = 0; x < coinInput.getSizeInventory(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + (x + 4) * 18, 37 + this.priceInputOffset));
 		}
@@ -71,7 +76,7 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
+	public boolean canInteractWith(PlayerEntity playerIn)
 	{
 		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
 		//return this.tileEntity.isUsableByPlayer(playerIn);
@@ -79,44 +84,44 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 	}
 	
 	@Override
-	public void removed(Player playerIn)
+	public void onContainerClosed(PlayerEntity playerIn)
 	{
-		super.removed(playerIn);
-		this.clearContainer(playerIn, this.coinInput);
-		this.clearContainer(playerIn, this.ticketInput);
+		super.onContainerClosed(playerIn);
+		this.clearContainer(playerIn,  playerIn.world,  this.coinInput);
+		this.clearContainer(playerIn, playerIn.world, this.ticketInput);
 	}
 
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.slots.get(index);
+		Slot slot = this.inventorySlots.get(index);
 		
-		if(slot != null && slot.hasItem())
+		if(slot != null && slot.getHasStack())
 		{
-			ItemStack slotStack = slot.getItem();
+			ItemStack slotStack = slot.getStack();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getContainerSize())
+			if(index < this.coinInput.getSizeInventory())
 			{
-				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
+				if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory(), this.inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index >= this.coinInput.getContainerSize() && index < this.coinInput.getContainerSize() + this.ticketInput.getContainerSize())
+			else if(index >= this.coinInput.getSizeInventory() && index < this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory())
 			{
-				if(!this.moveItemStackTo(slotStack, this.coinInput.getContainerSize() + this.ticketInput.getContainerSize(), this.slots.size(), true))
+				if(!this.mergeItemStack(slotStack, this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory(), this.inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index < this.slots.size())
+			else if(index < this.inventorySlots.size())
 			{
 				//if(!MoneyUtil.isCoin(slotStack.getItem()))
 				//	return ItemStack.EMPTY;
-				if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize() + this.ticketInput.getContainerSize(), false))
+				if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory(), false))
 				{
 					return ItemStack.EMPTY;
 				}
@@ -124,11 +129,11 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 			
 			if(slotStack.isEmpty())
 			{
-				slot.set(ItemStack.EMPTY);
+				slot.putStack(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.setChanged();
+				slot.onSlotChanged();
 			}
 		}
 		
@@ -138,71 +143,107 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 	
 	public boolean HasMasterTicket()
 	{
-		return TicketItem.isMasterTicket(ticketInput.getItem(0));
+		return TicketItem.isMasterTicket(ticketInput.getStackInSlot(0));
 	}
 	
 	public boolean HasValidTicket()
 	{
 		//Get the ticket item
-		ItemStack ticket = ticketInput.getItem(0);
+		ItemStack ticket = ticketInput.getStackInSlot(0);
 		//Cannot consume master tickets
 		if(TicketItem.isMasterTicket(ticket))
 			return false;
-		return this.blockEntity.validTicket(TicketItem.GetTicketID(ticket));
+		return this.tileEntity.validTicket(ticket);
 	}
 	
 	public UUID GetTicketID()
 	{
-		return TicketItem.GetTicketID(ticketInput.getItem(0));
+		return TicketItem.GetTicketID(ticketInput.getStackInSlot(0));
 	}
 	
 	public long GetCoinValue()
 	{
 		long value = 0;
-		for(int i = 0; i < coinInput.getContainerSize(); i++)
+		for(int i = 0; i < coinInput.getSizeInventory(); i++)
 		{
-			value += MoneyUtil.getValue(coinInput.getItem(i));
+			value += MoneyUtil.getValue(coinInput.getStackInSlot(i));
 		}
-		value += WalletUtil.getWallets(this.player).getStoredMoney();
+		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
+		if(!wallet.isEmpty())
+		{
+			value += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
+		}
 		return value;
+	}
+	
+	public boolean CanActivate()
+	{
+		if(this.tileEntity.isActive())
+			return false;
+		if(this.tileEntity.HasPairedTicket())
+		{
+			if(this.tileEntity.getPrice().getRawValue() <= 0)
+				return this.HasValidTicket();
+			else
+				return this.HasValidTicket() || this.GetCoinValue() >= this.tileEntity.getPrice().getRawValue();
+		}
+		else
+		{
+			return this.GetCoinValue() >= this.tileEntity.getPrice().getRawValue();
+		}
 	}
 	
 	public void Activate()
 	{
 		
+		if(!CanActivate())
+			return;
+		
 		//Check if a valid ticket is present
 		if(HasValidTicket())
 		{
 			//Remove the ticket
-			ticketInput.removeItem(0, 1);
+			ticketInput.decrStackSize(0, 1);
+			//Generate a ticket stub
+			ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
+			//Try to put it in the ticket slot
+			if(ticketInput.getStackInSlot(0).isEmpty())
+				ticketInput.setInventorySlotContents(0, ticketStub);
+			else
+			{
+				//Otherwise force it into the players inventory
+				IInventory temp = new Inventory(1);
+				temp.setInventorySlotContents(0, ticketStub);
+				this.clearContainer(this.player, this.player.world, temp);
+			}
 		}
 		else
 		{
 			//Process the payment via MoneyUtil
-			if(!MoneyUtil.ProcessPayment(this.coinInput, this.player, this.blockEntity.getPrice()))
+			if(!MoneyUtil.ProcessPayment(this.coinInput, this.player, this.tileEntity.getPrice()))
 				return;
 			
 			//Add the money to storage
-			this.blockEntity.addStoredMoney(this.blockEntity.getPrice());
+			this.tileEntity.addStoredMoney(this.tileEntity.getPrice());
 			
 		}
 		
 		//Activate the redstone signal
-		this.blockEntity.activate();
+		this.tileEntity.activate();
 		
 	}
 	
 	@Override
 	public void CollectCoinStorage()
 	{
-		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(blockEntity.getStoredMoney());
-		PlayerWallets wallet = WalletUtil.getWallets(this.player);
-		if(wallet.hasWallet())
+		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
+		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
+		if(!wallet.isEmpty())
 		{
 			List<ItemStack> spareCoins = new ArrayList<>();
 			for(int i = 0; i < coinList.size(); i++)
 			{
-				ItemStack extraCoins = wallet.PlaceCoin(coinList.get(i));
+				ItemStack extraCoins = WalletItem.PickupCoin(wallet, coinList.get(i));
 				if(!extraCoins.isEmpty())
 					spareCoins.add(extraCoins);
 			}
@@ -212,13 +253,13 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 		{
 			if(!manualCoinMerge(coinList.get(i)))
 			{
-				Container inventory = new SimpleContainer(1);
-				inventory.setItem(0, coinList.get(i));
-				this.clearContainer(player, inventory);
+				IInventory inventory = new Inventory(1);
+				inventory.setInventorySlotContents(0, coinList.get(i));
+				this.clearContainer(player, player.getEntityWorld(), inventory);
 			}
 		}
 		//Clear the coin storage
-		blockEntity.clearStoredMoney();
+		tileEntity.clearStoredMoney();
 		
 	}
 	
@@ -228,9 +269,9 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 		Item mergeItem = mergeStack.getItem();
 		List<Pair<Integer,Integer>> mergeOrders = new ArrayList<>();
 		//First pass, checking for other stacks to add to
-		for(int i = 0; i < coinInput.getContainerSize() && amountToMerge > 0; i++)
+		for(int i = 0; i < coinInput.getSizeInventory() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = coinInput.getItem(i);
+			ItemStack inventoryStack = coinInput.getStackInSlot(i);
 			if(inventoryStack.getItem() == mergeItem && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
 			{
 				int availableSlots = inventoryStack.getMaxStackSize() - inventoryStack.getCount();
@@ -244,9 +285,9 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 			}
 		}
 		//Second pass, checking for empty slots to place them in
-		for(int i = 0; i < coinInput.getContainerSize() && amountToMerge > 0; i++)
+		for(int i = 0; i < coinInput.getSizeInventory() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = coinInput.getItem(i);
+			ItemStack inventoryStack = coinInput.getStackInSlot(i);
 			if(inventoryStack.isEmpty())
 			{
 				int availableSlots = 64;
@@ -266,14 +307,14 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 		//Execute item placement/addition
 		mergeOrders.forEach(order ->
 		{
-			ItemStack itemStack = coinInput.getItem(order.getFirst());
+			ItemStack itemStack = coinInput.getStackInSlot(order.getFirst());
 			if(itemStack.isEmpty())
 			{
-				coinInput.setItem(order.getFirst(), new ItemStack(mergeItem, order.getSecond()));
+				coinInput.setInventorySlotContents(order.getFirst(), new ItemStack(mergeItem, order.getSecond()));
 			}
 			else
 			{
-				coinInput.setItem(order.getFirst(),  new ItemStack(mergeItem, order.getSecond() + itemStack.getCount()));
+				coinInput.setInventorySlotContents(order.getFirst(),  new ItemStack(mergeItem, order.getSecond() + itemStack.getCount()));
 			}
 		});
 		
@@ -282,7 +323,7 @@ public class PaygateContainer extends AbstractContainerMenu implements ITraderCo
 	
 	public boolean isOwner()
 	{
-		return blockEntity.isOwner(player);
+		return tileEntity.isOwner(player);
 	}
 	
 }
