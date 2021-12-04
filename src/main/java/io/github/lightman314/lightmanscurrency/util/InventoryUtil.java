@@ -6,53 +6,52 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class InventoryUtil {
 
 	
-	public static IInventory buildInventory(List<ItemStack> list)
+	public static Container buildInventory(List<ItemStack> list)
 	{
-		IInventory inventory = new Inventory(list.size());
+		Container inventory = new SimpleContainer(list.size());
 		for(int i = 0; i < list.size(); i++)
 		{
-			inventory.setInventorySlotContents(i, list.get(i).copy());
+			inventory.setItem(i, list.get(i).copy());
 		}
 		return inventory;
 	}
 	
-	public static IInventory buildInventory(ItemStack stack)
+	public static Container buildInventory(ItemStack stack)
 	{
-		IInventory inventory = new Inventory(1);
-		inventory.setInventorySlotContents(0, stack);
+		Container inventory = new SimpleContainer(1);
+		inventory.setItem(0, stack);
 		return inventory;
 	}
 	
-	public static IInventory copyInventory(IInventory inventory)
+	public static Container copyInventory(Container inventory)
 	{
-		IInventory copy = new Inventory(inventory.getSizeInventory());
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		Container copy = new SimpleContainer(inventory.getContainerSize());
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			copy.setInventorySlotContents(i, inventory.getStackInSlot(i).copy());
+			copy.setItem(i, inventory.getItem(i).copy());
 		}
 		return copy;
 	}
 	
-	public static NonNullList<ItemStack> buildList(IInventory inventory)
+	public static NonNullList<ItemStack> buildList(Container inventory)
 	{
-		NonNullList<ItemStack> list = NonNullList.withSize(inventory.getSizeInventory(), ItemStack.EMPTY);
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		NonNullList<ItemStack> list = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			list.set(i, inventory.getStackInSlot(i).copy());
+			list.set(i, inventory.getItem(i).copy());
 		}
 		return list;
 	}
@@ -61,12 +60,12 @@ public class InventoryUtil {
      * Gets the quantity of a specific item in the given inventory
      * Ignores NBT data, as none is given
      */
-    public static int GetItemCount(IInventory inventory, Item item)
+    public static int GetItemCount(Container inventory, Item item)
     {
     	int count = 0;
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(stack.getItem() == item)
     		{
     			count += stack.getCount();
@@ -78,12 +77,12 @@ public class InventoryUtil {
     /**
      * Gets the quantity of a specific item in the given inventory validating NBT data where applicable
      */
-    public static int GetItemCount(IInventory inventory, ItemStack item)
+    public static int GetItemCount(Container inventory, ItemStack item)
     {
     	int count = 0;
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(ItemMatches(stack, item))
     		{
     			count += stack.getCount();
@@ -97,11 +96,11 @@ public class InventoryUtil {
      * Ignores NBT data as none is given
      * @return Whether the full amount of items were successfully taken.
      */
-    public static boolean RemoveItemCount(IInventory inventory, Item item, int count)
+    public static boolean RemoveItemCount(Container inventory, Item item, int count)
     {
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(stack.getItem() == item)
     		{
     			if(stack.getCount() > count)
@@ -112,7 +111,7 @@ public class InventoryUtil {
     			else
     			{
     				count -= stack.getCount();
-    				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+    				inventory.setItem(i, ItemStack.EMPTY);
     			}
     		}
     	}
@@ -123,20 +122,20 @@ public class InventoryUtil {
      * Removes the given item stack from the given inventory, validating nbt data.
      * @return Whether the full amount of items were successfully taken.
      */
-    public static boolean RemoveItemCount(IInventory inventory, ItemStack item)
+    public static boolean RemoveItemCount(Container inventory, ItemStack item)
     {
     	if(GetItemCount(inventory, item) < item.getCount())
     		return false;
     	int count = item.getCount();
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(ItemMatches(stack, item))
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count -= amountToTake;
     			if(amountToTake == stack.getCount())
-    				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+    				inventory.setItem(i, ItemStack.EMPTY);
     			else
     				stack.shrink(amountToTake);
     		}
@@ -144,33 +143,33 @@ public class InventoryUtil {
     	return true;
     }
     
-    public static int GetItemTagCount(IInventory inventory, ResourceLocation itemTag, Item... blacklistItems)
+    public static int GetItemTagCount(Container inventory, ResourceLocation itemTag, Item... blacklistItems)
     {
     	List<Item> blacklist = Lists.newArrayList(blacklistItems);
     	int count = 0;
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
     			count += stack.getCount();
     	}
     	return count;
     }
     
-    public static boolean RemoveItemTagCount(IInventory inventory, ResourceLocation itemTag, int count, Item... blacklistItems)
+    public static boolean RemoveItemTagCount(Container inventory, ResourceLocation itemTag, int count, Item... blacklistItems)
     {
     	if(GetItemTagCount(inventory, itemTag, blacklistItems) < count)
     		return false;
     	List<Item> blacklist = Lists.newArrayList(blacklistItems);
-    	for(int i = 0; i < inventory.getSizeInventory(); i++)
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
-    		ItemStack stack = inventory.getStackInSlot(i);
+    		ItemStack stack = inventory.getItem(i);
     		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count-= amountToTake;
     			if(amountToTake == stack.getCount())
-    				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+    				inventory.setItem(i, ItemStack.EMPTY);
     			else
     				stack.shrink(amountToTake);
     		}
@@ -182,15 +181,15 @@ public class InventoryUtil {
      * Places a given item stack in the inventory. Will not place if there's no room for every item.
      * @return Whether the stack was placed in the inventory. If false was returned nothing was placed.
      */
-    public static boolean PutItemStack(IInventory inventory, ItemStack stack)
+    public static boolean PutItemStack(Container inventory, ItemStack stack)
     {
     	int amountToMerge = stack.getCount();
 		Item mergeItem = stack.getItem();
 		List<Pair<Integer,Integer>> mergeOrders = new ArrayList<>();
 		//First pass, looking for stacks to add to
-    	for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+    	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(ItemMatches(stack, inventoryStack) && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
 			{
 				//Calculate the amount that can fit in this slot
@@ -202,9 +201,9 @@ public class InventoryUtil {
 			}
 		}
     	//Second pass, checking for empty slots to place them in
-		for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+		for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(inventoryStack.isEmpty())
 			{
 				//Calculate the amount that can fit in this slot
@@ -221,13 +220,13 @@ public class InventoryUtil {
     	//Execute item placement/addition
     	mergeOrders.forEach(order ->
 		{
-			ItemStack itemStack = inventory.getStackInSlot(order.getFirst());
+			ItemStack itemStack = inventory.getItem(order.getFirst());
 			if(itemStack.isEmpty())
 			{
 				ItemStack newStack = new ItemStack(mergeItem, order.getSecond());
 				if(stack.hasTag())
 					newStack.setTag(stack.getTag().copy());
-				inventory.setInventorySlotContents(order.getFirst(), newStack);
+				inventory.setItem(order.getFirst(), newStack);
 			}
 			else
 			{
@@ -242,14 +241,14 @@ public class InventoryUtil {
      * Places as much of the given item stack as possible into the inventory.
      * @return The remaining items that were unable to be placed.
      */
-    public static ItemStack TryPutItemStack(IInventory inventory, ItemStack stack)
+    public static ItemStack TryPutItemStack(Container inventory, ItemStack stack)
     {
     	int amountToMerge = stack.getCount();
 		Item mergeItem = stack.getItem();
 		//First pass, looking for stacks to add to
-    	for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+    	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(ItemMatches(stack, inventoryStack) && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
 			{
 				//Calculate the amount that can fit in this slot
@@ -261,9 +260,9 @@ public class InventoryUtil {
 			}
 		}
     	//Second pass, checking for empty slots to place them in
-		for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+		for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(inventoryStack.isEmpty())
 			{
 				//Calculate the amount that can fit in this slot
@@ -272,7 +271,7 @@ public class InventoryUtil {
 				ItemStack newStack = new ItemStack(mergeItem, amountToPlace);
 				if(stack.hasTag())
 					newStack.setTag(stack.getTag().copy());
-				inventory.setInventorySlotContents(i, newStack);
+				inventory.setItem(i, newStack);
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -289,13 +288,13 @@ public class InventoryUtil {
      * @param stack
      * @return
      */
-    public static boolean CanPutItemStack(IInventory inventory, ItemStack stack)
+    public static boolean CanPutItemStack(Container inventory, ItemStack stack)
     {
     	int amountToMerge = stack.getCount();
 		//First pass, looking for stacks to add to
-    	for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+    	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(ItemMatches(stack, inventoryStack) && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
 			{
 				//Calculate the amount that can fit in this slot
@@ -305,9 +304,9 @@ public class InventoryUtil {
 			}
 		}
     	//Second pass, checking for empty slots to place them in
-		for(int i = 0; i < inventory.getSizeInventory() && amountToMerge > 0; i++)
+		for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = inventory.getStackInSlot(i);
+			ItemStack inventoryStack = inventory.getItem(i);
 			if(inventoryStack.isEmpty())
 			{
 				//Calculate the amount that can fit in this slot
@@ -323,20 +322,20 @@ public class InventoryUtil {
      * Merges item stacks of the same type together (e.g. 2 stacks of 32 cobblestone will become 1 stack of 64 cobblestone and an extra empty slot)
      * @param inventory
      */
-    public static void MergeStacks(IInventory inventory)
+    public static void MergeStacks(Container inventory)
 	{
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			ItemStack thisStack = inventory.getStackInSlot(i);
+			ItemStack thisStack = inventory.getItem(i);
 			if(!thisStack.isEmpty())
 			{
 				int amountWanted = thisStack.getMaxStackSize() - thisStack.getCount();
 				if(amountWanted > 0)
 				{
 					//Steal from further stacks
-					for(int j = i + 1; j < inventory.getSizeInventory(); j++)
+					for(int j = i + 1; j < inventory.getContainerSize(); j++)
 					{
-						ItemStack nextStack = inventory.getStackInSlot(j);
+						ItemStack nextStack = inventory.getItem(j);
 						if(!nextStack.isEmpty() && nextStack.getItem() == thisStack.getItem() && ItemStackHelper.TagEquals(thisStack, nextStack))
 						{
 							while(amountWanted > 0 && !nextStack.isEmpty())
@@ -352,30 +351,29 @@ public class InventoryUtil {
 		}
 	}
     
-    public static IInventory loadAllItems(String key, CompoundNBT compound, int inventorySize)
+    public static Container loadAllItems(String key, CompoundTag compound, int inventorySize)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);
     	return buildInventory(tempInventory);
     }
     
-    public static void saveAllItems(String key, CompoundNBT compound, IInventory inventory)
+    public static void saveAllItems(String key, CompoundTag compound, Container inventory)
     {
     	ItemStackHelper.saveAllItems(key, compound, buildList(inventory));
     }
     
-    public static void dumpContents(World world, BlockPos pos, IInventory inventory)
+    public static void dumpContents(Level level, BlockPos pos, Container inventory)
     {
-    	if(world.isRemote)
+    	if(level.isClientSide)
 			return;
-    	InventoryHelper.dropInventoryItems(world, pos, inventory);
+    	
+    	//InventoryHelper.dropInventoryItems(level, pos, inventory);
     }
     
-    public static void dumpContents(World world, BlockPos pos, List<ItemStack> inventory)
+    public static void dumpContents(Level level, BlockPos pos, List<ItemStack> inventory)
     {
-    	if(world.isRemote)
-			return;
-    	InventoryHelper.dropInventoryItems(world, pos, InventoryUtil.buildInventory(inventory));
+    	dumpContents(level, pos, InventoryUtil.buildInventory(inventory));
     }
     
     /**

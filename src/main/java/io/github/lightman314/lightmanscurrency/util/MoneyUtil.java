@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ibm.icu.impl.units.UnitsData.Constants;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -14,22 +15,18 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.CoinValuePair;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.ITag;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class MoneyUtil {
 	
@@ -396,12 +393,12 @@ public class MoneyUtil {
 	 * Gets the total value of the items in the given inventory.
 	 * @param inventory The inventory full of coins with which to get the value of.
 	 */
-    public static long getValue(IInventory inventory)
+    public static long getValue(Container inventory)
 	{
     	long value = 0;
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			value += getValue(inventory.getStackInSlot(i));
+			value += getValue(inventory.getItem(i));
 		}
 		return value;
 	}
@@ -409,7 +406,7 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as large a coin as humanly possible
      */
-    public static void ConvertAllCoinsUp(IInventory inventory)
+    public static void ConvertAllCoinsUp(Container inventory)
     {
     	for(int i = 1; i < coinList.size(); i++)
     	{
@@ -426,7 +423,7 @@ public class MoneyUtil {
      */
     public static NonNullList<ItemStack> ConvertAllCoinsUp(NonNullList<ItemStack> inventoryList)
     {
-    	IInventory inventory = InventoryUtil.buildInventory(inventoryList);
+    	Container inventory = InventoryUtil.buildInventory(inventoryList);
     	ConvertAllCoinsUp(inventory);
     	return InventoryUtil.buildList(inventory);
     }
@@ -434,7 +431,7 @@ public class MoneyUtil {
     /**
      * Converts as many of the small coin that it can into its next largest coin
      */
-    public static void ConvertCoinsUp(IInventory inventory, Item smallCoin)
+    public static void ConvertCoinsUp(Container inventory, Item smallCoin)
     {
     	//Get next-higher coin data
     	Pair<Item,Integer> upwardConversion = getUpwardConversion(smallCoin);
@@ -1248,7 +1245,7 @@ public class MoneyUtil {
     		Item worthOtherCoin = null;
     		int worthOtherCoinCount = 0;
     		//The shortened name of the coin
-    		ITextComponent initialText = null;
+    		Component initialText = null;
     		//The minting material item
     		Item mintingMaterialItem = null;
     		ResourceLocation mintingMaterialTag = null;
@@ -1274,7 +1271,7 @@ public class MoneyUtil {
     		/**
     		 * Defines the coins initial used in displaying the short form of an price/value;
     		 */
-    		public Builder defineInitial(ITextComponent textComponent)
+    		public Builder defineInitial(Component textComponent)
     		{
     			this.initialText = textComponent;
     			return this;
@@ -1285,7 +1282,7 @@ public class MoneyUtil {
     		 */
     		public Builder defineInitial(String translationString)
     		{
-    			this.initialText = new TranslationTextComponent(translationString);
+    			this.initialText = new TranslatableComponent(translationString);
     			return this;
     		}
     		
@@ -1369,7 +1366,7 @@ public class MoneyUtil {
     	
     	public final List<CoinValuePair> coinValues;
     	
-    	public CoinValue(CompoundNBT compound)
+    	public CoinValue(CompoundTag compound)
     	{
     		this.coinValues = new ArrayList<>();
     		this.readFromNBT(compound, DEFAULT_KEY);
@@ -1482,19 +1479,18 @@ public class MoneyUtil {
     		return compound;
     	}
     	
-    	public void readFromNBT(CompoundNBT compound, String key)
+    	public void readFromNBT(CompoundTag compound, String key)
     	{
-    		ListNBT listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
+    		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
     		if(listNBT != null)
     		{
     			this.coinValues.clear();
     			for(int i = 0; i < listNBT.size(); i++)
     			{
-    				CompoundNBT thisCompound = listNBT.getCompound(i);
+    				CompoundTag thisCompound = listNBT.getCompound(i);
 					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
     				int amount = thisCompound.getInt("amount");
     				this.coinValues.add(new CoinValuePair(priceCoin,amount));
-    				
     			}
     		}
     	}
@@ -1805,7 +1801,7 @@ public class MoneyUtil {
     		return new CoinValue(pairs);
     	}
     	
-    	public static CoinValue easyBuild2(IInventory inventory)
+    	public static CoinValue easyBuild2(Container inventory)
     	{
     		return new CoinValue(MoneyUtil.getValue(inventory));
     		/*List<CoinValuePair> pairs = new ArrayList<>();

@@ -20,19 +20,19 @@ description="Adds a simple money & shop system to the game."
 [[dependencies.lightmanscurrency]]
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[35,)"
+    versionRange="[38,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.lightmanscurrency]]
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.16.4,1.17)"
+    versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.lightmanscurrency]]
     modId="curios"
     mandatory=false
-    versionRange="[1.16.3-4.0.1.0,)"
+    versionRange="[1.18-5.0.2.3,)"
     ordering="AFTER"
     side="BOTH"

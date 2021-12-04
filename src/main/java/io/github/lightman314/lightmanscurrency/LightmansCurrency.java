@@ -28,8 +28,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -44,7 +42,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
@@ -61,9 +58,9 @@ public class LightmansCurrency {
 	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
     
-    public static final CustomItemGroup COIN_GROUP = new CustomItemGroup(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
-    public static final CustomItemGroup MACHINE_GROUP = new CustomItemGroup(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
-    public static final CustomItemGroup TRADING_GROUP = new CustomItemGroup(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
+    public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
+    public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
+    public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
     
     public LightmansCurrency() {
     	

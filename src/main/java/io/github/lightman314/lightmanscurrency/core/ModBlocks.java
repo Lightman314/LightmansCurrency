@@ -16,13 +16,10 @@ import io.github.lightman314.lightmanscurrency.Reference;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -37,12 +34,11 @@ public class ModBlocks {
 	
 	//Coin piles
 	public static final BlockItemPair COINPILE_COPPER = register("coinpile_copper", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
-			Block.Properties.create(Material.IRON)
-			.notSolid()
-			.hardnessAndResistance(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.harvestLevel(0)
-			.harvestTool(ToolType.PICKAXE),
+			Block.Properties.of(Material.METAL)
+			//.notSolid()
+			.strength(3.0f, 6.0f)
+			.sound(SoundType.METAL),
+			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_COPPER
 			)
 	);

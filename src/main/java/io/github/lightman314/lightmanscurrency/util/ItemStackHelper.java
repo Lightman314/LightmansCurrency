@@ -1,24 +1,24 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemStackHelper {
 	
-	public static CompoundNBT saveAllItems(String key, CompoundNBT tag, NonNullList<ItemStack> list)
+	public static CompoundTag saveAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
 	{
-		ListNBT listTag = new ListNBT();
+		ListTag listTag = new ListTag();
 		for(int i = 0; i < list.size(); ++i)
 		{
 			ItemStack stack = list.get(i);
 			if(!stack.isEmpty())
 			{
-				CompoundNBT itemCompound = new CompoundNBT();
+				CompoundTag itemCompound = new CompoundTag();
 				itemCompound.putByte("Slot", (byte)i);
-				stack.write(itemCompound);
+				stack.save(itemCompound);
 				listTag.add(itemCompound);
 			}
 		}
@@ -26,16 +26,16 @@ public class ItemStackHelper {
 		return tag;
 	}
 	
-	public static void loadAllItems(String key, CompoundNBT tag, NonNullList<ItemStack> list)
+	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
 	{
-		ListNBT listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
+		ListTag listTag = tag.getList(key, Tag.TAG_COMPOUND);
 		for(int i = 0; i < listTag.size(); i++)
 		{
-			CompoundNBT slotCompound = listTag.getCompound(i);
+			CompoundTag slotCompound = listTag.getCompound(i);
 			int index = slotCompound.getByte("Slot") & 255;
 			if(index < list.size())
 			{
-				list.set(index, ItemStack.read(slotCompound));
+				list.set(index, ItemStack.of(slotCompound));
 			}
 		}
 	}

@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.compress.utils.Lists;
+
 import io.github.lightman314.lightmanscurrency.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.item.Item;
-import net.minecraft.item.Rarity;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,9 +15,9 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModItems {
 	
-	private static final List<Item> ITEMS = new ArrayList<>();
+	private static final List<Item> ITEMS = Lists.newArrayList();
 	
-	public static final Item COIN_COPPER = register("coin_copper", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
+	public static final Item COIN_COPPER = register("coin_copper", new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
 	public static final Item COIN_IRON = register("coin_iron", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
 	public static final Item COIN_GOLD = register("coin_gold", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));
 	public static final Item COIN_EMERALD = register("coin_emerald", new CoinItem(new Item.Properties().group(LightmansCurrency.COIN_GROUP)));

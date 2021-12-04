@@ -1,245 +1,62 @@
-1.0.0.2
--Fixed an issue where the "Back To Terminal" button only appears if you own the universal trader you have open.
--Added a shop log to the traders, accessible from the storage screen.
--Added config options to disable the minting/melting of specific coins.
+Build: 1.18-38.0.12 - Thu Dec 02 20:16:47 GMT 2021
+	lexmanos:
+		Allow Forge Registries to return key information for overridden objects. Fixes #8230
 
-1.0.0.1
--Updated the default client-config "renderBlocksAsItems" value to include new 1.17.1 items that would otherwise render improperly spaced in a trader.
-*(Note: You will need to delete the entry for this to take effect for existing configs.)
--Minor Wallet API changes in how equipped wallets are collected. We now operate under the assumption that it's possible for more than 1 wallet to be equipped. Hotkey still only opens the first equipped wallet available.
-*(Old functions are still available)
--The "Store Coins" button is now only visible when there are coins in the store coins slots.
--Fixed an error that occurred when you tried to store more than 1 stack of coins at a time.
--Fixed an issue where the coins in the store coin slots would be lost to the void when the storage screen is closed.
--Fixed an issue where the Collect Coin button won't reappear if the trader is removed from creative mode, or coins are added to storage via the store coins button.
+=========
+Build: 1.18-38.0.11 - Thu Dec 02 19:17:12 GMT 2021
+	curle:
+		Save Chunk capabilities to the chunk, rather than recursively to the capabilities.
 
-1.0.0.0
--Wallets now render on the players hip while equipped in a curios belt slot.
+=========
+Build: 1.18-38.0.10 - Thu Dec 02 15:24:47 GMT 2021
+	gigaherz:
+		Make HandshakeConsumer public again.
+		Fixes #8241
 
-0.8.2.5
--Fixed an issue where the wallet opening sounds would play when you press the open wallet key with no wallet equipped, but with a wallet in your inventory.
--Fixed an issue where the mod would not run on forge version 37.0.31 or newer due to changes made to the tool that affected the blocks that are mineable with a pickaxe.
+	gigaherz:
+		Fix LevelChunk capability attach crash.
+		Fix client chunks not having capability providers attached.
+		Add capability attach tests.
 
-0.8.2.4
--Re-added optional Curios integration for 1.17, allowing the wallets to be equipped in the belt slot. (Note that the wallet rendering is still non-functional.)
+=========
+Build: 1.18-38.0.8 - Thu Dec 02 00:44:15 GMT 2021
+	curle:
+		Add missing biomes back to the BiomeDictionary
 
-0.8.2.3
--Added a WalletUtil that contains functions and classes that allows easy interaction with all wallets within the players inventory.
--Wallets can now pick up coins while not equipped (if capable of picking up coins).
--Trading Machines can now interface with wallets that aren't equipped.
+	curle:
+		Complete TODO in ShapedRecipe patch causing logspam related to minecraft:air
 
-0.8.2.2
--Updated to 1.17.1
--Fixed an issue where the new boss coin drops would not spawn if the boss wasn't killed by a player for entity entries.
--Fixed an issue where some traders didn't drop their items when mined (namely the Armor Display trader and the new Vending Machine colors)
+=========
+Build: 1.18-38.0.6 - Wed Dec 01 22:12:05 GMT 2021
+	curle:
+		Readd Mixin 0.8.5 to fix modules issues.
 
-^^^^1.17.1^^^^
-||||||||||||||
+=========
+Build: 1.18-38.0.5 - Wed Dec 01 16:56:24 GMT 2021
+	curle:
+		Readd PoseStack field to RenderTooltipEvent.
 
-0.8.3.2
--Added a shop log to the traders, accessible from the storage screen.
+=========
+Build: 1.18-38.0.4 - Wed Dec 01 01:29:57 GMT 2021
+	curle:
+		Fix custom loot serializers using wrong registry names
 
-0.8.3.1
--Fixed an issue where the "Back To Terminal" button only appears if you own the universal trader you have open.
+=========
+Build: 1.18-38.0.3 - Wed Dec 01 01:15:13 GMT 2021
+	lexmanos:
+		Fix DungeonHooks not returning correct values. Fixes dungeons in world spawning pigs.
 
-0.8.3.0
--Fixed an issue where the new boss coin drops would not spawn if the boss wasn't killed by a player for entity entries.
--Fixed an error that occurred when you tried to store more than 1 stack of coins at a time.
--Fixed an issue where the coins in the store coin slots would be lost to the void when the storage screen is closed.
--Fixed an issue where the Collect Coin button won't reappear if the trader is removed from creative mode, or coins are added to storage via the store coins button.
--The "Store Coins" button is now only visible when there are coins in the store coins slots.
--Added config options to disable the minting/melting of specific coins.
+=========
+Build: 1.18-38.0.2 - Wed Dec 01 00:23:23 GMT 2021
+	lexmanos:
+		Fix dedicated server install. Closes #8226
+		Fix example mod
+		Fix obf issue with records. Closes #8228
+		Fix dependencies beingg out of sync from vanilla. Closes #8227
+		Disable mixin due to module incompatibility.
 
-0.8.2.1-patched
--Fixed an issue where some traders didn't drop their items when mined (namely the Armor Display trader and the new Vending Machine colors)
-
-0.8.2.1
--Added the remaining vending machine colors (orange, magenta, gray, light gray, cyan, purple, brown) for both types of vending machines.
--Tweaked the vending machine textures to match the vanilla coloration's.
--Internal changes to make registering the colored & wooden blocks an easier process.
--Texture/model name changes to acknowledge that the default vending machine is white (where possible).
-
-0.8.2.0
--Added boss entity loot tables for copper -> emerald coins to the config to allow better economy customization options for managing loot from boss creatures (ender dragon, wither, modded bosses, etc.)
--Boss entity loot tables now work with entity ids (I apparently forgot to include them when adding that functionality).
-
-0.8.1.1
--Added a new menu that can be opened by clicking on an empty trade definition slot, whereupon players can search through all available items in the game and define the trade item in that manner.
-
-0.8.1.0
--Trading Machines no longer validate their trade count when opened, allowing users to modify the trade count in creative and then return them to normal functionality.
--Trading Machines can now purchase items from customers, purchasing items from the item slots in exchange for money. This mode can be toggled in the trade-price screen.
--Trade buttons are now blue when the trade is purchasing items from the player, instead of selling them.
--Trade Machines now have 5 coin slots on the storage screen, allowing players to store money in the machine to be used when purchasing items from other players.
-*All stored money is still located in the same place, so choose carefully when you want to collect the stored money.
-
-Bugfixes:
-Univeral traders now show the tooltips when hovering over the add/remove trade buttons like their non-universal counterparts.
-
-0.8.0.6
--Wallets now use Curio's rendering system (when available), allowing them to be rendered on other valid humanoid/bipedal entities should another mod make them compatible with curios.
-*When curios is not installed the wallets still render normally.
-
-0.8.0.5
--Added a debugLevel config option to allow users to remove spammy debug messages from the latest.log
--Fixed an error that arose (didn't cause any actual issues, just spammed the logs with error info) when a creative universal trader had its size changed in a single-player world, causing client-side containers to attempt to perform server-side functions due to the unique nature of single-player client-server relationships.
-
-0.8.0.4
--Removed some annoying debug messages leftover from the wallet upgrading feature.
-
-0.8.0.3
--Added an additional shapeless recipe for the wallet crafting that allows you to upgrade an existing wallet to one of the next tier.
-*Note: The crafting out does not display its copied contents/name/enchantments until after it has been crafted. It will appear as though it was in its default state until then.
-
-0.8.0.2
--Fixed an issue where you were unable to collect coins from the main trading screen.
-
-0.8.0.1
--Reworked and refined the enchanted book & enchanted item price calculations, so now the prices should be more reasonably generated.
-
-0.8.0.0
--Added two custom villager types with their own unique sets of trades that allow you to make purchases with coins.
--Banker: Sells various trade-related items. Block: ATM.
--Cashier: Sells most items that are sold by vanilla villagers*, but you pay for the items with coins instead of emeralds. Block: Cash Register.
--Modified the Armor Stand Display trader to properly maintain its trade limitations for the first 4 slots should they be removed and re-added via the creative trader functionality.
-*Disclaimer: I have attempted to copy over the trades with an approximately appropriate price (albeit significantly cheaper than just setting the cost in an equivalent amount of emerald coins), however some trades that have randomized or calculated costs may end with strange results, so please report these issues as you see them.
-**Neither the banker nor the cashier will generate naturally in villages as I have not yet added structures to the villages with houses that spawn with ATM's/cash registers. They will, however, still transform into a villager of these types should you place an ATM/Cash Register near an unemployed villager.
-
-0.7.3.4
--Fixed an error where the items in the trade definition slots were still being dropped when a trader is destroyed, allowing items to be duplicated in a trading machine.
--Fixed a server-crash when a player trys to change a traders name.
-
-0.7.3.3
--Removed an annoying debug message that triggers when an entity dies.
-
-0.7.3.2
--Flipped the order in which the title/owner of a trader are listed on the Terminal UI Buttons (formerly owner -> title, now title -> owner)
--Added buttons to the trader storage screen that allows owners of creative traders add/remove trades to the trade list (Trades are limited between 1-16).
--Added a button to the trader storage screen that allows owners to edit the name of the trader.
--Fixed an issue where custom trader names are not properly written/loaded to nbt, causing the custom name to be lost when the chunk/world is reloaded.
-
-0.7.3.1
--Added the coin values to the config synchronization to fix a variety of client desyncs of coin value displays & price setting.
--In the process the MoneyUtil API now allows for the changing of coin conversion amounts post-init.
-
-0.7.3.0
--Added config options to change the comparative value of different coins to allow users to further customize & balance their servers economy.
--Added similar config options to change the comparative value of coin piles/blocks should the user use a datapack or mod to change their crafting recipes.
--Changed individual coin value calculation to return a long instead of an int due to the new larger values a singular coin can have when config values are at their upper limit.
--Fixed a visual issue with the cash register right-arrow button placement.
--Reverted the title format of the cash-register trader screen to once again include the (X of Y) page title.
--Changed the minimum width of the trade display window to allow your average title to fit on the screen properly.
--Changed the trading/trading storage ui to avoid going wide for traders with 6 or less trades, as they still fit even at max gui scale.
-
-*Developers Note: When the config values are all set to their maximum value, we are beginning to reach the upper limit of the java long when calculating the coin value of a filled wallet, so the upper limits on the config are unlikely to change any higher than the vanilla stack limit.
-
-0.7.2.3
--The entity loot sections of the config can now take entity id's without loot tables and add spawn coin loot on their death when appropriate. Only works on LivingEntities.
-
-0.7.2.2
--The Trading UI now centers the last row of trade buttons if it only has 1 or 2 trades.
--The Trader Storage UI now centers the last row of trader storage if it has an odd number of trades.
--Fixed an issue where the trade-portion of the Trading UI was slightly left of center due to an error it it's width calculation.
-*Removed from beta flag due to lack of reported issues with the trade definition functionality changes.
-
-0.7.2.1
--Fixed a visual bug with the Ticket Machine arrow button.
-
-0.7.2.0
--Added an Extra-Large Item Trader Server that can handle 16 trades. Note: May not fully support Minecrafts default GUI-scale.
--Item Traders (Universal or otherwise), now no longer consume items when defining the trades. Any items that were previously in those inventory slots will be pushed into the storage inventory (or the ground if the trader is out of storage space) when the chunk is loaded.
-
-0.7.1.0
--Wandering traders now have 9 additional trade options that use money as payment instead of emeralds.
--Added "addCustomWanderingTrades" to the common config to allow users to disable the new wandering trader trades. Default value is true.
-
-0.7.0.3
--Fixed a missing loot table for the Freezer causing it to not drop itself when mined.
-
-0.7.0.2
--Updated the trading /trader storage ui's to be wider, thus allowing those playing on GUI scale 4 to be able to access all of the buttons & slots at the top/bottom of the screen on the larger machines (although some of the visuals still go off of the edge at that size, everything remains functional).
--Changed the maximum trade count for any given item trader to be 12.
-
-0.7.0.1
--Fixed an issue where non-owners of a universal trader can access the storage screen by right-clicking the server. The server's now confirm that the player is the owner before opening the screen.
-
-0.7.0.0
--Added first pass at a universal trader/terminal system. Item Trader servers can now be placed and used from a trading terminal from anywhere in any dimension.
-
-0.6.4.1
--Tagged all multi & trader blocks as forge:immovable to avoid issues with other mods attempting to move them. If another mod breaks them by attempting to move only part of a machine it's on their court now.
-
-0.6.4.0
--Fixed an issue where the trader gui's would remain open and players could still interact with the trading machines and their contents after they were broken, allowing item duplication/destruction.
-
-0.6.3.9
--Fixed an issue where money would be consumed, but no item(s) given should there not be room for the purchased item in the item output slots. A refund of the money paid is now given during these circumstances.
--More internal changes to make certain network messages more universally usable for other mods that wish to make compatible trading machines (I have one in development... spoilers :P)
--Partial development of the new Networked Item Traders. Nothing functional or accessable at the moment, but it's gettin there.
-
-0.6.3.8
--Hopefully fixed an issue with some versions of forge not properly comparing the curios optional dependency version #'s.
--Removed an unused optional dependency with Mr Crayfishes vehicles mod that could cause potential issues.
-
-0.6.3.7
--Fixed an issue where players would crash when breaking any trader block due to my forgetfulness to update the block breaking code with the other internal changes.
-
-0.6.3.6
--Internal changes to make it possible for trading machines that don't sell items to be made in other mods, yet still be compatible with the cash register and other misc features from this mod.
--Fixed a visual bug where the items in a large vending machine would not render if you look at the wrong angle.
-
-0.6.3.5
--Added a new freezer trader (can have 8 trades).
--Traders now keep track of how many players are currently using it.
--Changed the crafting recipe of the large vending machine to require a more reasonable amount of materials compared to its smaller variant.
-
-0.6.3.4
--Removed repetitive mint/melt list generation from being called every time the list is requested, but instead only being generated once
--Added client config to whitelist certain block items to be rendered at the item distance instead of the block distance to fix rendering issues with items that are also technically blocks (such as flowers, cakes, redstone, string, etc.) Default values include all of the vanilla & lightmanscurrency items that should be rendered in this manner.
--Minor internal changes to accomodate the newly ludicrous amount of money the wallet is capable of storing, as the raw-value of the coins was causing an integer overflow.
--Coin piles/blocks can now be placed in wallets and used to make purchases. (The ATM will not interact with them in any form though, nor will the wallet automatically pick them up.)
--Coins are now rendered on the coin value widget, so you can make a more informed choice of price.
--Minor tweaks to the trade price screen to make it move/resize automatically should any future changes to the CoinValueInput height be made.
--ATMs, Traders, etc. now respect custom names on coins when sorting/stacking coins of the same type. Converting/spending coins will still remove the custom name.
-
-0.6.3.3
--Fixed a server-only crash caused by a debug message using a client-side only function in the coin-melt tag -> recipe feature added in 0.6.3.0
--Fully fixed the visual bug with the Coin Mint arrow button's first frame.
-
-0.6.3.2
--Fixed a bug where coins will be destroyed if you pick them up while your equipped wallet is full AND your inventory is also full.
--Fixed a similar bug where coins will be destroyed if there is not enough room in your inventory or the given coin slots for the change given when making a purchase.
--Doubled the storage size of all of the wallets.
-
-0.6.3.1
--Fixed a visual bug with the Coin Mint arrow button.
-
-0.6.3.0
--Internal changes to how stored money/prices are saved. Will still load stored money/prices from the older format.
--Internal: Moved a lot of repetitive functionality to the MoneyUtil to make it easier to add newer shopping interfaces in the future should a need arise.
--Internal: Changed how coins are registered, and their value is now defined by their relationship to other coins.
--Changed the coin's tooltips to display their relative value to other coins instead of the arbitrary raw value.
--The wallet tooltip now shows the money stored in the same text format as the traders, etc.
--The coin collection button now shows the money available in the same format as the rest of the trader.
--Changed the price-set GUI to set the price by coin (similar to how the price is actually displayed), instead of just typing in a number.
--Untested: Coins whose minting material is defined by a tag (copper coins by default), should now be capable of being melted should an item with that tag be present.
-
-0.6.2.1
--Internal changes to make it easier to get relative directions for rotatable blocks without copy/pasting the same code for each different block.
--Internal changes to allow other mods to add their own items to the creative inventory sorting lists of this mods creative tabs.
-
-0.6.2.0
--Changed trading credit text for the trading machines to make clip off the edge of the ui less often.
--Creative inventory tabs now sort themselves to a defined order.
-
-0.6.1.9
--Internal package renaming. No changes to functionality.
-
-0.6.1.8
--Fixed a bug where a player would not be able to mint/melt while connected to a server that allows it if the client-side config does not also allow it.
-
-0.6.1.7
--Added new feature to the trading machines allowing players to change the name of the displayed item from the price edit screen. The name of the item in the display will change to orange to indicate that it's been changed.
--Fixed a visual bug where the wallet contents would not update client-side when modified by a trading machine causing concern as to whether the correct amount was taken, etc.
--Iron and higher level coins can now be used to fuel a beacon.
--All coinblocks can now be used as a part of the beacon's base.
+=========
+Build: 1.18-38.0.1 - Tue Nov 30 20:56:52 GMT 2021
+	gigaherz:
+		Fix mod resources not loading.
+		Add BreakingItemParticle.java.patch which I forgot to commit during the porting.
