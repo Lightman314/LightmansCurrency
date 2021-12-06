@@ -2,38 +2,36 @@ package io.github.lightman314.lightmanscurrency.client.renderer.tileentity;
 
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.tileentity.FreezerTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
-public class FreezerTraderTileEntityRenderer extends TileEntityRenderer<FreezerTraderTileEntity>{
+public class FreezerTraderTileEntityRenderer implements BlockEntityRenderer<FreezerTraderTileEntity>{
 
 	public static final Item doorItem = ModItems.FREEZER_DOOR;
 	
-	public FreezerTraderTileEntityRenderer(TileEntityRendererDispatcher dispatcher)
-	{
-		super(dispatcher);
-	}
+	public FreezerTraderTileEntityRenderer(BlockEntityRendererProvider.Context context) { }
 	
 	@Override
-	public void render(FreezerTraderTileEntity tileEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i, int i1)
+	public void render(FreezerTraderTileEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
 		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)
@@ -64,22 +62,22 @@ public class FreezerTraderTileEntityRenderer extends TileEntityRenderer<FreezerT
 				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < ItemTraderTileEntityRenderer.positionLimit(); pos++)
 				{
 					
-					matrixStack.push();
+					poseStack.pushPose();
 					
 					Vector3f position = positions.get(pos);
 					
 					//Translate, rotate, and scale the matrix stack
-					matrixStack.translate(position.getX(), position.getY(), position.getZ());
+					poseStack.translate(position.x(), position.y(), position.z());
 					for(Quaternion rot : rotation)
 					{
-						matrixStack.rotate(rot);
+						poseStack.mulPose(rot);
 					}
-					matrixStack.scale(scale.getX(), scale.getY(), scale.getZ());
+					poseStack.scale(scale.x(), scale.y(), scale.z());
 					
 					//Render the item
-					Minecraft.getInstance().getItemRenderer().renderItem(stack,  ItemCameraTransforms.TransformType.FIXED, i, i1, matrixStack, renderTypeBuffer);
+					Minecraft.getInstance().getItemRenderer().renderStatic(stack,  TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
 				
-					matrixStack.pop();
+					poseStack.popPose();
 					
 				}
 				
@@ -89,7 +87,7 @@ public class FreezerTraderTileEntityRenderer extends TileEntityRenderer<FreezerT
 		}
 		
 		//Render the door
-		matrixStack.push();
+		poseStack.pushPose();
 		Vector3f corner = new Vector3f(0f,0f,0f);
 		Vector3f right = new Vector3f(1f, 0f, 0f);
 		Vector3f forward = new Vector3f(0f, 0f, 1f);
@@ -99,22 +97,22 @@ public class FreezerTraderTileEntityRenderer extends TileEntityRenderer<FreezerT
 		{
 			IRotatableBlock block = (IRotatableBlock)freezerBlock;
 			facing = block.getFacing(tileEntity.getBlockState());
-			corner = block.getOffsetVect(facing);
-			right = block.getRightVect(facing);
-			forward = block.getForwardVect(facing);
+			corner = IRotatableBlock.getOffsetVect(facing);
+			right = IRotatableBlock.getRightVect(facing);
+			forward = IRotatableBlock.getForwardVect(facing);
 		}
 		//Calculate the hinge position
 		Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
 		
-		Quaternion rotation = Vector3f.YP.rotationDegrees(facing.getHorizontalIndex() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
+		Quaternion rotation = Vector3f.YP.rotationDegrees(facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
 		
-		matrixStack.translate(hinge.getX(), hinge.getY(), hinge.getZ());
-		matrixStack.rotate(rotation);
+		poseStack.translate(hinge.x(), hinge.y(), hinge.z());
+		poseStack.mulPose(rotation);
 		
 		ItemStack stack = new ItemStack(doorItem);
-		Minecraft.getInstance().getItemRenderer().renderItem(stack,  ItemCameraTransforms.TransformType.FIXED, i, i1, matrixStack, renderTypeBuffer);
+		Minecraft.getInstance().getItemRenderer().renderStatic(stack, TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
 		
-		matrixStack.pop();
+		poseStack.popPose();
 		
 	}
 	

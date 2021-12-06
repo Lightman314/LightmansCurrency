@@ -3,22 +3,19 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class CoinJarTileEntity extends TileEntity
+public class CoinJarTileEntity extends BlockEntity
 {
 	
 	public static int COIN_LIMIT = 64;
@@ -26,9 +23,9 @@ public class CoinJarTileEntity extends TileEntity
 	List<ItemStack> storage = new ArrayList<>();
 	public List<ItemStack> getStorage() { return storage; }
 	
-	public CoinJarTileEntity()
+	public CoinJarTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.COIN_JAR);
+		super(ModTileEntities.COIN_JAR, pos, state);
 	}
 	
 	public boolean addCoin(ItemStack coin)
@@ -57,10 +54,10 @@ public class CoinJarTileEntity extends TileEntity
 			storage.add(newCoin);
 		}
 		
-		if(!world.isRemote)
+		if(!level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStorage(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStorage(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 		return true;
 	}
@@ -73,89 +70,78 @@ public class CoinJarTileEntity extends TileEntity
 		return count;
 	}
 	
-	protected CompoundNBT writeStorage(CompoundNBT compound)
+	@Override
+	public CompoundTag save(CompoundTag compound)
 	{
-		ListNBT storageList = new ListNBT();
+		this.writeStorage(compound);
+		
+		return super.save(compound);
+	}
+	
+	protected CompoundTag writeStorage(CompoundTag compound)
+	{
+		ListTag storageList = new ListTag();
 		for(int i = 0; i < storage.size(); i++)
-			storageList.add(storage.get(i).write(new CompoundNBT()));
+			storageList.add(storage.get(i).save(new CompoundTag()));
 		compound.put("Coins", storageList);
 		
 		return compound;
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
-	{
-		this.writeStorage(compound);
-		
-		return super.write(compound);
-	}
-	
-	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		if(compound.contains("Coins"))
 		{
 			storage = new ArrayList<>();
-			ListNBT storageList = compound.getList("Coins", Constants.NBT.TAG_COMPOUND);
+			ListTag storageList = compound.getList("Coins", Tag.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); i++)
 			{
-				CompoundNBT thisItem = storageList.getCompound(i);
-				storage.add(ItemStack.read(thisItem));
+				CompoundTag thisItem = storageList.getCompound(i);
+				storage.add(ItemStack.of(thisItem));
 			}
 		}
 		
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 
 	@Override
 	public void onLoad()
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 		{
-			TileEntityUtil.requestUpdatePacket(world, pos);
+			TileEntityUtil.requestUpdatePacket(this);
 		}
 	}
 	
-	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
-	}
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		this.read(this.getBlockState(), compound);
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
 	//For reading/writing the storage when silk touched.
 	public void writeItemTag(ItemStack item)
 	{
-		CompoundNBT compound = item.getOrCreateTag();
-		compound.put("JarData", this.writeStorage(new CompoundNBT()));
+		CompoundTag compound = item.getOrCreateTag();
+		compound.put("JarData", this.writeStorage(new CompoundTag()));
 	}
 	
 	public void readItemTag(ItemStack item)
 	{
 		if(item.hasTag())
 		{
-			CompoundNBT compound = item.getTag();
-			if(compound.contains("JarData", Constants.NBT.TAG_COMPOUND))
+			CompoundTag compound = item.getTag();
+			if(compound.contains("JarData", Tag.TAG_COMPOUND))
 			{
-				CompoundNBT jarData = compound.getCompound("JarData");
+				CompoundTag jarData = compound.getCompound("JarData");
 				if(jarData.contains("Coins"))
 				{
 					storage = new ArrayList<>();
-					ListNBT storageList = jarData.getList("Coins", Constants.NBT.TAG_COMPOUND);
+					ListTag storageList = jarData.getList("Coins", Tag.TAG_COMPOUND);
 					for(int i = 0; i < storageList.size(); i++)
 					{
-						CompoundNBT thisItem = storageList.getCompound(i);
-						storage.add(ItemStack.read(thisItem));
+						CompoundTag thisItem = storageList.getCompound(i);
+						storage.add(ItemStack.of(thisItem));
 					}
 				}
 			}

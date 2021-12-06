@@ -2,23 +2,17 @@ package io.github.lightman314.lightmanscurrency.network.message.coinmint;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.CoinMintTileEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageMintCoin implements IMessage<MessageMintCoin> {
+public class MessageMintCoin {
 
 	private boolean fullStack;
 	private BlockPos pos;
-	
-	public MessageMintCoin()
-	{
-		
-	}
 	
 	public MessageMintCoin(boolean fullStack, BlockPos pos)
 	{
@@ -26,29 +20,25 @@ public class MessageMintCoin implements IMessage<MessageMintCoin> {
 		this.pos = pos;
 	}
 	
-	
-	@Override
-	public void encode(MessageMintCoin message, PacketBuffer buffer) {
+	public static void encode(MessageMintCoin message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.fullStack);
 		buffer.writeBlockPos(message.pos);
 	}
 
-	@Override
-	public MessageMintCoin decode(PacketBuffer buffer) {
+	public static MessageMintCoin decode(FriendlyByteBuf buffer) {
 		return new MessageMintCoin(buffer.readBoolean(), buffer.readBlockPos());
 	}
 
-	@Override
-	public void handle(MessageMintCoin message, Supplier<Context> supplier) {
+	public static void handle(MessageMintCoin message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
-				if(tileEntity instanceof CoinMintTileEntity)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity instanceof CoinMintTileEntity)
 				{
-					CoinMintTileEntity mintEntity = (CoinMintTileEntity)tileEntity;
+					CoinMintTileEntity mintEntity = (CoinMintTileEntity)blockEntity;
 					if(mintEntity.validMintOutput() > 0)
 					{
 						mintEntity.mintCoins(message.fullStack ? 64 : 1);

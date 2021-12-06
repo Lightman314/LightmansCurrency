@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common;
 
-import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -18,15 +18,15 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 import java.util.Collection;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -38,7 +38,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class EventHandler {
@@ -53,15 +53,15 @@ public class EventHandler {
 		if(coinData == null || coinData.isHidden())
 			return;
 		
-		PlayerEntity player = event.getPlayer();
+		Player player = event.getPlayer();
 		ItemStack coinStack = event.getItem().getItem();
 		WalletContainer activeContainer = null;
 		
 		//Check if the open container is a wallet that is pickup capable
-		if(player.openContainer instanceof WalletContainer)
+		if(player.containerMenu instanceof WalletContainer)
 		{
 			//CurrencyMod.LOGGER.info("Wallet Container was open. Adding to the wallet using this method.");
-			WalletContainer container = (WalletContainer)player.openContainer;
+			WalletContainer container = (WalletContainer)player.containerMenu;
 			if(container.canPickup())
 				activeContainer = container;
 		}
@@ -93,15 +93,15 @@ public class EventHandler {
 			event.getItem().setItem(ItemStack.EMPTY);
 			if(!coinStack.isEmpty())
 			{
-				if(!player.inventory.addItemStackToInventory(coinStack))
+				if(!player.getInventory().add(coinStack))
 				{
 					//Spawn the leftovers into the world
-					ItemEntity itemEntity = new ItemEntity(player.world, player.getPosX(), player.getPosY(), player.getPosZ(), coinStack);
-					itemEntity.setPickupDelay(40);
-					player.world.addEntity(itemEntity);
+					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);
+					itemEntity.setPickUpDelay(40);
+					player.level.addFreshEntity(itemEntity);
 				}
 			}
-			if(!player.world.isRemote)
+			if(!player.level.isClientSide)
 				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessagePlayPickupSound());
 			event.setCanceled(true);
 			
@@ -114,14 +114,14 @@ public class EventHandler {
 	public static void onBlockBreak(BreakEvent event)
 	{
 		
-		IWorld world = event.getWorld();
+		LevelAccessor world = event.getWorld();
 		BlockState state = world.getBlockState(event.getPos());
 		
 		if(state.getBlock() instanceof ITraderBlock)
 		{
 			//CurrencyMod.LOGGER.info("onBlockBreak-Block is a trader block!");
 			ITraderBlock block = (ITraderBlock)state.getBlock();
-			TileEntity tileEntity = block.getTileEntity(state, world, event.getPos());
+			BlockEntity tileEntity = block.getTileEntity(state, world, event.getPos());
 			if(tileEntity instanceof IOwnableTileEntity)
 			{
 				IOwnableTileEntity traderEntity = (IOwnableTileEntity)tileEntity;
@@ -134,7 +134,7 @@ public class EventHandler {
 		}
 		else if(state.getBlock() instanceof PaygateBlock)
 		{
-			TileEntity tileEntity = world.getTileEntity(event.getPos());
+			BlockEntity tileEntity = world.getBlockEntity(event.getPos());
 			if(tileEntity instanceof PaygateTileEntity)
 			{
 				PaygateTileEntity paygateEntity = (PaygateTileEntity)tileEntity;
@@ -154,9 +154,9 @@ public class EventHandler {
 		//Don't attach the wallet capability if curios is loaded
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
-		if(event.getObject() instanceof PlayerEntity)
+		if(event.getObject() instanceof Player)
 		{
-			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((PlayerEntity)event.getObject()));
+			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((Player)event.getObject()));
 		}
 	}
 	
@@ -166,10 +166,10 @@ public class EventHandler {
 	{
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
-		if(event.getPlayer().world.isRemote)
+		if(event.getPlayer().level.isClientSide)
 			return;
 		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getEntityId(), walletHandler.getWallet()));
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet()));
 			//LightmansCurrency.LogInfo("Sending wallet update packet as the player logged in.");
 		});
 	}
@@ -181,11 +181,11 @@ public class EventHandler {
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
 		Entity target = event.getTarget();
-		PlayerEntity player = event.getPlayer();
-		if(!player.world.isRemote)
+		Player player = event.getPlayer();
+		if(!player.level.isClientSide)
 		{
 			WalletCapability.getWalletHandler(target).ifPresent(walletHandler ->{
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getEntityId(), walletHandler.getWallet()));
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet()));
 				//LightmansCurrency.LogInfo("Sent wallet update packet as the entity is now being tracked.");
 			});
 		}
@@ -197,11 +197,11 @@ public class EventHandler {
 	{
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
-		PlayerEntity player = event.getPlayer();
-		if(player.world.isRemote) //Do nothing client-side
+		Player player = event.getPlayer();
+		if(player.level.isClientSide) //Do nothing client-side
 			return;
 		
-		PlayerEntity oldPlayer = event.getOriginal();
+		Player oldPlayer = event.getOriginal();
 		oldPlayer.revive();
 		LazyOptional<IWalletHandler> oldHandler = WalletCapability.getWalletHandler(oldPlayer);
 		LazyOptional<IWalletHandler> newHandler = WalletCapability.getWalletHandler(player);
@@ -218,7 +218,7 @@ public class EventHandler {
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
 		LivingEntity livingEntity = event.getEntityLiving();
-		if(livingEntity.world.isRemote) //Do nothing client side
+		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
 		
 		if(!livingEntity.isSpectator())
@@ -226,13 +226,13 @@ public class EventHandler {
 			WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
 				Collection<ItemEntity> drops = event.getDrops();
 				
-				if(livingEntity.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
+				if(livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
 					return;
 				
 				if(walletHandler.getWallet().isEmpty())
 					return;
 				
-				ItemEntity walletDrop = new ItemEntity(livingEntity.world, livingEntity.getPosX(), livingEntity.getPosX(), livingEntity.getPosX(), walletHandler.getWallet());
+				ItemEntity walletDrop = new ItemEntity(livingEntity.level, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), walletHandler.getWallet());
 				drops.add(walletDrop);
 				
 			});
@@ -245,13 +245,13 @@ public class EventHandler {
 		if(LightmansCurrency.isCuriosLoaded())
 			return;
 		LivingEntity livingEntity = event.getEntityLiving();
-		if(livingEntity.world.isRemote) //Do nothing client side
+		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
 		
 		WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getEntityId(), walletHandler.getWallet()));
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet()));
 				walletHandler.clean();
 				//LightmansCurrency.LogInfo("Sending wallet packet as the wallet has been changed.");
 			}

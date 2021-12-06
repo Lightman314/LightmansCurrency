@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class DebugUtil {
 
@@ -13,12 +13,12 @@ public class DebugUtil {
 	
 	public static String getSideText(Entity entity)
 	{
-		return getSideText(entity.world);
+		return getSideText(entity.level);
 	}
 	
-	public static String getSideText(World world)
+	public static String getSideText(Level level)
 	{
-		return world.isRemote ? "client" : "server";
+		return level.isClientSide ? "client" : "server";
 	}
 	
 }

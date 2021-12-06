@@ -2,36 +2,37 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class TicketMachineTileEntity extends TileEntity{
+public class TicketMachineTileEntity extends BlockEntity{
 
-	IInventory storage = new Inventory(2);
-	public IInventory getStorage() { return this.storage; }
+	Container storage = new SimpleContainer(2);
+	public Container getStorage() { return this.storage; }
 	
-	public TicketMachineTileEntity()
+	public TicketMachineTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.TICKET_MACHINE);
+		super(ModTileEntities.TICKET_MACHINE, pos, state);
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		
 		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		this.storage = InventoryUtil.loadAllItems("Items", compound, 2);
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 	

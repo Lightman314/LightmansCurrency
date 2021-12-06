@@ -4,13 +4,13 @@ import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCash
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.Inventory;
 
 public class ItemTraderContainerCR extends ItemTraderContainer implements ITraderCashRegisterContainer{
 	
 	public CashRegisterTileEntity cashRegister;
 	
-	public ItemTraderContainerCR(int windowId, PlayerInventory inventory, ItemTraderTileEntity tileEntity, CashRegisterTileEntity cashRegister)
+	public ItemTraderContainerCR(int windowId, Inventory inventory, ItemTraderTileEntity tileEntity, CashRegisterTileEntity cashRegister)
 	{
 		
 		super(ModContainers.ITEMTRADERCR, windowId, inventory, tileEntity);

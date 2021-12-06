@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -18,33 +16,29 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.PacketDistributor;
 
-public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions, ITrader{
+public abstract class TraderTileEntity extends TickableBlockEntity implements IOwnableTileEntity, IPermissions, ITrader{
 	
 	String customName = "";
 	
@@ -60,18 +54,18 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	protected CoinValue storedMoney = new CoinValue();
 	
 	/** A list of players using this trader */
-	private List<PlayerEntity> users = new ArrayList<>();
+	private List<Player> users = new ArrayList<>();
 	private int userCount = 0;
 	
 	private boolean versionUpdate = false;
 	private int oldVersion = 0;
 	
-	protected TraderTileEntity(TileEntityType<?> type)
+	protected TraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
-		super(type);
+		super(type, pos, state);
 	}
 	
-	public void userOpen(PlayerEntity player)
+	public void userOpen(Player player)
 	{
 		if(!users.contains(player))
 		{
@@ -81,7 +75,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 	}
 	
-	public void userClose(PlayerEntity player)
+	public void userClose(Player player)
 	{
 		if(users.contains(player))
 		{
@@ -93,20 +87,20 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public int getUserCount()
 	{
-		if(world.isRemote)
+		if(this.level.isClientSide)
 			return this.userCount;
 		else
 			return this.users.size();
 	}
 	
-	protected List<PlayerEntity> getUsers() { return this.users; }
+	protected List<Player> getUsers() { return this.users; }
 	
 	private void sendUserUpdate()
 	{
-		if(!world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			Chunk chunk = (Chunk)this.world.getChunk(this.pos);
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new MessageSyncUsers(this.pos, this.getUserCount()));
+			LevelChunk chunk = (LevelChunk)this.level.getChunk(this.worldPosition);
+			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new MessageSyncUsers(this.worldPosition, this.getUserCount()));
 		}
 	}
 	
@@ -119,15 +113,15 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	/**
 	 * Whether or not the given player is the owner of the trader.
 	 */
-	public boolean isOwner(PlayerEntity player)
+	public boolean isOwner(Player player)
 	{	
 		if(this.ownerID != null)
-			return player.getUniqueID().equals(ownerID) || TradingOffice.isAdminPlayer(player);
+			return player.getUUID().equals(ownerID) || TradingOffice.isAdminPlayer(player);
 		LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
 		return true;
 	}
 	
-	public boolean hasPermissions(PlayerEntity player)
+	public boolean hasPermissions(Player player)
 	{
 		return isOwner(player) || this.allies.contains(player.getName().getString());
 	}
@@ -139,10 +133,10 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public void markAlliesDirty()
 	{
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeAllies(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeAllies(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -154,14 +148,14 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	{
 		//CurrencyMod.LOGGER.info("Defining the tile's owner. UUID: " + player.getUniqueID() + " Name: " + player.getName().getString());
 		if(this.ownerID == null)
-			this.ownerID = player.getUniqueID();
-		if(this.ownerID.equals(player.getUniqueID())) //Don't update the name if it's not actually the owner
+			this.ownerID = player.getUUID();
+		if(this.ownerID.equals(player.getUUID())) //Don't update the name if it's not actually the owner
 			this.ownerName = player.getName().getString();
 		
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeOwner(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeOwner(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -169,7 +163,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 * Returns whether the player is allowed to break the block.
 	 * @return Returns true if the player is the owner, or if the player is both creative & opped.
 	 */
-	public boolean canBreak(PlayerEntity player)
+	public boolean canBreak(Player player)
 	{
 		return isOwner(player);
 	}
@@ -182,11 +176,11 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	public void toggleCreative()
 	{
 		this.isCreative = !this.isCreative;
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundNBT compound = this.writeCreative(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeCreative(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -204,10 +198,10 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	public void addStoredMoney(CoinValue addedAmount)
 	{
 		storedMoney.addValue(addedAmount);
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -218,10 +212,10 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	{
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -231,37 +225,37 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	public void clearStoredMoney()
 	{
 		storedMoney = new CoinValue();
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
 	public void tick()
 	{
-		if(this.versionUpdate && this.world != null)
+		if(this.versionUpdate && this.level != null)
 		{
 			this.versionUpdate = false;
-			if(!this.world.isRemote)
+			if(!this.level.isClientSide)
 				this.onVersionUpdate(oldVersion);
 		}
 	}
 	
-	public ITextComponent getName()
+	public Component getName()
 	{
 		if(this.customName != "")
-			return new StringTextComponent(this.customName);
-		if(this.world.isRemote)
-			return this.getBlockState().getBlock().getTranslatedName();
-		return new TranslationTextComponent("");
+			return new TextComponent(this.customName);
+		if(this.level.isClientSide)
+			return this.getBlockState().getBlock().getName();
+		return new TextComponent("");
 	}
 	
-	public ITextComponent getTitle()
+	public Component getTitle()
 	{
 		if(this.isCreative)
 			return this.getName();
-		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.ownerName);
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.ownerName);
 		
 	}
 	
@@ -271,69 +265,69 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	{
 		LightmansCurrency.LogInfo("Custom Name set to '" + customName + "'");
 		this.customName = customName;
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeCustomName(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeCustomName(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
-	public abstract INamedContainerProvider getTradeMenuProvider();
+	public abstract MenuProvider getTradeMenuProvider();
 	
-	public void openTradeMenu(PlayerEntity player)
+	public void openTradeMenu(Player player)
 	{
-		INamedContainerProvider provider = getTradeMenuProvider();
+		MenuProvider provider = getTradeMenuProvider();
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + this.getType().getRegistryName().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, pos);
+		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	public abstract INamedContainerProvider getStorageMenuProvider(); 
+	public abstract MenuProvider getStorageMenuProvider(); 
 	
-	public void openStorageMenu(PlayerEntity player)
+	public void openStorageMenu(Player player)
 	{
-		INamedContainerProvider provider = getStorageMenuProvider();
+		MenuProvider provider = getStorageMenuProvider();
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No storage container provider was given for the trader of type " + this.getType().getRegistryName().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, pos);
+		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	public abstract INamedContainerProvider getCashRegisterTradeMenuProvider(CashRegisterTileEntity cashRegister);
+	public abstract MenuProvider getCashRegisterTradeMenuProvider(CashRegisterTileEntity cashRegister);
 	
-	public void openCashRegisterTradeMenu(PlayerEntity player, CashRegisterTileEntity cashRegister)
+	public void openCashRegisterTradeMenu(Player player, CashRegisterTileEntity cashRegister)
 	{
-		INamedContainerProvider provider = getCashRegisterTradeMenuProvider(cashRegister);
+		MenuProvider provider = getCashRegisterTradeMenuProvider(cashRegister);
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No cash register container provider was given for the trader of type " + this.getType().getRegistryName().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the cash register menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, new CRDataWriter(pos, cashRegister.getPos()));
+		NetworkHooks.openGui((ServerPlayer)player, provider, new CRDataWriter(this.worldPosition, cashRegister.getBlockPos()));
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		writeOwner(compound);
 		writeStoredMoney(compound);
@@ -342,52 +336,52 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		writeVersion(compound);
 		writeAllies(compound);
 		
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
-	public CompoundNBT superWrite(CompoundNBT compound)
+	public CompoundTag superWrite(CompoundTag compound)
 	{
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
-	protected CompoundNBT writeOwner(CompoundNBT compound)
+	protected CompoundTag writeOwner(CompoundTag compound)
 	{
 		if(this.ownerID != null)
-			compound.putUniqueId("OwnerID", this.ownerID);
+			compound.putUUID("OwnerID", this.ownerID);
 		if(this.ownerName != "")
 			compound.putString("OwnerName", this.ownerName);
 		return compound;
 	}
 	
-	protected CompoundNBT writeStoredMoney(CompoundNBT compound)
+	protected CompoundTag writeStoredMoney(CompoundTag compound)
 	{
 		this.storedMoney.writeToNBT(compound, "StoredMoney");
 		return compound;
 	}
 	
-	protected CompoundNBT writeCreative(CompoundNBT compound)
+	protected CompoundTag writeCreative(CompoundTag compound)
 	{
 		compound.putBoolean("Creative", this.isCreative);
 		return compound;
 	}
 	
-	protected CompoundNBT writeCustomName(CompoundNBT compound)
+	protected CompoundTag writeCustomName(CompoundTag compound)
 	{
 		compound.putString("CustomName", this.customName);
 		return compound;
 	}
 	
-	protected CompoundNBT writeVersion(CompoundNBT compound)
+	protected CompoundTag writeVersion(CompoundTag compound)
 	{
 		compound.putInt("TraderVersion", this.GetCurrentVersion());
 		return compound;
 	}
 	
-	protected CompoundNBT writeAllies(CompoundNBT compound)
+	protected CompoundTag writeAllies(CompoundTag compound)
 	{
-		ListNBT allyList = new ListNBT();
+		ListTag allyList = new ListTag();
 		this.allies.forEach(ally ->{
-			CompoundNBT thisAlly = new CompoundNBT();
+			CompoundTag thisAlly = new CompoundTag();
 			thisAlly.putString("name", ally);
 			allyList.add(thisAlly);
 		});
@@ -396,16 +390,16 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		//Owner
 		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUniqueId("OwnerID");
-		if(compound.contains("OwnerName", Constants.NBT.TAG_STRING))
+			this.ownerID = compound.getUUID("OwnerID");
+		if(compound.contains("OwnerName", Tag.TAG_STRING))
 			this.ownerName = compound.getString("OwnerName");
 		//Stored Money
 		//Load stored money
-		if(compound.contains("StoredMoney", Constants.NBT.TAG_INT))
+		if(compound.contains("StoredMoney", Tag.TAG_INT))
 		{
 			LightmansCurrency.LogInfo("Reading stored money from older value format. Will be updated to newer value format.");
 			this.storedMoney.readFromOldValue(compound.getInt("StoredMoney"));
@@ -416,30 +410,30 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		if(compound.contains("Creative"))
 			this.isCreative = compound.getBoolean("Creative");
 		//Custom Name
-		if(compound.contains("CustomName", Constants.NBT.TAG_STRING))
+		if(compound.contains("CustomName", Tag.TAG_STRING))
 			this.customName = compound.getString("CustomName");
 		
 		//Read Allies
-		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
+		if(compound.contains("Allies", Tag.TAG_LIST))
 		{
 			this.allies.clear();
-			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
+			ListTag allyList = compound.getList("Allies", Tag.TAG_COMPOUND);
 			for(int i = 0; i < allyList.size(); i++)
 			{
-				CompoundNBT thisAlly = allyList.getCompound(i);
-				if(thisAlly.contains("name", Constants.NBT.TAG_STRING))
+				CompoundTag thisAlly = allyList.getCompound(i);
+				if(thisAlly.contains("name", Tag.TAG_STRING))
 					this.allies.add(thisAlly.getString("name"));
 			}
 		}
 		
 		//Version
-		if(compound.contains("TraderVersion", Constants.NBT.TAG_INT))
+		if(compound.contains("TraderVersion", Tag.TAG_INT))
 			oldVersion = compound.getInt("TraderVersion");
 		//Validate the version #
 		if(oldVersion < this.GetCurrentVersion())
 			this.versionUpdate = true; //Flag this to perform a version update later once the world has been defined
 		
-		super.read(state, compound);
+		super.load(compound);
 	}
 	
 	protected abstract void onVersionUpdate(int oldVersion);
@@ -449,36 +443,24 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	@Override
 	public void onLoad()
 	{
-		if(world.isRemote)
+		if(this.level.isClientSide)
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestSyncUsers(this.pos));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestSyncUsers(this.worldPosition));
 		}
 	}
 	
-	public void dumpContents(World world, BlockPos pos)
+	public void dumpContents(Level world, BlockPos pos)
 	{
 		List<ItemStack> coinItems = MoneyUtil.getCoinsOfValue(this.storedMoney);
 		if(coinItems.size() > 0)
 			InventoryUtil.dumpContents(world, pos, coinItems);
 	}
 	
-	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
-	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.read(this.getBlockState(), compound);
-	}
-	
-	private class CRDataWriter implements Consumer<PacketBuffer>
+	private class CRDataWriter implements Consumer<FriendlyByteBuf>
 	{
 		
 		BlockPos traderPos;
@@ -491,14 +473,14 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 		
 		@Override
-		public void accept(PacketBuffer buffer) {
+		public void accept(FriendlyByteBuf buffer) {
 			buffer.writeBlockPos(traderPos);
 			buffer.writeBlockPos(registerPos);
 			
 		}
 	}
 	
-	protected class TradeIndexDataWriter implements Consumer<PacketBuffer>
+	protected class TradeIndexDataWriter implements Consumer<FriendlyByteBuf>
 	{
 		BlockPos traderPos;
 		int tradeIndex;
@@ -510,7 +492,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 		
 		@Override
-		public void accept(PacketBuffer buffer)
+		public void accept(FriendlyByteBuf buffer)
 		{
 			buffer.writeBlockPos(traderPos);
 			buffer.writeInt(tradeIndex);

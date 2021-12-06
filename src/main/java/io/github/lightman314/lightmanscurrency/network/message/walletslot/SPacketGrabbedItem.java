@@ -2,45 +2,35 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class SPacketGrabbedItem implements IMessage<SPacketGrabbedItem> {
-	
+public class SPacketGrabbedItem {
 	
 	ItemStack stack;
-	
-	public SPacketGrabbedItem() {}
 	
 	public SPacketGrabbedItem(ItemStack stack)
 	{
 		this.stack = stack;
 	}
 	
-	@Override
-	public void encode(SPacketGrabbedItem message, PacketBuffer buffer) {
-		buffer.writeItemStack(message.stack);
+	public static void encode(SPacketGrabbedItem message, FriendlyByteBuf buffer) {
+		buffer.writeItemStack(message.stack, false);
 	}
 
-	@Override
-	public SPacketGrabbedItem decode(PacketBuffer buffer) {
-		return new SPacketGrabbedItem(buffer.readItemStack());
+	public static SPacketGrabbedItem decode(FriendlyByteBuf buffer) {
+		return new SPacketGrabbedItem(buffer.readItem());
 	}
 
-	@SuppressWarnings("resource")
-	@Override
-	public void handle(SPacketGrabbedItem message, Supplier<Context> supplier) {
+	public static void handle(SPacketGrabbedItem message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-			
-			if(clientPlayer != null)
+			Minecraft minecraft = Minecraft.getInstance();
+			if(minecraft != null)
 			{
-				clientPlayer.inventory.setItemStack(message.stack);
+				minecraft.player.containerMenu.setCarried(message.stack);
 			}
 		});
 		supplier.get().setPacketHandled(true);

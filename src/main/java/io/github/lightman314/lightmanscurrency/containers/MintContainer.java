@@ -5,17 +5,16 @@ import io.github.lightman314.lightmanscurrency.containers.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.tileentity.CoinMintTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-
-public class MintContainer extends Container{
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+public class MintContainer extends AbstractContainerMenu{
 
 	public final CoinMintTileEntity tileEntity;
 	
-	public MintContainer(int windowId, PlayerInventory inventory, CoinMintTileEntity tileEntity)
+	public MintContainer(int windowId, Inventory inventory, CoinMintTileEntity tileEntity)
 	{
 		super(ModContainers.MINT, windowId);
 		this.tileEntity = tileEntity;
@@ -40,52 +39,48 @@ public class MintContainer extends Container{
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
+	public boolean stillValid(Player playerIn)
 	{
 		return true;
 	}
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
-		super.onContainerClosed(playerIn);
-		/*this.callable.consume((world,pos) ->
-		{
-			this.clearContainer(playerIn,  world,  this.objectInputs);
-		});*/
+		super.removed(playerIn);
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.tileEntity.getStorage().getSizeInventory())
+			if(index < this.tileEntity.getStorage().getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack, this.tileEntity.getStorage().getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack, this.tileEntity.getStorage().getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.tileEntity.getStorage().getSizeInventory() - 1, false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.tileEntity.getStorage().getContainerSize() - 1, false))
 			{
 				return ItemStack.EMPTY;
 			}
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
@@ -95,7 +90,7 @@ public class MintContainer extends Container{
 	
 	public boolean isMeltInput()
 	{
-		return MoneyUtil.isCoin(this.tileEntity.getStorage().getStackInSlot(0));
+		return MoneyUtil.isCoin(this.tileEntity.getStorage().getItem(0));
 	}
 	
 }

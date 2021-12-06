@@ -3,37 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.universal_trader
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageInitializeClientTraders implements IMessage<MessageInitializeClientTraders> {
+public class MessageInitializeClientTraders {
 	
-	CompoundNBT compound;
+	CompoundTag compound;
 	
-	public MessageInitializeClientTraders()
-	{
-		
-	}
-	
-	public MessageInitializeClientTraders(CompoundNBT compound)
+	public MessageInitializeClientTraders(CompoundTag compound)
 	{
 		this.compound = compound;
 	}
 	
-	@Override
-	public void encode(MessageInitializeClientTraders message, PacketBuffer buffer) {
-		buffer.writeCompoundTag(message.compound);
+	public static void encode(MessageInitializeClientTraders message, FriendlyByteBuf buffer) {
+		buffer.writeNbt(message.compound);
 	}
 
-	@Override
-	public MessageInitializeClientTraders decode(PacketBuffer buffer) {
-		return new MessageInitializeClientTraders(buffer.readCompoundTag());
+	public static MessageInitializeClientTraders decode(FriendlyByteBuf buffer) {
+		return new MessageInitializeClientTraders(buffer.readNbt());
 	}
 
-	@Override
-	public void handle(MessageInitializeClientTraders message, Supplier<Context> supplier) {
+	public static void handle(MessageInitializeClientTraders message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.initializeTraders(message.compound));
 		supplier.get().setPacketHandled(true);
 	}

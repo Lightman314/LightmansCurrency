@@ -5,40 +5,41 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule.GUIHandler;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
-public class TimeWidget extends Widget{
+public class TimeWidget extends AbstractWidget{
 	
 	public static final int WIDTH = 176;
 	public static final int HEIGHT = 40;
 	
-	private TextFieldWidget hourInput;
-	private TextFieldWidget minuteInput;
-	private TextFieldWidget secondInput;
+	private EditBox hourInput;
+	private EditBox minuteInput;
+	private EditBox secondInput;
 	Button setTimeButton;
 	
 	private GUIHandler handler;
-	FontRenderer font;
+	Font font;
 	ITimeInput timeInput;
-	ITextComponent noTimeText;
+	Component noTimeText;
 	
 	long startingValue = 0;
 	
-	public TimeWidget(int x, int y, FontRenderer font, long startingValue, GUIHandler handler, @Nullable ITimeInput timeInput, ITextComponent noTimeText) {
+	public TimeWidget(int x, int y, Font font, long startingValue, GUIHandler handler, @Nullable ITimeInput timeInput, Component noTimeText) {
 		
-		super(x, y, WIDTH, HEIGHT, new StringTextComponent(""));
+		super(x, y, WIDTH, HEIGHT, new TextComponent(""));
 		
 		this.startingValue = startingValue;
 		this.handler = handler;
@@ -53,57 +54,44 @@ public class TimeWidget extends Widget{
 	protected void init()
 	{
 		TimeData timeData = TimeUtil.separateDuration(this.startingValue);
-		this.hourInput = handler.addListener(new TextFieldWidget(this.font, this.x + 10, this.y + 19, 30, 20, new StringTextComponent("")));
-		this.hourInput.setMaxStringLength(3);
-		this.hourInput.setText(Long.toString(timeData.hours));
+		this.hourInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 10, this.y + 19, 30, 20, new TextComponent("")));
+		this.hourInput.setMaxLength(3);
+		this.hourInput.setValue(Long.toString(timeData.hours));
 		
-		this.minuteInput = handler.addListener(new TextFieldWidget(this.font, this.x + 80, this.y + 19, 20, 20, new StringTextComponent("")));
-		this.minuteInput.setMaxStringLength(2);
-		this.minuteInput.setText(Long.toString(timeData.minutes));
+		this.minuteInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 80, this.y + 19, 20, 20, new TextComponent("")));
+		this.minuteInput.setMaxLength(2);
+		this.minuteInput.setValue(Long.toString(timeData.minutes));
 		
-		this.secondInput = handler.addListener(new TextFieldWidget(this.font, this.x + 130, this.y + 19, 20, 20, new StringTextComponent("")));
-		this.secondInput.setMaxStringLength(2);
-		this.secondInput.setText(Long.toString(timeData.seconds));
+		this.secondInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 130, this.y + 19, 20, 20, new TextComponent("")));
+		this.secondInput.setMaxLength(2);
+		this.secondInput.setValue(Long.toString(timeData.seconds));
 		
-		this.setTimeButton = handler.addButton(new Button(this.x + 80, this.y - 2, 80, 20, new TranslationTextComponent("gui.button.lightmanscurrency.time_widget.settime"), this::PressSetTimeButton));
+		this.setTimeButton = handler.addCustomRenderable(new Button(this.x + 80, this.y - 2, 80, 20, new TranslatableComponent("gui.button.lightmanscurrency.time_widget.settime"), this::PressSetTimeButton));
 		this.setTimeButton.visible = this.timeInput != null;
 		
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		TimeData time = this.getTime();
 		//Render the time info
 		if(time.miliseconds > 0)
-			this.font.drawString(matrixStack, new TranslationTextComponent("gui.widget.lightmanscurrency.time_widget.info", time.hours, time.minutes, time.seconds).getString(), this.x + 10, this.y + 2, 0xFFFFFF);
+			this.font.draw(poseStack, new TranslatableComponent("gui.widget.lightmanscurrency.time_widget.info", time.hours, time.minutes, time.seconds).getString(), this.x + 10, this.y + 2, 0xFFFFFF);
 		else
-			this.font.drawString(matrixStack, this.noTimeText.getString(), this.x + 10, this.y + 2, 0xFFFFFF);
-		
-		//Render the text inputs
-		this.getListeners().forEach(listener -> listener.render(matrixStack, mouseX, mouseY, partialTicks));
+			this.font.draw(poseStack, this.noTimeText.getString(), this.x + 10, this.y + 2, 0xFFFFFF);
 		
 		//Render the h/m/s next to the inputs
-		this.font.drawString(matrixStack, "h", this.x + 62, this.y + 25, 0xFFFFFF);
-		this.font.drawString(matrixStack, "m", this.x + 112, this.y + 25, 0xFFFFFF);
-		this.font.drawString(matrixStack, "s", this.x + 162, this.y + 25, 0xFFFFFF);
+		this.font.draw(poseStack, "h", this.x + 62, this.y + 25, 0xFFFFFF);
+		this.font.draw(poseStack, "m", this.x + 112, this.y + 25, 0xFFFFFF);
+		this.font.draw(poseStack, "s", this.x + 162, this.y + 25, 0xFFFFFF);
 		
 	}
 	
-	public void tick()
+	public List<AbstractWidget> getWidgets()
 	{
-		this.getListeners().forEach(listener -> listener.tick());
-	}
-	
-	public List<Button> getButtons()
-	{
-		return ImmutableList.of(setTimeButton);
-	}
-	
-	public List<TextFieldWidget> getListeners()
-	{
-		return ImmutableList.of(hourInput, minuteInput, secondInput);
+		return ImmutableList.of(setTimeButton, hourInput, minuteInput, secondInput);
 	}
 	
 	public TimeData getTime()
@@ -111,11 +99,11 @@ public class TimeWidget extends Widget{
 		return new TimeData(inputValue(this.hourInput, false), inputValue(this.minuteInput, true), inputValue(this.secondInput, true));
 	}
 	
-	private static long inputValue(TextFieldWidget textField, boolean clamp)
+	private static long inputValue(EditBox textField, boolean clamp)
 	{
-		if(isNumeric(textField.getText()))
+		if(isNumeric(textField.getValue()))
 		{
-			return MathUtil.clamp(Long.parseLong(textField.getText()), 0, 59);
+			return MathUtil.clamp(Long.parseLong(textField.getValue()), 0, 59);
 		}
 		return 0;
 	}
@@ -146,5 +134,8 @@ public class TimeWidget extends Widget{
 		if(this.timeInput != null)
 			this.timeInput.onTimeSet(this.getTime().miliseconds);
 	}
+
+	@Override
+	public void updateNarration(NarrationElementOutput narration) { }
 
 }

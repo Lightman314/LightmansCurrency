@@ -5,24 +5,29 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotTypePreset;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import top.theillusivec4.curios.api.client.ICurioRenderer;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
@@ -30,7 +35,7 @@ import top.theillusivec4.curios.common.capability.CurioItemCapability;
 
 public class Curios {
 	
-	public static ItemStack getWalletStack(PlayerEntity player)
+	public static ItemStack getWalletStack(Player player)
 	{
 		AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
 		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
@@ -54,24 +59,14 @@ public class Curios {
 		return wallet.get();
 	}
 	
-	public static boolean isWalletVisible(PlayerEntity player)
+	public static void RegisterCuriosRenderers()
 	{
-		AtomicReference<Boolean> visible = new AtomicReference<>(true);
-        LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-        optional.ifPresent(itemHandler -> {
-            Optional<ICurioStacksHandler> stacksOptional = itemHandler.getStacksHandler(SlotTypePreset.BELT.getIdentifier());
-            stacksOptional.ifPresent(stacksHandler -> {
-            	for(int i = 0; i < stacksHandler.getStacks().getSlots(); i++)
-            	{
-            		ItemStack stack = stacksHandler.getStacks().getStackInSlot(i);
-            		if(stack.getItem() instanceof WalletItem)
-            		{
-            			visible.set(stacksHandler.getRenders().get(i));
-            		}
-            	}
-            });
-        });
-        return visible.get();
+		CuriosRendererRegistry.register(ModItems.WALLET_COPPER, WalletCuriosRenderer::new);
+		CuriosRendererRegistry.register(ModItems.WALLET_IRON, WalletCuriosRenderer::new);
+		CuriosRendererRegistry.register(ModItems.WALLET_GOLD, WalletCuriosRenderer::new);
+		CuriosRendererRegistry.register(ModItems.WALLET_EMERALD, WalletCuriosRenderer::new);
+		CuriosRendererRegistry.register(ModItems.WALLET_DIAMOND, WalletCuriosRenderer::new);
+		CuriosRendererRegistry.register(ModItems.WALLET_NETHERITE, WalletCuriosRenderer::new);
 	}
 	
 	public static ICapabilityProvider createWalletProvider(ItemStack walletStack)
@@ -82,15 +77,18 @@ public class Curios {
 	public static class WalletCuriosCapability implements ICurio
 	{
 		
-		private final WalletItem walletItem;
+		//private final WalletItem walletItem;
 		private final ItemStack walletStack;
-		private Object model;
+		//private Object model;
 		
 		public WalletCuriosCapability(ItemStack walletStack)
 		{
 			this.walletStack = walletStack;
-			this.walletItem = (WalletItem)walletStack.getItem();
+			//this.walletItem = (WalletItem)walletStack.getItem();
 		}
+		
+		@Override
+		public ItemStack getStack() { return this.walletStack; }
 		
 		@Override
         public boolean canRightClickEquip()
@@ -111,7 +109,7 @@ public class Curios {
             return DropRule.DEFAULT;
         }
         
-        @Override
+        /*@Override
         @OnlyIn(Dist.CLIENT)
         public boolean canRender(String identifier, int index, LivingEntity entity)
         {
@@ -144,8 +142,43 @@ public class Curios {
         private BipedModel<LivingEntity> createModel()
         {
         	return new ModelWallet<LivingEntity>();
-        }
+        }*/
         
+	}
+	
+	public static class WalletCuriosRenderer implements ICurioRenderer
+	{
+		
+		private final ModelWallet<LivingEntity> model;
+		
+		public WalletCuriosRenderer()
+		{
+			this.model = new ModelWallet<LivingEntity>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
+		}
+
+		@Override
+		public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack,
+				SlotContext slotContext,
+				PoseStack poseStack,
+				RenderLayerParent<T, M> renderLayerParent,
+				MultiBufferSource bufferSource,
+				int light, float limbSwing,
+				float limbSwingAmount,
+				float partialTicks,
+				float ageInTicks,
+				float netHeadYaw,
+				float headPitch) {
+			
+			WalletItem walletItem = (WalletItem)stack.getItem();
+			LivingEntity entity = slotContext.entity();
+			this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
+			this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+			ICurioRenderer.followBodyRotations(entity, this.model);
+			VertexConsumer vertexConsumer = ItemRenderer
+					.getFoilBuffer(bufferSource, this.model.renderType(walletItem.getModelTexture()), false, stack.hasFoil());
+			this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+			
+		}
 	}
 	
 }

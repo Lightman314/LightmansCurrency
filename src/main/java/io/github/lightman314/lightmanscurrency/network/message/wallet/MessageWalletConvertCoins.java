@@ -3,40 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageWalletConvertCoins implements IMessage<MessageWalletConvertCoins> {
+public class MessageWalletConvertCoins {
 	
-	public MessageWalletConvertCoins()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageWalletConvertCoins message, PacketBuffer buffer) {
-		//buffer.writeInt(message.tradeIndex);
-	}
+	public static void encode(MessageWalletConvertCoins message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageWalletConvertCoins decode(PacketBuffer buffer) {
+	public static MessageWalletConvertCoins decode(FriendlyByteBuf buffer) {
 		return new MessageWalletConvertCoins();
 	}
 
-	@Override
-	public void handle(MessageWalletConvertCoins message, Supplier<Context> supplier) {
+	public static void handle(MessageWalletConvertCoins message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer instanceof WalletContainer)
+				if(player.containerMenu instanceof WalletContainer)
 				{
-					WalletContainer container = (WalletContainer) entity.openContainer;
-					container.ConvertCoins();
+					WalletContainer menu = (WalletContainer) player.containerMenu;
+					menu.ConvertCoins();
 				}
 			}
 		});

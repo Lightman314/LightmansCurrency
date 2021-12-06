@@ -3,7 +3,9 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
@@ -22,41 +24,40 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.Ite
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
 	
-	protected NonNullList<ItemStack> inventory;
+	protected Container storage;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -68,34 +69,34 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
-	public ItemTraderTileEntity()
+	public ItemTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.ITEM_TRADER);
+		super(ModTileEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new SimpleContainer(this.getSizeInventory());
 	}
 	
-	public ItemTraderTileEntity(int tradeCount)
+	public ItemTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModTileEntities.ITEM_TRADER);
+		super(ModTileEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new SimpleContainer(this.getSizeInventory());
 	}
 	
-	protected ItemTraderTileEntity(TileEntityType<?> type)
+	protected ItemTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
-		super(type);
+		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new SimpleContainer(this.getSizeInventory());
 	}
 	
-	protected ItemTraderTileEntity(TileEntityType<?> type, int tradeCount)
+	protected ItemTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(type);
+		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new SimpleContainer(this.getSizeInventory());
 	}
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
@@ -103,7 +104,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		getTrade(index).setRestriction(restriction);
 	}
 	
-	@Override
 	public int getSizeInventory()
 	{
 		return getTradeCount() * 9;
@@ -117,7 +117,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	public void addTrade()
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		if(tradeCount >= TRADELIMIT)
 			return;
@@ -127,7 +127,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	public void removeTrade()
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		if(tradeCount <= 1)
 			return;
@@ -137,15 +137,14 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	private void forceReOpen()
 	{
-		for(PlayerEntity player : this.getUsers())
+		for(Player player : this.getUsers())
 		{
-			ServerPlayerEntity serverPlayer = (ServerPlayerEntity)player;
-			if(player.openContainer instanceof ItemTraderStorageContainer)
-				this.openStorageMenu(serverPlayer);
-			else if(player.openContainer instanceof ItemTraderContainerCR)
-				this.openCashRegisterTradeMenu(serverPlayer, ((ItemTraderContainerCR)player.openContainer).cashRegister);
-			else if(player.openContainer instanceof ItemTraderContainer)
-				this.openTradeMenu(serverPlayer);
+			if(player.containerMenu instanceof ItemTraderStorageContainer)
+				this.openStorageMenu(player);
+			else if(player.containerMenu instanceof ItemTraderContainerCR)
+				this.openCashRegisterTradeMenu(player, ((ItemTraderContainerCR)player.containerMenu).cashRegister);
+			else if(player.containerMenu instanceof ItemTraderContainer)
+				this.openTradeMenu(player);
 		}
 	}
 	
@@ -162,25 +161,25 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		NonNullList<ItemStack> oldInventory = this.inventory;
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
-		for(int i = 0; i < this.inventory.size() && i < oldInventory.size(); i++)
+		Container oldStorage = this.storage;
+		this.storage = new SimpleContainer(this.getSizeInventory());
+		for(int i = 0; i < this.storage.getContainerSize() && i < oldStorage.getContainerSize(); i++)
 		{
-			this.inventory.set(i, oldInventory.get(i));
+			this.storage.setItem(i, oldStorage.getItem(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldInventory.size() > this.getSizeInventory())
+		if(oldStorage.getContainerSize() > this.getSizeInventory())
 		{
-			for(int i = this.getSizeInventory(); i < oldInventory.size(); i++)
+			for(int i = this.getSizeInventory(); i < oldStorage.getContainerSize(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this, oldInventory.get(i));
+				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getItem(i));
 			}
 		}
 		//Send an update to the client
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundNBT compound = this.writeTrades(new CompoundNBT());
+			CompoundTag compound = this.writeTrades(new CompoundTag());
 			this.writeItems(compound);
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
@@ -205,13 +204,13 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	public void markTradesDirty()
 	{
 		//Send an update to the client
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundNBT compound = this.writeTrades(new CompoundNBT());
+			CompoundTag compound = this.writeTrades(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
-		this.markDirty();
+		this.setChanged();
 	}
 	
 	public ItemShopLogger getLogger() {return this.logger; }
@@ -225,13 +224,13 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	public void markLoggerDirty()
 	{
 		//Send an update to the client
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundNBT compound = this.writeLogger(new CompoundNBT());
+			CompoundTag compound = this.writeLogger(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
-		this.markDirty();
+		this.setChanged();
 	}
 	
 	public int getTradeStock(int tradeSlot)
@@ -318,7 +317,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		
 		this.writeItems(compound);
@@ -326,41 +325,41 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
-		return super.write(compound);
+		return super.save(compound);
 		
 	}
 	
-	protected CompoundNBT writeItems(CompoundNBT compound)
+	protected CompoundTag writeItems(CompoundTag compound)
 	{
-		ItemStackHelper.saveAllItems("Items", compound, this.inventory);
+		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		return compound;
 	}
 	
-	public CompoundNBT writeTrades(CompoundNBT compound)
+	public CompoundTag writeTrades(CompoundTag compound)
 	{
 		compound.putInt("TradeLimit", this.tradeCount);
 		ItemTradeData.saveAllData(compound, this.trades);
 		return compound;
 	}
 	
-	public CompoundNBT writeLogger(CompoundNBT compound)
+	public CompoundTag writeLogger(CompoundTag compound)
 	{
 		this.logger.write(compound);
 		return compound;
 	}
 	
-	public CompoundNBT writeTradeRules(CompoundNBT compound)
+	public CompoundTag writeTradeRules(CompoundTag compound)
 	{
 		TradeRule.writeRules(compound, this.tradeRules);
 		return compound;
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		//Load the trade limit
-		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
+		if(compound.contains("TradeLimit", Tag.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
 		//Load trades
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
@@ -369,187 +368,75 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		}
 		
 		//Load the inventory
-		if(this.inventory == null)
-			this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 		if(compound.contains("Items"))
 		{
-			this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
-			ItemStackHelper.loadAllItems("Items", compound, this.inventory);
+			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getSizeInventory());
 		}
 		
 		//Load the shop logger
 		this.logger.read(compound);
 		
 		//Load the trade rules
-		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 	
 	@Override
-	public void dumpContents(World world, BlockPos pos)
+	public void dumpContents(Level world, BlockPos pos)
 	{
 		//super.dumpContents dumps the coins automatically
 		super.dumpContents(world, pos);
 		//Dump the Inventory
-		InventoryUtil.dumpContents(world, pos, this.inventory);
+		InventoryUtil.dumpContents(world, pos, this.storage);
 		//Dump the Trade Inventory
 		//Removed as the trade inventory no longer consumes items
 		//InventoryUtil.dumpContents(world, pos, new TradeInventory(trades));
 	}
 	
 	@Override
-	public AxisAlignedBB getRenderBoundingBox()
+	public AABB getRenderBoundingBox()
 	{
-		return new AxisAlignedBB(getPos().add(-1, 0, -1), getPos().add(2,2,2));
+		return new AABB(this.worldPosition.offset(-1, 0, -1), this.worldPosition.offset(2,2,2));
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			this.rotationTime++;
 	}
+	
+	@Override
+	public MenuProvider getTradeMenuProvider() { return new TradeContainerProvider(this); }
 
 	@Override
-	public boolean isEmpty() {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.isEmpty().");
-		for(ItemStack stack : this.inventory)
-		{
-			if(!stack.isEmpty())
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public ItemStack getStackInSlot(int slot) {
-		
-		if(slot < 0 || slot >= this.inventory.size())
-		{
-			LightmansCurrency.LogError("ItemTraderTileEntity.getStackInSlot. Attempting to get slot " + slot + " but array size is " + this.inventory.size() + " instead of " + this.getSizeInventory());
-			return ItemStack.EMPTY;
-		}
-		//CurrencyMod.LOGGER.info("ATMTileEntity.getStackInSlot(int slot (" + String.valueOf(slot) + ")).");
-		return this.inventory.get(slot);
-		
-	}
+	public MenuProvider getStorageMenuProvider() { return new StorageContainerProvider(this); }
 
 	@Override
-	public ItemStack decrStackSize(int slot, int amount) {
-		
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.decrStackSize(int slot (" + String.valueOf(slot) + "), int amount (" + String.valueOf(amount) + ")).");
-		
-		int currentCount = getStackInSlot(slot).getCount();
-		
-		ItemStack newStack = null;
-		
-		//Current count is less than or equal to the requested count.
-		//Return existing stack, and replace that slot with an empty ItemStack.
-		if(currentCount <= amount)
-		{
-			newStack = getStackInSlot(slot);
-			inventory.set(slot, ItemStack.EMPTY);
-		}
-		//Present count is greater than the requested count.
-		//Create copy with requested count, and decrease the existing count by the requested amount.
-		else
-		{
-			newStack = new ItemStack(getStackInSlot(slot).getItem(), amount);
-			if(getStackInSlot(slot).hasTag())
-				newStack.setTag(getStackInSlot(slot).getTag().copy());
-			inventory.get(slot).setCount(currentCount - amount);
-		}
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-		return newStack;
-		
-	}
+	public MenuProvider getCashRegisterTradeMenuProvider(CashRegisterTileEntity cashRegister) { return new TradeCRContainerProvider(this, cashRegister); }
 	
-	@Override
-	public ItemStack removeStackFromSlot(int slot) {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.removeStackFromSlot(int slot (" + String.valueOf(slot) + ")).");
-		ItemStack slotStack = inventory.get(slot);
-		inventory.set(slot, ItemStack.EMPTY);
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-		return slotStack;
-		
-	}
+	protected MenuProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditContainerProvider(this, tradeIndex); }
 	
-	@Override
-	public void setInventorySlotContents(int slot, ItemStack items) {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.setInventorySlotContents(int slot (" + String.valueOf(slot) + "), items)).");
-		inventory.set(slot, items);
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{	
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-	}
-	
-	@Override
-	public void clear() {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.clear().");
-		this.inventory.clear();
-		
-	}
-	
-	@Override
-	public boolean isUsableByPlayer(PlayerEntity player) {
-		return true;
-	}
-	
-	@Override
-	public INamedContainerProvider getTradeMenuProvider() { return new TradeContainerProvider(this); }
-
-	@Override
-	public INamedContainerProvider getStorageMenuProvider() { return new StorageContainerProvider(this); }
-
-	@Override
-	public INamedContainerProvider getCashRegisterTradeMenuProvider(CashRegisterTileEntity cashRegister) { return new TradeCRContainerProvider(this, cashRegister); }
-	
-	protected INamedContainerProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditContainerProvider(this, tradeIndex); }
-	
-	public void openItemEditMenu(PlayerEntity player, int tradeIndex)
+	public void openItemEditMenu(Player player, int tradeIndex)
 	{
-		INamedContainerProvider provider = getItemEditMenuProvider(tradeIndex);
+		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No item edit container provider was given for the trader of type " + this.getType().getRegistryName().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.pos, tradeIndex));
+		NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.worldPosition, tradeIndex));
 	}
 	
-	private class TradeContainerProvider implements INamedContainerProvider{
+	private class TradeContainerProvider implements MenuProvider{
 
 		ItemTraderTileEntity tileEntity;
 		
@@ -558,19 +445,19 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			this.tileEntity = tileEntity;
 		}
 		
-		public ITextComponent getDisplayName()
+		public Component getDisplayName()
 		{
 			return tileEntity.getName();
 		}
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity entity)
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
 			return new ItemTraderContainer(id, inventory, tileEntity);
 		}
 		
 	}
 	
-	private class StorageContainerProvider implements INamedContainerProvider{
+	private class StorageContainerProvider implements MenuProvider{
 
 		ItemTraderTileEntity tileEntity;
 		
@@ -579,19 +466,19 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			this.tileEntity = tileEntity;
 		}
 		
-		public ITextComponent getDisplayName()
+		public Component getDisplayName()
 		{
 			return tileEntity.getName();
 		}
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity entity)
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
 			return new ItemTraderStorageContainer(id, inventory, tileEntity);
 		}
 		
 	}
 	
-	private class TradeCRContainerProvider implements INamedContainerProvider{
+	private class TradeCRContainerProvider implements MenuProvider{
 
 		ItemTraderTileEntity tileEntity;
 		CashRegisterTileEntity registerEntity;
@@ -602,19 +489,19 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			this.registerEntity = registerEntity;
 		}
 		
-		public ITextComponent getDisplayName()
+		public Component getDisplayName()
 		{
 			return tileEntity.getName();
 		}
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity entity)
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
 			return new ItemTraderContainerCR(id, inventory, tileEntity, registerEntity);
 		}
 		
 	}
 	
-	private class ItemEditContainerProvider implements INamedContainerProvider{
+	private class ItemEditContainerProvider implements MenuProvider{
 
 		ItemTraderTileEntity tileEntity;
 		int tradeIndex;
@@ -625,12 +512,12 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			this.tradeIndex = tradeIndex;
 		}
 		
-		public ITextComponent getDisplayName()
+		public Component getDisplayName()
 		{
 			return tileEntity.getName();
 		}
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity entity)
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
 			return new ItemEditContainer(id, inventory, () -> tileEntity, tradeIndex);
 		}
@@ -638,8 +525,8 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	}
 
 	@Override
-	public IInventory getStorage() {
-		return this;
+	public Container getStorage() {
+		return this.storage;
 	}
 
 	@Override
@@ -654,9 +541,9 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			{
 				ItemStack tradeStack = trade.getSellItem();
 				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this, tradeStack);
+					tradeStack = InventoryUtil.TryPutItemStack(this.storage, tradeStack);
 				if(!tradeStack.isEmpty())
-					InventoryUtil.dumpContents(this.world, pos, InventoryUtil.buildInventory(tradeStack));
+					InventoryUtil.dumpContents(this.level, this.worldPosition, InventoryUtil.buildInventory(tradeStack));
 			}
 		}
 		
@@ -712,16 +599,16 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	public void markRulesDirty()
 	{
 		//Send an update to the client
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundNBT compound = this.writeTradeRules(new CompoundNBT());
+			CompoundTag compound = this.writeTradeRules(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
-		this.markDirty();
+		this.setChanged();
 	}
 	
-	public void closeRuleScreen(PlayerEntity player)
+	public void closeRuleScreen(Player player)
 	{
 		this.openStorageMenu(player);
 	}
@@ -744,13 +631,13 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		@Override
 		public void reopenLastScreen()
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.pos));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.worldPosition));
 		}
 		
 		@Override
 		public void updateServer(List<TradeRule> newRules)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.pos, newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.worldPosition, newRules));
 		}
 		
 	}

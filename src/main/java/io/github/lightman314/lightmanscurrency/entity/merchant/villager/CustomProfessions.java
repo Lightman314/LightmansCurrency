@@ -9,10 +9,10 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.village.PointOfInterestType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,7 +25,7 @@ public class CustomProfessions {
 	public static final VillagerProfession BANKER = register("banker", CustomPointsOfInterest.BANKER, CurrencySoundEvents.COINS_CLINKING);
 	public static final VillagerProfession CASHIER = register("cashier", CustomPointsOfInterest.CASHIER, CurrencySoundEvents.COINS_CLINKING);
 	
-	private static VillagerProfession register(String type, PointOfInterestType interestType, @Nullable SoundEvent soundEvent)
+	private static VillagerProfession register(String type, PoiType interestType, @Nullable SoundEvent soundEvent)
 	{
 		VillagerProfession profession = new VillagerProfession(type, interestType, ImmutableSet.of(), ImmutableSet.of(), soundEvent);
 		profession.setRegistryName(new ResourceLocation(LightmansCurrency.MODID, type));
@@ -36,10 +36,6 @@ public class CustomProfessions {
 	@SubscribeEvent
 	public static void registerVillagerProfessions(RegistryEvent.Register<VillagerProfession> event)
 	{
-		//if(Config.COMMON.addBankerVillager.get())
-		//	event.getRegistry().register(BANKER);
-		//if(Config.COMMON.addCashierVillager.get())
-		//	event.getRegistry().register(CASHIER);
 		PROFESSIONS.forEach(profession -> event.getRegistry().register(profession));
 		PROFESSIONS.clear();
 	}

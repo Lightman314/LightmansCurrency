@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3f;
 
 public class MathUtil {
 
@@ -9,7 +9,7 @@ public class MathUtil {
 	 */
 	public static Vector3f VectorMult(Vector3f vector, float num)
 	{
-		return new Vector3f(vector.getX() * num, vector.getY() * num, vector.getZ() * num);
+		return new Vector3f(vector.x() * num, vector.y() * num, vector.z() * num);
 	}
 	
 	/**
@@ -23,9 +23,9 @@ public class MathUtil {
 		
 		for(Vector3f vector : vectors)
 		{
-			x += vector.getX();
-			y += vector.getY();
-			z += vector.getZ();
+			x += vector.x();
+			y += vector.y();
+			z += vector.z();
 		}
 		
 		return new Vector3f(x, y, z);

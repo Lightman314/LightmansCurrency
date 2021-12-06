@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.tileentity;
 
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 
@@ -12,18 +14,18 @@ public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 	/** The angle of the door last tick */
 	private float prevDoorAngle;
 	
-	public FreezerTraderTileEntity()
+	public FreezerTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.FREEZER_TRADER);
+		super(ModTileEntities.FREEZER_TRADER, pos, state);
 	}
 	
-	public FreezerTraderTileEntity(int tradeCount)
+	public FreezerTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModTileEntities.FREEZER_TRADER, tradeCount);
+		super(ModTileEntities.FREEZER_TRADER, pos, state, tradeCount);
 	}
 	
 	public float getDoorAngle(float partialTicks) {
-		return MathHelper.lerp(partialTicks, this.prevDoorAngle, this.doorAngle);
+		return Mth.lerp(partialTicks, this.prevDoorAngle, this.doorAngle);
 	}
 	
 	@Override
@@ -38,7 +40,7 @@ public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 		this.prevDoorAngle = this.doorAngle;
 		//Play the opening sound
 		if (userCount > 0 && this.doorAngle == 0.0F) {
-			this.world.playSound(null, pos, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+			this.level.playSound(null, this.worldPosition, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
 		}
 		
 		if(userCount > 0 && this.doorAngle < 1f)
@@ -49,7 +51,7 @@ public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 		{
 			this.doorAngle -= 0.1f;
 			if (this.doorAngle < 0.5F && this.prevDoorAngle >= 0.5F) {
-				this.world.playSound(null, pos, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+				this.level.playSound(null, this.worldPosition, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
 			}
 		}
 		if(this.doorAngle > 1f)

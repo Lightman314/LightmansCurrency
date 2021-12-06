@@ -7,23 +7,24 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 
 public abstract class TradeRule {
 	
@@ -31,7 +32,7 @@ public abstract class TradeRule {
 	public static final String DEFAULT_TAG = "TradeRules";
 	
 	public final ResourceLocation type;
-	public final ITextComponent getName() { return new TranslationTextComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
+	public final Component getName() { return new TranslatableComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
 	
 	public void beforeTrade(PreTradeEvent event) {}
 	public void tradeCost(TradeCostEvent event) {}
@@ -42,33 +43,33 @@ public abstract class TradeRule {
 		this.type = type;
 	}
 	
-	public CompoundNBT getNBT()
+	public CompoundTag getNBT()
 	{
-		CompoundNBT compound = new CompoundNBT();
+		CompoundTag compound = new CompoundTag();
 		compound.putString("type", this.type.toString());
 		return write(compound);
 	}
 	
-	protected abstract CompoundNBT write(CompoundNBT compound);
+	protected abstract CompoundTag write(CompoundTag compound);
 	
-	public abstract void readNBT(CompoundNBT compound);
+	public abstract void readNBT(CompoundTag compound);
 	
-	public ITextComponent getButtonText() { return null; }
+	public Component getButtonText() { return null; }
 	public ResourceLocation getButtonGUI() { return ICON_TEXTURE; }
 	public int getGUIX() { return 0; }
 	public int getGUIY() { return 0; }
 	
-	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules)
+	public static CompoundTag writeRules(CompoundTag compound, List<TradeRule> rules)
 	{
 		return writeRules(compound, rules, DEFAULT_TAG);
 	}
 	
-	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules, String tag)
+	public static CompoundTag writeRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
-		ListNBT ruleData = new ListNBT();
+		ListTag ruleData = new ListTag();
 		for(int i = 0; i < rules.size(); i++)
 		{
-			CompoundNBT thisRuleData = rules.get(i).getNBT();
+			CompoundTag thisRuleData = rules.get(i).getNBT();
 			if(thisRuleData != null)
 				ruleData.add(thisRuleData);
 		}
@@ -76,20 +77,20 @@ public abstract class TradeRule {
 		return compound;
 	}
 	
-	public static List<TradeRule> readRules(CompoundNBT compound)
+	public static List<TradeRule> readRules(CompoundTag compound)
 	{
 		return readRules(compound, DEFAULT_TAG);
 	}
 	
-	public static List<TradeRule> readRules(CompoundNBT compound, String tag)
+	public static List<TradeRule> readRules(CompoundTag compound, String tag)
 	{
 		List<TradeRule> rules = new ArrayList<>();
-		if(compound.contains(tag, Constants.NBT.TAG_LIST))
+		if(compound.contains(tag, Tag.TAG_LIST))
 		{
-			ListNBT ruleData = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
+			ListTag ruleData = compound.getList(tag, Tag.TAG_COMPOUND);
 			for(int i = 0; i < ruleData.size(); i++)
 			{
-				CompoundNBT thisRuleData = ruleData.getCompound(i);
+				CompoundTag thisRuleData = ruleData.getCompound(i);
 				TradeRule thisRule = Deserialize(thisRuleData);
 				if(thisRule != null)
 					rules.add(thisRule);
@@ -117,20 +118,25 @@ public abstract class TradeRule {
 		
 		public abstract void initTab();
 		
-		public abstract void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks);
+		public abstract void renderTab(PoseStack postStack, int mouseX, int mouseY, float partialTicks);
 		
 		public abstract void onTabClose();
 		
 		public void onScreenTick() { }
 		
-		public <T extends Button> T addButton(T button)
+		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
 		{
-			return screen.addCustomButton(button);
+			return screen.addCustomRenderable(widget);
 		}
 		
-		public <T extends IGuiEventListener> T addListener(T listener)
+		public <T extends GuiEventListener & NarratableEntry> T addCustomWidget(T widget)
 		{
-			return screen.addCustomListener(listener);
+			return screen.addCustomWidget(widget);
+		}
+		
+		public <T extends GuiEventListener> void removeCustomWidget(T widget)
+		{
+			screen.removeCustomWidget(widget);
 		}
 		
 	}
@@ -158,7 +164,7 @@ public abstract class TradeRule {
 		LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
 	
-	public static TradeRule Deserialize(CompoundNBT compound)
+	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.getString("type");
 		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();

@@ -3,20 +3,18 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.events.TradeEditEvent.TradePriceEditEvent;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
+public class MessageSetItemPrice {
 
 	private BlockPos pos;
 	private int tradeIndex;
@@ -24,11 +22,6 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 	private boolean isFree;
 	private String customName;
 	String newDirection;
-	
-	public MessageSetItemPrice()
-	{
-		
-	}
 	
 	public MessageSetItemPrice(BlockPos pos, int tradeIndex, CoinValue newPrice, boolean isFree, String customName, String newDirection)
 	{
@@ -40,36 +33,32 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 		this.newDirection = newDirection;
 	}
 	
-	
-	@Override
-	public void encode(MessageSetItemPrice message, PacketBuffer buffer) {
+	public static void encode(MessageSetItemPrice message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeCompoundTag(message.newPrice.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.newPrice.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
 		buffer.writeBoolean(message.isFree);
-		buffer.writeString(message.customName);
-		buffer.writeString(message.newDirection);
+		buffer.writeUtf(message.customName);
+		buffer.writeUtf(message.newDirection);
 	}
 
-	@Override
-	public MessageSetItemPrice decode(PacketBuffer buffer) {
-		return new MessageSetItemPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeTypeStringLength()));
+	public static MessageSetItemPrice decode(FriendlyByteBuf buffer) {
+		return new MessageSetItemPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readNbt()), buffer.readBoolean(), buffer.readUtf(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readUtf(ItemTradeData.MaxTradeTypeStringLength()));
 	}
 
-	@Override
-	public void handle(MessageSetItemPrice message, Supplier<Context> supplier) {
+	public static void handle(MessageSetItemPrice message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
-				if(tileEntity != null)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity != null)
 				{
-					if(tileEntity instanceof ItemTraderTileEntity)
+					if(blockEntity instanceof ItemTraderTileEntity)
 					{
-						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)tileEntity;
+						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)blockEntity;
 						CoinValue oldPrice = traderEntity.getTrade(message.tradeIndex).getCost();
 						boolean wasFree = traderEntity.getTrade(message.tradeIndex).isFree();
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
@@ -82,17 +71,15 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 							//Throw price change event
 							TradePriceEditEvent e = new TradePriceEditEvent(() -> {
 								//Create safe supplier, just in case the event saves it for later
-								TileEntity te = entity.world.getTileEntity(message.pos);
-								if(te instanceof ItemTraderTileEntity)
-									return (ItemTraderTileEntity)te;
+								BlockEntity be = player.level.getBlockEntity(message.pos);
+								if(be instanceof ItemTraderTileEntity)
+									return (ItemTraderTileEntity)be;
 								return null;
 							}, message.tradeIndex, oldPrice, wasFree);
 							MinecraftForge.EVENT_BUS.post(e);
 						}
 						
-						//Send update packet to the clients
-						CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
-						TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));
+						traderEntity.markTradesDirty();
 					}
 				}
 			}

@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -367,13 +368,27 @@ public class InventoryUtil {
     {
     	if(level.isClientSide)
 			return;
-    	
-    	//InventoryHelper.dropInventoryItems(level, pos, inventory);
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
+    		dumpContents(level, pos, inventory.getItem(i));
     }
     
     public static void dumpContents(Level level, BlockPos pos, List<ItemStack> inventory)
     {
-    	dumpContents(level, pos, InventoryUtil.buildInventory(inventory));
+    	if(level.isClientSide)
+    		return;
+    	for(int i = 0; i < inventory.size(); i++)
+    		dumpContents(level, pos, inventory.get(i));
+    }
+    
+    public static void dumpContents(Level level, BlockPos pos, ItemStack stack)
+    {
+    	if(level.isClientSide)
+    		return;
+    	if(!stack.isEmpty())
+		{
+			ItemEntity entity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+			level.addFreshEntity(entity);
+		}
     }
     
     /**

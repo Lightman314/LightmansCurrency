@@ -4,26 +4,28 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class UniversalItemTraderTileEntity extends UniversalTraderTileEntity{
 
 	int tradeCount = 1;
 	
-	public UniversalItemTraderTileEntity()
+	public UniversalItemTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.UNIVERSAL_ITEM_TRADER);
+		super(ModTileEntities.UNIVERSAL_ITEM_TRADER, pos, state);
 	}
 	
-	public UniversalItemTraderTileEntity(int tradeCount)
+	public UniversalItemTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		this();
+		this(pos, state);
 		this.tradeCount = tradeCount;
 	}
 
 	@Override
 	protected UniversalTraderData createInitialData(Entity owner) {
-		return new UniversalItemTraderData(owner, this.pos, this.world.getDimensionKey(), this.traderID, this.tradeCount);
+		return new UniversalItemTraderData(owner, this.worldPosition, this.level.dimension(), this.traderID, this.tradeCount);
 	}
 	
 	@Override
@@ -33,7 +35,7 @@ public class UniversalItemTraderTileEntity extends UniversalTraderTileEntity{
 		if(data instanceof UniversalItemTraderData)
 		{
 			UniversalItemTraderData itemData = (UniversalItemTraderData)data;
-			InventoryUtil.dumpContents(world, pos, itemData.getStorage());
+			InventoryUtil.dumpContents(this.level, this.worldPosition, itemData.getStorage());
 			//Removed as the trade inventory no longer consumes items
 			//InventoryUtil.dumpContents(world, pos, new TradeInventory(itemData.getAllTrades()));
 		}

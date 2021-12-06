@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
@@ -472,9 +472,9 @@ public class Config {
 		
 	}
 	
-	public static CompoundNBT getSyncData()
+	public static CompoundTag getSyncData()
 	{
-		CompoundNBT data = new CompoundNBT();
+		CompoundTag data = new CompoundTag();
 		
 		//Put mint/melt data
 		data.putBoolean("canMint", COMMON.allowCoinMinting.get());
@@ -496,7 +496,7 @@ public class Config {
 		data.putBoolean("meltNetherite", COMMON.meltNetherite.get());
 		
 		//Coin worth
-		CompoundNBT coinValues = new CompoundNBT();
+		CompoundTag coinValues = new CompoundTag();
 		coinValues.putInt("iron", COMMON.ironCoinWorth.get());
 		coinValues.putInt("gold", COMMON.goldCoinWorth.get());
 		coinValues.putInt("emerald", COMMON.emeraldCoinWorth.get());
@@ -504,7 +504,7 @@ public class Config {
 		coinValues.putInt("netherite", COMMON.netheriteCoinWorth.get());
 		data.put("coinValues", coinValues);
 		//Coinpile worth
-		CompoundNBT coinpileValues = new CompoundNBT();
+		CompoundTag coinpileValues = new CompoundTag();
 		coinpileValues.putInt("copper", COMMON.coinpileCopperWorth.get());
 		coinpileValues.putInt("iron", COMMON.coinpileIronWorth.get());
 		coinpileValues.putInt("gold", COMMON.coinpileGoldWorth.get());
@@ -513,7 +513,7 @@ public class Config {
 		coinpileValues.putInt("netherite", COMMON.coinpileNetheriteWorth.get());
 		data.put("coinpileValues", coinpileValues);
 		//Coinblock worth
-		CompoundNBT coinblockValues = new CompoundNBT();
+		CompoundTag coinblockValues = new CompoundTag();
 		coinblockValues.putInt("copper", COMMON.coinBlockCopperWorth.get());
 		coinblockValues.putInt("iron", COMMON.coinBlockIronWorth.get());
 		coinblockValues.putInt("gold", COMMON.coinBlockGoldWorth.get());
@@ -530,7 +530,7 @@ public class Config {
 		syncConfig(getSyncData());
 	}
 	
-	public static void syncConfig(CompoundNBT data)
+	public static void syncConfig(CompoundTag data)
 	{
 		//Can Mint/Melt
 		canMint = data.getBoolean("canMint");
@@ -551,7 +551,7 @@ public class Config {
 		meltNetherite = data.getBoolean("meltNetherite");
 		
 		//Coin worth
-		CompoundNBT coinValues = data.getCompound("coinValues");
+		CompoundTag coinValues = data.getCompound("coinValues");
 		MoneyUtil.changeCoinConversion(ModItems.COIN_IRON, ModItems.COIN_COPPER, coinValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModItems.COIN_GOLD, ModItems.COIN_IRON, coinValues.getInt("gold"));
 		MoneyUtil.changeCoinConversion(ModItems.COIN_EMERALD, ModItems.COIN_GOLD, coinValues.getInt("emerald"));
@@ -559,7 +559,7 @@ public class Config {
 		MoneyUtil.changeCoinConversion(ModItems.COIN_NETHERITE, ModItems.COIN_DIAMOND, coinValues.getInt("netherite"));
 		
 		//Coinpile worth
-		CompoundNBT coinpileValues = data.getCompound("coinpileValues");
+		CompoundTag coinpileValues = data.getCompound("coinpileValues");
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_COPPER.item, ModItems.COIN_COPPER, coinpileValues.getInt("copper"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_IRON.item, ModItems.COIN_IRON, coinpileValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_GOLD.item, ModItems.COIN_GOLD, coinpileValues.getInt("gold"));
@@ -568,7 +568,7 @@ public class Config {
 		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_NETHERITE.item, ModItems.COIN_NETHERITE, coinpileValues.getInt("netherite"));
 		
 		//Coinblock worth
-		CompoundNBT coinblockValues = data.getCompound("coinblockValues");
+		CompoundTag coinblockValues = data.getCompound("coinblockValues");
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_COPPER.item, ModBlocks.COINPILE_COPPER.item, coinblockValues.getInt("copper"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_IRON.item, ModBlocks.COINPILE_IRON.item, coinblockValues.getInt("iron"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_GOLD.item, ModBlocks.COINPILE_GOLD.item, coinblockValues.getInt("gold"));

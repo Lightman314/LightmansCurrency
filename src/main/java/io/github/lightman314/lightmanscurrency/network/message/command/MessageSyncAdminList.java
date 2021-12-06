@@ -5,75 +5,59 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 
-public class MessageSyncAdminList implements IMessage<MessageSyncAdminList> {
+public class MessageSyncAdminList {
 	
 	List<UUID> adminList;
-	
-	public MessageSyncAdminList()
-	{
-		
-	}
 	
 	public MessageSyncAdminList(List<UUID> adminList)
 	{
 		this.adminList = adminList;
 	}
 	
-	private CompoundNBT getAsCompound()
+	private CompoundTag getAsCompound()
 	{
-		CompoundNBT compound = new CompoundNBT();
-		ListNBT adminListData = new ListNBT();
+		CompoundTag compound = new CompoundTag();
+		ListTag adminListData = new ListTag();
 		for(int i = 0; i < adminList.size(); i++)
 		{
-			CompoundNBT thisData = new CompoundNBT();
+			CompoundTag thisData = new CompoundTag();
 			if(adminList.get(i) != null)
-				thisData.putUniqueId("id", adminList.get(i));
+				thisData.putUUID("id", adminList.get(i));
 			adminListData.add(thisData);
 		}
 		compound.put("data", adminListData);
 		return compound;
 	}
 	
-	private static List<UUID> readFromCompound(CompoundNBT compound)
+	private static List<UUID> readFromCompound(CompoundTag compound)
 	{
 		List<UUID> adminList = new ArrayList<>();
-		ListNBT adminListData = compound.getList("data", Constants.NBT.TAG_COMPOUND);
+		ListTag adminListData = compound.getList("data", Tag.TAG_COMPOUND);
 		for(int i = 0; i < adminListData.size(); i++)
 		{
-			CompoundNBT thisData = adminListData.getCompound(i);
-			adminList.add(thisData.getUniqueId("id"));
+			CompoundTag thisData = adminListData.getCompound(i);
+			adminList.add(thisData.getUUID("id"));
 		}
 		return adminList;
 	}
 	
-	@Override
-	public void encode(MessageSyncAdminList message, PacketBuffer buffer) {
-		buffer.writeCompoundTag(message.getAsCompound());
+	public static void encode(MessageSyncAdminList message, FriendlyByteBuf buffer) {
+		buffer.writeNbt(message.getAsCompound());
 	}
 
-	@Override
-	public MessageSyncAdminList decode(PacketBuffer buffer) {
-		return new MessageSyncAdminList(readFromCompound(buffer.readCompoundTag()));
+	public static MessageSyncAdminList decode(FriendlyByteBuf buffer) {
+		return new MessageSyncAdminList(readFromCompound(buffer.readNbt()));
 	}
 
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void handle(MessageSyncAdminList message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() ->
-		{
-			//Run through proxy to prevent hacked clients from changing the admin list
-			LightmansCurrency.PROXY.loadAdminPlayers(message.adminList);
-		});
+	public static void handle(MessageSyncAdminList message, Supplier<Context> supplier) {
+		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.loadAdminPlayers(message.adminList));
 		supplier.get().setPacketHandled(true);
 	}
 

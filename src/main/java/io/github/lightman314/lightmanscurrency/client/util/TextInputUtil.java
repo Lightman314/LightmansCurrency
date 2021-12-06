@@ -1,18 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.components.EditBox;
 
 public class TextInputUtil {
 
 	private static final String INTEGER_WHITELIST = "0123456789";
 	private static final String FLOAT_WHITELIST = "0123456789.";
 	
-	public static boolean isInteger(TextFieldWidget textInput)
+	public static boolean isInteger(EditBox textInput)
 	{
 		if(textInput == null)
 			return false;
-		return isInteger(textInput.getText());
+		return isInteger(textInput.getValue());
 	}
 	
 	public static boolean isInteger(String text)
@@ -31,21 +31,21 @@ public class TextInputUtil {
 		return true;
 	}
 	
-	public static int getIntegerValue(TextFieldWidget textInput)
+	public static int getIntegerValue(EditBox textInput)
 	{
 		return getIntegerValue(textInput, 0);
 	}
 	
-	public static int getIntegerValue(TextFieldWidget textInput, int defaultValue)
+	public static int getIntegerValue(EditBox textInput, int defaultValue)
 	{
 		if(isInteger(textInput))
-			return Integer.parseInt(textInput.getText());
+			return Integer.parseInt(textInput.getValue());
 		return defaultValue;
 	}
 	
-	public static boolean isLong(TextFieldWidget textInput)
+	public static boolean isLong(EditBox textInput)
 	{
-		return isLong(textInput.getText());
+		return isLong(textInput.getValue());
 	}
 	
 	public static boolean isLong(String text)
@@ -64,22 +64,22 @@ public class TextInputUtil {
 		return true;
 	}
 	
-	public static long getLongValue(TextFieldWidget textInput)
+	public static long getLongValue(EditBox textInput)
 	{
 		return getLongValue(textInput, 0);
 	}
 	
-	public static long getLongValue(TextFieldWidget textInput, int defaultValue)
+	public static long getLongValue(EditBox textInput, int defaultValue)
 	{
 		if(isLong(textInput))
-			return Long.parseLong(textInput.getText());
+			return Long.parseLong(textInput.getValue());
 		return defaultValue;
 	}
 	
 	/**
 	 * Also works for long values.
 	 */
-	public static void whitelistInteger(TextFieldWidget textInput)
+	public static void whitelistInteger(EditBox textInput)
 	{
 		whitelistText(textInput, INTEGER_WHITELIST);
 	}
@@ -87,16 +87,16 @@ public class TextInputUtil {
 	/**
 	 * Also works for long values.
 	 */
-	public static void whitelistInteger(TextFieldWidget textInput, long minValue, long maxValue)
+	public static void whitelistInteger(EditBox textInput, long minValue, long maxValue)
 	{
 		whitelistText(textInput, INTEGER_WHITELIST);
-		if(textInput.getText().length() > 0)
+		if(textInput.getValue().length() > 0)
 		{
 			long currentValue = getLongValue(textInput);
 			if(currentValue < minValue || currentValue > maxValue)
 			{
 				currentValue = MathUtil.clamp(currentValue, minValue, maxValue);
-				textInput.setText(Long.toString(currentValue));
+				textInput.setValue(Long.toString(currentValue));
 			}
 		}
 	}
@@ -104,14 +104,14 @@ public class TextInputUtil {
 	/**
 	 * Also works for double values.
 	 */
-	public static void whitelistFloat(TextFieldWidget textInput)
+	public static void whitelistFloat(EditBox textInput)
 	{
 		whitelistText(textInput, FLOAT_WHITELIST);
 	}
 	
-	public static void whitelistText(TextFieldWidget textInput, String allowedChars)
+	public static void whitelistText(EditBox textInput, String allowedChars)
 	{
-		StringBuilder newText = new StringBuilder(textInput.getText());
+		StringBuilder newText = new StringBuilder(textInput.getValue());
 		for(int i = 0; i < newText.length(); i++)
 		{
 			boolean allowed = false;
@@ -125,7 +125,7 @@ public class TextInputUtil {
 				newText.deleteCharAt(i);
 			}
 		}
-		textInput.setText(newText.toString());
+		textInput.setValue(newText.toString());
 	}
 	
 }

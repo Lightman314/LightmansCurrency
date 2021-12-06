@@ -2,34 +2,31 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.INameable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class PaygateTileEntity extends TileEntity implements INamedContainerProvider, ITickableTileEntity, INameable {
+public class PaygateTileEntity extends BlockEntity implements MenuProvider, Nameable {
 	
 	public static final int PRICE_MIN = 0;
 	public static final int PRICE_MAX = Integer.MAX_VALUE;
@@ -37,7 +34,7 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	public static final int DURATION_MIN = 1;
 	public static final int DURATION_MAX = 200;
 	
-	private ITextComponent customName;
+	private Component customName;
 	private UUID ownerID = null;
 	private UUID ticketID = null;
 	private String ownerName = "";
@@ -46,19 +43,19 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	private int duration = 40;
 	private int timer = 0;
 	
-	public PaygateTileEntity()
+	public PaygateTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.PAYGATE);
+		super(ModTileEntities.PAYGATE, pos, state);
 	}
 	
 	public void setOwner(Entity player)
 	{
-		this.ownerID = player.getUniqueID();
+		this.ownerID = player.getUUID();
 		this.ownerName = player.getName().getString();
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeOwner(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeOwner(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -66,14 +63,14 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	{
 		if(this.ownerID == null)
 			return true;
-		return player.getUniqueID().equals(this.ownerID);
+		return player.getUUID().equals(this.ownerID);
 	}
 	
-	public boolean canBreak(PlayerEntity player)
+	public boolean canBreak(Player player)
 	{
 		if(this.isOwner(player))
 			return true;
-		return player.hasPermissionLevel(2) && player.isCreative();
+		return TradingOffice.isAdminPlayer(player);
 	}
 	
 	public boolean isActive()
@@ -89,20 +86,20 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	public void addStoredMoney(CoinValue amount)
 	{
 		this.storedMoney.addValue(amount);;
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
 	public void clearStoredMoney()
 	{
 		this.storedMoney = new CoinValue();
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -114,10 +111,10 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	public void setPrice(CoinValue value)
 	{
 		this.price = value;
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writePrice(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writePrice(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -129,20 +126,20 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	public void setDuration(int value)
 	{
 		this.duration = MathUtil.clamp(value, 1, 200);
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeDuration(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeDuration(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
 	public void SetTicketID(UUID ticketID)
 	{
 		this.ticketID = ticketID;
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeTicket(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundTag compound = this.writeTicket(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 		}
 	}
 	
@@ -176,22 +173,22 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 	public void activate()
 	{
 		this.timer = this.duration;
-		this.world.setBlockState(this.pos, this.world.getBlockState(this.pos).with(PaygateBlock.POWERED, true));
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, true));
 		//this.getBlockState().updateNeighbours(this.world, this.pos, 35);
 	}
 	
 	@Override
 	public void onLoad()
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 		{
 			//CurrencyMod.LOGGER.info("Loaded client-side PaygateTileEntity. Requesting update packet.");
-			TileEntityUtil.requestUpdatePacket(this.world, this.pos);
+			TileEntityUtil.requestUpdatePacket(this);
 		}
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		
 		writeOwner(compound);
@@ -202,64 +199,64 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 		writeTicket(compound);
 		
 		if(this.customName != null)
-			compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName));
+			compound.putString("CustomName", Component.Serializer.toJson(this.customName));
 		
-		return super.write(compound);
+		return super.save(compound);
 		
 	}
 	
-	private CompoundNBT writeOwner(CompoundNBT compound)
+	private CompoundTag writeOwner(CompoundTag compound)
 	{
 		if(this.ownerID != null)
-			compound.putUniqueId("OwnerID", this.ownerID);
+			compound.putUUID("OwnerID", this.ownerID);
 		compound.putString("OwnerName", this.ownerName);
 		return compound;
 	}
 	
-	private CompoundNBT writeStoredMoney(CompoundNBT compound)
+	private CompoundTag writeStoredMoney(CompoundTag compound)
 	{
 		//compound.putInt("StoredMoney", this.storedMoney);
 		this.storedMoney.writeToNBT(compound, "StoredMoney");
 		return compound;
 	}
 	
-	private CompoundNBT writePrice(CompoundNBT compound)
+	private CompoundTag writePrice(CompoundTag compound)
 	{
 		//compound.putInt("Price", this.price);
 		this.price.writeToNBT(compound, "Price");
 		return compound;
 	}
 	
-	private CompoundNBT writeDuration(CompoundNBT compound)
+	private CompoundTag writeDuration(CompoundTag compound)
 	{
 		compound.putInt("Duration", this.duration);
 		return compound;
 	}
 	
-	private CompoundNBT writeTimer(CompoundNBT compound)
+	private CompoundTag writeTimer(CompoundTag compound)
 	{
 		compound.putInt("Timer", this.timer);
 		return compound;
 	}
 	
-	private CompoundNBT writeTicket(CompoundNBT compound)
+	private CompoundTag writeTicket(CompoundTag compound)
 	{
 		if(this.ticketID != null)
-			compound.putUniqueId("TicketID", this.ticketID);
+			compound.putUUID("TicketID", this.ticketID);
 		return compound;
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		//Read owner
 		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUniqueId("OwnerID");
-		if(compound.contains("OwnerName", Constants.NBT.TAG_STRING))
+			this.ownerID = compound.getUUID("OwnerID");
+		if(compound.contains("OwnerName", Tag.TAG_STRING))
 			this.ownerName = compound.getString("OwnerName");
 		//Read stored money & current price
-		if(compound.contains("StoredMoney", Constants.NBT.TAG_INT))
+		if(compound.contains("StoredMoney", Tag.TAG_INT))
 		{
 			this.storedMoney.readFromOldValue(compound.getInt("StoredMoney"));
 			LightmansCurrency.LogInfo("Reading stored money from older value format. Will be updated to newer value format.");
@@ -267,89 +264,75 @@ public class PaygateTileEntity extends TileEntity implements INamedContainerProv
 		else if(compound.contains("StoredMoney"))
 			this.storedMoney.readFromNBT(compound, "StoredMoney");
 		//Read the output customization
-		if(compound.contains("Price", Constants.NBT.TAG_INT))
+		if(compound.contains("Price", Tag.TAG_INT))
 		{
 			this.price.readFromOldValue(compound.getInt("Price"));
 			LightmansCurrency.LogInfo("Reading price from older value format. Will be updated to newer value format.");
 		}
 		else if(compound.contains("Price"))
 			this.price.readFromNBT(compound, "Price");
-		if(compound.contains("Duration", Constants.NBT.TAG_INT))
+		if(compound.contains("Duration", Tag.TAG_INT))
 			this.duration = compound.getInt("Duration");
 		//Read the timer
-		if(compound.contains("Timer", Constants.NBT.TAG_INT))
+		if(compound.contains("Timer", Tag.TAG_INT))
 			this.timer = compound.getInt("Timer");
 		//Read the ticket ID
 		if(compound.contains("TicketID"))
-			this.ticketID = compound.getUniqueId("TicketID");
+			this.ticketID = compound.getUUID("TicketID");
 		//Read the custom name
-		if (compound.contains("CustomName", Constants.NBT.TAG_STRING))
-			this.customName = ITextComponent.Serializer.getComponentFromJson(compound.getString("CustomName"));
+		if (compound.contains("CustomName", Tag.TAG_STRING))
+			this.customName = Component.Serializer.fromJson(compound.getString("CustomName"));
 		
-		
-		
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 	
-	@Override
+	//@Override
 	public void tick()
 	{
 		if(timer > 0)
 		{
 			timer--;
-			if(!this.world.isRemote)
+			if(!this.level.isClientSide)
 			{
-				CompoundNBT compound = this.writeTimer(new CompoundNBT());
-				TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+				CompoundTag compound = this.writeTimer(new CompoundTag());
+				TileEntityUtil.sendUpdatePacket(this, super.save(compound));
 			}
 			if(timer <= 0)
 			{
-				this.world.setBlockState(this.pos, this.world.getBlockState(this.pos).with(PaygateBlock.POWERED, false));
+				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, false));
 			}
 		}
 	}
 	
 	@Override
-	public Container createMenu(int windowId, PlayerInventory inventory, PlayerEntity player) {
+	public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
 		return new PaygateContainer(windowId, inventory, this);
 	}
 
 	@Override
-	public ITextComponent getDisplayName() {
+	public Component getDisplayName() {
 		return getTitle();
 	}
 	
-	public ITextComponent getTitle()
+	public Component getTitle()
 	{
-		return new TranslationTextComponent("gui.lightmanscurrency.paygate.title", getName(), this.ownerName);
+		return new TranslatableComponent("gui.lightmanscurrency.paygate.title", getName(), this.ownerName);
 	}
 
 	@Override
-	public ITextComponent getName() {
+	public Component getName() {
 		if(this.customName == null)
-			return new TranslationTextComponent("block.lightmanscurrency.paygate");
+			return new TranslatableComponent("block.lightmanscurrency.paygate");
 		return this.customName;
 	}
 	
-	public void setCustomName(ITextComponent customName)
+	public void setCustomName(Component customName)
 	{
 		this.customName = customName;
 	}
 	
-	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
-	}
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.read(this.getBlockState(), compound);
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
 }

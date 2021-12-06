@@ -2,24 +2,18 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageAddOrRemoveAlly implements IMessage<MessageAddOrRemoveAlly> {
+public class MessageAddOrRemoveAlly {
 	
 	BlockPos pos;
 	boolean isAllyAdd;
 	String ally;
-	
-	public MessageAddOrRemoveAlly()
-	{
-		
-	}
 	
 	public MessageAddOrRemoveAlly(BlockPos pos, boolean isAllyAdd, String ally)
 	{
@@ -28,30 +22,26 @@ public class MessageAddOrRemoveAlly implements IMessage<MessageAddOrRemoveAlly> 
 		this.ally = ally;
 	}
 	
-	
-	@Override
-	public void encode(MessageAddOrRemoveAlly message, PacketBuffer buffer) {
+	public static void encode(MessageAddOrRemoveAlly message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 		buffer.writeBoolean(message.isAllyAdd);
-		buffer.writeString(message.ally, 32);
+		buffer.writeUtf(message.ally);
 	}
 
-	@Override
-	public MessageAddOrRemoveAlly decode(PacketBuffer buffer) {
-		return new MessageAddOrRemoveAlly(buffer.readBlockPos(), buffer.readBoolean(), buffer.readString(32));
+	public static MessageAddOrRemoveAlly decode(FriendlyByteBuf buffer) {
+		return new MessageAddOrRemoveAlly(buffer.readBlockPos(), buffer.readBoolean(), buffer.readUtf());
 	}
 
-	@Override
-	public void handle(MessageAddOrRemoveAlly message, Supplier<Context> supplier) {
+	public static void handle(MessageAddOrRemoveAlly message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
-				if(tileEntity instanceof IPermissions)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity instanceof IPermissions)
 				{
-					IPermissions permissionEntity = (IPermissions)tileEntity;
+					IPermissions permissionEntity = (IPermissions)blockEntity;
 					if(message.isAllyAdd)
 					{
 						if(!permissionEntity.getAllies().contains(message.ally))

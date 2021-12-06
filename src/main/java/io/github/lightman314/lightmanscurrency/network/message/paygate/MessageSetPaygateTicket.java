@@ -3,23 +3,17 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageSetPaygateTicket implements IMessage<MessageSetPaygateTicket> {
+public class MessageSetPaygateTicket {
 
 	private BlockPos pos;
 	private UUID ticketID;
-	
-	public MessageSetPaygateTicket()
-	{
-		
-	}
 	
 	public MessageSetPaygateTicket(BlockPos pos, UUID ticketID)
 	{
@@ -27,33 +21,28 @@ public class MessageSetPaygateTicket implements IMessage<MessageSetPaygateTicket
 		this.ticketID = ticketID;
 	}
 	
-	
-	@Override
-	public void encode(MessageSetPaygateTicket message, PacketBuffer buffer) {
+	public static void encode(MessageSetPaygateTicket message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeUniqueId(message.ticketID);
+		buffer.writeUUID(message.ticketID);
 	}
 
-	@Override
-	public MessageSetPaygateTicket decode(PacketBuffer buffer) {
-		return new MessageSetPaygateTicket(buffer.readBlockPos(), buffer.readUniqueId());
+	public static MessageSetPaygateTicket decode(FriendlyByteBuf buffer) {
+		return new MessageSetPaygateTicket(buffer.readBlockPos(), buffer.readUUID());
 	}
 
-	@Override
-	public void handle(MessageSetPaygateTicket message, Supplier<Context> supplier) {
+	public static void handle(MessageSetPaygateTicket message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
-				if(tileEntity != null)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity != null)
 				{
-					if(tileEntity instanceof PaygateTileEntity)
+					if(blockEntity instanceof PaygateTileEntity)
 					{
 						
-						PaygateTileEntity paygateEntity = (PaygateTileEntity)tileEntity;
+						PaygateTileEntity paygateEntity = (PaygateTileEntity)blockEntity;
 						
 						paygateEntity.SetTicketID(message.ticketID);
 						

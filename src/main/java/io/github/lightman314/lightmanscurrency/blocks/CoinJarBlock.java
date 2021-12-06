@@ -1,27 +1,26 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-import javax.annotation.Nullable;
-
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.CoinJarTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CoinJarBlock extends RotatableBlock {
+public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 
 	public CoinJarBlock(Properties properties)
 	{
@@ -34,85 +33,68 @@ public class CoinJarBlock extends RotatableBlock {
 	}
 	
 	@Override
-	public boolean hasTileEntity(BlockState state)
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return true;
-	}
-	
-	@Nullable
-	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world)
-	{
-		return new CoinJarTileEntity();
+		return new CoinJarTileEntity(pos, state);
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
-		if(tileEntity instanceof CoinJarTileEntity)
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof CoinJarTileEntity)
 		{
-			CoinJarTileEntity jarEntity = (CoinJarTileEntity)tileEntity;
-			jarEntity.readItemTag(stack);
+			CoinJarTileEntity jar = (CoinJarTileEntity)blockEntity;
+			jar.readItemTag(stack);
 		}
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(!world.isRemote())
+		if(!level.isClientSide)
 		{
-			ItemStack coinStack = getPlayersHeldCoin(playerEntity);
-			if(coinStack.isEmpty())
-				return ActionResultType.SUCCESS;
+			ItemStack coinStack = player.getItemInHand(hand);
+			if(!MoneyUtil.isCoin(coinStack, false))
+				return InteractionResult.SUCCESS;
 			//Add coins to the bank
-			TileEntity tileEntity = world.getTileEntity(pos);
-			if(tileEntity instanceof CoinJarTileEntity)
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+			if(blockEntity instanceof CoinJarTileEntity)
 			{
-				CoinJarTileEntity jarEntity = (CoinJarTileEntity)tileEntity;
-				if(jarEntity.addCoin(coinStack))
+				CoinJarTileEntity jar = (CoinJarTileEntity)blockEntity;
+				if(jar.addCoin(coinStack))
 					coinStack.shrink(1);
 			}
 		}
-		return ActionResultType.SUCCESS;
-	}
-	
-	private static ItemStack getPlayersHeldCoin(PlayerEntity player)
-	{
-		//Get hotbar item
-		if(MoneyUtil.isCoin(player.inventory.getCurrentItem(), false))
-			return player.inventory.getCurrentItem();
-		else if(MoneyUtil.isCoin(player.inventory.offHandInventory.get(0), false))
-			return player.inventory.offHandInventory.get(0);
-		return ItemStack.EMPTY;
+		return InteractionResult.SUCCESS;
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		BlockEntity tileEntity = level.getBlockEntity(pos);
 		if(tileEntity instanceof CoinJarTileEntity)
 		{
 			CoinJarTileEntity jarEntity = (CoinJarTileEntity)tileEntity;
-			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player.inventory.getCurrentItem()) > 0)
+			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player) > 0)
 			{
 				//Drop the item for this block, with the JarData in it.
 				@SuppressWarnings("deprecation")
-				ItemStack dropStack = new ItemStack(Item.getItemFromBlock(this), 1);
+				ItemStack dropStack = new ItemStack(Item.byBlock(this), 1);
 				if(jarEntity.getStorage().size() > 0)
 					jarEntity.writeItemTag(dropStack);
-				Block.spawnAsEntity(worldIn, pos, dropStack);
+				Block.popResource(level, pos, dropStack);
 			}
 			else
 			{
 				//Only drop the coins within the jar
-				jarEntity.getStorage().forEach(coin -> Block.spawnAsEntity(worldIn, pos, coin));
+				jarEntity.getStorage().forEach(coin -> Block.popResource(level, pos, coin));
 			}
 		}
 		
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 		
 	}
 	

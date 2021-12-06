@@ -1,22 +1,29 @@
 package io.github.lightman314.lightmanscurrency.containers.slots;
 
+import com.mojang.datafixers.util.Pair;
+
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class TicketMasterSlot extends Slot{
 	
-	public TicketMasterSlot(IInventory inventory, int index, int x, int y)
+	public TicketMasterSlot(Container inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
-		this.setBackground(PlayerContainer.LOCATION_BLOCKS_TEXTURE, TicketSlot.EMPTY_TICKET_SLOT);
 	}
 	
 	@Override
-	public boolean isItemValid(ItemStack stack) {
+	public boolean mayPlace(ItemStack stack) {
 		return stack.getItem() == ModItems.TICKET_MASTER;
+	}
+	
+	@Override
+	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
+		return Pair.of(InventoryMenu.BLOCK_ATLAS, TicketSlot.EMPTY_TICKET_SLOT);
 	}
 
 }

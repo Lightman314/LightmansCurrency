@@ -21,28 +21,32 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class TradingOffice extends WorldSavedData{
+public class TradingOffice extends SavedData{
+	
+	public TradingOffice() { }
+	
+	public TradingOffice(CompoundTag tag) { this.load(tag); }
 	
 	private static final Map<ResourceLocation,Supplier<? extends UniversalTraderData>> registeredDeserializers = Maps.newHashMap();
 	
@@ -62,19 +66,8 @@ public class TradingOffice extends WorldSavedData{
 	private static List<UUID> adminPlayers = new ArrayList<>();
 	
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
-	
-	public TradingOffice()
-	{
-		super(DATA_NAME);
-	}
-	
-	public TradingOffice(String name)
-	{
-		super(name);
-	}
 
-	@SuppressWarnings("deprecation")
-	public static UniversalTraderData Deserialize(CompoundNBT compound)
+	public static UniversalTraderData Deserialize(CompoundTag compound)
 	{
 		ResourceLocation thisType = new ResourceLocation(compound.getString("type"));
 		//New method
@@ -84,19 +77,18 @@ public class TradingOffice extends WorldSavedData{
 			data.read(compound);
 			return data;
 		}
-		//Fall back onto the old method to allow older addon mods
-		return IUniversalDataDeserializer.ClassicDeserialize(compound);
+		return null;
 	}
 	
-	@Override
-	public void read(CompoundNBT compound) {
+	//@Override
+	public void load(CompoundTag compound) {
 		
 		universalTraderMap.clear();
-		if(compound.contains("UniversalTraders", Constants.NBT.TAG_LIST))
+		if(compound.contains("UniversalTraders", Tag.TAG_LIST))
 		{
-			ListNBT universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
+			ListTag universalTraderDataList = compound.getList("UniversalTraders", Tag.TAG_COMPOUND);
 			universalTraderDataList.forEach(nbt ->{
-				CompoundNBT traderNBT = (CompoundNBT)nbt;
+				CompoundTag traderNBT = (CompoundTag)nbt;
 				//UUID traderID = traderNBT.getUniqueId("ID");
 				//UniversalTraderData data = IUniversalDataDeserializer.Deserialize(traderNBT);
 				UniversalTraderData data = Deserialize(traderNBT);
@@ -108,14 +100,14 @@ public class TradingOffice extends WorldSavedData{
 	}
 
 	@Override
-	public CompoundNBT write(CompoundNBT compound) {
-		ListNBT universalTraderDataList = new ListNBT();
+	public CompoundTag save(CompoundTag compound) {
+		ListTag universalTraderDataList = new ListTag();
 		this.universalTraderMap.forEach((traderID, traderData) ->
 		{
 			if(traderData != null)
 			{
-				CompoundNBT traderNBT = traderData.write(new CompoundNBT());
-				traderNBT.putUniqueId("ID", traderID);
+				CompoundTag traderNBT = traderData.write(new CompoundTag());
+				traderNBT.putUUID("ID", traderID);
 				universalTraderDataList.add(traderNBT);
 			}
 		});
@@ -171,23 +163,23 @@ public class TradingOffice extends WorldSavedData{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			get(server).markDirty();
+			get(server).setDirty();
 			//Send update packet to all connected clients
 			UniversalTraderData data = getData(traderID);
 			if(data != null)
 			{
-				CompoundNBT compound = data.write(new CompoundNBT());
+				CompoundTag compound = data.write(new CompoundTag());
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			}
 		}
 	}
 	
-	public static void MarkDirty(UUID traderID, CompoundNBT updateMessage)
+	public static void MarkDirty(UUID traderID, CompoundTag updateMessage)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			get(server).markDirty();
+			get(server).setDirty();
 			//Send update packet to all connected clients
 			UniversalTraderData data = getData(traderID);
 			if(data != null)
@@ -195,7 +187,7 @@ public class TradingOffice extends WorldSavedData{
 		}
 	}
 	
-	public static void registerTrader(UUID traderID, UniversalTraderData data, PlayerEntity owner)
+	public static void registerTrader(UUID traderID, UniversalTraderData data, Player owner)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -208,9 +200,9 @@ public class TradingOffice extends WorldSavedData{
 			}
 			LightmansCurrency.LogInfo("Successfully registered the universal trader with id '" + traderID + "'!");
 			office.universalTraderMap.put(traderID, data);
-			office.markDirty();
+			office.setDirty();
 			//Send update packet to the connected clients
-			CompoundNBT compound = data.write(new CompoundNBT());
+			CompoundTag compound = data.write(new CompoundTag());
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			//Post Universal Trader Create Event
 			MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
@@ -225,7 +217,7 @@ public class TradingOffice extends WorldSavedData{
 		{
 			UniversalTraderData removedData = office.universalTraderMap.get(traderID);
 			office.universalTraderMap.remove(traderID);
-			office.markDirty();
+			office.setDirty();
 			LightmansCurrency.LogInfo("Successfully removed the universal trader with id '" + traderID + "'!");
 			//Send update packet to the connected clients
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
@@ -235,8 +227,8 @@ public class TradingOffice extends WorldSavedData{
 	
 	private static TradingOffice get(MinecraftServer server)
     {
-        ServerWorld world = server.getWorld(World.OVERWORLD);
-        return world.getSavedData().getOrCreate(TradingOffice::new, DATA_NAME);
+        ServerLevel world = server.getLevel(Level.OVERWORLD);
+        return world.getDataStorage().computeIfAbsent((compound) -> new TradingOffice(compound), () -> new TradingOffice(), DATA_NAME);
     }
 	
 	/**
@@ -250,9 +242,9 @@ public class TradingOffice extends WorldSavedData{
 		{
 			TradingOffice office = get(server);
 			//Send update message to the connected clients
-			CompoundNBT compound = new CompoundNBT();
-			ListNBT traderList = new ListNBT();
-			office.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundNBT())) );
+			CompoundTag compound = new CompoundTag();
+			ListTag traderList = new ListTag();
+			office.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundTag())) );
 			compound.put("Traders", traderList);
 			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageInitializeClientTraders(compound));
 		}
@@ -271,15 +263,15 @@ public class TradingOffice extends WorldSavedData{
 			return;
 		
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null && server.getTickCounter() % 1200 == 0)
+		if(server != null && server.getTickCount() % 1200 == 0)
 		{
 			TradingOffice office = get(server);
 			office.universalTraderMap.values().removeIf(traderData ->{
 				BlockPos pos = traderData.getPos();
-				ServerWorld world = server.getWorld(traderData.getWorld());
-				if(world.isAreaLoaded(pos, 0))
+				ServerLevel world = server.getLevel(traderData.getWorld());
+				if(world.isLoaded(pos))
 				{
-					TileEntity tileEntity = world.getTileEntity(pos);
+					BlockEntity tileEntity = world.getBlockEntity(pos);
 					if(tileEntity instanceof UniversalTraderTileEntity)
 					{
 						UniversalTraderTileEntity traderEntity = (UniversalTraderTileEntity)tileEntity;
@@ -292,14 +284,14 @@ public class TradingOffice extends WorldSavedData{
 		}
 	}
 	
-	public static boolean isAdminPlayer(PlayerEntity player)
+	public static boolean isAdminPlayer(Player player)
 	{
-		return adminPlayers.contains(player.getUniqueID()) && player.hasPermissionLevel(2);
+		return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2);
 	}
 	
-	public static void toggleAdminPlayer(PlayerEntity player)
+	public static void toggleAdminPlayer(Player player)
 	{
-		UUID playerID = player.getUniqueID();
+		UUID playerID = player.getUUID();
 		if(adminPlayers.contains(playerID))
 		{
 			adminPlayers.remove(playerID);
@@ -307,7 +299,7 @@ public class TradingOffice extends WorldSavedData{
 		else
 		{
 			adminPlayers.add(playerID);
-			if(!player.world.isRemote)
+			if(!player.level.isClientSide)
 			{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
 			}

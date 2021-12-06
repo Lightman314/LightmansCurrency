@@ -4,42 +4,35 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.providers.WalletInventoryContainerProvider;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.PacketDistributor;
 
-public class CPacketOpenWallet implements IMessage<CPacketOpenWallet> {
+public class CPacketOpenWallet {
 	
-	
-	@Override
-	public void encode(CPacketOpenWallet message, PacketBuffer buffer) {
-		
-	}
+	public static void encode(CPacketOpenWallet message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public CPacketOpenWallet decode(PacketBuffer buffer) {
+	public static CPacketOpenWallet decode(FriendlyByteBuf buffer) {
 		return new CPacketOpenWallet();
 	}
 
-	@Override
-	public void handle(CPacketOpenWallet message, Supplier<Context> supplier) {
+	public static void handle(CPacketOpenWallet message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity sender = supplier.get().getSender();
-			if(sender != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				ItemStack stack = sender.inventory.getItemStack();
-				sender.inventory.setItemStack(ItemStack.EMPTY);
-				NetworkHooks.openGui(sender, new WalletInventoryContainerProvider());
+				ItemStack stack = player.containerMenu.getCarried();
+				player.containerMenu.setCarried(ItemStack.EMPTY);
+				NetworkHooks.openGui(player, new WalletInventoryContainerProvider());
 				
 				if(!stack.isEmpty())
 				{
-					sender.inventory.setItemStack(stack);
-					LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sender), new SPacketGrabbedItem(stack));
+					player.containerMenu.setCarried(stack);
+					LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), new SPacketGrabbedItem(stack));
 				}
 			}
 		});

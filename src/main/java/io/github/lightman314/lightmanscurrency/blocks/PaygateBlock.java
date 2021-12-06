@@ -6,141 +6,139 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 
-public class PaygateBlock extends RotatableBlock{
+public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
 	public PaygateBlock(Properties properties)
 	{
 		super(properties);
-		this.setDefaultState(
-			this.stateContainer.getBaseState()
-				.with(POWERED, false)
+		this.registerDefaultState(
+			this.defaultBlockState()
+				.setValue(POWERED, false)
 		);
-	}
-	
-	@Override
-	public boolean hasTileEntity(BlockState state)
-	{
-		return true;
 	}
 	
 	@Nullable
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world)
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new PaygateTileEntity();
+		return new PaygateTileEntity(pos, state);
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(!world.isRemote())
+		if(!level.isClientSide)
 		{
 			
 			//Get the item in the players hand
-			//Open UI
-			TileEntity tileEntity = world.getTileEntity(pos);
+			BlockEntity tileEntity = level.getBlockEntity(pos);
 			if(tileEntity instanceof PaygateTileEntity)
 			{
-				PaygateTileEntity trader = (PaygateTileEntity)tileEntity;
+				PaygateTileEntity paygate = (PaygateTileEntity)tileEntity;
 				//Update the owner
-				if(trader.isOwner(playerEntity))
+				if(paygate.isOwner(player))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					trader.setOwner(playerEntity);
+					paygate.setOwner(player);
 				}
-				if(!trader.isActive() && trader.validTicket(playerEntity.getHeldItem(hand)))
+				if(!paygate.isActive() && paygate.validTicket(player.getItemInHand(hand)))
 				{
-					trader.activate();
-					playerEntity.getHeldItem(hand).shrink(1);
+					paygate.activate();
+					player.getItemInHand(hand).shrink(1);
 					//Attempt to give the player a ticket stub
 					ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
-					if(!playerEntity.inventory.addItemStackToInventory(ticketStub))
+					if(!player.addItem(ticketStub))
 					{
-						InventoryUtil.dumpContents(world, playerEntity.getPosition(), ImmutableList.of(ticketStub));
+						InventoryUtil.dumpContents(level, player.blockPosition(), ImmutableList.of(ticketStub));
 					}
-					return ActionResultType.SUCCESS;
+					return InteractionResult.SUCCESS;
 				}
 				TileEntityUtil.sendUpdatePacket(tileEntity);
-				NetworkHooks.openGui((ServerPlayerEntity)playerEntity, (INamedContainerProvider) tileEntity, pos);
+				NetworkHooks.openGui((ServerPlayer)player, paygate, pos);
 			}
 		}
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(!worldIn.isRemote())
+		if(!level.isClientSide)
 		{
-			PaygateTileEntity tileEntity = (PaygateTileEntity)worldIn.getTileEntity(pos);
-			if(tileEntity != null)
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+			if(blockEntity instanceof PaygateTileEntity)
 			{
-				tileEntity.setOwner(player);
-				if(stack.hasDisplayName())
-					tileEntity.setCustomName(stack.getDisplayName());
+				PaygateTileEntity paygate = (PaygateTileEntity)blockEntity;
+				paygate.setOwner(player);
+				if(stack.hasCustomHoverName())
+					paygate.setCustomName(stack.getDisplayName());
 			}
 		}
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		
-		if(worldIn.getTileEntity(pos) instanceof PaygateTileEntity)
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof PaygateTileEntity)
 		{
-			PaygateTileEntity tileEntity = (PaygateTileEntity)worldIn.getTileEntity(pos);
-			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
-			InventoryUtil.dumpContents(worldIn, pos, coins);
+			PaygateTileEntity paygate = (PaygateTileEntity)blockEntity;
+			if(!paygate.canBreak(player))
+				return;
+			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(paygate.getStoredMoney());
+			InventoryUtil.dumpContents(level, pos, coins);
 		}
 		
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 		
 	}
 	
 	@Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
-        super.fillStateContainer(builder);
+        super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
 	@Override
-	public boolean canProvidePower(BlockState state)
+	public boolean isSignalSource(BlockState state)
 	{
 		return true;
 	}
 	
 	@Override
-	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
+	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
 		
-		if(blockState.get(POWERED))
+		if(state.getValue(POWERED))
 			return 15;
 		return 0;
 		

@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public abstract class TextLogger {
 
-	public final List<ITextComponent> logText = new ArrayList<>();
+	public final List<MutableComponent> logText = new ArrayList<>();
 	protected final String tag;
 	
 	protected static final int getLogLimit() { return Config.SERVER.logLimit.get(); }
@@ -26,7 +27,7 @@ public abstract class TextLogger {
 		this.logText.clear();
 	}
 	
-	protected final void AddLog(ITextComponent text)
+	protected final void AddLog(MutableComponent text)
 	{
 		if(text != null)
 		{
@@ -36,29 +37,29 @@ public abstract class TextLogger {
 		}
 	}
 	
-	public void write(CompoundNBT compound)
+	public void write(CompoundTag compound)
 	{
-		ListNBT list = new ListNBT();
+		ListTag list = new ListTag();
 		for(int i = 0; i < logText.size(); i++)
 		{
-			ITextComponent text = logText.get(i);
-			CompoundNBT thisCompound = new CompoundNBT();
-			thisCompound.putString("value", ITextComponent.Serializer.toJson(text));
+			Component text = logText.get(i);
+			CompoundTag thisCompound = new CompoundTag();
+			thisCompound.putString("value", Component.Serializer.toJson(text));
 			list.add(thisCompound);
 		}
 		compound.put(this.tag, list);
 	}
 	
-	public void read(CompoundNBT compound)
+	public void read(CompoundTag compound)
 	{
-		if(compound.contains(this.tag, Constants.NBT.TAG_LIST))
+		if(compound.contains(this.tag, Tag.TAG_LIST))
 		{
-			ListNBT list = compound.getList(this.tag, Constants.NBT.TAG_COMPOUND);
+			ListTag list = compound.getList(this.tag, Tag.TAG_COMPOUND);
 			this.logText.clear();
 			for(int i = 0; i < list.size(); i++)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				ITextComponent text = ITextComponent.Serializer.getComponentFromJson(jsonText);
+				MutableComponent text = Component.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.logText.add(text);
 			}

@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -13,17 +12,15 @@ import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class UniversalTraderTileEntity extends TileEntity implements IOwnableTileEntity{
+public abstract class UniversalTraderTileEntity extends BlockEntity implements IOwnableTileEntity{
 
 	
 	UUID traderID = null;
@@ -32,13 +29,13 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	{
 		if(this.traderID != null)
 			return TradingOffice.getData(this.traderID);
-		LightmansCurrency.LogError("Trader ID is null. Cannot get the data (" + (this.world.isRemote ? "client" : "server"));
+		LightmansCurrency.LogError("Trader ID is null. Cannot get the data (" + (this.level.isClientSide ? "client" : "server"));
 		return null;
 	}
 	
-	public UniversalTraderTileEntity(TileEntityType<?> type)
+	public UniversalTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
-		super(type);
+		super(type, pos, state);
 	}
 	
 	public UUID getTraderID()
@@ -48,47 +45,47 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	
 	public void updateOwner(Entity player)
 	{
-		if(this.getData() != null && player.getUniqueID().equals(this.getData().getOwnerID()))
+		if(this.getData() != null && player.getUUID().equals(this.getData().getOwnerID()))
 		{
 			this.getData().updateOwnerName(player.getDisplayName().getString());
 		}
 		else if(this.getData() == null)
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.updateOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.updateOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
 	}
 	
-	public boolean isOwner(PlayerEntity player)
+	public boolean isOwner(Player player)
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
 			return true;
 		}
 		return this.getData().isOwner(player);
 	}
 	
-	public boolean hasPermissions(PlayerEntity player)
+	public boolean hasPermissions(Player player)
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
 			return true;
 		}
 		return this.getData().hasPermissions(player);
 	}
 	
-	public boolean canBreak(PlayerEntity player)
+	public boolean canBreak(Player player)
 	{
 		return this.isOwner(player);
 	}
 	
-	public void init(PlayerEntity owner)
+	public void init(Player owner)
 	{
 		this.init(owner, null);
 	}
 	
-	public void init(PlayerEntity owner, String customName)
+	public void init(Player owner, String customName)
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		if(this.traderID == null)
 		{
@@ -108,54 +105,45 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	@Override
 	public void onLoad()
 	{
-		if(world.isRemote)
+		if(level.isClientSide)
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
 		}
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		if(this.traderID != null)
-			compound.putUniqueId("ID", this.traderID);
+			compound.putUUID("ID", this.traderID);
 		
-		return super.write(compound);
+		return super.save(compound);
 		
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		if(compound.contains("ID"))
-			this.traderID = compound.getUniqueId("ID");
+			this.traderID = compound.getUUID("ID");
 		
-		super.read(state, compound);
-	}
-	
-	@Nullable
-	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
+		super.load(compound);
 	}
 	
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		this.read(this.getBlockState(), compound);
+	public CompoundTag getUpdateTag() {
+		return this.save(new CompoundTag());
 	}
 	
-	public void openStorageMenu(PlayerEntity player)
+	public void openStorageMenu(Player player)
 	{
-		if(!this.world.isRemote && this.getData() != null)
-			this.getData().openStorageMenu((ServerPlayerEntity)player);
+		if(!this.level.isClientSide && this.getData() != null)
+			this.getData().openStorageMenu(player);
 	}
 	
 	public void onDestroyed()
 	{
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		UniversalTraderData data = this.getData();
 		//Remove the data from the register
@@ -169,7 +157,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	
 	protected void dumpContents(@Nonnull UniversalTraderData data)
 	{
-		InventoryUtil.dumpContents(this.world, this.pos, MoneyUtil.getCoinsOfValue(data.getStoredMoney()));
+		InventoryUtil.dumpContents(this.level, this.getBlockPos(), MoneyUtil.getCoinsOfValue(data.getStoredMoney()));
 	}
 	
 }

@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class ItemTraderSearchFilter extends TraderSearchFilter{
 
@@ -32,7 +32,7 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 					//Search enchantments
 					AtomicBoolean foundEnchantment = new AtomicBoolean(false);
 					EnchantmentHelper.getEnchantments(sellItem).forEach((enchantment, level) ->{
-						if(enchantment.getDisplayName(level).getString().toLowerCase().contains(searchText))
+						if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 							foundEnchantment.set(true);
 					});
 					if(foundEnchantment.get())
@@ -48,7 +48,7 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 						//Search enchantments
 						foundEnchantment.set(false);
 						EnchantmentHelper.getEnchantments(barterItem).forEach((enchantment, level) ->{
-							if(enchantment.getDisplayName(level).getString().toLowerCase().contains(searchText))
+							if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 								foundEnchantment.set(true);
 						});
 						if(foundEnchantment.get())

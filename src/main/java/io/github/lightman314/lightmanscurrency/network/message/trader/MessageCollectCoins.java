@@ -2,50 +2,29 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainerPrimitive;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageCollectCoins implements IMessage<MessageCollectCoins> {
+public class MessageCollectCoins {
 	
-	public MessageCollectCoins()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageCollectCoins message, PacketBuffer buffer) {
-		//buffer.writeInt(message.tradeIndex);
-	}
+	public static void encode(MessageCollectCoins message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageCollectCoins decode(PacketBuffer buffer) {
+	public static MessageCollectCoins decode(FriendlyByteBuf buffer) {
 		return new MessageCollectCoins();
 	}
 
-	@Override
-	public void handle(MessageCollectCoins message, Supplier<Context> supplier) {
+	public static void handle(MessageCollectCoins message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer instanceof ITraderContainerPrimitive)
+				if(player.containerMenu instanceof ITraderContainerPrimitive)
 				{
-					ITraderContainerPrimitive container = (ITraderContainerPrimitive) entity.openContainer;
-					container.CollectCoinStorage();
-				}
-				else
-				{
-					LightmansCurrency.LogWarning("MessageCollectCoins was sent from a client that does not have a trader container open.");
-					if(entity.openContainer != null)
-						LightmansCurrency.LogWarning("OpenContainer: " + entity.openContainer.getClass().getName());
-					else
-						LightmansCurrency.LogWarning("OpenContainer: NULL");
+					ITraderContainerPrimitive menu = (ITraderContainerPrimitive) player.containerMenu;
+					menu.CollectCoinStorage();
 				}
 			}
 		});

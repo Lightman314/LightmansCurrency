@@ -3,41 +3,34 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.network.PacketDistributor;
 
-public class CPacketOpenVanilla implements IMessage<CPacketOpenVanilla> {
+public class CPacketOpenVanilla {
 	
-	
-	@Override
-	public void encode(CPacketOpenVanilla message, PacketBuffer buffer) {
-		
-	}
+	public static void encode(CPacketOpenVanilla message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public CPacketOpenVanilla decode(PacketBuffer buffer) {
+	public static CPacketOpenVanilla decode(FriendlyByteBuf buffer) {
 		return new CPacketOpenVanilla();
 	}
 
-	@Override
-	public void handle(CPacketOpenVanilla message, Supplier<Context> supplier) {
+	public static void handle(CPacketOpenVanilla message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity sender = supplier.get().getSender();
-			if(sender != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				ItemStack stack = sender.inventory.getItemStack();
-				sender.inventory.setItemStack(ItemStack.EMPTY);
-				sender.closeContainer();
+				ItemStack stack = player.containerMenu.getCarried();
+				player.containerMenu.setCarried(ItemStack.EMPTY);
+				player.closeContainer();
 				
 				if(!stack.isEmpty())
 				{
-					sender.inventory.setItemStack(stack);
-					LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sender), new SPacketGrabbedItem(stack));
+					player.containerMenu.setCarried(stack);
+					LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), new SPacketGrabbedItem(stack));
 				}
 			}
 		});

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -37,9 +37,9 @@ public class ClientTradingOffice {
 		});
 	}
 	
-	public static void updateTrader(CompoundNBT compound)
+	public static void updateTrader(CompoundTag compound)
 	{
-		UUID traderID = compound.getUniqueId("ID");
+		UUID traderID = compound.getUUID("ID");
 		if(loadedTraders.containsKey(traderID)) //Have existing trader read the data if present
 			loadedTraders.get(traderID).read(compound);
 		else //New trader was added, so deserialize the data and add it to the map

@@ -20,24 +20,23 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.network.chat.Component;
 
 public class UniversalItemTraderContainer extends UniversalContainer implements ITraderContainer, ITradeButtonContainer{
 	
 	
-	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
+	protected static final MenuType<?> type = ModContainers.ITEMTRADER;
 	
-	protected final IInventory coinSlots = new Inventory(5);
-	protected final IInventory itemSlots = new Inventory(3);
+	protected final Container coinSlots = new SimpleContainer(5);
+	protected final Container itemSlots = new SimpleContainer(3);
 	//protected IInventory tradeDisplays;
 	
 	public UniversalItemTraderData getData()
@@ -47,20 +46,20 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		return (UniversalItemTraderData)this.getRawData();
 	}
 	
-	public UniversalItemTraderContainer(int windowId, PlayerInventory inventory, UUID traderID)
+	public UniversalItemTraderContainer(int windowId, Inventory inventory, UUID traderID)
 	{
 		super(ModContainers.UNIVERSAL_ITEMTRADER, windowId, traderID, inventory.player);
 		
 		//int tradeCount = this.getTradeCount();
 		
 		//Coinslots
-		for(int x = 0; x < coinSlots.getSizeInventory(); x++)
+		for(int x = 0; x < coinSlots.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinSlots, x, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + (x + 4) * 18, getCoinSlotHeight()));
 		}
 		
 		//Item Output Slots
-		for(int x = 0; x < itemSlots.getSizeInventory(); x++)
+		for(int x = 0; x < itemSlots.getContainerSize(); x++)
 		{
 			this.addSlot(new Slot(this.itemSlots, x, ItemTraderUtil.getInventoryDisplayOffset(this.getData()) + 8 + x * 18, getCoinSlotHeight()));
 		}
@@ -110,47 +109,43 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
-	{
-		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
-		return true;
-	}
+	public boolean stillValid(Player player) { return true; }
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
 		//CurrencyMod.LOGGER.info("Closing a Trader Container");
-		super.onContainerClosed(playerIn);
-		this.clearContainer(playerIn,  playerIn.world,  this.coinSlots);
-		this.clearContainer(playerIn, playerIn.world, this.itemSlots);
+		super.removed(playerIn);
+		this.clearContainer(playerIn,  this.coinSlots);
+		this.clearContainer(playerIn, this.itemSlots);
 		
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinSlots.getSizeInventory() + this.itemSlots.getSizeInventory())
+			if(index < this.coinSlots.getContainerSize() + this.itemSlots.getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack,  this.coinSlots.getSizeInventory() + this.itemSlots.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack,  this.coinSlots.getContainerSize() + this.itemSlots.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index < this.inventorySlots.size())
+			else if(index < this.slots.size())
 			{
 				if(MoneyUtil.isCoin(slotStack.getItem()))
 				{
 					//Merge coins into coin slots
-					if(!this.mergeItemStack(slotStack, 0, this.coinSlots.getSizeInventory(), false))
+					if(!this.moveItemStackTo(slotStack, 0, this.coinSlots.getContainerSize(), false))
 					{
 						return ItemStack.EMPTY;
 					}
@@ -158,7 +153,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				else
 				{
 					//Merge non-coins into item slots
-					if(!this.mergeItemStack(slotStack, this.coinSlots.getSizeInventory(), this.coinSlots.getSizeInventory() + this.itemSlots.getSizeInventory(), false))
+					if(!this.moveItemStackTo(slotStack, this.coinSlots.getContainerSize(), this.coinSlots.getContainerSize() + this.itemSlots.getContainerSize(), false))
 					{
 						return ItemStack.EMPTY;
 					}
@@ -167,11 +162,11 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
@@ -182,9 +177,9 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	public long GetCoinValue()
 	{
 		long value = 0;
-		for(int i = 0; i < coinSlots.getSizeInventory(); i++)
+		for(int i = 0; i < coinSlots.getContainerSize(); i++)
 		{
-			value += MoneyUtil.getValue(coinSlots.getStackInSlot(i));
+			value += MoneyUtil.getValue(coinSlots.getItem(i));
 		}
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
@@ -195,9 +190,9 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		return value;
 	}
 	
-	public IInventory GetItemInventory() { return this.itemSlots; }
+	public Container GetItemInventory() { return this.itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput)
+	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput)
 	{
 		ItemTradeData trade = this.getData().getTrade(tradeIndex);
 		if(trade == null)
@@ -239,10 +234,15 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	{
 		PostTradeEvent event = new PostTradeEvent(this.player, trade, this, () -> this.getData(), pricePaid);
 		this.getData().afterTrade(event);
-		trade.afterTrade(event);
 		if(event.isDirty())
 		{
 			this.getData().markRulesDirty();
+			event.clean();
+		}
+		trade.afterTrade(event);
+		if(event.isDirty())
+		{
+			this.getData().markTradesDirty();
 			event.clean();
 		}
 		MinecraftForge.EVENT_BUS.post(event);
@@ -317,9 +317,9 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 						coins = InventoryUtil.TryPutItemStack(this.coinSlots, coins);
 						if(!coins.isEmpty())
 						{
-							IInventory temp = new Inventory(1);
-							temp.setInventorySlotContents(0, coins);
-							this.clearContainer(this.player, this.player.world, temp);
+							Container temp = new SimpleContainer(1);
+							temp.setItem(0, coins);
+							this.clearContainer(this.player, temp);
 						}
 					}
 				}
@@ -341,8 +341,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				trade.RemoveItemsFromStorage(this.getData().getStorage());
 				//Give the payed cost to storage
 				this.getData().addStoredMoney(price);
-				this.getData().markDirtyAfterTrade();
-				
+				this.getData().markStorageDirty();
 			}
 		}
 		//Process a purchase
@@ -384,7 +383,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				InventoryUtil.TryPutItemStack(this.getData().getStorage(), trade.getSellItem());
 				//Remove the coins from storage
 				this.getData().removeStoredMoney(price);
-				this.getData().markDirtyAfterTrade();
+				this.getData().markStorageDirty();
 			}
 			
 		}
@@ -437,7 +436,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				InventoryUtil.TryPutItemStack(this.getData().getStorage(), trade.getBarterItem());
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.getData().getStorage());
-				this.getData().markDirtyAfterTrade();
+				this.getData().markStorageDirty();
 			}
 			
 		}
@@ -463,9 +462,9 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		{
 			if(!InventoryUtil.PutItemStack(this.coinSlots, coinList.get(i)))
 			{
-				IInventory inventory = new Inventory(1);
-				inventory.setInventorySlotContents(0, coinList.get(i));
-				this.clearContainer(player, player.getEntityWorld(), inventory);
+				Container inventory = new SimpleContainer(1);
+				inventory.setItem(0, coinList.get(i));
+				this.clearContainer(player, inventory);
 			}
 		}
 		//Clear the coin storage
@@ -503,7 +502,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	@Override
 	protected void onForceReopen() {
 		LightmansCurrency.LogDebug("UniversalItemTraderContainer.onForceReopen()");
-		this.getData().openTradeMenu((ServerPlayerEntity)this.player);
+		this.getData().openTradeMenu(this.player);
 	}
 	
 }

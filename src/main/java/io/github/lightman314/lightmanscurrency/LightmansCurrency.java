@@ -28,6 +28,8 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -38,10 +40,12 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
@@ -99,9 +103,6 @@ public class LightmansCurrency {
     	
     	//Initialize coinList
     	MoneyUtil.init();
-		
-    	//Register the Wallet Capability
-    	WalletCapability.register();
     	
     	//Initialize the UniversalTraderData deserializers
     	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());
@@ -128,7 +129,7 @@ public class LightmansCurrency {
 			));
 		
 		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
-				ModBlocks.TERMINAL, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
+				ModItems.PORTABLE_TERMINAL, ModBlocks.TERMINAL, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
 			));
 		
 		TRADING_GROUP.initSortingList(Arrays.asList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
@@ -187,7 +188,7 @@ public class LightmansCurrency {
 		}
     }
     
-    private void onConfigLoad(ModConfig.Loading event)
+    private void onConfigLoad(ModConfigEvent.Loading event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
@@ -215,7 +216,7 @@ public class LightmansCurrency {
     /**
      * Easy public access to the equipped wallet that functions regardless of which system (stand-alone, backpacked compatibility, curios) is being used to store the slot.
      */
-    public static ItemStack getWalletStack(PlayerEntity player)
+    public static ItemStack getWalletStack(Player player)
     {
     	AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
     	

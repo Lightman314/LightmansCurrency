@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-//import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,9 +18,9 @@ public class PlainButton extends Button{
 	private int resourceY;
 	
 	
-	public PlainButton(int x, int y, int sizeX, int sizeY, IPressable pressable, ResourceLocation buttonResource, int resourceX, int resourceY)
+	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, int resourceX, int resourceY)
 	{
-		super(x,y,sizeX,sizeY, ITextComponent.getTextComponentOrEmpty(""), pressable);
+		super(x,y,sizeX,sizeY, new TextComponent(""), pressable);
 		this.buttonResource = buttonResource;
 		this.resourceX = resourceX;
 		this.resourceY = resourceY;
@@ -34,17 +33,15 @@ public class PlainButton extends Button{
 		this.resourceY = resourceY;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
-		//Minecraft.getInstance().getTextureManager().bindTexture(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        int offset = this.isHovered() ? this.height : 0;
-        Minecraft.getInstance().getTextureManager().bindTexture(this.buttonResource);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, this.buttonResource);
+        int offset = this.isHovered ? this.height : 0;
         if(!this.active)
-        	RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(matrixStack, this.x, this.y, this.resourceX, this.resourceY + offset, this.width, this.height);
+        	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+        this.blit(poseStack, this.x, this.y, this.resourceX, this.resourceY + offset, this.width, this.height);
 		
 	}
 

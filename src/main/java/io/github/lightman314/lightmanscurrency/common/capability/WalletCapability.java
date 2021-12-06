@@ -4,54 +4,27 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class WalletCapability {
-
-	public static void register() {
-		CapabilityManager.INSTANCE.register(IWalletHandler.class,  new Capability.IStorage<IWalletHandler>() {
-
-			@Override
-			public INBT writeNBT(Capability<IWalletHandler> capability, IWalletHandler instance, Direction side) {
-				
-				CompoundNBT compound = new CompoundNBT();
-				CompoundNBT walletItem = instance.getWallet().write(new CompoundNBT());
-				compound.put("Wallet", walletItem);
-				return compound;
-			}
-
-			@Override
-			public void readNBT(Capability<IWalletHandler> capability, IWalletHandler instance, Direction side,
-					INBT nbt) {
-				if(nbt instanceof CompoundNBT)
-				{
-					CompoundNBT compound = (CompoundNBT)nbt;
-					ItemStack wallet = ItemStack.read(compound.getCompound("Wallet"));
-					instance.setWallet(wallet);
-					instance.clean();
-				}
-			}
-		}, WalletHandler::new);
-	}
 	
 	public static LazyOptional<IWalletHandler> getWalletHandler(@Nonnull final Entity entity) {
 		return entity.getCapability(CurrencyCapabilities.WALLET);
 	}
 	
-	public static ICapabilityProvider createProvider(final PlayerEntity playerEntity)
+	public static ICapabilityProvider createProvider(final Player playerEntity)
 	{
 		return new Provider(playerEntity);
 	}
@@ -61,7 +34,7 @@ public class WalletCapability {
 		
 		final LivingEntity entity;
 		ItemStack backupWallet;
-		final Inventory walletInventory;
+		final Container walletInventory;
 		
 		public WalletHandler() {
 			this(null);
@@ -70,23 +43,23 @@ public class WalletCapability {
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
 			this.backupWallet = ItemStack.EMPTY;
-			this.walletInventory = new Inventory(1);
+			this.walletInventory = new SimpleContainer(1);
 		}
 		
 		@Override
-		public IInventory getInventory()
+		public Container getInventory()
 		{
 			return this.walletInventory;
 		}
 		
 		@Override
 		public ItemStack getWallet() {
-			return this.walletInventory.getStackInSlot(0);
+			return this.walletInventory.getItem(0);
 		}
 
 		@Override
 		public void setWallet(ItemStack walletStack) {
-			this.walletInventory.setInventorySlotContents(0, walletStack);
+			this.walletInventory.setItem(0, walletStack);
 		}
 
 		@Override
@@ -102,12 +75,32 @@ public class WalletCapability {
 		@Override
 		public void clean() { this.backupWallet = this.getWallet().copy(); }
 		
+		@Override
+		public Tag writeTag() {
+			CompoundTag compound = new CompoundTag();
+			CompoundTag walletItem = this.getWallet().save(new CompoundTag());
+			compound.put("Wallet", walletItem);
+			return compound;
+		}
+		
+		@Override
+		public void readTag(Tag tag)
+		{
+			if(tag instanceof CompoundTag)
+			{
+				CompoundTag compound = (CompoundTag)tag;
+				ItemStack wallet = ItemStack.of(compound.getCompound("Wallet"));
+				this.setWallet(wallet);
+				this.clean();
+			}
+		}
+		
 	}
 	
-	public static class Provider implements ICapabilitySerializable<INBT>{
+	public static class Provider implements ICapabilitySerializable<Tag>{
 		final LazyOptional<IWalletHandler> optional;
 		final IWalletHandler handler;
-		Provider(final PlayerEntity playerEntity)
+		Provider(final Player playerEntity)
 		{
 			this.handler = new WalletHandler(playerEntity);
 			this.optional = LazyOptional.of(() -> this.handler);
@@ -118,15 +111,15 @@ public class WalletCapability {
 		public <T> LazyOptional<T> getCapability(@Nullable Capability<T> capability, Direction facing) {
 			return CurrencyCapabilities.WALLET.orEmpty(capability, this.optional);
 		}
-		
+
 		@Override
-		public INBT serializeNBT() {
-			return CurrencyCapabilities.WALLET.writeNBT(this.handler, null);
+		public Tag serializeNBT() {
+			return handler.writeTag();
 		}
-		
+
 		@Override
-		public void deserializeNBT(INBT nbt) {
-			CurrencyCapabilities.WALLET.readNBT(this.handler, null, nbt);
+		public void deserializeNBT(Tag tag) {
+			handler.readTag(tag);
 		}
 		
 	}

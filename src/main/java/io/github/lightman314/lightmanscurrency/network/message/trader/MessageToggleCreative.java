@@ -3,40 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageToggleCreative implements IMessage<MessageToggleCreative> {
+public class MessageToggleCreative {
 	
-	public MessageToggleCreative()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageToggleCreative message, PacketBuffer buffer) {
-		//buffer.writeInt(message.tradeIndex);
-	}
+	public static void encode(MessageToggleCreative message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageToggleCreative decode(PacketBuffer buffer) {
+	public static MessageToggleCreative decode(FriendlyByteBuf buffer) {
 		return new MessageToggleCreative();
 	}
 
-	@Override
-	public void handle(MessageToggleCreative message, Supplier<Context> supplier) {
+	public static void handle(MessageToggleCreative message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer instanceof ITraderStorageContainer)
+				if(player.containerMenu instanceof ITraderStorageContainer)
 				{
-					ITraderStorageContainer container = (ITraderStorageContainer) entity.openContainer;
-					container.ToggleCreative();
+					ITraderStorageContainer menu = (ITraderStorageContainer) player.containerMenu;
+					menu.ToggleCreative();
 				}
 			}
 		});

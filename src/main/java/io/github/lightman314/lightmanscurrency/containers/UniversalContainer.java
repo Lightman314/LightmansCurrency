@@ -7,16 +7,16 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
-public abstract class UniversalContainer extends Container{
+public abstract class UniversalContainer extends AbstractContainerMenu{
 	
 	private static final List<UniversalContainer> activeContainers = new ArrayList<>();
 	
 	public final UUID traderID;
-	public final PlayerEntity player;
+	public final Player player;
 	
 	public UniversalTraderData getRawData()
 	{
@@ -26,10 +26,10 @@ public abstract class UniversalContainer extends Container{
 			return ClientTradingOffice.getData(this.traderID);
 	}
 	
-	public boolean isClient() { return this.player.world.isRemote; }
-	public boolean isServer() { return !this.player.world.isRemote; }
+	public boolean isClient() { return this.player.level.isClientSide; }
+	public boolean isServer() { return !this.player.level.isClientSide; }
 	
-	protected UniversalContainer(ContainerType<?> type, int windowID, UUID traderID, PlayerEntity player)
+	protected UniversalContainer(MenuType<?> type, int windowID, UUID traderID, Player player)
 	{
 		super(type, windowID);
 		this.player = player;
@@ -54,10 +54,11 @@ public abstract class UniversalContainer extends Container{
 	protected abstract void onForceReopen();
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player player)
 	{
 		if(activeContainers.contains(this))
 			activeContainers.remove(this);
+		super.removed(player);
 	}
 	
 }

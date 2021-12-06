@@ -6,31 +6,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
-public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
+public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/item_edit.png");
 	
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
-	private TextFieldWidget searchField;
+	private EditBox searchField;
 	
 	Button buttonToggleSlot;
 	
@@ -47,37 +48,35 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
-	public ItemEditScreen(ItemEditContainer container, PlayerInventory inventory, ITextComponent title)
+	public ItemEditScreen(ItemEditContainer container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.xSize = 176;
-		this.ySize = 156;
+		this.imageWidth = 176;
+		this.imageHeight = 156;
 		
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (this.width - xSize) / 2;
-		int startY = (this.height - ySize) / 2;
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Render the BG
-		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Render the fake trade button
-		ItemTradeButton.renderItemTradeButton(matrix, (Screen)this, font, startX, startY - ItemTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), null, false, true, false);
+		ItemTradeButton.renderItemTradeButton(poseStack, (Screen)this, font, this.leftPos, this.topPos - ItemTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), null, false, true, false);
 		
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
 		
-		this.font.drawString(matrix, new TranslationTextComponent("gui.lightmanscurrency.item_edit.title").getString(), 8.0f, 6.0f, 0x404040);
+		this.font.draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.item_edit.title"), 8.0f, 6.0f, 0x404040);
 		
 	}
 	
@@ -87,61 +86,58 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		super.init();
 
 		//Initialize the search field
-		this.searchField = new TextFieldWidget(this.font, guiLeft + 81, guiTop + 6, 79, 9, new TranslationTextComponent("gui.lightmanscurrency.item_edit.search"));
-		this.searchField.setEnableBackgroundDrawing(false);
-		this.searchField.setMaxStringLength(32);
+		this.searchField = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 81, this.topPos + 6, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
+		this.searchField.setBordered(false);
+		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
-		this.children.add(this.searchField);
 		
 		//Initialize the buttons
 		//Toggle button
-		this.buttonToggleSlot = this.addButton(new Button(this.guiLeft + this.xSize - 80, this.guiTop - 20, 80, 20, new TranslationTextComponent("gui.button.lightmanscurrency.item_edit.toggle.sell"), this::PressToggleSlotButton));
-		this.buttonToggleSlot.visible = this.container.tradeData.isBarter();
+		this.buttonToggleSlot = this.addRenderableWidget(new Button(this.leftPos + this.imageWidth - 80, this.topPos - 20, 80, 20, new TranslatableComponent("gui.button.lightmanscurrency.item_edit.toggle.sell"), this::PressToggleSlotButton));
+		this.buttonToggleSlot.visible = this.menu.tradeData.isBarter();
 		
 		//Page Buttons
-		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize, 0));
-		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth, 0));
+		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth + 16, 0));
 		//Count Buttons
-		this.buttonCountUp = this.addButton(new PlainButton(this.guiLeft + this.xSize, this.guiTop + 20, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.xSize + 32, 0));
-		this.buttonCountDown = this.addButton(new PlainButton(this.guiLeft + this.xSize, this.guiTop + 30, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.xSize + 32, 20));
+		this.buttonCountUp = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 20, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 0));
+		this.buttonCountDown = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 30, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 20));
 		
 		//Close Button
-		this.addButton(new Button(this.guiLeft + 7, this.guiTop + 129, 162, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
+		this.addRenderableWidget(new Button(this.leftPos + 7, this.topPos + 129, 162, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
 		
 		
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
+		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
-		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
-		
-		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY, null);
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - ItemTradeButton.HEIGHT, false, mouseX, mouseY, null);
 		
 	}
 	
 	@Override
-	public void tick()
+	public void containerTick()
 	{
 		
 		this.searchField.tick();
 		
-		this.buttonToggleSlot.setMessage(new TranslationTextComponent(this.container.getEditSlot() == 1 ? "gui.button.lightmanscurrency.item_edit.toggle.barter" : "gui.button.lightmanscurrency.item_edit.toggle.sell"));
+		this.buttonToggleSlot.setMessage(new TranslatableComponent(this.menu.getEditSlot() == 1 ? "gui.button.lightmanscurrency.item_edit.toggle.barter" : "gui.button.lightmanscurrency.item_edit.toggle.sell"));
 		
-		this.buttonPageLeft.active = this.container.getPage() > 0;
-		this.buttonPageRight.active = this.container.getPage() < this.container.maxPage();
+		this.buttonPageLeft.active = this.menu.getPage() > 0;
+		this.buttonPageRight.active = this.menu.getPage() < this.menu.maxPage();
 		
-		this.buttonCountUp.active = this.container.getStackCount() < 64;
-		this.buttonCountDown.active = this.container.getStackCount() > 1;
+		this.buttonCountUp.active = this.menu.getStackCount() < 64;
+		this.buttonCountDown.active = this.menu.getStackCount() > 1;
 		
 		if(!firstTick)
 		{
 			firstTick = true;
-			this.container.refreshPage();
+			this.menu.refreshPage();
 		}
 		
 	}
@@ -149,12 +145,12 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	@Override
 	public boolean charTyped(char c, int code)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.charTyped(c, code))
 		{
-			if(!Objects.equals(s, this.searchField.getText()))
+			if(!Objects.equals(s, this.searchField.getValue()))
 			{
-				container.modifySearch(this.searchField.getText());
+				menu.modifySearch(this.searchField.getValue());
 			}
 			return true;
 		}
@@ -164,21 +160,21 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.keyPressed(key, scanCode, mods))
 		{
-			if(!Objects.equals(s,  this.searchField.getText()))
+			if(!Objects.equals(s,  this.searchField.getValue()))
 			{
-				container.modifySearch(this.searchField.getText());
+				menu.modifySearch(this.searchField.getValue());
 			}
 			return true;
 		}
-		return this.searchField.isFocused() && this.searchField.getVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
 	}
 	
 	private void PressToggleSlotButton(Button button)
 	{
-		this.container.toggleEditSlot();
+		this.menu.toggleEditSlot();
 	}
 	
 	private void PressPageButton(Button button)
@@ -187,7 +183,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		if(button == this.buttonPageLeft)
 			direction = -1;
 		
-		container.modifyPage(direction);
+		menu.modifyPage(direction);
 		
 	}
 	
@@ -197,13 +193,13 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		if(button == this.buttonCountDown)
 			direction = -1;
 		
-		container.modifyStackSize(direction);
+		menu.modifyStackSize(direction);
 		
 	}
 	
 	private void PressCloseButton(Button button)
 	{
-		this.container.openTraderStorage();
+		this.menu.openTraderStorage();
 	}
 	
 	

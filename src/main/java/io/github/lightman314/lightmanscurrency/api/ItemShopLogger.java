@@ -4,12 +4,12 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
 
 public class ItemShopLogger extends TextLogger{
 	
@@ -18,34 +18,34 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(PlayerEntity player, ItemTradeData trade, @Nonnull CoinValue pricePayed, boolean isCreative)
+	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePayed, boolean isCreative)
 	{
 		
-		ITextComponent creativeText = isCreative ? new TranslationTextComponent("log.shoplog.creative") : new StringTextComponent("");
-		ITextComponent playerName = new StringTextComponent("§a" + player.getName().getString());
-		ITextComponent boughtText = new TranslationTextComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
+		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
+		Component playerName = new TextComponent("§a" + player.getName().getString());
+		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only
-		IFormattableTextComponent itemName = (new StringTextComponent("")).append(trade.getSellItem().getDisplayName()).mergeStyle(trade.getSellItem().getRarity().color);
-		if (trade.getSellItem().hasDisplayName()) {
-			itemName.mergeStyle(TextFormatting.ITALIC);
+		MutableComponent itemName = (new TextComponent("")).append(trade.getSellItem().getDisplayName()).withStyle(trade.getSellItem().getRarity().color);
+		if (trade.getSellItem().hasCustomHoverName()) {
+			itemName.withStyle(ChatFormatting.ITALIC);
 		}
 		
-		ITextComponent itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
-		ITextComponent cost = new StringTextComponent("§e" + pricePayed.getString());
+		Component itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
+		Component cost = new TextComponent("§e" + pricePayed.getString());
 		if(trade.isBarter())
 		{
 			//Flip the sell item to the cost position
 			cost = itemText;
-			IFormattableTextComponent barterItemName = (new StringTextComponent("")).append(trade.getBarterItem().getDisplayName()).mergeStyle(trade.getSellItem().getRarity().color);
-			if (trade.getBarterItem().hasDisplayName()) {
-				itemName.mergeStyle(TextFormatting.ITALIC);
+			MutableComponent barterItemName = (new TextComponent("")).append(trade.getBarterItem().getDisplayName()).withStyle(trade.getSellItem().getRarity().color);
+			if (trade.getBarterItem().hasCustomHoverName()) {
+				itemName.withStyle(ChatFormatting.ITALIC);
 			}
 			//Put the barter item in the front so that it comes out as "Player bartered BarterItem for SellItem"
-			itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getBarterItem().getCount(), barterItemName);
+			itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getBarterItem().getCount(), barterItemName);
 		}
 		
-		AddLog(new TranslationTextComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
+		AddLog(new TranslatableComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
 		
 	}
 	

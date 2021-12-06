@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class UniversalTraderEvent extends Event{
@@ -22,10 +22,10 @@ public abstract class UniversalTraderEvent extends Event{
 	public static class UniversalTradeCreateEvent extends UniversalTraderEvent
 	{
 		
-		private final PlayerEntity owner;
-		public PlayerEntity getOwner() { return this.owner; }
+		private final Player owner;
+		public Player getOwner() { return this.owner; }
 		
-		public UniversalTradeCreateEvent(UUID traderID, PlayerEntity owner)
+		public UniversalTradeCreateEvent(UUID traderID, Player owner)
 		{
 			super(traderID);
 			this.owner = owner;

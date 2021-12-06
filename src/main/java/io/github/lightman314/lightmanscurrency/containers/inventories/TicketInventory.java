@@ -1,17 +1,12 @@
 package io.github.lightman314.lightmanscurrency.containers.inventories;
 
-import net.minecraft.inventory.Inventory;
+import net.minecraft.world.SimpleContainer;
 
-public class TicketInventory extends Inventory{
+public class TicketInventory extends SimpleContainer{
 
-	public TicketInventory(int numSlots)
-	{
-		super(numSlots);
-	}
+	public TicketInventory(int numSlots) { super(numSlots); }
 	
 	@Override
-	public int getInventoryStackLimit() {
-		return 1;
-	}
+	public int getMaxStackSize() { return 1; }
 	
 }

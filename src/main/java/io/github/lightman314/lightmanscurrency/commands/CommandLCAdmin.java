@@ -9,28 +9,28 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.MessageArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.MessageArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
 
 public class CommandLCAdmin {
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher)
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
 	{
-		LiteralArgumentBuilder<CommandSource> lcAdminCommand
+		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 			= Commands.literal("lcadmin")
-				.requires((commandSource) -> commandSource.hasPermissionLevel(2))
+				.requires((commandSource) -> commandSource.hasPermission(2))
 				.then(Commands.literal("help")
 						.executes(CommandLCAdmin::help))
 				.then(Commands.literal("toggleadmin")
-						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayerEntity)
+						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
 				.then(Commands.literal("universaldata")
 						.then(Commands.literal("list")
@@ -46,50 +46,50 @@ public class CommandLCAdmin {
 		
 	}
 	
-	static int help(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
+	static int help(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 		
-		CommandSource source = commandContext.getSource();
+		CommandSourceStack source = commandContext.getSource();
 		
 		//help
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.help.help", "/lcadmin help -> "), false);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.help.help", "/lcadmin help -> "), false);
 		//toggleadmin
-		if(source.getEntity() instanceof ServerPlayerEntity)
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.toggleadmin.help", "/lcadmin toggleadmin -> "), false);
+		if(source.getEntity() instanceof ServerPlayer)
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin.help", "/lcadmin toggleadmin -> "), false);
 		//universaldata list
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.help", "/lcadmin universaldata list -> "), false);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.help", "/lcadmin universaldata list -> "), false);
 		//universaldata delete <traderID>
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.delete.help", "/lcadmin universaldata delete <traderID> "), false);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.help", "/lcadmin universaldata delete <traderID> "), false);
 		
 		return 1;
 	}
 	
-	static int toggleAdmin(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
+	static int toggleAdmin(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 		
-		CommandSource source = commandContext.getSource();
-		ServerPlayerEntity sourcePlayer = source.asPlayer();
+		CommandSourceStack source = commandContext.getSource();
+		ServerPlayer sourcePlayer = source.getPlayerOrException();
 		
 		TradingOffice.toggleAdminPlayer(sourcePlayer);
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.toggleadmin",new TranslationTextComponent("command.lightmanscurrency.lcadmin.toggleadmin." + (TradingOffice.isAdminPlayer(sourcePlayer) ? "enabled" : "disabled"))), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin",new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin." + (TradingOffice.isAdminPlayer(sourcePlayer) ? "enabled" : "disabled"))), true);
 		
 		return 1;
 	}
 	
-	static int listUniversalData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
+	static int listUniversalData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 		
-		CommandSource source = commandContext.getSource();
+		CommandSourceStack source = commandContext.getSource();
 		List<UniversalTraderData> allTraders = TradingOffice.getTraders();
 		
 		if(allTraders.size() > 0)
 		{
 			
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 			
 			for(int i = 0; i < allTraders.size(); i++)
 			{
 				UniversalTraderData thisTrader = allTraders.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendFeedback(new StringTextComponent(""), true);
+					source.sendSuccess(new TextComponent(""), true);
 				
 				sendTraderDataFeedback(thisTrader, source);
 				
@@ -97,15 +97,15 @@ public class CommandLCAdmin {
 		}
 		else
 		{
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
 		}
 		
 		return 1;
 	}
 	
-	static int searchUniversalData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
+	static int searchUniversalData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 		
-		CommandSource source = commandContext.getSource();
+		CommandSourceStack source = commandContext.getSource();
 		
 		String searchText = MessageArgument.getMessage(commandContext, "searchText").getString();
 		
@@ -113,13 +113,13 @@ public class CommandLCAdmin {
 		if(allTraders.size() > 0)
 		{
 			
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 			for(int i = 0; i < allTraders.size(); i++)
 			{
 				UniversalTraderData thisTrader = allTraders.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendFeedback(new StringTextComponent(""), true);
+					source.sendSuccess(new TextComponent(""), true);
 				
 				sendTraderDataFeedback(thisTrader, source);
 				
@@ -127,43 +127,43 @@ public class CommandLCAdmin {
 		}
 		else
 		{
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
 		}
 		
 		return 1;
 	}
 	
-	private static void sendTraderDataFeedback(UniversalTraderData thisTrader, CommandSource source)
+	private static void sendTraderDataFeedback(UniversalTraderData thisTrader, CommandSourceStack source)
 	{
 		//Trader ID
 		String traderID = thisTrader.getTraderID().toString();
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid", new StringTextComponent(traderID).mergeStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid", new TextComponent(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), true);
 		//Type
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getTraderType()), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getTraderType()), true);
 		//Owner / Owner ID
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwnerName(), thisTrader.getOwnerID().toString()), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwnerName(), thisTrader.getOwnerID().toString()), true);
 		//Dimension
-		String dimension = thisTrader.getWorld().getLocation().toString();
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), true);
+		String dimension = thisTrader.getWorld().location().toString();
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), true);
 		//Position
 		BlockPos pos = thisTrader.getPos();
 		String position = pos.getX() + " " + pos.getY() + " " + pos.getZ();
 		String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.position", new StringTextComponent(position).mergeStyle(Style.EMPTY.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.position", new TextComponent(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
 		//Custom Name (if applicable)
 		if(thisTrader.hasCustomName())
-			source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
 	}
 	
-	static int deleteUniversalData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
+	static int deleteUniversalData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
 	{
 		
-		CommandSource source = commandContext.getSource();
+		CommandSourceStack source = commandContext.getSource();
 		
 		String traderID = MessageArgument.getMessage(commandContext, "dataID").getString();
 		if(traderID == "")
 		{
-			source.sendErrorMessage(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.delete.noid"));
+			source.sendFailure(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.noid"));
 			return 0;
 		}
 		List<UniversalTraderData> allTraders = TradingOffice.getTraders();
@@ -174,12 +174,12 @@ public class CommandLCAdmin {
 				//Remove the trader
 				TradingOffice.removeTrader(allTraders.get(i).getTraderID());
 				//Send success message
-				source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.delete.success", traderID), true);
+				source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.success", traderID), true);
 				return 1;
 			}
 		}
 		//If no trader with that id found, send a not found message
-		source.sendFeedback(new TranslationTextComponent("command.lightmanscurrency.lcadmin.universaldata.delete.notfound"), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.notfound"), true);
 		return 0;
 	}
 	

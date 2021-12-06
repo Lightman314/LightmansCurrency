@@ -3,44 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.universal_trader
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IUniversalTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageSyncStorage implements IMessage<MessageSyncStorage> {
+public class MessageSyncStorage {
 	
-	
-	public MessageSyncStorage()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageSyncStorage message, PacketBuffer buffer) {
-		//buffer.writeBlockPos(message.pos);
-	}
+	public static void encode(MessageSyncStorage message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageSyncStorage decode(PacketBuffer buffer) {
+	public static MessageSyncStorage decode(FriendlyByteBuf buffer) {
 		return new MessageSyncStorage();
 	}
 
-	@Override
-	public void handle(MessageSyncStorage message, Supplier<Context> supplier) {
+	public static void handle(MessageSyncStorage message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer != null)
+				if(player.containerMenu instanceof IUniversalTraderStorageContainer)
 				{
-					if(entity.openContainer instanceof IUniversalTraderStorageContainer)
-					{
-						IUniversalTraderStorageContainer container = (IUniversalTraderStorageContainer)entity.openContainer;
-						container.CheckStorage();
-					}
+					IUniversalTraderStorageContainer menu = (IUniversalTraderStorageContainer)player.containerMenu;
+					menu.CheckStorage();
 				}
 			}
 		});

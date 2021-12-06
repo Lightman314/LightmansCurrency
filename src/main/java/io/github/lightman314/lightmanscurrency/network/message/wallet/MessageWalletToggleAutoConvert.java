@@ -3,40 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageWalletToggleAutoConvert implements IMessage<MessageWalletToggleAutoConvert> {
+public class MessageWalletToggleAutoConvert {
 	
-	public MessageWalletToggleAutoConvert()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageWalletToggleAutoConvert message, PacketBuffer buffer) {
-		//buffer.writeInt(message.tradeIndex);
-	}
+	public static void encode(MessageWalletToggleAutoConvert message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageWalletToggleAutoConvert decode(PacketBuffer buffer) {
+	public static MessageWalletToggleAutoConvert decode(FriendlyByteBuf buffer) {
 		return new MessageWalletToggleAutoConvert();
 	}
 
-	@Override
-	public void handle(MessageWalletToggleAutoConvert message, Supplier<Context> supplier) {
+	public static void handle(MessageWalletToggleAutoConvert message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer instanceof WalletContainer)
+				if(player.containerMenu instanceof WalletContainer)
 				{
-					WalletContainer container = (WalletContainer) entity.openContainer;
-					container.ToggleAutoConvert();
+					WalletContainer menu = (WalletContainer) player.containerMenu;
+					menu.ToggleAutoConvert();
 				}
 			}
 		});

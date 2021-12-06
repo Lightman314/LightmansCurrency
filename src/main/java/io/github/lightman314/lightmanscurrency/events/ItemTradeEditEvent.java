@@ -5,7 +5,7 @@ import com.google.common.base.Supplier;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemTradeEditEvent extends TradeEditEvent{
 

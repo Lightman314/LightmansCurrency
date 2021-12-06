@@ -5,41 +5,31 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageOpenStorage2 implements IMessage<MessageOpenStorage2> {
+public class MessageOpenStorage2 {
 	
 	UUID traderID;
-	
-	public MessageOpenStorage2()
-	{
-		
-	}
 	
 	public MessageOpenStorage2(UUID traderID)
 	{
 		this.traderID = traderID;
 	}
 	
-	
-	@Override
-	public void encode(MessageOpenStorage2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public static void encode(MessageOpenStorage2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 	}
 
-	@Override
-	public MessageOpenStorage2 decode(PacketBuffer buffer) {
-		return new MessageOpenStorage2(buffer.readUniqueId());
+	public static MessageOpenStorage2 decode(FriendlyByteBuf buffer) {
+		return new MessageOpenStorage2(buffer.readUUID());
 	}
 
-	@Override
-	public void handle(MessageOpenStorage2 message, Supplier<Context> supplier) {
+	public static void handle(MessageOpenStorage2 message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity player = supplier.get().getSender();
+			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
 				UniversalTraderData data = TradingOffice.getData(message.traderID);

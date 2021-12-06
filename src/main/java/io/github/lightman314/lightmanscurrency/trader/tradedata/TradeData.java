@@ -9,8 +9,8 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 public abstract class TradeData implements ITradeRuleHandler {
 
@@ -56,9 +56,9 @@ public abstract class TradeData implements ITradeRuleHandler {
 		this.cost = value;
 	}
 	
-	public CompoundNBT getAsNBT()
+	public CompoundTag getAsNBT()
 	{
-		CompoundNBT tradeNBT = new CompoundNBT();
+		CompoundTag tradeNBT = new CompoundTag();
 		this.cost.writeToNBT(tradeNBT,"Price");
 		tradeNBT.putBoolean("IsFree", this.isFree);
 		TradeRule.writeRules(tradeNBT, this.rules);
@@ -66,11 +66,11 @@ public abstract class TradeData implements ITradeRuleHandler {
 		return tradeNBT;
 	}
 	
-	protected void loadFromNBT(CompoundNBT nbt)
+	protected void loadFromNBT(CompoundTag nbt)
 	{
-		if(nbt.contains("Price", Constants.NBT.TAG_INT))
+		if(nbt.contains("Price", Tag.TAG_INT))
 			cost.readFromOldValue(nbt.getInt("Price"));
-		else if(nbt.contains("Price", Constants.NBT.TAG_LIST))
+		else if(nbt.contains("Price", Tag.TAG_LIST))
 			cost.readFromNBT(nbt, "Price");
 		//Set whether it's free or not
 		if(nbt.contains("IsFree"))

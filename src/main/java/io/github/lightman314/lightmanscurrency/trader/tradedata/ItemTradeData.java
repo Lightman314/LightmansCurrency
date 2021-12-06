@@ -4,12 +4,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemTradeData extends TradeData {
 	
@@ -159,19 +159,19 @@ public class ItemTradeData extends TradeData {
 			return 0;
 	}
 	
-	public void RemoveItemsFromStorage(IInventory storage)
+	public void RemoveItemsFromStorage(Container storage)
 	{
 		this.restriction.removeItemsFromStorage(this.sellItem, storage);
 	}
 	
 	@Override
-	public CompoundNBT getAsNBT() {
-		CompoundNBT tradeNBT = super.getAsNBT();
-		CompoundNBT sellItemCompound = new CompoundNBT();
-		sellItem.write(sellItemCompound);
+	public CompoundTag getAsNBT() {
+		CompoundTag tradeNBT = super.getAsNBT();
+		CompoundTag sellItemCompound = new CompoundTag();
+		sellItem.save(sellItemCompound);
 		tradeNBT.put("SellItem", sellItemCompound);
-		CompoundNBT barterItemCompound = new CompoundNBT();
-		barterItem.write(barterItemCompound);
+		CompoundTag barterItemCompound = new CompoundTag();
+		barterItem.save(barterItemCompound);
 		tradeNBT.put("BarterItem", barterItemCompound);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("Restrictions", this.restriction.getRegistryName().toString());
@@ -179,14 +179,14 @@ public class ItemTradeData extends TradeData {
 		return tradeNBT;
 	}
 	
-	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data)
+	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data)
 	{
 		return saveAllData(nbt, data, DEFAULT_KEY);
 	}
 	
-	public static CompoundNBT saveAllData(CompoundNBT nbt, NonNullList<ItemTradeData> data, String key)
+	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data, String key)
 	{
-		ListNBT listNBT = new ListNBT();
+		ListTag listNBT = new ListTag();
 		
 		for(int i = 0; i < data.size(); i++)
 		{
@@ -199,14 +199,14 @@ public class ItemTradeData extends TradeData {
 		return nbt;
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(CompoundNBT nbt, int arraySize)
+	public static NonNullList<ItemTradeData> loadAllData(CompoundTag nbt, int arraySize)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, arraySize);
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(String key, CompoundNBT nbt, int arraySize)
+	public static NonNullList<ItemTradeData> loadAllData(String key, CompoundTag nbt, int arraySize)
 	{
-		ListNBT listNBT = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
+		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
 		
 		NonNullList<ItemTradeData> data = listOfSize(arraySize);
 		
@@ -220,25 +220,25 @@ public class ItemTradeData extends TradeData {
 	}
 	
 	@Override
-	public void loadFromNBT(CompoundNBT nbt)
+	public void loadFromNBT(CompoundTag nbt)
 	{
 		
 		super.loadFromNBT(nbt);
 		
 		//Load the Sell Item
-		if(nbt.contains("SellItem", Constants.NBT.TAG_COMPOUND))
-			sellItem = ItemStack.read(nbt.getCompound("SellItem"));
+		if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
+			sellItem = ItemStack.of(nbt.getCompound("SellItem"));
 		else //Load old format from before the bartering system was made
-			sellItem = ItemStack.read(nbt);
+			sellItem = ItemStack.of(nbt);
 		
 		//Load the Barter Item
-		if(nbt.contains("BarterItem", Constants.NBT.TAG_COMPOUND))
-			barterItem = ItemStack.read(nbt.getCompound("BarterItem"));
+		if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
+			barterItem = ItemStack.of(nbt.getCompound("BarterItem"));
 		else
 			barterItem = ItemStack.EMPTY;
 		
 		//Set the Trade Direction
-		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
+		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
 			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
 			this.tradeType = ItemTradeType.SALE;

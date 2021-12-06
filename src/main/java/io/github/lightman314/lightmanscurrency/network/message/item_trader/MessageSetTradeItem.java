@@ -3,29 +3,21 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageSetTradeItem implements IMessage<MessageSetTradeItem> {
+public class MessageSetTradeItem {
 
 	private BlockPos pos;
 	private int tradeIndex;
 	private ItemStack newItem;
 	int slot;
-	
-	public MessageSetTradeItem()
-	{
-		
-	}
 	
 	public MessageSetTradeItem(BlockPos pos, int tradeIndex, ItemStack newItem, int slot)
 	{
@@ -35,34 +27,29 @@ public class MessageSetTradeItem implements IMessage<MessageSetTradeItem> {
 		this.slot = slot;
 	}
 	
-	
-	@Override
-	public void encode(MessageSetTradeItem message, PacketBuffer buffer) {
+	public static void encode(MessageSetTradeItem message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeCompoundTag(message.newItem.write(new CompoundNBT()));
+		buffer.writeItemStack(message.newItem, false);
 		buffer.writeInt(message.slot);
 	}
 
-	@Override
-	public MessageSetTradeItem decode(PacketBuffer buffer) {
-		return new MessageSetTradeItem(buffer.readBlockPos(), buffer.readInt(), ItemStack.read(buffer.readCompoundTag()), buffer.readInt());
+	public static MessageSetTradeItem decode(FriendlyByteBuf buffer) {
+		return new MessageSetTradeItem(buffer.readBlockPos(), buffer.readInt(), buffer.readItem(), buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageSetTradeItem message, Supplier<Context> supplier) {
+	public static void handle(MessageSetTradeItem message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				TileEntity tileEntity = entity.world.getTileEntity(message.pos);
-				if(tileEntity != null)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity != null)
 				{
-					if(tileEntity instanceof ItemTraderTileEntity)
+					if(blockEntity instanceof ItemTraderTileEntity)
 					{
-						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)tileEntity;
+						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)blockEntity;
 						ItemStack oldItem = ItemStack.EMPTY;
 						if(message.slot == 1)
 						{
@@ -78,17 +65,15 @@ public class MessageSetTradeItem implements IMessage<MessageSetTradeItem> {
 						//Post ItemTradeEditEvent
 						ItemTradeItemEditEvent e = new ItemTradeItemEditEvent(() -> {
 							//Create safe supplier, just in case the event saves it for later
-							TileEntity te = entity.world.getTileEntity(message.pos);
+							BlockEntity te = player.level.getBlockEntity(message.pos);
 							if(te instanceof ItemTraderTileEntity)
 								return (ItemTraderTileEntity)te;
 							return null;
 						}, message.tradeIndex, oldItem, message.slot);
 						MinecraftForge.EVENT_BUS.post(e);
 						
+						traderEntity.markTradesDirty();
 						
-						//Send update packet to the clients
-						CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
-						TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));
 					}
 				}
 			}

@@ -4,37 +4,26 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.providers.WalletContainerProvider;
 import io.github.lightman314.lightmanscurrency.items.WalletItem.DataWriter;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkHooks;
 
-public class MessageOpenWallet implements IMessage<MessageOpenWallet> {
+public class MessageOpenWallet {
 	
-	public MessageOpenWallet()
-	{
-		
-	}
-	
-	@Override
-	public void encode(MessageOpenWallet message, PacketBuffer buffer) {
-		
-	}
+	public static void encode(MessageOpenWallet message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageOpenWallet decode(PacketBuffer buffer) {
+	public static MessageOpenWallet decode(FriendlyByteBuf buffer) {
 		return new MessageOpenWallet();
 	}
 
-	@Override
-	public void handle(MessageOpenWallet message, Supplier<Context> supplier) {
+	public static void handle(MessageOpenWallet message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity player = supplier.get().getSender();
+			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				NetworkHooks.openGui((ServerPlayerEntity)player, new WalletContainerProvider(-1), new DataWriter(-1));
+				NetworkHooks.openGui(player, new WalletContainerProvider(-1), new DataWriter(-1));
 			}
 		});
 		supplier.get().setPacketHandled(true);

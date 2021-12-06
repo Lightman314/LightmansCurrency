@@ -3,44 +3,39 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.Constants;
 
-public class CashRegisterTileEntity extends TileEntity{
+public class CashRegisterTileEntity extends BlockEntity{
 	
 	List<BlockPos> positions = new ArrayList<>();
 	
-	public CashRegisterTileEntity()
+	public CashRegisterTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.CASH_REGISTER);
+		super(ModTileEntities.CASH_REGISTER, pos, state);
 	}
 	
-	public void loadDataFromItems(CompoundNBT itemTag)
+	public void loadDataFromItems(CompoundTag itemTag)
 	{
 		if(itemTag == null)
 			return;
 		readPositions(itemTag);
 	}
 	
-	public void OpenContainer(PlayerEntity player)
+	public void OpenContainer(Player player)
 	{
 		OpenContainer(-1,0,1, player);
 	}
 	
-	public void OpenContainer(int oldIndex, int newIndex, int direction, PlayerEntity player)
+	public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
 	{
 		//Validate the direction
 		if(direction == 0)
@@ -48,7 +43,7 @@ public class CashRegisterTileEntity extends TileEntity{
 		else
 			direction = MathUtil.clamp(direction, -1, 1);
 		//Only open the container server-side
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		//Confirm we have any tile entities that can be opened
 		if(this.positions.size() <= 0)
@@ -71,7 +66,7 @@ public class CashRegisterTileEntity extends TileEntity{
 		if(tileEntity != null)
 		{
 			//Open the container
-			tileEntity.openCashRegisterTradeMenu((ServerPlayerEntity)player, this);
+			tileEntity.openCashRegisterTradeMenu(player, this);
 			return;
 		}
 		else
@@ -93,7 +88,7 @@ public class CashRegisterTileEntity extends TileEntity{
 	{
 		if(index < 0 || index >= positions.size())
 			return null;
-		TileEntity tileEntity = this.world.getTileEntity(positions.get(index));
+		BlockEntity tileEntity = this.level.getBlockEntity(positions.get(index));
 		if(tileEntity instanceof TraderTileEntity)
 			return (TraderTileEntity)tileEntity;
 		return null;
@@ -103,7 +98,7 @@ public class CashRegisterTileEntity extends TileEntity{
 	{
 		for(int i = 0; i < positions.size(); i++)
 		{
-			if(positions.get(i).equals(tileEntity.getPos()))
+			if(positions.get(i).equals(tileEntity.getBlockPos()))
 				return i;
 		}
 		return -1;
@@ -115,13 +110,13 @@ public class CashRegisterTileEntity extends TileEntity{
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		
-		ListNBT storageList = new ListNBT();
+		ListTag storageList = new ListTag();
 		for(int i = 0; i < positions.size(); i++)
 		{
-			CompoundNBT thisEntry = new CompoundNBT();
+			CompoundTag thisEntry = new CompoundTag();
 			BlockPos thisPos = positions.get(i);
 			thisEntry.putInt("x", thisPos.getX());
 			thisEntry.putInt("y", thisPos.getY());
@@ -134,28 +129,28 @@ public class CashRegisterTileEntity extends TileEntity{
 			compound.put("TraderPos", storageList);
 		}
 		
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
 		readPositions(compound);
 		
-		super.read(state, compound);
+		super.load(compound);
 		
 	}
 	
-	private void readPositions(CompoundNBT compound)
+	private void readPositions(CompoundTag compound)
 	{
 		if(compound.contains("TraderPos"))
 		{
 			this.positions = new ArrayList<>();
-			ListNBT storageList = compound.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			ListTag storageList = compound.getList("TraderPos", Tag.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); i++)
 			{
-				CompoundNBT thisEntry = storageList.getCompound(i);
+				CompoundTag thisEntry = storageList.getCompound(i);
 				if(thisEntry.contains("x") && thisEntry.contains("y") && thisEntry.contains("z"))
 				{
 					BlockPos thisPos = new BlockPos(thisEntry.getInt("x"), thisEntry.getInt("y"), thisEntry.getInt("z"));
@@ -165,19 +160,7 @@ public class CashRegisterTileEntity extends TileEntity{
 		}
 	}
 	
-	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
-	}
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.read(this.getBlockState(), compound);
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
 }

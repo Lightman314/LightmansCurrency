@@ -9,10 +9,10 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.RegistryEvent;
@@ -30,10 +30,10 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	private static final List<ItemTradeRestriction> RESTRICTIONS = new ArrayList<>();
 	
 	public static final ItemTradeRestriction NONE = register("none", new ItemTradeRestriction("NONE"));
-	public static final ItemTradeRestriction ARMOR_HEAD = register("armor_head", new EquipmentRestriction(EquipmentSlotType.HEAD, "ARMOR_HEAD"));
-	public static final ItemTradeRestriction ARMOR_CHEST = register("armor_chest", new EquipmentRestriction(EquipmentSlotType.CHEST, "ARMOR_CHEST"));
-	public static final ItemTradeRestriction ARMOR_LEGS = register("armor_legs", new EquipmentRestriction(EquipmentSlotType.LEGS, "ARMOR_LEGS"));
-	public static final ItemTradeRestriction ARMOR_FEET = register("armor_feet", new EquipmentRestriction(EquipmentSlotType.FEET, "ARMOR_FEET"));
+	public static final ItemTradeRestriction ARMOR_HEAD = register("armor_head", new EquipmentRestriction(EquipmentSlot.HEAD, "ARMOR_HEAD"));
+	public static final ItemTradeRestriction ARMOR_CHEST = register("armor_chest", new EquipmentRestriction(EquipmentSlot.CHEST, "ARMOR_CHEST"));
+	public static final ItemTradeRestriction ARMOR_LEGS = register("armor_legs", new EquipmentRestriction(EquipmentSlot.LEGS, "ARMOR_LEGS"));
+	public static final ItemTradeRestriction ARMOR_FEET = register("armor_feet", new EquipmentRestriction(EquipmentSlot.FEET, "ARMOR_FEET"));
 	public static final ItemTradeRestriction TICKET_KIOSK = register("ticket_kiosk", new TicketKioskRestriction("TICKET"));
 	
 	//Restricion functionality
@@ -49,12 +49,12 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	
 	public ItemStack filterSellItem(ItemStack itemStack) { return itemStack; }
 	
-	public int getSaleStock(ItemStack sellItem, IInventory traderStorage)
+	public int getSaleStock(ItemStack sellItem, Container traderStorage)
 	{
 		return InventoryUtil.GetItemCount(traderStorage, sellItem) / sellItem.getCount();
 	}
 	
-	public void removeItemsFromStorage(ItemStack sellItem, IInventory traderStorage)
+	public void removeItemsFromStorage(ItemStack sellItem, Container traderStorage)
 	{
 		InventoryUtil.RemoveItemCount(traderStorage, sellItem);
 	}

@@ -4,11 +4,11 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class CoinSlot extends Slot{
 	
@@ -16,19 +16,19 @@ public class CoinSlot extends Slot{
 	
 	private boolean acceptHiddenCoins = true;
 	
-	public CoinSlot(IInventory inventory, int index, int x, int y)
+	public CoinSlot(Container inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
 	
-	public CoinSlot(IInventory inventory, int index, int x, int y, boolean acceptHiddenCoins)
+	public CoinSlot(Container inventory, int index, int x, int y, boolean acceptHiddenCoins)
 	{
 		super(inventory, index, x, y);
 		this.acceptHiddenCoins = acceptHiddenCoins;
 	}
 	
 	@Override
-	public boolean isItemValid(ItemStack stack) {
+	public boolean mayPlace(ItemStack stack) {
 		if(acceptHiddenCoins)
 			return MoneyUtil.isCoin(stack.getItem());
 		else
@@ -36,8 +36,8 @@ public class CoinSlot extends Slot{
 	}
 	
 	@Override
-	public Pair<ResourceLocation,ResourceLocation> getBackground() {
-		return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, EMPTY_COIN_SLOT);
+	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
+		return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_COIN_SLOT);
 	}
 
 }

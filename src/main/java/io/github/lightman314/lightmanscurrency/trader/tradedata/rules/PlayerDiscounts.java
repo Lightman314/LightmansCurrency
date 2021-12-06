@@ -4,24 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 
 public class PlayerDiscounts extends TradeRule {
 
@@ -55,12 +55,12 @@ public class PlayerDiscounts extends TradeRule {
 	}
 	
 	@Override
-	protected CompoundNBT write(CompoundNBT compound) {
+	protected CompoundTag write(CompoundTag compound) {
 		//Save player names
-		ListNBT playerNameList = new ListNBT();
+		ListTag playerNameList = new ListTag();
 		for(int i = 0; i < playerList.size(); i++)
 		{
-			CompoundNBT thisCompound = new CompoundNBT();
+			CompoundTag thisCompound = new CompoundTag();
 			thisCompound.putString("name", playerList.get(i));
 			playerNameList.add(thisCompound);
 		}
@@ -72,27 +72,27 @@ public class PlayerDiscounts extends TradeRule {
 	}
 
 	@Override
-	public void readNBT(CompoundNBT compound) {
+	public void readNBT(CompoundTag compound) {
 		//Load player names
-		if(compound.contains("Players", Constants.NBT.TAG_LIST))
+		if(compound.contains("Players", Tag.TAG_LIST))
 		{
 			this.playerList.clear();
-			ListNBT playerNameList = compound.getList("Players", Constants.NBT.TAG_COMPOUND);
+			ListTag playerNameList = compound.getList("Players", Tag.TAG_COMPOUND);
 			for(int i = 0; i < playerNameList.size(); i++)
 			{
-				CompoundNBT thisCompound = playerNameList.getCompound(i);
-				if(thisCompound.contains("name", Constants.NBT.TAG_STRING))
+				CompoundTag thisCompound = playerNameList.getCompound(i);
+				if(thisCompound.contains("name", Tag.TAG_STRING))
 					this.playerList.add(thisCompound.getString("name"));
 			}
 		}
 		//Load discount
-		if(compound.contains("discount", Constants.NBT.TAG_INT))
+		if(compound.contains("discount", Tag.TAG_INT))
 			this.discount = compound.getInt("discount");
 		
 	}
 	
 	@Override
-	public ITextComponent getButtonText() { return new TranslationTextComponent("gui.button.lightmanscurrency.discount_list"); }
+	public Component getButtonText() { return new TranslatableComponent("gui.button.lightmanscurrency.discount_list"); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -117,8 +117,8 @@ public class PlayerDiscounts extends TradeRule {
 			super(screen, rule);
 		}
 		
-		TextFieldWidget nameInput;
-		TextFieldWidget discountInput;
+		EditBox nameInput;
+		EditBox discountInput;
 		
 		Button buttonAddPlayer;
 		Button buttonRemovePlayer;
@@ -130,37 +130,34 @@ public class PlayerDiscounts extends TradeRule {
 		@Override
 		public void initTab() {
 			
-			this.nameInput = screen.addCustomListener(new TextFieldWidget(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 34, screen.xSize - 20, 20, new StringTextComponent("")));
+			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 34, screen.xSize - 20, 20, new TextComponent("")));
 			
-			this.buttonAddPlayer = this.screen.addCustomButton(new Button(screen.guiLeft() + 10, screen.guiTop() + 55, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
-			this.buttonRemovePlayer = this.screen.addCustomButton(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 55, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
 			
-			
-			this.discountInput = this.addListener(new TextFieldWidget(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, new StringTextComponent("")));
-			this.discountInput.setMaxStringLength(2);
-			this.discountInput.setText(Integer.toString(this.getRule().discount));
-			this.buttonSetDiscount = this.addButton(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, new TextComponent("")));
+			this.discountInput.setMaxLength(2);
+			this.discountInput.setValue(Integer.toString(this.getRule().discount));
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
 		}
 		
 		@Override
-		public void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 			
 			if(getRule() == null)
 				return;
 			
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 78, 0, this.screen.ySize, this.screen.xSize, 80);
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 78 + 80, 0, this.screen.ySize, this.screen.xSize, 11);
+			this.screen.blit(poseStack, this.screen.guiLeft(), this.screen.guiTop() + 78, 0, this.screen.ySize, this.screen.xSize, 80);
+			this.screen.blit(poseStack, this.screen.guiLeft(), this.screen.guiTop() + 78 + 80, 0, this.screen.ySize, this.screen.xSize, 11);
 			
-			this.nameInput.render(matrixStack, mouseX, mouseY, partialTicks);
-			this.discountInput.render(matrixStack, mouseX, mouseY, partialTicks);
-			this.screen.getFont().drawString(matrixStack, new TranslationTextComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
 			int x = 0;
 			int y = 0;
 			for(int i = 0; i < getRule().playerList.size() && x < 2; i++)
 			{
-				screen.getFont().drawString(matrixStack, getRule().playerList.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 80 + 10 * y, 0xFFFFFF);
+				screen.getFont().draw(poseStack, getRule().playerList.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 80 + 10 * y, 0xFFFFFF);
 				y++;
 				if(y >= this.namesPerPage)
 				{
@@ -174,8 +171,6 @@ public class PlayerDiscounts extends TradeRule {
 		@Override
 		public void onScreenTick()
 		{
-			this.discountInput.tick();
-			this.nameInput.tick();
 			TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
 		}
 		
@@ -183,17 +178,17 @@ public class PlayerDiscounts extends TradeRule {
 		@Override
 		public void onTabClose() {
 			
-			screen.removeListener(this.nameInput);
-			screen.removeButton(this.buttonAddPlayer);
-			screen.removeButton(this.buttonRemovePlayer);
-			screen.removeListener(this.discountInput);
-			screen.removeButton(this.buttonSetDiscount);
+			this.removeCustomWidget(this.nameInput);
+			this.removeCustomWidget(this.buttonAddPlayer);
+			this.removeCustomWidget(this.buttonRemovePlayer);
+			this.removeCustomWidget(this.discountInput);
+			this.removeCustomWidget(this.buttonSetDiscount);
 			
 		}
 		
 		void PressAddButton(Button button)
 		{
-			String name = nameInput.getText();
+			String name = nameInput.getValue();
 			if(name != "")
 			{
 				if(!getRule().playerList.contains(name))
@@ -201,13 +196,13 @@ public class PlayerDiscounts extends TradeRule {
 					getRule().playerList.add(name);
 					screen.markRulesDirty();
 				}
-				nameInput.setText("");
+				nameInput.setValue("");
 			}
 		}
 		
 		void PressForgetButton(Button button)
 		{
-			String name = nameInput.getText();
+			String name = nameInput.getValue();
 			if(name != "")
 			{
 				if(getRule().playerList.contains(name))
@@ -215,7 +210,7 @@ public class PlayerDiscounts extends TradeRule {
 					getRule().playerList.remove(name);
 					screen.markRulesDirty();
 				}
-				nameInput.setText("");
+				nameInput.setValue("");
 			}
 			
 		}

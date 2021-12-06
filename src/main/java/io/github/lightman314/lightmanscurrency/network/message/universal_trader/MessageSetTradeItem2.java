@@ -7,25 +7,18 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageSetTradeItem2 implements IMessage<MessageSetTradeItem2> {
+public class MessageSetTradeItem2 {
 
 	private UUID traderID;
 	private int tradeIndex;
 	ItemStack newItem;
 	int slot;
-	
-	public MessageSetTradeItem2()
-	{
-		
-	}
 	
 	public MessageSetTradeItem2(UUID traderID, int tradeIndex, ItemStack newItem, int slot)
 	{
@@ -35,22 +28,18 @@ public class MessageSetTradeItem2 implements IMessage<MessageSetTradeItem2> {
 		this.slot = slot;
 	}
 	
-	
-	@Override
-	public void encode(MessageSetTradeItem2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public static void encode(MessageSetTradeItem2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeCompoundTag(message.newItem.write(new CompoundNBT()));
+		buffer.writeItemStack(message.newItem, false);
 		buffer.writeInt(message.slot);
 	}
 
-	@Override
-	public MessageSetTradeItem2 decode(PacketBuffer buffer) {
-		return new MessageSetTradeItem2(buffer.readUniqueId(), buffer.readInt(), ItemStack.read(buffer.readCompoundTag()), buffer.readInt());
+	public static MessageSetTradeItem2 decode(FriendlyByteBuf buffer) {
+		return new MessageSetTradeItem2(buffer.readUUID(), buffer.readInt(), buffer.readItem(), buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageSetTradeItem2 message, Supplier<Context> supplier) {
+	public static void handle(MessageSetTradeItem2 message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");

@@ -9,16 +9,16 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
 
-public class WalletUpgradeRecipe extends SpecialRecipe{
+public class WalletUpgradeRecipe extends CustomRecipe{
 	
 	private static final List<UpgradeData> UPGRADE_DATA = Lists.newArrayList(
 			new UpgradeData(ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.COIN_IRON),
@@ -32,14 +32,14 @@ public class WalletUpgradeRecipe extends SpecialRecipe{
 	}
 	
 	@Override
-	public boolean matches(CraftingInventory inv, World worldIn) {
+	public boolean matches(CraftingContainer inv, Level worldIn) {
 		
 		ItemStack wallet = null;
 		List<ItemStack> upgradeItems = Lists.newArrayList();
 		
-		for(int i = 0; i < inv.getSizeInventory(); i++)
+		for(int i = 0; i < inv.getContainerSize(); i++)
 		{
-			ItemStack thisItem = inv.getStackInSlot(i);
+			ItemStack thisItem = inv.getItem(i);
 			if(!thisItem.isEmpty())
 			{
 				if(thisItem.getItem() instanceof WalletItem)
@@ -60,14 +60,14 @@ public class WalletUpgradeRecipe extends SpecialRecipe{
 	}
 	
 	@Override
-	public ItemStack getCraftingResult(CraftingInventory inv) {
+	public ItemStack assemble(CraftingContainer inv) {
 
 		ItemStack wallet = null;
 		List<ItemStack> upgradeItems = Lists.newArrayList();
 		
-		for(int i = 0; i < inv.getSizeInventory(); i++)
+		for(int i = 0; i < inv.getContainerSize(); i++)
 		{
-			ItemStack thisItem = inv.getStackInSlot(i);
+			ItemStack thisItem = inv.getItem(i);
 			if(!thisItem.isEmpty())
 			{
 				if(thisItem.getItem() instanceof WalletItem)
@@ -107,12 +107,12 @@ public class WalletUpgradeRecipe extends SpecialRecipe{
 	}
 	
 	@Override
-	public boolean canFit(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return width * height >= 2;
 	}
 
 	@Override
-	public IRecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<?> getSerializer() {
 		return ModRecipes.WALLET_UPGRADE;
 	}
 	

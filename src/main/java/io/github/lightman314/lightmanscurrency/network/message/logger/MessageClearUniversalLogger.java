@@ -6,37 +6,27 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageClearUniversalLogger implements IMessage<MessageClearUniversalLogger> {
+public class MessageClearUniversalLogger {
 
 	private UUID traderID;
-	
-	public MessageClearUniversalLogger()
-	{
-		
-	}
 	
 	public MessageClearUniversalLogger(UUID traderID)
 	{
 		this.traderID = traderID;
 	}
 	
-	
-	@Override
-	public void encode(MessageClearUniversalLogger message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public static void encode(MessageClearUniversalLogger message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 	}
 
-	@Override
-	public MessageClearUniversalLogger decode(PacketBuffer buffer) {
-		return new MessageClearUniversalLogger(buffer.readUniqueId());
+	public static MessageClearUniversalLogger decode(FriendlyByteBuf buffer) {
+		return new MessageClearUniversalLogger(buffer.readUUID());
 	}
 
-	@Override
-	public void handle(MessageClearUniversalLogger message, Supplier<Context> supplier) {
+	public static void handle(MessageClearUniversalLogger message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			UniversalTraderData data = TradingOffice.getData(message.traderID);

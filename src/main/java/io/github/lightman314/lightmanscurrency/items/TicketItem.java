@@ -7,15 +7,15 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 public class TicketItem extends Item{
 
@@ -28,13 +28,13 @@ public class TicketItem extends Item{
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		if(Screen.hasShiftDown())
 		{
 			UUID ticketID = GetTicketID(stack);
 			if(ticketID != null)
-				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.ticket.id", ticketID));
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.ticket.id", ticketID));
 		}
 	}
 	
@@ -50,17 +50,17 @@ public class TicketItem extends Item{
 		//Get the ticket item
 		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
 			return null;
-		CompoundNBT ticketTag = ticket.getTag();
+		CompoundTag ticketTag = ticket.getTag();
 		if(!ticketTag.contains("TicketID"))
 			return null;
-		return ticketTag.getUniqueId("TicketID");
+		return ticketTag.getUUID("TicketID");
 	}
 	
 	public static ItemStack CreateMasterTicket(UUID ticketID)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
 		if(ticketID != null)
-			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;
 	}
 	
@@ -68,7 +68,7 @@ public class TicketItem extends Item{
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
 		if(ticketID != null)
-			ticket.getOrCreateTag().putUniqueId("TicketID", ticketID);
+			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;
 	}
 	

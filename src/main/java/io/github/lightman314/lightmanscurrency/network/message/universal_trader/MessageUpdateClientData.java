@@ -3,37 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.universal_trader
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageUpdateClientData implements IMessage<MessageUpdateClientData> {
+public class MessageUpdateClientData {
 	
-	CompoundNBT traderData;
+	CompoundTag traderData;
 	
-	public MessageUpdateClientData()
-	{
-		
-	}
-	
-	public MessageUpdateClientData(CompoundNBT traderData)
+	public MessageUpdateClientData(CompoundTag traderData)
 	{
 		this.traderData = traderData;
 	}
 	
-	@Override
-	public void encode(MessageUpdateClientData message, PacketBuffer buffer) {
-		buffer.writeCompoundTag(message.traderData);
+	public static void encode(MessageUpdateClientData message, FriendlyByteBuf buffer) {
+		buffer.writeNbt(message.traderData);
 	}
 
-	@Override
-	public MessageUpdateClientData decode(PacketBuffer buffer) {
-		return new MessageUpdateClientData(buffer.readCompoundTag());
+	public static MessageUpdateClientData decode(FriendlyByteBuf buffer) {
+		return new MessageUpdateClientData(buffer.readNbt());
 	}
 
-	@Override
-	public void handle(MessageUpdateClientData message, Supplier<Context> supplier) {
+	public static void handle(MessageUpdateClientData message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.updateTrader(message.traderData));
 		supplier.get().setPacketHandled(true);
 	}

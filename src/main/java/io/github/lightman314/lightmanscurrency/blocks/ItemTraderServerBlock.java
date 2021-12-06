@@ -1,21 +1,23 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class ItemTraderServerBlock extends RotatableBlock implements ITraderBlock{
+public class ItemTraderServerBlock extends RotatableBlock implements ITraderBlock, EntityBlock{
 
 	final int tradeCount;
 	
@@ -26,74 +28,69 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 	}
 	
 	@Override
-	public boolean hasTileEntity(BlockState state)
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return true;
+		return new UniversalItemTraderTileEntity(pos, state, this.tradeCount);
 	}
 	
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		return new UniversalItemTraderTileEntity(this.tradeCount);
-	}
-	
-	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
-	{
-		if(!worldIn.isRemote())
+		if(!level.isClientSide)
 		{
-			UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)worldIn.getTileEntity(pos);
-			if(tileEntity != null && player instanceof PlayerEntity)
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+			if(blockEntity instanceof UniversalTraderTileEntity && player instanceof Player)
 			{
-				if(stack.hasDisplayName())
-					tileEntity.init((PlayerEntity)player, stack.getDisplayName().getString());
+				UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
+				if(stack.hasCustomHoverName())
+					trader.init((Player)player, stack.getDisplayName().getString());
 				else
-					tileEntity.init((PlayerEntity)player);
+					trader.init((Player)player);
 			}
 		}
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)worldIn.getTileEntity(pos);
-		if(tileEntity != null)
+		
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof UniversalTraderTileEntity)
 		{
-			//LightmansCurrency.LOGGER.info("Testing if the player can break the server-block (block.onBlockHarvested," + (worldIn.isRemote ? "client" : "server") +").");
-			if(!tileEntity.canBreak(player))
+			UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
+			if(!trader.canBreak(player))
 				return;
-			//LightmansCurrency.LOGGER.info("Block can be broken. Running onDestroyed code (block.onBlockHarvested," + (worldIn.isRemote ? "client" : "server") +").");
-			tileEntity.onDestroyed();
+			trader.onDestroyed();
 		}
 		
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 		
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(!world.isRemote)
+		if(!level.isClientSide)
 		{
-			//Open the screen
-			UniversalItemTraderTileEntity tileEntity = (UniversalItemTraderTileEntity)world.getTileEntity(pos);
-			if(tileEntity != null)
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+			if(blockEntity instanceof UniversalTraderTileEntity)
 			{
+				UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
 				//Update the owner
-				if(tileEntity.hasPermissions(playerEntity))
+				if(trader.hasPermissions(player))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					tileEntity.updateOwner(playerEntity);
-					tileEntity.openStorageMenu(playerEntity);
+					trader.updateOwner(player);
+					trader.openStorageMenu(player);
 				}
 			}
 		}
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public TileEntity getTileEntity(BlockState state, IWorld world, BlockPos pos) {
-		return world.getTileEntity(pos);
+	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos) {
+		return level.getBlockEntity(pos);
 	}
 	
 }

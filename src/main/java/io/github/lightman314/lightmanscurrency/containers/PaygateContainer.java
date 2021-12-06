@@ -18,29 +18,29 @@ import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
-public class PaygateContainer extends Container implements ITraderContainerPrimitive{
+public class PaygateContainer extends AbstractContainerMenu implements ITraderContainerPrimitive{
 	
-	public final PlayerEntity player;
+	public final Player player;
 	
-	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
+	protected static final MenuType<?> type = ModContainers.ITEMTRADER;
 	
-	protected final IInventory coinInput = new Inventory(5);
-	protected final IInventory ticketInput = new TicketInventory(1);
+	protected final Container coinInput = new SimpleContainer(5);
+	protected final Container ticketInput = new TicketInventory(1);
 	public final PaygateTileEntity tileEntity;
 	
 	public final int priceInputOffset;
 	
-	public PaygateContainer(int windowId, PlayerInventory inventory, PaygateTileEntity tileEntity)
+	public PaygateContainer(int windowId, Inventory inventory, PaygateTileEntity tileEntity)
 	{
 		super(ModContainers.PAYGATE, windowId);
 		this.tileEntity = tileEntity;
@@ -50,7 +50,7 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		this.priceInputOffset = this.isOwner() ? CoinValueInput.HEIGHT : 0;
 		
 		//Coinslots
-		for(int x = 0; x < coinInput.getSizeInventory(); x++)
+		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + (x + 4) * 18, 37 + this.priceInputOffset));
 		}
@@ -76,52 +76,50 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
+	public boolean stillValid(Player playerIn)
 	{
-		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
-		//return this.tileEntity.isUsableByPlayer(playerIn);
 		return true;
 	}
 	
 	@Override
-	public void onContainerClosed(PlayerEntity playerIn)
+	public void removed(Player playerIn)
 	{
-		super.onContainerClosed(playerIn);
-		this.clearContainer(playerIn,  playerIn.world,  this.coinInput);
-		this.clearContainer(playerIn, playerIn.world, this.ticketInput);
+		super.removed(playerIn);
+		this.clearContainer(playerIn,  this.coinInput);
+		this.clearContainer(playerIn, this.ticketInput);
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getSizeInventory())
+			if(index < this.coinInput.getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index >= this.coinInput.getSizeInventory() && index < this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory())
+			else if(index >= this.coinInput.getContainerSize() && index < this.coinInput.getContainerSize() + this.ticketInput.getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack, this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack, this.coinInput.getContainerSize() + this.ticketInput.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index < this.inventorySlots.size())
+			else if(index < this.slots.size())
 			{
 				//if(!MoneyUtil.isCoin(slotStack.getItem()))
 				//	return ItemStack.EMPTY;
-				if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory() + this.ticketInput.getSizeInventory(), false))
+				if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize() + this.ticketInput.getContainerSize(), false))
 				{
 					return ItemStack.EMPTY;
 				}
@@ -129,11 +127,11 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
@@ -143,13 +141,13 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 	
 	public boolean HasMasterTicket()
 	{
-		return TicketItem.isMasterTicket(ticketInput.getStackInSlot(0));
+		return TicketItem.isMasterTicket(ticketInput.getItem(0));
 	}
 	
 	public boolean HasValidTicket()
 	{
 		//Get the ticket item
-		ItemStack ticket = ticketInput.getStackInSlot(0);
+		ItemStack ticket = ticketInput.getItem(0);
 		//Cannot consume master tickets
 		if(TicketItem.isMasterTicket(ticket))
 			return false;
@@ -158,15 +156,15 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 	
 	public UUID GetTicketID()
 	{
-		return TicketItem.GetTicketID(ticketInput.getStackInSlot(0));
+		return TicketItem.GetTicketID(ticketInput.getItem(0));
 	}
 	
 	public long GetCoinValue()
 	{
 		long value = 0;
-		for(int i = 0; i < coinInput.getSizeInventory(); i++)
+		for(int i = 0; i < coinInput.getContainerSize(); i++)
 		{
-			value += MoneyUtil.getValue(coinInput.getStackInSlot(i));
+			value += MoneyUtil.getValue(coinInput.getItem(i));
 		}
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
@@ -203,18 +201,18 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		if(HasValidTicket())
 		{
 			//Remove the ticket
-			ticketInput.decrStackSize(0, 1);
+			ticketInput.removeItem(0, 1);
 			//Generate a ticket stub
 			ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
 			//Try to put it in the ticket slot
-			if(ticketInput.getStackInSlot(0).isEmpty())
-				ticketInput.setInventorySlotContents(0, ticketStub);
+			if(ticketInput.getItem(0).isEmpty())
+				ticketInput.setItem(0, ticketStub);
 			else
 			{
 				//Otherwise force it into the players inventory
-				IInventory temp = new Inventory(1);
-				temp.setInventorySlotContents(0, ticketStub);
-				this.clearContainer(this.player, this.player.world, temp);
+				Container temp = new SimpleContainer(1);
+				temp.setItem(0, ticketStub);
+				this.clearContainer(this.player, temp);
 			}
 		}
 		else
@@ -253,9 +251,9 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		{
 			if(!manualCoinMerge(coinList.get(i)))
 			{
-				IInventory inventory = new Inventory(1);
-				inventory.setInventorySlotContents(0, coinList.get(i));
-				this.clearContainer(player, player.getEntityWorld(), inventory);
+				Container inventory = new SimpleContainer(1);
+				inventory.setItem(0, coinList.get(i));
+				this.clearContainer(player, inventory);
 			}
 		}
 		//Clear the coin storage
@@ -269,9 +267,9 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		Item mergeItem = mergeStack.getItem();
 		List<Pair<Integer,Integer>> mergeOrders = new ArrayList<>();
 		//First pass, checking for other stacks to add to
-		for(int i = 0; i < coinInput.getSizeInventory() && amountToMerge > 0; i++)
+		for(int i = 0; i < coinInput.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = coinInput.getStackInSlot(i);
+			ItemStack inventoryStack = coinInput.getItem(i);
 			if(inventoryStack.getItem() == mergeItem && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
 			{
 				int availableSlots = inventoryStack.getMaxStackSize() - inventoryStack.getCount();
@@ -285,9 +283,9 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 			}
 		}
 		//Second pass, checking for empty slots to place them in
-		for(int i = 0; i < coinInput.getSizeInventory() && amountToMerge > 0; i++)
+		for(int i = 0; i < coinInput.getContainerSize() && amountToMerge > 0; i++)
 		{
-			ItemStack inventoryStack = coinInput.getStackInSlot(i);
+			ItemStack inventoryStack = coinInput.getItem(i);
 			if(inventoryStack.isEmpty())
 			{
 				int availableSlots = 64;
@@ -307,14 +305,14 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 		//Execute item placement/addition
 		mergeOrders.forEach(order ->
 		{
-			ItemStack itemStack = coinInput.getStackInSlot(order.getFirst());
+			ItemStack itemStack = coinInput.getItem(order.getFirst());
 			if(itemStack.isEmpty())
 			{
-				coinInput.setInventorySlotContents(order.getFirst(), new ItemStack(mergeItem, order.getSecond()));
+				coinInput.setItem(order.getFirst(), new ItemStack(mergeItem, order.getSecond()));
 			}
 			else
 			{
-				coinInput.setInventorySlotContents(order.getFirst(),  new ItemStack(mergeItem, order.getSecond() + itemStack.getCount()));
+				coinInput.setItem(order.getFirst(),  new ItemStack(mergeItem, order.getSecond() + itemStack.getCount()));
 			}
 		});
 		

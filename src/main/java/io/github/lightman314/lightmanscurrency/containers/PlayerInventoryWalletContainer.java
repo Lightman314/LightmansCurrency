@@ -5,56 +5,56 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PlayerInventoryWalletContainer extends Container{
+public class PlayerInventoryWalletContainer extends AbstractContainerMenu{
 
 	//PlayerContainer variables
-	public final PlayerEntity player;
-	private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET};
-	private static final EquipmentSlotType[] VALID_EQUIPMENT_SLOTS = new EquipmentSlotType[]{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET};
+	public final Player player;
+	private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
+	private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 	
 	//My variables
 	public static final int WALLET_SLOT_X = 152;
 	public static final int WALLET_SLOT_Y = 62;
 	
-	IInventory walletInventory = null;
+	Container walletInventory = null;
 	WalletSlot walletSlot = null;
 	
-	public PlayerInventoryWalletContainer(int windowID, PlayerInventory inventory) {
+	public PlayerInventoryWalletContainer(int windowID, Inventory inventory) {
 		super(ModContainers.INVENTORY_WALLET, windowID);
 		this.player = inventory.player;
 		
 		//Equipment slots
 		for(int k = 0; k < 4; ++k) {
-			final EquipmentSlotType equipmentslottype = VALID_EQUIPMENT_SLOTS[k];
+			final EquipmentSlot equipmentslottype = VALID_EQUIPMENT_SLOTS[k];
 			this.addSlot(new Slot(inventory, 39 - k, 8, 8 + k * 18) {
-	            public int getSlotStackLimit() {
+	            public int getMaxStackSize() {
 	               return 1;
 	            }
-	            public boolean isItemValid(ItemStack stack) {
+	            public boolean mayPlace(ItemStack stack) {
 	               return stack.canEquip(equipmentslottype, player);
 	            }
-	            public boolean canTakeStack(PlayerEntity playerIn) {
-	               ItemStack itemstack = this.getStack();
-	               return !itemstack.isEmpty() && !playerIn.isCreative() && EnchantmentHelper.hasBindingCurse(itemstack) ? false : super.canTakeStack(playerIn);
+	            public boolean mayPickup(Player playerIn) {
+	               ItemStack itemstack = this.getItem();
+	               return !itemstack.isEmpty() && !playerIn.isCreative() && EnchantmentHelper.hasBindingCurse(itemstack) ? false : super.mayPickup(playerIn);
 	            }
 	            @OnlyIn(Dist.CLIENT)
 	            public Pair<ResourceLocation, ResourceLocation> getBackground() {
-	            	return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, ARMOR_SLOT_TEXTURES[equipmentslottype.getIndex()]);
+	            	return Pair.of(InventoryMenu.BLOCK_ATLAS, ARMOR_SLOT_TEXTURES[equipmentslottype.getIndex()]);
 	            }
 			});
 		}
@@ -75,7 +75,7 @@ public class PlayerInventoryWalletContainer extends Container{
 		this.addSlot(new Slot(inventory, 40, 77, 62) {
 			@OnlyIn(Dist.CLIENT)
 			public Pair<ResourceLocation, ResourceLocation> getBackground() {
-				return Pair.of(PlayerContainer.LOCATION_BLOCKS_TEXTURE, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
+				return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
 			}
 		});
 		
@@ -84,82 +84,73 @@ public class PlayerInventoryWalletContainer extends Container{
 			this.walletInventory = walletHandler.getInventory();
 		});
 		if(this.walletInventory == null)
-			this.walletInventory = new Inventory(1);
+			this.walletInventory = new SimpleContainer(1);
 		this.walletSlot = new WalletSlot(this.walletInventory, 0, WALLET_SLOT_X, WALLET_SLOT_Y);
 		this.addSlot(this.walletSlot);
 		
 	}
 
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn) {
+	public boolean stillValid(Player playerIn) {
 		return true;
-	}
-	
-	/**
-	 * Called when the container is closed.
-	 */
-	public void onContainerClosed(PlayerEntity playerIn) {
-		super.onContainerClosed(playerIn);
 	}
 	
 	/**
 	 * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player
 	 * inventory and the other inventory(s).
 	 */
-	public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+	public ItemStack quickMoveStack(Player playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
-		Slot slot = this.inventorySlots.get(index);
-		if (slot != null && slot.getHasStack()) {
-			ItemStack itemstack1 = slot.getStack();
+		Slot slot = this.slots.get(index);
+		if (slot != null && slot.hasItem()) {
+			ItemStack itemstack1 = slot.getItem();
 			itemstack = itemstack1.copy();
-			EquipmentSlotType equipmentslottype = MobEntity.getSlotForItemStack(itemstack);
+			EquipmentSlot equipmentslottype = Mob.getEquipmentSlotForItem(itemstack);
 			if(slot == this.walletSlot) { //Wallet slot to inventory
-				if(!this.mergeItemStack(itemstack1, 0, this.inventorySlots.size() - 1, false)) {
+				if(!this.moveItemStackTo(itemstack1, 0, this.slots.size() - 1, false)) {
 					return ItemStack.EMPTY;
 				}
 			} else if(WalletSlot.isValidWallet(itemstack1)) { //Inventory to wallet slot
-				if(!this.mergeItemStack(itemstack1, 41, 42, false)) {
+				if(!this.moveItemStackTo(itemstack1, 41, 42, false)) {
 					return ItemStack.EMPTY;
 				}
 			} else if (index >= 0 && index < 4) { //From armor slot to inventory
-				if (!this.mergeItemStack(itemstack1, 4, 40, false)) {
+				if (!this.moveItemStackTo(itemstack1, 4, 40, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (equipmentslottype.getSlotType() == EquipmentSlotType.Group.ARMOR && !this.inventorySlots.get(3 - equipmentslottype.getIndex()).getHasStack()) { //To armor slot
+			} else if (equipmentslottype.getType() == EquipmentSlot.Type.ARMOR && !this.slots.get(3 - equipmentslottype.getIndex()).hasItem()) { //To armor slot
 				int i = 3 - equipmentslottype.getIndex();
-				if (!this.mergeItemStack(itemstack1, i, i + 1, false)) {
+				if (!this.moveItemStackTo(itemstack1, i, i + 1, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (equipmentslottype == EquipmentSlotType.OFFHAND && !this.inventorySlots.get(40).getHasStack()) { //To offhand
-				if (!this.mergeItemStack(itemstack1, 40, 41, false)) {
+			} else if (equipmentslottype == EquipmentSlot.OFFHAND && !this.slots.get(40).hasItem()) { //To offhand
+				if (!this.moveItemStackTo(itemstack1, 40, 41, false)) {
 					return ItemStack.EMPTY;
 				}
 			} else if (index >= 4 && index < 31) { //Main inventory to hotbar
-				if (!this.mergeItemStack(itemstack1, 31, 40, false)) {
+				if (!this.moveItemStackTo(itemstack1, 31, 40, false)) {
 					return ItemStack.EMPTY;
 				}
 			} else if (index >= 31 && index < 40) { //Hotbar to main inventory
-				if (!this.mergeItemStack(itemstack1, 4, 31, false)) {
+				if (!this.moveItemStackTo(itemstack1, 4, 31, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (!this.mergeItemStack(itemstack1, 4, 40, false)) { //Offhand to inventory
+			} else if (!this.moveItemStackTo(itemstack1, 4, 40, false)) { //Offhand to inventory
 				return ItemStack.EMPTY;
 			} 
 
 			if (itemstack1.isEmpty()) {
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			} else {
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 
 			if (itemstack1.getCount() == itemstack.getCount()) {
 				return ItemStack.EMPTY;
 			}
 
-			ItemStack itemstack2 = slot.onTake(playerIn, itemstack1);
-			if (index == 0) {
-				playerIn.dropItem(itemstack2, false);
-			}
+			slot.onTake(playerIn, itemstack1);
+			
 		}
 		
 		return itemstack;

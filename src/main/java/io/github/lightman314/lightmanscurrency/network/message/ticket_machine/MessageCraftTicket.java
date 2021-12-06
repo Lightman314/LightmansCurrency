@@ -3,47 +3,37 @@ package io.github.lightman314.lightmanscurrency.network.message.ticket_machine;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageCraftTicket implements IMessage<MessageCraftTicket> {
+public class MessageCraftTicket {
 
 	private boolean fullStack;
-	
-	public MessageCraftTicket()
-	{
-		
-	}
 	
 	public MessageCraftTicket(boolean fullStack)
 	{
 		this.fullStack = fullStack;
 	}
 	
-	
-	@Override
-	public void encode(MessageCraftTicket message, PacketBuffer buffer) {
+	public static void encode(MessageCraftTicket message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.fullStack);
 	}
 
-	@Override
-	public MessageCraftTicket decode(PacketBuffer buffer) {
+	public static MessageCraftTicket decode(FriendlyByteBuf buffer) {
 		return new MessageCraftTicket(buffer.readBoolean());
 	}
 
-	@Override
-	public void handle(MessageCraftTicket message, Supplier<Context> supplier) {
+	public static void handle(MessageCraftTicket message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayerEntity entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.openContainer instanceof TicketMachineContainer)
+				if(player.containerMenu instanceof TicketMachineContainer)
 				{
-					TicketMachineContainer container = (TicketMachineContainer) entity.openContainer;
-					container.craftTickets(message.fullStack);
+					TicketMachineContainer menu = (TicketMachineContainer) player.containerMenu;
+					menu.craftTickets(message.fullStack);
 				}
 			}
 		});

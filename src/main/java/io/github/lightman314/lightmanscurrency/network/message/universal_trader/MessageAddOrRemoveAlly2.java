@@ -5,20 +5,14 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageAddOrRemoveAlly2 implements IMessage<MessageAddOrRemoveAlly2> {
+public class MessageAddOrRemoveAlly2 {
 	
 	UUID traderID;
 	boolean isAllyAdd;
 	String ally;
-	
-	public MessageAddOrRemoveAlly2()
-	{
-		
-	}
 	
 	public MessageAddOrRemoveAlly2(UUID traderID, boolean isAllyAdd, String ally)
 	{
@@ -27,21 +21,17 @@ public class MessageAddOrRemoveAlly2 implements IMessage<MessageAddOrRemoveAlly2
 		this.ally = ally;
 	}
 	
-	
-	@Override
-	public void encode(MessageAddOrRemoveAlly2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public static void encode(MessageAddOrRemoveAlly2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeBoolean(message.isAllyAdd);
-		buffer.writeString(message.ally, 32);
+		buffer.writeUtf(message.ally, 32);
 	}
 
-	@Override
-	public MessageAddOrRemoveAlly2 decode(PacketBuffer buffer) {
-		return new MessageAddOrRemoveAlly2(buffer.readUniqueId(), buffer.readBoolean(), buffer.readString(32));
+	public static MessageAddOrRemoveAlly2 decode(FriendlyByteBuf buffer) {
+		return new MessageAddOrRemoveAlly2(buffer.readUUID(), buffer.readBoolean(), buffer.readUtf(32));
 	}
 
-	@Override
-	public void handle(MessageAddOrRemoveAlly2 message, Supplier<Context> supplier) {
+	public static void handle(MessageAddOrRemoveAlly2 message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			UniversalTraderData data = TradingOffice.getData(message.traderID);

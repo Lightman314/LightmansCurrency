@@ -5,17 +5,17 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 public class CoinJarItem extends BlockItem {
 	
@@ -25,9 +25,9 @@ public class CoinJarItem extends BlockItem {
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<ItemStack> jarStorage = readJarData(stack);
 		
 		if(jarStorage.size() > 0)
@@ -38,14 +38,14 @@ public class CoinJarItem extends BlockItem {
 				{
 					ItemStack coin = jarStorage.get(i);
 					if(coin.getCount() > 1)
-						tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getDisplayName()));
+						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getDisplayName()));
 					else
-						tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getDisplayName()));
+						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getDisplayName()));
 				}
 			}
 			else
 			{
-				tooltip.add(new TranslationTextComponent("tooptip.lightmanscurrency.coinjar.holdshift"));
+				tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.holdshift"));
 			}
 		}
 
@@ -56,17 +56,17 @@ public class CoinJarItem extends BlockItem {
 		List<ItemStack> storage = new ArrayList<>();
 		if(stack.hasTag())
 		{
-			CompoundNBT compound = stack.getTag();
-			if(compound.contains("JarData", Constants.NBT.TAG_COMPOUND))
+			CompoundTag compound = stack.getTag();
+			if(compound.contains("JarData", Tag.TAG_COMPOUND))
 			{
-				CompoundNBT jarData = compound.getCompound("JarData");
+				CompoundTag jarData = compound.getCompound("JarData");
 				if(jarData.contains("Coins"))
 				{
-					ListNBT storageList = jarData.getList("Coins", Constants.NBT.TAG_COMPOUND);
+					ListTag storageList = jarData.getList("Coins", Tag.TAG_COMPOUND);
 					for(int i = 0; i < storageList.size(); i++)
 					{
-						CompoundNBT thisItem = storageList.getCompound(i);
-						storage.add(ItemStack.read(thisItem));
+						CompoundTag thisItem = storageList.getCompound(i);
+						storage.add(ItemStack.of(thisItem));
 					}
 				}
 			}

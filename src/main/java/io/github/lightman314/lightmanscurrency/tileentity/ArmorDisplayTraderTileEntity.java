@@ -2,55 +2,56 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Entity.RemovalReason;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.world.server.ServerWorld;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 
 public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 
 	public static final int TRADE_COUNT = 4;
 	
-	ArmorStandEntity armorStand;
+	ArmorStand armorStand;
 	UUID armorStandID = null;
 	
-	public ArmorDisplayTraderTileEntity()
+	public ArmorDisplayTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.ARMOR_TRADER, TRADE_COUNT);
+		super(ModTileEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
 		this.validateTradeLimitations();
 	}
 	
 	private void spawnArmorStand()
 	{
-		if(world == null)
+		if(this.level == null)
 			return;
 		
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		
-		this.armorStand = new ArmorStandEntity(world, this.getPos().getX() + 0.5d, this.getPos().getY(), this.getPos().getZ() + 0.5d);
-		this.armorStand.setLocationAndAngles(this.getPos().getX() + 0.5d, this.getPos().getY(), this.getPos().getZ() + 0.5d, this.getStandRotation(), 0.0F);
+		this.armorStand = new ArmorStand(level, this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d);
+		this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d, this.getStandRotation(), 0.0F);
 		
 		this.armorStand.setInvulnerable(true);
-		//this.armorStand.setInvisible(true);
 		this.armorStand.setNoGravity(true);
 		this.armorStand.setSilent(true);
-		CompoundNBT compound = this.armorStand.writeWithoutTypeId(new CompoundNBT());
+		CompoundTag compound = this.armorStand.saveWithoutId(new CompoundTag());
 		compound.putBoolean("Marker", true);
 		compound.putBoolean("NoBasePlate", true);
-		this.armorStand.read(compound);
+		this.armorStand.load(compound);
 		
-		this.world.addEntity(this.armorStand);
+		this.level.addFreshEntity(this.armorStand);
 		
 	}
 	
@@ -74,7 +75,7 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 		
 		this.validateTradeLimitations();
 		
-		if(!world.isRemote) //Only update armor stand values server-side. The entity will update the client manually.
+		if(!this.level.isClientSide) //Only update armor stand values server-side. The entity will update the client manually.
 		{
 			
 			if(this.armorStandID != null)
@@ -92,13 +93,13 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 			{
 				//CurrencyMod.LOGGER.info("Updating armor stand info.");
 				validateArmorStandValues();
-				this.armorStand.setLocationAndAngles(this.pos.getX() + 0.5d, this.pos.getY(), this.pos.getZ() + 0.5f, this.getStandRotation(), 0f);
+				this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
 				for(int i = 0; i < 4 && i < this.tradeCount; i++)
 				{
 					ItemTradeData thisTrade = this.getTrade(i);
 					//Trade restrictions shall determine the slot type
 					ItemTradeRestriction r = thisTrade.getRestriction();
-					EquipmentSlotType slot = null;
+					EquipmentSlot slot = null;
 					if(r instanceof EquipmentRestriction)
 					{
 						EquipmentRestriction er = (EquipmentRestriction)r;
@@ -107,9 +108,9 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 					if(slot != null)
 					{
 						if(thisTrade.hasStock(this) || this.isCreative())
-							this.armorStand.setItemStackToSlot(slot, thisTrade.getSellItem());
+							this.armorStand.setItemSlot(slot, thisTrade.getSellItem());
 						else
-							this.armorStand.setItemStackToSlot(slot, ItemStack.EMPTY);
+							this.armorStand.setItemSlot(slot, ItemStack.EMPTY);
 					}
 				}
 			}
@@ -124,9 +125,9 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 			return;
 		if(this.armorStand != null)
 		{
-			if(!this.armorStand.getUniqueID().equals(this.armorStandID))
+			if(!this.armorStand.getUUID().equals(this.armorStandID))
 			{
-				ArmorStandEntity newArmorStand = getArmorStand(this.armorStandID);
+				ArmorStand newArmorStand = getArmorStand(this.armorStandID);
 				if(newArmorStand != null)
 				{
 					destroyArmorStand();
@@ -146,63 +147,63 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 			this.armorStand.setInvulnerable(true);
 		if(this.armorStand.isInvisible())
 			this.armorStand.setInvisible(false);
-		if(!this.armorStand.hasNoGravity())
+		if(!this.armorStand.noPhysics)
 			this.armorStand.setNoGravity(true);
 		if(!this.armorStand.isSilent())
 			this.armorStand.setSilent(true);
-		if(!this.armorStand.hasMarker() || !this.armorStand.hasNoBasePlate())
+		if(!this.armorStand.isMarker() || !this.armorStand.isNoBasePlate())
 		{
-			CompoundNBT compound = this.armorStand.writeWithoutTypeId(new CompoundNBT());
-			if(!this.armorStand.hasMarker())
+			CompoundTag compound = this.armorStand.saveWithoutId(new CompoundTag());
+			if(!this.armorStand.isMarker())
 				compound.putBoolean("Marker", true);
-			if(!this.armorStand.hasNoBasePlate())
+			if(!this.armorStand.isNoBasePlate())
 				compound.putBoolean("NoBasePlate", true);
-			this.armorStand.read(compound);
+			this.armorStand.load(compound);
 		}
 	}
 	
 	public void destroyArmorStand()
 	{
 		if(this.armorStand != null)
-			this.armorStand.remove();
+			this.armorStand.remove(RemovalReason.DISCARDED);
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag save(CompoundTag compound)
 	{
 		writeArmorStandData(compound);
-		return super.write(compound);
+		return super.save(compound);
 	}
 	
-	protected CompoundNBT writeArmorStandData(CompoundNBT compound)
+	protected CompoundTag writeArmorStandData(CompoundTag compound)
 	{
 		if(this.armorStand != null)
-			compound.putUniqueId("ArmorStand", this.armorStand.getUniqueID());
+			compound.putUUID("ArmorStand", this.armorStand.getUUID());
 		return compound;
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
-		super.read(state, compound);
+		super.load(compound);
 		if(compound.contains("ArmorStand"))
 		{
-			this.armorStandID = compound.getUniqueId("ArmorStand");
+			this.armorStandID = compound.getUUID("ArmorStand");
 		}
 		
 	}
 	
 	
-	protected ArmorStandEntity getArmorStand(UUID id)
+	protected ArmorStand getArmorStand(UUID id)
 	{
 		Entity entity = null;
-		if(world instanceof ServerWorld)
+		if(this.level instanceof ServerLevel)
 		{
-			entity = ((ServerWorld)world).getEntityByUuid(id);
+			entity = ((ServerLevel)level).getEntity(id);
 		}
 		
-		if(entity != null && entity instanceof ArmorStandEntity)
-			return (ArmorStandEntity)entity;
+		if(entity != null && entity instanceof ArmorStand)
+			return (ArmorStand)entity;
 		
 		LightmansCurrency.LogError("Could not find an armor stand with UUID " + id);
 		return null;
@@ -211,8 +212,8 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 	protected float getStandRotation()
 	{
 		Direction facing = Direction.NORTH;
-		if(this.getBlockState().hasProperty(RotatableBlock.FACING))
-			facing = this.getBlockState().get(RotatableBlock.FACING);
+		if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+			facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
 		if(facing == Direction.SOUTH)
 			return 180f;
 		else if(facing == Direction.NORTH)

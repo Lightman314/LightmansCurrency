@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ibm.icu.impl.units.UnitsData.Constants;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -20,10 +19,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -460,7 +462,7 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as small a coin as humanly possible
      */
-    public static void ConvertAllCoinsDown(IInventory inventory)
+    public static void ConvertAllCoinsDown(Container inventory)
     {
     	ConvertAllCoinsDown(inventory, 2);
     }
@@ -469,7 +471,7 @@ public class MoneyUtil {
      * Converts all coins in the inventory to as small a coin as humanly possible
      * @param iterations The number of times to repeatedly convert to ensure that the available space is used. Default is 2.
      */
-    private static void ConvertAllCoinsDown(IInventory inventory, int iterations)
+    private static void ConvertAllCoinsDown(Container inventory, int iterations)
     {
     	for(int x = 0; x < iterations; x++)
     	{
@@ -484,7 +486,7 @@ public class MoneyUtil {
     /**
      * Converts as many of the large coin that it can into its defined smaller coin
      */
-    public static void ConvertCoinsDown(IInventory inventory, Item largeCoin)
+    public static void ConvertCoinsDown(Container inventory, Item largeCoin)
     {
     	CoinData coinData = getData(largeCoin);
     	Item smallCoin = coinData.worthOtherCoin;
@@ -506,19 +508,19 @@ public class MoneyUtil {
 		}
     }
     
-    public static void SortCoins(IInventory inventory)
+    public static void SortCoins(Container inventory)
 	{
 		
 		InventoryUtil.MergeStacks(inventory);
 		
 		List<ItemStack> oldInventory = new ArrayList<>();
-		for(int i = 0; i < inventory.getSizeInventory(); i++)
+		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
-			if(!inventory.getStackInSlot(i).isEmpty())
-				oldInventory.add(inventory.getStackInSlot(i));
+			if(!inventory.getItem(i).isEmpty())
+				oldInventory.add(inventory.getItem(i));
 		}
 		
-		inventory.clear();
+		inventory.clearContent();
 		
 		int index = 0;
 		while(oldInventory.size() > 0)
@@ -549,7 +551,7 @@ public class MoneyUtil {
 				}
 			}
 			
-			inventory.setInventorySlotContents(index, oldInventory.get(highestIndex));
+			inventory.setItem(index, oldInventory.get(highestIndex));
 			index++;
 			oldInventory.remove(highestIndex);
 		}
@@ -558,7 +560,7 @@ public class MoneyUtil {
     
     public static NonNullList<ItemStack> SortCoins(NonNullList<ItemStack> inventory)
     {
-    	IInventory tempInventory = InventoryUtil.buildInventory(inventory);
+    	Container tempInventory = InventoryUtil.buildInventory(inventory);
     	SortCoins(tempInventory);
     	return InventoryUtil.buildList(tempInventory);
     }
@@ -570,7 +572,7 @@ public class MoneyUtil {
      * @param price The price of the payment that we are attempting to process.
      * @return Whether the payment went through. If false is returned, no money was taken from the wallet nor the inventory.
      */
-    public static boolean ProcessPayment(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue price)
+    public static boolean ProcessPayment(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue price)
     {
     	return ProcessPayment(inventory, player, price, false);
     }
@@ -583,7 +585,7 @@ public class MoneyUtil {
      * @param ignoreWallet Whether we should ignore the players wallet in terms of taking payment or giving change.
      * @return Whether the payment went through. If false is returned, no money was taken from the wallet nor the inventory.
      */
-    public static boolean ProcessPayment(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue price, boolean ignoreWallet)
+    public static boolean ProcessPayment(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue price, boolean ignoreWallet)
     {
     	//Get the players wallet
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
@@ -629,12 +631,12 @@ public class MoneyUtil {
     			//Out of room to place it, throw it at the player
     			if(!coinStack.isEmpty())
     			{
-    				if(!player.addItemStackToInventory(coinStack))
+    				if(!player.addItem(coinStack))
     				{
     					//Spawn an item in the world at the player position
-    					ItemEntity itemEntity = new ItemEntity(player.world, player.getPosX(), player.getPosY(), player.getPosZ(), coinStack);
-    					itemEntity.setPickupDelay(40);
-    					player.world.addEntity(itemEntity);
+    					ItemEntity itemEntity = new ItemEntity(player.level, player.position().x, player.position().y, player.position().z, coinStack);
+    					itemEntity.setPickUpDelay(40);
+    					player.level.addFreshEntity(itemEntity);
     				}
     			}
     		}
@@ -649,12 +651,12 @@ public class MoneyUtil {
      * @param player The player receiving the money. Required for item overflow, and wallet aquisition.
      * @param price The amount of money we're attempting to give.
      */
-    public static void ProcessChange(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue change)
+    public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change)
     {
     	ProcessChange(inventory, player, change, false);
     }
     
-    public static void ProcessChange(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue change, boolean ignoreWallet)
+    public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change, boolean ignoreWallet)
     {
     	//Get the players wallet
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
@@ -675,12 +677,12 @@ public class MoneyUtil {
 			//Out of room to place it, throw it at the player
 			if(!coinStack.isEmpty())
 			{
-				if(!player.addItemStackToInventory(coinStack))
+				if(!player.addItem(coinStack))
 				{
 					//Spawn an item in the world at the player position
-					ItemEntity itemEntity = new ItemEntity(player.world, player.getPosX(), player.getPosY(), player.getPosZ(), coinStack);
-					itemEntity.setPickupDelay(40);
-					player.world.addEntity(itemEntity);
+					ItemEntity itemEntity = new ItemEntity(player.level, player.position().x, player.position().y, player.position().z, coinStack);
+					itemEntity.setPickUpDelay(40);
+					player.level.addFreshEntity(itemEntity);
 				}
 			}
 		}
@@ -696,7 +698,7 @@ public class MoneyUtil {
      * @return Returns the given value if there is not enough money to take.
      * Returns 0 if exact change was taken, and returns a negative value if more money was taken than what was requested so that change can be calculated separately.
      */
-    private static long takeObjectsOfValue(long value, IInventory inventory, boolean forceTake)
+    private static long takeObjectsOfValue(long value, Container inventory, boolean forceTake)
 	{
 		//Check to ensure that the inventory has enough 'value' to remove
 		if(MoneyUtil.getValue(inventory) < value && !forceTake)
@@ -710,10 +712,10 @@ public class MoneyUtil {
 				if(coinValue <= value)
 				{
 					//Search the inventory for this coin
-					for(int i = 0; i < inventory.getSizeInventory() && coinValue <= value; i++)
+					for(int i = 0; i < inventory.getContainerSize() && coinValue <= value; i++)
 					{
-						ItemStack itemStack = inventory.getStackInSlot(i);
-						if(inventory.getStackInSlot(i).getItem().equals(coinData.getCoinItem()))
+						ItemStack itemStack = inventory.getItem(i);
+						if(inventory.getItem(i).getItem().equals(coinData.getCoinItem()))
 						{
 							//Remove the coins until they would be too much money or until the stack is empty.
 							while(coinValue <= value && !itemStack.isEmpty())
@@ -721,7 +723,7 @@ public class MoneyUtil {
 								value -= coinValue;
 								itemStack.setCount(itemStack.getCount() - 1);
 								if(itemStack.isEmpty())
-									inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+									inventory.setItem(i, ItemStack.EMPTY);
 							}
 						}
 					}
@@ -735,9 +737,9 @@ public class MoneyUtil {
 					Item coin = coinList.get(c).getCoinItem();
 					long coinValue = coinList.get(c).getValue();
 					//Search the inventory for this coin
-					for(int i = 0; i < inventory.getSizeInventory() && value > 0; i++)
+					for(int i = 0; i < inventory.getContainerSize() && value > 0; i++)
 					{
-						ItemStack itemStack = inventory.getStackInSlot(i);
+						ItemStack itemStack = inventory.getItem(i);
 						if(itemStack.getItem() == coin)
 						{
 							//Remove the coins until they would be too much money or until the stack is empty.
@@ -746,7 +748,7 @@ public class MoneyUtil {
 								value -= coinValue;
 								itemStack.setCount(itemStack.getCount() - 1);
 								if(itemStack.isEmpty())
-									inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+									inventory.setItem(i, ItemStack.EMPTY);
 							}
 						}
 					}
@@ -1116,7 +1118,7 @@ public class MoneyUtil {
     	private Item worthOtherCoin = null;
     	private int worthOtherCoinCount = 0;
     	//Coin's display initial 'c','d', etc.
-    	private ITextComponent initial;
+    	private Component initial;
     	//The minting material item
     	private Item mintingMaterialItem = null;
     	private ResourceLocation mintingMaterialTag = null;
@@ -1183,12 +1185,12 @@ public class MoneyUtil {
     		return true;
     	}
     	
-    	public ITextComponent getInitial()
+    	public Component getInitial()
     	{
     		if(this.initial != null)
     			return this.initial;
     		LightmansCurrency.LogWarning("No initial found for the coin '" + this.coinItem.getRegistryName().toString() + "'.");
-    		return new StringTextComponent(this.coinItem.getDisplayName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
+    		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
     	}
     	
     	public MintRecipe getMintRecipe()
@@ -1211,10 +1213,10 @@ public class MoneyUtil {
     		else if(this.mintingMaterialTag != null)
     		{
     			//Get all items with the tag
-    			ITag<Item> tag = ItemTags.getCollection().getTagByID(this.mintingMaterialTag);
+    			net.minecraft.tags.Tag<Item> tag = ItemTags.getAllTags().getTagOrEmpty(this.mintingMaterialTag);
     			if(tag != null)
     			{
-    				List<Item> tagItems = tag.getAllElements();
+    				List<Item> tagItems = tag.getValues();
     				if(tagItems.size() > 0)
     				{
     					Item resultItem = tagItems.get(0);
@@ -1412,7 +1414,7 @@ public class MoneyUtil {
     			}
     			else if(coinItem != Items.AIR)
     			{
-    				LightmansCurrency.LogInfo("Coin Data for coin '" + coinItem.getItem().getRegistryName() + "' is null.");
+    				LightmansCurrency.LogInfo("Coin Data for coin '" + coinItem.getRegistryName() + "' is null.");
     			}
     			
     		}
@@ -1458,13 +1460,13 @@ public class MoneyUtil {
     		roundValue();
     	}
     	
-    	public CompoundNBT writeToNBT(CompoundNBT compound, String key)
+    	public CompoundTag writeToNBT(CompoundTag compound, String key)
     	{
     		
-    		ListNBT list = new ListNBT();
+    		ListTag list = new ListTag();
     		for(CoinValuePair value : coinValues)
     		{
-    			CompoundNBT thisCompound = new CompoundNBT();
+    			CompoundTag thisCompound = new CompoundTag();
     			//new ItemStack(null).write(nbt)
 				ResourceLocation resource = value.coin.getRegistryName();
     			if(resource != null && MoneyUtil.isCoin(value.coin))
