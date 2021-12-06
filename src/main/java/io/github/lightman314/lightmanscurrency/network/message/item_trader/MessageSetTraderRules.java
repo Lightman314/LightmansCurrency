@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import net.minecraft.core.BlockPos;
@@ -50,9 +50,9 @@ public class MessageSetTraderRules {
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof ItemTraderTileEntity)
+				if(blockEntity instanceof ItemTraderBlockEntity)
 				{
-					ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)blockEntity;
+					ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)blockEntity;
 					if(message.tradeIndex >= 0)
 					{
 						ITradeRuleHandler trade = traderEntity.getTrade(message.tradeIndex);

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -21,9 +21,9 @@ public class MessageToggleCreative {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ITraderStorageContainer)
+				if(player.containerMenu instanceof ITraderStorageMenu)
 				{
-					ITraderStorageContainer menu = (ITraderStorageContainer) player.containerMenu;
+					ITraderStorageMenu menu = (ITraderStorageMenu) player.containerMenu;
 					menu.ToggleCreative();
 				}
 			}

@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.events.TradeEditEvent.TradePriceEditEvent;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
@@ -56,9 +56,9 @@ public class MessageSetItemPrice {
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity != null)
 				{
-					if(blockEntity instanceof ItemTraderTileEntity)
+					if(blockEntity instanceof ItemTraderBlockEntity)
 					{
-						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)blockEntity;
+						ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)blockEntity;
 						CoinValue oldPrice = traderEntity.getTrade(message.tradeIndex).getCost();
 						boolean wasFree = traderEntity.getTrade(message.tradeIndex).isFree();
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
@@ -72,8 +72,8 @@ public class MessageSetItemPrice {
 							TradePriceEditEvent e = new TradePriceEditEvent(() -> {
 								//Create safe supplier, just in case the event saves it for later
 								BlockEntity be = player.level.getBlockEntity(message.pos);
-								if(be instanceof ItemTraderTileEntity)
-									return (ItemTraderTileEntity)be;
+								if(be instanceof ItemTraderBlockEntity)
+									return (ItemTraderBlockEntity)be;
 								return null;
 							}, message.tradeIndex, oldPrice, wasFree);
 							MinecraftForge.EVENT_BUS.post(e);

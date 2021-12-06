@@ -1,19 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common;
 
-import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
-import io.github.lightman314.lightmanscurrency.tileentity.IOwnableTileEntity;
-import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 
 import java.util.Collection;
 
@@ -25,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -55,13 +51,13 @@ public class EventHandler {
 		
 		Player player = event.getPlayer();
 		ItemStack coinStack = event.getItem().getItem();
-		WalletContainer activeContainer = null;
+		WalletMenu activeContainer = null;
 		
 		//Check if the open container is a wallet that is pickup capable
-		if(player.containerMenu instanceof WalletContainer)
+		if(player.containerMenu instanceof WalletMenu)
 		{
 			//CurrencyMod.LOGGER.info("Wallet Container was open. Adding to the wallet using this method.");
-			WalletContainer container = (WalletContainer)player.containerMenu;
+			WalletMenu container = (WalletMenu)player.containerMenu;
 			if(container.canPickup())
 				activeContainer = container;
 		}
@@ -117,31 +113,13 @@ public class EventHandler {
 		LevelAccessor world = event.getWorld();
 		BlockState state = world.getBlockState(event.getPos());
 		
-		if(state.getBlock() instanceof ITraderBlock)
+		if(state.getBlock() instanceof IOwnableBlock)
 		{
-			//CurrencyMod.LOGGER.info("onBlockBreak-Block is a trader block!");
-			ITraderBlock block = (ITraderBlock)state.getBlock();
-			BlockEntity tileEntity = block.getTileEntity(state, world, event.getPos());
-			if(tileEntity instanceof IOwnableTileEntity)
+			IOwnableBlock block = (IOwnableBlock)state.getBlock();
+			if(!block.canBreak(event.getPlayer(), world, event.getPos(), state))
 			{
-				IOwnableTileEntity traderEntity = (IOwnableTileEntity)tileEntity;
-				if(!traderEntity.canBreak(event.getPlayer()))
-				{
-					//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
-					event.setCanceled(true);
-				}
-			}
-		}
-		else if(state.getBlock() instanceof PaygateBlock)
-		{
-			BlockEntity tileEntity = world.getBlockEntity(event.getPos());
-			if(tileEntity instanceof PaygateTileEntity)
-			{
-				PaygateTileEntity paygateEntity = (PaygateTileEntity)tileEntity;
-				if(!paygateEntity.canBreak(event.getPlayer()))
-				{
-					event.setCanceled(true);
-				}
+				//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
+				event.setCanceled(true);
 			}
 		}
 		

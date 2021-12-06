@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.coinmint;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.tileentity.CoinMintTileEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,9 +36,9 @@ public class MessageMintCoin {
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof CoinMintTileEntity)
+				if(blockEntity instanceof CoinMintBlockEntity)
 				{
-					CoinMintTileEntity mintEntity = (CoinMintTileEntity)blockEntity;
+					CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;
 					if(mintEntity.validMintOutput() > 0)
 					{
 						mintEntity.mintCoins(message.fullStack ? 64 : 1);

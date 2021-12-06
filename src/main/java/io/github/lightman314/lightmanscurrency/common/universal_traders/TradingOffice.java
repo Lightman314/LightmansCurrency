@@ -12,6 +12,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
@@ -20,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.network.message.command.MessageSy
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageInitializeClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -272,9 +272,9 @@ public class TradingOffice extends SavedData{
 				if(world.isLoaded(pos))
 				{
 					BlockEntity tileEntity = world.getBlockEntity(pos);
-					if(tileEntity instanceof UniversalTraderTileEntity)
+					if(tileEntity instanceof UniversalTraderBlockEntity)
 					{
-						UniversalTraderTileEntity traderEntity = (UniversalTraderTileEntity)tileEntity;
+						UniversalTraderBlockEntity traderEntity = (UniversalTraderBlockEntity)tileEntity;
 						return traderEntity.getTraderID() == null || !traderEntity.getTraderID().equals(traderData.getTraderID());
 					}
 					return true;

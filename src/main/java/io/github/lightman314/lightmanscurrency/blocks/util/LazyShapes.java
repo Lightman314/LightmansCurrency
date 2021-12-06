@@ -16,7 +16,7 @@ public class LazyShapes {
 	public static Function<Direction,VoxelShape> lazySingleShape(VoxelShape shape) { return (facing) -> shape; }
 	public static Function<Direction,VoxelShape> lazyDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionShapeHandler(north,east,south,west); }
 	//BiFunctions for tall only
-	public static BiFunction<Direction,Boolean,VoxelShape> lazyTallSingleShape(VoxelShape shape) { return (facing,isBottom) -> { if(isBottom) return shape; return shape.move(0d, -1d, 0d);}; }
+	public static BiFunction<Direction,Boolean,VoxelShape> lazyTallSingleShape(VoxelShape shape) { return (facing,isBottom) -> { if(isBottom) return shape; return moveDown(shape);}; }
 	public static BiFunction<Direction,Boolean,VoxelShape> lazyTallDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionTallShapeHandler(north,east,south,west); }
 	//BiFunctions for wide only (Wide must interface with direction, so no lazySingleShape variant for it)
 	public static BiFunction<Direction,Boolean,VoxelShape> lazyWideDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionWideShapeHandler(north,east,south,west); }
@@ -25,44 +25,42 @@ public class LazyShapes {
 	public static TriFunction<Direction,Boolean,Boolean,VoxelShape> lazyTallWideDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionTallWideShapeHandler(north,east,south,west); }
 	
 	//Half Box
-	public static final VoxelShape SHORT_BOX = box(0d,0d,0d,16d,8d,16d);
+	public static final VoxelShape SHORT_BOX = Block.box(0d,0d,0d,16d,8d,16d);
 	public static final Function<Direction,VoxelShape> SHORT_BOX_SHAPE = lazySingleShape(SHORT_BOX);
 	//Full Box
-	public static final VoxelShape BOX = box(0d,0d,0d,16d,16d,16d);
-	public static final VoxelShape BOX_T = box(0.01d, 0d,0.01d,15.99d,16d,15.99d);
+	public static final VoxelShape BOX = Block.box(0d,0d,0d,16d,16d,16d);
+	public static final VoxelShape BOX_T = Block.box(0.01d, 0d,0.01d,15.99d,16d,15.99d);
 	public static final Function<Direction,VoxelShape> BOX_SHAPE = lazySingleShape(BOX);
 	public static final Function<Direction,VoxelShape> BOX_SHAPE_T = lazySingleShape(BOX_T);
 	//Tall Box
-	public static final VoxelShape TALL_BOX = box(0d,0d,0d,16d,32d,16d);
-	public static final VoxelShape TALL_BOX_T = box(0.01d,0d,0.01d,15.99d,32d,15.99d);
+	public static final VoxelShape TALL_BOX = Block.box(0d,0d,0d,16d,32d,16d);
+	public static final VoxelShape TALL_BOX_T = Block.box(0.01d,0d,0.01d,15.99d,32d,15.99d);
 	public static final BiFunction<Direction,Boolean,VoxelShape> TALL_BOX_SHAPE = lazyTallSingleShape(TALL_BOX);
 	public static final BiFunction<Direction,Boolean,VoxelShape> TALL_BOX_SHAPE_T = lazyTallSingleShape(TALL_BOX_T);
 	//Wide Box
-	public static final VoxelShape WIDE_BOX_NORTH = box(0d,0d,0d,32d,16d,16d);
-	public static final VoxelShape WIDE_BOX_EAST = box(0d,0d,0d,16d,16d,32d);
-	public static final VoxelShape WIDE_BOX_SOUTH = box(-16d,0d,0d,16d,16d,16d);
-	public static final VoxelShape WIDE_BOX_WEST = box(0d,0d,-16d,16d,16d,16d);
-	public static final VoxelShape WIDE_BOX_NORTH_T = box(0.01d,0d,00.1d,31.99d,16d,15.99d);
-	public static final VoxelShape WIDE_BOX_EAST_T = box(0.01d,0d,0.01d,15.99d,16d,31.99d);
-	public static final VoxelShape WIDE_BOX_SOUTH_T = box(-15.99d,0d,0.01d,15.99d,16d,15.99d);
-	public static final VoxelShape WIDE_BOX_WEST_T = box(0.01d,0d,-15.99d,15.99d,16d,15.99d);
+	public static final VoxelShape WIDE_BOX_NORTH = Block.box(0d,0d,0d,32d,16d,16d);
+	public static final VoxelShape WIDE_BOX_EAST = Block.box(0d,0d,0d,16d,16d,32d);
+	public static final VoxelShape WIDE_BOX_SOUTH = Block.box(-16d,0d,0d,16d,16d,16d);
+	public static final VoxelShape WIDE_BOX_WEST = Block.box(0d,0d,-16d,16d,16d,16d);
+	public static final VoxelShape WIDE_BOX_NORTH_T = Block.box(0.01d,0d,00.1d,31.99d,16d,15.99d);
+	public static final VoxelShape WIDE_BOX_EAST_T = Block.box(0.01d,0d,0.01d,15.99d,16d,31.99d);
+	public static final VoxelShape WIDE_BOX_SOUTH_T = Block.box(-15.99d,0d,0.01d,15.99d,16d,15.99d);
+	public static final VoxelShape WIDE_BOX_WEST_T = Block.box(0.01d,0d,-15.99d,15.99d,16d,15.99d);
 	public static final BiFunction<Direction,Boolean,VoxelShape> WIDE_BOX_SHAPE = lazyWideDirectionalShape(WIDE_BOX_NORTH,WIDE_BOX_EAST,WIDE_BOX_SOUTH,WIDE_BOX_WEST);
 	public static final BiFunction<Direction,Boolean,VoxelShape> WIDE_BOX_SHAPE_T = lazyWideDirectionalShape(WIDE_BOX_NORTH_T,WIDE_BOX_EAST_T,WIDE_BOX_SOUTH_T,WIDE_BOX_WEST_T);
 	//Tall & Wide Box
-	public static final VoxelShape TALL_WIDE_BOX_NORTH = box(0d,0d,0d,32d,32d,16d);
-	public static final VoxelShape TALL_WIDE_BOX_EAST = box(0d,0d,0d,16d,32d,32d);
-	public static final VoxelShape TALL_WIDE_BOX_SOUTH = box(-16d,0d,0d,16d,32d,16d);
-	public static final VoxelShape TALL_WIDE_BOX_WEST = box(0d,0d,-16d,16d,32d,16d);
-	public static final VoxelShape TALL_WIDE_BOX_NORTH_T = box(0.01d,0d,0.01d,31.99d,32d,15.99d);
-	public static final VoxelShape TALL_WIDE_BOX_EAST_T = box(0.01d,0d,0.01d,15.99d,32d,31.99d);
-	public static final VoxelShape TALL_WIDE_BOX_SOUTH_T = box(-15.99d,0d,0.01d,15.99d,32d,15.99d);
-	public static final VoxelShape TALL_WIDE_BOX_WEST_T = box(0.01d,0d,-15.99d,15.99d,32d,15.99d);
+	public static final VoxelShape TALL_WIDE_BOX_NORTH = Block.box(0d,0d,0d,32d,32d,16d);
+	public static final VoxelShape TALL_WIDE_BOX_EAST = Block.box(0d,0d,0d,16d,32d,32d);
+	public static final VoxelShape TALL_WIDE_BOX_SOUTH = Block.box(-16d,0d,0d,16d,32d,16d);
+	public static final VoxelShape TALL_WIDE_BOX_WEST = Block.box(0d,0d,-16d,16d,32d,16d);
+	public static final VoxelShape TALL_WIDE_BOX_NORTH_T = Block.box(0.01d,0d,0.01d,31.99d,32d,15.99d);
+	public static final VoxelShape TALL_WIDE_BOX_EAST_T = Block.box(0.01d,0d,0.01d,15.99d,32d,31.99d);
+	public static final VoxelShape TALL_WIDE_BOX_SOUTH_T = Block.box(-15.99d,0d,0.01d,15.99d,32d,15.99d);
+	public static final VoxelShape TALL_WIDE_BOX_WEST_T = Block.box(0.01d,0d,-15.99d,15.99d,32d,15.99d);
 	public static final TriFunction<Direction,Boolean,Boolean,VoxelShape> TALL_WIDE_BOX_SHAPE = lazyTallWideDirectionalShape(TALL_WIDE_BOX_NORTH,TALL_WIDE_BOX_EAST,TALL_WIDE_BOX_SOUTH,TALL_WIDE_BOX_WEST);
 	public static final TriFunction<Direction,Boolean,Boolean,VoxelShape> TALL_WIDE_BOX_SHAPE_T = lazyTallWideDirectionalShape(TALL_WIDE_BOX_NORTH_T,TALL_WIDE_BOX_EAST_T,TALL_WIDE_BOX_SOUTH_T,TALL_WIDE_BOX_WEST_T);
 	
 	public static final VoxelShape moveDown(VoxelShape shape) { return shape.move(0f, -1d, 0d); }
-	
-	private static VoxelShape box(double x1, double y1, double z1, double x2, double y2, double z2) { return Block.box(x1, y2, z2, x2, y2, z2); }
 	
 	protected static class LazyDirectionShapeHandler implements Function<Direction, VoxelShape>
 	{
@@ -110,7 +108,7 @@ public class LazyShapes {
 			if(isBottom)
 				return shape;
 			else
-				return shape.move(0d, -1d, 0d);
+				return moveDown(shape);
 		}
 	}
 	

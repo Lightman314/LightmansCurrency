@@ -1,11 +1,8 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-//import java.util.List;
-
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.containers.MintContainer;
-import io.github.lightman314.lightmanscurrency.tileentity.CoinMintTileEntity;
+import io.github.lightman314.lightmanscurrency.menus.MintMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -23,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 
 public class CoinMintBlock extends RotatableBlock implements EntityBlock{
@@ -38,7 +36,7 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new CoinMintTileEntity(pos, state);
+		return new CoinMintBlockEntity(pos, state);
 	}
 	
 	@Override
@@ -47,9 +45,9 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 		if(!level.isClientSide)
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CoinMintTileEntity && Config.canMint() || Config.canMelt())
+			if(tileEntity instanceof CoinMintBlockEntity && Config.canMint() || Config.canMelt())
 			{
-				NetworkHooks.openGui((ServerPlayer)player, new CoinMintMenuProvider((CoinMintTileEntity)tileEntity), pos);
+				NetworkHooks.openGui((ServerPlayer)player, new CoinMintMenuProvider((CoinMintBlockEntity)tileEntity), pos);
 				return InteractionResult.SUCCESS;
 			}
 		}
@@ -63,9 +61,9 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof CoinMintTileEntity)
+		if(blockEntity instanceof CoinMintBlockEntity)
 		{
-			CoinMintTileEntity mintEntity = (CoinMintTileEntity)blockEntity;
+			CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;
 			mintEntity.dumpContents(level, pos);
 		}
 		super.onRemove(state, level, pos, newState, isMoving);
@@ -73,10 +71,10 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 	
 	private static class CoinMintMenuProvider implements MenuProvider
 	{
-		private final CoinMintTileEntity tileEntity;
-		public CoinMintMenuProvider(CoinMintTileEntity tileEntity) { this.tileEntity = tileEntity; }
+		private final CoinMintBlockEntity tileEntity;
+		public CoinMintMenuProvider(CoinMintBlockEntity tileEntity) { this.tileEntity = tileEntity; }
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new MintContainer(id, inventory, this.tileEntity); }
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new MintMenu(id, inventory, this.tileEntity); }
 		@Override
 		public Component getDisplayName() { return TITLE; }
 	}

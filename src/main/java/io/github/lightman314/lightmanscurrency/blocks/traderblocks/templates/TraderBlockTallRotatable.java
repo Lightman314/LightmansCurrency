@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.function.BiFunction;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -106,9 +106,9 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
-		if(blockEntity instanceof TraderTileEntity)
+		if(blockEntity instanceof TraderBlockEntity)
 		{
-			TraderTileEntity trader = (TraderTileEntity)blockEntity;
+			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 		}

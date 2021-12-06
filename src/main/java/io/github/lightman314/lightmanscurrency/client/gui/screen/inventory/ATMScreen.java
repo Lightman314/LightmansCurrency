@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
+import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.atm.MessageATM;
 import net.minecraft.client.gui.components.Button;
@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
+public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
@@ -45,7 +45,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
 	private Button buttonConvertDiamondToNetherrite;
 	private Button buttonConvertNetherriteToDiamond;
 	
-	public ATMScreen(ATMContainer container, Inventory inventory, Component title)
+	public ATMScreen(ATMMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 212;

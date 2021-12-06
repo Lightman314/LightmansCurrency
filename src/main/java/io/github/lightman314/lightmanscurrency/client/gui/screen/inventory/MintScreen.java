@@ -4,9 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.MintContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.MessageMintCoin;
+import io.github.lightman314.lightmanscurrency.menus.MintMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,13 +17,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class MintScreen extends AbstractContainerScreen<MintContainer>{
+public class MintScreen extends AbstractContainerScreen<MintMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");
 	
 	private Button buttonMint;
 	
-	public MintScreen(MintContainer container, Inventory inventory, Component title)
+	public MintScreen(MintMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 138;

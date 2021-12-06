@@ -8,12 +8,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class UniversalItemTraderScreen extends AbstractContainerScreen<UniversalItemTraderContainer>{
+public class UniversalItemTraderScreen extends AbstractContainerScreen<UniversalItemTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
@@ -32,7 +32,7 @@ public class UniversalItemTraderScreen extends AbstractContainerScreen<Universal
 	
 	protected List<ItemTradeButton> tradeButtons = new ArrayList<>();
 	
-	public UniversalItemTraderScreen(UniversalItemTraderContainer container, Inventory inventory, Component title)
+	public UniversalItemTraderScreen(UniversalItemTraderMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 133 + ItemTraderUtil.getTradeDisplayHeight(this.menu.getData());

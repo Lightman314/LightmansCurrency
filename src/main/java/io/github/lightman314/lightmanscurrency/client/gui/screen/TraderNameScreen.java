@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSetCustomName;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 
 public class TraderNameScreen extends Screen{
 	
@@ -27,13 +27,13 @@ public class TraderNameScreen extends Screen{
 	private int ySize = 64;
 	
 	Player player;
-	TraderTileEntity tileEntity;
+	TraderBlockEntity tileEntity;
 	
 	EditBox nameField;
 	
 	Button saveButton;
 	
-	public TraderNameScreen(TraderTileEntity tileEntity, Player player)
+	public TraderNameScreen(TraderBlockEntity tileEntity, Player player)
 	{
 		super(new TranslatableComponent("gui.lightmanscurrency.changename"));
 		this.tileEntity = tileEntity;

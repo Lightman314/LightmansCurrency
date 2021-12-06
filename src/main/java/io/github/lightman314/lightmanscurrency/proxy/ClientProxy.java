@@ -2,20 +2,16 @@ package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
-import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
@@ -27,15 +23,9 @@ import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -43,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class ClientProxy extends CommonProxy{
 	
@@ -92,32 +81,18 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
     	
-    	//Add wallet layer unless curios is loaded.
+    	//Register curios renderers
     	if(LightmansCurrency.isCuriosLoaded())
     	{
     		Curios.RegisterCuriosRenderers();
     	}
-    	else
-    	{
-	    	Map<String, EntityRenderer<? extends Player>> skinMap = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap();
-	    	this.addWalletLayer((PlayerRenderer)skinMap.get("default"));
-	    	this.addWalletLayer((PlayerRenderer)skinMap.get("slim"));
-    	}
+    	//Wallet layer is now registered in 
     	
 	}
 	
 	private static void setRenderLayerForSet(BlockItemSet<?> blockItemSet, RenderType type)
 	{
 		blockItemSet.getAll().forEach(blockItemPair -> ItemBlockRenderTypes.setRenderLayer(blockItemPair.block, type));
-	}
-	
-	private void addWalletLayer(PlayerRenderer renderer)
-	{
-		/*List<RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>>> layers = ObfuscationReflectionHelper.getPrivateValue(LivingEntityRenderer.class, renderer, "layers");
-		if(layers != null)
-		{
-			layers.add(new WalletLayer<AbstractClientPlayer,PlayerModel<AbstractClientPlayer>>(renderer, new ModelWallet<AbstractClientPlayer>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET))));
-		}*/
 	}
 	
 	@Override

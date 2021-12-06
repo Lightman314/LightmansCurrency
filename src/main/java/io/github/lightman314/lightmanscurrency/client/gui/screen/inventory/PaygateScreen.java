@@ -7,14 +7,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageActivatePaygate;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageSetPaygateTicket;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageUpdatePaygateData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -30,8 +29,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 
-public class PaygateScreen extends AbstractContainerScreen<PaygateContainer> implements ICoinValueInput{
+public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implements ICoinValueInput{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/paygate.png");
 	
@@ -44,7 +44,7 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateContainer> imp
 	private IconButton buttonPay;
 	private IconButton buttonSetTicket;
 	
-	public PaygateScreen(PaygateContainer container, Inventory inventory, Component title)
+	public PaygateScreen(PaygateMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = this.menu.isOwner() ? GUI_HEIGHT + CoinValueInput.HEIGHT : GUI_HEIGHT;
@@ -197,7 +197,7 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateContainer> imp
 	
 	private int getDuration()
 	{
-		return MathUtil.clamp(TextInputUtil.getIntegerValue(this.durationInput), PaygateTileEntity.DURATION_MIN, PaygateTileEntity.DURATION_MAX);
+		return MathUtil.clamp(TextInputUtil.getIntegerValue(this.durationInput), PaygateBlockEntity.DURATION_MIN, PaygateBlockEntity.DURATION_MAX);
 	}
 
 	@Override

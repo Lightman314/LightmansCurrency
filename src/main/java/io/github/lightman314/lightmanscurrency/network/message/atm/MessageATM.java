@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.atm;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
+import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -31,9 +31,9 @@ public class MessageATM {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ATMContainer)
+				if(player.containerMenu instanceof ATMMenu)
 				{
-					ATMContainer menu = (ATMContainer) player.containerMenu;
+					ATMMenu menu = (ATMMenu) player.containerMenu;
 					menu.ConvertCoins(message.buttonHit);
 				}
 			}

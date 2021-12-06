@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +31,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new CashRegisterTileEntity(pos, state);
+		return new CashRegisterBlockEntity(pos, state);
 	}
 	
 	@Override
@@ -40,9 +40,9 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CashRegisterTileEntity)
+			if(blockEntity instanceof CashRegisterBlockEntity)
 			{
-				CashRegisterTileEntity register = (CashRegisterTileEntity)blockEntity;
+				CashRegisterBlockEntity register = (CashRegisterBlockEntity)blockEntity;
 				register.loadDataFromItems(stack.getTag());
 			}
 		}
@@ -55,9 +55,9 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 		{
 			//Open UI
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CashRegisterTileEntity)
+			if(blockEntity instanceof CashRegisterBlockEntity)
 			{
-				CashRegisterTileEntity register = (CashRegisterTileEntity)blockEntity;
+				CashRegisterBlockEntity register = (CashRegisterBlockEntity)blockEntity;
 				TileEntityUtil.sendUpdatePacket(blockEntity);
 				register.OpenContainer(player);
 			}

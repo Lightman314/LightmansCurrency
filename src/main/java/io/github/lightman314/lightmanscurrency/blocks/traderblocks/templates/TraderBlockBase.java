@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
-import io.github.lightman314.lightmanscurrency.tileentity.DummyBlockEntity;
-import io.github.lightman314.lightmanscurrency.tileentity.TickableBlockEntity;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -55,9 +55,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getTileEntity(state, level, pos);
-			if(blockEntity instanceof TraderTileEntity)
+			if(blockEntity instanceof TraderBlockEntity)
 			{
-				TraderTileEntity trader = (TraderTileEntity)blockEntity;
+				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 				//Update the owner's name
 				if(trader.isOwner(player))
 					trader.setOwner(player);
@@ -80,9 +80,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getTileEntity(state, level, pos);
-			if(blockEntity instanceof TraderTileEntity)
+			if(blockEntity instanceof TraderBlockEntity)
 			{
-				TraderTileEntity trader = (TraderTileEntity)blockEntity;
+				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 				trader.setOwner(player);
 				if(stack.hasCustomHoverName())
 					trader.setCustomName(stack.getHoverName().getString());
@@ -99,9 +99,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	public void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
-		if(blockEntity instanceof TraderTileEntity)
+		if(blockEntity instanceof TraderBlockEntity)
 		{
-			TraderTileEntity trader = (TraderTileEntity)blockEntity;
+			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 			else

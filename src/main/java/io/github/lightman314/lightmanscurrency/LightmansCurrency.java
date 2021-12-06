@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.client.ClientModEvents;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -32,6 +33,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -68,15 +70,13 @@ public class LightmansCurrency {
     
     public LightmansCurrency() {
     	
-    	//Common
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
-        //Client
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-        //Inter-mod coms
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEnqueueIMC);
-        //Config loading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
-        //Color registration
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
+        
+        //Client Mod Events
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterClientModEvents());
         
         //Register configs
@@ -195,6 +195,11 @@ public class LightmansCurrency {
     		//Only need to sync the common config
     		Config.syncConfig();
     	}
+    }
+    
+    private void registerCapabilities(RegisterCapabilitiesEvent event)
+    {
+    	event.register(IWalletHandler.class);
     }
     
     @SubscribeEvent

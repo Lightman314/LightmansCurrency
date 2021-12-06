@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.tileentity.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.blockentity.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
@@ -55,7 +55,7 @@ public class ModTileEntities {
 			ModBlocks.VENDING_MACHINE2.getBlock(Colors.BLACK)));
 	
 	//Item Trader
-	public static final BlockEntityType<ItemTraderTileEntity> ITEM_TRADER = buildType("trader", BlockEntityType.Builder.of(ItemTraderTileEntity::new,
+	public static final BlockEntityType<ItemTraderBlockEntity> ITEM_TRADER = buildType("trader", BlockEntityType.Builder.of(ItemTraderBlockEntity::new,
 			//Display Case
 			ModBlocks.DISPLAY_CASE.block,
 			//Vending Machine 1
@@ -113,28 +113,28 @@ public class ModTileEntities {
 			
 	));
 	//Armor variant of the trader
-	public static final BlockEntityType<ArmorDisplayTraderTileEntity> ARMOR_TRADER = buildType("armor_trader", BlockEntityType.Builder.of(ArmorDisplayTraderTileEntity::new, ModBlocks.ARMOR_DISPLAY.block));
+	public static final BlockEntityType<ArmorDisplayTraderBlockEntity> ARMOR_TRADER = buildType("armor_trader", BlockEntityType.Builder.of(ArmorDisplayTraderBlockEntity::new, ModBlocks.ARMOR_DISPLAY.block));
 	//Freezer variant of the trader
-	public static final BlockEntityType<FreezerTraderTileEntity> FREEZER_TRADER = buildType("freezer_trader", BlockEntityType.Builder.of(FreezerTraderTileEntity::new, ModBlocks.FREEZER.block));
+	public static final BlockEntityType<FreezerTraderBlockEntity> FREEZER_TRADER = buildType("freezer_trader", BlockEntityType.Builder.of(FreezerTraderBlockEntity::new, ModBlocks.FREEZER.block));
 	//Ticket variant of the trader
-	public static final BlockEntityType<TicketTraderTileEntity> TICKET_TRADER = buildType("ticket_trader", BlockEntityType.Builder.of(TicketTraderTileEntity::new, ModBlocks.TICKET_KIOSK.block));
+	public static final BlockEntityType<TicketTraderBlockEntity> TICKET_TRADER = buildType("ticket_trader", BlockEntityType.Builder.of(TicketTraderBlockEntity::new, ModBlocks.TICKET_KIOSK.block));
 	
 	//Universal Item Trader
-	public static final BlockEntityType<UniversalItemTraderTileEntity> UNIVERSAL_ITEM_TRADER = buildType("universal_item_trader", BlockEntityType.Builder.of(UniversalItemTraderTileEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.block, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.block, ModBlocks.ITEM_TRADER_SERVER_LARGE.block));
+	public static final BlockEntityType<UniversalItemTraderBlockEntity> UNIVERSAL_ITEM_TRADER = buildType("universal_item_trader", BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.block, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.block, ModBlocks.ITEM_TRADER_SERVER_LARGE.block));
 	
 	//Cash Register
-	public static final BlockEntityType<CashRegisterTileEntity> CASH_REGISTER = buildType("cash_register", BlockEntityType.Builder.of(CashRegisterTileEntity::new, ModBlocks.CASH_REGISTER.block));
+	public static final BlockEntityType<CashRegisterBlockEntity> CASH_REGISTER = buildType("cash_register", BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER.block));
 	
 	//Coin Mint
-	public static final BlockEntityType<CoinMintTileEntity> COIN_MINT = buildType("coin_mint",BlockEntityType.Builder.of(CoinMintTileEntity::new, ModBlocks.MACHINE_MINT.block));
+	public static final BlockEntityType<CoinMintBlockEntity> COIN_MINT = buildType("coin_mint",BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.MACHINE_MINT.block));
 	//Ticket Machine
-	public static final BlockEntityType<TicketMachineTileEntity> TICKET_MACHINE = buildType("ticket_machine", BlockEntityType.Builder.of(TicketMachineTileEntity::new, ModBlocks.TICKET_MACHINE.block));
+	public static final BlockEntityType<TicketMachineBlockEntity> TICKET_MACHINE = buildType("ticket_machine", BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_MACHINE.block));
 	
 	//Paygate
-	public static final BlockEntityType<PaygateTileEntity> PAYGATE = buildType("paygate", BlockEntityType.Builder.of(PaygateTileEntity::new, ModBlocks.PAYGATE.block));
+	public static final BlockEntityType<PaygateBlockEntity> PAYGATE = buildType("paygate", BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.block));
 	
 	//Coin Jars
-	public static final BlockEntityType<CoinJarTileEntity> COIN_JAR = buildType("coin_jar", BlockEntityType.Builder.of(CoinJarTileEntity::new, ModBlocks.PIGGY_BANK.block));
+	public static final BlockEntityType<CoinJarBlockEntity> COIN_JAR = buildType("coin_jar", BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.block));
 	
 	//Code
 	private static <T extends BlockEntity> BlockEntityType<T> buildType(String id, BlockEntityType.Builder<T> builder)

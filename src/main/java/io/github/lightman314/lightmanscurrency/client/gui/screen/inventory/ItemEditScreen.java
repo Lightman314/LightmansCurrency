@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
+public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/item_edit.png");
 	
@@ -48,7 +48,7 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
-	public ItemEditScreen(ItemEditContainer container, Inventory inventory, Component title)
+	public ItemEditScreen(ItemEditMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageWidth = 176;

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemEditCapable;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.IItemEditCapable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;

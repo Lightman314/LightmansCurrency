@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.containers.PlayerInventoryWalletContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketOpenVanilla;
+import io.github.lightman314.lightmanscurrency.menus.PlayerInventoryWalletMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -15,12 +15,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
 
-public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<PlayerInventoryWalletContainer>{
+public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<PlayerInventoryWalletMenu>{
 
 	float oldMouseX;
 	float oldMouseY;
 	
-	public PlayerInventoryWalletScreen(PlayerInventoryWalletContainer container, Inventory inventory, Component title)
+	public PlayerInventoryWalletScreen(PlayerInventoryWalletMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		//this.titleX = 97;
@@ -39,7 +39,7 @@ public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<
 		this.blit(matrix, this.leftPos + 97, this.topPos + 17, 97, 53, 74, 30);
 		this.blit(matrix, this.leftPos + 97, this.topPos + 47, 97, 53, 74, 6);
 		//Render the wallet slot
-		this.blit(matrix, this.leftPos + PlayerInventoryWalletContainer.WALLET_SLOT_X - 1, this.topPos + PlayerInventoryWalletContainer.WALLET_SLOT_Y - 1, 7, 7, 18, 18);
+		this.blit(matrix, this.leftPos + PlayerInventoryWalletMenu.WALLET_SLOT_X - 1, this.topPos + PlayerInventoryWalletMenu.WALLET_SLOT_Y - 1, 7, 7, 18, 18);
 		InventoryScreen.renderEntityInInventory(this.leftPos + 51, this.topPos + 75, 30, (float)(this.leftPos + 51) - this.oldMouseX, (float)(this.topPos + 75 - 50) - this.oldMouseY, this.minecraft.player);
 	}
 	

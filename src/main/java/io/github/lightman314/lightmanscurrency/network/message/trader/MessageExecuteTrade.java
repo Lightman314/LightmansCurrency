@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainer;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -30,9 +30,9 @@ public class MessageExecuteTrade {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ITraderContainer)
+				if(player.containerMenu instanceof ITraderMenu)
 				{
-					ITraderContainer menu = (ITraderContainer) player.containerMenu;
+					ITraderMenu menu = (ITraderMenu) player.containerMenu;
 					menu.ExecuteTrade(message.tradeIndex);
 				}
 			}

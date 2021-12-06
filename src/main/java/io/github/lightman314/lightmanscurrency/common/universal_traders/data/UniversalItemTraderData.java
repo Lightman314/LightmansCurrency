@@ -7,25 +7,25 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemEditMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderStorageMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +49,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
-	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
+	public static final int TRADELIMIT = ItemTraderBlockEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	
@@ -69,7 +69,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public UniversalItemTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
 	{
 		super(owner.getUUID(), owner.getDisplayName().getString(), pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.inventory = new SimpleContainer(this.inventorySize());
 	}
@@ -78,7 +78,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public void read(CompoundTag compound)
 	{
 		if(compound.contains("TradeLimit", Tag.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderBlockEntity.TRADELIMIT);
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
@@ -155,7 +155,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	private void forceReOpen()
 	{
-		UniversalContainer.onForceReopen(this.traderID);
+		UniversalMenu.onForceReopen(this.traderID);
 	}
 	
 	public void overrideTradeCount(int newTradeCount)
@@ -287,7 +287,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemTraderContainer(menuID, inventory, this.traderID);
+			return new UniversalItemTraderMenu(menuID, inventory, this.traderID);
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
@@ -299,7 +299,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemTraderStorageContainer(menuID, inventory, this.traderID);
+			return new UniversalItemTraderStorageMenu(menuID, inventory, this.traderID);
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
@@ -321,7 +321,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
+			return new UniversalItemEditMenu(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 
 		@Override

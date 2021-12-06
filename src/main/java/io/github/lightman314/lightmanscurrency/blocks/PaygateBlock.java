@@ -6,9 +6,10 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,7 +34,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
-public class PaygateBlock extends RotatableBlock implements EntityBlock{
+public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnableBlock{
 	
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
@@ -49,7 +51,19 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new PaygateTileEntity(pos, state);
+		return new PaygateBlockEntity(pos, state);
+	}
+	
+	@Override
+	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
+	{
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof PaygateBlockEntity)
+		{
+			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
+			return paygate.canBreak(player);
+		}
+		return true;
 	}
 	
 	@Override
@@ -60,9 +74,9 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 			
 			//Get the item in the players hand
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof PaygateTileEntity)
+			if(tileEntity instanceof PaygateBlockEntity)
 			{
-				PaygateTileEntity paygate = (PaygateTileEntity)tileEntity;
+				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
 				//Update the owner
 				if(paygate.isOwner(player))
 				{
@@ -94,9 +108,9 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof PaygateTileEntity)
+			if(blockEntity instanceof PaygateBlockEntity)
 			{
-				PaygateTileEntity paygate = (PaygateTileEntity)blockEntity;
+				PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
 				paygate.setOwner(player);
 				if(stack.hasCustomHoverName())
 					paygate.setCustomName(stack.getDisplayName());
@@ -109,9 +123,9 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	{
 		
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof PaygateTileEntity)
+		if(blockEntity instanceof PaygateBlockEntity)
 		{
-			PaygateTileEntity paygate = (PaygateTileEntity)blockEntity;
+			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
 			if(!paygate.canBreak(player))
 				return;
 			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(paygate.getStoredMoney());

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
+import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 
@@ -7,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -20,10 +22,10 @@ public class WalletLayer<T extends Player, M extends HumanoidModel<T>> extends R
 
 	private ModelWallet<T> model;
 	
-	public WalletLayer(RenderLayerParent<T,M> renderer, ModelWallet<T> model)
+	public WalletLayer(RenderLayerParent<T,M> renderer)
 	{
 		super(renderer);
-		this.model = model;
+		this.model = new ModelWallet<T>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
 	}
 
 	@Override

@@ -4,10 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
+public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 
 	private final int BASEHEIGHT = 114;
 	
@@ -27,7 +27,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
 	Button buttonConvert;
 	boolean autoConvert = false;
 	
-	public WalletScreen(WalletContainer container, Inventory inventory, Component title)
+	public WalletScreen(WalletMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = BASEHEIGHT + this.menu.getRowCount() * 18;

@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TicketMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
-import io.github.lightman314.lightmanscurrency.tileentity.TicketMachineTileEntity;
+import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +40,7 @@ public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new TicketMachineTileEntity(pos, state);
+		return new TicketMachineBlockEntity(pos, state);
 	}
 	
 	@Override
@@ -55,7 +55,7 @@ public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineContainer(windowId, playerInventory, (TicketMachineTileEntity)world.getBlockEntity(pos));}, TITLE);
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new TicketMachineMenu(windowId, playerInventory, (TicketMachineBlockEntity)world.getBlockEntity(pos));}, TITLE);
 	}
 	
 }

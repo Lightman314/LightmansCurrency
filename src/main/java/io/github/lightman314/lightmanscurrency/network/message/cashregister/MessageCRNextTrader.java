@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.cashregister;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCashRegisterContainer;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -30,9 +30,9 @@ public class MessageCRNextTrader {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ITraderCashRegisterContainer)
+				if(player.containerMenu instanceof ITraderCashRegisterMenu)
 				{
-					ITraderCashRegisterContainer menu = (ITraderCashRegisterContainer) player.containerMenu;
+					ITraderCashRegisterMenu menu = (ITraderCashRegisterMenu) player.containerMenu;
 					menu.OpenNextContainer(message.direction);
 				}
 			}

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.ticket_machine;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
+import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -30,9 +30,9 @@ public class MessageCraftTicket {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof TicketMachineContainer)
+				if(player.containerMenu instanceof TicketMachineMenu)
 				{
-					TicketMachineContainer menu = (TicketMachineContainer) player.containerMenu;
+					TicketMachineMenu menu = (TicketMachineMenu) player.containerMenu;
 					menu.craftTickets(message.fullStack);
 				}
 			}

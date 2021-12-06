@@ -5,9 +5,9 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
-import io.github.lightman314.lightmanscurrency.tileentity.ArmorDisplayTraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -26,16 +26,16 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ArmorDisplayTraderTileEntity(pos, state); }
+	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ArmorDisplayTraderBlockEntity(pos, state); }
 	
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		
 		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
-		if(blockEntity instanceof ArmorDisplayTraderTileEntity)
+		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
 		{
-			ArmorDisplayTraderTileEntity trader = (ArmorDisplayTraderTileEntity)blockEntity;
+			ArmorDisplayTraderBlockEntity trader = (ArmorDisplayTraderBlockEntity)blockEntity;
 			if(trader.canBreak(player))
 				trader.destroyArmorStand();
 		}

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.containers.*;
-import io.github.lightman314.lightmanscurrency.tileentity.*;
 import io.github.lightman314.lightmanscurrency.util.SafeTradingOffice;
+import io.github.lightman314.lightmanscurrency.menus.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -21,76 +21,76 @@ public class ModContainers {
 	
 	private static final List<MenuType<?>> CONTAINER_TYPES = new ArrayList<>();
 	
-	public static final MenuType<PlayerInventoryWalletContainer> INVENTORY_WALLET = register("inventory_wallet", (id, inventory, data) -> new PlayerInventoryWalletContainer(id, inventory));
+	public static final MenuType<PlayerInventoryWalletMenu> INVENTORY_WALLET = register("inventory_wallet", (id, inventory, data) -> new PlayerInventoryWalletMenu(id, inventory));
 	
-	public static final MenuType<ATMContainer> ATM = register("atm", (id, inventory, data) -> new ATMContainer(id, inventory));
+	public static final MenuType<ATMMenu> ATM = register("atm", (id, inventory, data) -> new ATMMenu(id, inventory));
 	
-	public static final MenuType<MintContainer> MINT = register("coinmint", (IContainerFactory<MintContainer>)(id, playerInventory, data)->{
+	public static final MenuType<MintMenu> MINT = register("coinmint", (IContainerFactory<MintMenu>)(id, playerInventory, data)->{
 		
-		CoinMintTileEntity tileEntity = (CoinMintTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new MintContainer(id, playerInventory, tileEntity);
+		CoinMintBlockEntity tileEntity = (CoinMintBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new MintMenu(id, playerInventory, tileEntity);
 
 	});
 	
-	public static final MenuType<ItemTraderContainer> ITEMTRADER = register("item_trader", (IContainerFactory<ItemTraderContainer>)(id, playerInventory, data)->{
+	public static final MenuType<ItemTraderMenu> ITEMTRADER = register("item_trader", (IContainerFactory<ItemTraderMenu>)(id, playerInventory, data)->{
 		
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemTraderContainer(id, playerInventory, tileEntity);
-		
-	});
-	public static final MenuType<ItemTraderStorageContainer> ITEMTRADERSTORAGE = register("item_trader_storage", (IContainerFactory<ItemTraderStorageContainer>)(id, playerInventory, data)->{
-		
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemTraderStorageContainer(id, playerInventory, tileEntity);
+		ItemTraderBlockEntity tileEntity = (ItemTraderBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new ItemTraderMenu(id, playerInventory, tileEntity);
 		
 	});
-	public static final MenuType<ItemTraderContainerCR> ITEMTRADERCR = register("item_trader_cr", (IContainerFactory<ItemTraderContainerCR>)(id, playerInventory, data)->{
+	public static final MenuType<ItemTraderStorageMenu> ITEMTRADERSTORAGE = register("item_trader_storage", (IContainerFactory<ItemTraderStorageMenu>)(id, playerInventory, data)->{
 		
-		ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemTraderContainerCR(id, playerInventory, traderEntity, registerEntity);
+		ItemTraderBlockEntity tileEntity = (ItemTraderBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new ItemTraderStorageMenu(id, playerInventory, tileEntity);
 		
 	});
-	
-	public static final MenuType<UniversalItemTraderContainer> UNIVERSAL_ITEMTRADER = register("universal_item_trader", (IContainerFactory<UniversalItemTraderContainer>)(id, playerInventory, data)->{
+	public static final MenuType<ItemTraderMenuCR> ITEMTRADERCR = register("item_trader_cr", (IContainerFactory<ItemTraderMenuCR>)(id, playerInventory, data)->{
 		
-		return new UniversalItemTraderContainer(id, playerInventory, data.readUUID());
+		ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		CashRegisterBlockEntity registerEntity = (CashRegisterBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new ItemTraderMenuCR(id, playerInventory, traderEntity, registerEntity);
 		
 	});
 	
-	public static final MenuType<UniversalItemTraderStorageContainer> UNIVERSAL_ITEMTRADERSTORAGE = register("universal_item_trader_storage", (IContainerFactory<UniversalItemTraderStorageContainer>)(id, playerInventory, data)->{
+	public static final MenuType<UniversalItemTraderMenu> UNIVERSAL_ITEMTRADER = register("universal_item_trader", (IContainerFactory<UniversalItemTraderMenu>)(id, playerInventory, data)->{
 		
-		return new UniversalItemTraderStorageContainer(id, playerInventory, data.readUUID());
-		
-	});
-	
-	public static final MenuType<WalletContainer> WALLET = register("wallet", (IContainerFactory<WalletContainer>)(id, playerInventory, data) ->{
-		
-		return new WalletContainer(id, playerInventory, data.readInt());
+		return new UniversalItemTraderMenu(id, playerInventory, data.readUUID());
 		
 	});
 	
-	public static final MenuType<PaygateContainer> PAYGATE = register("paygate", (IContainerFactory<PaygateContainer>)(id, playerInventory, data)->{
+	public static final MenuType<UniversalItemTraderStorageMenu> UNIVERSAL_ITEMTRADERSTORAGE = register("universal_item_trader_storage", (IContainerFactory<UniversalItemTraderStorageMenu>)(id, playerInventory, data)->{
 		
-		PaygateTileEntity tileEntity = (PaygateTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new PaygateContainer(id, playerInventory, tileEntity);
-	});
-	
-	public static final MenuType<TicketMachineContainer> TICKET_MACHINE = register("ticket_machine", (IContainerFactory<TicketMachineContainer>)(id, playerInventory, data)->{
-		TicketMachineTileEntity tileEntity = (TicketMachineTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new TicketMachineContainer(id, playerInventory, tileEntity);
+		return new UniversalItemTraderStorageMenu(id, playerInventory, data.readUUID());
 		
 	});
 	
-	
-	public static final MenuType<ItemEditContainer> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditContainer>)(id, playerInventory, data)->{
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemEditContainer(id, playerInventory, () -> tileEntity, data.readInt());
+	public static final MenuType<WalletMenu> WALLET = register("wallet", (IContainerFactory<WalletMenu>)(id, playerInventory, data) ->{
+		
+		return new WalletMenu(id, playerInventory, data.readInt());
+		
 	});
 	
-	public static final MenuType<UniversalItemEditContainer> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditContainer>)(id, playerInventory, data)->{
+	public static final MenuType<PaygateMenu> PAYGATE = register("paygate", (IContainerFactory<PaygateMenu>)(id, playerInventory, data)->{
+		
+		PaygateBlockEntity tileEntity = (PaygateBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new PaygateMenu(id, playerInventory, tileEntity);
+	});
+	
+	public static final MenuType<TicketMachineMenu> TICKET_MACHINE = register("ticket_machine", (IContainerFactory<TicketMachineMenu>)(id, playerInventory, data)->{
+		TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new TicketMachineMenu(id, playerInventory, tileEntity);
+		
+	});
+	
+	
+	public static final MenuType<ItemEditMenu> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditMenu>)(id, playerInventory, data)->{
+		ItemTraderBlockEntity tileEntity = (ItemTraderBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new ItemEditMenu(id, playerInventory, () -> tileEntity, data.readInt());
+	});
+	
+	public static final MenuType<UniversalItemEditMenu> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditMenu>)(id, playerInventory, data)->{
 		UUID traderID = data.readUUID();
-		return new UniversalItemEditContainer(id, playerInventory, () -> (UniversalItemTraderData)SafeTradingOffice.getData(traderID), data.readInt());
+		return new UniversalItemEditMenu(id, playerInventory, () -> (UniversalItemTraderData)SafeTradingOffice.getData(traderID), data.readInt());
 	});
 	
 	//Code

@@ -61,7 +61,7 @@ public class MoneyUtil {
     	//Copper Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_COPPER)
     			.defineInitial("item.lightmanscurrency.coin_copper.initial")
-    			.defineMintingMaterialTag(new ResourceLocation("forge","ingots/copper")));
+    			.defineMintingMaterial(Items.COPPER_INGOT));
     	//Iron Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_IRON)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")

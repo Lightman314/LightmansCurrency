@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -35,9 +35,9 @@ public class MessageItemEditSet {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ItemEditContainer)
+				if(player.containerMenu instanceof ItemEditMenu)
 				{
-					ItemEditContainer menu = (ItemEditContainer)player.containerMenu;
+					ItemEditMenu menu = (ItemEditMenu)player.containerMenu;
 					menu.setItem(message.item, message.slot);
 				}
 			}

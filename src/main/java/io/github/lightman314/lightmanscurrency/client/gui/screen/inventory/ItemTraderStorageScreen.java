@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTrad
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
@@ -26,12 +25,13 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCol
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageToggleCreative;
-import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -47,7 +47,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderStorageContainer>{
+public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderstorage.png");
 	public static final ResourceLocation ALLY_GUI_TEXTURE = TradeRuleScreen.GUI_TEXTURE;
@@ -78,7 +78,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
-	public ItemTraderStorageScreen(ItemTraderStorageContainer container, Inventory inventory, Component title)
+	public ItemTraderStorageScreen(ItemTraderStorageMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		int tradeCount = this.menu.tileEntity.getTradeCount();
@@ -245,7 +245,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.menu.player);
 		this.buttonAddTrade = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth - SCREEN_EXTENSION - 50, this.topPos - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
 		this.buttonAddTrade.visible = this.menu.tileEntity.isCreative() && TradingOffice.isAdminPlayer(this.menu.player);;
-		this.buttonAddTrade.active = this.menu.tileEntity.getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
+		this.buttonAddTrade.active = this.menu.tileEntity.getTradeCount() < ItemTraderBlockEntity.TRADELIMIT;
 		this.buttonRemoveTrade = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth - SCREEN_EXTENSION - 50, this.topPos - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
 		this.buttonRemoveTrade.visible = this.menu.tileEntity.isCreative() && TradingOffice.isAdminPlayer(this.menu.player);
 		this.buttonRemoveTrade.active = this.menu.tileEntity.getTradeCount() > 1;
@@ -403,7 +403,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 				{
 					this.buttonToggleCreative.setResource(GUI_TEXTURE, 176 + 32, 0);
 					this.buttonAddTrade.visible = true;
-					this.buttonAddTrade.active = this.menu.tileEntity.getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
+					this.buttonAddTrade.active = this.menu.tileEntity.getTradeCount() < ItemTraderBlockEntity.TRADELIMIT;
 					this.buttonRemoveTrade.visible = true;
 					this.buttonRemoveTrade.active = this.menu.tileEntity.getTradeCount() > 1;
 				}

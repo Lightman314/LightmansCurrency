@@ -8,13 +8,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -28,7 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderContainer>{
+public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
@@ -42,7 +42,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderContaine
 	
 	protected List<ItemTradeButton> tradeButtons = new ArrayList<>();
 	
-	public ItemTraderScreen(ItemTraderContainer container, Inventory inventory, Component title)
+	public ItemTraderScreen(ItemTraderMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 133 + ItemTraderUtil.getTradeDisplayHeight(this.menu.tileEntity);

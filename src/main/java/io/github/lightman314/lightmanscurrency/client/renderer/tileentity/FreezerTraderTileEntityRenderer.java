@@ -7,9 +7,9 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.blockentity.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.tileentity.FreezerTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
@@ -24,14 +24,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
-public class FreezerTraderTileEntityRenderer implements BlockEntityRenderer<FreezerTraderTileEntity>{
+public class FreezerTraderTileEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
 	public static final Item doorItem = ModItems.FREEZER_DOOR;
 	
 	public FreezerTraderTileEntityRenderer(BlockEntityRendererProvider.Context context) { }
 	
 	@Override
-	public void render(FreezerTraderTileEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(FreezerTraderBlockEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
 		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)

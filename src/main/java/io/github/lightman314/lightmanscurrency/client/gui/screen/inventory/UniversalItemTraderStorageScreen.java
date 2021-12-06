@@ -15,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTrad
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
@@ -26,10 +24,12 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageTog
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveAlly2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTradeItem2;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -41,11 +41,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<UniversalItemTraderStorageContainer>{
+public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<UniversalItemTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderstorage.png");
 	
-	public static final int SCREEN_EXTENSION = ItemTraderStorageContainer.SCREEN_EXTENSION;
+	public static final int SCREEN_EXTENSION = ItemTraderStorageMenu.SCREEN_EXTENSION;
 	
 	Button buttonShowTrades;
 	Button buttonCollectMoney;
@@ -71,7 +71,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
-	public UniversalItemTraderStorageScreen(UniversalItemTraderStorageContainer container, Inventory inventory, Component title)
+	public UniversalItemTraderStorageScreen(UniversalItemTraderStorageMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		int tradeCount = this.menu.getData().getTradeCount();
@@ -120,7 +120,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.menu.player);
 		this.buttonAddTrade = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth - SCREEN_EXTENSION - 50, this.topPos - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
 		this.buttonAddTrade.visible = this.menu.getData().isCreative() && TradingOffice.isAdminPlayer(this.menu.player);;
-		this.buttonAddTrade.active = this.menu.getData().getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
+		this.buttonAddTrade.active = this.menu.getData().getTradeCount() < ItemTraderBlockEntity.TRADELIMIT;
 		this.buttonRemoveTrade = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth - SCREEN_EXTENSION - 50, this.topPos - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
 		this.buttonRemoveTrade.visible = this.menu.getData().isCreative() && TradingOffice.isAdminPlayer(this.menu.player);;
 		this.buttonRemoveTrade.active = this.menu.getData().getTradeCount() > 1;
@@ -271,7 +271,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 				{
 					this.buttonToggleCreative.setResource(GUI_TEXTURE, 176 + 32, 0);
 					this.buttonAddTrade.visible = true;
-					this.buttonAddTrade.active = this.menu.getData().getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
+					this.buttonAddTrade.active = this.menu.getData().getTradeCount() < ItemTraderBlockEntity.TRADELIMIT;
 					this.buttonRemoveTrade.visible = true;
 					this.buttonRemoveTrade.active = this.menu.getData().getTradeCount() > 1;
 				}

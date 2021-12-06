@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.containers.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.network.chat.TextComponent;

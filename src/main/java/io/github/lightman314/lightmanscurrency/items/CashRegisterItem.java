@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +46,7 @@ public class CashRegisterItem extends BlockItem{
 			{
 				ITraderBlock block = (ITraderBlock)level.getBlockState(lookPos).getBlock();
 				BlockEntity blockEntity = block.getTileEntity(level.getBlockState(lookPos), level, lookPos);
-				if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderTileEntity)
+				if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderBlockEntity)
 				{
 					AddEntity(context.getItemInHand(), blockEntity);
 					
@@ -57,7 +57,7 @@ public class CashRegisterItem extends BlockItem{
 					
 					return InteractionResult.SUCCESS;
 				}
-				else if(blockEntity instanceof TraderTileEntity) //Return even if we have the entity to prevent any accidental placements.
+				else if(blockEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
 				{
 					if(level.isClientSide)
 					{

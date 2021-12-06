@@ -7,7 +7,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemTraderTileEntityRenderer implements BlockEntityRenderer<ItemTraderTileEntity>{
+public class ItemTraderTileEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 
 	public static int positionLimit()
 	{
@@ -40,7 +40,7 @@ public class ItemTraderTileEntityRenderer implements BlockEntityRenderer<ItemTra
 	}
 	
 	@Override
-	public void render(ItemTraderTileEntity tileEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int lightLevel, int id)
+	public void render(ItemTraderBlockEntity tileEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int lightLevel, int id)
 	{
 		
 		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)

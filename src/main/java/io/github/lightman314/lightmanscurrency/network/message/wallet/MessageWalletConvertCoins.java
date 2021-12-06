@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -21,9 +21,9 @@ public class MessageWalletConvertCoins {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof WalletContainer)
+				if(player.containerMenu instanceof WalletMenu)
 				{
-					WalletContainer menu = (WalletContainer) player.containerMenu;
+					WalletMenu menu = (WalletMenu) player.containerMenu;
 					menu.ConvertCoins();
 				}
 			}

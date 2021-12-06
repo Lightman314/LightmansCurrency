@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,9 +47,9 @@ public class MessageSetTradeItem {
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity != null)
 				{
-					if(blockEntity instanceof ItemTraderTileEntity)
+					if(blockEntity instanceof ItemTraderBlockEntity)
 					{
-						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)blockEntity;
+						ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)blockEntity;
 						ItemStack oldItem = ItemStack.EMPTY;
 						if(message.slot == 1)
 						{
@@ -66,8 +66,8 @@ public class MessageSetTradeItem {
 						ItemTradeItemEditEvent e = new ItemTradeItemEditEvent(() -> {
 							//Create safe supplier, just in case the event saves it for later
 							BlockEntity te = player.level.getBlockEntity(message.pos);
-							if(te instanceof ItemTraderTileEntity)
-								return (ItemTraderTileEntity)te;
+							if(te instanceof ItemTraderBlockEntity)
+								return (ItemTraderBlockEntity)te;
 							return null;
 						}, message.tradeIndex, oldItem, message.slot);
 						MinecraftForge.EVENT_BUS.post(e);

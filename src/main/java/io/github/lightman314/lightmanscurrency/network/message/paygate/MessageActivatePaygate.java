@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
+import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -22,9 +22,9 @@ public class MessageActivatePaygate {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof PaygateContainer)
+				if(player.containerMenu instanceof PaygateMenu)
 				{
-					PaygateContainer menu = (PaygateContainer)player.containerMenu;
+					PaygateMenu menu = (PaygateMenu)player.containerMenu;
 					menu.Activate();
 				}
 			}

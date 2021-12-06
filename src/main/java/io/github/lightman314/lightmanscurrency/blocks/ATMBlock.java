@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.TallRotatableBlock;
-import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
+import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -36,7 +36,7 @@ public class ATMBlock extends TallRotatableBlock{
 	@Override
 	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMContainer(windowId, playerInventory);}, TITLE);
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, TITLE);
 	}
 	
 	

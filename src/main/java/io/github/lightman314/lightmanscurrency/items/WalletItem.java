@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.containers.providers.WalletContainerProvider;
 import io.github.lightman314.lightmanscurrency.integration.Curios;
+import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -130,7 +130,7 @@ public class WalletItem extends Item{
 			
 			//Open the UI
 			if(walletSlot >= 0)
-				NetworkHooks.openGui((ServerPlayer)player, new WalletContainerProvider(walletSlot), new DataWriter(walletSlot));
+				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
 			else
 				LightmansCurrency.LogError("Could not find the wallet in the players inventory!");
 			

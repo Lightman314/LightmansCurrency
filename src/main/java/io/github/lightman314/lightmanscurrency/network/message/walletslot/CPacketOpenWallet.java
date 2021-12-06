@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.providers.WalletInventoryContainerProvider;
+import io.github.lightman314.lightmanscurrency.menus.providers.WalletInventoryMenuProvider;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,7 +27,7 @@ public class CPacketOpenWallet {
 			{
 				ItemStack stack = player.containerMenu.getCarried();
 				player.containerMenu.setCarried(ItemStack.EMPTY);
-				NetworkHooks.openGui(player, new WalletInventoryContainerProvider());
+				NetworkHooks.openGui(player, new WalletInventoryMenuProvider());
 				
 				if(!stack.isEmpty())
 				{

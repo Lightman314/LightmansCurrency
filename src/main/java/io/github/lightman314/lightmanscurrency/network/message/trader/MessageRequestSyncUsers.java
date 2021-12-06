@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,9 +34,9 @@ public class MessageRequestSyncUsers {
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof ItemTraderTileEntity)
+				if(blockEntity instanceof ItemTraderBlockEntity)
 				{
-					ItemTraderTileEntity trader = (ItemTraderTileEntity)blockEntity;
+					ItemTraderBlockEntity trader = (ItemTraderBlockEntity)blockEntity;
 					LightmansCurrencyPacketHandler.instance.reply(new MessageSyncUsers(message.pos, trader.getUserCount()), supplier.get());
 				}
 			}

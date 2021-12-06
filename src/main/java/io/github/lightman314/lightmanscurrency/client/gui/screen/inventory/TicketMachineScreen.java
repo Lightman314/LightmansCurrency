@@ -4,9 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
+import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,13 +17,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineContainer>{
+public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
 	
 	private Button buttonCraft;
 	
-	public TicketMachineScreen(TicketMachineContainer container, Inventory inventory, Component title)
+	public TicketMachineScreen(TicketMachineMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 138;

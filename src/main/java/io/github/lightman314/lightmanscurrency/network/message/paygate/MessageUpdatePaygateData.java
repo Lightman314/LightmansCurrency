@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -44,10 +44,10 @@ public class MessageUpdatePaygateData {
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity != null)
 				{
-					if(blockEntity instanceof PaygateTileEntity)
+					if(blockEntity instanceof PaygateBlockEntity)
 					{
 						
-						PaygateTileEntity paygateEntity = (PaygateTileEntity)blockEntity;
+						PaygateBlockEntity paygateEntity = (PaygateBlockEntity)blockEntity;
 						
 						paygateEntity.setPrice(message.newPrice);
 						paygateEntity.setDuration(message.newDuration);

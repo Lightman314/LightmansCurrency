@@ -9,13 +9,13 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -41,7 +41,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	private int ySize = 88 + CoinValueInput.HEIGHT;
 	
 	Player player;
-	ItemTraderTileEntity tileEntity;
+	ItemTraderBlockEntity tileEntity;
 	ItemTradeData trade;
 	int tradeIndex;
 	
@@ -59,7 +59,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	EditBox nameField;
 	
-	public TradeItemPriceScreen(ItemTraderTileEntity tileEntity, int tradeIndex, Player player)
+	public TradeItemPriceScreen(ItemTraderBlockEntity tileEntity, int tradeIndex, Player player)
 	{
 		super(new TranslatableComponent("gui.lightmanscurrency.changeprice"));
 		this.tileEntity = tileEntity;
@@ -188,11 +188,11 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	private static class CloseRuleHandler implements ITradeRuleScreenHandler
 	{
 
-		final ItemTraderTileEntity tileEntity;
+		final ItemTraderBlockEntity tileEntity;
 		final int tradeIndex;
 		final Player player;
 		
-		public CloseRuleHandler(ItemTraderTileEntity tileEntity, int tradeIndex, Player player)
+		public CloseRuleHandler(ItemTraderBlockEntity tileEntity, int tradeIndex, Player player)
 		{
 			this.tileEntity = tileEntity;
 			this.tradeIndex = tradeIndex;

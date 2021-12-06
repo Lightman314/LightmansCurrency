@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import io.github.lightman314.lightmanscurrency.blockentity.CoinJarBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.CoinJarTileEntity;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -35,16 +35,16 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new CoinJarTileEntity(pos, state);
+		return new CoinJarBlockEntity(pos, state);
 	}
 	
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof CoinJarTileEntity)
+		if(blockEntity instanceof CoinJarBlockEntity)
 		{
-			CoinJarTileEntity jar = (CoinJarTileEntity)blockEntity;
+			CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
 			jar.readItemTag(stack);
 		}
 	}
@@ -59,9 +59,9 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CoinJarTileEntity)
+			if(blockEntity instanceof CoinJarBlockEntity)
 			{
-				CoinJarTileEntity jar = (CoinJarTileEntity)blockEntity;
+				CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
 				if(jar.addCoin(coinStack))
 					coinStack.shrink(1);
 			}
@@ -75,9 +75,9 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
 		BlockEntity tileEntity = level.getBlockEntity(pos);
-		if(tileEntity instanceof CoinJarTileEntity)
+		if(tileEntity instanceof CoinJarBlockEntity)
 		{
-			CoinJarTileEntity jarEntity = (CoinJarTileEntity)tileEntity;
+			CoinJarBlockEntity jarEntity = (CoinJarBlockEntity)tileEntity;
 			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player) > 0)
 			{
 				//Drop the item for this block, with the JarData in it.

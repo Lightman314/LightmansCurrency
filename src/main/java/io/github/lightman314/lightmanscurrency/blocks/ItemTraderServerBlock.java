@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalItemTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,7 +30,7 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new UniversalItemTraderTileEntity(pos, state, this.tradeCount);
+		return new UniversalItemTraderBlockEntity(pos, state, this.tradeCount);
 	}
 	
 	@Override
@@ -39,9 +39,9 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof UniversalTraderTileEntity && player instanceof Player)
+			if(blockEntity instanceof UniversalTraderBlockEntity && player instanceof Player)
 			{
-				UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
+				UniversalTraderBlockEntity trader = (UniversalTraderBlockEntity)blockEntity;
 				if(stack.hasCustomHoverName())
 					trader.init((Player)player, stack.getDisplayName().getString());
 				else
@@ -55,9 +55,9 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 	{
 		
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof UniversalTraderTileEntity)
+		if(blockEntity instanceof UniversalTraderBlockEntity)
 		{
-			UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
+			UniversalTraderBlockEntity trader = (UniversalTraderBlockEntity)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 			trader.onDestroyed();
@@ -73,9 +73,9 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof UniversalTraderTileEntity)
+			if(blockEntity instanceof UniversalTraderBlockEntity)
 			{
-				UniversalTraderTileEntity trader = (UniversalTraderTileEntity)blockEntity;
+				UniversalTraderBlockEntity trader = (UniversalTraderBlockEntity)blockEntity;
 				//Update the owner
 				if(trader.hasPermissions(player))
 				{

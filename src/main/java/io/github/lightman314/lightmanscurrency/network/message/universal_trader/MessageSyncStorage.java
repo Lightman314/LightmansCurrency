@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.universal_trader
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IUniversalTraderStorageContainer;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.IUniversalTraderStorageMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -21,9 +21,9 @@ public class MessageSyncStorage {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof IUniversalTraderStorageContainer)
+				if(player.containerMenu instanceof IUniversalTraderStorageMenu)
 				{
-					IUniversalTraderStorageContainer menu = (IUniversalTraderStorageContainer)player.containerMenu;
+					IUniversalTraderStorageMenu menu = (IUniversalTraderStorageMenu)player.containerMenu;
 					menu.CheckStorage();
 				}
 			}

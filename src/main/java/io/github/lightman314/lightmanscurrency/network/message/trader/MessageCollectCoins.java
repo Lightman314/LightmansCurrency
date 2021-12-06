@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainerPrimitive;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenuPrimitive;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -21,9 +21,9 @@ public class MessageCollectCoins {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof ITraderContainerPrimitive)
+				if(player.containerMenu instanceof ITraderMenuPrimitive)
 				{
-					ITraderContainerPrimitive menu = (ITraderContainerPrimitive) player.containerMenu;
+					ITraderMenuPrimitive menu = (ITraderMenuPrimitive) player.containerMenu;
 					menu.CollectCoinStorage();
 				}
 			}
