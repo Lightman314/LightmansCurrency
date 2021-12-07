@@ -14,7 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModTileEntities {
+public class ModBlockEntities {
 	
 	private static final List<BlockEntityType<?>> TILE_ENTITY_TYPES = new ArrayList<>();
 	

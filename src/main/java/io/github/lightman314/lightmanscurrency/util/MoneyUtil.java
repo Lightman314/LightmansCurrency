@@ -631,13 +631,7 @@ public class MoneyUtil {
     			//Out of room to place it, throw it at the player
     			if(!coinStack.isEmpty())
     			{
-    				if(!player.addItem(coinStack))
-    				{
-    					//Spawn an item in the world at the player position
-    					ItemEntity itemEntity = new ItemEntity(player.level, player.position().x, player.position().y, player.position().z, coinStack);
-    					itemEntity.setPickUpDelay(40);
-    					player.level.addFreshEntity(itemEntity);
-    				}
+    				player.getInventory().placeItemBackInInventory(coinStack);
     			}
     		}
     	}
@@ -677,13 +671,7 @@ public class MoneyUtil {
 			//Out of room to place it, throw it at the player
 			if(!coinStack.isEmpty())
 			{
-				if(!player.addItem(coinStack))
-				{
-					//Spawn an item in the world at the player position
-					ItemEntity itemEntity = new ItemEntity(player.level, player.position().x, player.position().y, player.position().z, coinStack);
-					itemEntity.setPickUpDelay(40);
-					player.level.addFreshEntity(itemEntity);
-				}
+				player.getInventory().placeItemBackInInventory(coinStack);
 			}
 		}
     	

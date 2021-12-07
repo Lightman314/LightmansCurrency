@@ -4,15 +4,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.ImmutableList;
-
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -62,7 +60,7 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 	@Nullable 
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
-		return TickerUtil.createTickerHelper(type, ModTileEntities.ITEM_TRADER, TickableBlockEntity::tickHandler);
+		return TickerUtil.createTickerHelper(type, ModBlockEntities.PAYGATE, TickableBlockEntity::tickHandler);
 	}
 	
 	@Override
@@ -100,10 +98,7 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 					player.getItemInHand(hand).shrink(1);
 					//Attempt to give the player a ticket stub
 					ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
-					if(!player.addItem(ticketStub))
-					{
-						InventoryUtil.dumpContents(level, player.blockPosition(), ImmutableList.of(ticketStub));
-					}
+					player.getInventory().placeItemBackInInventory(ticketStub);
 					return InteractionResult.SUCCESS;
 				}
 				TileEntityUtil.sendUpdatePacket(tileEntity);

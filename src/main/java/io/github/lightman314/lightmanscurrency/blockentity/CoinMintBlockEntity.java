@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -35,7 +35,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 	private static boolean canMelt() { return Config.canMelt(); }
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) {
-		super(ModTileEntities.COIN_MINT, pos, state);
+		super(ModBlockEntities.COIN_MINT, pos, state);
 	}
 	
 	protected CoinMintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)

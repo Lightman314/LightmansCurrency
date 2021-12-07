@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
@@ -28,7 +28,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
+		super(ModBlockEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
 		this.validateTradeLimitations();
 	}
 	

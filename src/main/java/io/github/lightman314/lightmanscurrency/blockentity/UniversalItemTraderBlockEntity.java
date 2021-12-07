@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +14,7 @@ public class UniversalItemTraderBlockEntity extends UniversalTraderBlockEntity{
 	
 	public UniversalItemTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.UNIVERSAL_ITEM_TRADER, pos, state);
+		super(ModBlockEntities.UNIVERSAL_ITEM_TRADER, pos, state);
 	}
 	
 	public UniversalItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)

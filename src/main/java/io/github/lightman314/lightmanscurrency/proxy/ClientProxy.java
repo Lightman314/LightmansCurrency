@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
@@ -73,8 +73,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModTileEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
-    	BlockEntityRenderers.register(ModTileEntities.FREEZER_TRADER, FreezerTraderBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER, FreezerTraderBlockEntityRenderer::new);
     	
     	//Register Addable Trade Rules
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());

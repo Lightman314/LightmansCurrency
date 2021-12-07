@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -53,11 +52,12 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
+	protected abstract BlockEntityType<?> traderType();
 	
 	@Nullable 
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
-		return TickerUtil.createTickerHelper(type, ModTileEntities.ITEM_TRADER, TickableBlockEntity::tickHandler);
+		return TickerUtil.createTickerHelper(type, this.traderType(), TickableBlockEntity::tickHandler);
 	}
 	
 	@Override

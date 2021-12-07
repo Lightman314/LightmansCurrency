@@ -64,6 +64,11 @@ public class TicketItem extends Item{
 		return ticket;
 	}
 	
+	public static ItemStack CreateTicket(UUID ticketID)
+	{
+		return CreateTicket(ticketID, 1);
+	}
+	
 	public static ItemStack CreateTicket(UUID ticketID, int count)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET, count);

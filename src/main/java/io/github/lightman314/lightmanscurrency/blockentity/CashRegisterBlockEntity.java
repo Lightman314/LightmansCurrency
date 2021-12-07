@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +20,7 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	
 	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.CASH_REGISTER, pos, state);
+		super(ModBlockEntities.CASH_REGISTER, pos, state);
 	}
 	
 	public void loadDataFromItems(CompoundTag itemTag)

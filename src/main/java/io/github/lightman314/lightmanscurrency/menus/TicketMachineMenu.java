@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.TicketMachineBlockEnt
 
 public class TicketMachineMenu extends AbstractContainerMenu{
 	
-	private final Container outputSlot = new SimpleContainer(1);
+	private final Container output = new SimpleContainer(1);
 	
 	private final TicketMachineBlockEntity tileEntity;
 	
@@ -33,7 +33,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		this.addSlot(new TicketMasterSlot(this.tileEntity.getStorage(), 0, 20, 21));
 		this.addSlot(new TicketMaterialSlot(this.tileEntity.getStorage(), 1, 56, 21));
 		
-		this.addSlot(new OutputSlot(this.outputSlot, 2, 116, 21));
+		this.addSlot(new OutputSlot(this.output, 0, 116, 21));
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -60,7 +60,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 	public void removed(Player playerIn)
 	{
 		super.removed(playerIn);
-		this.clearContainer(playerIn,  this.outputSlot);
+		this.clearContainer(playerIn,  this.output);
 	}
 	
 	@Override
@@ -75,14 +75,15 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.tileEntity.getStorage().getContainerSize() + this.outputSlot.getContainerSize())
+			int totalSize = this.tileEntity.getStorage().getContainerSize() + this.output.getContainerSize();
+			if(index < totalSize)
 			{
-				if(!this.moveItemStackTo(slotStack, this.tileEntity.getStorage().getContainerSize() + this.outputSlot.getContainerSize(), this.slots.size(), true))
+				if(!this.moveItemStackTo(slotStack, totalSize, this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.tileEntity.getStorage().getContainerSize() + this.outputSlot.getContainerSize() - 1, true))
+			else if(!this.moveItemStackTo(slotStack, 0, this.tileEntity.getStorage().getContainerSize(), false))
 			{
 				return ItemStack.EMPTY;
 			}
@@ -107,9 +108,9 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		return !this.tileEntity.getStorage().getItem(1).isEmpty();
 	}
 	
-	public boolean validOutputs()
+	public boolean roomForOutput()
 	{
-		ItemStack outputStack = this.outputSlot.getItem(0);
+		ItemStack outputStack = this.output.getItem(0);
 		if(outputStack.isEmpty())
 			return true;
 		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET)
@@ -142,7 +143,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			LightmansCurrency.LogWarning("Inputs for the Ticket Machine are not valid. Cannot craft tickets.");
 			return;
 		}
-		else if(!validOutputs())
+		else if(!roomForOutput())
 		{
 			LightmansCurrency.LogWarning("No room for Ticket Machine outputs. Cannot craft tickets.");
 			return;
@@ -154,21 +155,20 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 				count = this.tileEntity.getStorage().getItem(1).getCount();
 			
 			//Create a normal ticket
-			ItemStack outputStack = this.outputSlot.getItem(0);
+			ItemStack outputStack = this.output.getItem(0);
 			if(outputStack.isEmpty())
 			{
 				//Create a new ticket stack
 				ItemStack newTicket = TicketItem.CreateTicket(this.getTicketID(), count);
-				this.outputSlot.setItem(0, newTicket);
+				this.output.setItem(0, newTicket);
 			}
 			else
 			{
-				//Limit the added count by stack size
-				count = outputStack.getMaxStackSize() - outputStack.getCount();
+				//Limit the added count by amount of space left in the output
+				count = Math.min(count, outputStack.getMaxStackSize() - outputStack.getCount());
 				//Increase the stack size
 				outputStack.setCount(outputStack.getCount() + count);
 			}
-			
 			//Remove the crafting materials
 			this.tileEntity.getStorage().removeItem(1, count);
 		}
@@ -177,7 +177,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			//Create a master ticket
 			ItemStack newTicket = TicketItem.CreateMasterTicket(UUID.randomUUID());
 			
-			this.outputSlot.setItem(0, newTicket);
+			this.output.setItem(0, newTicket);
 			
 			//Remove the crafting materials
 			this.tileEntity.getStorage().removeItem(1, 1);

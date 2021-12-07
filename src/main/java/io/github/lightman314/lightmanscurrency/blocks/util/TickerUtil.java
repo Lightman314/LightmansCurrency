@@ -10,7 +10,7 @@ public class TickerUtil {
 
 	@SuppressWarnings("unchecked")
 	@Nullable
-	public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> type1, BlockEntityType<E> type2, BlockEntityTicker<? super E> ticker)
+	public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<?> type1, BlockEntityType<?> type2, BlockEntityTicker<? super E> ticker)
 	{
 		return type1 == type2 ? (BlockEntityTicker<A>)ticker : null;
 	}

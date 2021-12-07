@@ -5,7 +5,7 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -44,7 +44,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 	
 	public PaygateBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.PAYGATE, pos, state);
+		super(ModBlockEntities.PAYGATE, pos, state);
 	}
 	
 	public void setOwner(Entity player)
@@ -289,9 +289,9 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 	@Override
 	public void tick()
 	{
-		if(timer > 0)
+		if(this.timer > 0)
 		{
-			timer--;
+			this.timer--;
 			if(!this.level.isClientSide)
 			{
 				CompoundTag compound = this.writeTimer(new CompoundTag());

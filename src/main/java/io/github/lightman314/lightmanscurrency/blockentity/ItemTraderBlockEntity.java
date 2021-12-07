@@ -7,7 +7,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -71,14 +71,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.ITEM_TRADER, pos, state);
+		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModTileEntities.ITEM_TRADER, pos, state);
+		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());

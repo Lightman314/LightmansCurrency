@@ -63,7 +63,7 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 	public void containerTick()
 	{
 		
-		this.buttonCraft.visible = this.menu.validInputs() && this.menu.validOutputs();
+		this.buttonCraft.visible = this.menu.validInputs() && this.menu.roomForOutput();
 		
 	}
 	

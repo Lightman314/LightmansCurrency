@@ -9,8 +9,10 @@ import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockBase;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,6 +28,9 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, TRADECOUNT); }
+	
+	@Override
+	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

@@ -8,10 +8,12 @@ import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.blockentity.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +29,9 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ArmorDisplayTraderBlockEntity(pos, state); }
+	
+	@Override
+	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER; }
 	
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)

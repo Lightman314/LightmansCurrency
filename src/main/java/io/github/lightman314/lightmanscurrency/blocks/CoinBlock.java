@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -9,6 +8,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,7 +43,7 @@ public class CoinBlock extends FallingBlock{
 			//Spawn the coins
 			for(int i = 0; i < getCoinCount(); i++)
 			{
-				InventoryUtil.dumpContents(level, pos, new ItemStack(coinItem, 1));
+				Block.popResource(level, pos, new ItemStack(coinItem));
 			}
 			//Play the breaking sound
 			level.playSound(null, pos, this.getBreakingSound(), SoundSource.BLOCKS, 1f, 1f);

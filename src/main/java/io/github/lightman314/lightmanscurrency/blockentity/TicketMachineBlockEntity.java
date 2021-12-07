@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +16,7 @@ public class TicketMachineBlockEntity extends BlockEntity{
 	
 	public TicketMachineBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.TICKET_MACHINE, pos, state);
+		super(ModBlockEntities.TICKET_MACHINE, pos, state);
 	}
 	
 	@Override

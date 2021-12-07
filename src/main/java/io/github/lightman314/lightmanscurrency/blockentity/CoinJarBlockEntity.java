@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -25,7 +25,7 @@ public class CoinJarBlockEntity extends BlockEntity
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.COIN_JAR, pos, state);
+		super(ModBlockEntities.COIN_JAR, pos, state);
 	}
 	
 	public boolean addCoin(ItemStack coin)

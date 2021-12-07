@@ -13,8 +13,17 @@ public abstract class TickableBlockEntity extends BlockEntity{
 		super(type,pos, state);
 	}
 	
+	/**
+	 * Ticks run on client logical side only. 
+	 */
 	public void clientTick() { }
+	/**
+	 * Ticks run on both clients & servers
+	 */
 	public void tick() { }
+	/**
+	 * Ticks run on the server logical side only.
+	 */
 	public void serverTick() { }
 	
 	public static void tickHandler(Level level, BlockPos pos, BlockState state, TickableBlockEntity blockEntity) {

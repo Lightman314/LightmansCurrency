@@ -11,10 +11,12 @@ import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRota
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,6 +38,9 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FreezerTraderBlockEntity(pos, state, TRADECOUNT); }
+	
+	@Override
+	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER; }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
