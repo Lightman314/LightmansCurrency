@@ -7,7 +7,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent.Context;
-import net.minecraftforge.network.PacketDistributor;
 
 public class CPacketOpenVanilla {
 	
@@ -30,8 +29,9 @@ public class CPacketOpenVanilla {
 				if(!stack.isEmpty())
 				{
 					player.containerMenu.setCarried(stack);
-					LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), new SPacketGrabbedItem(stack));
+					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketGrabbedItem(stack));
 				}
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketOpenVanillaResponse());
 			}
 		});
 		supplier.get().setPacketHandled(true);

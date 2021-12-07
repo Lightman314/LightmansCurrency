@@ -12,8 +12,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
 
 public class InventoryWalletScreen extends EffectRenderingInventoryScreen<InventoryWalletMenu>{
@@ -68,12 +66,6 @@ public class InventoryWalletScreen extends EffectRenderingInventoryScreen<Invent
 	
 	private void PressInventoryButton(Button button)
 	{
-		InventoryScreen inventory = new InventoryScreen(this.minecraft.player);
-		ItemStack stack = this.menu.getCarried();
-		this.menu.setCarried(ItemStack.EMPTY);
-		LightmansCurrency.LogInfo("Opening the vanilla inventory.");
-		this.minecraft.setScreen(inventory);
-		inventory.getMenu().setCarried(stack);
 		LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketOpenVanilla());
 	}
 	

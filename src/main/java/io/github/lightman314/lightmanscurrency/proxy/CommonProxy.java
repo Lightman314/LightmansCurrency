@@ -18,6 +18,8 @@ public class CommonProxy {
 	
 	public void openTerminalScreen(Player player) {}
 	
+	public void openInventoryScreen(Player player) {}
+	
 	public long getTimeDesync() { return 0; }
 	
 	public void setTimeDesync(long currentTime) { }

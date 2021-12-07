@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -40,6 +41,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class ClientProxy extends CommonProxy{
 	
 	boolean openTerminal = false;
+	boolean openVanillaInventory = false;
 	Player player = null;
 	
 	private long timeOffset = 0;
@@ -133,6 +135,13 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
+	public void openInventoryScreen(Player player)
+	{
+		this.openVanillaInventory = true;
+		this.player = player;
+	}
+	
+	@Override
 	public long getTimeDesync()
 	{
 		return timeOffset;
@@ -154,7 +163,6 @@ public class ClientProxy extends CommonProxy{
 		TradingOffice.loadAdminPlayers(serverAdminList);
 	}
 	
-	
 	public void registerItemColors(ColorHandlerEvent.Item event)
 	{
 		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
@@ -164,10 +172,18 @@ public class ClientProxy extends CommonProxy{
 	@SubscribeEvent
 	public void openTerminalScreenOnRenderTick(RenderTickEvent event)
 	{
-		if(event.phase == TickEvent.Phase.START && this.openTerminal && this.player != null)
+		if(event.phase == TickEvent.Phase.START && this.player != null)
 		{
-			openTerminal = false;
-			Minecraft.getInstance().setScreen(new TradingTerminalScreen(this.player));
+			if(this.openTerminal)
+			{
+				this.openTerminal = false;
+				Minecraft.getInstance().setScreen(new TradingTerminalScreen(this.player));
+			}
+			else if(this.openVanillaInventory)
+			{
+				this.openVanillaInventory = false;
+				Minecraft.getInstance().setScreen(new InventoryScreen(this.player));
+			}
 		}
 	}
 	
