@@ -130,9 +130,6 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		int startY = (this.height - this.ySize) / 2;
 		this.blit(poseStack, startX, startY + CoinValueInput.HEIGHT, 0, 0, this.xSize, this.ySize - CoinValueInput.HEIGHT);
 		
-		//Render the price input before rendering the buttons lest they get rendered behind it.
-		//this.priceInput.render(poseStack, mouseX, mouseY, partialTicks);
-		
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		
 		this.font.draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.customname").getString(), startX + 8.0F, startY + CoinValueInput.HEIGHT + 28.0F, 0x404040);

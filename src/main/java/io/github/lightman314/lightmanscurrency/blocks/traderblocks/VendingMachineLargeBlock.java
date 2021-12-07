@@ -144,15 +144,10 @@ public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable imple
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(0.4f, 0.4f, 0.4f);
-	}
+	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return new Vector3f(0.4f, 0.4f, 0.4f); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex()
-	{
-		return TRADECOUNT;
-	}
+	public int maxRenderIndex() { return TRADECOUNT; }
 	
 }

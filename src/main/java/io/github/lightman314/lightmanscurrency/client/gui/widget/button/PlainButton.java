@@ -38,6 +38,7 @@ public class PlainButton extends Button{
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.buttonResource);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         int offset = this.isHovered ? this.height : 0;
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);

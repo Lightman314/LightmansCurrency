@@ -110,7 +110,7 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
 		ListTag storageList = new ListTag();
@@ -129,7 +129,7 @@ public class CashRegisterBlockEntity extends BlockEntity{
 			compound.put("TraderPos", storageList);
 		}
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
 	}
 	
 	@Override
@@ -161,6 +161,6 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
 	
 }

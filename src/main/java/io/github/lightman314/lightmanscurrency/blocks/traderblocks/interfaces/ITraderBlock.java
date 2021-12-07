@@ -10,11 +10,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public interface ITraderBlock extends IOwnableBlock{
 
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos);
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos);
 	
 	default boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
 	{
-		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof IOwnableBlockEntity)
 		{
 			IOwnableBlockEntity ownableBlockEntity = (IOwnableBlockEntity)blockEntity;

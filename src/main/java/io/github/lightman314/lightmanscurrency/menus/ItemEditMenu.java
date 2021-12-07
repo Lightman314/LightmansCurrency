@@ -217,7 +217,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 			for(ItemStack stack : allItems)
 			{
 				//Search the display name
-				if(stack.getDisplayName().getString().toLowerCase().contains(this.searchString))
+				if(stack.getHoverName().getString().toLowerCase().contains(this.searchString))
 				{
 					this.searchResultItems.add(stack);
 				}

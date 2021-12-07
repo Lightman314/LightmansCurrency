@@ -14,4 +14,6 @@ public interface IWideBlock {
 	
 	public boolean getIsLeft(BlockState state);
 	
+	default boolean getIsRight(BlockState state) { return !getIsLeft(state); }
+	
 }

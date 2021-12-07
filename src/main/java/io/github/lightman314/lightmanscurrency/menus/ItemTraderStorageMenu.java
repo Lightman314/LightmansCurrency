@@ -32,9 +32,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 	
 	public final ItemTraderBlockEntity tileEntity;
 	
-	//final IInventory tradeInventory;
 	final Container coinSlots;
-	//final List<TradeInputSlot> tradeSlots;
 	
 	public ItemTraderStorageMenu(int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity)
 	{
@@ -52,7 +50,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		//Storage Slots
 		for(int y = 0; y < rowCount; y++)
 		{
-			for(int x = 0; x < columnCount && x + y * columnCount < tileEntity.getSizeInventory(); x++)
+			for(int x = 0; x < columnCount && x + y * columnCount < tileEntity.getStorage().getContainerSize(); x++)
 			{
 				this.addSlot(new Slot(this.tileEntity.getStorage(), x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
 			}
@@ -82,9 +80,6 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			this.addSlot(new Slot(inventory, x, inventoryOffset + 8 + x * 18 + SCREEN_EXTENSION, getStorageBottom() + 15 + 58));
 		}
 		
-		
-		
-		
 	}
 	
 	public int getStorageBottom()
@@ -101,104 +96,6 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		}
 	}
 	
-	/*@Override //No longer need to override the slot clicking, as changes to the trades are now handled in the screen click events
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, PlayerEntity player)
-	{
-		
-		if(slotClickOverride(slotId, dragType, clickType, player, this.inventorySlots, this))
-		{
-			this.detectAndSendChanges();
-			return ItemStack.EMPTY;
-		}
-		
-		return super.slotClick(slotId, dragType, clickType, player);
-		
-	}*/
-	
-	/*public static boolean slotClickOverride(int slotId, int dragType, ClickType clickType, PlayerEntity player, List<Slot> inventorySlots, @Nullable IItemEditCapable itemEditCapability)
-	{
-		//LightmansCurrency.LOGGER.info("ItemTraderStorageContainer.slotClick(" + slotId + ", " + dragType + ", " + clickType + ", " + player.getName().getString() + ")");
-		if(slotId > 0 && slotId < inventorySlots.size())
-		{
-			Slot slot = inventorySlots.get(slotId);
-			if(slot instanceof TradeInputSlot && clickType != ClickType.CLONE)
-			{
-				//LightmansCurrency.LOGGER.info("TradeInputSlot slot clicked at slotID " + slotId);
-				if(clickType == ClickType.PICKUP && (dragType == 0 || dragType == 1))
-				{
-					TradeInputSlot tradeSlot = (TradeInputSlot)slot;
-					IInventory inventory = slot.inventory;
-					int index = slot.getSlotIndex();
-					ItemStack tradeStack = inventory.getStackInSlot(index);
-					ItemStack handStack = player.inventory.getItemStack();
-					//Remove items from the trade
-					if(handStack.isEmpty())
-					{
-						if(!tradeStack.isEmpty())
-						{
-							if(dragType == 0)
-								inventory.setInventorySlotContents(index, ItemStack.EMPTY);
-							else
-								inventory.decrStackSize(index, tradeStack.getCount() / 2);
-						}
-						else if(itemEditCapability != null)
-						{
-							//Open the ItemEdit screen
-							//LightmansCurrency.LogInfo("Attempting to open the item edit screen for slot index " + slotId);
-							itemEditCapability.openItemEditScreenForSlot(slotId);
-						}
-					}
-					//Add items to the trade
-					else if(tradeSlot.isTradeItemValid(handStack))
-					{
-						if(tradeStack.isEmpty())
-						{
-							//Replace the stack in the inventory
-							if(dragType == 0 || handStack.getCount() < 2)
-								inventory.setInventorySlotContents(index, handStack.copy());
-							else
-							{
-								ItemStack smallStack = handStack.copy();
-								smallStack.setCount(1);
-								inventory.setInventorySlotContents(index, smallStack);
-							}
-							
-						}
-						else if(InventoryUtil.ItemMatches(handStack, tradeStack) && tradeStack.getCount() < tradeStack.getMaxStackSize())
-						{
-							//Add to the count
-							if(dragType == 0 && handStack.getCount() > 1)
-							{
-								tradeStack.setCount(MathUtil.clamp(tradeStack.getCount() + handStack.getCount(), 1, tradeStack.getMaxStackSize()));
-								inventory.setInventorySlotContents(index, tradeStack);
-							}
-							else
-							{
-								tradeStack.grow(1);
-								inventory.setInventorySlotContents(index, tradeStack);
-							}
-						}
-						else
-						{
-							//Override the stack in the inventory
-							if(dragType == 0 || handStack.getCount() < 2)
-								inventory.setInventorySlotContents(index, handStack.copy());
-							else
-							{
-								ItemStack smallStack = handStack.copy();
-								smallStack.setCount(1);
-								inventory.setInventorySlotContents(index, smallStack);
-							}
-						}
-					}
-				}
-				//Otherwise do nothing
-				return true;
-			}
-		}
-		return false;
-	}*/
-	
 	@Override
 	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
@@ -212,7 +109,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
 			//Merge items from storage back into the players inventory
-			if(index < this.tileEntity.getSizeInventory())
+			if(index < this.tileEntity.getStorage().getContainerSize())
 			{
 				if(!this.moveItemStackTo(slotStack,  this.tileEntity.getStorage().getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))
 				{
@@ -220,7 +117,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 				}
 			}
 			//Merge items from the coin slots back into the players inventory
-			else if(index < this.tileEntity.getSizeInventory() + this.coinSlots.getContainerSize())
+			else if(index < this.tileEntity.getStorage().getContainerSize() + this.coinSlots.getContainerSize())
 			{
 				LightmansCurrency.LogInfo("Merging coin slots back into inventory.");
 				if(!this.moveItemStackTo(slotStack, this.tileEntity.getStorage().getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))

@@ -24,8 +24,8 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 
 	//PlayerContainer variables
 	public final Player player;
-	private static final ResourceLocation[] ARMOR_SLOT_TEXTURES = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
-	private static final EquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+	private static final ResourceLocation[] TEXTURE_EMPTY_SLOTS = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET};
+	private static final EquipmentSlot[] SLOT_IDS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
 	
 	//My variables
 	public static final int WALLET_SLOT_X = 152;
@@ -40,7 +40,7 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 		
 		//Equipment slots
 		for(int k = 0; k < 4; ++k) {
-			final EquipmentSlot equipmentslottype = VALID_EQUIPMENT_SLOTS[k];
+			final EquipmentSlot equipmentslottype = SLOT_IDS[k];
 			this.addSlot(new Slot(inventory, 39 - k, 8, 8 + k * 18) {
 	            public int getMaxStackSize() {
 	               return 1;
@@ -54,7 +54,7 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 	            }
 	            @OnlyIn(Dist.CLIENT)
 	            public Pair<ResourceLocation, ResourceLocation> getBackground() {
-	            	return Pair.of(InventoryMenu.BLOCK_ATLAS, ARMOR_SLOT_TEXTURES[equipmentslottype.getIndex()]);
+	            	return Pair.of(InventoryMenu.BLOCK_ATLAS, TEXTURE_EMPTY_SLOTS[equipmentslottype.getIndex()]);
 	            }
 			});
 		}

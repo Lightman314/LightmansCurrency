@@ -55,7 +55,7 @@ public class WalletMenu extends AbstractContainerMenu{
 		this.inventory = inventory;
 		
 		this.walletItem = (WalletItem)getWallet().getItem();
-		this.title = this.getWallet().getDisplayName();
+		this.title = this.getWallet().getHoverName();
 		
 		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
@@ -78,7 +78,8 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			for(int x = 0; x < 9; x++)
 			{
-				if((x + (y * 9) + 9) == this.walletStackIndex)
+				int index = x + (y * 9) + 9;
+				if(index == this.walletStackIndex)
 					this.addSlot(new DisplaySlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18));
 				else
 					this.addSlot(new BlacklistSlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));

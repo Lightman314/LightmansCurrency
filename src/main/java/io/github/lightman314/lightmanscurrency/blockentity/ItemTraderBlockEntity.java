@@ -73,7 +73,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		super(ModTileEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getSizeInventory());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
@@ -81,14 +81,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(ModTileEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getSizeInventory());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getSizeInventory());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
@@ -96,7 +96,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getSizeInventory());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
@@ -104,7 +104,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		getTrade(index).setRestriction(restriction);
 	}
 	
-	public int getSizeInventory()
+	private int getStorageSize()
 	{
 		return getTradeCount() * 9;
 	}
@@ -162,15 +162,15 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		}
 		//Set the new inventory list
 		Container oldStorage = this.storage;
-		this.storage = new SimpleContainer(this.getSizeInventory());
+		this.storage = new SimpleContainer(this.getStorageSize());
 		for(int i = 0; i < this.storage.getContainerSize() && i < oldStorage.getContainerSize(); i++)
 		{
 			this.storage.setItem(i, oldStorage.getItem(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldStorage.getContainerSize() > this.getSizeInventory())
+		if(oldStorage.getContainerSize() > this.getStorageSize())
 		{
-			for(int i = this.getSizeInventory(); i < oldStorage.getContainerSize(); i++)
+			for(int i = this.getStorageSize(); i < oldStorage.getContainerSize(); i++)
 			{
 				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getItem(i));
 			}
@@ -180,7 +180,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			//Send update packet
 			CompoundTag compound = this.writeTrades(new CompoundTag());
-			this.writeItems(compound);
+			this.writeStorage(compound);
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		
@@ -208,6 +208,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			//Send update packet
 			CompoundTag compound = this.writeTrades(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.setChanged();
+	}
+	
+	public void markStorageDirty()
+	{
+		//Send an update to the client
+		if(!this.level.isClientSide)
+		{
+			//Send update packet
+			CompoundTag compound = this.writeStorage(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		this.setChanged();
@@ -317,19 +329,19 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
-		this.writeItems(compound);
+		this.writeStorage(compound);
 		this.writeTrades(compound);
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
 		
 	}
 	
-	protected CompoundTag writeItems(CompoundTag compound)
+	protected CompoundTag writeStorage(CompoundTag compound)
 	{
 		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		return compound;
@@ -370,7 +382,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		//Load the inventory
 		if(compound.contains("Items"))
 		{
-			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getSizeInventory());
+			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getStorageSize());
 		}
 		
 		//Load the shop logger
@@ -387,13 +399,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	@Override
 	public void dumpContents(Level world, BlockPos pos)
 	{
-		//super.dumpContents dumps the coins automatically
 		super.dumpContents(world, pos);
-		//Dump the Inventory
+		//Dump the storage
 		InventoryUtil.dumpContents(world, pos, this.storage);
-		//Dump the Trade Inventory
-		//Removed as the trade inventory no longer consumes items
-		//InventoryUtil.dumpContents(world, pos, new TradeInventory(trades));
 	}
 	
 	@Override
@@ -403,10 +411,10 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
-		if(this.level.isClientSide)
-			this.rotationTime++;
+	public void clientTick() {
+		
+		super.clientTick();
+		this.rotationTime++;
 	}
 	
 	@Override

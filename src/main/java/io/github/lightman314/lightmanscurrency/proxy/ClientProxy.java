@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -65,8 +65,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModTileEntities.ITEM_TRADER, ItemTraderTileEntityRenderer::new);
-    	BlockEntityRenderers.register(ModTileEntities.FREEZER_TRADER, FreezerTraderTileEntityRenderer::new);
+    	BlockEntityRenderers.register(ModTileEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModTileEntities.FREEZER_TRADER, FreezerTraderBlockEntityRenderer::new);
     	
     	//Register Addable Trade Rules
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());

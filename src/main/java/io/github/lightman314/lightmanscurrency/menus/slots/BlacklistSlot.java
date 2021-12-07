@@ -21,7 +21,7 @@ public class BlacklistSlot extends Slot {
 		this.blacklistIndex = blacklistIndex;
 	}
 	
-	public ItemStack getItem()
+	public ItemStack getBlacklistedItem()
 	{
 		return this.blacklistInventory.getItem(this.blacklistIndex);
 	}
@@ -30,7 +30,7 @@ public class BlacklistSlot extends Slot {
 	public boolean mayPlace(ItemStack item)
 	{
 		if(this.blacklistIndex >= 0)
-			return item != this.getItem();
+			return item != this.getBlacklistedItem();
 		return true;
 	}
 	

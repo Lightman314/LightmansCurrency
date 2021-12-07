@@ -89,7 +89,7 @@ public class UniversalItemTraderScreen extends AbstractContainerScreen<Universal
 		int tradeCount = this.menu.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(this.menu.getData(), i), this.topPos + ItemTraderUtil.getButtonPosY(this.menu.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.menu.getData(), this.menu)));
+			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(this.menu.getData(), i), this.topPos + ItemTraderUtil.getButtonPosY(this.menu.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.menu.getData(), this.menu::GetCoinValue, this.menu::GetItemInventory)));
 		}
 	}
 	
@@ -128,7 +128,7 @@ public class UniversalItemTraderScreen extends AbstractContainerScreen<Universal
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.menu.getData(), false, mouseX, mouseY, this.menu);
+			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.menu.getData(), false, mouseX, mouseY);
 		}
 		
 	}

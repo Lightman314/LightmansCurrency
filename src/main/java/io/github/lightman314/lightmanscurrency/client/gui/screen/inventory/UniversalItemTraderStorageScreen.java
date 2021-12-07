@@ -242,7 +242,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 			for(int i = 0; i < this.menu.getData().getTradeCount(); i++)
 			{
 				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.menu.getData(), this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY, null);
+				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.menu.getData(), this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY);
 				if(result < 0) //Result is negative if the mouse is over a slot, but the slot is empty.
 					this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
 			}

@@ -32,7 +32,7 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		
-		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
 		{
 			ArmorDisplayTraderBlockEntity trader = (ArmorDisplayTraderBlockEntity)blockEntity;

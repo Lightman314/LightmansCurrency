@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class TextLogger {
 
@@ -64,6 +68,11 @@ public abstract class TextLogger {
 					this.logText.add(text);
 			}
 		}
+	}
+	
+	public static Component getCostText(boolean isFree, CoinValue cost)
+	{
+		return isFree ? new TranslatableComponent("log.shoplog.cost.free").withStyle(ChatFormatting.YELLOW) : new TextComponent(cost.getString()).withStyle(ChatFormatting.YELLOW);
 	}
 	
 }

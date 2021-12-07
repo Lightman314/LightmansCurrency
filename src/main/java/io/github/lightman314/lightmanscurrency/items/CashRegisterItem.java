@@ -45,7 +45,7 @@ public class CashRegisterItem extends BlockItem{
 			if(level.getBlockState(lookPos).getBlock() instanceof ITraderBlock)
 			{
 				ITraderBlock block = (ITraderBlock)level.getBlockState(lookPos).getBlock();
-				BlockEntity blockEntity = block.getTileEntity(level.getBlockState(lookPos), level, lookPos);
+				BlockEntity blockEntity = block.getBlockEntity(level.getBlockState(lookPos), level, lookPos);
 				if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderBlockEntity)
 				{
 					AddEntity(context.getItemInHand(), blockEntity);

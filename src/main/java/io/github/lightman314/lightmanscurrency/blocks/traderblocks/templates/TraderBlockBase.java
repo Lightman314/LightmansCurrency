@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
@@ -15,6 +16,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -24,12 +26,26 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class TraderBlockBase extends Block implements ITraderBlock, EntityBlock {
 
 	public TraderBlockBase(Properties properties)
 	{
 		super(properties);
+	}
+	
+	protected boolean isTransparent() { return true; }
+	
+	@Override
+	@SuppressWarnings("deprecation")
+	public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	{
+		if(this.isTransparent())
+			return Shapes.empty();
+		return super.getVisualShape(state, level, pos, context);
 	}
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
@@ -54,7 +70,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	{
 		if(!level.isClientSide)
 		{
-			BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 			if(blockEntity instanceof TraderBlockEntity)
 			{
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
@@ -75,11 +91,11 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		this.setPlacedByBase(level, pos, state, player, stack);
 	}
 	
-	public void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public final void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
-			BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 			if(blockEntity instanceof TraderBlockEntity)
 			{
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
@@ -87,7 +103,14 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 				if(stack.hasCustomHoverName())
 					trader.setCustomName(stack.getHoverName().getString());
 			}
+			else
+			{
+				LightmansCurrency.LogError("Trader Block returned block entity of type '" + (blockEntity == null ? "null" : blockEntity.getClass().getName()) + "' when placing the block.");
+			}
 		}
+
+		//No need to run super.setPlacedBy, as it's empty
+		
 	}
 	
 	@Override
@@ -96,9 +119,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		this.playerWillDestroyBase(level, pos, state, player);
 	}
 	
-	public void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
+	public final void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof TraderBlockEntity)
 		{
 			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
@@ -107,12 +130,16 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 			else
 				trader.dumpContents(level, pos);
 		}
+		else
+		{
+			LightmansCurrency.LogError("Trader Block returned block entity of type '" + (blockEntity == null ? "null" : blockEntity.getClass().getName()) + "' when destroying the block.");
+		}
 		super.playerWillDestroy(level, pos, state, player);
 	}
 	
 	@Override
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor world, BlockPos pos) {
-		return world.getBlockEntity(pos);
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) {
+		return level.getBlockEntity(pos);
 	}
 	
 }

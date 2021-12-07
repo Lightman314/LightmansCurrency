@@ -39,6 +39,12 @@ public class ClientModEvents {
 	}
 	
 	@SubscribeEvent
+	public void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
+	{
+		event.registerLayerDefinition(ModLayerDefinitions.WALLET, WalletLayer::createLayer);
+	}
+	
+	@SubscribeEvent
 	public void addLayers(EntityRenderersEvent.AddLayers event)
 	{
 		addWalletLayer(event,"default");

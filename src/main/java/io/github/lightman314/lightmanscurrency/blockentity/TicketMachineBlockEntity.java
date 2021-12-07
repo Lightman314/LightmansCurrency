@@ -20,12 +20,12 @@ public class TicketMachineBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
 		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
 	}
 	
 	public void load(CompoundTag compound)

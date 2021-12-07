@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class TradeEvent extends Event{
@@ -20,16 +19,13 @@ public abstract class TradeEvent extends Event{
 	public final Player getPlayer() { return this.player; }
 	private final TradeData trade;
 	public final TradeData getTrade() { return this.trade; }
-	private final AbstractContainerMenu container;
-	public final AbstractContainerMenu getContainer() { return this.container; }
 	private final Supplier<ITrader> traderSource;
 	public final ITrader getTrader() { return this.traderSource.get(); }
 	
-	protected TradeEvent(Player player, TradeData trade, AbstractContainerMenu container, Supplier<ITrader> trader)
+	protected TradeEvent(Player player, TradeData trade, Supplier<ITrader> trader)
 	{
 		this.player = player;
 		this.trade = trade;
-		this.container = container;
 		this.traderSource = trader;
 	}
 	
@@ -38,9 +34,9 @@ public abstract class TradeEvent extends Event{
 		
 		private final List<Component> denialText = Lists.newArrayList();
 		
-		public PreTradeEvent(Player player, TradeData trade, AbstractContainerMenu container, Supplier<ITrader> trader)
+		public PreTradeEvent(Player player, TradeData trade, Supplier<ITrader> trader)
 		{
-			super(player, trade, container, trader);
+			super(player, trade, trader);
 		}
 		
 		public void denyTrade(Component reason)
@@ -69,9 +65,9 @@ public abstract class TradeEvent extends Event{
 		public CoinValue getBaseCost() { return this.currentCost; }
 		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
 		
-		public TradeCostEvent(Player player, TradeData trade, AbstractContainerMenu container, Supplier<ITrader> trader)
+		public TradeCostEvent(Player player, TradeData trade, Supplier<ITrader> trader)
 		{
-			super(player, trade, container, trader);
+			super(player, trade, trader);
 			this.costMultiplier = 1f;
 			this.currentCost = trade.getCost();
 		}
@@ -84,9 +80,9 @@ public abstract class TradeEvent extends Event{
 		private final CoinValue pricePaid;
 		public CoinValue getPricePaid() { return this.pricePaid; }
 		
-		public PostTradeEvent(Player player, TradeData trade, AbstractContainerMenu container, Supplier<ITrader> trader, CoinValue pricePaid)
+		public PostTradeEvent(Player player, TradeData trade, Supplier<ITrader> trader, CoinValue pricePaid)
 		{
-			super(player, trade, container, trader);
+			super(player, trade, trader);
 			this.pricePaid = pricePaid;
 		}
 		

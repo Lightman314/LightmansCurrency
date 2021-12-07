@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.renderer.tileentity;
+package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemTraderTileEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
+public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 
 	public static int positionLimit()
 	{
@@ -33,7 +33,7 @@ public class ItemTraderTileEntityRenderer implements BlockEntityRenderer<ItemTra
 		}
 	}
 	
-	public ItemTraderTileEntityRenderer(BlockEntityRendererProvider.Context dispatcher)
+	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher)
 	{
 		//dispatcher.
 		//super(dispatcher);

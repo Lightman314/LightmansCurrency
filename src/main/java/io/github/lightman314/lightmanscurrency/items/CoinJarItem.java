@@ -38,9 +38,9 @@ public class CoinJarItem extends BlockItem {
 				{
 					ItemStack coin = jarStorage.get(i);
 					if(coin.getCount() > 1)
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getDisplayName()));
+						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
 					else
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getDisplayName()));
+						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
 				}
 			}
 			else

@@ -44,10 +44,10 @@ public class CoinMintBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		InventoryUtil.saveAllItems("Storage", compound, this.storage);
-		return super.save(compound);
+		super.saveAdditional(compound);
 	}
 	
 	@Override
@@ -186,7 +186,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
 	
 	//Item capability for hopper and item automation
 	@Override
@@ -205,6 +205,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 		super.invalidateCaps();
 		inventoryHandlerLazyOptional.invalidate();
 	}
+
 	
 	public static class MintItemCapability implements IItemHandler
 	{

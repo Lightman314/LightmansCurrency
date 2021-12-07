@@ -8,8 +8,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -104,21 +102,12 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	protected abstract UniversalTraderData createInitialData(Entity owner);
 	
 	@Override
-	public void onLoad()
-	{
-		if(level.isClientSide)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
-		}
-	}
-	
-	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		if(this.traderID != null)
 			compound.putUUID("ID", this.traderID);
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
 		
 	}
 	
@@ -129,11 +118,6 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 			this.traderID = compound.getUUID("ID");
 		
 		super.load(compound);
-	}
-	
-	@Override
-	public CompoundTag getUpdateTag() {
-		return this.save(new CompoundTag());
 	}
 	
 	public void openStorageMenu(Player player)

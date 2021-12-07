@@ -13,4 +13,6 @@ public interface ITallBlock {
 	
 	public boolean getIsBottom(BlockState state);
 	
+	default boolean getIsTop(BlockState state) { return !this.getIsBottom(state); }
+	
 }

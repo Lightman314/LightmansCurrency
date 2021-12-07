@@ -100,7 +100,6 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 				this.updateToggleButton();
 		}
 		
-		super.tick();
 	}
 	
 	private void updateToggleButton()

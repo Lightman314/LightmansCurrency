@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.function.BiFunction;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IWideBlock;
@@ -34,7 +35,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	
 	protected TraderBlockTallWideRotatable(Properties properties)
 	{
-		this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE_T);
+		this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE);
 	}
 	
 	protected TraderBlockTallWideRotatable(Properties properties, VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west)
@@ -55,6 +56,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			this.defaultBlockState()
 				.setValue(FACING, Direction.NORTH)
 				.setValue(ISBOTTOM, true)
+				.setValue(ISLEFT, true)
 		);
 	}
 	
@@ -110,7 +112,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof TraderBlockEntity)
 		{
 			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
@@ -118,7 +120,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 				return;
 		}
 		
-		if(state.getValue(ISBOTTOM))
+		if(this.getIsBottom(state))
 		{
 			setAir(level, pos.above(), player);
 			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
@@ -133,7 +135,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			setAir(level, otherPos.below(), player);
 		}
 		
-		super.playerWillDestroyBase(level, pos, state, player);
+		this.playerWillDestroyBase(level, pos, state, player);
 		
 	}
 	
@@ -148,13 +150,21 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos)
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
-		if(!this.getIsBottom(state))
-			pos = pos.below();
-		if(!this.getIsLeft(state))
-			pos = IRotatableBlock.getLeftPos(pos, this.getFacing(state));
-		return level.getBlockEntity(pos);
+		BlockPos getPos = this.getBlockEntityPos(state, pos);
+		LightmansCurrency.LogInfo("Block Entity Position of Tall&Wide trader at " + pos.toShortString() + " is " + getPos.toShortString() + "\nIsBottom: " + this.getIsBottom(state) + "\nIsLeft: " + this.getIsLeft(state));
+		return level.getBlockEntity(getPos);
+	}
+	
+	private BlockPos getBlockEntityPos(BlockState state, BlockPos pos)
+	{
+		BlockPos getPos = pos;
+		if(this.getIsRight(state))
+			getPos = IRotatableBlock.getLeftPos(getPos, this.getFacing(state));
+		if(this.getIsTop(state))
+			return getPos.below();
+		return getPos;
 	}
 	
 	@Override

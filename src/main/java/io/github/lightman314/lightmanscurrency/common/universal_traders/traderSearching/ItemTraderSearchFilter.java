@@ -24,7 +24,7 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 				{
 					ItemStack sellItem = trades.get(i).getSellItem();
 					//Search item name
-					if(sellItem.getDisplayName().getString().toLowerCase().contains(searchText))
+					if(sellItem.getHoverName().getString().toLowerCase().contains(searchText))
 						return true;
 					//Search custom name
 					if(trades.get(i).getCustomName().toLowerCase().contains(searchText))
@@ -43,7 +43,7 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 					{
 						ItemStack barterItem = trades.get(i).getBarterItem();
 						//Search item name
-						if(barterItem.getDisplayName().getString().toLowerCase().contains(searchText))
+						if(barterItem.getHoverName().getString().toLowerCase().contains(searchText))
 							return true;
 						//Search enchantments
 						foundEnchantment.set(false);

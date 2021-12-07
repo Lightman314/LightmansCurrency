@@ -3,14 +3,10 @@ package io.github.lightman314.lightmanscurrency.menus;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -19,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,9 +23,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
-public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu, ITradeButtonContainer{
+public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu {
 	
 	public final Player player;
 	
@@ -191,26 +185,6 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	
 	public Container GetItemInventory() { return itemSlots; }
 	
-	@Override
-	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput)
-	{
-		ItemTradeData trade = tileEntity.getTrade(tradeIndex);
-		if(trade == null)
-			return false;
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, this, () -> this.tileEntity);
-		if(!event.isCanceled())
-			this.tileEntity.beforeTrade(event);
-		if(!event.isCanceled())
-			trade.beforeTrade(event);
-		if(!event.isCanceled())
-			MinecraftForge.EVENT_BUS.post(event);
-		
-		if(denialOutput != null)
-			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
-		
-		return !event.isCanceled();
-	}
-	
 	public IItemTrader getTrader()
 	{
 		return this.tileEntity;
@@ -219,37 +193,6 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	public ItemTradeData GetTrade(int tradeIndex)
 	{
 		return this.tileEntity.getTrade(tradeIndex);
-	}
-	
-	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
-	{
-		TradeCostEvent event = new TradeCostEvent(this.player, trade, this, () -> this.tileEntity);
-		this.tileEntity.tradeCost(event);
-		trade.tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	private void PostTradeEvent(ItemTradeData trade, CoinValue pricePaid)
-	{
-		//Enclose post trade event to prevent the trader owner from not getting compensated for the trade.
-		try {
-			PostTradeEvent event = new PostTradeEvent(this.player, trade, this, () -> this.tileEntity, pricePaid);
-			this.tileEntity.afterTrade(event);
-			if(event.isDirty())
-			{
-				this.tileEntity.markRulesDirty();
-				event.clean();
-			}
-			trade.afterTrade(event);
-			if(event.isDirty())
-			{
-				this.tileEntity.markTradesDirty();
-				event.clean();
-			}
-			MinecraftForge.EVENT_BUS.post(event);
-		}
-		catch(Exception e) { e.printStackTrace(); }
 	}
 	
 	public void ExecuteTrade(int tradeIndex)
@@ -278,11 +221,11 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex, null))
+		if(this.tileEntity.runPreTradeEvent(this.player, tradeIndex).isCanceled())
 			return;
 		
 		//Get the cost of the trade
-		CoinValue price = this.TradeCostEvent(trade).getCostResult();
+		CoinValue price = this.tileEntity.runTradeCostEvent(player, tradeIndex).getCostResult();
 		
 		//Process a sale
 		if(trade.isSale())
@@ -344,7 +287,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.isCreative())
@@ -352,8 +295,11 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 				//Remove the sold items from storage
 				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
 				trade.RemoveItemsFromStorage(this.tileEntity.getStorage());
-				//Give the payed cost to storage
-				tileEntity.addStoredMoney(price);
+				//Give the paid cost to storage
+				this.tileEntity.addStoredMoney(price);
+				
+				this.tileEntity.markStorageDirty();
+				
 			}
 			
 		}
@@ -389,7 +335,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.isCreative())
@@ -398,6 +344,9 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getSellItem());
 				//Remove the coins from storage
 				this.tileEntity.removeStoredMoney(price);
+				
+				this.tileEntity.markStorageDirty();
+				
 			}
 			
 		}
@@ -441,7 +390,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.isCreative())
@@ -450,6 +399,9 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getBarterItem());
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.tileEntity.getStorage());
+				
+				this.tileEntity.markStorageDirty();
+				
 			}
 			
 		}

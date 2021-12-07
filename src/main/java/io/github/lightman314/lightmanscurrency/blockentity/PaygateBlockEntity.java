@@ -23,10 +23,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PaygateBlockEntity extends BlockEntity implements MenuProvider, Nameable {
+public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvider, Nameable {
 	
 	public static final int PRICE_MIN = 0;
 	public static final int PRICE_MAX = Integer.MAX_VALUE;
@@ -188,7 +187,7 @@ public class PaygateBlockEntity extends BlockEntity implements MenuProvider, Nam
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
 		writeOwner(compound);
@@ -201,7 +200,7 @@ public class PaygateBlockEntity extends BlockEntity implements MenuProvider, Nam
 		if(this.customName != null)
 			compound.putString("CustomName", Component.Serializer.toJson(this.customName));
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
 		
 	}
 	
@@ -287,7 +286,7 @@ public class PaygateBlockEntity extends BlockEntity implements MenuProvider, Nam
 		
 	}
 	
-	//@Override
+	@Override
 	public void tick()
 	{
 		if(timer > 0)
@@ -333,6 +332,6 @@ public class PaygateBlockEntity extends BlockEntity implements MenuProvider, Nam
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
 	
 }

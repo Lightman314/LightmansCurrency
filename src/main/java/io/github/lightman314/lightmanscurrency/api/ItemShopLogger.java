@@ -18,7 +18,7 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePayed, boolean isCreative)
+	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
 		
 		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
@@ -26,18 +26,18 @@ public class ItemShopLogger extends TextLogger{
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only
-		MutableComponent itemName = (new TextComponent("")).append(trade.getSellItem().getDisplayName()).withStyle(trade.getSellItem().getRarity().color);
+		MutableComponent itemName = (new TextComponent("")).append(trade.getSellItem().getHoverName()).withStyle(trade.getSellItem().getRarity().color);
 		if (trade.getSellItem().hasCustomHoverName()) {
 			itemName.withStyle(ChatFormatting.ITALIC);
 		}
 		
 		Component itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
-		Component cost = new TextComponent("§e" + pricePayed.getString());
+		Component cost = getCostText(trade.isFree(), pricePaid);
 		if(trade.isBarter())
 		{
 			//Flip the sell item to the cost position
 			cost = itemText;
-			MutableComponent barterItemName = (new TextComponent("")).append(trade.getBarterItem().getDisplayName()).withStyle(trade.getSellItem().getRarity().color);
+			MutableComponent barterItemName = (new TextComponent("")).append(trade.getBarterItem().getHoverName()).withStyle(trade.getSellItem().getRarity().color);
 			if (trade.getBarterItem().hasCustomHoverName()) {
 				itemName.withStyle(ChatFormatting.ITALIC);
 			}

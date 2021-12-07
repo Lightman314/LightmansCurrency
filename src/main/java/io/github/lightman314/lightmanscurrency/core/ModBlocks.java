@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.ArmorDisplayBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.CardDisplayBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.DisplayCaseBlock;
@@ -24,11 +25,14 @@ import io.github.lightman314.lightmanscurrency.Reference;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,40 +49,33 @@ public class ModBlocks {
 	//Coin piles
 	public static final BlockItemPair COINPILE_COPPER = register("coinpile_copper", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			//.harvestTool(ToolType.PICKAXE),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			ModItems.COIN_COPPER
 			)
 	);
 	public static final BlockItemPair COINPILE_IRON = register("coinpile_iron", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			ModItems.COIN_IRON
 			)
 	);
 	public static final BlockItemPair COINPILE_GOLD = register("coinpile_gold", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			ModItems.COIN_GOLD
 			)
 	);
 	public static final BlockItemPair COINPILE_DIAMOND = register("coinpile_diamond", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			ModItems.COIN_DIAMOND
 			)
 	);
@@ -86,7 +83,8 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			//.harvestLevel(0)
 			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_EMERALD
@@ -94,11 +92,9 @@ public class ModBlocks {
 	);
 	public static final BlockItemPair COINPILE_NETHERITE = register("coinpile_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.NETHERITE_COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
+			.sound(SoundType.METAL)
+			.isViewBlocking(ModBlocks::never),
 			ModItems.COIN_NETHERITE
 			)
 	);
@@ -108,8 +104,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_COPPER
 			)
 			
@@ -118,8 +112,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_IRON
 			)
 	);
@@ -127,8 +119,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_GOLD
 			)
 	);
@@ -136,8 +126,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_EMERALD
 			)
 	);
@@ -145,8 +133,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_DIAMOND
 			)
 	);
@@ -154,8 +140,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_NETHERITE
 			)
 	);
@@ -164,20 +148,15 @@ public class ModBlocks {
 	//Misc Machines
 	public static final BlockItemPair MACHINE_ATM = register("atm", LightmansCurrency.MACHINE_GROUP, new ATMBlock(
 		Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
+			.isViewBlocking(ModBlocks::never)
 			)
 	);
 	public static final BlockItemPair MACHINE_MINT = register("coinmint", LightmansCurrency.MACHINE_GROUP, new CoinMintBlock(
 		Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
 			)
 	);
 	
@@ -185,70 +164,57 @@ public class ModBlocks {
 	//Display Case
 	public static final BlockItemPair DISPLAY_CASE = register("display_case", LightmansCurrency.TRADING_GROUP, BlockItemType.DEFAULT, new DisplayCaseBlock(
 			Block.Properties.of(Material.GLASS)
-				//.notSolid()
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
-				//.harvestTool(ToolType.PICKAXE)
+				.isViewBlocking(ModBlocks::never)
 				)
 	);
 	
 	//Vending Machine 1 (Normal Sized)
 	public static final BlockItemSet<Colors> VENDING_MACHINE1 = registerColored("vending_machine", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(5.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
+			.isViewBlocking(ModBlocks::topOnly)
 		), false);
 	
 	//Vending Machine 2 (Large)
 	public static final BlockItemSet<Colors> VENDING_MACHINE2 = registerColored("vending_machine_large", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE)
+				.isViewBlocking(ModBlocks::topOnly)
 			), false);
 	
 	//Wooden Shelves
 	public static final BlockItemSet<WoodType> SHELF = registerWooden("shelf", LightmansCurrency.TRADING_GROUP, () -> new ShelfBlock(
 			Block.Properties.of(Material.WOOD)
-				//.notSolid()
 				.strength(2.0f, Float.POSITIVE_INFINITY)
-				//.sound(SoundType.WOOD)
-				//.harvestTool(ToolType.AXE)
 				));
 	
 	//Card Shelves
 	public static final BlockItemSet<WoodType> CARD_DISPLAY = registerWooden("card_display", LightmansCurrency.TRADING_GROUP, () -> new CardDisplayBlock(
 			Block.Properties.of(Material.WOOD)
-				//.notSolid()
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.WOOD)
-				//.harvestTool(ToolType.AXE)
+				.isViewBlocking(ModBlocks::never)
 				));
 	
 	//Armor Display
 	public static final BlockItemPair ARMOR_DISPLAY = register("armor_display", LightmansCurrency.TRADING_GROUP, new ArmorDisplayBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE)
+				.isViewBlocking(ModBlocks::never)
 			)
 	);
 	
 	//Freezer
 	public static final BlockItemPair FREEZER = register("freezer", LightmansCurrency.TRADING_GROUP, new FreezerBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE)
+				.isViewBlocking(ModBlocks::never)
 			)
 	);
 	
@@ -257,44 +223,36 @@ public class ModBlocks {
 	//Small Network Trader
 	public static final BlockItemPair ITEM_TRADER_SERVER_SMALL = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL),
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE),
+				.sound(SoundType.METAL)
+				.isViewBlocking(ModBlocks::never),
 				3
 			)
 	);
 	//Medium Network Trader
 	public static final BlockItemPair ITEM_TRADER_SERVER_MEDIUM = register("item_trader_server_med", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL),
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE),
+				.sound(SoundType.METAL)
+				.isViewBlocking(ModBlocks::never),
 				6
 			)
 	);
 	//Large Network Trader
 	public static final BlockItemPair ITEM_TRADER_SERVER_LARGE = register("item_trader_server_lrg", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL),
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE),
+				.sound(SoundType.METAL)
+				.isViewBlocking(ModBlocks::never),
 				12
 			)
 	);
 	//X-Large Network Trader
 	public static final BlockItemPair ITEM_TRADER_SERVER_EXTRA_LARGE = register("item_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
-				//.notSolid()
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL),
-				//.harvestLevel(0)
-				//.harvestTool(ToolType.PICKAXE),
+				.sound(SoundType.METAL)
+				.isViewBlocking(ModBlocks::never),
 				16
 			)
 	);
@@ -302,11 +260,8 @@ public class ModBlocks {
 	//Cash Register
 	public static final BlockItemPair CASH_REGISTER = register("cash_register", LightmansCurrency.MACHINE_GROUP, BlockItemType.CASH_REGISTER, new CashRegisterBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			Block.box(1d,0d,1d,15d,10d,15d)
 		)
 	);
@@ -314,11 +269,8 @@ public class ModBlocks {
 	//Terminal
 	public static final BlockItemPair TERMINAL = register("terminal", LightmansCurrency.MACHINE_GROUP, new TerminalBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL),
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE),
 			Block.box(1d,0d,1d,15d,15d,15d)
 		)
 	);
@@ -328,8 +280,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
 		)
 	);
 	
@@ -338,26 +288,20 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
 		)
 	);
 	
 	//Ticket Machine
 	public static final BlockItemPair TICKET_MACHINE = register("ticket_machine", LightmansCurrency.MACHINE_GROUP, new TicketMachineBlock(
 			Block.Properties.of(Material.METAL)
-			//.notSolid()
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL)
-			//.harvestLevel(0)
-			//.harvestTool(ToolType.PICKAXE)
 			)
 	);
 	
 	//Coin Jars
 	public static final BlockItemPair PIGGY_BANK = register("piggy_bank", CreativeModeTab.TAB_DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
 			Block.Properties.of(Material.STONE)
-			//.notSolid()
 			.strength(0.1f, 2.0f)
 			.sound(SoundType.STONE),
 			Block.box(4d, 0d, 4d, 12d, 8d, 12d)
@@ -367,7 +311,6 @@ public class ModBlocks {
 	//Jar Blue
 	public static final BlockItemPair COINJAR_BLUE = register("coinjar_blue", CreativeModeTab.TAB_DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
 			Block.Properties.of(Material.STONE)
-			//.notSolid()
 			.strength(0.1f, 2.0f)
 			.sound(SoundType.STONE),
 			Block.box(4d, 0d, 4d, 12d, 8d, 12d)
@@ -478,6 +421,18 @@ public class ModBlocks {
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));
 		ITEMS.clear();
+	}
+	
+	//isViewBlocking predicate to make blocks transparent
+	private static boolean never(BlockState state, BlockGetter level, BlockPos pos) {
+		return false;
+	}
+	
+	//isViewBlocking predicate to make blocks transparent
+	private static boolean topOnly(BlockState state, BlockGetter level, BlockPos pos) {
+		if(state.getBlock() instanceof ITallBlock)
+			return !((ITallBlock)state.getBlock()).getIsBottom(state);
+		return false;
 	}
 	
 }

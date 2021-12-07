@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.function.BiFunction;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
@@ -34,7 +35,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	
 	protected TraderBlockTallRotatable(Properties properties)
 	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
+		this(properties, LazyShapes.TALL_BOX_SHAPE);
 	}
 	
 	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape)
@@ -105,7 +106,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		BlockEntity blockEntity = this.getTileEntity(state, level, pos);
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof TraderBlockEntity)
 		{
 			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
@@ -131,11 +132,18 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos)
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
-		if(!this.getIsBottom(state))
-			pos = pos.below();
-		return level.getBlockEntity(pos);
+		BlockPos getPos = this.getBlockEntityPos(state, pos);
+		LightmansCurrency.LogInfo("Block Entity Position of Tall trader at " + pos.toShortString() + " is " + getPos.toShortString() + "\nIsBottom: " + this.getIsBottom(state));
+		return level.getBlockEntity(getPos);
+	}
+	
+	private BlockPos getBlockEntityPos(BlockState state, BlockPos pos)
+	{
+		if(this.getIsTop(state))
+			return pos.below();
+		return pos;
 	}
 	
 	@Override

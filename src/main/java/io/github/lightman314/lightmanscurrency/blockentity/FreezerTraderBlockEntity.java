@@ -29,13 +29,12 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public void tick()
+	public void clientTick()
 	{
-		super.tick();
 		
-		//this.userCount = this.storageContainers.size();
+		super.clientTick();
+		
 		int userCount = this.getUserCount();
-		//LightmansCurrency.LOGGER.info("Freezer Usercount: " + userCount);
 		
 		this.prevDoorAngle = this.doorAngle;
 		//Play the opening sound

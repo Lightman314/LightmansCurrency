@@ -171,7 +171,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 		int tradeCount = this.menu.tileEntity.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(this.menu.tileEntity, i), this.topPos + ItemTraderUtil.getButtonPosY(this.menu.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.menu.tileEntity, this.menu)));
+			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(this.menu.tileEntity, i), this.topPos + ItemTraderUtil.getButtonPosY(this.menu.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.menu.tileEntity, this.menu::GetCoinValue, this.menu::GetItemInventory)));
 		}
 	}
 	
@@ -207,7 +207,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.menu.tileEntity, false, mouseX, mouseY, this.menu);
+			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.menu.tileEntity, false, mouseX, mouseY);
 		}
 	}
 	

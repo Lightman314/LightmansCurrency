@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.renderer.tileentity;
+package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import java.util.List;
 
@@ -24,11 +24,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
-public class FreezerTraderTileEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
+public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
 	public static final Item doorItem = ModItems.FREEZER_DOOR;
 	
-	public FreezerTraderTileEntityRenderer(BlockEntityRendererProvider.Context context) { }
+	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
 	
 	@Override
 	public void render(FreezerTraderBlockEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
@@ -59,7 +59,7 @@ public class FreezerTraderTileEntityRenderer implements BlockEntityRenderer<Free
 				//Get scale
 				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < ItemTraderTileEntityRenderer.positionLimit(); pos++)
+				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < ItemTraderBlockEntityRenderer.positionLimit(); pos++)
 				{
 					
 					poseStack.pushPose();

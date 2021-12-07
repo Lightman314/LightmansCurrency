@@ -148,7 +148,6 @@ public class EventHandler {
 			return;
 		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
 			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet()));
-			//LightmansCurrency.LogInfo("Sending wallet update packet as the player logged in.");
 		});
 	}
 	
@@ -164,7 +163,6 @@ public class EventHandler {
 		{
 			WalletCapability.getWalletHandler(target).ifPresent(walletHandler ->{
 				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet()));
-				//LightmansCurrency.LogInfo("Sent wallet update packet as the entity is now being tracked.");
 			});
 		}
 	}
@@ -231,7 +229,6 @@ public class EventHandler {
 			{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet()));
 				walletHandler.clean();
-				//LightmansCurrency.LogInfo("Sending wallet packet as the wallet has been changed.");
 			}
 		});
 	}

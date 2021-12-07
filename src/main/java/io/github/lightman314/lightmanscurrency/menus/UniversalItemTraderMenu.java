@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -27,10 +23,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraft.network.chat.Component;
 
-public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMenu, ITradeButtonContainer{
+public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMenu{
 	
 	
 	protected static final MenuType<?> type = ModContainers.ITEMTRADER;
@@ -192,25 +186,6 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 	
 	public Container GetItemInventory() { return this.itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput)
-	{
-		ItemTradeData trade = this.getData().getTrade(tradeIndex);
-		if(trade == null)
-			return false;
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, this, () -> this.getData());
-		if(!event.isCanceled())
-			this.getData().beforeTrade(event);
-		if(!event.isCanceled())
-			trade.beforeTrade(event);
-		if(!event.isCanceled())
-			MinecraftForge.EVENT_BUS.post(event);
-		
-		if(denialOutput != null)
-			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
-		
-		return !event.isCanceled();
-	}
-	
 	public IItemTrader getTrader()
 	{
 		return this.getData();
@@ -219,33 +194,6 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 	public ItemTradeData GetTrade(int tradeIndex)
 	{
 		return this.getData().getTrade(tradeIndex);
-	}
-	
-	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
-	{
-		TradeCostEvent event = new TradeCostEvent(this.player, trade, this, () -> this.getData());
-		this.getData().tradeCost(event);
-		trade.tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	private void PostTradeEvent(ItemTradeData trade, CoinValue pricePaid)
-	{
-		PostTradeEvent event = new PostTradeEvent(this.player, trade, this, () -> this.getData(), pricePaid);
-		this.getData().afterTrade(event);
-		if(event.isDirty())
-		{
-			this.getData().markRulesDirty();
-			event.clean();
-		}
-		trade.afterTrade(event);
-		if(event.isDirty())
-		{
-			this.getData().markTradesDirty();
-			event.clean();
-		}
-		MinecraftForge.EVENT_BUS.post(event);
 	}
 	
 	public void ExecuteTrade(int tradeIndex)
@@ -266,10 +214,10 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex, null))
+		if(this.getData().runPreTradeEvent(this.player, tradeIndex).isCanceled())
 			return;
 		
-		CoinValue price = this.TradeCostEvent(trade).getCostResult();
+		CoinValue price = this.getData().runTradeCostEvent(this.player, tradeIndex).getCostResult();
 		
 		//Execute a sale
 		if(trade.isSale())
@@ -331,7 +279,7 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().isCreative())
@@ -374,7 +322,7 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().isCreative())
@@ -427,7 +375,7 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().isCreative())

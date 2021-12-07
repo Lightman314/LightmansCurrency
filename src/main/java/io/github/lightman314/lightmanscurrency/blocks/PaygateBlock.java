@@ -7,9 +7,12 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -27,6 +30,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -52,6 +57,12 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
 		return new PaygateBlockEntity(pos, state);
+	}
+	
+	@Nullable 
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
+	{
+		return TickerUtil.createTickerHelper(type, ModTileEntities.ITEM_TRADER, TickableBlockEntity::tickHandler);
 	}
 	
 	@Override
@@ -113,7 +124,7 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 				PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
 				paygate.setOwner(player);
 				if(stack.hasCustomHoverName())
-					paygate.setCustomName(stack.getDisplayName());
+					paygate.setCustomName(stack.getHoverName());
 			}
 		}
 	}

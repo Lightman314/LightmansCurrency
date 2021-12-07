@@ -30,7 +30,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 	
 	protected TallRotatableBlock(Properties properties)
 	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
+		this(properties, LazyShapes.TALL_BOX_SHAPE);
 	}
 	
 	protected TallRotatableBlock(Properties properties, VoxelShape shape)

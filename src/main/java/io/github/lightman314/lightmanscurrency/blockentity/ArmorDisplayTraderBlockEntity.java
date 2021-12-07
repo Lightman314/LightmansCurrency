@@ -68,53 +68,47 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public void tick()
+	public void serverTick()
 	{
 		
-		super.tick();
+		super.serverTick();
 		
 		this.validateTradeLimitations();
 		
-		if(!this.level.isClientSide) //Only update armor stand values server-side. The entity will update the client manually.
+		if(this.armorStandID != null)
 		{
-			
-			if(this.armorStandID != null)
+			validateArmorStand();
+			this.armorStandID = null;
+		}
+		//Validate armor stand values
+		if(this.armorStand == null || !this.armorStand.isAlive())
+		{
+			//Armor stand has been deleted. Spawn a new one.
+			spawnArmorStand();
+		}
+		if(this.armorStand != null)
+		{
+			validateArmorStandValues();
+			this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
+			for(int i = 0; i < 4 && i < this.tradeCount; i++)
 			{
-				validateArmorStand();
-				this.armorStandID = null;
-			}
-			//Validate armor stand values
-			if(this.armorStand == null || !this.armorStand.isAlive())
-			{
-				//Armor stand has been deleted. Spawn a new one.
-				spawnArmorStand();
-			}
-			if(this.armorStand != null)
-			{
-				//CurrencyMod.LOGGER.info("Updating armor stand info.");
-				validateArmorStandValues();
-				this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
-				for(int i = 0; i < 4 && i < this.tradeCount; i++)
+				ItemTradeData thisTrade = this.getTrade(i);
+				//Trade restrictions shall determine the slot type
+				ItemTradeRestriction r = thisTrade.getRestriction();
+				EquipmentSlot slot = null;
+				if(r instanceof EquipmentRestriction)
 				{
-					ItemTradeData thisTrade = this.getTrade(i);
-					//Trade restrictions shall determine the slot type
-					ItemTradeRestriction r = thisTrade.getRestriction();
-					EquipmentSlot slot = null;
-					if(r instanceof EquipmentRestriction)
-					{
-						EquipmentRestriction er = (EquipmentRestriction)r;
-						slot = er.getEquipmentSlot();
-					}
-					if(slot != null)
-					{
-						if(thisTrade.hasStock(this) || this.isCreative())
-							this.armorStand.setItemSlot(slot, thisTrade.getSellItem());
-						else
-							this.armorStand.setItemSlot(slot, ItemStack.EMPTY);
-					}
+					EquipmentRestriction er = (EquipmentRestriction)r;
+					slot = er.getEquipmentSlot();
+				}
+				if(slot != null)
+				{
+					if(thisTrade.hasStock(this) || this.isCreative())
+						this.armorStand.setItemSlot(slot, thisTrade.getSellItem());
+					else
+						this.armorStand.setItemSlot(slot, ItemStack.EMPTY);
 				}
 			}
-			
 		}
 		
 	}
@@ -169,10 +163,11 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		writeArmorStandData(compound);
-		return super.save(compound);
+		
+		super.saveAdditional(compound);
 	}
 	
 	protected CompoundTag writeArmorStandData(CompoundTag compound)

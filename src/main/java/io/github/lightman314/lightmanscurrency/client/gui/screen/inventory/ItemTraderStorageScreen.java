@@ -168,7 +168,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 		for(int i = 0; i < tradeCount; i++)
 		{
 			boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-			ItemTradeButton.renderItemTradeButton(poseStack, screen, font, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), i, trader, null, false, true, inverted);
+			ItemTradeButton.renderItemTradeButton(poseStack, screen, font, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), i, trader, inverted);
 		}
 		
 	}
@@ -369,7 +369,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 			for(int i = 0; i < this.menu.tileEntity.getTradeCount(); i++)
 			{
 				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.menu.tileEntity, this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY, null);
+				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.menu.tileEntity, this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY);
 				if(result < 0) //Result is negative if the mouse is over a slot, but the slot is empty.
 					this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
 			}
@@ -384,7 +384,6 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 			this.menu.player.closeContainer();
 			return;
 		}
-		super.tick();
 		
 		this.menu.tick();
 		

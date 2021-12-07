@@ -43,7 +43,7 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 			{
 				UniversalTraderBlockEntity trader = (UniversalTraderBlockEntity)blockEntity;
 				if(stack.hasCustomHoverName())
-					trader.init((Player)player, stack.getDisplayName().getString());
+					trader.init((Player)player, stack.getHoverName().getString());
 				else
 					trader.init((Player)player);
 			}
@@ -89,7 +89,7 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 	}
 
 	@Override
-	public BlockEntity getTileEntity(BlockState state, LevelAccessor level, BlockPos pos) {
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) {
 		return level.getBlockEntity(pos);
 	}
 	

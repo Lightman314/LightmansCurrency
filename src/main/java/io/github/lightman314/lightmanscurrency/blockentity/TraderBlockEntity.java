@@ -329,7 +329,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		writeOwner(compound);
 		writeStoredMoney(compound);
@@ -338,7 +338,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		writeVersion(compound);
 		writeAllies(compound);
 		
-		return super.save(compound);
+		super.saveAdditional(compound);
+		
 	}
 	
 	public CompoundTag superWrite(CompoundTag compound)
@@ -460,7 +461,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
 	
 	private class CRDataWriter implements Consumer<FriendlyByteBuf>
 	{

@@ -226,6 +226,7 @@
     
     "log.shoplog.item.format": "%1$s%2$s %3$s %4$s for %5$s",
     "log.shoplog.item.itemformat": "%1$sx %2$s",
+    "log.shoplog.cost.free": "Free",
     "log.shoplog.sale": "bought",
     "log.shoplog.purchase": "sold",
     "log.shoplog.barter": "bartered",
