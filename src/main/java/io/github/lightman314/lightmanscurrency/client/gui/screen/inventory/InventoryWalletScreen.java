@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketOpenVanilla;
-import io.github.lightman314.lightmanscurrency.menus.PlayerInventoryWalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.InventoryWalletMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -13,17 +13,17 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
 
-public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<PlayerInventoryWalletMenu>{
+public class InventoryWalletScreen extends EffectRenderingInventoryScreen<InventoryWalletMenu>{
 
 	float oldMouseX;
 	float oldMouseY;
 	
-	public PlayerInventoryWalletScreen(PlayerInventoryWalletMenu container, Inventory inventory, Component title)
+	public InventoryWalletScreen(InventoryWalletMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		//this.titleX = 97;
 	}
 	
 	@Override
@@ -39,15 +39,12 @@ public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<
 		this.blit(matrix, this.leftPos + 97, this.topPos + 17, 97, 53, 74, 30);
 		this.blit(matrix, this.leftPos + 97, this.topPos + 47, 97, 53, 74, 6);
 		//Render the wallet slot
-		this.blit(matrix, this.leftPos + PlayerInventoryWalletMenu.WALLET_SLOT_X - 1, this.topPos + PlayerInventoryWalletMenu.WALLET_SLOT_Y - 1, 7, 7, 18, 18);
+		this.blit(matrix, this.leftPos + InventoryWalletMenu.WALLET_SLOT_X - 1, this.topPos + InventoryWalletMenu.WALLET_SLOT_Y - 1, 7, 7, 18, 18);
 		InventoryScreen.renderEntityInInventory(this.leftPos + 51, this.topPos + 75, 30, (float)(this.leftPos + 51) - this.oldMouseX, (float)(this.topPos + 75 - 50) - this.oldMouseY, this.minecraft.player);
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
-	{
-		//this.font.draw(matrix, this.title, (float)this.titleX, (float)this.titleY, 4210752);
-	}
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) { }
 	
 	@Override
 	protected void init()
@@ -74,6 +71,7 @@ public class PlayerInventoryWalletScreen extends EffectRenderingInventoryScreen<
 		InventoryScreen inventory = new InventoryScreen(this.minecraft.player);
 		ItemStack stack = this.menu.getCarried();
 		this.menu.setCarried(ItemStack.EMPTY);
+		LightmansCurrency.LogInfo("Opening the vanilla inventory.");
 		this.minecraft.setScreen(inventory);
 		inventory.getMenu().setCarried(stack);
 		LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketOpenVanilla());

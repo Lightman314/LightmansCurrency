@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class RotatableBlock extends Block implements IRotatableBlock{
@@ -24,7 +23,7 @@ public class RotatableBlock extends Block implements IRotatableBlock{
 	
 	public RotatableBlock(Properties properties)
 	{
-		this(properties, LazyShapes.BOX_SHAPE);
+		this(properties, LazyShapes.BOX_SHAPE_T);
 	}
 	
 	public RotatableBlock(Properties properties, VoxelShape shape) {
@@ -35,17 +34,6 @@ public class RotatableBlock extends Block implements IRotatableBlock{
 	{
 		super(properties);
 		this.shape = shape;
-	}
-	
-	protected boolean isTransparent() { return true; }
-	
-	@Override
-	@SuppressWarnings("deprecation")
-	public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
-	{
-		if(this.isTransparent())
-			return Shapes.empty();
-		return super.getVisualShape(state, level, pos, context);
 	}
 	
 	protected boolean transparent(BlockState state) { return true; }

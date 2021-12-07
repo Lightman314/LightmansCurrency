@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.menus.providers;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.menus.PlayerInventoryWalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.InventoryWalletMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.MenuProvider;
@@ -23,7 +23,7 @@ public class WalletInventoryMenuProvider implements MenuProvider {
 	@Override
 	public AbstractContainerMenu createMenu(int windowId, @Nonnull Inventory playerInventory, @Nonnull Player playerEntity)
 	{
-		return new PlayerInventoryWalletMenu(windowId, playerInventory);
+		return new InventoryWalletMenu(windowId, playerInventory);
 	}
 	
 }

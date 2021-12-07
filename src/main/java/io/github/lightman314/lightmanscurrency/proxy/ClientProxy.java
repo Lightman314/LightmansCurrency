@@ -33,8 +33,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientProxy extends CommonProxy{
+	
+	boolean openTerminal = false;
+	Player player = null;
 	
 	private long timeOffset = 0;
 	
@@ -50,7 +56,7 @@ public class ClientProxy extends CommonProxy{
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.cutout());
     	
     	//Register Screens
-    	MenuScreens.register(ModContainers.INVENTORY_WALLET, PlayerInventoryWalletScreen::new);
+    	MenuScreens.register(ModContainers.INVENTORY_WALLET, InventoryWalletScreen::new);
     	MenuScreens.register(ModContainers.ATM, ATMScreen::new);
     	MenuScreens.register(ModContainers.MINT, MintScreen::new);
     	MenuScreens.register(ModContainers.ITEMTRADER, ItemTraderScreen::new);
@@ -122,7 +128,8 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void openTerminalScreen(Player player)
 	{
-		Minecraft.getInstance().setScreen(new TradingTerminalScreen(player));
+		this.openTerminal = true;
+		this.player = player;
 	}
 	
 	@Override
@@ -152,6 +159,16 @@ public class ClientProxy extends CommonProxy{
 	{
 		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
+	}
+	
+	@SubscribeEvent
+	public void openTerminalScreenOnRenderTick(RenderTickEvent event)
+	{
+		if(event.phase == TickEvent.Phase.START && this.openTerminal && this.player != null)
+		{
+			openTerminal = false;
+			Minecraft.getInstance().setScreen(new TradingTerminalScreen(this.player));
+		}
 	}
 	
 }

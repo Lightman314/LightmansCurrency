@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -25,14 +26,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleWaterloggedBlock{
 	
-	private final VoxelShape SHAPE;
+	private final VoxelShape shape;
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
 	public CoinpileBlock(Properties properties, Item coinItem)
 	{
+		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
+	}
+	
+	public CoinpileBlock(Properties properties, Item coinItem, VoxelShape shape)
+	{
 		super(properties, coinItem);
-		SHAPE = box(0d,0d,0d,16d,8d,16d);
+		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;
 		this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
 	}
 	
@@ -66,7 +72,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext contect)
 	{
-		return SHAPE;
+		return shape;
 	}
 	
 	@Override

@@ -87,6 +87,9 @@ public class LightmansCurrency {
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
+        //Register the proxy so that it can run custom events
+        MinecraftForge.EVENT_BUS.register(PROXY);
+        
         curiosLoaded = ModList.get().isLoaded("curios");
         
     }

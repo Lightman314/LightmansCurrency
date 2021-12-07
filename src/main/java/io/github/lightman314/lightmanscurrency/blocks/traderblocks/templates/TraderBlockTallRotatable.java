@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.function.BiFunction;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
@@ -35,7 +34,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	
 	protected TraderBlockTallRotatable(Properties properties)
 	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE);
+		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
 	}
 	
 	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape)
@@ -106,6 +105,10 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
+		
+		//Run base functionality first to prevent the removal of the block containing the block entity
+		this.playerWillDestroyBase(level, pos, state, player);
+		
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof TraderBlockEntity)
 		{
@@ -117,14 +120,14 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		//Destroy the other half of the Tall Block
 		setAir(level, this.getOtherHeight(pos, state), player);
 		
-		this.playerWillDestroyBase(level, pos, state, player);
+		
 		
 	}
 	
-	protected void setAir(Level level, BlockPos pos, Player player)
+	protected final void setAir(Level level, BlockPos pos, Player player)
 	{
 		BlockState state = level.getBlockState(pos);
-		if(state.getBlock().getClass() == this.getClass())
+		if(state.getBlock() == this)
 		{
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
 			level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
@@ -134,16 +137,9 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
-		BlockPos getPos = this.getBlockEntityPos(state, pos);
-		LightmansCurrency.LogInfo("Block Entity Position of Tall trader at " + pos.toShortString() + " is " + getPos.toShortString() + "\nIsBottom: " + this.getIsBottom(state));
-		return level.getBlockEntity(getPos);
-	}
-	
-	private BlockPos getBlockEntityPos(BlockState state, BlockPos pos)
-	{
 		if(this.getIsTop(state))
-			return pos.below();
-		return pos;
+			return level.getBlockEntity(pos.below());
+		return level.getBlockEntity(pos);
 	}
 	
 	@Override

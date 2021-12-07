@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -84,6 +85,9 @@ public class TradingTerminalScreen extends Screen{
 		
 	}
 	
+	@Override
+	public boolean isPauseScreen() { return false; }
+	
 	private void initTraderButtons(int guiLeft, int guiTop)
 	{
 		this.traderButtons = new ArrayList<>();
@@ -109,6 +113,9 @@ public class TradingTerminalScreen extends Screen{
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
+		if(this.minecraft == null)
+			this.minecraft = Minecraft.getInstance();
+		
 		this.renderBackground(poseStack);
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);

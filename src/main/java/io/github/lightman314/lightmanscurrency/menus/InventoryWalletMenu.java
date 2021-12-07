@@ -20,7 +20,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
+public class InventoryWalletMenu extends AbstractContainerMenu{
 
 	//PlayerContainer variables
 	public final Player player;
@@ -34,7 +34,7 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 	Container walletInventory = null;
 	WalletSlot walletSlot = null;
 	
-	public PlayerInventoryWalletMenu(int windowID, Inventory inventory) {
+	public InventoryWalletMenu(int windowID, Inventory inventory) {
 		super(ModContainers.INVENTORY_WALLET, windowID);
 		this.player = inventory.player;
 		
@@ -53,7 +53,7 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 	               return !itemstack.isEmpty() && !playerIn.isCreative() && EnchantmentHelper.hasBindingCurse(itemstack) ? false : super.mayPickup(playerIn);
 	            }
 	            @OnlyIn(Dist.CLIENT)
-	            public Pair<ResourceLocation, ResourceLocation> getBackground() {
+	            public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
 	            	return Pair.of(InventoryMenu.BLOCK_ATLAS, TEXTURE_EMPTY_SLOTS[equipmentslottype.getIndex()]);
 	            }
 			});
@@ -74,7 +74,7 @@ public class PlayerInventoryWalletMenu extends AbstractContainerMenu{
 		//Shield slot
 		this.addSlot(new Slot(inventory, 40, 77, 62) {
 			@OnlyIn(Dist.CLIENT)
-			public Pair<ResourceLocation, ResourceLocation> getBackground() {
+			public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
 				return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
 			}
 		});

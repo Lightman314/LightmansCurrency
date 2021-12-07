@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.ArmorDisplayBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.CardDisplayBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.DisplayCaseBlock;
@@ -25,14 +24,11 @@ import io.github.lightman314.lightmanscurrency.Reference;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -50,32 +46,28 @@ public class ModBlocks {
 	public static final BlockItemPair COINPILE_COPPER = register("coinpile_copper", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			ModItems.COIN_COPPER
 			)
 	);
 	public static final BlockItemPair COINPILE_IRON = register("coinpile_iron", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			ModItems.COIN_IRON
 			)
 	);
 	public static final BlockItemPair COINPILE_GOLD = register("coinpile_gold", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			ModItems.COIN_GOLD
 			)
 	);
 	public static final BlockItemPair COINPILE_DIAMOND = register("coinpile_diamond", LightmansCurrency.COIN_GROUP, BlockItemType.COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			ModItems.COIN_DIAMOND
 			)
 	);
@@ -83,8 +75,7 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			//.notSolid()
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			//.harvestLevel(0)
 			//.harvestTool(ToolType.PICKAXE),
 			ModItems.COIN_EMERALD
@@ -93,8 +84,7 @@ public class ModBlocks {
 	public static final BlockItemPair COINPILE_NETHERITE = register("coinpile_netherite", LightmansCurrency.COIN_GROUP, BlockItemType.NETHERITE_COIN, new CoinpileBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never),
+			.sound(SoundType.METAL),
 			ModItems.COIN_NETHERITE
 			)
 	);
@@ -150,7 +140,6 @@ public class ModBlocks {
 		Block.Properties.of(Material.METAL)
 			.strength(3.0f, 6.0f)
 			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::never)
 			)
 	);
 	public static final BlockItemPair MACHINE_MINT = register("coinmint", LightmansCurrency.MACHINE_GROUP, new CoinMintBlock(
@@ -166,7 +155,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.GLASS)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
-				.isViewBlocking(ModBlocks::never)
 				)
 	);
 	
@@ -175,7 +163,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(5.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
-			.isViewBlocking(ModBlocks::topOnly)
 		), false);
 	
 	//Vending Machine 2 (Large)
@@ -183,7 +170,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::topOnly)
 			), false);
 	
 	//Wooden Shelves
@@ -197,7 +183,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.WOOD)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.WOOD)
-				.isViewBlocking(ModBlocks::never)
 				));
 	
 	//Armor Display
@@ -205,7 +190,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never)
 			)
 	);
 	
@@ -214,7 +198,6 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never)
 			)
 	);
 	
@@ -224,8 +207,7 @@ public class ModBlocks {
 	public static final BlockItemPair ITEM_TRADER_SERVER_SMALL = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never),
+				.sound(SoundType.METAL),
 				3
 			)
 	);
@@ -233,8 +215,7 @@ public class ModBlocks {
 	public static final BlockItemPair ITEM_TRADER_SERVER_MEDIUM = register("item_trader_server_med", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never),
+				.sound(SoundType.METAL),
 				6
 			)
 	);
@@ -242,8 +223,7 @@ public class ModBlocks {
 	public static final BlockItemPair ITEM_TRADER_SERVER_LARGE = register("item_trader_server_lrg", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never),
+				.sound(SoundType.METAL),
 				12
 			)
 	);
@@ -251,8 +231,7 @@ public class ModBlocks {
 	public static final BlockItemPair ITEM_TRADER_SERVER_EXTRA_LARGE = register("item_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, new ItemTraderServerBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL)
-				.isViewBlocking(ModBlocks::never),
+				.sound(SoundType.METAL),
 				16
 			)
 	);
@@ -421,18 +400,6 @@ public class ModBlocks {
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));
 		ITEMS.clear();
-	}
-	
-	//isViewBlocking predicate to make blocks transparent
-	private static boolean never(BlockState state, BlockGetter level, BlockPos pos) {
-		return false;
-	}
-	
-	//isViewBlocking predicate to make blocks transparent
-	private static boolean topOnly(BlockState state, BlockGetter level, BlockPos pos) {
-		if(state.getBlock() instanceof ITallBlock)
-			return !((ITallBlock)state.getBlock()).getIsBottom(state);
-		return false;
 	}
 	
 }

@@ -35,8 +35,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -72,8 +70,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(!users.contains(player))
 		{
 			//LightmansCurrency.LOGGER.info("Player with ID " + player.getUniqueID() + " has opened the trader.");
-			users.add(player);
-			sendUserUpdate();
+			this.users.add(player);
+			this.sendUserUpdate();
 		}
 	}
 	
@@ -82,8 +80,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(users.contains(player))
 		{
 			//LightmansCurrency.LOGGER.info("Player with ID " + player.getUniqueID() + " has closed the trader.");
-			users.remove(player);
-			sendUserUpdate();
+			this.users.remove(player);
+			this.sendUserUpdate();
 		}
 	}
 	
@@ -106,7 +104,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public void setUserCount(int value)
 	{
 		this.userCount = value;

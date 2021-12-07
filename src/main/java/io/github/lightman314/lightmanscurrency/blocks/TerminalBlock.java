@@ -26,8 +26,7 @@ public class TerminalBlock extends RotatableBlock{
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(level.isClientSide)
-			LightmansCurrency.PROXY.openTerminalScreen(player);
+		LightmansCurrency.PROXY.openTerminalScreen(player);
 		return InteractionResult.SUCCESS;
 	}
 	

@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -27,25 +28,27 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public abstract class TraderBlockBase extends Block implements ITraderBlock, EntityBlock {
 
+	private final VoxelShape shape;
+	
 	public TraderBlockBase(Properties properties)
 	{
-		super(properties);
+		this(properties, LazyShapes.BOX_T);
 	}
 	
-	protected boolean isTransparent() { return true; }
+	public TraderBlockBase(Properties properties, VoxelShape shape)
+	{
+		super(properties);
+		this.shape = shape != null ? shape : LazyShapes.BOX_T;
+	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
-	public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
 	{
-		if(this.isTransparent())
-			return Shapes.empty();
-		return super.getVisualShape(state, level, pos, context);
+		return this.shape;
 	}
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
