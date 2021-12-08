@@ -87,7 +87,7 @@ public class TicketMachineContainer extends Container{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.objectInputs.getSizeInventory() - 1, true))
+			else if(!this.mergeItemStack(slotStack, 0, this.objectInputs.getSizeInventory() - 1, false))
 			{
 				return ItemStack.EMPTY;
 			}

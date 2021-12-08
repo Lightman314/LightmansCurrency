@@ -232,7 +232,7 @@ public class EventHandler {
 				if(walletHandler.getWallet().isEmpty())
 					return;
 				
-				ItemEntity walletDrop = new ItemEntity(livingEntity.world, livingEntity.getPosX(), livingEntity.getPosX(), livingEntity.getPosX(), walletHandler.getWallet());
+				ItemEntity walletDrop = new ItemEntity(livingEntity.world, livingEntity.getPosX(), livingEntity.getPosY(), livingEntity.getPosZ(), walletHandler.getWallet());
 				drops.add(walletDrop);
 				
 			});

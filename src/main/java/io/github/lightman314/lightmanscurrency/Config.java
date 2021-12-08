@@ -281,7 +281,7 @@ public class Config {
 					.defineInRange("debugLevel", 0, 0, 3);
 			
 			//Entity loot modification
-			builder.comment("Entity loot settings. Inputs can be either loot-table id, or the LivingEntities id.").push("entity_loot");
+			builder.comment("Entity loot settings. Inputs can be either loot-table id ('minecraft:entities/zombie'), or the LivingEntities id ('minecraft:zombie').").push("entity_loot");
 			
 			this.enableEntityDrops = builder
 					.comment("Whether coins can be dropped by entities. Does not effect chest loot generation.")
