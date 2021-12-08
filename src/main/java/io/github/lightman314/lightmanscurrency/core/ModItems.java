@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.core;
 
 import java.util.List;
 
-import org.apache.commons.compress.utils.Lists;
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;

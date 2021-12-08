@@ -78,7 +78,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageCRSkipTo.class, MessageCRSkipTo::encode, MessageCRSkipTo::decode, MessageCRSkipTo::handle);
 		
 		//Wallet
-		register(MessagePlayPickupSound.class, MessagePlayPickupSound::encode, MessagePlayPickupSound::decode, MessagePlayPickupSound::handle);
+		register(MessagePlayPickupSound.class, new MessagePlayPickupSound());
 		register(MessageWalletConvertCoins.class, MessageWalletConvertCoins::encode, MessageWalletConvertCoins::decode, MessageWalletConvertCoins::handle);
 		register(MessageWalletToggleAutoConvert.class, MessageWalletToggleAutoConvert::encode, MessageWalletToggleAutoConvert::decode, MessageWalletToggleAutoConvert::handle);
 		register(MessageOpenWallet.class, MessageOpenWallet::encode, MessageOpenWallet::decode, MessageOpenWallet::handle);
@@ -86,7 +86,7 @@ public class LightmansCurrencyPacketHandler {
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet::encode, SPacketSyncWallet::decode, SPacketSyncWallet::handle);
 		register(CPacketOpenVanilla.class, CPacketOpenVanilla::encode, CPacketOpenVanilla::decode, CPacketOpenVanilla::handle);
-		register(SPacketOpenVanillaResponse.class, SPacketOpenVanillaResponse::encode, SPacketOpenVanillaResponse::decode, SPacketOpenVanillaResponse::handle);
+		register(SPacketOpenVanillaResponse.class, new SPacketOpenVanillaResponse());
 		register(CPacketOpenWallet.class, CPacketOpenWallet::encode, CPacketOpenWallet::decode, CPacketOpenWallet::handle);
 		register(SPacketGrabbedItem.class, SPacketGrabbedItem::encode, SPacketGrabbedItem::decode, SPacketGrabbedItem::handle);
 		
@@ -128,6 +128,11 @@ public class LightmansCurrencyPacketHandler {
 		
 	}
 
+	private static <T> void register(Class<T> clazz, IMessage<T> message)
+	{
+		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
+	}
+	
 	private static <T> void register(Class<T> clazz, BiConsumer<T,FriendlyByteBuf> encoder, Function<FriendlyByteBuf,T> decoder, BiConsumer<T,Supplier<Context>> handler)
 	{
 		instance.registerMessage(nextId++, clazz, encoder, decoder, handler);

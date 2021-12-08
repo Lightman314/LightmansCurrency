@@ -109,7 +109,9 @@ public class WalletItem extends Item{
 			}
 		}
 		
-		tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", "§2" + new CoinValue(getWalletInventory(stack)).getString() ));
+		CoinValue contents = new CoinValue(getWalletInventory(stack));
+		if(contents.getRawValue() > 0)
+			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", "§2" + contents.getString() ));
 		
 	}
 	
