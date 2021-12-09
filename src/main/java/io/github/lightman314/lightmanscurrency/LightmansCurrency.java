@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSe
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
@@ -109,6 +110,9 @@ public class LightmansCurrency {
     	
     	//Initialize the UniversalTraderData deserializers
     	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());
+    	
+    	//Register the custom game rules
+    	ModGameRules.registerRules();
     	
     	//Initialize the Trade Rule deserializers
     	TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, () -> new PlayerWhitelist());
@@ -261,6 +265,14 @@ public class LightmansCurrency {
     		LOGGER.debug("WARN: " + message);
     	else
     		LOGGER.warn(message);
+    }
+    
+    public static void LogError(String message, Object... objects)
+    {
+    	if(Config.COMMON.debugLevel.get() > 2)
+    		LOGGER.debug("ERROR: " + message, objects);
+    	else
+    		LOGGER.error(message, objects);
     }
     
     public static void LogError(String message)
