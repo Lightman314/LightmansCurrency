@@ -218,10 +218,12 @@ public class Config {
 		
 		
 		
+		
 		Common(ForgeConfigSpec.Builder builder)
 		{
 			
 			builder.comment("Common configuration settings").push("common");
+			
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")
 					.translation("lightmanscurrency.configgui.canMintCoins")

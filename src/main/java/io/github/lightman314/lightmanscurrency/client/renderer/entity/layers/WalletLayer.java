@@ -4,7 +4,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -30,16 +29,12 @@ public class WalletLayer<T extends PlayerEntity, M extends BipedModel<T>> extend
 	public void render(MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, int arg2, T player, float arg4, float arg5, float arg6,
 			float arg7, float arg8, float arg9) {
 		
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		
 		ItemStack wallet = LightmansCurrency.getWalletStack(player);
 		if(wallet.getItem() instanceof WalletItem)
 		{
-			
-			//Abort rendering if the slot is hidden via curios
-			//Obsolete, as curios now handles the rendering of wallets via the ICurio capability
-			if(LightmansCurrency.isCuriosLoaded() && !Curios.isWalletVisible(player))
-			{
-				return;
-			}
 			
 			stack.push();
 			this.getEntityModel().setModelAttributes(this.model);

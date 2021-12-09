@@ -6,16 +6,24 @@ import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabil
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
+import io.github.lightman314.lightmanscurrency.events.WalletDropEvent;
+import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.tileentity.IOwnableTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 
 import java.util.Collection;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.block.BlockState;
@@ -23,10 +31,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -215,28 +226,169 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void playerDrops(LivingDropsEvent event)
 	{
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		LivingEntity livingEntity = event.getEntityLiving();
 		if(livingEntity.world.isRemote) //Do nothing client side
 			return;
 		
+		if(LightmansCurrency.isCuriosLoaded())
+			playerDropsCurios(event);
+		
 		if(!livingEntity.isSpectator())
 		{
 			WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
-				Collection<ItemEntity> drops = event.getDrops();
 				
-				if(livingEntity.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
+				ItemStack walletStack = walletHandler.getWallet();
+				
+				if(walletStack.isEmpty())
 					return;
 				
-				if(walletHandler.getWallet().isEmpty())
-					return;
+				Collection<ItemEntity> walletDrops = Lists.newArrayList();
+				if(livingEntity instanceof PlayerEntity) //Only worry about gamerules on players. Otherwise it always drops the wallet.
+				{
+					boolean keepInventory = livingEntity.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
+					GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.world, ModGameRules.KEEP_WALLET);
+					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.world, ModGameRules.COIN_DROP_PERCENT);
+					boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+					
+					if(keepWallet && coinDropPercent <= 0)
+						return;
+					if(keepWallet) //Drop the wallet
+					{
+						
+						Collection<ItemEntity> d = getWalletDrops(livingEntity, walletStack, coinDropPercent);
+						
+						//Spawn the coin drops
+						walletDrops.addAll(d);
+						
+						//Post the Wallet Drop Event
+						WalletDropEvent e = new WalletDropEvent((PlayerEntity)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						if(MinecraftForge.EVENT_BUS.post(e))
+							return;
+						walletDrops = e.getDrops();
+						
+					}
+					else
+					{
+						
+						walletDrops.add(getDrop(livingEntity,walletStack));
+						walletHandler.setWallet(ItemStack.EMPTY);
+						
+						//Post the Wallet Drop Event
+						WalletDropEvent e = new WalletDropEvent((PlayerEntity)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						if(MinecraftForge.EVENT_BUS.post(e))
+							return;
+						walletDrops = e.getDrops();
+						
+					}
+					
+				}
+				else
+				{
+					walletDrops.add(getDrop(livingEntity,walletStack));
+					walletHandler.setWallet(ItemStack.EMPTY);
+				}
 				
-				ItemEntity walletDrop = new ItemEntity(livingEntity.world, livingEntity.getPosX(), livingEntity.getPosY(), livingEntity.getPosZ(), walletHandler.getWallet());
-				drops.add(walletDrop);
+				event.getDrops().addAll(walletDrops);
 				
 			});
+			
 		}
+	}
+	
+	private static void playerDropsCurios(LivingDropsEvent event)
+	{
+		if(!LightmansCurrency.isCuriosLoaded())
+			return;
+		if(event.getEntityLiving() instanceof PlayerEntity)
+		{
+			PlayerEntity player = (PlayerEntity)event.getEntityLiving();
+			ItemStack walletStack = LightmansCurrency.getWalletStack(player);
+			if(walletStack.isEmpty())
+				return;
+			
+			boolean keepInventory = player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
+			GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(player.world, ModGameRules.KEEP_WALLET);
+			GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(player.world, ModGameRules.COIN_DROP_PERCENT);
+			boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+			int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+			if(keepWallet)
+			{
+				
+				Collection<ItemEntity> walletDrops = getWalletDrops(player, walletStack, coinDropPercent);
+				
+				//Post the Wallet Drop Event
+				WalletDropEvent e = new WalletDropEvent(player, walletStack, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+				if(MinecraftForge.EVENT_BUS.post(e))
+					return;
+				walletDrops = e.getDrops();
+				
+				event.getDrops().addAll(walletDrops);
+				
+			}
+			//Do nothing if the wallet is not kept, as curios will handle the wallet dropping for me.
+		}
+	}
+	
+	
+	
+	private static ItemEntity getDrop(LivingEntity entity, ItemStack stack)
+	{
+        return new ItemEntity(entity.world, entity.getPosX(), entity.getPosY(), entity.getPosZ(), stack);
+	}
+	
+	private static List<ItemEntity> getWalletDrops(LivingEntity entity, ItemStack walletStack, int coinDropPercent)
+	{
+		
+		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
+		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
+		long walletContents = new CoinValue(walletList).getRawValue();
+		
+		long droppedAmount = (long)((double)walletContents * coinPercentage);
+		if(droppedAmount < 1)
+			return Lists.newArrayList();
+		
+		IInventory walletInventory = InventoryUtil.buildInventory(walletList);
+		List<ItemEntity> drops = Lists.newArrayList();
+		//Remove the dropped coins from the wallet
+		long extra = MoneyUtil.takeObjectsOfValue(droppedAmount, walletInventory, true);
+		if(extra < 0)
+		{
+			List<ItemStack> extraCoins = MoneyUtil.getCoinsOfValue(-extra);
+			for(int i = 0; i < extraCoins.size(); i++)
+			{
+				ItemStack coinStack = InventoryUtil.TryPutItemStack(walletInventory, extraCoins.get(i));
+				//Drop anything that wasn't able to fit back into the wallet
+				if(!coinStack.isEmpty())
+					drops.add(getDrop(entity,coinStack));
+			}
+		}
+		
+		//Update the wallet stacks contents
+		WalletItem.putWalletInventory(walletStack, InventoryUtil.buildList(walletInventory));
+		
+		//Drop the expected coins
+		drops.addAll(getCoinDrops(entity, droppedAmount));
+		
+		return drops;
+		
+	}
+	
+	private static Collection<ItemEntity> getCoinDrops(LivingEntity entity, long coinValue)
+	{
+		List<ItemEntity> drops = Lists.newArrayList();
+		List<ItemStack> coinsOfValue = MoneyUtil.getCoinsOfValue(coinValue);
+		for(int i = 0; i < coinsOfValue.size(); i++)
+		{
+			ItemStack coinStack = coinsOfValue.get(i);
+			for(int count = 0; count < coinStack.getCount(); count++)
+			{
+				ItemStack coin = coinStack.copy();
+				coin.setCount(1);
+				drops.add(getDrop(entity,coin));
+			}
+		}
+		return drops;
 	}
 	
 	//Check for wallet updates, and send update packets

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
+import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -47,32 +49,12 @@ public class Curios {
 						wallet.set(stack);
 					}
 				}
-				
 			});
 		});
 		
 		return wallet.get();
 	}
-	
-	public static boolean isWalletVisible(PlayerEntity player)
-	{
-		AtomicReference<Boolean> visible = new AtomicReference<>(true);
-        LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-        optional.ifPresent(itemHandler -> {
-            Optional<ICurioStacksHandler> stacksOptional = itemHandler.getStacksHandler(SlotTypePreset.BELT.getIdentifier());
-            stacksOptional.ifPresent(stacksHandler -> {
-            	for(int i = 0; i < stacksHandler.getStacks().getSlots(); i++)
-            	{
-            		ItemStack stack = stacksHandler.getStacks().getStackInSlot(i);
-            		if(stack.getItem() instanceof WalletItem)
-            		{
-            			visible.set(stacksHandler.getRenders().get(i));
-            		}
-            	}
-            });
-        });
-        return visible.get();
-	}
+
 	
 	public static ICapabilityProvider createWalletProvider(ItemStack walletStack)
 	{
@@ -108,7 +90,13 @@ public class Curios {
         @Override
         public DropRule getDropRule(LivingEntity livingEntity)
         {
-            return DropRule.DEFAULT;
+        	if(!(livingEntity instanceof PlayerEntity))
+        		return DropRule.DEFAULT;
+        	
+        	GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(livingEntity.world, ModGameRules.KEEP_WALLET);
+        	if(keepWallet == null)
+        		return DropRule.DEFAULT;
+        	return keepWallet.get() ? DropRule.ALWAYS_KEEP : DropRule.DEFAULT;
         }
         
         @Override

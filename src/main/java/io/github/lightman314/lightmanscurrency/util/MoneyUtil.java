@@ -699,7 +699,7 @@ public class MoneyUtil {
      * @return Returns the given value if there is not enough money to take.
      * Returns 0 if exact change was taken, and returns a negative value if more money was taken than what was requested so that change can be calculated separately.
      */
-    private static long takeObjectsOfValue(long value, IInventory inventory, boolean forceTake)
+    public static long takeObjectsOfValue(long value, IInventory inventory, boolean forceTake)
 	{
 		//Check to ensure that the inventory has enough 'value' to remove
 		if(MoneyUtil.getValue(inventory) < value && !forceTake)
