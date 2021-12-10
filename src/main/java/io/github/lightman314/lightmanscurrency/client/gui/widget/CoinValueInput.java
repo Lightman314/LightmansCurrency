@@ -189,7 +189,7 @@ public class CoinValueInput extends AbstractWidget{
 			Item coin = coins.get(coinIndex);
 			int removeAmount = 1;
 			if(Screen.hasShiftDown())
-				removeAmount = getLargeDecreaseAmount(coin);
+				removeAmount = getLargeIncreaseAmount(coin);
 			if(Screen.hasControlDown())
 				removeAmount *= 10;
 			//LightmansCurrency.LOGGER.info("Removing " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
@@ -204,30 +204,26 @@ public class CoinValueInput extends AbstractWidget{
 	{
 		Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
 		if(upwardConversion != null)
-			return upwardConversion.getSecond() / 2;
+			return getAmountFromConversion(upwardConversion);
 		else
 		{
 			Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
 			if(downwardConversion != null)
-				return downwardConversion.getSecond() / 2;
+				return getAmountFromConversion(downwardConversion);
 			//No conversion found for this coin. Assume 10;
 			return 10;
 		}
 	}
 	
-	private final int getLargeDecreaseAmount(Item coinItem)
+	private final int getAmountFromConversion(Pair<Item,Integer> conversion)
 	{
-		Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
-		if(downwardConversion != null)
-			return downwardConversion.getSecond() / 2;
-		else
-		{
-			Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
-			if(upwardConversion != null)
-				return upwardConversion.getSecond() / 2;
-			//No conversion found for this coin. Assume 10;
+		if(conversion.getSecond() >= 64)
+			return 16;
+		if(conversion.getSecond() > 10)
 			return 10;
-		}
+		if(conversion.getSecond() > 5)
+			return 5;
+		return 2;
 	}
 	
 	public CoinValue getCoinValue()

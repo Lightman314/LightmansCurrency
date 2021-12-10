@@ -26,6 +26,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
@@ -458,7 +459,9 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
 	
 	private class CRDataWriter implements Consumer<FriendlyByteBuf>
 	{

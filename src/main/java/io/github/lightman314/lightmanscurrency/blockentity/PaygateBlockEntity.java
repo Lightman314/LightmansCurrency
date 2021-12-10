@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.Entity;
@@ -332,6 +333,8 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
 	
 }

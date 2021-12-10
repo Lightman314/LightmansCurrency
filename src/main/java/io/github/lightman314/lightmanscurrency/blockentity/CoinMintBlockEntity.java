@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.MintRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -186,7 +187,9 @@ public class CoinMintBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
 	
 	//Item capability for hopper and item automation
 	@Override
