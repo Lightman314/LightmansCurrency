@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -11,18 +13,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CoinJarBlockEntity extends BlockEntity
+public class CoinJarBlockEntity extends TickableBlockEntity
 {
 	
 	public static int COIN_LIMIT = 64;
 	
 	List<ItemStack> storage = new ArrayList<>();
 	public List<ItemStack> getStorage() { return storage; }
+	
+	private boolean firstTick = true;
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -109,17 +113,25 @@ public class CoinJarBlockEntity extends BlockEntity
 	}
 
 	@Override
-	public void onLoad()
+	public void clientTick()
 	{
-		if(this.level.isClientSide)
+		if(firstTick)
 		{
-			TileEntityUtil.requestUpdatePacket(this);
+			firstTick = false;
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
 		}
 	}
 	
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
+	
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
+	{
+		CompoundTag compound = pkt.getTag();
+		this.load(compound);
 	}
 	
 	//For reading/writing the storage when silk touched.

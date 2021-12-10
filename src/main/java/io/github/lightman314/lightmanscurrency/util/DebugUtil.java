@@ -18,6 +18,8 @@ public class DebugUtil {
 	
 	public static String getSideText(Level level)
 	{
+		if(level == null)
+			return "unknown";
 		return level.isClientSide ? "client" : "server";
 	}
 	

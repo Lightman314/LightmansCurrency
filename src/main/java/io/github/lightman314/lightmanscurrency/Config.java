@@ -49,7 +49,9 @@ public class Config {
 			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
 			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
 			"minecraft:cake", "lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
-			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
+			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite",
+			"minecraft:small_amethyst_bud", "minecraft:medium_amethyst_bud", "minecraft:large_amethyst_bud", "minecraft:amethyst_cluster",
+			"minecraft:glow_berries", "minecraft:glow_lichen", "minecraft:lightning_rod"
 			);
 	
 	private static boolean canMint = false;

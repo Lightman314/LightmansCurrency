@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -178,16 +179,6 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 	}
 	
 	@Override
-	public void onLoad()
-	{
-		if(this.level.isClientSide)
-		{
-			//CurrencyMod.LOGGER.info("Loaded client-side PaygateTileEntity. Requesting update packet.");
-			TileEntityUtil.requestUpdatePacket(this);
-		}
-	}
-	
-	@Override
 	public CompoundTag save(CompoundTag compound)
 	{
 		
@@ -335,6 +326,13 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
+	
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
+	{
+		CompoundTag compound = pkt.getTag();
+		this.load(compound);
 	}
 	
 }

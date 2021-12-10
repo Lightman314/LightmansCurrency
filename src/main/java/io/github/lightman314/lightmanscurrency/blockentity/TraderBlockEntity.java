@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -60,6 +61,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	private boolean versionUpdate = false;
 	private int oldVersion = 0;
+	
+	private boolean firstTick = true;
 	
 	protected TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
@@ -229,6 +232,17 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		{
 			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+		}
+	}
+	
+	@Override
+	public void clientTick()
+	{
+		if(firstTick)
+		{
+			firstTick = false;
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestSyncUsers(this.worldPosition));
 		}
 	}
 	
@@ -441,16 +455,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public int GetCurrentVersion() { return 0; };
 	
-	@Override
-	public void onLoad()
-	{
-		if(this.level.isClientSide)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestSyncUsers(this.worldPosition));
-		}
-	}
-	
 	public void dumpContents(Level world, BlockPos pos)
 	{
 		List<ItemStack> coinItems = MoneyUtil.getCoinsOfValue(this.storedMoney);
@@ -461,6 +465,16 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, this.save(new CompoundTag()));
+	}
+	
+	@Override
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
+	
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
+	{
+		CompoundTag compound = pkt.getTag();
+		this.load(compound);
 	}
 	
 	private class CRDataWriter implements Consumer<FriendlyByteBuf>

@@ -52,6 +52,9 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 			}
 		}
 		
+		if(Config.canMint() || Config.canMelt())
+			return InteractionResult.SUCCESS;
+		
 		return InteractionResult.PASS;
 			
 	}

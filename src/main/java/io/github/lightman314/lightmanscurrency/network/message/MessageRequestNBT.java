@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,7 +35,7 @@ public class MessageRequestNBT {
 	public static void handle(MessageRequestNBT message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			//CurrencyMod.LOGGER.info("NBT Update Request received.");
+			LightmansCurrency.LogInfo("Data request received.");
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{

@@ -219,6 +219,8 @@
     
     "gui.lightmanscurrency.terminal.search": "Search Traders",
     "gui.lightmanscurrency.terminal.page": "Page %1$s of %2$s",
+    "gui.coinvalue.free": "Free",
+    
     
     "key.wallet": "Open Wallet",
     
