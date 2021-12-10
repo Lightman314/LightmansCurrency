@@ -2,51 +2,41 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTraderContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageAddOrRemoveTrade implements IMessage<MessageAddOrRemoveTrade> {
+public class MessageAddOrRemoveTrade {
 	
 	public boolean isTradeAdd;
-	
-	public MessageAddOrRemoveTrade()
-	{
-		
-	}
 	
 	public MessageAddOrRemoveTrade(boolean isTradeAdd)
 	{
 		this.isTradeAdd = isTradeAdd;
 	}
 	
-	
-	@Override
-	public void encode(MessageAddOrRemoveTrade message, FriendlyByteBuf buffer) {
+	public static void encode(MessageAddOrRemoveTrade message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.isTradeAdd);
 	}
 
-	@Override
-	public MessageAddOrRemoveTrade decode(FriendlyByteBuf buffer) {
+	public static MessageAddOrRemoveTrade decode(FriendlyByteBuf buffer) {
 		return new MessageAddOrRemoveTrade(buffer.readBoolean());
 	}
 
-	@Override
-	public void handle(MessageAddOrRemoveTrade message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageAddOrRemoveTrade message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer entity = supplier.get().getSender();
 			if(entity != null)
 			{
-				if(entity.containerMenu instanceof ICreativeTraderContainer)
+				if(entity.containerMenu instanceof ICreativeTraderMenu)
 				{
-					ICreativeTraderContainer container = (ICreativeTraderContainer)entity.containerMenu;
+					ICreativeTraderMenu menu = (ICreativeTraderMenu)entity.containerMenu;
 					if(message.isTradeAdd)
-						container.AddTrade();
+						menu.AddTrade();
 					else
-						container.RemoveTrade();
+						menu.RemoveTrade();
 				}
 			}
 		});

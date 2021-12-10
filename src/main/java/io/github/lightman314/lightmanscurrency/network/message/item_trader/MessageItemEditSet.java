@@ -2,50 +2,43 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-//import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageItemEditSet implements IMessage<MessageItemEditSet> {
+public class MessageItemEditSet {
 	
 	private ItemStack item;
+	private int slot;
 	
-	public MessageItemEditSet()
-	{
-		
-	}
-	
-	public MessageItemEditSet(ItemStack item)
+	public MessageItemEditSet(ItemStack item, int slot)
 	{
 		this.item = item;
+		this.slot = slot;
 	}
 	
-	@Override
-	public void encode(MessageItemEditSet message, FriendlyByteBuf buffer) {
-		buffer.writeItem(message.item);
+	public static void encode(MessageItemEditSet message, FriendlyByteBuf buffer) {
+		buffer.writeItemStack(message.item, false);
+		buffer.writeInt(message.slot);
 	}
 
-	@Override
-	public MessageItemEditSet decode(FriendlyByteBuf buffer) {
-		return new MessageItemEditSet(buffer.readItem());
+	public static MessageItemEditSet decode(FriendlyByteBuf buffer) {
+		return new MessageItemEditSet(buffer.readItem(), buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageItemEditSet message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageItemEditSet message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ItemEditContainer)
+				if(player.containerMenu instanceof ItemEditMenu)
 				{
-					ItemEditContainer container = (ItemEditContainer)entity.containerMenu;
-					container.setItem(message.item);
+					ItemEditMenu menu = (ItemEditMenu)player.containerMenu;
+					menu.setItem(message.item, message.slot);
 				}
 			}
 		});

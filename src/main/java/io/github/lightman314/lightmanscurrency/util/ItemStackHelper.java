@@ -3,9 +3,8 @@ package io.github.lightman314.lightmanscurrency.util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.world.Container;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.Constants;
 
 public class ItemStackHelper {
 	
@@ -27,14 +26,9 @@ public class ItemStackHelper {
 		return tag;
 	}
 	
-	public static CompoundTag saveAllItems(String key, CompoundTag tag, Container inventory)
-	{
-		return saveAllItems(key, tag, InventoryUtil.buildList(inventory));
-	}
-	
 	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list)
 	{
-		ListTag listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
+		ListTag listTag = tag.getList(key, Tag.TAG_COMPOUND);
 		for(int i = 0; i < listTag.size(); i++)
 		{
 			CompoundTag slotCompound = listTag.getCompound(i);
@@ -46,32 +40,9 @@ public class ItemStackHelper {
 		}
 	}
 	
-	public static void loadAllItems(String key, CompoundTag tag, Container inventory)
-	{
-		ListTag listTag = tag.getList(key, Constants.NBT.TAG_COMPOUND);
-		for(int i = 0; i < listTag.size(); i++)
-		{
-			CompoundTag slotCompound = listTag.getCompound(i);
-			int index = slotCompound.getByte("Slot") & 255;
-			if(index < inventory.getContainerSize())
-			{
-				inventory.setItem(index, ItemStack.of(slotCompound));
-			}
-		}
-	}
-	
 	public static boolean TagEquals(ItemStack stack1, ItemStack stack2)
 	{
-		return (!stack1.hasTag() && !stack2.hasTag()) || (stack1.getTag().equals(stack2.getTag()));
-	}
-	
-	public static ItemStack getAndSplit(NonNullList<ItemStack> inventory, int index, int count)
-	{
-		ItemStack stack = inventory.get(index);
-		ItemStack copy = stack.copy();
-		copy.setCount(MathUtil.clamp(count, 0, stack.getCount()));
-		stack.setCount(stack.getCount() - count);
-		return copy;
+		return stack1.hasTag() == stack2.hasTag() && (!stack1.hasTag() && !stack2.hasTag() || stack1.getTag().equals(stack2.getTag()));
 	}
 	
 }

@@ -13,23 +13,27 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
+public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/item_edit.png");
 	
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
 	private EditBox searchField;
+	
+	Button buttonToggleSlot;
 	
 	Button buttonPageLeft;
 	Button buttonPageRight;
@@ -38,12 +42,13 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 	Button buttonCountDown;
 	
 	Button buttonChangeName;
+	int setSlot = 0;
 	
 	boolean firstTick = false;
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
-	public ItemEditScreen(ItemEditContainer container, Inventory inventory, Component title)
+	public ItemEditScreen(ItemEditMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageWidth = 176;
@@ -52,36 +57,26 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		//minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		
-		int startX = (this.width - imageWidth) / 2;
-		int startY = (this.height - imageHeight) / 2;
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Render the BG
-		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, this.imageHeight);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
-		//Render the trade button
-		//minecraft.getTextureManager().bindTexture(ItemTradeButton.TRADE_TEXTURES);
-		RenderSystem.setShaderTexture(0, ItemTradeButton.TRADE_TEXTURES);
-		int yOffset = ItemTradeButton.getRenderYOffset(menu.tradeData.getTradeDirection());
-		this.blit(matrix, startX, startY - ItemTradeButton.HEIGHT, 0, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
+		//Render the fake trade button
+		ItemTradeButton.renderItemTradeButton(poseStack, (Screen)this, font, this.leftPos, this.topPos - ItemTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), false);
 		
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
 		
-		this.font.draw(matrix, new TranslatableComponent("gui.lightmanscurrency.item_edit.title").getString(), 8.0f, 6.0f, 0x404040);
-		
-		//Draw the trade price text
-		this.font.draw(matrix, ItemTradeButton.getTradeText(menu.tradeData, true, true), ItemTradeButton.TEXTPOS_X, ItemTradeButton.TEXTPOS_Y - ItemTradeButton.HEIGHT, ItemTradeButton.getTradeTextColor(menu.tradeData, true, true));
+		this.font.draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.item_edit.title"), 8.0f, 6.0f, 0x404040);
 		
 	}
 	
@@ -91,13 +86,16 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 		super.init();
 
 		//Initialize the search field
-		this.searchField = this.addRenderableWidget(new EditBox(this.font, leftPos + 81, topPos + 6, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
-		//this.searchField.setEnableBackgroundDrawing(false);
+		this.searchField = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 81, this.topPos + 6, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
 		//Initialize the buttons
+		//Toggle button
+		this.buttonToggleSlot = this.addRenderableWidget(new Button(this.leftPos + this.imageWidth - 80, this.topPos - 20, 80, 20, new TranslatableComponent("gui.button.lightmanscurrency.item_edit.toggle.sell"), this::PressToggleSlotButton));
+		this.buttonToggleSlot.visible = this.menu.tradeData.isBarter();
+		
 		//Page Buttons
 		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth, 0));
 		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth + 16, 0));
@@ -118,7 +116,7 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
-		//this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
 		
 	}
 	
@@ -127,6 +125,8 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 	{
 		
 		this.searchField.tick();
+		
+		this.buttonToggleSlot.setMessage(new TranslatableComponent(this.menu.getEditSlot() == 1 ? "gui.button.lightmanscurrency.item_edit.toggle.barter" : "gui.button.lightmanscurrency.item_edit.toggle.sell"));
 		
 		this.buttonPageLeft.active = this.menu.getPage() > 0;
 		this.buttonPageRight.active = this.menu.getPage() < this.menu.maxPage();
@@ -169,7 +169,12 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 			}
 			return true;
 		}
-		return this.searchField.isFocused() && this.searchField.visible && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+	}
+	
+	private void PressToggleSlotButton(Button button)
+	{
+		this.menu.toggleEditSlot();
 	}
 	
 	private void PressPageButton(Button button)
@@ -194,7 +199,7 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditContainer>{
 	
 	private void PressCloseButton(Button button)
 	{
-		menu.openTraderStorage();
+		this.menu.openTraderStorage();
 	}
 	
 	

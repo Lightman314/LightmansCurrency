@@ -2,30 +2,23 @@ buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
-        //maven { url = 'https://repo.spongepowered.org/maven' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        //classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-//apply plugin: 'org.spongepowered.mixin'
 
-version = '1.17.1-1.0.0.4'
+version = '1.17.1-1.0.1.1'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
 // Mojang ships Java 16 to end users in 1.17+ instead of Java 8 in 1.16 or lower, so your mod should target Java 16.
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
-
-//mixin {
-//    add sourceSets.main, "lightmanscurrency.refmap.json"
-//}
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -38,31 +31,6 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             //arg '-mixin.config=lightmanscurrency.mixins.json'
-
-            mods {
-                lightmanscurrency {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                lightmanscurrency {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'lightmanscurrency', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 lightmanscurrency {
@@ -88,10 +56,6 @@ dependencies {
 	//Curios support
 	compileOnly fg.deobf('curse.maven:curios-309927:3412602')
 	runtimeOnly fg.deobf('curse.maven:curios-309927:3412602')
-	
-	//Backpacked support (pending 1.17 version)
-	//compileOnly fg.deobf('curse.maven:backpacked-352835:3108379')
-	//runtimeOnly fg.deobf('curse.maven:backpacked-352835:3108379')
     
 }
 
@@ -105,8 +69,7 @@ jar {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "lightman314",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                //"MixinConfigs": "lightmanscurrency.mixins.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }

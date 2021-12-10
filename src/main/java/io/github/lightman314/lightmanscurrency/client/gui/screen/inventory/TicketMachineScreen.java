@@ -4,28 +4,26 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.TicketMachineContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.TicketMasterSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
+import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-
-
-public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineContainer>{
+public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
 	
 	private Button buttonCraft;
 	
-	public TicketMachineScreen(TicketMachineContainer container, Inventory inventory, Component title)
+	public TicketMachineScreen(TicketMachineMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 138;
@@ -33,27 +31,22 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineCo
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		int startX = (this.width - this.imageWidth) / 2;
-		int startY = (this.height - this.imageHeight) / 2;
-		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, this.imageHeight);
-		
-		TicketMasterSlot.drawEmptyTicketSlots(this, this.menu, matrix, startX, startY);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.draw(matrix, this.title.getString(), 8.0f, 6.0f, 0x404040);
-		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, this.imageHeight - 94, 0x404040);
+		this.font.draw(poseStack, this.title, 8.0f, 6.0f, 0x404040);
+		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -62,7 +55,6 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineCo
 		super.init();
 		
 		this.buttonCraft = this.addRenderableWidget(new PlainButton(this.leftPos + 79, this.topPos + 21, 24, 16, this::craftTicket, GUI_TEXTURE, this.imageWidth, 0));
-		//this.buttonCraft.active = false;
 		this.buttonCraft.visible = false;
 		
 	}
@@ -70,8 +62,8 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineCo
 	@Override
 	public void containerTick()
 	{
-		//this.buttonCraft.active = this.container.validInputs() && this.container.validOutputs();
-		this.buttonCraft.visible = this.menu.validInputs() && this.menu.validOutputs();
+		
+		this.buttonCraft.visible = this.menu.validInputs() && this.menu.roomForOutput();
 		
 	}
 	

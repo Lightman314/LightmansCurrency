@@ -4,18 +4,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.atm.MessageATM;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
+public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
@@ -45,7 +45,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
 	private Button buttonConvertDiamondToNetherrite;
 	private Button buttonConvertNetherriteToDiamond;
 	
-	public ATMScreen(ATMContainer container, Inventory inventory, Component title)
+	public ATMScreen(ATMMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 212;
@@ -53,26 +53,21 @@ public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (this.width - this.imageWidth) / 2;
-		int startY = (this.height - this.imageHeight) / 2;
-		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, this.imageHeight);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		//CoinSlot.drawEmptyCoinSlots(matrix, startX, startY, this.container, this);
-		
-		CoinSlot.drawEmptyCoinSlots(this, this.menu, matrix, startX, startY);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.draw(matrix, this.title.getString(), 8.0f, 4.0f, 0x404040);
-		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(poseStack, this.title.getString(), 8.0f, 4.0f, 0x404040);
+		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -104,12 +99,6 @@ public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
 	}
 	
 	@Override
-	public void containerTick()
-	{
-		
-	}
-	
-	@Override
 	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(matrixStack);
@@ -123,12 +112,10 @@ public class ATMScreen extends AbstractContainerScreen<ATMContainer>{
 		if(button == buttonConvertAllUp)
 		{
 			buttonInput = 100;
-			//CurrencyMod.LOGGER.info("Hit ConvertAllUp button!");
 		}
 		else if(button == buttonConvertAllDown)
 		{
 			buttonInput = -100;
-			//CurrencyMod.LOGGER.info("Hit ConvertAllDown button!");
 		}
 		else if(button == buttonConvertCopperToIron)
 		{

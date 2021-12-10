@@ -12,26 +12,26 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.CoinValuePair;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil.PlayerWallets;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.util.Constants;
 
 public class MoneyUtil {
+	
+	
 	
 	//Coin data list
 	private static List<CoinData> coinList = new ArrayList<>();
@@ -251,7 +251,8 @@ public class MoneyUtil {
     	CoinData changedData = getData(changedCoin);
     	if(changedData == null)
     	{
-    		LightmansCurrency.LogError("Cannot change the coin conversion as '" + changedCoin.getRegistryName() + "' has not been registered as a coin.");
+    		if(initialized()) //Only throw the coin conversion error if the coins have been initialized.
+    			LightmansCurrency.LogError("Cannot change the coin conversion as '" + changedCoin.getRegistryName() + "' has not been registered as a coin.");
     		return;
     	}
     	//Confirm that nothing else uses the new dependent (unless this is a hidden coin)
@@ -297,12 +298,24 @@ public class MoneyUtil {
      */
     public static boolean isCoin(Item item)
     {
+    	return isCoin(item, true);
+    }
+    
+    /**
+     * Checks if the given item is in the master coin list.
+     * @param item The item to check.
+     * @param allowHidden Whether hidden coins should return true.
+     */
+    public static boolean isCoin(Item item, boolean allowHidden)
+    {
     	if(item == null)
     		return false;
     	for(CoinData coinData : coinList)
     	{
     		if(coinData.getCoinItem().equals(item))
-    			return true;
+    		{
+				return allowHidden || !coinData.isHidden;
+    		}
     	}
     	return false;
     }
@@ -329,9 +342,19 @@ public class MoneyUtil {
      */
     public static boolean isCoin(@Nonnull ItemStack stack)
     {
-    	return isCoin(stack.getItem());
+    	return isCoin(stack, true);
     }
 	
+    /**
+     * Checks if the given item is in the master coin list.
+     * @param stack The ItemStack to check.
+     * @param allowHidden Whether hidden coins should return true.
+     */
+    public static boolean isCoin(@Nonnull ItemStack stack, boolean allowHidden)
+    {
+    	return isCoin(stack.getItem(), allowHidden);
+    }
+    
     /**
      * Gets the value of the given item.
      * @param coinItem The coin to get the value of.
@@ -564,28 +587,28 @@ public class MoneyUtil {
     public static boolean ProcessPayment(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue price, boolean ignoreWallet)
     {
     	//Get the players wallet
-    	PlayerWallets wallet = ignoreWallet ? WalletUtil.getWallets(null) : WalletUtil.getWallets(player);
+    	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
     	
     	long valueToTake = price.getRawValue();
     	//Get value from the wallet
     	long rawInventoryValue = 0;
     	if(inventory != null)
     		rawInventoryValue += getValue(inventory);
-		rawInventoryValue += wallet.getStoredMoney();
+    	if(!wallet.isEmpty())
+    		rawInventoryValue += getValue(WalletItem.getWalletInventory(wallet));
     	if(rawInventoryValue < valueToTake)
     		return false;
-    	
-    	//boolean walletUpdate = false;
     	
     	//Otherwise take the payment
     	//Take from the inventory first
     	if(inventory != null)
     		valueToTake = takeObjectsOfValue(valueToTake, inventory, true);
     	//Then take from the wallet
-    	if(valueToTake > 0)
+    	if(valueToTake > 0 && !wallet.isEmpty())
     	{
-    		//walletUpdate = true;
-    		valueToTake = wallet.extractMoney(valueToTake);
+    		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(wallet);
+    		valueToTake = takeObjectsOfValue(valueToTake, walletInventory);
+    		WalletItem.putWalletInventory(wallet, walletInventory);
     	}
     	
     	//Give change if necessary
@@ -595,7 +618,10 @@ public class MoneyUtil {
     		for(ItemStack coinStack : change)
     		{
     			//Put them in the wallet first
-    			coinStack = wallet.PlaceCoin(coinStack);
+    			if(!wallet.isEmpty())
+    			{
+    				coinStack = WalletItem.PickupCoin(wallet, coinStack);
+    			}
     			if(!coinStack.isEmpty() && inventory != null)
     			{
     				//TryPutItemStack allows partial placement unlike PutItemStack which is used for cancelable placements
@@ -604,25 +630,10 @@ public class MoneyUtil {
     			//Out of room to place it, throw it at the player
     			if(!coinStack.isEmpty())
     			{
-    				if(!player.addItem(coinStack))
-    				{
-    					//Spawn an item in the world at the player position
-    					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);
-    					itemEntity.setPickUpDelay(40);
-    					player.level.addFreshEntity(itemEntity);
-    				}
+    				player.getInventory().placeItemBackInInventory(coinStack);
     			}
     		}
     	}
-    	
-    	//Send wallet update packet if the wallet was changed
-    	//Now handled in the PlayerWallets code
-		//if(!wallet.isEmpty() && walletUpdate && !LightmansCurrency.isCuriosLoaded())
-		//{
-		//	//CurrencyMod.LOGGER.info("Sending wallet update message to the player.");
-		//	LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)player), new MessageUpdateWallet(player.getId(), wallet));
-		//}
-    	
     	
     	return true;
     }
@@ -641,14 +652,16 @@ public class MoneyUtil {
     public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change, boolean ignoreWallet)
     {
     	//Get the players wallet
-    	PlayerWallets wallet = ignoreWallet ? WalletUtil.getWallets(null) : WalletUtil.getWallets(player);
+    	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
     	
     	List<ItemStack> changeCoins = getCoinsOfValue(change);
-    	//boolean walletUpdate = false;
     	for(ItemStack coinStack : changeCoins)
 		{
 			//Put them in the wallet first
-			coinStack = wallet.PlaceCoin(coinStack);
+			if(!wallet.isEmpty())
+			{
+				coinStack = WalletItem.PickupCoin(wallet, coinStack);
+			}
 			if(!coinStack.isEmpty() && inventory != null)
 			{
 				//TryPutItemStack allows partial placement unlike PutItemStack which is used for cancelable placements
@@ -657,22 +670,9 @@ public class MoneyUtil {
 			//Out of room to place it, throw it at the player
 			if(!coinStack.isEmpty())
 			{
-				if(!player.addItem(coinStack))
-				{
-					//Spawn an item in the world at the player position
-					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);
-					itemEntity.setPickUpDelay(40);
-					player.level.addFreshEntity(itemEntity);
-				}
+				player.getInventory().placeItemBackInInventory(coinStack);
 			}
 		}
-    	
-    	//Send wallet update packet if the wallet was changed
-		//if(!wallet.isEmpty() && walletUpdate && !LightmansCurrency.isCuriosLoaded())
-		//{
-		//	//CurrencyMod.LOGGER.info("Sending wallet update message to the player.");
-		//	LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)player), new MessageUpdateWallet(player.getId(), wallet));
-		//}
     	
     }
     
@@ -748,7 +748,7 @@ public class MoneyUtil {
 		}
 	}
     
-    public static long takeObjectsOfValue(long value, NonNullList<ItemStack> inventory)
+    private static long takeObjectsOfValue(long value, NonNullList<ItemStack> inventory)
     {
     	return takeObjectsOfValue(value, inventory, false);
     }
@@ -761,7 +761,7 @@ public class MoneyUtil {
      * @return Returns the given value if there is not enough money to take.
      * Returns 0 if exact change was taken, and returns a negative value if more money was taken than what was requested so that change can be calculated separately.
      */
-    public static long takeObjectsOfValue(long value, NonNullList<ItemStack> inventory, boolean forceTake)
+    private static long takeObjectsOfValue(long value, NonNullList<ItemStack> inventory, boolean forceTake)
 	{
 		//Check to ensure that the inventory has enough 'value' to remove
 		if(MoneyUtil.getValue(inventory) < value && !forceTake)
@@ -1163,10 +1163,10 @@ public class MoneyUtil {
     	{
     		if(newOtherCoin == this.worthOtherCoin && newOtherCoinAmount == this.worthOtherCoinCount)
     		{
-    			LightmansCurrency.LogInfo("Conversion for " + this.coinItem.getRegistryName() + " does not need changing.");
+    			LightmansCurrency.LogDebug("Conversion for " + this.coinItem.getRegistryName() + " does not need changing.");
     			return false;
     		}
-    		LightmansCurrency.LogInfo("Conversion for " + this.coinItem.getRegistryName() + " changed from " + this.worthOtherCoinCount + "x'" + this.worthOtherCoin.getRegistryName() + "' to " + newOtherCoinAmount + "x'" + newOtherCoin.getRegistryName() + "'");
+    		LightmansCurrency.LogDebug("Conversion for " + this.coinItem.getRegistryName() + " changed from " + this.worthOtherCoinCount + "x'" + this.worthOtherCoin.getRegistryName() + "' to " + newOtherCoinAmount + "x'" + newOtherCoin.getRegistryName() + "'");
     		this.worthOtherCoin = newOtherCoin;
     		this.worthOtherCoinCount = newOtherCoinAmount;
     		return true;
@@ -1182,7 +1182,7 @@ public class MoneyUtil {
     	
     	public MintRecipe getMintRecipe()
     	{
-    		if(!Config.canMint(this.coinItem))
+    		if(!Config.canMint(this.coinItem)) //Block getting the mint recipe if minting is blocked for this coin
     			return null;
     		if(this.mintingMaterialItem != null)
     			return new MintRecipe(this.mintingMaterialItem, this.coinItem);
@@ -1193,14 +1193,14 @@ public class MoneyUtil {
     	
     	public MintRecipe getMeltRecipe()
     	{
-    		if(!Config.canMelt(this.coinItem))
+    		if(!Config.canMelt(this.coinItem)) //Block getting the melt recipe if melting is blocked for this coin
     			return null;
     		if(this.mintingMaterialItem != null)
     			return new MintRecipe(this.coinItem, this.mintingMaterialItem);
     		else if(this.mintingMaterialTag != null)
     		{
     			//Get all items with the tag
-    			Tag<Item> tag = ItemTags.getAllTags().getTag(this.mintingMaterialTag);
+    			net.minecraft.tags.Tag<Item> tag = ItemTags.getAllTags().getTagOrEmpty(this.mintingMaterialTag);
     			if(tag != null)
     			{
     				List<Item> tagItems = tag.getValues();
@@ -1470,7 +1470,7 @@ public class MoneyUtil {
     	
     	public void readFromNBT(CompoundTag compound, String key)
     	{
-    		ListTag listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
+    		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
     		if(listNBT != null)
     		{
     			this.coinValues.clear();
@@ -1480,7 +1480,6 @@ public class MoneyUtil {
 					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
     				int amount = thisCompound.getInt("amount");
     				this.coinValues.add(new CoinValuePair(priceCoin,amount));
-    				
     			}
     		}
     	}
@@ -1691,6 +1690,32 @@ public class MoneyUtil {
     		return value;
     	}
     	
+    	public CoinValue ApplyMultiplier(double costMultiplier)
+    	{
+    		CoinValue multipliedValue = new CoinValue();
+    		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 10d);
+    		
+    		for(int i = 0; i < this.coinValues.size(); i++)
+    		{
+    			int amount = this.coinValues.get(i).amount;
+    			Item coin = this.coinValues.get(i).coin;
+    			double newAmount = amount * costMultiplier;
+    			double leftoverAmount = newAmount % 1d;
+    			multipliedValue.addValue(coin, (int)newAmount);
+    			CoinData coinData = MoneyUtil.getData(coin);
+    			while(coinData != null && coinData.convertsDownwards() && leftoverAmount > 0d)
+    			{
+    				Pair<Item,Integer> conversion = coinData.getDownwardConversion();
+    				coin = conversion.getFirst();
+    				coinData = MoneyUtil.getData(coin);
+    				newAmount = leftoverAmount * conversion.getSecond();
+    				leftoverAmount = newAmount % 1d;
+    				multipliedValue.addValue(coin, (int)newAmount);
+    			}
+    		}
+    		return multipliedValue;
+    	}
+    	
     	/**
     	 * Gets the two most significant coin stacks from the given value for use as a villager price
     	 */
@@ -1750,6 +1775,8 @@ public class MoneyUtil {
     		
     	}
     	
+    	public static final CoinValue EMPTY = new CoinValue();
+    	
     	public static CoinValue easyBuild1(ItemStack... stack)
     	{
     		List<CoinValuePair> pairs = new ArrayList<>();
@@ -1765,11 +1792,12 @@ public class MoneyUtil {
     	
     	public static CoinValue easyBuild2(Container inventory)
     	{
-    		List<CoinValuePair> pairs = new ArrayList<>();
-    		for(int i = 0; i < inventory.getContainerSize(); i++)
+    		return new CoinValue(MoneyUtil.getValue(inventory));
+    		/*List<CoinValuePair> pairs = new ArrayList<>();
+    		for(int i = 0; i < inventory.getSizeInventory(); i++)
     		{
-    			Item item = inventory.getItem(i).getItem();
-    			int amountToAdd = inventory.getItem(i).getCount();
+    			Item item = inventory.getStackInSlot(i).getItem();
+    			int amountToAdd = inventory.getStackInSlot(i).getCount();
     			if(MoneyUtil.isCoin(item) || !MoneyUtil.initialized())
     			{
     				for(int x = 0; x < pairs.size() && amountToAdd > 0; x++)
@@ -1786,7 +1814,7 @@ public class MoneyUtil {
     				}
     			}
     		}
-    		return new CoinValue(pairs);
+    		return new CoinValue(pairs);*/
     	}
     	
     	/*public static boolean canAfford(CoinValue price, CoinValue availableMoney)

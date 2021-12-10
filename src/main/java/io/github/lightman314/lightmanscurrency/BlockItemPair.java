@@ -14,7 +14,7 @@ public class BlockItemPair implements ItemLike{
 		this.item = item;
 	}
 
-	//@Override
+	@Override
 	public Item asItem() {
 		return this.item;
 	}

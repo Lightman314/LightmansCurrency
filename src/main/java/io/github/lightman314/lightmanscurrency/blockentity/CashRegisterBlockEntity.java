@@ -3,21 +3,16 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Constants;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 public class CashRegisterBlockEntity extends BlockEntity{
 	
@@ -42,15 +37,14 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	
 	public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
 	{
-		//Only open the container server-side
-		if(this.level.isClientSide)
-			return;
-		
 		//Validate the direction
 		if(direction == 0)
 			direction = 1;
 		else
 			direction = MathUtil.clamp(direction, -1, 1);
+		//Only open the container server-side
+		if(this.level.isClientSide)
+			return;
 		//Confirm we have any tile entities that can be opened
 		if(this.positions.size() <= 0)
 		{
@@ -68,11 +62,11 @@ public class CashRegisterBlockEntity extends BlockEntity{
 			return;
 		}
 		
-		TraderBlockEntity blockEntity = this.getTrader(newIndex);
-		if(blockEntity != null)
+		TraderBlockEntity tileEntity = this.getTrader(newIndex);
+		if(tileEntity != null)
 		{
 			//Open the container
-			blockEntity.openCashRegisterTradeMenu((ServerPlayer)player, this);
+			tileEntity.openCashRegisterTradeMenu(player, this);
 			return;
 		}
 		else
@@ -94,17 +88,17 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	{
 		if(index < 0 || index >= positions.size())
 			return null;
-		BlockEntity blockEntity = this.level.getBlockEntity(positions.get(index));
-		if(blockEntity instanceof ItemTraderBlockEntity)
-			return (ItemTraderBlockEntity)blockEntity;
+		BlockEntity tileEntity = this.level.getBlockEntity(positions.get(index));
+		if(tileEntity instanceof TraderBlockEntity)
+			return (TraderBlockEntity)tileEntity;
 		return null;
 	}
 	
-	public int getTraderIndex(ItemTraderBlockEntity blockEntity)
+	public int getTraderIndex(TraderBlockEntity tileEntity)
 	{
 		for(int i = 0; i < positions.size(); i++)
 		{
-			if(positions.get(i).equals(blockEntity.getBlockPos()))
+			if(positions.get(i).equals(tileEntity.getBlockPos()))
 				return i;
 		}
 		return -1;
@@ -153,7 +147,7 @@ public class CashRegisterBlockEntity extends BlockEntity{
 		if(compound.contains("TraderPos"))
 		{
 			this.positions = new ArrayList<>();
-			ListTag storageList = compound.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			ListTag storageList = compound.getList("TraderPos", Tag.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); i++)
 			{
 				CompoundTag thisEntry = storageList.getCompound(i);
@@ -166,19 +160,7 @@ public class CashRegisterBlockEntity extends BlockEntity{
 		}
 	}
 	
-	@Nullable
 	@Override
-	public ClientboundBlockEntityDataPacket getUpdatePacket()
-	{
-		return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, this.save(new CompoundTag()));
-	}
-	
-	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
-	{
-		CompoundTag compound = pkt.getTag();
-		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.load(compound);
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
 }

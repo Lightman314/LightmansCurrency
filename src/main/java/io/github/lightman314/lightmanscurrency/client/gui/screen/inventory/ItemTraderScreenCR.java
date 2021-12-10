@@ -6,14 +6,15 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
+import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenuCR;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -24,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContainerCR>{
+public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderMenuCR>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 	
@@ -43,26 +44,30 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 	
 	protected List<ItemTradeButton> tradeButtons = new ArrayList<>();
 	
-	public ItemTraderScreenCR(ItemTraderContainerCR container, Inventory inventory, Component title)
+	public ItemTraderScreenCR(ItemTraderMenuCR container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.imageHeight = 133 + ItemTraderUtil.getTradeDisplayHeight(this.menu.getTradeCount());
-		this.imageWidth= ItemTraderUtil.getWidth(this.menu.getTradeCount());
+		this.imageHeight = 133 + ItemTraderUtil.getTradeDisplayHeight(this.menu.tileEntity);
+		this.imageWidth = ItemTraderUtil.getWidth(this.menu.tileEntity);
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
-		ItemTraderScreen.drawTraderBackground(matrix, this, this.menu, this.minecraft, this.imageWidth, this.imageHeight, this.menu.getTradeCount());
+		
+		ItemTraderScreen.drawTraderBackground(poseStack, this, this.menu, this.minecraft, this.imageWidth, this.imageHeight, this.menu.tileEntity);
+		
 	}
 	
 	@Override
 	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		ItemTraderScreen.drawTraderForeground(matrix, this.font, this.menu.getTradeCount(), this.imageHeight,
-				new TranslatableComponent("gui.lightmanscurrency.trading.title", this.menu.blockEntity.getName(), new TranslatableComponent("gui.lightmanscurrency.trading.list", this.menu.getThisIndex() + 1, this.menu.getTotalCount())),
+		
+		ItemTraderScreen.drawTraderForeground(matrix, this.font, this.menu.tileEntity, this.imageHeight,
+				new TranslatableComponent("gui.lightmanscurrency.trading.title", this.menu.tileEntity.getName(), new TranslatableComponent("gui.lightmanscurrency.trading.list", this.menu.getThisIndex() + 1, this.menu.getTotalCount())),
 				this.playerInventoryTitle,
 				new TranslatableComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.menu.GetCoinValue())));
+		
 	}
 	
 	@Override
@@ -70,7 +75,7 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 	{
 		super.init();
 		
-		int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.menu.getTradeCount());
+		int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.menu.tileEntity);
 		
 		//From the cash register, there is no acknowledged owner.
 		if(this.menu.cashRegister.getPairedTraderSize() > 1)
@@ -79,18 +84,18 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176, 16));
 			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
 			
-			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, TextComponent.EMPTY));
+			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, new TextComponent("")));
 			this.pageInput.setMaxLength(9);
 			this.pageInput.setValue(String.valueOf(this.menu.getThisIndex() + 1));
-			//this.children.add(this.pageInput);
 			
-			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageHeight - 68, this.topPos - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
 			this.buttonSkipToPage.active = false;
 			
 		}
 		
 		if(this.menu.isOwner())
 		{
+			
 			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
 			this.buttonCollectMoney.active = false;
 		}
@@ -104,7 +109,7 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 		int tradeCount = this.menu.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(tradeCount, i), this.topPos + ItemTraderUtil.getButtonPosY(tradeCount, i), this::PressTradeButton, menu.blockEntity.getTrade(i), this.font, () -> this.menu.blockEntity, this.menu)));
+			this.tradeButtons.add(this.addRenderableWidget(new ItemTradeButton(this.leftPos + ItemTraderUtil.getButtonPosX(this.menu.tileEntity, i), this.topPos + ItemTraderUtil.getButtonPosY(this.menu.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.menu.tileEntity, this.menu::GetCoinValue, this.menu::GetItemInventory)));
 		}
 	}
 	
@@ -119,16 +124,11 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 		
 		this.menu.tick();
 		
-		for(int i = 0; i < tradeButtons.size(); i++)
-		{
-			tradeButtons.get(i).UpdateTrade(menu.blockEntity.getTrade(i));
-		}
-		
 		if(this.buttonCollectMoney != null)
 		{
-			this.buttonCollectMoney.active = this.menu.blockEntity.getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.blockEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.menu.tileEntity.isCreative();
 		}
 		if(this.buttonSkipToPage != null)
 		{
@@ -149,7 +149,11 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 		
 		if(this.buttonCollectMoney != null && this.buttonCollectMoney.active && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.blockEntity.getStoredMoney().getString()), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.tileEntity.getStoredMoney().getString()), mouseX, mouseY);
+		}
+		for(int i = 0; i < this.tradeButtons.size(); i++)
+		{
+			this.tradeButtons.get(i).tryRenderTooltip(matrixStack, this, this.menu.tileEntity, false, mouseX, mouseY);
 		}
 	}
 	
@@ -159,8 +163,6 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 		int tradeIndex = 0;
 		if(tradeButtons.contains(button))
 			tradeIndex = tradeButtons.indexOf(button);
-		
-		//CurrencyMod.LOGGER.info("Trade Button clicked for index " + tradeIndex + ".");
 		
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(tradeIndex));
 		
@@ -198,29 +200,9 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderContai
 	{
 		if(this.pageInput != null)
 		{
-			if(isNumeric(this.pageInput.getValue()))
-			{
-				return Integer.parseInt(this.pageInput.getValue()) - 1;
-			}
-			return 0;
+			return TextInputUtil.getIntegerValue(this.pageInput) - 1;
 		}
 		return 0;
-	}
-	
-	private static boolean isNumeric(String string)
-	{
-		if(string == null)
-			return false;
-		try
-		{
-			@SuppressWarnings("unused")
-			int i = Integer.parseInt(string);
-		} 
-		catch(NumberFormatException nfe)
-		{
-			return false;
-		}
-		return true;
 	}
 	
 }

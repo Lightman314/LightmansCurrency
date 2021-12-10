@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetCustomName2;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 
 public class UniversalTraderNameScreen extends Screen{
 	
@@ -47,7 +47,7 @@ public class UniversalTraderNameScreen extends Screen{
 		int guiTop = (this.height - this.ySize) / 2;
 		
 		
-		this.nameField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 8, guiTop + 14, 160, 18, TextComponent.EMPTY));
+		this.nameField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 8, guiTop + 14, 160, 18, new TextComponent("")));
 		if(this.data.hasCustomName())
 			this.nameField.setValue(this.data.getName().getString());
 		this.nameField.setMaxLength(ItemTradeData.MAX_CUSTOMNAME_LENGTH);
@@ -72,10 +72,10 @@ public class UniversalTraderNameScreen extends Screen{
 	{
 		this.renderBackground(poseStack);
 		
-		//RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
 		this.blit(poseStack, startX, startY, 0, 0, this.xSize, this.ySize);
@@ -83,8 +83,6 @@ public class UniversalTraderNameScreen extends Screen{
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		
 		this.font.draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.customname").getString(), startX + 8.0F, startY + 4.0F, 0x404040);
-		
-		this.nameField.render(poseStack, mouseX, mouseY, partialTicks);
 		
 	}
 	

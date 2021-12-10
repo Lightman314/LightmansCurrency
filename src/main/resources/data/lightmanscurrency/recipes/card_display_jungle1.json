@@ -17,7 +17,7 @@
       "item": "minecraft:red_wool"
     },
     "c": {
-      "item": "minecraft:chest"
+      "tag": "forge:chests/wooden"
     }
   },
   "result": {

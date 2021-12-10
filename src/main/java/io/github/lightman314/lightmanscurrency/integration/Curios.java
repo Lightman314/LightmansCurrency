@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.integration;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 
@@ -36,16 +35,9 @@ import top.theillusivec4.curios.common.capability.CurioItemCapability;
 
 public class Curios {
 	
-	
 	public static ItemStack getWalletStack(Player player)
 	{
-		List<ItemStack> foundWallets = getEquippedWallets(player);
-		return foundWallets.size() > 0 ? foundWallets.get(0) : ItemStack.EMPTY;
-	}
-	
-	public static List<ItemStack> getEquippedWallets(Player player)
-	{
-		List<ItemStack> foundWallets = new ArrayList<>();
+		AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
 		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
 		optional.ifPresent(itemHandler ->
 		{
@@ -57,39 +49,15 @@ public class Curios {
 					ItemStack stack = stacksHandler.getStacks().getStackInSlot(i);
 					if(stack.getItem() instanceof WalletItem)
 					{
-						foundWallets.add(stack);
+						wallet.set(stack);
 					}
 				}
 				
 			});
 		});
-		return foundWallets;
+		
+		return wallet.get();
 	}
-	
-	public static List<ItemStack> extractEquippedWallets(Player player)
-	{
-		List<ItemStack> equippedWallets = new ArrayList<>();
-		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
-		optional.ifPresent(itemHandler ->
-		{
-			Optional<ICurioStacksHandler> stacksOptional = itemHandler.getStacksHandler(SlotTypePreset.BELT.getIdentifier());
-			stacksOptional.ifPresent(stacksHandler ->{
-				//Go through every belt slot just in case there's more than 1 belt slot.
-				for(int i = 0; i < stacksHandler.getStacks().getSlots(); i++)
-				{
-					ItemStack stack = stacksHandler.getStacks().getStackInSlot(i);
-					if(stack.getItem() instanceof WalletItem)
-					{
-						equippedWallets.add(stack);
-						stacksHandler.getStacks().setStackInSlot(i, ItemStack.EMPTY);
-					}
-				}
-			});
-		});
-		return equippedWallets;
-	}
-	
-	
 	
 	public static void RegisterCuriosRenderers()
 	{
@@ -109,28 +77,72 @@ public class Curios {
 	public static class WalletCuriosCapability implements ICurio
 	{
 		
+		//private final WalletItem walletItem;
 		private final ItemStack walletStack;
+		//private Object model;
 		
-		public WalletCuriosCapability(ItemStack walletStack) { this.walletStack = walletStack; }
+		public WalletCuriosCapability(ItemStack walletStack)
+		{
+			this.walletStack = walletStack;
+			//this.walletItem = (WalletItem)walletStack.getItem();
+		}
 		
 		@Override
-        public boolean canRightClickEquip() { return false; }
+		public ItemStack getStack() { return this.walletStack; }
+		
+		@Override
+        public boolean canRightClickEquip()
+        {
+            return false;
+        }
 
         @Override
-        public boolean canSync(String identifier, int index, LivingEntity livingEntity) { return true; }
+        public boolean canSync(String identifier, int index, LivingEntity livingEntity)
+        {
+            return true;
+        }
         
         @Nonnull
         @Override
         public DropRule getDropRule(LivingEntity livingEntity)
         {
-        	//WalletDropMode dropMode = Config.SERVER.walletDropMode.get();
-        	//if(dropMode == WalletDropMode.KEEP || dropMode == WalletDropMode.DROP_COINS)
-        	//	return DropRule.ALWAYS_KEEP;
             return DropRule.DEFAULT;
         }
-
-		@Override
-		public ItemStack getStack() { return walletStack; }
+        
+        /*@Override
+        @OnlyIn(Dist.CLIENT)
+        public boolean canRender(String identifier, int index, LivingEntity entity)
+        {
+        	return true;
+        }
+        
+        @Override
+        @OnlyIn(Dist.CLIENT)
+        public void render(String identifier, int index, MatrixStack matrix, IRenderTypeBuffer renderTypeBuffer, int light, LivingEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+        {
+        	BipedModel<LivingEntity> model = getModel();
+        	model.setRotationAngles(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        	model.setLivingAnimations(entity, limbSwing, limbSwingAmount, partialTicks);
+        	ICurio.RenderHelper.followBodyRotations(entity, model);
+        	IVertexBuilder vertexBuilder = ItemRenderer.getBuffer(renderTypeBuffer, model.getRenderType(walletItem.getModelTexture()), false, walletStack.hasEffect());
+        	model.render(matrix, vertexBuilder, light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        }
+        
+        @SuppressWarnings("unchecked")
+		@OnlyIn(Dist.CLIENT)
+        private BipedModel<LivingEntity> getModel()
+        {
+        	if(model == null)
+        		model = createModel();
+        	
+        	return (BipedModel<LivingEntity>)model;
+        }
+        
+        @OnlyIn(Dist.CLIENT)
+        private BipedModel<LivingEntity> createModel()
+        {
+        	return new ModelWallet<LivingEntity>();
+        }*/
         
 	}
 	
@@ -143,7 +155,7 @@ public class Curios {
 		{
 			this.model = new ModelWallet<LivingEntity>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
 		}
-		
+
 		@Override
 		public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack,
 				SlotContext slotContext,
@@ -155,18 +167,18 @@ public class Curios {
 				float partialTicks,
 				float ageInTicks,
 				float netHeadYaw,
-				float headPitch)
-		{
+				float headPitch) {
+			
 			WalletItem walletItem = (WalletItem)stack.getItem();
 			LivingEntity entity = slotContext.entity();
 			this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
 			this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 			ICurioRenderer.followBodyRotations(entity, this.model);
-        	VertexConsumer vertexConsumer = ItemRenderer
-        			.getFoilBuffer(bufferSource, this.model.renderType(walletItem.getModelTexture()), false, stack.hasFoil());
-        	this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+			VertexConsumer vertexConsumer = ItemRenderer
+					.getFoilBuffer(bufferSource, this.model.renderType(walletItem.getModelTexture()), false, stack.hasFoil());
+			this.model.renderToBuffer(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
+			
 		}
-		
 	}
 	
 }

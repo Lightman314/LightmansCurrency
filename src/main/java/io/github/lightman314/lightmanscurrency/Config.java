@@ -16,6 +16,8 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
 	
+	
+	
 	public static final List<String> CLIENT_DEFAULT_RENDER_AS_BLOCK = ImmutableList.of(
 			"minecraft:oak_sapling", "minecraft:birch_sapling", "minecraft:spruce_sapling", "minecraft:jungle_sapling",
 			"minecraft:acacia_sapling", "minecraft:dark_oak_sapling", "minecraft:cobweb", "minecraft:grass",
@@ -47,9 +49,7 @@ public class Config {
 			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
 			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
 			"minecraft:cake", "lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
-			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite",
-			"minecraft:small_amethyst_bud", "minecraft:medium_amethyst_bud", "minecraft:large_amethyst_bud", "minecraft:amethyst_cluster",
-			"minecraft:glow_berries", "minecraft:glow_lichen", "minecraft:lightning_rod"
+			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
 			);
 	
 	private static boolean canMint = false;
@@ -112,8 +112,11 @@ public class Config {
 	public static class Client
 	{
 		
+		public enum TraderRenderType { FULL, PARTIAL, NONE }
+		
 		//Render options
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> renderBlocksAsItems;
+		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -123,6 +126,13 @@ public class Config {
 					.comment("BlockItems that should be spaced out as though they were normal items.")
 					.defineList("renderBlocksAsItems", CLIENT_DEFAULT_RENDER_AS_BLOCK, o -> o instanceof String);
 			
+			builder.comment("Quality Settings").push("settings");
+			this.traderRenderType = builder
+					.comment("How many items the traders should render as stock. Useful to avoid lag in trader-rich areas.",
+							"FULL: Renders all items based on stock as intended.",
+							"PARTIAL: Renders only 1 item per trade slot regardless of stock.",
+							"NONE: Traders do not render items.")
+					.defineEnum("traderRenderType", TraderRenderType.FULL);
 			builder.pop();
 			
 		}
@@ -153,6 +163,8 @@ public class Config {
 		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
+		public final ForgeConfigSpec.BooleanValue addBankerVillager;
+		public final ForgeConfigSpec.BooleanValue addCashierVillager;
 		
 		//Debug
 		public final ForgeConfigSpec.IntValue debugLevel;
@@ -249,9 +261,20 @@ public class Config {
 					.define("canMeltNetherite", true);
 			builder.pop();
 			
+			builder.comment("Villager Related Settings.").push("villagers");
+			
 			this.addCustomWanderingTrades = builder
 					.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
 					.define("addCustomWanderingTrades", true);
+			
+			this.addBankerVillager = builder
+					.comment("Whether the banker villager profession will have any registered trades. The banker sells Lightman's Currency items for coins.")
+					.define("addBanker", true);
+			this.addCashierVillager = builder
+					.comment("Whether the cashier villager profession will have any registered trades.. The cashier sells an amalgamation of vanilla traders products for coins.")
+					.define("addCashier", true);
+			
+			builder.pop();
 			
 			this.debugLevel = builder
 					.comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")
@@ -409,25 +432,20 @@ public class Config {
 	public static class Server
 	{
 		
-		public enum WalletDropMode { KEEP, DROP_COINS, DROP_WALLET }
-		//public final ForgeConfigSpec.EnumValue<WalletDropMode> walletDropMode;
-		//public final ForgeConfigSpec.DoubleValue coinDropPercent;
+		public final ForgeConfigSpec.IntValue logLimit;
 		
 		Server(ForgeConfigSpec.Builder builder)
 		{
-			builder.comment("Server config settings.").push("server");
-			/*walletDropMode = builder
-					.comment("Determines what should happen to the players equipped wallet upon death."
-							,"1-Wallet remains in the players inventory untouched."
-							,"2-The wallet remains in the players inventory, but a defined percentage of coins fall onto the ground."
-							,"3-The wallet falls onto the ground as usual. Ignored if keepInventory is on.")
-					.defineEnum("walletDropMode",WalletDropMode.KEEP);
-			coinDropPercent = builder
-					.comment("What percentage of the players coins should drop on death."
-							,"Only effective if walletDropMode=DROP_COINS.")
-					.defineInRange("coinDropPercent", 0.1, 0.01, 1);*/
+			
+			builder.comment("Server Config Settings").push("server");
+			
+			this.logLimit = builder.comment("The maximum amount of entries allowed in a text log.")
+					.defineInRange("logLimit", 100, 1, Integer.MAX_VALUE);
+			
 			builder.pop();
+			
 		}
+		
 	}
 	
 	public static final ForgeConfigSpec clientSpec;

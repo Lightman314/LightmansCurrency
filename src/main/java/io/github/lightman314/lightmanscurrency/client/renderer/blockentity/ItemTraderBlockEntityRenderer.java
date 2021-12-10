@@ -7,11 +7,11 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -20,29 +20,33 @@ import net.minecraft.world.item.ItemStack;
 
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 
-	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context)
+	public static int positionLimit()
 	{
+		switch(Config.CLIENT.traderRenderType.get())
+		{
+		case PARTIAL:
+			return 1;
+		case NONE:
+			return 0;
+			default:
+				return Integer.MAX_VALUE;
+		}
 	}
 	
-	/*protected int getLightLevel(BlockEntity blockEntity)
+	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher)
 	{
-		return getLightLevel(blockEntity.getLevel(), blockEntity.getBlockPos());
+		//dispatcher.
+		//super(dispatcher);
 	}
-	
-	protected int getLightLevel(Level level, BlockPos pos)
-	{
-		LightmansCurrency.LogInfo("Light at " + pos.toString() + ": " + level.getRawBrightness(pos, 0));
-		return level.getRawBrightness(pos, level.getSkyDarken());
-	}*/
 	
 	@Override
-	public void render(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(ItemTraderBlockEntity tileEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int lightLevel, int id)
 	{
 		
-		for(int tradeSlot = 0; tradeSlot < blockEntity.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
+		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)
 		{
 			
-			ItemTradeData trade = blockEntity.getTrade(tradeSlot);
+			ItemTradeData trade = tileEntity.getTrade(tradeSlot);
 			if(!trade.getSellItem().isEmpty())
 			{
 				
@@ -51,41 +55,37 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				boolean isBlock = stack.getItem() instanceof BlockItem;
 				if(isBlock && Config.CLIENT.renderBlocksAsItems.get().contains(stack.getItem().getRegistryName().toString()))
 				{
-					//LightmansCurrency.LOGGER.info("Rendering '" + stack.getItem().getRegistryName().toString() + "' as an item.");
 					isBlock = false;
 				}
 				
 				//Get positions
-				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, isBlock);
+				List<Vector3f> positions = tileEntity.GetStackRenderPos(tradeSlot, isBlock);
 				
 				//Get rotation
-				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
+				List<Quaternion> rotation = tileEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
 				
 				//Get scale
-				Vector3f scale = blockEntity.GetStackRenderScale(tradeSlot, isBlock);
+				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < positionLimit(); pos++)
 				{
 					
-					poseStack.pushPose();;
+					matrixStack.pushPose();
 					
 					Vector3f position = positions.get(pos);
 					
 					//Translate, rotate, and scale the matrix stack
-					poseStack.translate(position.x(), position.y(), position.z());
+					matrixStack.translate(position.x(), position.y(), position.z());
 					for(Quaternion rot : rotation)
 					{
-						poseStack.mulPose(rot);
+						matrixStack.mulPose(rot);
 					}
-					poseStack.scale(scale.x(), scale.y(), scale.z());
+					matrixStack.scale(scale.x(), scale.y(), scale.z());
 					
 					//Render the item
-					//BakedModel bakedModel = Minecraft.getInstance().getItemRenderer().getModel(stack, blockEntity.getLevel(), null, i1);
-					//LightmansCurrency.LogInfo("Light level for block at " + blockEntity.getBlockPos().toString() + " is " + lightLevel);
-					Minecraft.getInstance().getItemRenderer().renderStatic(stack, TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
-					//(stack,  TransformType.FIXED, i, i1, poseStack, renderTypeBuffer);
+					Minecraft.getInstance().getItemRenderer().renderStatic(stack,  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, matrixStack, renderTypeBuffer, id);
 				
-					poseStack.popPose();
+					matrixStack.popPose();
 					
 				}
 				

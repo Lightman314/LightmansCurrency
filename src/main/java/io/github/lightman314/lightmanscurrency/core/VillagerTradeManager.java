@@ -32,17 +32,17 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraftforge.common.BasicTrade;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.village.WandererTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmllegacy.common.registry.GameRegistry;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.common.BasicTrade;
 
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
@@ -310,7 +310,7 @@ public class VillagerTradeManager {
 	@SubscribeEvent
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
-		if(event.getType() == CustomProfessions.BANKER)
+		if(event.getType() == CustomProfessions.BANKER && Config.COMMON.addBankerVillager.get())
 		{
 			
 			LightmansCurrency.LogInfo("Registering banker trades.");
@@ -323,7 +323,7 @@ public class VillagerTradeManager {
 			}
 			
 		}
-		else if(event.getType() == CustomProfessions.CASHIER)
+		else if(event.getType() == CustomProfessions.CASHIER && Config.COMMON.addCashierVillager.get())
 		{
 			
 			LightmansCurrency.LogInfo("Registering cashier trades.");
@@ -550,22 +550,19 @@ public class VillagerTradeManager {
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random rand) {
 			
-			List<Enchantment> list = GameRegistry.findRegistry(Enchantment.class).getValues().stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
+			List<Enchantment> list = ForgeRegistries.ENCHANTMENTS.getValues().stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
 			Enchantment enchantment = list.get(rand.nextInt(list.size()));
 			
-			//int level = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
-			int level = rand.nextInt(enchantment.getMaxLevel() - 1) + 1;
-			ItemStack itemstack = new ItemStack(Items.ENCHANTED_BOOK);
-			EnchantedBookItem.addEnchantment(itemstack, new EnchantmentInstance(enchantment, level));
+			int level = rand.nextInt(enchantment.getMaxLevel()) + 1;
+			ItemStack itemstack = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level));
 			
 			long coinValue = MoneyUtil.getValue(baseCoin);
 			long baseValue = coinValue * baseCoinAmount;
 			
 			int valueRandom = rand.nextInt(5 + level * 10);
 			long value = baseValue + coinValue * (level + valueRandom);
-			if (enchantment.isTreasureOnly()) {
+			if (enchantment.isTreasureOnly())
 				value *= 2;
-			}
 
 			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(value);
 			ItemStack price1 = ItemStack.EMPTY, price2 = ItemStack.EMPTY;
@@ -622,12 +619,12 @@ public class VillagerTradeManager {
 				return null;
 			else
 			{
-				ServerLevel serverLevel = (ServerLevel)trader.level;
-				BlockPos blockPos = serverLevel.findNearestMapFeature(this.structureName, trader.blockPosition(), 100, true);
+				ServerLevel serverworld = (ServerLevel)trader.level;
+				BlockPos blockPos = serverworld.findNearestMapFeature(this.structureName, trader.blockPosition(), 100, true);
 				if(blockPos != null)
 				{
-					ItemStack itemstack = MapItem.create(serverLevel, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
-					MapItem.lockMap(serverLevel, itemstack);
+					ItemStack itemstack = MapItem.create(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
+					MapItem.lockMap(serverworld, itemstack);
 					MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
 					itemstack.setHoverName(new TranslatableComponent("filled_map." + this.structureName.getFeatureName().toLowerCase(Locale.ROOT)));
 					return new MerchantOffer(this.price1, this.price2, itemstack, this.maxUses, this.xpValue, 0.05f);

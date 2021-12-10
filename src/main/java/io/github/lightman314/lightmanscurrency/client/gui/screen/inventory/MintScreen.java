@@ -4,27 +4,26 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.containers.MintContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.MessageMintCoin;
+import io.github.lightman314.lightmanscurrency.menus.MintMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-
-
-public class MintScreen extends AbstractContainerScreen<MintContainer>{
+public class MintScreen extends AbstractContainerScreen<MintMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/coinmint.png");
 	
 	private Button buttonMint;
 	
-	public MintScreen(MintContainer container, Inventory inventory, Component title)
+	public MintScreen(MintMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 138;
@@ -32,22 +31,22 @@ public class MintScreen extends AbstractContainerScreen<MintContainer>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
-		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		int startX = (this.width - this.imageWidth) / 2;
-		int startY = (this.height - this.imageHeight) / 2;
-		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, this.imageHeight);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.draw(matrix, this.title.getString(), 8.0f, 6.0f, 0x404040);
-		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(poseStack, this.title, 8.0f, 6.0f, 0x404040);
+		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -56,16 +55,17 @@ public class MintScreen extends AbstractContainerScreen<MintContainer>{
 		super.init();
 		
 		this.buttonMint = this.addRenderableWidget(new PlainButton(this.leftPos + 79, this.topPos + 21, 24, 16, this::mintCoin, GUI_TEXTURE, this.imageWidth, 0));
-		//this.buttonMint.active = false;
 		this.buttonMint.visible = false;
+		
+		this.containerTick();
 		
 	}
 	
 	@Override
 	public void containerTick()
 	{
-		//this.buttonMint.active = this.container.validMintInput();
-		this.buttonMint.visible = this.menu.validMintInput();
+		
+		this.buttonMint.visible = this.menu.tileEntity.validMintInput();
 		
 	}
 	
@@ -88,7 +88,7 @@ public class MintScreen extends AbstractContainerScreen<MintContainer>{
 	
 	private void mintCoin(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown()));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown(), this.menu.tileEntity.getBlockPos()));
 	}
 	
 }

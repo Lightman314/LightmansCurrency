@@ -2,47 +2,38 @@ package io.github.lightman314.lightmanscurrency.network.message.cashregister;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCashRegisterContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageCRSkipTo implements IMessage<MessageCRSkipTo> {
+public class MessageCRSkipTo {
 	
 	int index;
-	
-	public MessageCRSkipTo()
-	{
-		
-	}
 	
 	public MessageCRSkipTo(int index)
 	{
 		this.index = index;
 	}
 	
-	@Override
-	public void encode(MessageCRSkipTo message, FriendlyByteBuf buffer) {
+	public static void encode(MessageCRSkipTo message, FriendlyByteBuf buffer) {
 		buffer.writeInt(message.index);
 	}
 
-	@Override
-	public MessageCRSkipTo decode(FriendlyByteBuf buffer) {
+	public static MessageCRSkipTo decode(FriendlyByteBuf buffer) {
 		return new MessageCRSkipTo(buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageCRSkipTo message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageCRSkipTo message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ITraderCashRegisterContainer)
+				if(player.containerMenu instanceof ITraderCashRegisterMenu)
 				{
-					ITraderCashRegisterContainer container = (ITraderCashRegisterContainer) entity.containerMenu;
-					container.OpenContainerIndex(message.index);
+					ITraderCashRegisterMenu menu = (ITraderCashRegisterMenu) player.containerMenu;
+					menu.OpenContainerIndex(message.index);
 				}
 			}
 		});

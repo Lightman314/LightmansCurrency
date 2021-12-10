@@ -7,20 +7,23 @@ import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -53,20 +56,22 @@ public class CoinValueInput extends AbstractWidget{
 		this.parent = parent;
 		this.coinValue = startingValue.copy();
 		
-		this.init();
-		
+		//To be called manually by the screen so that the buttons will render after the main body
+		//this.init();
 		
 	}
 	
-	protected void init()
+	public void init()
 	{
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
 		int buttonCount = MoneyUtil.getAllData().size();
 		for(int x = 0; x < buttonCount; x++)
 		{
-			increaseButtons.add(this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
-			Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
+			Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
+			newButton.active = true;
+			increaseButtons.add(newButton);
+			newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
 			newButton.active = false;
 			decreaseButtons.add(newButton);
 		}
@@ -74,67 +79,55 @@ public class CoinValueInput extends AbstractWidget{
 	}
 	
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
+		//Match the buttons visibility to our visibility.
+		this.increaseButtons.forEach(button -> button.visible = this.visible);
+		this.decreaseButtons.forEach(button -> button.visible = this.visible);
+		if(!this.visible) //If not visible, render nothing
+			return;
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
+		
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
 		//Render the left edge
-		this.blit(matrixStack, startX, startY, 0, 0, 10, HEIGHT);
+		this.blit(poseStack, startX, startY, 0, 0, 10, HEIGHT);
 		List<CoinData> coinData = MoneyUtil.getAllData();
 		int buttonCount = coinData.size();
 		//Render each column & spacer
 		for(int x = 0; x < buttonCount; x++)
 		{
 			//Render the button column;
-			this.blit(matrixStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
+			this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
 			//Render the in-between button spacer
 			if(x < (buttonCount - 1)) //Don't render the last spacer
-				this.blit(matrixStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+				this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
 		}
 		
 		//Render the right edge
-		this.blit(matrixStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
+		this.blit(poseStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
 		
 		//Draw the coins initial & sprite
 		for(int x = 0; x < buttonCount; x++)
 		{
 			//Draw sprite
-			this.drawItemStack(new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26);
+			ItemRenderUtil.drawItemStack(this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
 			//Draw string
 			String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
 			int width = this.parent.getFont().width(countString);
-			this.parent.getFont().draw(matrixStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
+			this.parent.getFont().draw(poseStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
 			
 		}
 		//Render the title
-		this.parent.getFont().draw(matrixStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
+		this.parent.getFont().draw(poseStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
 		int priceWidth = this.parent.getFont().width(this.coinValue.getString());
-		this.parent.getFont().draw(matrixStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
+		this.parent.getFont().draw(poseStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
 		
 	}
-	
-	/**
-    * Draws an ItemStack.
-    *  
-    * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
-    */
-	private void drawItemStack(ItemStack stack, int x, int y) {
-		
-		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-	   
-      	//RenderSystem.translatef(0.0F, 0.0F, 32.0F);
-      	//this.setBlitOffset(200);
-      	//itemRenderer.zLevel = 200.0F;
-      	//Font font = stack.getItem().getFontRenderer(stack);
-      	//if (font == null) font = this.parent.getFont();
-      	itemRenderer.renderGuiItem(stack, x, y);
-      	//this.setBlitOffset(0);
-      	//itemRenderer.zLevel = 0.0F;
-   	}
 	
 	public void tick()
 	{
@@ -167,35 +160,74 @@ public class CoinValueInput extends AbstractWidget{
 		
 		int coinIndex = this.increaseButtons.indexOf(button);
 		
-		if(coinIndex >= 0 && coinIndex < MoneyUtil.getAllCoins().size())
+		List<Item> coins = MoneyUtil.getAllCoins();
+		if(coinIndex >= 0 && coinIndex < coins.size())
 		{
-			//LightmansCurrency.LOGGER.info("Adding " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
-			this.coinValue.addValue(MoneyUtil.getAllCoins().get(coinIndex), Screen.hasShiftDown() ? 5 : 1);
+			Item coin = coins.get(coinIndex);
+			int addAmount = 1;
+			if(Screen.hasShiftDown())
+				addAmount = getLargeIncreaseAmount(coin);
+			if(Screen.hasControlDown())
+				addAmount *= 10;
+			this.coinValue.addValue(coin, addAmount);
 			this.parent.OnCoinValueChanged(this);
 		}
 		else
-		{
 			LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the increasing button.");
-		}
 	}
 	
 	public void DecreaseButtonHit(Button button)
 	{
 		if(!this.decreaseButtons.contains(button))
 			return;
+			
 		int coinIndex = this.decreaseButtons.indexOf(button);
-		if(coinIndex >= 0 && coinIndex < MoneyUtil.getAllCoins().size())
+		
+		List<Item> coins = MoneyUtil.getAllCoins();
+		if(coinIndex >= 0 && coinIndex < coins.size())
 		{
+			Item coin = coins.get(coinIndex);
+			int removeAmount = 1;
+			if(Screen.hasShiftDown())
+				removeAmount = getLargeDecreaseAmount(coin);
+			if(Screen.hasControlDown())
+				removeAmount *= 10;
 			//LightmansCurrency.LOGGER.info("Removing " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
-			this.coinValue.removeValue(MoneyUtil.getAllCoins().get(coinIndex), Screen.hasShiftDown() ? 5 : 1);
+			this.coinValue.removeValue(coin, removeAmount);
 			this.parent.OnCoinValueChanged(this);
 		}
 		else
-		{
 			LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the decreasing button.");
+	}
+	
+	private final int getLargeIncreaseAmount(Item coinItem)
+	{
+		Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
+		if(upwardConversion != null)
+			return upwardConversion.getSecond() / 2;
+		else
+		{
+			Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
+			if(downwardConversion != null)
+				return downwardConversion.getSecond() / 2;
+			//No conversion found for this coin. Assume 10;
+			return 10;
 		}
-			
-		
+	}
+	
+	private final int getLargeDecreaseAmount(Item coinItem)
+	{
+		Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
+		if(downwardConversion != null)
+			return downwardConversion.getSecond() / 2;
+		else
+		{
+			Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
+			if(upwardConversion != null)
+				return upwardConversion.getSecond() / 2;
+			//No conversion found for this coin. Assume 10;
+			return 10;
+		}
 	}
 	
 	public CoinValue getCoinValue()
@@ -205,16 +237,13 @@ public class CoinValueInput extends AbstractWidget{
 	
 	public static interface ICoinValueInput
 	{
-		public <T extends AbstractWidget> T addCustomWidget(T widget);
+		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button);
 		public int getWidth();
 		public Font getFont();
 		public void OnCoinValueChanged(CoinValueInput input);
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput p_169152_) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void updateNarration(NarrationElementOutput narrator) { }
 
 }

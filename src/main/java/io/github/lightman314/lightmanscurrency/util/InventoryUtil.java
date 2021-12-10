@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -133,6 +135,40 @@ public class InventoryUtil {
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count -= amountToTake;
+    			if(amountToTake == stack.getCount())
+    				inventory.setItem(i, ItemStack.EMPTY);
+    			else
+    				stack.shrink(amountToTake);
+    		}
+    	}
+    	return true;
+    }
+    
+    public static int GetItemTagCount(Container inventory, ResourceLocation itemTag, Item... blacklistItems)
+    {
+    	List<Item> blacklist = Lists.newArrayList(blacklistItems);
+    	int count = 0;
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
+    	{
+    		ItemStack stack = inventory.getItem(i);
+    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
+    			count += stack.getCount();
+    	}
+    	return count;
+    }
+    
+    public static boolean RemoveItemTagCount(Container inventory, ResourceLocation itemTag, int count, Item... blacklistItems)
+    {
+    	if(GetItemTagCount(inventory, itemTag, blacklistItems) < count)
+    		return false;
+    	List<Item> blacklist = Lists.newArrayList(blacklistItems);
+    	for(int i = 0; i < inventory.getContainerSize(); i++)
+    	{
+    		ItemStack stack = inventory.getItem(i);
+    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
+    		{
+    			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
+    			count-= amountToTake;
     			if(amountToTake == stack.getCount())
     				inventory.setItem(i, ItemStack.EMPTY);
     			else
@@ -333,14 +369,26 @@ public class InventoryUtil {
     	if(level.isClientSide)
 			return;
     	for(int i = 0; i < inventory.getContainerSize(); i++)
-    	{
-    		spawnItemStack(level, pos, inventory.getItem(i));
-    	}
+    		dumpContents(level, pos, inventory.getItem(i));
     }
     
     public static void dumpContents(Level level, BlockPos pos, List<ItemStack> inventory)
     {
-    	dumpContents(level, pos, InventoryUtil.buildInventory(inventory));
+    	if(level.isClientSide)
+    		return;
+    	for(int i = 0; i < inventory.size(); i++)
+    		dumpContents(level, pos, inventory.get(i));
+    }
+    
+    public static void dumpContents(Level level, BlockPos pos, ItemStack stack)
+    {
+    	if(level.isClientSide)
+    		return;
+    	if(!stack.isEmpty())
+		{
+			ItemEntity entity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+			level.addFreshEntity(entity);
+		}
     }
     
     /**
@@ -351,17 +399,6 @@ public class InventoryUtil {
     	if(stack1.getItem() == stack2.getItem())
     		return ItemStackHelper.TagEquals(stack1, stack2);
     	return false;
-    }
-    
-    public static void spawnItemStack(Level level, BlockPos pos, ItemStack stack)
-    {
-    	spawnItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-    }
-    
-    public static void spawnItemStack(Level level, double posX, double posY, double posZ, ItemStack stack)
-    {
-    	ItemEntity entity = new ItemEntity(level, posX, posY, posZ, stack);
-    	level.addFreshEntity(entity);
     }
     
 }

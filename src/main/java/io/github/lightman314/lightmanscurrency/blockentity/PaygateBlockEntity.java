@@ -2,30 +2,30 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Constants;
 
-public class PaygateBlockEntity extends TickableBlockEntity implements Nameable {
+public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvider, Nameable {
 	
 	public static final int PRICE_MIN = 0;
 	public static final int PRICE_MAX = Integer.MAX_VALUE;
@@ -69,7 +69,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 	{
 		if(this.isOwner(player))
 			return true;
-		return player.hasPermissions(2) && player.isCreative();
+		return TradingOffice.isAdminPlayer(player);
 	}
 	
 	public boolean isActive()
@@ -142,9 +142,24 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 		}
 	}
 	
+	public boolean HasPairedTicket()
+	{
+		return this.ticketID != null;
+	}
+	
+	public boolean validTicket(ItemStack ticket)
+	{
+		if(ticket.isEmpty())
+			return false;
+		if(ticket.getItem() instanceof TicketItem)
+			return !TicketItem.isMasterTicket(ticket) && validTicket(TicketItem.GetTicketID(ticket));
+		else
+			return false;
+	}
+	
 	public boolean validTicket(UUID ticketID)
 	{
-		if(this.ticketID == null)
+		if(this.ticketID == null || ticketID == null)
 			return false;
 		else
 		{
@@ -157,7 +172,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 	public void activate()
 	{
 		this.timer = this.duration;
-		this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(PaygateBlock.POWERED, true));
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, true));
 		//this.getBlockState().updateNeighbours(this.world, this.pos, 35);
 	}
 	
@@ -167,7 +182,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 		if(this.level.isClientSide)
 		{
 			//CurrencyMod.LOGGER.info("Loaded client-side PaygateTileEntity. Requesting update packet.");
-			TileEntityUtil.requestUpdatePacket(this.level, this.worldPosition);
+			TileEntityUtil.requestUpdatePacket(this);
 		}
 	}
 	
@@ -237,10 +252,10 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 		//Read owner
 		if(compound.contains("OwnerID"))
 			this.ownerID = compound.getUUID("OwnerID");
-		if(compound.contains("OwnerName", Constants.NBT.TAG_STRING))
+		if(compound.contains("OwnerName", Tag.TAG_STRING))
 			this.ownerName = compound.getString("OwnerName");
 		//Read stored money & current price
-		if(compound.contains("StoredMoney", Constants.NBT.TAG_INT))
+		if(compound.contains("StoredMoney", Tag.TAG_INT))
 		{
 			this.storedMoney.readFromOldValue(compound.getInt("StoredMoney"));
 			LightmansCurrency.LogInfo("Reading stored money from older value format. Will be updated to newer value format.");
@@ -248,51 +263,53 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 		else if(compound.contains("StoredMoney"))
 			this.storedMoney.readFromNBT(compound, "StoredMoney");
 		//Read the output customization
-		if(compound.contains("Price", Constants.NBT.TAG_INT))
+		if(compound.contains("Price", Tag.TAG_INT))
 		{
 			this.price.readFromOldValue(compound.getInt("Price"));
 			LightmansCurrency.LogInfo("Reading price from older value format. Will be updated to newer value format.");
 		}
 		else if(compound.contains("Price"))
 			this.price.readFromNBT(compound, "Price");
-		if(compound.contains("Duration", Constants.NBT.TAG_INT))
+		if(compound.contains("Duration", Tag.TAG_INT))
 			this.duration = compound.getInt("Duration");
 		//Read the timer
-		if(compound.contains("Timer", Constants.NBT.TAG_INT))
+		if(compound.contains("Timer", Tag.TAG_INT))
 			this.timer = compound.getInt("Timer");
 		//Read the ticket ID
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getUUID("TicketID");
 		//Read the custom name
-		if (compound.contains("CustomName", Constants.NBT.TAG_STRING))
+		if (compound.contains("CustomName", Tag.TAG_STRING))
 			this.customName = Component.Serializer.fromJson(compound.getString("CustomName"));
-		
-		
 		
 		super.load(compound);
 		
 	}
 	
 	@Override
-	public void serverTick()
+	public void tick()
 	{
-		if(timer > 0)
+		if(this.timer > 0)
 		{
-			timer--;
-			CompoundTag compound = this.writeTimer(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			this.timer--;
+			if(!this.level.isClientSide)
+			{
+				CompoundTag compound = this.writeTimer(new CompoundTag());
+				TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			}
 			if(timer <= 0)
 			{
-				this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(PaygateBlock.POWERED, false));
+				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, false));
 			}
 		}
 	}
 	
+	@Override
 	public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-		return new PaygateContainer(windowId, inventory, this);
+		return new PaygateMenu(windowId, inventory, this);
 	}
 
-	
+	@Override
 	public Component getDisplayName() {
 		return getTitle();
 	}
@@ -314,24 +331,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements Nameable 
 		this.customName = customName;
 	}
 	
-	@Nullable
 	@Override
-	public ClientboundBlockEntityDataPacket getUpdatePacket()
-	{
-		return new ClientboundBlockEntityDataPacket(this.worldPosition, 0, this.save(new CompoundTag()));
-	}
-	
-	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
-	{
-		CompoundTag compound = pkt.getTag();
-		//CurrencyMod.LOGGER.info("Loading NBT from update packet.");
-		this.load(compound);
-	}
-
-	//@Override
-	public BlockPos getPos() {
-		return this.worldPosition;
-	}
+	public CompoundTag getUpdateTag() { return this.save(new CompoundTag()); }
 	
 }

@@ -10,7 +10,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-
 public class BlockItemSet<T> implements IItemSet<T>{
 
 	Map<T,BlockItemPair> set;

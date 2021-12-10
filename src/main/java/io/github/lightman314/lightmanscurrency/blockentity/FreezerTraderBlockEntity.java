@@ -28,35 +28,39 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
 		return Mth.lerp(partialTicks, this.prevDoorAngle, this.doorAngle);
 	}
 	
+	private final float distancePerTick = 0.1f;
+	
 	@Override
 	public void clientTick()
 	{
 		
-		//this.userCount = this.storageContainers.size();
+		super.clientTick();
+		
 		int userCount = this.getUserCount();
-		//LightmansCurrency.LOGGER.info("Freezer Usercount: " + userCount);
 		
 		this.prevDoorAngle = this.doorAngle;
 		//Play the opening sound
 		if (userCount > 0 && this.doorAngle == 0.0F) {
-			this.level.playSound(null, worldPosition, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
+			this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+			//this.level.playSound(null, this.worldPosition, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
 		}
-		
 		if(userCount > 0 && this.doorAngle < 1f)
 		{
-			this.doorAngle += 0.1f;
+			this.doorAngle += distancePerTick;
 		}
-		else if(userCount == 0 && doorAngle > 0f)
+		else if(userCount <= 0 && doorAngle > 0f)
 		{
-			this.doorAngle -= 0.1f;
+			this.doorAngle -= distancePerTick;
 			if (this.doorAngle < 0.5F && this.prevDoorAngle >= 0.5F) {
-				this.level.playSound(null, worldPosition, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
+				this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
 			}
 		}
 		if(this.doorAngle > 1f)
 			this.doorAngle = 1f;
 		else if(this.doorAngle < 0f)
 			this.doorAngle = 0f;
+		
+		//LightmansCurrency.LogInfo("FreezerTraderBlockEntity.clientTick().\nUsers: " + this.getUserCount() + "\nPreviousAngle: " + this.prevDoorAngle + "\nNewAngle: " + this.doorAngle);
 		
 	}
 

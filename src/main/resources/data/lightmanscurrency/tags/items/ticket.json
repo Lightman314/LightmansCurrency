@@ -1,6 +1,7 @@
 {
     "replace": false,
     "values": [
-        "lightmanscurrency:ticket"
+        "lightmanscurrency:ticket",
+        "lightmanscurrency:master_ticket"
     ]
 }

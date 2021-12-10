@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.entity.merchant.villager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CustomProfessions {
 
-	private static final List<VillagerProfession> PROFESSIONS = new ArrayList<>();
+	private static final List<VillagerProfession> PROFESSIONS = Lists.newArrayList();
 	
 	public static final VillagerProfession BANKER = register("banker", CustomPointsOfInterest.BANKER, CurrencySoundEvents.COINS_CLINKING);
 	public static final VillagerProfession CASHIER = register("cashier", CustomPointsOfInterest.CASHIER, CurrencySoundEvents.COINS_CLINKING);

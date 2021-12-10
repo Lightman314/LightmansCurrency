@@ -1,29 +1,50 @@
 package io.github.lightman314.lightmanscurrency.common;
 
-import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
-import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.events.WalletDropEvent;
+import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
+import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil;
-import io.github.lightman314.lightmanscurrency.util.WalletUtil.PlayerWallets;
-import io.github.lightman314.lightmanscurrency.blockentity.IOwnableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
+
+import java.util.Collection;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class EventHandler {
@@ -40,13 +61,13 @@ public class EventHandler {
 		
 		Player player = event.getPlayer();
 		ItemStack coinStack = event.getItem().getItem();
-		WalletContainer activeContainer = null;
+		WalletMenu activeContainer = null;
 		
 		//Check if the open container is a wallet that is pickup capable
-		if(player.containerMenu instanceof WalletContainer)
+		if(player.containerMenu instanceof WalletMenu)
 		{
 			//CurrencyMod.LOGGER.info("Wallet Container was open. Adding to the wallet using this method.");
-			WalletContainer container = (WalletContainer)player.containerMenu;
+			WalletMenu container = (WalletMenu)player.containerMenu;
 			if(container.canPickup())
 				activeContainer = container;
 		}
@@ -54,19 +75,20 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
-		PlayerWallets wallet = WalletUtil.getWallets(player);
-		if(wallet.hasWallet())
+		ItemStack wallet = LightmansCurrency.getWalletStack(player);
+		if(!wallet.isEmpty())
 		{
-			if(wallet.canPickup())
+			WalletItem walletItem = (WalletItem)wallet.getItem();
+			if(WalletItem.CanPickup(walletItem))
 			{
 				cancelEvent = true;
-				if(activeContainer != null && activeContainer.getWalletIndex() < 0 && activeContainer.canPickup())
+				if(activeContainer != null && activeContainer.getWalletIndex() < 0)
 				{
 					coinStack = activeContainer.PickupCoins(coinStack);
 				}
 				else
 				{
-					coinStack = wallet.PickupCoin(coinStack);
+					coinStack = WalletItem.PickupCoin(wallet, coinStack);
 				}
 			}
 		}
@@ -80,7 +102,7 @@ public class EventHandler {
 				if(!player.getInventory().add(coinStack))
 				{
 					//Spawn the leftovers into the world
-					ItemEntity itemEntity = new ItemEntity(player.level, player.getBlockX(), player.getBlockY(), player.getBlockZ(), coinStack);
+					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);
 					itemEntity.setPickUpDelay(40);
 					player.level.addFreshEntity(itemEntity);
 				}
@@ -88,6 +110,7 @@ public class EventHandler {
 			if(!player.level.isClientSide)
 				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessagePlayPickupSound());
 			event.setCanceled(true);
+			
 		}
 		
 	}
@@ -97,106 +120,267 @@ public class EventHandler {
 	public static void onBlockBreak(BreakEvent event)
 	{
 		
-		LevelAccessor level = event.getWorld();
-		BlockState state = level.getBlockState(event.getPos());
+		LevelAccessor world = event.getWorld();
+		BlockState state = world.getBlockState(event.getPos());
 		
-		if(state.getBlock() instanceof ITraderBlock)
+		if(state.getBlock() instanceof IOwnableBlock)
 		{
-			//CurrencyMod.LOGGER.info("onBlockBreak-Block is a trader block!");
-			ITraderBlock block = (ITraderBlock)state.getBlock();
-			BlockEntity tileEntity = block.getTileEntity(state, level, event.getPos());
-			if(tileEntity instanceof IOwnableBlockEntity)
+			IOwnableBlock block = (IOwnableBlock)state.getBlock();
+			if(!block.canBreak(event.getPlayer(), world, event.getPos(), state))
 			{
-				IOwnableBlockEntity traderEntity = (IOwnableBlockEntity)tileEntity;
-				if(!traderEntity.canBreak(event.getPlayer()))
-				{
-					//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
-					event.setCanceled(true);
-				}
+				//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
+				event.setCanceled(true);
 			}
-		}
-		else if(state.getBlock() instanceof PaygateBlock)
-		{
-			BlockEntity blockEntity = level.getBlockEntity(event.getPos());
-			if(blockEntity instanceof PaygateBlockEntity)
-			{
-				PaygateBlockEntity paygateEntity = (PaygateBlockEntity)blockEntity;
-				if(!paygateEntity.canBreak(event.getPlayer()))
-				{
-					event.setCanceled(true);
-				}
-			}
-		
 		}
 		
 	}
 	
-	//Crafting event for wallet upgrade crafting recipes
+	//Adds the wallet capability to the player
 	@SubscribeEvent
-	public static void onItemCrafted(ItemCraftedEvent event)
+	public static void attachEntitiesCapabilities(AttachCapabilitiesEvent<Entity> event)
 	{
-		if(event.getCrafting().getItem() instanceof WalletItem)
+		//Don't attach the wallet capability if curios is loaded
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		if(event.getObject() instanceof Player)
 		{
-			//LightmansCurrency.LOGGER.info("Player is crafting a wallet.");
-			//Store the output wallet
-			ItemStack walletOut = event.getCrafting();
-			ItemStack walletIn = ItemStack.EMPTY;
-			//Search the crafting matrix for a wallet.
-			for(int i = 0; i < event.getInventory().getContainerSize() && walletIn.isEmpty(); i++)
-			{
-				if(event.getInventory().getItem(i).getItem() instanceof WalletItem)
-					walletIn = event.getInventory().getItem(i);
-			}
-			if(walletIn.isEmpty())
-			{
-				//A wallet wasn't used to craft this one, so nothing needs to be done.
-				//LightmansCurrency.LOGGER.info("No wallet is consumed in the crafting of this wallet. Nothing needs to be done.");
-				return;
-			}
-			//Copy the wallet output's inventory contents to the newly crafted wallet.
-			//LightmansCurrency.LOGGER.info("Copying wallet storage from the old wallet to the new wallet.");
-			WalletItem.CopyWalletContents(walletIn, walletOut);
-			
-			//Copy the wallets display name if one is present.
-			if(walletIn.hasCustomHoverName())
-				walletOut.setHoverName(walletIn.getDisplayName());
-			
-			//Copy the wallets enchantments if any are present
-			if(walletIn.isEnchanted())
-			{
-				EnchantmentHelper.getEnchantments(walletIn).forEach((enchantment, level) ->{
-					walletOut.enchant(enchantment, level);
-				});
-			}
-			
+			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((Player)event.getObject()));
 		}
-		//else
-			//LightmansCurrency.LOGGER.info("Player is NOT crafting a wallet.");
 	}
 	
-	//Player death event for equipped wallet handling
-	/*public static void onPlayerDeath(LivingDeathEvent event)
+	//Sync wallet when the player logs in
+	@SubscribeEvent
+	public static void playerLogin(PlayerLoggedInEvent event)
 	{
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		if(event.getPlayer().level.isClientSide)
+			return;
+		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet()));
+		});
+	}
+	
+	//Sync wallet contents for newly loaded entities
+	@SubscribeEvent
+	public static void playerStartTracking(PlayerEvent.StartTracking event)
+	{
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		Entity target = event.getTarget();
+		Player player = event.getPlayer();
+		if(!player.level.isClientSide)
+		{
+			WalletCapability.getWalletHandler(target).ifPresent(walletHandler ->{
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet()));
+			});
+		}
+	}
+	
+	//Copy the wallet over to the new player
+	@SubscribeEvent
+	public static void playerClone(PlayerEvent.Clone event)
+	{
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		Player player = event.getPlayer();
+		if(player.level.isClientSide) //Do nothing client-side
+			return;
+		
+		Player oldPlayer = event.getOriginal();
+		oldPlayer.revive();
+		LazyOptional<IWalletHandler> oldHandler = WalletCapability.getWalletHandler(oldPlayer);
+		LazyOptional<IWalletHandler> newHandler = WalletCapability.getWalletHandler(player);
+		
+		oldHandler.ifPresent(oldWallet -> newHandler.ifPresent(newWallet ->{
+			newWallet.setWallet(oldWallet.getWallet());
+		}));
+	}
+	
+	//Drop the wallet if keep inventory isn't on.
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void playerDrops(LivingDropsEvent event)
+	{
+		LivingEntity livingEntity = event.getEntityLiving();
+		if(livingEntity.level.isClientSide) //Do nothing client side
+			return;
+		
+		if(LightmansCurrency.isCuriosLoaded())
+			playerDropsCurios(event);
+		
+		if(!livingEntity.isSpectator())
+		{
+			WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
+				
+				ItemStack walletStack = walletHandler.getWallet();
+				
+				if(walletStack.isEmpty())
+					return;
+				
+				Collection<ItemEntity> walletDrops = Lists.newArrayList();
+				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise it always drops the wallet.
+				{
+					boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+					GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
+					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
+					boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+					
+					if(keepWallet && coinDropPercent <= 0)
+						return;
+					if(keepWallet) //Drop the wallet
+					{
+						
+						Collection<ItemEntity> d = getWalletDrops(livingEntity, walletStack, coinDropPercent);
+						
+						//Spawn the coin drops
+						walletDrops.addAll(d);
+						
+						//Post the Wallet Drop Event
+						WalletDropEvent e = new WalletDropEvent((Player)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						if(MinecraftForge.EVENT_BUS.post(e))
+							return;
+						walletDrops = e.getDrops();
+						
+					}
+					else
+					{
+						
+						walletDrops.add(getDrop(livingEntity,walletStack));
+						walletHandler.setWallet(ItemStack.EMPTY);
+						
+						//Post the Wallet Drop Event
+						WalletDropEvent e = new WalletDropEvent((Player)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						if(MinecraftForge.EVENT_BUS.post(e))
+							return;
+						walletDrops = e.getDrops();
+						
+					}
+					
+				}
+				else
+				{
+					walletDrops.add(getDrop(livingEntity,walletStack));
+					walletHandler.setWallet(ItemStack.EMPTY);
+				}
+				
+				event.getDrops().addAll(walletDrops);
+				
+			});
+			
+		}
+	}
+	
+	private static void playerDropsCurios(LivingDropsEvent event)
+	{
+		if(!LightmansCurrency.isCuriosLoaded())
+			return;
 		if(event.getEntityLiving() instanceof Player)
 		{
 			Player player = (Player)event.getEntityLiving();
-			PlayerWallets wallets = WalletUtil.getWallets(player);
-			if(!wallets.hasWallet())
-				return; //Nothing to do if there's no wallet
-			WalletDropMode dropMode = Config.SERVER.walletDropMode.get();
-			if(dropMode == WalletDropMode.DROP_COINS)
+			ItemStack walletStack = LightmansCurrency.getWalletStack(player);
+			if(walletStack.isEmpty())
+				return;
+			
+			boolean keepInventory = player.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+			GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(player.level, ModGameRules.KEEP_WALLET);
+			GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(player.level, ModGameRules.COIN_DROP_PERCENT);
+			boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+			int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+			if(keepWallet)
 			{
-				long coinsToDrop = (long)(wallets.getStoredMoney() * Config.SERVER.coinDropPercent.get());
-				wallets.extractMoney(coinsToDrop);
-			}
-			else if(dropMode == WalletDropMode.DROP_WALLET && !player.level.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).get())
-			{
-				if(!wallets.hasEquippedWallet())
+				
+				Collection<ItemEntity> walletDrops = getWalletDrops(player, walletStack, coinDropPercent);
+				
+				//Post the Wallet Drop Event
+				WalletDropEvent e = new WalletDropEvent(player, walletStack, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+				if(MinecraftForge.EVENT_BUS.post(e))
 					return;
-				ItemStack wallet = WalletUtil.extractEquippedWallet(player);
-				InventoryUtil.spawnItemStack(player.level, player.position().x, player.position().y, player.position().z, wallet);
+				walletDrops = e.getDrops();
+				
+				event.getDrops().addAll(walletDrops);
+				
+			}
+			//Do nothing if the wallet is not kept, as curios will handle the wallet dropping for me.
+		}
+	}
+	
+	
+	
+	private static ItemEntity getDrop(LivingEntity entity, ItemStack stack)
+	{
+        return new ItemEntity(entity.level, entity.position().x, entity.position().y, entity.position().z, stack);
+	}
+	
+	private static List<ItemEntity> getWalletDrops(LivingEntity entity, ItemStack walletStack, int coinDropPercent)
+	{
+		
+		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
+		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
+		long walletContents = new MoneyUtil.CoinValue(walletList).getRawValue();
+		
+		long droppedAmount = (long)((double)walletContents * coinPercentage);
+		if(droppedAmount < 1)
+			return Lists.newArrayList();
+		
+		Container walletInventory = InventoryUtil.buildInventory(walletList);
+		List<ItemEntity> drops = Lists.newArrayList();
+		//Remove the dropped coins from the wallet
+		long extra = MoneyUtil.takeObjectsOfValue(droppedAmount, walletInventory, true);
+		if(extra < 0)
+		{
+			List<ItemStack> extraCoins = MoneyUtil.getCoinsOfValue(-extra);
+			for(int i = 0; i < extraCoins.size(); i++)
+			{
+				ItemStack coinStack = InventoryUtil.TryPutItemStack(walletInventory, extraCoins.get(i));
+				//Drop anything that wasn't able to fit back into the wallet
+				if(!coinStack.isEmpty())
+					drops.add(getDrop(entity,coinStack));
 			}
 		}
-	}*/
+		
+		//Update the wallet stacks contents
+		WalletItem.putWalletInventory(walletStack, InventoryUtil.buildList(walletInventory));
+		
+		//Drop the expected coins
+		drops.addAll(getCoinDrops(entity, droppedAmount));
+		
+		return drops;
+		
+	}
 	
+	private static Collection<ItemEntity> getCoinDrops(LivingEntity entity, long coinValue)
+	{
+		List<ItemEntity> drops = Lists.newArrayList();
+		List<ItemStack> coinsOfValue = MoneyUtil.getCoinsOfValue(coinValue);
+		for(int i = 0; i < coinsOfValue.size(); i++)
+		{
+			ItemStack coinStack = coinsOfValue.get(i);
+			for(int count = 0; count < coinStack.getCount(); count++)
+			{
+				ItemStack coin = coinStack.copy();
+				coin.setCount(1);
+				drops.add(getDrop(entity,coin));
+			}
+		}
+		return drops;
+	}
+	
+	//Check for wallet updates, and send update packets
+	@SubscribeEvent
+	public static void entityTick(LivingEvent.LivingUpdateEvent event) {
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		LivingEntity livingEntity = event.getEntityLiving();
+		if(livingEntity.level.isClientSide) //Do nothing client side
+			return;
+		
+		WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
+			if(walletHandler.isDirty())
+			{
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet()));
+				walletHandler.clean();
+			}
+		});
+	}
 }

@@ -3,23 +3,30 @@ package io.github.lightman314.lightmanscurrency.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class TextLogger {
 
 	public final List<MutableComponent> logText = new ArrayList<>();
 	protected final String tag;
 	
+	protected static final int getLogLimit() { return Config.SERVER.logLimit.get(); }
+	
 	protected TextLogger(String tagName)
 	{
 		this.tag = tagName;
 	}
 	
-	protected final void clear()
+	public final void clear()
 	{
 		this.logText.clear();
 	}
@@ -27,7 +34,11 @@ public abstract class TextLogger {
 	protected final void AddLog(MutableComponent text)
 	{
 		if(text != null)
+		{
 			this.logText.add(text);
+			while(this.logText.size() > getLogLimit())
+				this.logText.remove(0);
+		}
 	}
 	
 	public void write(CompoundTag compound)
@@ -35,9 +46,9 @@ public abstract class TextLogger {
 		ListTag list = new ListTag();
 		for(int i = 0; i < logText.size(); i++)
 		{
-			MutableComponent text = logText.get(i);
+			Component text = logText.get(i);
 			CompoundTag thisCompound = new CompoundTag();
-			thisCompound.putString("value", TextComponent.Serializer.toJson(text));
+			thisCompound.putString("value", Component.Serializer.toJson(text));
 			list.add(thisCompound);
 		}
 		compound.put(this.tag, list);
@@ -45,18 +56,23 @@ public abstract class TextLogger {
 	
 	public void read(CompoundTag compound)
 	{
-		if(compound.contains(this.tag, Constants.NBT.TAG_LIST))
+		if(compound.contains(this.tag, Tag.TAG_LIST))
 		{
-			ListTag list = compound.getList(this.tag, Constants.NBT.TAG_COMPOUND);
+			ListTag list = compound.getList(this.tag, Tag.TAG_COMPOUND);
 			this.logText.clear();
 			for(int i = 0; i < list.size(); i++)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = TextComponent.Serializer.fromJson(jsonText);
+				MutableComponent text = Component.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.logText.add(text);
 			}
 		}
+	}
+	
+	public static Component getCostText(boolean isFree, CoinValue cost)
+	{
+		return isFree ? new TranslatableComponent("log.shoplog.cost.free").withStyle(ChatFormatting.YELLOW) : new TextComponent(cost.getString()).withStyle(ChatFormatting.YELLOW);
 	}
 	
 }

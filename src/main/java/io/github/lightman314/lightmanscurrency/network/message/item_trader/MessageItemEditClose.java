@@ -2,43 +2,29 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-//import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageItemEditClose implements IMessage<MessageItemEditClose> {
+public class MessageItemEditClose {
 	
-	
-	public MessageItemEditClose()
-	{
-		
-	}
-	
-	@Override
-	public void encode(MessageItemEditClose message, FriendlyByteBuf buffer) {
-		
-	}
+	public static void encode(MessageItemEditClose message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageItemEditClose decode(FriendlyByteBuf buffer) {
+	public static MessageItemEditClose decode(FriendlyByteBuf buffer) {
 		return new MessageItemEditClose();
 	}
 
-	@Override
-	public void handle(MessageItemEditClose message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageItemEditClose message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			//CurrencyMod.LOGGER.info("Price Change Message Recieved");
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ItemEditContainer)
+				if(player.containerMenu instanceof ItemEditMenu)
 				{
-					ItemEditContainer container = (ItemEditContainer)entity.containerMenu;
-					container.openTraderStorage();
+					ItemEditMenu menu = (ItemEditMenu)player.containerMenu;
+					menu.openTraderStorage();
 				}
 			}
 		});

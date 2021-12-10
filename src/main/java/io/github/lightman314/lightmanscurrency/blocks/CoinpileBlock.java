@@ -1,31 +1,46 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
-import com.mojang.math.Vector3f;
+import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
 
-public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
+public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleWaterloggedBlock{
+	
+	private final VoxelShape shape;
+	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
 	public CoinpileBlock(Properties properties, Item coinItem)
 	{
-		super(properties, coinItem);
+		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
 	}
 	
-	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+	public CoinpileBlock(Properties properties, Item coinItem, VoxelShape shape)
+	{
+		super(properties, coinItem);
+		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;
+		this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
+	}
 	
 	@Override
 	protected int getCoinCount()
@@ -33,10 +48,11 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
 		return 9;
 	}
 	
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
-	{
-		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
+	@Nullable
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		BlockPos blockpos = context.getClickedPos();
+		FluidState fluidstate = context.getLevel().getFluidState(blockpos);
+		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection()).setValue(WATERLOGGED, Boolean.valueOf(fluidstate.isSourceOfType(Fluids.WATER)));
 	}
 	
 	@Override
@@ -50,140 +66,13 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
     {
 		super.createBlockStateDefinition(builder);
         builder.add(FACING);
+        builder.add(WATERLOGGED);
     }
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext contect)
 	{
-		return LazyShapes.SHORT_BOX_T;
-	}
-	
-	public BlockPos getRightPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case SOUTH:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case EAST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case WEST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			default:
-				return pos;
-		}
-	}
-
-	@Override
-	public BlockPos getLeftPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case SOUTH:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case EAST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case WEST:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			default:
-				return pos;
-		}
-	}
-
-	@Override
-	public BlockPos getForwardPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case SOUTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case EAST:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			case WEST:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			default:
-				return pos;
-		}
-	}
-
-	@Override
-	public BlockPos getBackwardPos(BlockPos pos, Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1);
-			case SOUTH:
-				return new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1);
-			case EAST:
-				return new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ());
-			case WEST:
-				return new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ());
-			default:
-				return pos;
-		}
-	}
-
-	@Override
-	public Vector3f getRightVect(Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(1f, 0f, 0f);
-			case SOUTH:
-				return new Vector3f(-1f, 0f, 0f);
-			case EAST:
-				return new Vector3f(0f, 0f, 1f);
-			case WEST:
-				return new Vector3f(0f, 0f, -1f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
-	}
-
-	@Override
-	public Vector3f getLeftVect(Direction facing) {
-		return MathUtil.VectorMult(getRightVect(facing), -1f);
-	}
-
-	@Override
-	public Vector3f getForwardVect(Direction facing) {
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(0f, 0f, -1f);
-			case SOUTH:
-				return new Vector3f(0f, 0f, 1f);
-			case EAST:
-				return new Vector3f(1f, 0f, 0f);
-			case WEST:
-				return new Vector3f(-1f, 0f, 0f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
-	}
-	
-	public Vector3f getOffsetVect(Direction facing)
-	{
-		switch (facing)
-		{
-			case NORTH:
-				return new Vector3f(0f, 0f, 1f);
-			case SOUTH:
-				return new Vector3f(1f, 0f, 0f);
-			//case EAST:
-			//	return new Vector3f(0f, 0f, 0f);
-			case WEST:
-				return new Vector3f(1f, 0f, 1f);
-			default:
-				return new Vector3f(0f,0f,0f);
-		}
-	}
-
-	@Override
-	public Vector3f getBackwardVect(Direction facing) {
-		return MathUtil.VectorMult(getForwardVect(facing), -1f);
+		return shape;
 	}
 	
 	@Override
@@ -192,5 +81,24 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock{
 		return state.getValue(FACING);
 	}
 	
+	@SuppressWarnings("deprecation")
+	@Override
+	public FluidState getFluidState(BlockState state) {
+		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+	}
+	
+	@Override
+	public boolean isPathfindable(BlockState state, BlockGetter worldIn, BlockPos pos, PathComputationType type) {
+		switch(type) {
+		case LAND:
+			return false;
+		case WATER:
+			return worldIn.getFluidState(pos).is(FluidTags.WATER);
+		case AIR:
+			return false;
+		default:
+			return false;
+		}
+	}
 	
 }

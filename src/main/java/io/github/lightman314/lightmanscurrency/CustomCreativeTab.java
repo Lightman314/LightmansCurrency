@@ -45,7 +45,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 		
 	}
 	
-	public void addToSortingList(List<Item> extras)
+	public void addToSortingList(List<ItemLike> extras)
 	{
 		this.itemSorter.addToSortingList(extras);
 	}
@@ -53,7 +53,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	/**
 	 * Initializes the sorting list of the item group. Should be called in the FMLCommonSetupEvent.
 	 */
-	public void initSortingList(List<Item> defaultList)
+	public void initSortingList(List<ItemLike> defaultList)
 	{
 		this.itemSorter.initSortingList(defaultList);
 	}
@@ -66,14 +66,14 @@ public class CustomCreativeTab extends CreativeModeTab {
 			
 		}
 		
-		private List<Item> sortList = null;
-		public void initSortingList(List<Item> sortList)
+		private List<ItemLike> sortList = null;
+		public void initSortingList(List<ItemLike> sortList)
 		{
 			if(this.sortList == null)
 				this.sortList = sortList;
 			else
 			{
-				List<Item> copyList = this.sortList;
+				List<ItemLike> copyList = this.sortList;
 				this.sortList = sortList;
 				for(int i = 0; i < copyList.size(); i++)
 				{
@@ -82,7 +82,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 			}
 		}
 		
-		public void addToSortingList(List<Item> extras)
+		public void addToSortingList(List<ItemLike> extras)
 		{
 			if(this.sortList == null)
 			{
@@ -122,10 +122,10 @@ public class CustomCreativeTab extends CreativeModeTab {
 			}
 			
 			//If both items are on the sort list, sort by index
-			if(sortList.contains(item1) && sortList.contains(item2))
+			if(sortListContains(item1) && sortListContains(item2))
 			{
-				int index1 = sortList.indexOf(item1);
-				int index2 = sortList.indexOf(item2);
+				int index1 = indexOf(item1);
+				int index2 = indexOf(item2);
 				//CurrencyMod.LOGGER.info("Sorting items at index " + index1 + " & " + index2);
 				if(index1 < index2)
 					return -1;
@@ -137,6 +137,21 @@ public class CustomCreativeTab extends CreativeModeTab {
 			//No other sort method found, do nothing.
 			return 0;
 			
+		}
+		
+		private boolean sortListContains(Item item)
+		{
+			return indexOf(item) >= 0;
+		}
+		
+		private int indexOf(Item item)
+		{
+			for(int i = 0; i < sortList.size(); i++)
+			{
+				if(item == sortList.get(i).asItem())
+					return i;
+			}
+			return -1;
 		}
 		
 	}

@@ -35,7 +35,7 @@ public class UniversalItemTraderBlockEntity extends UniversalTraderBlockEntity{
 		if(data instanceof UniversalItemTraderData)
 		{
 			UniversalItemTraderData itemData = (UniversalItemTraderData)data;
-			InventoryUtil.dumpContents(level, worldPosition, itemData.getStorage());
+			InventoryUtil.dumpContents(this.level, this.worldPosition, itemData.getStorage());
 			//Removed as the trade inventory no longer consumes items
 			//InventoryUtil.dumpContents(world, pos, new TradeInventory(itemData.getAllTrades()));
 		}

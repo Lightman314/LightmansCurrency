@@ -1,24 +1,35 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemEditContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderContainer;
-import io.github.lightman314.lightmanscurrency.containers.UniversalItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemEditMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderStorageMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -34,15 +45,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements ITradeButtonStockSource, IItemTrader{
+public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = ItemTraderBlockEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
-	public static final Deserializer DESERIALIZER = new Deserializer();
 	
 	public static final int VERSION = 1;
 	
@@ -51,7 +60,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	
 	Container inventory;
 	
-	public final ItemShopLogger logger = new ItemShopLogger();
+	private final ItemShopLogger logger = new ItemShopLogger();
+	
+	List<TradeRule> tradeRules = new ArrayList<>();
+	
+	public UniversalItemTraderData() {}
 	
 	public UniversalItemTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
 	{
@@ -61,20 +74,62 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		this.inventory = new SimpleContainer(this.inventorySize());
 	}
 
-	public UniversalItemTraderData(CompoundTag compound)
+	@Override
+	public void read(CompoundTag compound)
 	{
-		
-		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
+		if(compound.contains("TradeLimit", Tag.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderBlockEntity.TRADELIMIT);
 		
-		this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
+			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
-		this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+		if(compound.contains("Storage", Tag.TAG_LIST))
+			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
 		
 		this.logger.read(compound);
 		
-		super.read(compound);
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
+		super.read(compound);
+	}
+	
+	@Override
+	public CompoundTag write(CompoundTag compound)
+	{
+
+		this.writeTrades(compound);
+		this.writeStorage(compound);
+		this.writeLogger(compound);
+		this.writeRules(compound);
+		
+		return super.write(compound);
+		
+	}
+	
+	protected final CompoundTag writeTrades(CompoundTag compound)
+	{
+		compound.putInt("TradeLimit", this.trades.size());
+		ItemTradeData.saveAllData(compound, trades);
+		return compound;
+	}
+	
+	protected final CompoundTag writeStorage(CompoundTag compound)
+	{
+		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
+		return compound;
+	}
+	
+	protected final CompoundTag writeLogger(CompoundTag compound)
+	{
+		this.logger.write(compound);
+		return compound;
+	}
+	
+	protected final CompoundTag writeRules(CompoundTag compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
+		return compound;
 	}
 	
 	public int getTradeCount()
@@ -100,7 +155,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	
 	private void forceReOpen()
 	{
-		UniversalContainer.onForceReopen(this.traderID);
+		UniversalMenu.onForceReopen(this.traderID);
 	}
 	
 	public void overrideTradeCount(int newTradeCount)
@@ -130,10 +185,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
 			}
 		}
-		//Mark as dirty
-		this.markDirty();
+		//Mark as dirty (both trades & storage)
+		CompoundTag compound = this.writeTrades(new CompoundTag());
+		this.writeStorage(compound);
+		this.markDirty(compound);
 	}
-	
 	
 	public ItemTradeData getTrade(int tradeIndex)
 	{
@@ -144,6 +200,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		return new ItemTradeData();
 	}
 	
+	public int getTradeStock(int tradeIndex)
+	{
+		return getTrade(tradeIndex).stockCount(this);
+	}
+	
 	public NonNullList<ItemTradeData> getAllTrades()
 	{
 		return this.trades;
@@ -151,12 +212,21 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 	
 	public void markTradesDirty()
 	{
-		this.markDirty();
+		//Send update to the client with only the trade data.
+		this.markDirty(this::writeTrades);
+	}
+	
+	public ItemShopLogger getLogger() { return this.logger; }
+	
+	public void clearLogger()
+	{
+		this.logger.clear();
+		this.markLoggerDirty();
 	}
 	
 	public void markLoggerDirty()
 	{
-		this.markDirty();
+		this.markDirty(this::writeLogger);
 	}
 	
 	public int inventorySize()
@@ -169,20 +239,14 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		return this.inventory;
 	}
 	
-	@Override
-	public CompoundTag write(CompoundTag compound)
+	public void markStorageDirty()
 	{
-		compound.putInt("TradeLimit", this.trades.size());
-		ItemTradeData.saveAllData(compound, trades);
-		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
-		this.logger.write(compound);
-		
-		return super.write(compound);
+		this.markDirty(this::writeStorage);
 	}
 	
 	@Override
-	public String getDeserializerType() {
-		return TYPE.toString();
+	public ResourceLocation getTraderType() {
+		return TYPE;
 	}
 	
 	@Override
@@ -208,76 +272,44 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
-			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getDeserializerType().toString());
+			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getTraderType().toString());
 			return;
 		}
 		if(player instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), this.write(new CompoundTag()), tradeIndex));
+			NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
-	}
-	
-	private static class Deserializer implements IUniversalDataDeserializer<UniversalItemTraderData>
-	{
-		@Override
-		public UniversalItemTraderData deserialize(CompoundTag compound) {
-			return new UniversalItemTraderData(compound);
-		}
 	}
 	
 	private static class TraderProvider implements MenuProvider
 	{
 		final UUID traderID;
-		
-		private TraderProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemTraderContainer(menuID, inventory, this.traderID);
+			return new UniversalItemTraderMenu(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
-		}
-		
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
 	private static class StorageProvider implements MenuProvider
 	{
 		final UUID traderID;
-		
-		private StorageProvider(UUID traderID)
-		{
-			this.traderID = traderID;
-		}
-
+		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemTraderStorageContainer(menuID, inventory, this.traderID);
+			return new UniversalItemTraderStorageMenu(menuID, inventory, this.traderID);
 		}
-
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
-		}
-		
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
 	private static class ItemEditProvider implements MenuProvider
 	{
-		
 		final UUID traderID;
 		final int tradeIndex;
-		
-		private ItemEditProvider(UUID traderID, int tradeIndex)
-		{
-			this.traderID = traderID;
-			this.tradeIndex = tradeIndex;
-		}
+		private ItemEditProvider(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
 
 		private UniversalItemTraderData getData()
 		{
@@ -289,13 +321,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 		
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalItemEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
+			return new UniversalItemEditMenu(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 
 		@Override
-		public Component getDisplayName() {
-			return new TextComponent("");
-		}
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
 	@Override
@@ -330,9 +360,82 @@ public class UniversalItemTraderData extends UniversalTraderData implements ITra
 					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
 			}
 		}
-		
+	}
+	
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
+	}
+	
+	@Override
+	public void tradeCost(TradeCostEvent event) {
+		this.tradeRules.forEach(rule -> rule.tradeCost(event));
 	}
 
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
+	}
+
+	public List<TradeRule> getRules() { return this.tradeRules; }
 	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+				return;
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		this.markDirty(this::writeRules);
+	}
+	
+	public ITradeRuleScreenHandler GetRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	
+	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
+	{
+		
+		private final UniversalItemTraderData trader;
+		
+		public TradeRuleScreenHandler(UniversalItemTraderData trader)
+		{
+			this.trader = trader;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { return this.trader; }
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
+		}
+		
+		public void updateServer(List<TradeRule> newRules)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
+		}
+		
+	}
 	
 }

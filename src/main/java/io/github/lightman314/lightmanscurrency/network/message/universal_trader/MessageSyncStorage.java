@@ -2,45 +2,29 @@ package io.github.lightman314.lightmanscurrency.network.message.universal_trader
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IUniversalTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.IUniversalTraderStorageMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageSyncStorage implements IMessage<MessageSyncStorage> {
+public class MessageSyncStorage {
 	
-	
-	public MessageSyncStorage()
-	{
-		
-	}
-	
-	
-	@Override
-	public void encode(MessageSyncStorage message, FriendlyByteBuf buffer) {
-		//buffer.writeBlockPos(message.pos);
-	}
+	public static void encode(MessageSyncStorage message, FriendlyByteBuf buffer) { }
 
-	@Override
-	public MessageSyncStorage decode(FriendlyByteBuf buffer) {
+	public static MessageSyncStorage decode(FriendlyByteBuf buffer) {
 		return new MessageSyncStorage();
 	}
 
-	@Override
-	public void handle(MessageSyncStorage message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageSyncStorage message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu != null)
+				if(player.containerMenu instanceof IUniversalTraderStorageMenu)
 				{
-					if(entity.containerMenu instanceof IUniversalTraderStorageContainer)
-					{
-						IUniversalTraderStorageContainer container = (IUniversalTraderStorageContainer)entity.containerMenu;
-						container.CheckStorage();
-					}
+					IUniversalTraderStorageMenu menu = (IUniversalTraderStorageMenu)player.containerMenu;
+					menu.CheckStorage();
 				}
 			}
 		});

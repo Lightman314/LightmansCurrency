@@ -1,0 +1,34 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block1_2",
+	"textures": {
+		"particle": "lightmanscurrency:blocks/ticket_kiosk",
+		"main": "lightmanscurrency:blocks/ticket_kiosk"
+	},
+	"elements": [
+		{
+			"name": "Base",
+			"from": [4, 0, 4],
+			"to": [12, 4, 12],
+			"faces": {
+				"north": {"uv": [7.75, 9.5, 9.75, 10.5], "texture": "#main"},
+				"east": {"uv": [5.25, 9.5, 7.25, 10.5], "texture": "#main"},
+				"south": {"uv": [2.75, 9.5, 4.75, 10.5], "texture": "#main"},
+				"west": {"uv": [0.25, 9.5, 2.25, 10.5], "texture": "#main"},
+				"down": {"uv": [0.25, 10.75, 2.25, 12.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Body",
+			"from": [3, 4, 3],
+			"to": [13, 16, 13],
+			"faces": {
+				"north": {"uv": [7.5, 6.5, 10, 9.5], "texture": "#main"},
+				"east": {"uv": [5, 6.5, 7.5, 9.5], "texture": "#main"},
+				"south": {"uv": [2.5, 6.5, 5, 9.5], "texture": "#main"},
+				"west": {"uv": [0, 6.5, 2.5, 9.5], "texture": "#main"},
+				"down": {"uv": [0, 10.5, 2.5, 13], "texture": "#main"}
+			}
+		}
+	]
+}

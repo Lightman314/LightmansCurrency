@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +27,7 @@ public class UniversalTraderButton extends Button{
 	
 	public UniversalTraderButton(int x, int y, OnPress pressable, Font font)
 	{
-		super(x, y, WIDTH, HEIGHT, Component.nullToEmpty(""), pressable);
+		super(x, y, WIDTH, HEIGHT, new TextComponent(""), pressable);
 		this.font = font;
 	}
 	
@@ -48,7 +48,6 @@ public class UniversalTraderButton extends Button{
 		if(this.data == null)
 			return;
 		
-		//Minecraft.getInstance().getTextureManager().bindTexture(BUTTON_TEXTURES);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

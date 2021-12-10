@@ -2,47 +2,38 @@ package io.github.lightman314.lightmanscurrency.network.message.cashregister;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderCashRegisterContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageCRNextTrader implements IMessage<MessageCRNextTrader> {
+public class MessageCRNextTrader {
 	
 	int direction;
-	
-	public MessageCRNextTrader()
-	{
-		
-	}
 	
 	public MessageCRNextTrader(int direction)
 	{
 		this.direction = direction;
 	}
 	
-	@Override
-	public void encode(MessageCRNextTrader message, FriendlyByteBuf buffer) {
+	public static void encode(MessageCRNextTrader message, FriendlyByteBuf buffer) {
 		buffer.writeInt(message.direction);
 	}
 
-	@Override
-	public MessageCRNextTrader decode(FriendlyByteBuf buffer) {
+	public static MessageCRNextTrader decode(FriendlyByteBuf buffer) {
 		return new MessageCRNextTrader(buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageCRNextTrader message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageCRNextTrader message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ITraderCashRegisterContainer)
+				if(player.containerMenu instanceof ITraderCashRegisterMenu)
 				{
-					ITraderCashRegisterContainer container = (ITraderCashRegisterContainer) entity.containerMenu;
-					container.OpenNextContainer(message.direction);
+					ITraderCashRegisterMenu menu = (ITraderCashRegisterMenu) player.containerMenu;
+					menu.OpenNextContainer(message.direction);
 				}
 			}
 		});

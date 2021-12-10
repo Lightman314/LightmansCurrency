@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,7 +20,7 @@ public class PlainButton extends Button{
 	
 	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, int resourceX, int resourceY)
 	{
-		super(x,y,sizeX,sizeY, TextComponent.EMPTY, pressable);
+		super(x,y,sizeX,sizeY, new TextComponent(""), pressable);
 		this.buttonResource = buttonResource;
 		this.resourceX = resourceX;
 		this.resourceY = resourceY;
@@ -33,17 +34,15 @@ public class PlainButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
-		//Minecraft.getInstance().getTextureManager().bindTexture(WIDGETS_LOCATION);
-		//RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.buttonResource);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        int offset = this.isHovered() ? this.height : 0;
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        int offset = this.isHovered ? this.height : 0;
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        
-        this.blit(matrixStack, this.x, this.y, this.resourceX, this.resourceY + offset, this.width, this.height);
+        this.blit(poseStack, this.x, this.y, this.resourceX, this.resourceY + offset, this.width, this.height);
 		
 	}
 

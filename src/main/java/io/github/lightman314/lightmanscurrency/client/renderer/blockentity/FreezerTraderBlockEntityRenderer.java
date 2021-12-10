@@ -7,10 +7,10 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.blockentity.FreezerTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -28,18 +28,16 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 
 	public static final Item doorItem = ModItems.FREEZER_DOOR;
 	
-	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher)
-	{
-	}
+	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
 	
 	@Override
-	public void render(FreezerTraderBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(FreezerTraderBlockEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
-		for(int tradeSlot = 0; tradeSlot < blockEntity.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
+		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)
 		{
 			
-			ItemTradeData trade = blockEntity.getTrade(tradeSlot);
+			ItemTradeData trade = tileEntity.getTrade(tradeSlot);
 			if(!trade.getSellItem().isEmpty())
 			{
 				
@@ -53,18 +51,18 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 				}
 				
 				//Get positions
-				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, isBlock);
+				List<Vector3f> positions = tileEntity.GetStackRenderPos(tradeSlot, isBlock);
 				
 				//Get rotation
-				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
+				List<Quaternion> rotation = tileEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
 				
 				//Get scale
-				Vector3f scale = blockEntity.GetStackRenderScale(tradeSlot, isBlock);
+				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < ItemTraderBlockEntityRenderer.positionLimit(); pos++)
 				{
 					
-					poseStack.pushPose();;
+					poseStack.pushPose();
 					
 					Vector3f position = positions.get(pos);
 					
@@ -77,8 +75,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 					poseStack.scale(scale.x(), scale.y(), scale.z());
 					
 					//Render the item
-					//LightmansCurrency.LogInfo("Light level for block at " + blockEntity.getBlockPos().toString() + " is " + lightLevel);
-					Minecraft.getInstance().getItemRenderer().renderStatic(stack, TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
+					Minecraft.getInstance().getItemRenderer().renderStatic(stack,  TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
 				
 					poseStack.popPose();
 					
@@ -94,26 +91,25 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 		Vector3f corner = new Vector3f(0f,0f,0f);
 		Vector3f right = new Vector3f(1f, 0f, 0f);
 		Vector3f forward = new Vector3f(0f, 0f, 1f);
-		Block freezerBlock = blockEntity.getBlockState().getBlock();
+		Block freezerBlock = tileEntity.getBlockState().getBlock();
 		Direction facing = Direction.SOUTH;
 		if(freezerBlock instanceof IRotatableBlock)
 		{
 			IRotatableBlock block = (IRotatableBlock)freezerBlock;
-			facing = block.getFacing(blockEntity.getBlockState());
-			corner = block.getOffsetVect(facing);
-			right = block.getRightVect(facing);
-			forward = block.getForwardVect(facing);
+			facing = block.getFacing(tileEntity.getBlockState());
+			corner = IRotatableBlock.getOffsetVect(facing);
+			right = IRotatableBlock.getRightVect(facing);
+			forward = IRotatableBlock.getForwardVect(facing);
 		}
 		//Calculate the hinge position
 		Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
 		
-		Quaternion rotation = Vector3f.YP.rotationDegrees(MathUtil.getHorizontalFacing(facing) * -90f + (90f * blockEntity.getDoorAngle(partialTicks)));
+		Quaternion rotation = Vector3f.YP.rotationDegrees(facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
 		
 		poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 		poseStack.mulPose(rotation);
 		
 		ItemStack stack = new ItemStack(doorItem);
-		//BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, blockEntity.getLevel(), null, i);
 		Minecraft.getInstance().getItemRenderer().renderStatic(stack, TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
 		
 		poseStack.popPose();

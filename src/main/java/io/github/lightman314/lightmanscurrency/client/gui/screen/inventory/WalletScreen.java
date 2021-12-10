@@ -4,20 +4,20 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
+public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 
 	private final int BASEHEIGHT = 114;
 	
@@ -27,7 +27,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
 	Button buttonConvert;
 	boolean autoConvert = false;
 	
-	public WalletScreen(WalletContainer container, Inventory inventory, Component title)
+	public WalletScreen(WalletMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = BASEHEIGHT + this.menu.getRowCount() * 18;
@@ -35,43 +35,38 @@ public class WalletScreen extends AbstractContainerScreen<WalletContainer>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
-		//RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		//this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		int startX = (this.width - this.imageWidth) / 2;
-		int startY = (this.height - this.imageHeight) / 2;
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Draw the top
-		this.blit(matrix, startX, startY, 0, 0, this.imageWidth, 17);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, 17);
 		//Draw the middle strips
 		for(int y = 0; y < this.menu.getRowCount(); y++)
 		{
-			this.blit(matrix, startX, startY + 17 + y * 18, 0, 17, this.imageWidth, 18);
+			this.blit(poseStack, this.leftPos, this.topPos + 17 + y * 18, 0, 17, this.imageWidth, 18);
 		}
 		//Draw the bottom
-		this.blit(matrix, startX, startY + 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
+		this.blit(poseStack, this.leftPos, this.topPos + 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
 		
 		//Draw the slots
 		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
 		{
 			for(int x = 1; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
 			{
-				this.blit(matrix, startX + 7 + x * 18, startY + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
+				this.blit(poseStack, this.leftPos + 7 + x * 18, this.topPos + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
 		}
-		
-		CoinSlot.drawEmptyCoinSlots(this, this.menu, matrix, startX, startY);
 		
 	}
 	
 	@Override
 	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		this.font.draw(matrix, this.menu.title.getString(), 8.0f, 6.0f, 0x404040);
-		this.font.draw(matrix, this.playerInventoryTitle.getString(), 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(matrix, this.menu.title, 8.0f, 6.0f, 0x404040);
+		this.font.draw(matrix, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override

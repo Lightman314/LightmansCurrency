@@ -6,24 +6,34 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
-import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
-import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemTrader;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenuCR;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -40,15 +50,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeButtonStockSource, IItemTrader{
+public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
 	
-	protected Container inventory;
+	protected Container storage;
+	
+	private final ItemShopLogger logger = new ItemShopLogger();
 	
 	protected int tradeCount = 1;
 	
@@ -56,15 +67,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 	
 	protected NonNullList<ItemTradeData> trades;
 	
-	List<ItemTraderStorageContainer> storageContainers = new ArrayList<>();
-	
-	public final ItemShopLogger logger = new ItemShopLogger();
+	List<TradeRule> tradeRules = new ArrayList<>();
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = new SimpleContainer(this.storageSize());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
@@ -72,14 +81,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = new SimpleContainer(this.storageSize());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = new SimpleContainer(this.storageSize());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
@@ -87,18 +96,17 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = new SimpleContainer(this.storageSize());
+		this.storage = new SimpleContainer(this.getStorageSize());
 	}
 	
-	public void restrictTrade(int index, ItemTradeData.TradeRestrictions restriction)
+	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
 		getTrade(index).setRestriction(restriction);
-		this.setChanged();
 	}
 	
-	protected int storageSize()
+	private int getStorageSize()
 	{
-		return this.getTradeCount() * 9;
+		return getTradeCount() * 9;
 	}
 	
 	public int getTradeCount()
@@ -115,7 +123,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 			return;
 		overrideTradeCount(tradeCount + 1);
 		forceReOpen();
-		this.setChanged();
 	}
 	
 	public void removeTrade()
@@ -126,20 +133,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 			return;
 		overrideTradeCount(tradeCount - 1);
 		forceReOpen();
-		this.setChanged();
 	}
 	
 	private void forceReOpen()
 	{
 		for(Player player : this.getUsers())
 		{
-			ServerPlayer serverPlayer = (ServerPlayer)player;
-			if(player.containerMenu instanceof ItemTraderStorageContainer)
-				this.openStorageMenu(serverPlayer);
-			else if(player.containerMenu instanceof ItemTraderContainerCR)
-				this.openCashRegisterTradeMenu(serverPlayer, ((ItemTraderContainerCR)player.containerMenu).cashRegister);
-			else if(player.containerMenu instanceof ItemTraderContainer)
-				this.openTradeMenu(serverPlayer);
+			if(player.containerMenu instanceof ItemTraderStorageMenu)
+				this.openStorageMenu(player);
+			else if(player.containerMenu instanceof ItemTraderMenuCR)
+				this.openCashRegisterTradeMenu(player, ((ItemTraderMenuCR)player.containerMenu).cashRegister);
+			else if(player.containerMenu instanceof ItemTraderMenu)
+				this.openTradeMenu(player);
 		}
 	}
 	
@@ -156,18 +161,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 			trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		Container oldInventory = this.inventory;
-		this.inventory = new SimpleContainer(this.storageSize());
-		for(int i = 0; i < this.inventory.getContainerSize() && i < oldInventory.getContainerSize(); i++)
+		Container oldStorage = this.storage;
+		this.storage = new SimpleContainer(this.getStorageSize());
+		for(int i = 0; i < this.storage.getContainerSize() && i < oldStorage.getContainerSize(); i++)
 		{
-			this.inventory.setItem(i, oldInventory.getItem(i));
+			this.storage.setItem(i, oldStorage.getItem(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldInventory.getContainerSize() > this.storageSize())
+		if(oldStorage.getContainerSize() > this.getStorageSize())
 		{
-			for(int i = this.inventory.getContainerSize(); i < oldInventory.getContainerSize(); i++)
+			for(int i = this.getStorageSize(); i < oldStorage.getContainerSize(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
+				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getItem(i));
 			}
 		}
 		//Send an update to the client
@@ -175,9 +180,8 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		{
 			//Send update packet
 			CompoundTag compound = this.writeTrades(new CompoundTag());
-			this.writeItems(compound);
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
-			this.setChanged();
+			this.writeStorage(compound);
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		
 	}
@@ -204,9 +208,29 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		{
 			//Send update packet
 			CompoundTag compound = this.writeTrades(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
-			this.setChanged();
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
+		this.setChanged();
+	}
+	
+	public void markStorageDirty()
+	{
+		//Send an update to the client
+		if(!this.level.isClientSide)
+		{
+			//Send update packet
+			CompoundTag compound = this.writeStorage(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.setChanged();
+	}
+	
+	public ItemShopLogger getLogger() {return this.logger; }
+	
+	public void clearLogger()
+	{
+		this.logger.clear();
+		markLoggerDirty();
 	}
 	
 	public void markLoggerDirty()
@@ -216,9 +240,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		{
 			//Send update packet
 			CompoundTag compound = this.writeLogger(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
-			this.setChanged();
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
+		this.setChanged();
 	}
 	
 	public int getTradeStock(int tradeSlot)
@@ -230,7 +254,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 				return Integer.MAX_VALUE;
 			else
 			{
-				return trade.stockCount(this.inventory);
+				return (int)trade.stockCount(this);
 			}
 		}
 		return 0;
@@ -308,17 +332,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 	public CompoundTag save(CompoundTag compound)
 	{
 		
-		this.writeItems(compound);
+		this.writeStorage(compound);
 		this.writeTrades(compound);
 		this.writeLogger(compound);
+		this.writeTradeRules(compound);
 		
 		return super.save(compound);
 		
 	}
 	
-	protected CompoundTag writeItems(CompoundTag compound)
+	protected CompoundTag writeStorage(CompoundTag compound)
 	{
-		ItemStackHelper.saveAllItems("Items", compound, this.inventory);
+		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		return compound;
 	}
 	
@@ -335,30 +360,37 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		return compound;
 	}
 	
+	public CompoundTag writeTradeRules(CompoundTag compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
+		return compound;
+	}
+	
 	@Override
 	public void load(CompoundTag compound)
 	{
 		
 		//Load the trade limit
-		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
+		if(compound.contains("TradeLimit", Tag.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
 		//Load trades
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
 		{
 			this.trades = ItemTradeData.loadAllData(compound, this.getTradeCount());
-			SyncContainerListeners();
 		}
 		
 		//Load the inventory
 		if(compound.contains("Items"))
 		{
-			this.inventory = new SimpleContainer(this.storageSize());
-			ItemStackHelper.loadAllItems("Items", compound, this.inventory);
+			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getStorageSize());
 		}
-		else if(this.inventory == null)
-			this.inventory = new SimpleContainer(this.storageSize());
 		
+		//Load the shop logger
 		this.logger.read(compound);
+		
+		//Load the trade rules
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
 		super.load(compound);
 		
@@ -367,46 +399,22 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 	@Override
 	public void dumpContents(Level world, BlockPos pos)
 	{
-		//super.dumpContents dumps the coins automatically
 		super.dumpContents(world, pos);
-		//Dump the Inventory
-		InventoryUtil.dumpContents(world, pos, this.inventory);
-		//Dump the Trade Inventory
-		//Removed as the trade inventory no longer consumes items
-		//InventoryUtil.dumpContents(world, pos, new TradeInventory(trades));
+		//Dump the storage
+		InventoryUtil.dumpContents(world, pos, this.storage);
 	}
 	
 	@Override
 	public AABB getRenderBoundingBox()
 	{
-		return new AABB(getBlockPos().offset(-1, 0, -1), getBlockPos().offset(2,2,2));
+		return new AABB(this.worldPosition.offset(-1, 0, -1), this.worldPosition.offset(2,2,2));
 	}
 
 	@Override
-	public void clientTick()
-	{
+	public void clientTick() {
+		
 		super.clientTick();
 		this.rotationTime++;
-	}
-	
-	public void AddContainerListener(ItemTraderStorageContainer container)
-	{
-		if(!storageContainers.contains(container))
-			storageContainers.add(container);
-	}
-	
-	public void RemoveContainerListener(ItemTraderStorageContainer container)
-	{
-		if(storageContainers.contains(container))
-			storageContainers.remove(container);
-	}
-	
-	private void SyncContainerListeners()
-	{
-		storageContainers.forEach(container ->
-		{
-			container.resyncTrades();
-		});
 	}
 	
 	@Override
@@ -452,7 +460,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderContainer(id, inventory, tileEntity);
+			return new ItemTraderMenu(id, inventory, tileEntity);
 		}
 		
 	}
@@ -473,7 +481,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderStorageContainer(id, inventory, tileEntity);
+			return new ItemTraderStorageMenu(id, inventory, tileEntity);
 		}
 		
 	}
@@ -496,37 +504,37 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderContainerCR(id, inventory, tileEntity, registerEntity);
+			return new ItemTraderMenuCR(id, inventory, tileEntity, registerEntity);
 		}
 		
 	}
 	
 	private class ItemEditContainerProvider implements MenuProvider{
 
-		ItemTraderBlockEntity blockEntity;
+		ItemTraderBlockEntity tileEntity;
 		int tradeIndex;
 		
-		public ItemEditContainerProvider(ItemTraderBlockEntity blockEntity, int tradeIndex)
+		public ItemEditContainerProvider(ItemTraderBlockEntity tileEntity, int tradeIndex)
 		{
-			this.blockEntity = blockEntity;
+			this.tileEntity = tileEntity;
 			this.tradeIndex = tradeIndex;
 		}
 		
 		public Component getDisplayName()
 		{
-			return blockEntity.getName();
+			return tileEntity.getName();
 		}
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemEditContainer(id, inventory, () -> blockEntity, tradeIndex);
+			return new ItemEditMenu(id, inventory, () -> tileEntity, tradeIndex);
 		}
 		
 	}
 
 	@Override
 	public Container getStorage() {
-		return this.inventory;
+		return this.storage;
 	}
 
 	@Override
@@ -541,10 +549,103 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements ITradeBu
 			{
 				ItemStack tradeStack = trade.getSellItem();
 				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this.inventory, tradeStack);
+					tradeStack = InventoryUtil.TryPutItemStack(this.storage, tradeStack);
 				if(!tradeStack.isEmpty())
-					InventoryUtil.spawnItemStack(this.level, this.worldPosition, tradeStack);
+					InventoryUtil.dumpContents(this.level, this.worldPosition, InventoryUtil.buildInventory(tradeStack));
 			}
+		}
+		
+	}
+
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
+	}
+	
+	@Override
+	public void tradeCost(TradeCostEvent event)
+	{
+		this.tradeRules.forEach(rule -> rule.tradeCost(event));
+	}
+
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
+	}
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+			{
+				LightmansCurrency.LogInfo("Blocked rule addition due to rule of same type already present.");
+				return;
+			}
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		//Send an update to the client
+		if(!this.level.isClientSide)
+		{
+			//Send update packet
+			CompoundTag compound = this.writeTradeRules(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.setChanged();
+	}
+	
+	public void closeRuleScreen(Player player)
+	{
+		this.openStorageMenu(player);
+	}
+	
+	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }
+	
+	private static class TraderScreenHandler implements ITradeRuleScreenHandler
+	{
+		
+		private final ItemTraderBlockEntity tileEntity;
+		
+		public TraderScreenHandler(ItemTraderBlockEntity tileEntity)
+		{
+			this.tileEntity = tileEntity;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { return this.tileEntity; }
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.worldPosition));
+		}
+		
+		@Override
+		public void updateServer(List<TradeRule> newRules)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.worldPosition, newRules));
 		}
 		
 	}

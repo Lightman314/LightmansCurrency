@@ -6,24 +6,25 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
-import io.github.lightman314.lightmanscurrency.containers.PaygateContainer;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,11 +34,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.redstone.Redstone;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
-public class PaygateBlock extends RotatableBlock implements EntityBlock{
+public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnableBlock{
 	
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
@@ -51,15 +51,28 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
+	{
+		return new PaygateBlockEntity(pos, state);
+	}
+	
+	@Nullable 
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
 		return TickerUtil.createTickerHelper(type, ModBlockEntities.PAYGATE, TickableBlockEntity::tickHandler);
 	}
 	
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
+	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
 	{
-		return new PaygateBlockEntity(pos, state);
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof PaygateBlockEntity)
+		{
+			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
+			return paygate.canBreak(player);
+		}
+		return true;
 	}
 	
 	@Override
@@ -67,19 +80,29 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	{
 		if(!level.isClientSide)
 		{
-			//Open UI
-			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof PaygateBlockEntity)
+			
+			//Get the item in the players hand
+			BlockEntity tileEntity = level.getBlockEntity(pos);
+			if(tileEntity instanceof PaygateBlockEntity)
 			{
-				PaygateBlockEntity trader = (PaygateBlockEntity)blockEntity;
+				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
 				//Update the owner
-				if(trader.isOwner(player))
+				if(paygate.isOwner(player))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					trader.setOwner(player);
+					paygate.setOwner(player);
 				}
-				TileEntityUtil.sendUpdatePacket(blockEntity);
-				NetworkHooks.openGui((ServerPlayer)player, new SimpleMenuProvider((windowId, inventory, playerEntity) -> new PaygateContainer(windowId, inventory, trader), new TranslatableComponent("")), pos);
+				if(!paygate.isActive() && paygate.validTicket(player.getItemInHand(hand)))
+				{
+					paygate.activate();
+					player.getItemInHand(hand).shrink(1);
+					//Attempt to give the player a ticket stub
+					ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
+					player.getInventory().placeItemBackInInventory(ticketStub);
+					return InteractionResult.SUCCESS;
+				}
+				TileEntityUtil.sendUpdatePacket(tileEntity);
+				NetworkHooks.openGui((ServerPlayer)player, paygate, pos);
 			}
 		}
 		return InteractionResult.SUCCESS;
@@ -90,12 +113,13 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	{
 		if(!level.isClientSide)
 		{
-			PaygateBlockEntity blockEntity = (PaygateBlockEntity)level.getBlockEntity(pos);
-			if(blockEntity != null)
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+			if(blockEntity instanceof PaygateBlockEntity)
 			{
-				blockEntity.setOwner(player);
+				PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
+				paygate.setOwner(player);
 				if(stack.hasCustomHoverName())
-					blockEntity.setCustomName(stack.getDisplayName());
+					paygate.setCustomName(stack.getHoverName());
 			}
 		}
 	}
@@ -103,11 +127,14 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
+		
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof PaygateBlockEntity)
 		{
-			PaygateBlockEntity tileEntity = (PaygateBlockEntity)blockEntity;
-			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
+			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
+			if(!paygate.canBreak(player))
+				return;
+			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(paygate.getStoredMoney());
 			InventoryUtil.dumpContents(level, pos, coins);
 		}
 		
@@ -116,13 +143,15 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
-	public boolean isSignalSource(BlockState state) {
+	@Override
+	public boolean isSignalSource(BlockState state)
+	{
 		return true;
 	}
 	
@@ -130,11 +159,9 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock{
 	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
 		
 		if(state.getValue(POWERED))
-			return Redstone.SIGNAL_MAX;
-		return Redstone.SIGNAL_NONE;
+			return 15;
+		return 0;
 		
 	}
-	
-	
 	
 }

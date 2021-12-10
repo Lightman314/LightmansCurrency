@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -23,13 +24,10 @@ public class TerminalBlock extends RotatableBlock{
 	}
 	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player playerEntity, InteractionHand hand, BlockHitResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(level.isClientSide)
-		{
-			LightmansCurrency.PROXY.openTerminalScreen(playerEntity);
-		}
-		return InteractionResult.CONSUME;
+		LightmansCurrency.PROXY.openTerminalScreen(player);
+		return InteractionResult.SUCCESS;
 	}
 	
 }

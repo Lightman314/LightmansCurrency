@@ -6,15 +6,16 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -24,11 +25,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.Constants;
 
 public class CashRegisterItem extends BlockItem{
 		
-	private static final SoundEvent soundEffect = SoundEvents.EXPERIENCE_ORB_PICKUP;
+	private static final SoundEvent soundEffect = new SoundEvent(new ResourceLocation("minecraft","entity.experience_orb.pickup"));
 	
 	public CashRegisterItem(Block block, Properties properties)
 	{
@@ -45,25 +45,23 @@ public class CashRegisterItem extends BlockItem{
 			if(level.getBlockState(lookPos).getBlock() instanceof ITraderBlock)
 			{
 				ITraderBlock block = (ITraderBlock)level.getBlockState(lookPos).getBlock();
-				BlockEntity tileEntity = block.getTileEntity(level.getBlockState(lookPos), level, lookPos);
-				if(!HasEntity(context.getItemInHand(), tileEntity) && tileEntity instanceof TraderBlockEntity)
+				BlockEntity blockEntity = block.getBlockEntity(level.getBlockState(lookPos), level, lookPos);
+				if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderBlockEntity)
 				{
-					AddEntity(context.getItemInHand(), tileEntity);
+					AddEntity(context.getItemInHand(), blockEntity);
 					
 					if(level.isClientSide)
 					{
-						//CurrencyMod.LOGGER.info("Client-test");
-						level.playSound(context.getPlayer(), tileEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 0f);
+						level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 0f);
 					}
 					
 					return InteractionResult.SUCCESS;
 				}
-				else if(tileEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
+				else if(blockEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
 				{
 					if(level.isClientSide)
 					{
-						//CurrencyMod.LOGGER.info("Client-test");
-						level.playSound(context.getPlayer(), tileEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 1.35f);
+						level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 1.35f);
 					}
 					return InteractionResult.SUCCESS;
 				}
@@ -78,12 +76,15 @@ public class CashRegisterItem extends BlockItem{
 	{
 		
 		//Get the tag
-		CompoundTag tag = stack.getOrCreateTag();
+		if(!stack.hasTag())
+			return false;
+		
+		CompoundTag tag = stack.getTag();
 		
 		if(!tag.contains("TraderPos"))
 			return false;
 		
-		ListTag storageList = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+		ListTag storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);
 		
 		for(int i = 0; i < storageList.size(); i++)
 		{
@@ -102,12 +103,14 @@ public class CashRegisterItem extends BlockItem{
 	private void AddEntity(ItemStack stack, BlockEntity blockEntity)
 	{
 		//Get the tag
-		CompoundTag tag = stack.getOrCreateTag();
+		if(!stack.hasTag())
+			stack.setTag(new CompoundTag());
+		CompoundTag tag = stack.getTag();
 		
 		//If the tag contains the TraderPos list, get it. Otherwise create a new list
 		ListTag storageList;
 		if(tag.contains("TraderPos"))
-			storageList = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);
 		else
 			storageList = new ListTag();
 		
@@ -136,7 +139,7 @@ public class CashRegisterItem extends BlockItem{
 		CompoundTag tag = stack.getTag();
 		if(tag.contains("TraderPos"))
 		{
-			ListTag list = tag.getList("TraderPos", Constants.NBT.TAG_COMPOUND);
+			ListTag list = tag.getList("TraderPos", Tag.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); i++)
 			{
 				CompoundTag thisPos = list.getCompound(i);
@@ -152,9 +155,9 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
-		super.appendHoverText(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);
 		
 		tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register", data.size()));

@@ -1,24 +1,34 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import java.util.UUID;
+import java.util.List;
 
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.ItemTradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonStockSource;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -26,157 +36,308 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ItemTradeButton extends Button{
 	
 	public static final ResourceLocation TRADE_TEXTURES = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderbuttons.png");
+	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, DEFAULT_BACKGROUND);
 	
 	public static final int WIDTH = 79;
 	public static final int HEIGHT = 18;
 	
-	public static final float TEXTPOS_X = 20f;
+	public static final float TEXTPOS1_X = WIDTH - 20f;
+	public static final float TEXTPOS2_X = 20f;
 	public static final float TEXTPOS_Y = 5F;
 	
-	public static final int SLOT_OFFSET_X = 1;
+	public static final int SLOT_OFFSET1_X = WIDTH - 17;
+	public static final int SLOT_OFFSET2_X = 1;
 	public static final int SLOT_OFFSET_Y = 1;
 	
-	ItemTradeData trade;
-	Slot itemDisplaySlot;
-	Supplier<ITradeButtonStockSource> source;
-	ITradeButtonContainer container;
-	UUID traderID;
+	int tradeIndex;
+	Supplier<IItemTrader> source;
+	Supplier<Long> availableCoins;
+	Supplier<Container> itemSlots;
+	Screen screen;
 	
 	Font font;
 	
-	public ItemTradeButton(int x, int y, OnPress pressable, ItemTradeData trade, Font font, Supplier<ITradeButtonStockSource> source)
+	public ItemTradeButton(int x, int y, OnPress pressable, int tradeIndex, Screen screen, Font font, Supplier<IItemTrader> source, Supplier<Long> availableCoins, Supplier<Container> itemSlots)
 	{
-		this(x,y,pressable,trade,font,source, null);
-	}
-	
-	public ItemTradeButton(int x, int y, OnPress pressable, ItemTradeData trade, Font font, Supplier<ITradeButtonStockSource> source, ITradeButtonContainer menu)
-	{
-		super(x, y, WIDTH, HEIGHT, TextComponent.EMPTY, pressable);
-		this.trade = trade;
+		super(x, y, WIDTH, HEIGHT, new TextComponent(""), pressable);
+		this.tradeIndex = tradeIndex;
+		this.screen = screen;
 		this.font = font;
 		this.source = source;
-		this.container = menu;
+		this.availableCoins = availableCoins;
+		this.itemSlots = itemSlots;
+	}
+
+	private ItemTradeData getTrade() { return this.source.get().getTrade(this.tradeIndex); }
+	
+	@Override
+	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	{
+		
+		//Set active status
+		this.active = isActive(this.getTrade(), this.source.get());
+		renderItemTradeButton(poseStack, this.screen, this.font, this.x, this.y, this.tradeIndex, this.source.get(), false, this.isHovered, false, this.availableCoins.get(), this.itemSlots.get());
+		
 	}
 	
 	/**
-	 * Updates the trade data for this buttons trade.
-	 * @param trade The updated trade data.
+	 * Dummy render function for outside use.
+	 * Renders a forced-active state of the button for use on Item Edit or Trader Storage screens, etc.
 	 */
-	public void UpdateTrade(ItemTradeData trade)
+	public static void renderItemTradeButton(PoseStack poseStack, Screen screen, Font font, int x, int y, int tradeIndex, IItemTrader trader, boolean inverted)
 	{
-		this.trade = trade;
+		renderItemTradeButton(poseStack, screen, font, x, y, tradeIndex, trader, inverted, false, true, 0, new SimpleContainer(1));
 	}
 	
-	@Override
-	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	private static void renderItemTradeButton(PoseStack poseStack, Screen screen, Font font, int x, int y, int tradeIndex, IItemTrader trader, boolean inverted, boolean hovered, boolean forceActive, long availableCoins, Container itemSlots)
 	{
-		//Set active status
-		this.active = shouldBeActive();
-		//Minecraft.getInstance().getTextureManager().bindTexture(TRADE_TEXTURES);
+		
+		Minecraft minecraft = Minecraft.getInstance();
+		Player player = minecraft.player;
+		
+		ItemTradeData trade = trader.getTrade(tradeIndex);
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, TRADE_TEXTURES);
 		
-		if(this.active)
+		boolean active = forceActive ? true : isActive(trade, trader);
+		
+		if(active)
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		else
 			RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-		int offset = getRenderYOffset(this.trade.getTradeDirection());
-		if(this.isHovered)
+		int offset = getRenderYOffset(trade.getTradeType());
+		if(hovered)
 			offset += HEIGHT;
 		//Draw Button BG
-		this.blit(matrixStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
+		screen.blit(poseStack, x, y, inverted ? WIDTH : 0, offset, WIDTH, HEIGHT);
 		
-		this.font.draw(matrixStack, getTradeText(this.trade, hasStock(), hasSpace()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, getTradeTextColor(this.trade, canAfford(), hasStock()));
+		boolean hasPermission = forceActive ? true : false;
+		boolean hasDiscount = false;
+		boolean isValid = forceActive ? true : trade.isValid();
+		boolean hasStock = forceActive ? true : trader.isCreative() || trade.hasStock(trader);
+		boolean hasSpace = forceActive ? true : trader.isCreative() || trade.hasSpace(trader);
+		boolean canAfford = forceActive ? true : false;
+		CoinValue cost = trade.getCost();
+		if(!forceActive)
+		{
+			//Discount check
+			TradeCostEvent event = trader.runTradeCostEvent(player, tradeIndex);
+			cost = event.getCostResult();
+			hasDiscount = event.getCostMultiplier() != 1d;
+			//Permission
+			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
+			//CanAfford
+			canAfford = canAfford(trade, availableCoins, itemSlots);
+		}
 		
-		/*if(trade.isValid() && !trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative()) //Display the No Stock message if the trade is valid, but we're out of stock
-			this.font.drawString(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString(), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);
-		else if(canAfford())
-			this.font.drawString(matrixStack, MoneyUtil.getStringOfValue(this.trade.getCost()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFFFFFF);
+		if(trade.isBarter())
+		{
+			
+			//Render the barter item
+			int xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
+			if(trade.getBarterItem().isEmpty() && forceActive)
+			{
+				//Render empty slot background for empty barter slot
+				xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
+				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
+			}
+			else if(!trade.getBarterItem().isEmpty())
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y, true);
+			
+			//Render barter item text
+			String text = getTradeText(CoinValue.EMPTY, false, isValid, hasStock, hasSpace, hasPermission);
+			int textColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, false);
+			if(text == "" && !canAfford)
+			{
+				text = "X";
+				textColor = 0xFF0000;
+			}
+			int textLength = font.width(text);
+			
+			font.draw(poseStack, text, x + (WIDTH / 2) - (textLength / 2), y + TEXTPOS_Y, textColor);
+			
+		}
 		else
-			this.font.drawString(matrixStack, MoneyUtil.getStringOfValue(this.trade.getCost()), this.x + TEXTPOS_X, this.y + TEXTPOS_Y, 0xFF0000);*/
+		{
+			String tradeText = getTradeText(cost, trade.isFree(), isValid, hasStock, hasSpace, hasPermission);
+			int tradeColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, hasDiscount);
+			if(inverted)
+			{
+				//Inverted now has the sell item on the left side
+				font.draw(poseStack, tradeText, x + TEXTPOS2_X, y + TEXTPOS_Y, tradeColor);
+			}
+			else
+			{
+				//Default now has sell item on the right to remove the need to move it when 
+				int stringLength = font.width(tradeText);
+				font.draw(poseStack, tradeText, x + TEXTPOS1_X - stringLength, y + TEXTPOS_Y, tradeColor);
+			}
+		}
+		int xPos = x + (inverted ? SLOT_OFFSET2_X : SLOT_OFFSET1_X);
+		//Render the sell item
+		ItemStack sellItem = trade.getSellItem();
+		if(sellItem.isEmpty() && forceActive)
+		{
+			//Render empty slot backgrounds for special trade types
+			Pair<ResourceLocation,ResourceLocation> background = trade.getRestriction().getEmptySlotBG();
+			if(background == null)
+				background = BACKGROUND;
+			if(background != null)
+			{
+				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, background);
+			}
+		}
+		else if(!trade.getSellItem().isEmpty())
+			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y, true);
+		
 		
 	}
 	
-	public static String getTradeText(ItemTradeData trade, boolean hasStock, boolean hasSpace)
+	public void tryRenderTooltip(PoseStack poseStack, Screen screen, IItemTrader trader, boolean inverted, int mouseX, int mouseY)
 	{
-		if(trade.isValid() && !hasStock)
+		if(this.isHovered)
+			tryRenderTooltip(poseStack, screen, this.tradeIndex, trader, this.x, this.y, inverted, mouseX, mouseY);
+	}
+	
+	public static int tryRenderTooltip(PoseStack poseStack, Screen screen, int tradeIndex, IItemTrader trader, int x, int y, boolean inverted, int mouseX, int mouseY)
+	{
+		switch(trader.getTrade(tradeIndex).getTradeType())
+		{
+		case BARTER:
+			if(isMouseOverSlot(1, x, y, mouseX, mouseY, inverted))
+			{
+				//Render tooltip for barter item
+				List<Component> tooltip = getTooltipForItem(screen, tradeIndex, 1, trader);
+				if(tooltip != null)
+				{
+					screen.renderComponentTooltip(poseStack, tooltip, mouseX, mouseY);
+					return 2;
+				}
+				return -2;
+			}
+		default:
+			if(isMouseOverSlot(0, x, y, mouseX, mouseY, inverted))
+			{
+				//Render tooltip for sell item
+				List<Component> tooltip = getTooltipForItem(screen, tradeIndex, 0, trader);
+				if(tooltip != null)
+				{
+					screen.renderComponentTooltip(poseStack, tooltip, mouseX, mouseY);
+					return 1;
+				}
+				return -1;
+			}
+		}
+		return 0;
+	}
+	
+	public static boolean isMouseOverSlot(int slotIndex, int x, int y, int mouseX, int mouseY, boolean inverted)
+	{
+		int minX = x + (slotIndex == 1 ? SLOT_OFFSET2_X : SLOT_OFFSET1_X);
+		if(inverted)
+			minX = x + (slotIndex == 1 ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
+		return mouseX >= minX && mouseX <= (minX + 16) && mouseY >= y + 1 && mouseY <= (y + HEIGHT - 1);
+	}
+	
+	public static List<Component> getTooltipForItem(Screen screen, int tradeIndex, int slot, IItemTrader trader)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		Player player = minecraft.player;
+		
+		ItemTradeData trade = trader.getTrade(tradeIndex);
+		ItemStack itemStack = slot == 1 ? trade.getBarterItem() : trade.getSellItem();
+		if(itemStack.isEmpty())
+			return null;
+		
+		List<Component> tooltips = screen.getTooltipFromItem(itemStack);
+		Component originalName = null;
+		if(!trade.getCustomName().isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
+		{
+			originalName = tooltips.get(0);
+			tooltips.set(0, new TextComponent("§6" + trade.getCustomName()));
+		}
+		//If this is the sell item, give tooltips otherwise do nothing
+		if(slot == 0)
+		{
+			//Info
+			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.info"));
+			//Custom Name
+			if(originalName != null)
+				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
+			//Stock
+			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.stockCount(trader))));
+			//If denied, give denial reason
+			PreTradeEvent pte = trader.runPreTradeEvent(player, tradeIndex);
+			if(pte.isCanceled())
+				pte.getDenialReasons().forEach(reason -> tooltips.add(reason));
+			
+			//Nothing else to add yet
+			
+		}
+		return tooltips;
+	}
+	
+	public static String getTradeText(CoinValue cost, boolean isFree, boolean isValid, boolean hasStock, boolean hasSpace, boolean hasPermission)
+	{
+		if(isValid && !hasPermission)
+			return new TranslatableComponent("tooltip.lightmanscurrency.denied").getString();
+		else if(isValid && !hasStock)
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofstock").getString();
-		else if(trade.isValid() && !hasSpace)
+		else if(isValid && !hasSpace)
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(trade.isFree())
+		else if(isValid && isFree)
 			return new TranslatableComponent("gui.button.lightmanscurrency.free").getString();
 		else
-			return trade.getCost().getString();
+			return cost.getString();
 	}
 	
-	public static int getTradeTextColor(ItemTradeData trade, boolean canAfford, boolean hasStock)
+	public static int getTradeTextColor(boolean isValid, boolean canAfford, boolean hasStock, boolean hasPermission, boolean hasDiscount)
 	{
-		if((trade.isValid() && !hasStock) || !canAfford)
+		if((isValid && !hasStock) || !canAfford || !hasPermission)
 			return 0xFF0000;
+		else if(hasDiscount)
+			return 0x00FF00;
 		return 0xFFFFFF;
 	}
 	
-	public static int getRenderYOffset(ItemTradeData.TradeDirection tradeDirection)
+	public static int getRenderYOffset(ItemTradeData.ItemTradeType tradeDirection)
 	{
-		if(tradeDirection == ItemTradeData.TradeDirection.PURCHASE)
+		if(tradeDirection == ItemTradeData.ItemTradeType.PURCHASE)
 			return HEIGHT * 2;
+		else if(tradeDirection == ItemTradeData.ItemTradeType.BARTER)
+			return HEIGHT * 4;
 		//LightmansCurrency.LogWarning("Could not get Y render offset for TradeDirection." + tradeDirection.name());
 		return 0;
 	}
 	
-	protected boolean canAfford()
+	protected static boolean canAfford(ItemTradeData trade, long availableCoins, Container itemSlots)
 	{
-		if(this.trade.getTradeDirection() == TradeDirection.SALE)
+		if(trade.isSale())
 		{
-			if(this.trade.isFree())
+			if(trade.isFree())
 				return true;
-			else if(this.container != null)
-			{
-				return this.container.GetCoinValue() >= this.trade.getCost().getRawValue();
-			}
+			else
+				return availableCoins >= trade.getCost().getRawValue();
 		}
-		else if(this.trade.getTradeDirection() == TradeDirection.PURCHASE)
+		else if(trade.isPurchase())
 		{
-			return InventoryUtil.GetItemCount(this.container.GetItemInventory(), this.trade.getSellItem()) >= this.trade.getSellItem().getCount();
+			return InventoryUtil.GetItemCount(itemSlots, trade.getSellItem()) >= trade.getSellItem().getCount();
+		}
+		else if(trade.isBarter())
+		{
+			return InventoryUtil.GetItemCount(itemSlots, trade.getBarterItem()) >= trade.getBarterItem().getCount();
 		}
 		return true;
 	}
 	
-	protected boolean hasStock()
-	{
-		if(trade.getTradeDirection() == TradeDirection.SALE)
-		{
-			return trade.hasStock(this.source.get().getStorage()) || this.source.get().isCreative();
-		}
-		else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
-		{
-			return trade.hasEnoughMoney(this.source.get().getStoredMoney()) || this.source.get().isCreative();
-		}
-		return false;
-	}
-	
-	protected boolean hasSpace()
-	{
-		if(trade.getTradeDirection() == TradeDirection.PURCHASE)
-			return InventoryUtil.CanPutItemStack(this.source.get().getStorage(), this.trade.getSellItem());
-		return true;
-	}
-	
-	protected boolean shouldBeActive()
+	public static boolean isActive(ItemTradeData trade, IItemTrader trader)
 	{
 		if(trade.isValid())
 		{
-			if(trade.getTradeDirection() == TradeDirection.SALE)
-			{
-				//Return whether we have enough of the item we're selling in stock.
-				return this.source.get().isCreative() || trade.hasStock(this.source.get().getStorage());
-			}
-			else if(trade.getTradeDirection() == TradeDirection.PURCHASE)
-			{
-				//Return whether we have enough money to pay for the items we're buying.
-				//Confirm that there's enough room to place the intended items in storage
-				return (this.source.get().isCreative() || trade.hasEnoughMoney(this.source.get().getStoredMoney())) && hasSpace();
-			}
+			//Return whether we have enough of the item we're selling in stock.
+			return trader.isCreative() || (trade.hasStock(trader) && trade.hasSpace(trader));
 		}
 		return false;
 	}

@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import com.mojang.math.Vector3f;
 
-import net.minecraft.core.Direction;
-
 public class MathUtil {
 
 	/**
@@ -55,19 +53,70 @@ public class MathUtil {
 		return value;
 	}
 	
-	public static int getHorizontalFacing(Direction dir)
+	/**
+	 * Restricts a float between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static float clamp(float value, float min, float max)
 	{
-		switch(dir)
+		if(min > max)
 		{
-			case WEST:
-				return 1;
-			case NORTH:
-				return 2;
-			case EAST:
-				return 3;
-			default:
-				return 0;
+			float temp = min;
+			min = max;
+			max = temp;
 		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts a double between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static double clamp(double value, double min, double max)
+	{
+		if(min > max)
+		{
+			double temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
+	}
+	
+	/**
+	 * Restricts a long between a min & max value
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static long clamp(long value, long min, long max)
+	{
+		if(min > max)
+		{
+			long temp = min;
+			min = max;
+			max = temp;
+		}
+		if(value < min)
+			value = min;
+		else if(value > max)
+			value = max;
+		return value;
 	}
 	
 }

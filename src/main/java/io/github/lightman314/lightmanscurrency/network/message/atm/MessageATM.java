@@ -2,21 +2,14 @@ package io.github.lightman314.lightmanscurrency.network.message.atm;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-//import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 
-public class MessageATM implements IMessage<MessageATM> {
+public class MessageATM {
 	
 	private int buttonHit;
-	
-	public MessageATM()
-	{
-		
-	}
 	
 	public MessageATM(int buttonHit)
 	{
@@ -24,27 +17,24 @@ public class MessageATM implements IMessage<MessageATM> {
 	}
 	
 	
-	@Override
-	public void encode(MessageATM message, FriendlyByteBuf buffer) {
+	public static void encode(MessageATM message, FriendlyByteBuf buffer) {
 		buffer.writeInt(message.buttonHit);
 	}
 
-	@Override
-	public MessageATM decode(FriendlyByteBuf buffer) {
+	public static MessageATM decode(FriendlyByteBuf buffer) {
 		return new MessageATM(buffer.readInt());
 	}
 
-	@Override
-	public void handle(MessageATM message, Supplier<NetworkEvent.Context> supplier) {
+	public static void handle(MessageATM message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ATMContainer)
+				if(player.containerMenu instanceof ATMMenu)
 				{
-					ATMContainer container = (ATMContainer) entity.containerMenu;
-					container.ConvertCoins(message.buttonHit);
+					ATMMenu menu = (ATMMenu) player.containerMenu;
+					menu.ConvertCoins(message.buttonHit);
 				}
 			}
 		});
