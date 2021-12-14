@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRule
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 
 public abstract class TradeData implements ITradeRuleHandler {
 
@@ -19,26 +18,14 @@ public abstract class TradeData implements ITradeRuleHandler {
 	public enum TradeDirection { SALE, PURCHASE, NONE }
 	
 	protected CoinValue cost = new CoinValue();
-	protected boolean isFree = false;
 	
 	List<TradeRule> rules = new ArrayList<>();
 	
 	public abstract TradeDirection getTradeDirection();
 	
-	public boolean isFree()
-	{
-		return this.isFree && cost.getRawValue() <= 0;
-	}
-	
-	public void setFree(boolean isFree)
-	{
-		this.isFree = isFree;
-		//LightmansCurrency.LogInfo("Set free state of a trade to " + isFree);
-	}
-	
 	public final boolean validCost()
 	{
-		return this.isFree || cost.getRawValue() > 0;
+		return this.cost.isFree() || cost.getRawValue() > 0;
 	}
 	
 	public boolean isValid()
@@ -60,7 +47,6 @@ public abstract class TradeData implements ITradeRuleHandler {
 	{
 		CompoundTag tradeNBT = new CompoundTag();
 		this.cost.writeToNBT(tradeNBT,"Price");
-		tradeNBT.putBoolean("IsFree", this.isFree);
 		TradeRule.writeRules(tradeNBT, this.rules);
 		
 		return tradeNBT;
@@ -68,15 +54,10 @@ public abstract class TradeData implements ITradeRuleHandler {
 	
 	protected void loadFromNBT(CompoundTag nbt)
 	{
-		if(nbt.contains("Price", Tag.TAG_INT))
-			cost.readFromOldValue(nbt.getInt("Price"));
-		else if(nbt.contains("Price", Tag.TAG_LIST))
-			cost.readFromNBT(nbt, "Price");
+		cost.readFromNBT(nbt, "Price");
 		//Set whether it's free or not
 		if(nbt.contains("IsFree"))
-			this.isFree = nbt.getBoolean("IsFree");
-		else
-			this.isFree = false;
+			this.cost.setFree(nbt.getBoolean("IsFree"));
 		
 		this.rules.clear();
 		this.rules = TradeRule.readRules(nbt);

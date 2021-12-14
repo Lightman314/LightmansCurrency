@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
@@ -255,21 +254,11 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		if(compound.contains("OwnerName", Tag.TAG_STRING))
 			this.ownerName = compound.getString("OwnerName");
 		//Read stored money & current price
-		if(compound.contains("StoredMoney", Tag.TAG_INT))
-		{
-			this.storedMoney.readFromOldValue(compound.getInt("StoredMoney"));
-			LightmansCurrency.LogInfo("Reading stored money from older value format. Will be updated to newer value format.");
-		}
-		else if(compound.contains("StoredMoney"))
-			this.storedMoney.readFromNBT(compound, "StoredMoney");
+		this.storedMoney.readFromNBT(compound, "StoredMoney");
+		
+		this.price.readFromNBT(compound, "Price");
+		
 		//Read the output customization
-		if(compound.contains("Price", Tag.TAG_INT))
-		{
-			this.price.readFromOldValue(compound.getInt("Price"));
-			LightmansCurrency.LogInfo("Reading price from older value format. Will be updated to newer value format.");
-		}
-		else if(compound.contains("Price"))
-			this.price.readFromNBT(compound, "Price");
 		if(compound.contains("Duration", Tag.TAG_INT))
 			this.duration = compound.getInt("Duration");
 		//Read the timer

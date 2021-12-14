@@ -39,6 +39,7 @@ public class CoinValueInput extends AbstractWidget{
 	private final ICoinValueInput parent;
 	
 	private CoinValue coinValue;
+	Button toggleFree;
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
 	private Component title;
@@ -63,6 +64,7 @@ public class CoinValueInput extends AbstractWidget{
 	
 	public void init()
 	{
+		this.toggleFree = this.parent.addCustomWidget(new PlainButton(this.leftOffset + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
 		int buttonCount = MoneyUtil.getAllData().size();
@@ -82,6 +84,7 @@ public class CoinValueInput extends AbstractWidget{
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Match the buttons visibility to our visibility.
+		this.toggleFree.visible = this.visible;
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
 		this.decreaseButtons.forEach(button -> button.visible = this.visible);
 		if(!this.visible) //If not visible, render nothing
@@ -125,7 +128,7 @@ public class CoinValueInput extends AbstractWidget{
 		this.parent.getFont().draw(poseStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
 		int priceWidth = this.parent.getFont().width(this.coinValue.getString());
-		this.parent.getFont().draw(poseStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
+		this.parent.getFont().draw(poseStack, this.coinValue.getString(), startX + this.width - 15F - priceWidth, startY + 5F, 0x404040);
 		
 	}
 	
@@ -142,6 +145,8 @@ public class CoinValueInput extends AbstractWidget{
 				decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i)) > 0;
 			}
 		}
+		for(int i = 0; i < this.increaseButtons.size(); i++)
+			this.increaseButtons.get(i).active = !this.coinValue.isFree();
 	}
 	
 	public static int calculateWidth()
@@ -189,7 +194,7 @@ public class CoinValueInput extends AbstractWidget{
 			Item coin = coins.get(coinIndex);
 			int removeAmount = 1;
 			if(Screen.hasShiftDown())
-				removeAmount = getLargeDecreaseAmount(coin);
+				removeAmount = getLargeIncreaseAmount(coin);
 			if(Screen.hasControlDown())
 				removeAmount *= 10;
 			//LightmansCurrency.LOGGER.info("Removing " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
@@ -204,30 +209,31 @@ public class CoinValueInput extends AbstractWidget{
 	{
 		Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
 		if(upwardConversion != null)
-			return upwardConversion.getSecond() / 2;
+			return getLargeAmount(upwardConversion);
 		else
 		{
 			Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
 			if(downwardConversion != null)
-				return downwardConversion.getSecond() / 2;
+				return getLargeAmount(downwardConversion);
 			//No conversion found for this coin. Assume 10;
 			return 10;
 		}
 	}
 	
-	private final int getLargeDecreaseAmount(Item coinItem)
+	private final int getLargeAmount(Pair<Item,Integer> conversion)
 	{
-		Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
-		if(downwardConversion != null)
-			return downwardConversion.getSecond() / 2;
-		else
-		{
-			Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
-			if(upwardConversion != null)
-				return upwardConversion.getSecond() / 2;
-			//No conversion found for this coin. Assume 10;
+		if(conversion.getSecond() >= 64)
+			return 16;
+		if(conversion.getSecond() > 10)
 			return 10;
-		}
+		if(conversion.getSecond() > 5)
+			return 5;
+		return 2;
+	}
+	
+	private void ToggleFree(Button button)
+	{
+		this.coinValue.setFree(!this.coinValue.isFree());
 	}
 	
 	public CoinValue getCoinValue()

@@ -19,17 +19,20 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
 	
 	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, "key.categories.inventory");
 	
 	@SubscribeEvent
-	public void onKeyInput(InputEvent.KeyInputEvent event)
+	public static void onKeyInput(InputEvent.KeyInputEvent event)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
 		if(minecraft.screen instanceof WalletScreen)
@@ -60,7 +63,7 @@ public class ClientEvents {
 	
 	//Add the wallet button to the gui
 	@SubscribeEvent
-	public void onInventoryGuiInit(ScreenEvent.InitScreenEvent.Post event)
+	public static void onInventoryGuiInit(ScreenEvent.InitScreenEvent.Post event)
 	{
 		if(LightmansCurrency.isCuriosLoaded())
 			return;

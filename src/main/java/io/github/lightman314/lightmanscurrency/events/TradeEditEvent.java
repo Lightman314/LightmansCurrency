@@ -24,14 +24,12 @@ public class TradeEditEvent extends Event{
 		
 		private final CoinValue oldPrice;
 		public final CoinValue getOldPrice() { return this.oldPrice; }
-		private final boolean wasFree;
-		public final boolean getWasFree() { return this.wasFree; }
+		public final boolean getWasFree() { return this.oldPrice.isFree(); }
 		
-		public TradePriceEditEvent(Supplier<ITrader> trader, int tradeIndex, CoinValue oldPrice, boolean wasFree)
+		public TradePriceEditEvent(Supplier<ITrader> trader, int tradeIndex, CoinValue oldPrice)
 		{
 			super(trader, tradeIndex);
 			this.oldPrice = oldPrice;
-			this.wasFree = wasFree;
 		}
 	}
 	

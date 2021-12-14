@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.MintRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -31,8 +34,12 @@ public class CoinMintBlockEntity extends BlockEntity{
 	
 	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> new MintItemCapability(this));
 	
-	private static boolean canMint() { return Config.canMint(); }
-	private static boolean canMelt() { return Config.canMelt(); }
+	private final List<CoinMintRecipe> getCoinMintRecipes()
+	{
+		if(this.level != null)
+			return RecipeValidator.getValidRecipes(this.level).getCoinMintRecipes();
+		return Lists.newArrayList();
+	}
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.COIN_MINT, pos, state);
@@ -72,25 +79,12 @@ public class CoinMintBlockEntity extends BlockEntity{
 	
 	public boolean validMintInput(ItemStack item)
 	{
-		if(canMint())
+		Container tempInv = new SimpleContainer(1);
+		tempInv.setItem(0, item);
+		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			for(MintRecipe recipe : MoneyUtil.getMintRecipes())
-			{
-				if(recipe.validInput(item.getItem()))
-				{
-					return true;
-				}
-			}
-		}
-		if(canMelt())
-		{
-			for(MintRecipe recipe : MoneyUtil.getMeltRecipes())
-			{
-				if(recipe.validInput(item.getItem()))
-				{
-					return true;
-				}
-			}
+			if(recipe.matches(tempInv, this.level))
+				return true;
 		}
 		
 		return false;
@@ -114,25 +108,10 @@ public class CoinMintBlockEntity extends BlockEntity{
 		if(mintInput.isEmpty())
 			return ItemStack.EMPTY;
 		
-		if(canMint())
+		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			for(MintRecipe recipe : MoneyUtil.getMintRecipes())
-			{
-				if(recipe.validInput(mintInput.getItem()))
-				{
-					return recipe.getOutput();
-				}
-			}
-		}
-		if(canMelt())
-		{
-			for(MintRecipe recipe : MoneyUtil.getMeltRecipes())
-			{
-				if(recipe.validInput(mintInput.getItem()))
-				{
-					return recipe.getOutput();
-				}
-			}
+			if(recipe.matches(this.storage, this.level))
+				return recipe.assemble(this.storage);
 		}
 		
 		return ItemStack.EMPTY;

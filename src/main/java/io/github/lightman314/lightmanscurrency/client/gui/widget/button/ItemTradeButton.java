@@ -161,7 +161,7 @@ public class ItemTradeButton extends Button{
 		}
 		else
 		{
-			String tradeText = getTradeText(cost, trade.isFree(), isValid, hasStock, hasSpace, hasPermission);
+			String tradeText = getTradeText(cost, trade.getCost().isFree(), isValid, hasStock, hasSpace, hasPermission);
 			int tradeColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, hasDiscount);
 			if(inverted)
 			{
@@ -316,7 +316,7 @@ public class ItemTradeButton extends Button{
 	{
 		if(trade.isSale())
 		{
-			if(trade.isFree())
+			if(trade.getCost().isFree())
 				return true;
 			else
 				return availableCoins >= trade.getCost().getRawValue();

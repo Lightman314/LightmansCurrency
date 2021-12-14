@@ -19,16 +19,14 @@ public class MessageSetItemPrice2 {
 	private UUID traderID;
 	private int tradeIndex;
 	private CoinValue newPrice;
-	private boolean isFree;
 	private String customName;
 	private String newDirection;
 	
-	public MessageSetItemPrice2(UUID traderID, int tradeIndex, CoinValue newPrice, boolean isFree, String customName, String newDirection)
+	public MessageSetItemPrice2(UUID traderID, int tradeIndex, CoinValue newPrice, String customName, String newDirection)
 	{
 		this.traderID = traderID;
 		this.tradeIndex = tradeIndex;
 		this.newPrice = newPrice;
-		this.isFree = isFree;
 		this.customName = customName;
 		this.newDirection = newDirection;
 	}
@@ -38,13 +36,12 @@ public class MessageSetItemPrice2 {
 		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
 		buffer.writeNbt(message.newPrice.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
-		buffer.writeBoolean(message.isFree);
 		buffer.writeUtf(message.customName);
 		buffer.writeUtf(message.newDirection);
 	}
 
 	public static MessageSetItemPrice2 decode(FriendlyByteBuf buffer) {
-		return new MessageSetItemPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), buffer.readBoolean(), buffer.readUtf(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readUtf(ItemTradeData.MaxTradeTypeStringLength()));
+		return new MessageSetItemPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), buffer.readUtf(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readUtf(ItemTradeData.MaxTradeTypeStringLength()));
 	}
 
 	public static void handle(MessageSetItemPrice2 message, Supplier<Context> supplier) {
@@ -56,13 +53,11 @@ public class MessageSetItemPrice2 {
 			{
 				UniversalItemTraderData data2 = (UniversalItemTraderData)data1;
 				CoinValue oldPrice = data2.getTrade(message.tradeIndex).getCost();
-				boolean wasFree = data2.getTrade(message.tradeIndex).isFree();
 				data2.getTrade(message.tradeIndex).setCost(message.newPrice);
-				data2.getTrade(message.tradeIndex).setFree(message.isFree);
 				data2.getTrade(message.tradeIndex).setCustomName(message.customName);
 				data2.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
 				
-				if(oldPrice.getRawValue() != message.newPrice.getRawValue() || wasFree != message.isFree)
+				if(oldPrice.getRawValue() != message.newPrice.getRawValue() || oldPrice.isFree() != message.newPrice.isFree())
 				{
 					//Throw price change event
 					TradePriceEditEvent e = new TradePriceEditEvent(() -> {
@@ -71,7 +66,7 @@ public class MessageSetItemPrice2 {
 						if(d instanceof UniversalItemTraderData)
 							return (UniversalItemTraderData)d;
 						return null;
-					}, message.tradeIndex, oldPrice, wasFree);
+					}, message.tradeIndex, oldPrice);
 					MinecraftForge.EVENT_BUS.post(e);
 				}
 				

@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
@@ -50,8 +49,6 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	Button buttonSetBarter;
 	
 	Button buttonTradeRules;
-	
-	Button buttonSetFree;
 	
 	ItemTradeType localDirection;
 	
@@ -89,7 +86,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		
 		this.addRenderableWidget(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.save"), this::SaveChanges));
 		this.addRenderableWidget(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::Back));
-		this.buttonSetFree = this.addRenderableWidget(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslatableComponent("gui.button.lightmanscurrency.free"), this::SetFree));
+		//this.buttonSetFree = this.addRenderableWidget(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslatableComponent("gui.button.lightmanscurrency.free"), this::SetFree));
 		this.buttonTradeRules = this.addRenderableWidget(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, GUI_TEXTURE, this.xSize, 0));
 		
 		tick();
@@ -104,8 +101,6 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		this.buttonSetSell.active = this.localDirection != ItemTradeType.SALE;
 		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
-		
-		this.buttonSetFree.active = this.localDirection != ItemTradeType.BARTER;
 		
 		this.priceInput.visible = this.localDirection != ItemTradeType.BARTER;
 		
@@ -140,12 +135,6 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		
 	}
 	
-	protected void SetFree(Button button)
-	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice2(this.traderID, this.tradeIndex, new CoinValue(), true, this.nameField.getValue(), this.localDirection.name()));
-		Back(button);
-	}
-	
 	protected void SaveChanges(Button button)
 	{
 		SaveChanges();
@@ -154,7 +143,7 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	
 	protected void SaveChanges()
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice2(this.traderID, this.tradeIndex, this.priceInput.getCoinValue(), false, this.nameField.getValue(), this.localDirection.name()));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice2(this.traderID, this.tradeIndex, this.priceInput.getCoinValue(), this.nameField.getValue(), this.localDirection.name()));
 	}
 	
 	protected void Back(Button button)

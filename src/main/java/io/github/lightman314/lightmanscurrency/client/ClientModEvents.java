@@ -12,22 +12,25 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
 
 	@SubscribeEvent
-	public void registerItemColors(ColorHandlerEvent.Item event)
+	public static void registerItemColors(ColorHandlerEvent.Item event)
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
 	}
 	
 	@SubscribeEvent
-	public void stitchTextures(TextureStitchEvent.Pre event) {
+	public static void stitchTextures(TextureStitchEvent.Pre event) {
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add coin/wallet slot backgrounds
 			LightmansCurrency.LogInfo("Adding empty coin/ticket/wallet slot sprites to the texture atlas.");
@@ -39,20 +42,20 @@ public class ClientModEvents {
 	}
 	
 	@SubscribeEvent
-	public void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
+	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
 	{
 		event.registerLayerDefinition(ModLayerDefinitions.WALLET, WalletLayer::createLayer);
 	}
 	
 	@SubscribeEvent
-	public void addLayers(EntityRenderersEvent.AddLayers event)
+	public static void addLayers(EntityRenderersEvent.AddLayers event)
 	{
 		addWalletLayer(event,"default");
 		addWalletLayer(event,"slim");
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
+	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
 		if(renderer instanceof LivingEntityRenderer)

@@ -33,7 +33,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -82,9 +81,6 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
     	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
-    	
-    	//Register ClientEvents
-    	MinecraftForge.EVENT_BUS.register(new ClientEvents());
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);

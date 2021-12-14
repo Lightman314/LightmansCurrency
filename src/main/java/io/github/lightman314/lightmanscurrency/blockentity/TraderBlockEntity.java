@@ -399,13 +399,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			this.ownerName = compound.getString("OwnerName");
 		//Stored Money
 		//Load stored money
-		if(compound.contains("StoredMoney", Tag.TAG_INT))
-		{
-			LightmansCurrency.LogInfo("Reading stored money from older value format. Will be updated to newer value format.");
-			this.storedMoney.readFromOldValue(compound.getInt("StoredMoney"));
-		}
-		else if(compound.contains("StoredMoney"))
-			this.storedMoney.readFromNBT(compound, "StoredMoney");
+		this.storedMoney.readFromNBT(compound, "StoredMoney");
+		
 		//Creative
 		if(compound.contains("Creative"))
 			this.isCreative = compound.getBoolean("Creative");

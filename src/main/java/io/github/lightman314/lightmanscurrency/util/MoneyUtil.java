@@ -22,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -37,11 +36,6 @@ public class MoneyUtil {
 	private static List<CoinData> coinList = new ArrayList<>();
 	private static boolean coinListDirty = false;
 	private static List<CoinData> publicCoinList = new ArrayList<>();
-	//Minting & Melting recipes
-	private static boolean mintRecipesDirty = false;
-	private static List<MintRecipe> mintRecipes = null;
-	private static boolean meltRecipesDirty = false;
-	private static List<MintRecipe> meltRecipes = null;
 	//Whether the mod has been initialized
 	private static boolean init = false;
 	public static boolean initialized() { return init; }
@@ -59,32 +53,26 @@ public class MoneyUtil {
     	
     	//Copper Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_COPPER)
-    			.defineInitial("item.lightmanscurrency.coin_copper.initial")
-    			.defineMintingMaterial(Items.COPPER_INGOT));
+    			.defineInitial("item.lightmanscurrency.coin_copper.initial"));
     	//Iron Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_IRON)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")
-    			.defineMintingMaterial(Items.IRON_INGOT)
     			.defineConversion(ModItems.COIN_COPPER, Config.COMMON.ironCoinWorth.get()));
     	//Gold Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_GOLD)
     			.defineInitial("item.lightmanscurrency.coin_gold.initial")
-    			.defineMintingMaterial(Items.GOLD_INGOT)
     			.defineConversion(ModItems.COIN_IRON, Config.COMMON.goldCoinWorth.get()));
     	//Emerald Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_EMERALD)
     			.defineInitial("item.lightmanscurrency.coin_emerald.initial")
-    			.defineMintingMaterial(Items.EMERALD)
     			.defineConversion(ModItems.COIN_GOLD, Config.COMMON.emeraldCoinWorth.get()));
     	//Diamond Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_DIAMOND)
     			.defineInitial("item.lightmanscurrency.coin_diamond.initial")
-    			.defineMintingMaterial(Items.DIAMOND)
     			.defineConversion(ModItems.COIN_EMERALD, Config.COMMON.diamondCoinWorth.get()));
     	//Netherite Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_NETHERITE)
     			.defineInitial("item.lightmanscurrency.coin_netherite.initial")
-    			.defineMintingMaterial(Items.NETHERITE_INGOT)
     			.defineConversion(ModItems.COIN_DIAMOND, Config.COMMON.netheriteCoinWorth.get()));
     	
     	//Hidden coins
@@ -225,8 +213,6 @@ public class MoneyUtil {
     	LightmansCurrency.LogDebug("Adding " + newCoinData.getCoinItem().getRegistryName());
     	coinList.add(newCoinData);
     	coinListDirty = coinListDirty || !newCoinData.isHidden;
-    	mintRecipesDirty = true;
-    	meltRecipesDirty = true;
     	
     }
     
@@ -927,57 +913,7 @@ public class MoneyUtil {
      */
     public static String getStringOfValue(CoinValue value)
     {
-    	String string = "";
-    	for(int i = 0; i < value.coinValues.size(); i++)
-    	{
-    		CoinValuePair pricePair = value.coinValues.get(i);
-    		CoinData coinData = getData(pricePair.coin);
-    		if(coinData != null)
-    		{
-    			string += String.valueOf(pricePair.amount);
-    			string += coinData.getInitial().getString();
-    		}
-    	}
-    	
-    	return string;
-    }
-
-    /**
-     * Gets a list of all of the coin-minting recipes generated from the registered coins.
-     */
-    public static List<MintRecipe> getMintRecipes()
-    {
-    	if(mintRecipes == null || mintRecipesDirty)
-    	{
-    		mintRecipesDirty = false;
-    		mintRecipes = new ArrayList<>();
-        	for(CoinData coinData : coinList)
-        	{
-        		MintRecipe recipe = coinData.getMintRecipe();
-        		if(recipe != null)
-        			mintRecipes.add(recipe);
-        	}
-    	}
-    	return mintRecipes;
-    }
-    
-    /**
-     * Gets a list of all of the coin-melting recipes generated from the registered coins.
-     */
-    public static List<MintRecipe> getMeltRecipes()
-    {
-    	if(meltRecipes == null || meltRecipesDirty)
-    	{
-    		meltRecipesDirty = false;
-    		meltRecipes = new ArrayList<>();
-        	for(CoinData coinData : coinList)
-        	{
-        		MintRecipe recipe = coinData.getMeltRecipe();
-        		if(recipe != null)
-        			meltRecipes.add(recipe);
-        	}
-    	}
-    	return meltRecipes;
+    	return value.getString();
     }
     
     /**
@@ -1106,9 +1042,6 @@ public class MoneyUtil {
     	private int worthOtherCoinCount = 0;
     	//Coin's display initial 'c','d', etc.
     	private Component initial;
-    	//The minting material item
-    	private Item mintingMaterialItem = null;
-    	private ResourceLocation mintingMaterialTag = null;
 		//Is this hidden or not
 		private boolean isHidden = false;
     	
@@ -1119,8 +1052,6 @@ public class MoneyUtil {
     		this.worthOtherCoin = builder.worthOtherCoin;
     		this.worthOtherCoinCount = builder.worthOtherCoinCount;
     		this.initial = builder.initialText;
-    		this.mintingMaterialItem = builder.mintingMaterialItem;
-    		this.mintingMaterialTag = builder.mintingMaterialTag;
     		this.isHidden = builder.isHidden;
     	}
     	
@@ -1180,41 +1111,6 @@ public class MoneyUtil {
     		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
     	}
     	
-    	public MintRecipe getMintRecipe()
-    	{
-    		if(!Config.canMint(this.coinItem)) //Block getting the mint recipe if minting is blocked for this coin
-    			return null;
-    		if(this.mintingMaterialItem != null)
-    			return new MintRecipe(this.mintingMaterialItem, this.coinItem);
-    		else if(this.mintingMaterialTag != null)
-    			return new MintRecipe(this.mintingMaterialTag, this.coinItem);
-    		return null;
-    	}
-    	
-    	public MintRecipe getMeltRecipe()
-    	{
-    		if(!Config.canMelt(this.coinItem)) //Block getting the melt recipe if melting is blocked for this coin
-    			return null;
-    		if(this.mintingMaterialItem != null)
-    			return new MintRecipe(this.coinItem, this.mintingMaterialItem);
-    		else if(this.mintingMaterialTag != null)
-    		{
-    			//Get all items with the tag
-    			net.minecraft.tags.Tag<Item> tag = ItemTags.getAllTags().getTagOrEmpty(this.mintingMaterialTag);
-    			if(tag != null)
-    			{
-    				List<Item> tagItems = tag.getValues();
-    				if(tagItems.size() > 0)
-    				{
-    					Item resultItem = tagItems.get(0);
-    					LightmansCurrency.LogInfo("Creating melt recipe for " + this.coinItem.getRegistryName().toString() + " using the first item with the given tag '" + this.mintingMaterialTag.toString() + "' (" + resultItem.getRegistryName().toString() + ")");
-    					return new MintRecipe(this.coinItem, resultItem);
-    				}
-    			}
-    		}
-    		return null;
-    	}
-    	
     	public boolean isHidden()
     	{
     		return this.isHidden;
@@ -1235,9 +1131,6 @@ public class MoneyUtil {
     		int worthOtherCoinCount = 0;
     		//The shortened name of the coin
     		Component initialText = null;
-    		//The minting material item
-    		Item mintingMaterialItem = null;
-    		ResourceLocation mintingMaterialTag = null;
     		//Whether it's publicly visible
     		boolean isHidden = false;
     		
@@ -1275,24 +1168,6 @@ public class MoneyUtil {
     			return this;
     		}
     		
-    		/**
-    		 * Defines the item that can be used to craft this coin in the coin mint.
-    		 */
-    		public Builder defineMintingMaterial(Item mintingMaterial)
-    		{
-    			this.mintingMaterialItem = mintingMaterial;
-    			return this;
-    		}
-    		
-    		/**
-    		 * Defines the item tag of all items that can be used to craft this coin in the coin mint.
-    		 */
-    		public Builder defineMintingMaterialTag(ResourceLocation mintingMaterial)
-    		{
-    			this.mintingMaterialTag = mintingMaterial;
-    			return this;
-    		}
-    		
     		public Builder setHidden()
     		{
     			this.isHidden = true;
@@ -1306,53 +1181,15 @@ public class MoneyUtil {
     	}
     	
     }
-    
-    public static class MintRecipe
-	{
-		ResourceLocation itemInTag = null;
-		Item itemIn = null;
-		Item itemOut = null;
-		
-		public MintRecipe(ResourceLocation itemTag, Item out)
-		{
-			itemInTag = itemTag;
-			itemOut = out;
-		}
-		
-		public MintRecipe(Item in, Item out)
-		{
-			itemIn = in;
-			itemOut = out;
-		}
-		
-		public boolean validInput(Item itemIn)
-		{
-			if(itemInTag != null)
-			{
-				if(itemIn.getTags() != null)
-				{
-					return itemIn.getTags().contains(itemInTag);
-				}
-				return false;
-			}
-			else
-			{
-				return this.itemIn == itemIn;
-			}
-		}
-		
-		public ItemStack getOutput()
-		{
-			return new ItemStack(itemOut, 1);
-		}
-		
-	}
 	
     public static class CoinValue
     {
     	
     	public static final String DEFAULT_KEY = "CoinValue";
     	
+    	private boolean isFree = false;
+    	public boolean isFree() { return this.isFree; }
+    	public void setFree(boolean free) { this.isFree = free; if(this.isFree) this.coinValues.clear(); }
     	public final List<CoinValuePair> coinValues;
     	
     	public CoinValue(CompoundTag compound)
@@ -1410,12 +1247,17 @@ public class MoneyUtil {
     	
     	public CoinValue(CoinValue otherValue)
     	{
+    		this.isFree = otherValue.isFree;
     		this.coinValues = new ArrayList<>();
-    		for(CoinValuePair pricePair : otherValue.coinValues)
+    		if(!this.isFree)
     		{
-    			this.coinValues.add(pricePair.copy());
+    			for(CoinValuePair pricePair : otherValue.coinValues)
+        		{
+        			this.coinValues.add(pricePair.copy());
+        		}
+    			roundValue();
     		}
-    		roundValue();
+    		
     	}
     	
     	@SafeVarargs
@@ -1449,39 +1291,60 @@ public class MoneyUtil {
     	
     	public CompoundTag writeToNBT(CompoundTag compound, String key)
     	{
-    		
-    		ListTag list = new ListTag();
-    		for(CoinValuePair value : coinValues)
+    		if(this.isFree)
     		{
-    			CompoundTag thisCompound = new CompoundTag();
-    			//new ItemStack(null).write(nbt)
-				ResourceLocation resource = value.coin.getRegistryName();
-    			if(resource != null && MoneyUtil.isCoin(value.coin))
-    			{
-    				thisCompound.putString("id", resource.toString());
-    				thisCompound.putInt("amount", value.amount);
-    				list.add(thisCompound);
-    			}
+    			compound.putBoolean(key, true);
     		}
-			compound.put(key, list);
+    		else
+    		{
+    			ListTag list = new ListTag();
+        		for(CoinValuePair value : coinValues)
+        		{
+        			CompoundTag thisCompound = new CompoundTag();
+        			//new ItemStack(null).write(nbt)
+    				ResourceLocation resource = value.coin.getRegistryName();
+        			if(resource != null && MoneyUtil.isCoin(value.coin))
+        			{
+        				thisCompound.putString("id", resource.toString());
+        				thisCompound.putInt("amount", value.amount);
+        				list.add(thisCompound);
+        			}
+        		}
+    			compound.put(key, list);
+    		}
     		
     		return compound;
     	}
     	
     	public void readFromNBT(CompoundTag compound, String key)
     	{
-    		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
-    		if(listNBT != null)
+    		if(compound.contains(key, Tag.TAG_INT))
     		{
-    			this.coinValues.clear();
-    			for(int i = 0; i < listNBT.size(); i++)
-    			{
-    				CompoundTag thisCompound = listNBT.getCompound(i);
-					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
-    				int amount = thisCompound.getInt("amount");
-    				this.coinValues.add(new CoinValuePair(priceCoin,amount));
-    			}
+    			//Read old value
+    			this.readFromOldValue(compound.getInt(key));
     		}
+    		else if(compound.contains(key, Tag.TAG_LIST))
+    		{
+    			//Read full value
+    			ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
+        		if(listNBT != null)
+        		{
+        			this.coinValues.clear();
+        			for(int i = 0; i < listNBT.size(); i++)
+        			{
+        				CompoundTag thisCompound = listNBT.getCompound(i);
+    					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
+        				int amount = thisCompound.getInt("amount");
+        				this.coinValues.add(new CoinValuePair(priceCoin,amount));
+        			}
+        		}
+    		}
+    		else if(compound.contains(key))
+    		{
+    			//Read free state
+    			this.setFree(compound.getBoolean(key));
+    		}
+    		
     	}
     	
     	public void readFromOldValue(long oldPrice)
@@ -1672,7 +1535,21 @@ public class MoneyUtil {
     	
     	public String getString()
     	{
-    		return MoneyUtil.getStringOfValue(this);
+    		if(this.isFree)
+    			return new TranslatableComponent("gui.coinvalue.free").getString();
+    		String string = "";
+        	for(int i = 0; i < this.coinValues.size(); i++)
+        	{
+        		CoinValuePair pricePair = this.coinValues.get(i);
+        		CoinData coinData = getData(pricePair.coin);
+        		if(coinData != null)
+        		{
+        			string += String.valueOf(pricePair.amount);
+        			string += coinData.getInitial().getString();
+        		}
+        	}
+        	
+        	return string;
     	}
     	
     	public long getRawValue()
