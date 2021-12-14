@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
-import io.github.lightman314.lightmanscurrency.client.ClientModEvents;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -16,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSe
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -29,9 +29,9 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -43,6 +43,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
@@ -76,8 +77,8 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEnqueueIMC);
         //Config loading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
-        //Color registration
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterClientModEvents());
+        //Recipe registration
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onDataSetup);
         
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
@@ -185,15 +186,6 @@ public class LightmansCurrency {
         
     }
     
-    private static class RegisterClientModEvents implements DistExecutor.SafeRunnable
-    {
-		private static final long serialVersionUID = -7312388538529889615L;
-		@Override
-		public void run() {
-			FMLJavaModLoadingContext.get().getModEventBus().register(new ClientModEvents());//.addListener(ClientEvents::registerItemColors);
-		}
-    }
-    
     private void onConfigLoad(ModConfig.Loading event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
@@ -201,6 +193,12 @@ public class LightmansCurrency {
     		//Only need to sync the common config
     		Config.syncConfig();
     	}
+    }
+    
+    private void onDataSetup(GatherDataEvent event)
+    {
+    	DataGenerator dataGenerator = event.getGenerator();
+    	dataGenerator.addProvider(new RecipeGen(dataGenerator));
     }
     
     @SubscribeEvent

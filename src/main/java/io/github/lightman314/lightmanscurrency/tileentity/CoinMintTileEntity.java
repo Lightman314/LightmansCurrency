@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.tileentity;
 
-import io.github.lightman314.lightmanscurrency.Config;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.MintRecipe;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
@@ -33,8 +36,12 @@ public class CoinMintTileEntity extends TileEntity{
 	
 	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> new MintItemCapability(this));
 	
-	private static boolean canMint() { return Config.canMint(); }
-	private static boolean canMelt() { return Config.canMelt(); }
+	private final List<CoinMintRecipe> getCoinMintRecipes()
+	{
+		if(this.world != null)
+			return RecipeValidator.getValidRecipes(this.world).getCoinMintRecipes();
+		return Lists.newArrayList();
+	}
 	
 	public CoinMintTileEntity() {
 		super(ModTileEntities.COIN_MINT);
@@ -74,27 +81,15 @@ public class CoinMintTileEntity extends TileEntity{
 	
 	public boolean validMintInput(ItemStack item)
 	{
-		if(canMint())
+		IInventory tempInv = new Inventory(1);
+		tempInv.setInventorySlotContents(0, item);
+		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			for(MintRecipe recipe : MoneyUtil.getMintRecipes())
+			if(recipe.matches(tempInv, this.world))
 			{
-				if(recipe.validInput(item.getItem()))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
-		if(canMelt())
-		{
-			for(MintRecipe recipe : MoneyUtil.getMeltRecipes())
-			{
-				if(recipe.validInput(item.getItem()))
-				{
-					return true;
-				}
-			}
-		}
-		
 		return false;
 	}
 	
@@ -107,7 +102,7 @@ public class CoinMintTileEntity extends TileEntity{
 			return 64;
 		else if(currentOutputSlot.getItem() != mintOutput.getItem())
 			return 0;
-		return 64 - currentOutputSlot.getCount();	
+		return currentOutputSlot.getMaxStackSize() - currentOutputSlot.getCount();
 	}
 	
 	public ItemStack getMintOutput()
@@ -116,24 +111,11 @@ public class CoinMintTileEntity extends TileEntity{
 		if(mintInput.isEmpty())
 			return ItemStack.EMPTY;
 		
-		if(canMint())
+		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
-			for(MintRecipe recipe : MoneyUtil.getMintRecipes())
+			if(recipe.matches(this.storage, this.world))
 			{
-				if(recipe.validInput(mintInput.getItem()))
-				{
-					return recipe.getOutput();
-				}
-			}
-		}
-		if(canMelt())
-		{
-			for(MintRecipe recipe : MoneyUtil.getMeltRecipes())
-			{
-				if(recipe.validInput(mintInput.getItem()))
-				{
-					return recipe.getOutput();
-				}
+				return recipe.getCraftingResult(this.storage);
 			}
 		}
 		

@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -34,15 +35,13 @@ public class CoinValueInput extends Widget{
 	private final ICoinValueInput parent;
 	
 	private CoinValue coinValue;
+	Button toggleFree;
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
-	private ITextComponent title;
 	
 	public CoinValueInput(int y, ITextComponent title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
 		super(0, y, calculateWidth(), HEIGHT, title);
-		
-		this.title = title;
 		
 		if(this.width == parent.getWidth())
 			this.leftOffset = 0;
@@ -58,6 +57,8 @@ public class CoinValueInput extends Widget{
 	
 	protected void init()
 	{
+		
+		this.toggleFree = this.parent.addButton(new PlainButton(this.leftOffset  + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
 		int buttonCount = MoneyUtil.getAllData().size();
@@ -78,6 +79,7 @@ public class CoinValueInput extends Widget{
 		//Match the buttons visibility to our visibility.
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
 		this.decreaseButtons.forEach(button -> button.visible = this.visible);
+		this.toggleFree.visible = this.visible;
 		if(!this.visible) //If not visible, render nothing
 			return;
 		
@@ -114,10 +116,11 @@ public class CoinValueInput extends Widget{
 			
 		}
 		//Render the title
-		this.parent.getFont().drawString(matrixStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
+		this.parent.getFont().drawString(matrixStack, this.getMessage().getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
-		int priceWidth = this.parent.getFont().getStringWidth(this.coinValue.getString());
-		this.parent.getFont().drawString(matrixStack, this.coinValue.getString(), startX + this.width - 5F - priceWidth, startY + 5F, 0x404040);
+		String value = this.coinValue.getString();
+		int priceWidth = this.parent.getFont().getStringWidth(value);
+		this.parent.getFont().drawString(matrixStack, value, startX + this.width - 15f - priceWidth, startY + 5f, 0x404040);
 		
 	}
 	
@@ -134,6 +137,8 @@ public class CoinValueInput extends Widget{
 				decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i)) > 0;
 			}
 		}
+		for(int i = 0; i < this.increaseButtons.size(); i++)
+			this.increaseButtons.get(i).active = !this.coinValue.isFree();
 	}
 	
 	public static int calculateWidth()
@@ -145,42 +150,82 @@ public class CoinValueInput extends Widget{
 		
 	}
 	
-	public void IncreaseButtonHit(Button button)
+	private void IncreaseButtonHit(Button button)
 	{
 		if(!this.increaseButtons.contains(button))
 			return;
 		
 		int coinIndex = this.increaseButtons.indexOf(button);
 		
-		if(coinIndex >= 0 && coinIndex < MoneyUtil.getAllCoins().size())
+		List<Item> coins = MoneyUtil.getAllCoins();
+		if(coinIndex >= 0 && coinIndex < coins.size())
 		{
-			//LightmansCurrency.LOGGER.info("Adding " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
-			this.coinValue.addValue(MoneyUtil.getAllCoins().get(coinIndex), Screen.hasShiftDown() ? 5 : 1);
+			Item coin = coins.get(coinIndex);
+			int addAmount = 1;
+			if(Screen.hasShiftDown())
+				addAmount = getLargeIncreaseAmount(coin);
+			if(Screen.hasControlDown())
+				addAmount *= 10;
+			this.coinValue.addValue(coin, addAmount);
 			this.parent.OnCoinValueChanged(this);
 		}
 		else
-		{
 			LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the increasing button.");
-		}
 	}
 	
-	public void DecreaseButtonHit(Button button)
+	private void DecreaseButtonHit(Button button)
 	{
 		if(!this.decreaseButtons.contains(button))
 			return;
+			
 		int coinIndex = this.decreaseButtons.indexOf(button);
-		if(coinIndex >= 0 && coinIndex < MoneyUtil.getAllCoins().size())
+		
+		List<Item> coins = MoneyUtil.getAllCoins();
+		if(coinIndex >= 0 && coinIndex < coins.size())
 		{
+			Item coin = coins.get(coinIndex);
+			int removeAmount = 1;
+			if(Screen.hasShiftDown())
+				removeAmount = getLargeIncreaseAmount(coin);
+			if(Screen.hasControlDown())
+				removeAmount *= 10;
 			//LightmansCurrency.LOGGER.info("Removing " + (Screen.hasShiftDown() ? 5 : 1) + " coins of type '" + MoneyUtil.getAllCoins().get(coinIndex).getRegistryName().toString() + "' from the input value.");
-			this.coinValue.removeValue(MoneyUtil.getAllCoins().get(coinIndex), Screen.hasShiftDown() ? 5 : 1);
+			this.coinValue.removeValue(coin, removeAmount);
 			this.parent.OnCoinValueChanged(this);
 		}
 		else
-		{
 			LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the decreasing button.");
+	}
+	
+	private final int getLargeIncreaseAmount(Item coinItem)
+	{
+		Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
+		if(upwardConversion != null)
+			return getLargeAmount(upwardConversion);
+		else
+		{
+			Pair<Item,Integer> downwardConversion = MoneyUtil.getDownwardConversion(coinItem);
+			if(downwardConversion != null)
+				return getLargeAmount(downwardConversion);
+			//No conversion found for this coin. Assume 10;
+			return 10;
 		}
-			
-		
+	}
+	
+	private final int getLargeAmount(Pair<Item,Integer> conversion)
+	{
+		if(conversion.getSecond() >= 64)
+			return 16;
+		if(conversion.getSecond() > 10)
+			return 10;
+		if(conversion.getSecond() > 5)
+			return 5;
+		return 2;
+	}
+	
+	private void ToggleFree(Button button)
+	{
+		this.coinValue.setFree(!this.coinValue.isFree());
 	}
 	
 	public CoinValue getCoinValue()

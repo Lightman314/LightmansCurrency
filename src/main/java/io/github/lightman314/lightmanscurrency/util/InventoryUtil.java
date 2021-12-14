@@ -20,9 +20,9 @@ import net.minecraft.world.World;
 public class InventoryUtil {
 
 	
-	public static IInventory buildInventory(List<ItemStack> list)
+	public static Inventory buildInventory(List<ItemStack> list)
 	{
-		IInventory inventory = new Inventory(list.size());
+		Inventory inventory = new Inventory(list.size());
 		for(int i = 0; i < list.size(); i++)
 		{
 			inventory.setInventorySlotContents(i, list.get(i).copy());

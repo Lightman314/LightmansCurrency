@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.items.crafting;
+package io.github.lightman314.lightmanscurrency.crafting.deprecated;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class WalletUpgradeRecipe extends SpecialRecipe{
+public class OldWalletUpgradeRecipe extends SpecialRecipe{
 	
 	private static final List<UpgradeData> UPGRADE_DATA = Lists.newArrayList(
 			new UpgradeData(ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.COIN_IRON),
@@ -27,7 +27,7 @@ public class WalletUpgradeRecipe extends SpecialRecipe{
 			new UpgradeData(ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND, ModItems.COIN_DIAMOND),
 			new UpgradeData(ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE, ModItems.COIN_NETHERITE));
 	
-	public WalletUpgradeRecipe(ResourceLocation idIn) {
+	public OldWalletUpgradeRecipe(ResourceLocation idIn) {
 		super(idIn);
 	}
 	

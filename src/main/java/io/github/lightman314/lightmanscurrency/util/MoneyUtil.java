@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -22,8 +23,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -39,11 +38,6 @@ public class MoneyUtil {
 	private static List<CoinData> coinList = new ArrayList<>();
 	private static boolean coinListDirty = false;
 	private static List<CoinData> publicCoinList = new ArrayList<>();
-	//Minting & Melting recipes
-	private static boolean mintRecipesDirty = false;
-	private static List<MintRecipe> mintRecipes = null;
-	private static boolean meltRecipesDirty = false;
-	private static List<MintRecipe> meltRecipes = null;
 	//Whether the mod has been initialized
 	private static boolean init = false;
 	public static boolean initialized() { return init; }
@@ -61,32 +55,32 @@ public class MoneyUtil {
     	
     	//Copper Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_COPPER)
-    			.defineInitial("item.lightmanscurrency.coin_copper.initial")
-    			.defineMintingMaterialTag(new ResourceLocation("forge","ingots/copper")));
+    			.defineInitial("item.lightmanscurrency.coin_copper.initial"));
+    			//.defineMintingMaterialTag(new ResourceLocation("forge","ingots/copper")));
     	//Iron Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_IRON)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")
-    			.defineMintingMaterial(Items.IRON_INGOT)
+    			//.defineMintingMaterial(Items.IRON_INGOT)
     			.defineConversion(ModItems.COIN_COPPER, Config.COMMON.ironCoinWorth.get()));
     	//Gold Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_GOLD)
     			.defineInitial("item.lightmanscurrency.coin_gold.initial")
-    			.defineMintingMaterial(Items.GOLD_INGOT)
+    			//.defineMintingMaterial(Items.GOLD_INGOT)
     			.defineConversion(ModItems.COIN_IRON, Config.COMMON.goldCoinWorth.get()));
     	//Emerald Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_EMERALD)
     			.defineInitial("item.lightmanscurrency.coin_emerald.initial")
-    			.defineMintingMaterial(Items.EMERALD)
+    			//.defineMintingMaterial(Items.EMERALD)
     			.defineConversion(ModItems.COIN_GOLD, Config.COMMON.emeraldCoinWorth.get()));
     	//Diamond Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_DIAMOND)
     			.defineInitial("item.lightmanscurrency.coin_diamond.initial")
-    			.defineMintingMaterial(Items.DIAMOND)
+    			//.defineMintingMaterial(Items.DIAMOND)
     			.defineConversion(ModItems.COIN_EMERALD, Config.COMMON.diamondCoinWorth.get()));
     	//Netherite Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_NETHERITE)
     			.defineInitial("item.lightmanscurrency.coin_netherite.initial")
-    			.defineMintingMaterial(Items.NETHERITE_INGOT)
+    			//.defineMintingMaterial(Items.NETHERITE_INGOT)
     			.defineConversion(ModItems.COIN_DIAMOND, Config.COMMON.netheriteCoinWorth.get()));
     	
     	//Hidden coins
@@ -227,8 +221,6 @@ public class MoneyUtil {
     	LightmansCurrency.LogDebug("Adding " + newCoinData.getCoinItem().getRegistryName());
     	coinList.add(newCoinData);
     	coinListDirty = coinListDirty || !newCoinData.isHidden;
-    	mintRecipesDirty = true;
-    	meltRecipesDirty = true;
     	
     }
     
@@ -941,25 +933,13 @@ public class MoneyUtil {
      */
     public static String getStringOfValue(CoinValue value)
     {
-    	String string = "";
-    	for(int i = 0; i < value.coinValues.size(); i++)
-    	{
-    		CoinValuePair pricePair = value.coinValues.get(i);
-    		CoinData coinData = getData(pricePair.coin);
-    		if(coinData != null)
-    		{
-    			string += String.valueOf(pricePair.amount);
-    			string += coinData.getInitial().getString();
-    		}
-    	}
-    	
-    	return string;
+    	return value.getString();
     }
 
     /**
      * Gets a list of all of the coin-minting recipes generated from the registered coins.
      */
-    public static List<MintRecipe> getMintRecipes()
+    /*public static List<MintRecipe> getMintRecipes()
     {
     	if(mintRecipes == null || mintRecipesDirty)
     	{
@@ -973,12 +953,12 @@ public class MoneyUtil {
         	}
     	}
     	return mintRecipes;
-    }
+    }*/
     
     /**
      * Gets a list of all of the coin-melting recipes generated from the registered coins.
      */
-    public static List<MintRecipe> getMeltRecipes()
+    /*public static List<MintRecipe> getMeltRecipes()
     {
     	if(meltRecipes == null || meltRecipesDirty)
     	{
@@ -992,7 +972,7 @@ public class MoneyUtil {
         	}
     	}
     	return meltRecipes;
-    }
+    }*/
     
     /**
      * Gets the coin data for the given coin item
@@ -1120,12 +1100,9 @@ public class MoneyUtil {
     	private int worthOtherCoinCount = 0;
     	//Coin's display initial 'c','d', etc.
     	private ITextComponent initial;
-    	//The minting material item
-    	private Item mintingMaterialItem = null;
-    	private ResourceLocation mintingMaterialTag = null;
 		//Is this hidden or not
 		private boolean isHidden = false;
-    	
+		
     	
     	private CoinData(Builder builder)
     	{
@@ -1133,10 +1110,10 @@ public class MoneyUtil {
     		this.worthOtherCoin = builder.worthOtherCoin;
     		this.worthOtherCoinCount = builder.worthOtherCoinCount;
     		this.initial = builder.initialText;
-    		this.mintingMaterialItem = builder.mintingMaterialItem;
-    		this.mintingMaterialTag = builder.mintingMaterialTag;
     		this.isHidden = builder.isHidden;
     	}
+    	
+    	
     	
     	public long getValue()
     	{
@@ -1194,7 +1171,7 @@ public class MoneyUtil {
     		return new StringTextComponent(this.coinItem.getDisplayName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
     	}
     	
-    	public MintRecipe getMintRecipe()
+    	/*public MintRecipe getMintRecipe()
     	{
     		if(!Config.canMint(this.coinItem)) //Block getting the mint recipe if minting is blocked for this coin
     			return null;
@@ -1227,7 +1204,7 @@ public class MoneyUtil {
     			}
     		}
     		return null;
-    	}
+    	}*/
     	
     	public boolean isHidden()
     	{
@@ -1249,12 +1226,8 @@ public class MoneyUtil {
     		int worthOtherCoinCount = 0;
     		//The shortened name of the coin
     		ITextComponent initialText = null;
-    		//The minting material item
-    		Item mintingMaterialItem = null;
-    		ResourceLocation mintingMaterialTag = null;
     		//Whether it's publicly visible
     		boolean isHidden = false;
-    		
     		
     		public Builder(@Nonnull Item coinItem)
     		{
@@ -1289,24 +1262,6 @@ public class MoneyUtil {
     			return this;
     		}
     		
-    		/**
-    		 * Defines the item that can be used to craft this coin in the coin mint.
-    		 */
-    		public Builder defineMintingMaterial(Item mintingMaterial)
-    		{
-    			this.mintingMaterialItem = mintingMaterial;
-    			return this;
-    		}
-    		
-    		/**
-    		 * Defines the item tag of all items that can be used to craft this coin in the coin mint.
-    		 */
-    		public Builder defineMintingMaterialTag(ResourceLocation mintingMaterial)
-    		{
-    			this.mintingMaterialTag = mintingMaterial;
-    			return this;
-    		}
-    		
     		public Builder setHidden()
     		{
     			this.isHidden = true;
@@ -1321,7 +1276,7 @@ public class MoneyUtil {
     	
     }
     
-    public static class MintRecipe
+    /*public static class MintRecipe
 	{
 		ResourceLocation itemInTag = null;
 		Item itemIn = null;
@@ -1360,18 +1315,21 @@ public class MoneyUtil {
 			return new ItemStack(itemOut, 1);
 		}
 		
-	}
+	}*/
 	
     public static class CoinValue
     {
     	
     	public static final String DEFAULT_KEY = "CoinValue";
     	
+    	private boolean isFree = false;
+    	public boolean isFree() { return this.isFree; }
+    	public void setFree(boolean free) { this.isFree = free; if(this.isFree) this.coinValues.clear(); }
     	public final List<CoinValuePair> coinValues;
     	
     	public CoinValue(CompoundNBT compound)
     	{
-    		this.coinValues = new ArrayList<>();
+    		this.coinValues = Lists.newArrayList();
     		this.readFromNBT(compound, DEFAULT_KEY);
     		roundValue();
     	}
@@ -1422,14 +1380,18 @@ public class MoneyUtil {
     		roundValue();
     	}
     	
-    	public CoinValue(CoinValue otherValue)
+    	private CoinValue(CoinValue otherValue)
     	{
+    		this.isFree = otherValue.isFree;
     		this.coinValues = new ArrayList<>();
-    		for(CoinValuePair pricePair : otherValue.coinValues)
+    		if(!this.isFree)
     		{
-    			this.coinValues.add(pricePair.copy());
+    			for(CoinValuePair pricePair : otherValue.coinValues)
+        		{
+        			this.coinValues.add(pricePair.copy());
+        		}
+        		roundValue();
     		}
-    		roundValue();
     	}
     	
     	@SafeVarargs
@@ -1464,39 +1426,53 @@ public class MoneyUtil {
     	public CompoundNBT writeToNBT(CompoundNBT compound, String key)
     	{
     		
-    		ListNBT list = new ListNBT();
-    		for(CoinValuePair value : coinValues)
+    		if(this.isFree)
     		{
-    			CompoundNBT thisCompound = new CompoundNBT();
-    			//new ItemStack(null).write(nbt)
-				ResourceLocation resource = value.coin.getRegistryName();
-    			if(resource != null && MoneyUtil.isCoin(value.coin))
-    			{
-    				thisCompound.putString("id", resource.toString());
-    				thisCompound.putInt("amount", value.amount);
-    				list.add(thisCompound);
-    			}
+    			compound.putBoolean(key, true);
     		}
-			compound.put(key, list);
-    		
+    		else
+    		{
+    			ListNBT list = new ListNBT();
+        		for(CoinValuePair value : coinValues)
+        		{
+        			CompoundNBT thisCompound = new CompoundNBT();
+        			//new ItemStack(null).write(nbt)
+    				ResourceLocation resource = value.coin.getRegistryName();
+        			if(resource != null && MoneyUtil.isCoin(value.coin))
+        			{
+        				thisCompound.putString("id", resource.toString());
+        				thisCompound.putInt("amount", value.amount);
+        				list.add(thisCompound);
+        			}
+        		}
+        		compound.put(key, list);
+    		}
     		return compound;
     	}
     	
     	public void readFromNBT(CompoundNBT compound, String key)
     	{
-    		ListNBT listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
-    		if(listNBT != null)
+    		if(compound.contains(key, Constants.NBT.TAG_LIST))
     		{
-    			this.coinValues.clear();
-    			for(int i = 0; i < listNBT.size(); i++)
-    			{
-    				CompoundNBT thisCompound = listNBT.getCompound(i);
-					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
-    				int amount = thisCompound.getInt("amount");
-    				this.coinValues.add(new CoinValuePair(priceCoin,amount));
-    				
-    			}
+    			ListNBT listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
+        		if(listNBT != null)
+        		{
+        			this.coinValues.clear();
+        			for(int i = 0; i < listNBT.size(); i++)
+        			{
+        				CompoundNBT thisCompound = listNBT.getCompound(i);
+    					Item priceCoin = MoneyUtil.getItemFromID(thisCompound.getString("id"));
+        				int amount = thisCompound.getInt("amount");
+        				this.coinValues.add(new CoinValuePair(priceCoin,amount));
+        				
+        			}
+        		}
     		}
+    		else if(compound.contains(key))
+    		{
+    			this.setFree(compound.getBoolean(key));
+    		}
+    		
     	}
     	
     	public void readFromOldValue(long oldPrice)
@@ -1687,11 +1663,26 @@ public class MoneyUtil {
     	
     	public String getString()
     	{
-    		return MoneyUtil.getStringOfValue(this);
+    		if(this.isFree)
+    			return new TranslationTextComponent("gui.coinvalue.free").getString();
+    		String string = "";
+        	for(int i = 0; i < this.coinValues.size(); i++)
+        	{
+        		CoinValuePair pricePair = this.coinValues.get(i);
+        		CoinData coinData = getData(pricePair.coin);
+        		if(coinData != null)
+        		{
+        			string += String.valueOf(pricePair.amount);
+        			string += coinData.getInitial().getString();
+        		}
+        	}
+        	return string;
     	}
     	
     	public long getRawValue()
     	{
+    		if(this.isFree)
+    			return 0;
     		long value = 0;
     		for(CoinValuePair pricePair : this.coinValues)
     		{

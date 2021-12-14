@@ -21,7 +21,7 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 	private BlockPos pos;
 	private int tradeIndex;
 	private CoinValue newPrice;
-	private boolean isFree;
+	//private boolean isFree;
 	private String customName;
 	String newDirection;
 	
@@ -30,12 +30,12 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 		
 	}
 	
-	public MessageSetItemPrice(BlockPos pos, int tradeIndex, CoinValue newPrice, boolean isFree, String customName, String newDirection)
+	public MessageSetItemPrice(BlockPos pos, int tradeIndex, CoinValue newPrice, String customName, String newDirection)
 	{
 		this.pos = pos;
 		this.tradeIndex = tradeIndex;
 		this.newPrice = newPrice;
-		this.isFree = isFree;
+		//this.isFree = isFree;
 		this.customName = customName;
 		this.newDirection = newDirection;
 	}
@@ -46,14 +46,14 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 		buffer.writeBlockPos(message.pos);
 		buffer.writeInt(message.tradeIndex);
 		buffer.writeCompoundTag(message.newPrice.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
-		buffer.writeBoolean(message.isFree);
+		//buffer.writeBoolean(message.isFree);
 		buffer.writeString(message.customName);
 		buffer.writeString(message.newDirection);
 	}
 
 	@Override
 	public MessageSetItemPrice decode(PacketBuffer buffer) {
-		return new MessageSetItemPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeTypeStringLength()));
+		return new MessageSetItemPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readString(ItemTradeData.MAX_CUSTOMNAME_LENGTH), buffer.readString(ItemTradeData.MaxTradeTypeStringLength()));
 	}
 
 	@Override
@@ -71,13 +71,12 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 					{
 						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)tileEntity;
 						CoinValue oldPrice = traderEntity.getTrade(message.tradeIndex).getCost();
-						boolean wasFree = traderEntity.getTrade(message.tradeIndex).isFree();
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
-						traderEntity.getTrade(message.tradeIndex).setFree(message.isFree);
+						//traderEntity.getTrade(message.tradeIndex).setFree(message.isFree);
 						traderEntity.getTrade(message.tradeIndex).setCustomName(message.customName);
 						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
 						
-						if(oldPrice.getRawValue() != message.newPrice.getRawValue() || wasFree != message.isFree)
+						if(oldPrice.getRawValue() != message.newPrice.getRawValue() || oldPrice.isFree() !=message.newPrice.isFree())
 						{
 							//Throw price change event
 							TradePriceEditEvent e = new TradePriceEditEvent(() -> {
@@ -86,7 +85,7 @@ public class MessageSetItemPrice implements IMessage<MessageSetItemPrice> {
 								if(te instanceof ItemTraderTileEntity)
 									return (ItemTraderTileEntity)te;
 								return null;
-							}, message.tradeIndex, oldPrice, wasFree);
+							}, message.tradeIndex, oldPrice);
 							MinecraftForge.EVENT_BUS.post(e);
 						}
 						

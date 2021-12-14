@@ -56,6 +56,9 @@ public class CoinMintBlock extends RotatableBlock{
 			}
 		}
 		
+		if(Config.canMint() || Config.canMelt())
+			return ActionResultType.SUCCESS;
+		
 		return ActionResultType.PASS;
 			
 	}

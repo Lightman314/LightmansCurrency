@@ -2,6 +2,7 @@
     "itemGroup.lightmanscurrency.coins" : "Coins & Items",
     "itemGroup.lightmanscurrency.machines" : "Misc Machines",
     "itemGroup.lightmanscurrency.trading" : "Trading Machines",
+    
     "item.lightmanscurrency.coin_copper" : "Copper Coin",
     "item.lightmanscurrency.coin_copper.initial": "c",
     "item.lightmanscurrency.coin_iron" : "Iron Coin",
@@ -26,6 +27,7 @@
     "item.lightmanscurrency.ticket_stub": "Ticket Stub",
     "item.lightmanscurrency.portable_terminal": "Trading Terminal",
     "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
+    
     "block.lightmanscurrency.coinpile_copper" : "Copper Coinpile",
     "block.lightmanscurrency.coinpile_iron" : "Iron Coinpile",
     "block.lightmanscurrency.coinpile_gold" : "Gold Coinpile",
@@ -102,8 +104,13 @@
     "block.lightmanscurrency.piggy_bank": "Piggy Bank",
     "block.lightmanscurrency.coinjar_blue": "Coin Jar",
     "block.lightmanscurrency.ticket_kiosk": "Ticket Kiosk",
+    
+    "gamerule.keepWallet" : "Keep wallet on death",
+    "gamerule.coinDropPercent" : "Coin percentage dropped after death",
+    
     "entity.minecraft.villager.lightmanscurrency.banker": "Banker",
     "entity.minecraft.villager.lightmanscurrency.cashier": "Cashier",
+    
     "gui.lightmanscurrency.atm.title": "ATM",
     "gui.lightmanscurrency.universaltrader.default": "Trader",
     "gui.lightmanscurrency.universaltrader.item": "Item Trader",
@@ -219,6 +226,7 @@
     
     "gui.lightmanscurrency.terminal.search": "Search Traders",
     "gui.lightmanscurrency.terminal.page": "Page %1$s of %2$s",
+    "gui.coinvalue.free": "Free",
     
     "key.wallet": "Open Wallet",
     
@@ -262,6 +270,13 @@
     "command.lightmanscurrency.lcadmin.universaldata.delete.noid": "Please input a valid trader id.",
     "command.lightmanscurrency.lcadmin.universaldata.delete.notfound": "No trader found with id %s",
     "command.lightmanscurrency.lcadmin.universaldata.delete.success": "Successfully deleted the universal trader of id %s",
-    "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration."
+    "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration.",
+    
+    "tooltip.lightmanscurrency.wthit.item_trade.selling" : "Selling ",
+    "tooltip.lightmanscurrency.wthit.item_trade.purchasing" : "Purchasing",
+    "tooltip.lightmanscurrency.wthit.item_trade.bartering" : "Bartering",
+    "tooltip.lightmanscurrency.wthit.item_trade.item_format" : "%1$sx %2$s",
+    "tooltip.lightmanscurrency.wthit.item_trade" : "%1$s %2$s for %3$s. %4$s trades in stock."
+    
 }
     

@@ -143,7 +143,7 @@ public class ItemTradeData extends TradeData {
 		
 		if(this.tradeType == ItemTradeType.PURCHASE)
 		{
-			if(this.isFree)
+			if(this.cost.isFree())
 				return 1;
 			if(this.cost.getRawValue() == 0)
 				return 0;
