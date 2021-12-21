@@ -43,6 +43,18 @@ public abstract class TradeData implements ITradeRuleHandler {
 		this.cost = value;
 	}
 	
+	@Deprecated
+	public boolean isFree()
+	{
+		return this.cost.isFree();
+	}
+	
+	@Deprecated
+	public void setFree(boolean free)
+	{
+		this.cost.setFree(free);
+	}
+	
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag tradeNBT = new CompoundTag();
