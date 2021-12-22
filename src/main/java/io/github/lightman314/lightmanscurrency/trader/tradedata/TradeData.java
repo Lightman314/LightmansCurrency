@@ -35,6 +35,18 @@ public abstract class TradeData implements ITradeRuleHandler {
 		return validCost();
 	}
 	
+	@Deprecated
+	public boolean isFree()
+	{
+		return this.cost.isFree();
+	}
+	
+	@Deprecated
+	public void setFree(boolean free)
+	{
+		this.cost.setFree(free);
+	}
+	
 	public CoinValue getCost()
 	{
 		return this.cost;
