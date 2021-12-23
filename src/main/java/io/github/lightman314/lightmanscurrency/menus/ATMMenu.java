@@ -9,24 +9,16 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class ATMMenu extends AbstractContainerMenu{
 	
 	private final Container coinInput = new SimpleContainer(9);
-	private final ContainerLevelAccess callable;
 	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
-		this(windowId, inventory, ContainerLevelAccess.NULL);
-	}
-	
-	public ATMMenu(int windowId, Inventory inventory, final ContainerLevelAccess callable)
-	{
 		super(ModContainers.ATM, windowId);
-		this.callable = callable;
 		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
@@ -52,17 +44,14 @@ public class ATMMenu extends AbstractContainerMenu{
 	@Override
 	public boolean stillValid(Player playerIn)
 	{
-		return this.callable.evaluate((world,pos) -> playerIn.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
+		return true;
 	}
 	
 	@Override
 	public void removed(Player playerIn)
 	{
 		super.removed(playerIn);
-		this.callable.execute((world,pos) ->
-		{
-			this.clearContainer(playerIn,  this.coinInput);
-		});
+		this.clearContainer(playerIn,  this.coinInput);
 	}
 
 	
