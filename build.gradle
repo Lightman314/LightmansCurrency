@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18-1.0.1.3a'
+version = '1.18-1.0.1.4'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -68,6 +68,7 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.18.1-39.0.0'
     compileOnly fg.deobf('curse.maven:curios-309927:3546313')
+    runtimeOnly fg.deobf('curse.maven:curios-309927:3546313')
     compileOnly fg.deobf('curse.maven:jei-238222:3566128')
     runtimeOnly fg.deobf('curse.maven:jei-238222:3566128')
 }

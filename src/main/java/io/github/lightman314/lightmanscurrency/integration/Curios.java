@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.integration;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
@@ -25,12 +24,10 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
-import top.theillusivec4.curios.api.SlotTypePreset;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
-import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 import top.theillusivec4.curios.common.capability.CurioItemCapability;
 
 public class Curios {
@@ -41,9 +38,8 @@ public class Curios {
 		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(player);
 		optional.ifPresent(itemHandler ->
 		{
-			Optional<ICurioStacksHandler> stacksOptional = itemHandler.getStacksHandler(SlotTypePreset.BELT.getIdentifier());
-			stacksOptional.ifPresent(stacksHandler ->{
-				//Go through every belt slot just in case there's more than 1 belt slot.
+			itemHandler.getCurios().forEach((slot, stacksHandler) ->{
+				//Go through every slot.
 				for(int i = 0; i < stacksHandler.getStacks().getSlots(); i++)
 				{
 					ItemStack stack = stacksHandler.getStacks().getStackInSlot(i);
@@ -52,8 +48,13 @@ public class Curios {
 						wallet.set(stack);
 					}
 				}
-				
 			});
+			//Old belt-only functionality
+			/*Optional<ICurioStacksHandler> stacksOptional = itemHandler.getStacksHandler(SlotTypePreset.BELT.getIdentifier());
+			stacksOptional.ifPresent(stacksHandler ->{
+				
+				
+			});*/
 		});
 		
 		return wallet.get();
