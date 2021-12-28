@@ -56,7 +56,6 @@ public class ClientProxy extends CommonProxy{
     	RenderTypeLookup.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.getCutout());
     	
     	//Register Screens
-    	ScreenManager.registerFactory(ModContainers.INVENTORY_WALLET, PlayerInventoryWalletScreen::new);
     	ScreenManager.registerFactory(ModContainers.ATM, ATMScreen::new);
     	ScreenManager.registerFactory(ModContainers.MINT, MintScreen::new);
     	ScreenManager.registerFactory(ModContainers.ITEMTRADER, ItemTraderScreen::new);
@@ -87,13 +86,10 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
     	
-    	//Add wallet layer unless curios is loaded.
-    	if(!LightmansCurrency.isCuriosLoaded())
-    	{
-	    	Map<String, PlayerRenderer> skinMap = Minecraft.getInstance().getRenderManager().getSkinMap();
-	    	this.addWalletLayer(skinMap.get("default"));
-	    	this.addWalletLayer(skinMap.get("slim"));
-    	}
+    	//Add wallet layer
+    	Map<String, PlayerRenderer> skinMap = Minecraft.getInstance().getRenderManager().getSkinMap();
+    	this.addWalletLayer(skinMap.get("default"));
+    	this.addWalletLayer(skinMap.get("slim"));
     	
     	
 	}

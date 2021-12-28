@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.4-1.0.1.3'
+version = '1.16.4-1.0.1.4'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
@@ -71,7 +71,7 @@ repositories {
 dependencies {
 
     minecraft 'net.minecraftforge:forge:1.16.4-35.1.37'
-    compileOnly fg.deobf('curse.maven:curios-309927:3343065')
+    //compileOnly fg.deobf('curse.maven:curios-309927:3343065')
     compile fg.deobf('curse.maven:jei-238222:3564654')
     //compileOnly fg.deobf('curse.maven:wthit-forge-455982:3531244')
 }

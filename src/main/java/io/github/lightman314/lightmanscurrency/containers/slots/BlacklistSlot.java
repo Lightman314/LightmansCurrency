@@ -21,16 +21,16 @@ public class BlacklistSlot extends Slot {
 		this.blacklistIndex = blacklistIndex;
 	}
 	
-	ItemStack getItem()
+	ItemStack getBlacklistedItem()
 	{
-		return this.inventory.getStackInSlot(this.blacklistIndex);
+		return this.blacklistInventory.getStackInSlot(this.blacklistIndex);
 	}
 	
 	@Override
 	public boolean isItemValid(ItemStack item)
 	{
 		if(this.blacklistIndex >= 0)
-			return item != this.getItem();
+			return item != this.getBlacklistedItem();
 		return true;
 	}
 	

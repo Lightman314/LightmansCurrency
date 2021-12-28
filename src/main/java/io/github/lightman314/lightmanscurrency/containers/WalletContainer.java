@@ -3,20 +3,30 @@ package io.github.lightman314.lightmanscurrency.containers;
 import io.github.lightman314.lightmanscurrency.containers.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
@@ -32,6 +42,7 @@ public class WalletContainer extends Container{
 	
 	private final PlayerInventory inventory;
 	
+	public boolean hasWallet() { ItemStack wallet = this.getWallet(); return !wallet.isEmpty() && wallet.getItem() instanceof WalletItem; }
 	private ItemStack getWallet()
 	{
 		if(this.walletStackIndex < 0)
@@ -39,12 +50,19 @@ public class WalletContainer extends Container{
 		return this.inventory.getStackInSlot(this.walletStackIndex);
 	}
 	
-	private final IInventory coinInput;
+	private final List<IWalletContainerListener> listeners = Lists.newArrayList();
 	
+	private final IInventory walletInventory;
+	private IInventory coinInput;
 	private WalletItem walletItem;
-	public final ITextComponent title;
+	public ITextComponent getTitle() { ItemStack wallet = this.getWallet(); if(wallet.isEmpty()) return new StringTextComponent(""); return wallet.getDisplayName(); }
 	
 	boolean autoConvert = false;
+	
+	int width = 0;
+	public int getWidth() { return this.width; }
+	int height = 0;
+	public int getHeight() { return this.height; }
 	
 	public WalletContainer(int windowId, PlayerInventory inventory, int walletStackIndex)
 	{
@@ -54,8 +72,35 @@ public class WalletContainer extends Container{
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
 		
-		this.walletItem = (WalletItem)getWallet().getItem();
-		this.title = this.getWallet().getDisplayName();
+		AtomicReference<IInventory> walletInvReference = new AtomicReference<IInventory>();
+		WalletCapability.getWalletHandler(inventory.player).ifPresent(walletHandler ->{
+			walletInvReference.set(walletHandler.getInventory());
+		});
+		this.walletInventory = walletInvReference.get();
+		if(this.walletInventory == null)
+		{
+			LightmansCurrency.LogError("Cannot open a Wallet Container for a player that doesn't have a valid WalletHandler capability present.");
+			inventory.player.closeScreen();
+		}
+		
+		this.init();
+		
+		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
+		MinecraftForge.EVENT_BUS.register(this);
+		
+	}
+	
+	private void init()
+	{
+		
+		//Reset the inventory slots
+		this.inventorySlots.clear();
+		
+		Item wi = this.getWallet().getItem();
+		if(wi instanceof WalletItem)
+			this.walletItem = (WalletItem)wi;
+		else
+			this.walletItem = null;
 		
 		this.coinInput = new Inventory(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
@@ -63,6 +108,12 @@ public class WalletContainer extends Container{
 		{
 			this.coinInput.setInventorySlotContents(i, walletInventory.get(i));
 		}
+		
+		//Wallet Slot
+		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6).addListener(this::init);
+		if(this.walletStackIndex >= 0)
+			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
+		this.addSlot(walletSlot);
 		
 		//Coinslots
 		for(int y = 0; (y * 9) < this.coinInput.getSizeInventory(); y++)
@@ -94,11 +145,16 @@ public class WalletContainer extends Container{
 				this.addSlot(new BlacklistSlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
 		}
 		
-		this.autoConvert = WalletItem.getAutoConvert(getWallet());
+		this.autoConvert = WalletItem.getAutoConvert(this.getWallet());
 		
-		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
-		MinecraftForge.EVENT_BUS.register(this);
+		this.listeners.forEach(listener -> listener.onReload());
 		
+	}
+	
+	public void addListener(IWalletContainerListener listener)
+	{
+		if(!listeners.contains(listener))
+			listeners.add(listener);
 	}
 	
 	public int getRowCount()
@@ -137,17 +193,16 @@ public class WalletContainer extends Container{
 		if(this.inventory == null)
 			return;
 		if(this.getWallet().isEmpty())
-		{
-			this.inventory.player.closeScreen();
 			return;
-		}
 		this.saveWalletContents();
 	}
 	
 	public void saveWalletContents()
 	{
+		if(this.getWallet().isEmpty())
+			return;
 		//Write the bag contents back into the item stack
-		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
+		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.getWallet()), ItemStack.EMPTY);
 		for(int i = 0; i < walletInventory.size() && i < this.coinInput.getSizeInventory(); i++)
 		{
 			walletInventory.set(i, this.coinInput.getStackInSlot(i));
@@ -159,7 +214,9 @@ public class WalletContainer extends Container{
 
 	public boolean canConvert()
 	{
-		return WalletItem.CanConvert(walletItem);
+		if(this.getWallet().isEmpty())
+			return false;
+		return WalletItem.CanConvert(this.walletItem);
 	}
 	
 	public boolean canPickup()
@@ -193,17 +250,14 @@ public class WalletContainer extends Container{
 		{
 			ItemStack slotStack = slot.getStack();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getSizeInventory())
+			if(index < this.coinInput.getSizeInventory() + 1)
 			{
-				if(MoneyUtil.isCoin(slotStack.getItem()))
+				if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory() + 1, this.inventorySlots.size(), true))
 				{
-					if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory(), this.inventorySlots.size(), true))
-					{
-						return ItemStack.EMPTY;
-					}
+					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory(), false))
+			else if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory() + 1, false))
 			{
 				return ItemStack.EMPTY;
 			}
@@ -254,5 +308,7 @@ public class WalletContainer extends Container{
 		
 		return returnValue;
 	}
+	
+	public interface IWalletContainerListener { public void onReload(); }
 	
 }

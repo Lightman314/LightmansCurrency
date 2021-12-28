@@ -31,8 +31,7 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	public WalletScreen(WalletContainer container, PlayerInventory inventory, ITextComponent title)
 	{
 		super(container, inventory, title);
-		this.ySize = BASEHEIGHT + this.container.getRowCount() * 18;
-		this.xSize = 176;
+		container.addListener(this::init);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -43,6 +42,9 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 		this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
+		
+		//Draw the Wallet Slot
+		this.blit(matrix, startX - 28, startY, 18, 132, 28, 28);
 		
 		//Draw the top
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, 17);
@@ -57,7 +59,7 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 		//Draw the slots
 		for(int y = 0; y * 9 < this.container.getSlotCount(); y++)
 		{
-			for(int x = 1; x < 9 && x + y * 9 < this.container.getSlotCount(); x++)
+			for(int x = 0; x < 9 && x + y * 9 < this.container.getSlotCount(); x++)
 			{
 				this.blit(matrix, startX + 7 + x * 18, startY + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
@@ -68,29 +70,37 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	@Override
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, this.container.title.getString(), 8.0f, 6.0f, 0x404040);
+		this.font.drawString(matrix, this.container.getTitle().getString(), 8.0f, 6.0f, 0x404040);
 		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
 	}
 	
 	@Override
 	protected void init()
 	{
+		
+		this.buttons.clear();
+		
+		this.ySize = BASEHEIGHT + this.container.getRowCount() * 18;
+		this.xSize = 176;
+		
 		super.init();
 		
 		if(this.container.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressConvertButton, GUI_TEXTURE, this.xSize, 0));
+			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 28, this::PressConvertButton, GUI_TEXTURE, this.xSize, 0));
 			
 			if(this.container.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 20, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.xSize, 16));
+				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 48, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.xSize, 16));
 				this.updateToggleButton();
 			}
 			
 		}
 		
 	}
+	
+	
 	
 	@Override
 	public void tick()

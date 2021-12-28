@@ -29,9 +29,6 @@ public class WalletLayer<T extends PlayerEntity, M extends BipedModel<T>> extend
 	public void render(MatrixStack stack, IRenderTypeBuffer renderTypeBuffer, int arg2, T player, float arg4, float arg5, float arg6,
 			float arg7, float arg8, float arg9) {
 		
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
-		
 		ItemStack wallet = LightmansCurrency.getWalletStack(player);
 		if(wallet.getItem() instanceof WalletItem)
 		{

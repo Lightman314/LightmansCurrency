@@ -118,6 +118,13 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> renderBlocksAsItems;
 		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
+		//Wallet Button options
+		public final ForgeConfigSpec.BooleanValue renderWalletButton;
+		public final ForgeConfigSpec.IntValue walletButtonX;
+		public final ForgeConfigSpec.IntValue walletButtonY;
+		public final ForgeConfigSpec.IntValue walletButtonCreativeX;
+		public final ForgeConfigSpec.IntValue walletButtonCreativeY;
+		
 		Client(ForgeConfigSpec.Builder builder)
 		{
 			builder.comment("Client configuration settings").push("client");
@@ -134,6 +141,23 @@ public class Config {
 							"NONE: Traders do not render items.")
 					.defineEnum("traderRenderType", TraderRenderType.FULL);
 			builder.pop();
+			
+			builder.comment("Wallet Button Settings").push("wallet_button");
+			this.renderWalletButton = builder
+					.comment("Whether a wallet button should appear on the inventory screen, allowing you to open the wallet screen without use of the keybind.")
+					.define("renderButton", true);
+			this.walletButtonX = builder
+					.comment("The x position that the button should be placed at.")
+					.defineInRange("buttonX", 176, -50, 255);
+			this.walletButtonY = builder
+					.comment("The y position that the button should be placed at.")
+					.defineInRange("buttonY", 0, -50, 255);
+			this.walletButtonCreativeX = builder
+					.comment("The x position that the button should be placed at in the creative screen.")
+					.defineInRange("buttonCreativeX", 195, -50, 255);
+			this.walletButtonCreativeY = builder
+					.comment("The y position that the button should be placed at.")
+					.defineInRange("buttonCreativeY", 0, -50, 255);
 			
 		}
 		

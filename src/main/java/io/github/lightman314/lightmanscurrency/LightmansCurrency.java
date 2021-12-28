@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
@@ -36,20 +35,14 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.SlotTypeMessage;
-import top.theillusivec4.curios.api.SlotTypePreset;
 
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
@@ -57,8 +50,6 @@ public class LightmansCurrency {
 	public static final String MODID = "lightmanscurrency";
 	
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
-	
-	private static boolean curiosLoaded = false;
 	
 	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
@@ -73,8 +64,6 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
         //Client
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-        //Inter-mod coms
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onEnqueueIMC);
         //Config loading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         //Recipe registration
@@ -88,13 +77,6 @@ public class LightmansCurrency {
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
-        curiosLoaded = ModList.get().isLoaded("curios");
-        
-    }
-    
-    public static boolean isCuriosLoaded()
-    {
-    	return curiosLoaded;
     }
     
     private void doCommonStuff(final FMLCommonSetupEvent event)
@@ -170,16 +152,6 @@ public class LightmansCurrency {
 		
     }
     
-    private void onEnqueueIMC(InterModEnqueueEvent event)
-    {
-    	
-    	if(!curiosLoaded)
-    		return;
-    	
-    	InterModComms.sendTo(CuriosApi.MODID, SlotTypeMessage.REGISTER_TYPE, () -> SlotTypePreset.BELT.getMessageBuilder().build());
-    	
-    }
-    
     private void doClientStuff(final FMLClientSetupEvent event) {
     	
         PROXY.setupClient();
@@ -224,16 +196,9 @@ public class LightmansCurrency {
     {
     	AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
     	
-    	if(curiosLoaded)
-    	{
-    		wallet.set(Curios.getWalletStack(player));
-    	}
-    	else
-    	{
-    		WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
-    			wallet.set(walletHandler.getWallet());
-    		});
-    	}
+    	WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+			wallet.set(walletHandler.getWallet());
+		});
     	return wallet.get();
     	
     }
