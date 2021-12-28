@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -57,7 +56,6 @@ public class ClientProxy extends CommonProxy{
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.cutout());
     	
     	//Register Screens
-    	MenuScreens.register(ModContainers.INVENTORY_WALLET, InventoryWalletScreen::new);
     	MenuScreens.register(ModContainers.ATM, ATMScreen::new);
     	MenuScreens.register(ModContainers.MINT, MintScreen::new);
     	MenuScreens.register(ModContainers.ITEMTRADER, ItemTraderScreen::new);
@@ -85,12 +83,7 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
     	
-    	//Register curios renderers
-    	if(LightmansCurrency.isCuriosLoaded())
-    	{
-    		Curios.RegisterCuriosRenderers();
-    	}
-    	//Wallet layer is now registered in 
+    	//Wallet layer is now registered in ClientModEvents
     	
 	}
 	

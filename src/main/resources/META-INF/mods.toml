@@ -30,9 +30,3 @@ description="Adds a simple money & shop system to the game."
     versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
-[[dependencies.lightmanscurrency]]
-    modId="curios"
-    mandatory=false
-    versionRange="[1.18-5.0.2.3,)"
-    ordering="AFTER"
-    side="BOTH"

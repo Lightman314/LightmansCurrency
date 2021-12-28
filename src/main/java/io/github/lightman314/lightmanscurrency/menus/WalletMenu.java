@@ -5,17 +5,27 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -32,6 +42,7 @@ public class WalletMenu extends AbstractContainerMenu{
 	
 	private final Inventory inventory;
 	
+	public boolean hasWallet() { ItemStack wallet = this.getWallet(); return !wallet.isEmpty() && wallet.getItem() instanceof WalletItem; }
 	private ItemStack getWallet()
 	{
 		if(this.walletStackIndex < 0)
@@ -39,10 +50,14 @@ public class WalletMenu extends AbstractContainerMenu{
 		return this.inventory.getItem(this.walletStackIndex);
 	}
 	
-	private final Container coinInput;
+	private final List<IWalletMenuListener> listeners = Lists.newArrayList();
+	private boolean walletSlotChanged = false;
+	
+	private final Container walletInventory;
+	private Container coinInput;
 	
 	private WalletItem walletItem;
-	public final Component title;
+	public Component getTitle() { ItemStack wallet = getWallet(); if(wallet.isEmpty()) return new TextComponent(""); return wallet.getHoverName(); }
 	
 	boolean autoConvert = false;
 	
@@ -54,8 +69,34 @@ public class WalletMenu extends AbstractContainerMenu{
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
 		
-		this.walletItem = (WalletItem)getWallet().getItem();
-		this.title = this.getWallet().getHoverName();
+		AtomicReference<Container> walletInvReference = new AtomicReference<Container>();
+		WalletCapability.getWalletHandler(inventory.player).ifPresent(walletHandler ->{
+			walletInvReference.set(walletHandler.getInventory());
+		});
+		this.walletInventory = walletInvReference.get();
+		if(this.walletInventory == null)
+		{
+			LightmansCurrency.LogError("Cannot open a Wallet Container for a player that doesn't have a valid WalletHandler capability present.");
+			inventory.player.closeContainer();
+		}
+		
+		this.init();
+		
+		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
+		MinecraftForge.EVENT_BUS.register(this);
+		
+	}
+	
+	private void init()
+	{
+		
+		this.slots.clear();
+		
+		Item item = this.getWallet().getItem();
+		if(item instanceof WalletItem)
+			this.walletItem = (WalletItem)item;
+		else
+			this.walletItem = null;
 		
 		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
@@ -63,6 +104,12 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			this.coinInput.setItem(i, walletInventory.get(i));
 		}
+		
+		//Wallet Slot
+		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6).addListener(this::onWalletSlotChanged);
+		if(this.walletStackIndex >= 0)
+			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
+		this.addSlot(walletSlot);
 		
 		//Coinslots
 		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
@@ -80,9 +127,9 @@ public class WalletMenu extends AbstractContainerMenu{
 			{
 				int index = x + (y * 9) + 9;
 				if(index == this.walletStackIndex)
-					this.addSlot(new DisplaySlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18));
+					this.addSlot(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18));
 				else
-					this.addSlot(new BlacklistSlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
+					this.addSlot(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
 			}
 		}
 		
@@ -90,16 +137,25 @@ public class WalletMenu extends AbstractContainerMenu{
 		for(int x = 0; x < 9; x++)
 		{
 			if(x == this.walletStackIndex)
-				this.addSlot(new DisplaySlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
+				this.addSlot(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
 			else
-				this.addSlot(new BlacklistSlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+				this.addSlot(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
 		}
 		
 		this.autoConvert = WalletItem.getAutoConvert(getWallet());
 		
-		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
-		MinecraftForge.EVENT_BUS.register(this);
+		this.listeners.forEach(listener -> listener.onReload());
 		
+	}
+	
+	private void onWalletSlotChanged() {
+		this.walletSlotChanged = true;
+	}
+	
+	public void addListener(IWalletMenuListener listener)
+	{
+		if(!this.listeners.contains(listener))
+			listeners.add(listener);
 	}
 	
 	public int getRowCount()
@@ -130,15 +186,17 @@ public class WalletMenu extends AbstractContainerMenu{
 	@SubscribeEvent
 	public void onTick(WorldTickEvent event)
 	{
+		if(this.walletSlotChanged)
+		{
+			this.walletSlotChanged = false;
+			this.init();
+		}
 		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
 			return;
 		if(this.inventory == null)
 			return;
-		if(this.getWallet().isEmpty())
-		{
-			this.inventory.player.closeContainer();
+		if(!this.hasWallet())
 			return;
-		}
 		this.saveWalletContents();
 	}
 	
@@ -191,17 +249,14 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getContainerSize())
+			if(index < this.coinInput.getContainerSize() + 1)
 			{
-				if(MoneyUtil.isCoin(slotStack.getItem()))
+				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize() + 1, this.slots.size(), true))
 				{
-					if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
-					{
-						return ItemStack.EMPTY;
-					}
+					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize(), false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize() + 1, false))
 			{
 				return ItemStack.EMPTY;
 			}
@@ -251,6 +306,10 @@ public class WalletMenu extends AbstractContainerMenu{
 			ConvertCoins();
 		
 		return returnValue;
+	}
+	
+	public interface IWalletMenuListener {
+		public void onReload();
 	}
 	
 }

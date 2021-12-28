@@ -23,6 +23,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 	
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet.png");
 	
+	private boolean walletSlotChanged = false;
+	
 	IconButton buttonToggleAutoConvert;
 	Button buttonConvert;
 	boolean autoConvert = false;
@@ -30,16 +32,19 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 	public WalletScreen(WalletMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.imageHeight = BASEHEIGHT + this.menu.getRowCount() * 18;
-		this.imageWidth = 176;
+		container.addListener(this::onContainerReload);
 	}
 	
 	@Override
 	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		
+		//Draw the Wallet Slot
+		this.blit(poseStack, this.leftPos - 28, this.topPos, 18, 132, 28, 28);
 		
 		//Draw the top
 		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, 17);
@@ -54,7 +59,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 		//Draw the slots
 		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
 		{
-			for(int x = 1; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
+			for(int x = 0; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
 			{
 				this.blit(poseStack, this.leftPos + 7 + x * 18, this.topPos + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
@@ -65,23 +70,29 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 	@Override
 	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
 	{
-		this.font.draw(matrix, this.menu.title, 8.0f, 6.0f, 0x404040);
+		this.font.draw(matrix, this.menu.getTitle(), 8.0f, 6.0f, 0x404040);
 		this.font.draw(matrix, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
 	protected void init()
 	{
+		
+		this.imageHeight = BASEHEIGHT + this.menu.getRowCount() * 18;
+		this.imageWidth = 176;
+		
 		super.init();
+		
+		this.clearWidgets();
 		
 		if(this.menu.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressConvertButton, GUI_TEXTURE, this.imageWidth, 0));
+			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 28, this::PressConvertButton, GUI_TEXTURE, this.imageWidth, 0));
 			
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 20, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.imageWidth, 16));
+				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 48, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.imageWidth, 16));
 				this.updateToggleButton();
 			}
 			
@@ -89,9 +100,18 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 		
 	}
 	
+	private void onContainerReload() {
+		this.walletSlotChanged = true;
+	}
+	
 	@Override
 	public void containerTick()
 	{
+		
+		if(this.walletSlotChanged) {
+			this.walletSlotChanged = false;
+			this.init();
+		}
 		
 		if(this.buttonToggleAutoConvert != null)
 		{

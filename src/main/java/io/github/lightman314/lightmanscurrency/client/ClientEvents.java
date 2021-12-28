@@ -6,8 +6,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletBu
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWallet;
-import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketOpenWallet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -47,9 +47,11 @@ public class ClientEvents {
 			LocalPlayer player = minecraft.player;
 			if(KEY_WALLET.isDown())
 			{
+				
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet());
+				
 				if(!LightmansCurrency.getWalletStack(player).isEmpty())
 				{
-					LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet());
 					
 					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level.random.nextFloat() * 0.5f, 0.75f));
 					
@@ -65,7 +67,8 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void onInventoryGuiInit(ScreenEvent.InitScreenEvent.Post event)
 	{
-		if(LightmansCurrency.isCuriosLoaded())
+		
+		if(!Config.CLIENT.renderWalletButton.get())
 			return;
 		
 		Screen screen = event.getScreen();
@@ -74,10 +77,10 @@ public class ClientEvents {
 		{
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
 			boolean isCreative = screen instanceof CreativeModeInventoryScreen;
-			int xPos = isCreative ? 73 : 26;
-			int yPos = isCreative ? 6 : 8;
+			int xPos = isCreative ? Config.CLIENT.walletButtonCreativeX.get() : Config.CLIENT.walletButtonX.get();
+			int yPos = isCreative ? Config.CLIENT.walletButtonCreativeY.get() : Config.CLIENT.walletButtonY.get();;
 			
-			event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketOpenWallet())));
+			event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet())));
 		}
 	}
 	

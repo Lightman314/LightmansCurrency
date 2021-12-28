@@ -140,8 +140,6 @@ public class EventHandler {
 	public static void attachEntitiesCapabilities(AttachCapabilitiesEvent<Entity> event)
 	{
 		//Don't attach the wallet capability if curios is loaded
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		if(event.getObject() instanceof Player)
 		{
 			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((Player)event.getObject()));
@@ -152,8 +150,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerLogin(PlayerLoggedInEvent event)
 	{
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		if(event.getPlayer().level.isClientSide)
 			return;
 		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
@@ -165,8 +161,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerStartTracking(PlayerEvent.StartTracking event)
 	{
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		Entity target = event.getTarget();
 		Player player = event.getPlayer();
 		if(!player.level.isClientSide)
@@ -181,8 +175,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerClone(PlayerEvent.Clone event)
 	{
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		Player player = event.getPlayer();
 		if(player.level.isClientSide) //Do nothing client-side
 			return;
@@ -204,9 +196,6 @@ public class EventHandler {
 		LivingEntity livingEntity = event.getEntityLiving();
 		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
-		
-		if(LightmansCurrency.isCuriosLoaded())
-			playerDropsCurios(event);
 		
 		if(!livingEntity.isSpectator())
 		{
@@ -271,42 +260,6 @@ public class EventHandler {
 		}
 	}
 	
-	private static void playerDropsCurios(LivingDropsEvent event)
-	{
-		if(!LightmansCurrency.isCuriosLoaded())
-			return;
-		if(event.getEntityLiving() instanceof Player)
-		{
-			Player player = (Player)event.getEntityLiving();
-			ItemStack walletStack = LightmansCurrency.getWalletStack(player);
-			if(walletStack.isEmpty())
-				return;
-			
-			boolean keepInventory = player.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
-			GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(player.level, ModGameRules.KEEP_WALLET);
-			GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(player.level, ModGameRules.COIN_DROP_PERCENT);
-			boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
-			int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
-			if(keepWallet)
-			{
-				
-				Collection<ItemEntity> walletDrops = getWalletDrops(player, walletStack, coinDropPercent);
-				
-				//Post the Wallet Drop Event
-				WalletDropEvent e = new WalletDropEvent(player, walletStack, event.getSource(), walletDrops, keepWallet, coinDropPercent);
-				if(MinecraftForge.EVENT_BUS.post(e))
-					return;
-				walletDrops = e.getDrops();
-				
-				event.getDrops().addAll(walletDrops);
-				
-			}
-			//Do nothing if the wallet is not kept, as curios will handle the wallet dropping for me.
-		}
-	}
-	
-	
-	
 	private static ItemEntity getDrop(LivingEntity entity, ItemStack stack)
 	{
         return new ItemEntity(entity.level, entity.position().x, entity.position().y, entity.position().z, stack);
@@ -369,8 +322,6 @@ public class EventHandler {
 	//Check for wallet updates, and send update packets
 	@SubscribeEvent
 	public static void entityTick(LivingEvent.LivingUpdateEvent event) {
-		if(LightmansCurrency.isCuriosLoaded())
-			return;
 		LivingEntity livingEntity = event.getEntityLiving();
 		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;

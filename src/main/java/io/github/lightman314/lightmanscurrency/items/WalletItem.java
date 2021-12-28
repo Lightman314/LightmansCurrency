@@ -1,16 +1,17 @@
 package io.github.lightman314.lightmanscurrency.items;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.integration.Curios;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +33,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.network.NetworkHooks;
 
 public class WalletItem extends Item{
@@ -55,16 +55,22 @@ public class WalletItem extends Item{
 	
 	public static boolean CanConvert(WalletItem wallet)
 	{
+		if(wallet == null)
+			return false;
 		return wallet.canConvert;
 	}
 	
 	public static boolean CanPickup(WalletItem wallet)
 	{
+		if(wallet == null)
+			return false;
 		return wallet.canPickup;
 	}
 	
 	public static int InventorySize(WalletItem wallet)
 	{
+		if(wallet == null)
+			return 0;
 		return wallet.storageSize;
 	}
 	
@@ -73,17 +79,6 @@ public class WalletItem extends Item{
 		if(wallet.getItem() instanceof WalletItem)
 			return InventorySize((WalletItem)wallet.getItem());
 		return 0;
-	}
-	
-	@Nullable
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
-	{
-		if(!LightmansCurrency.isCuriosLoaded())
-		{
-			return null;
-		}
-		return Curios.createWalletProvider(stack);
 	}
 	
 	@Override
@@ -132,7 +127,25 @@ public class WalletItem extends Item{
 			
 			//Open the UI
 			if(walletSlot >= 0)
+			{
+				
+				if(player.isCrouching())
+				{
+					AtomicBoolean equippedWallet = new AtomicBoolean(false);
+					WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+						if(walletHandler.getWallet().isEmpty())
+						{
+							walletHandler.setWallet(wallet);
+							player.setItemInHand(hand, ItemStack.EMPTY);
+							equippedWallet.set(true);
+						}
+					});
+					if(equippedWallet.get())
+						walletSlot = -1;
+				}
 				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+			}
+				
 			else
 				LightmansCurrency.LogError("Could not find the wallet in the players inventory!");
 			

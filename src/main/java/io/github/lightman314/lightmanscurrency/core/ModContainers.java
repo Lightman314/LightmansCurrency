@@ -21,8 +21,6 @@ public class ModContainers {
 	
 	private static final List<MenuType<?>> CONTAINER_TYPES = new ArrayList<>();
 	
-	public static final MenuType<InventoryWalletMenu> INVENTORY_WALLET = register("inventory_wallet", (id, inventory, data) -> new InventoryWalletMenu(id, inventory));
-	
 	public static final MenuType<ATMMenu> ATM = register("atm", (id, inventory, data) -> new ATMMenu(id, inventory));
 	
 	public static final MenuType<MintMenu> MINT = register("coinmint", (IContainerFactory<MintMenu>)(id, playerInventory, data)->{
