@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.menus.interfaces.IUniversalTrader
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedInventory;
+import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSyncStorage;
@@ -50,7 +50,7 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 		super(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player);
 		
 		//Init storage inventory as a supplied inventory
-		this.storage = new SuppliedInventory(() -> this.getData().getStorage());
+		this.storage = new SuppliedContainer(() -> this.getData().getStorage());
 		
 		this.copyStorage = InventoryUtil.copyInventory(this.storage);
 		int tradeCount = this.getData().getTradeCount();

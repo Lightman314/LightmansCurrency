@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
@@ -69,16 +70,11 @@ public class WalletMenu extends AbstractContainerMenu{
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
 		
-		AtomicReference<Container> walletInvReference = new AtomicReference<Container>();
-		WalletCapability.getWalletHandler(inventory.player).ifPresent(walletHandler ->{
-			walletInvReference.set(walletHandler.getInventory());
+		this.walletInventory = new SuppliedContainer(() -> {
+			AtomicReference<Container> container  = new AtomicReference<Container>(null);
+			WalletCapability.getWalletHandler(this.inventory.player).ifPresent(walletHandler -> container.set(walletHandler.getInventory()));
+			return container.get();
 		});
-		this.walletInventory = walletInvReference.get();
-		if(this.walletInventory == null)
-		{
-			LightmansCurrency.LogError("Cannot open a Wallet Container for a player that doesn't have a valid WalletHandler capability present.");
-			inventory.player.closeContainer();
-		}
 		
 		this.init();
 		
