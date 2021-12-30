@@ -79,6 +79,8 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	{
 		
 		this.buttons.clear();
+		this.buttonConvert = null;
+		this.buttonToggleAutoConvert = null;
 		
 		this.ySize = BASEHEIGHT + this.container.getRowCount() * 18;
 		this.xSize = 176;
