@@ -84,6 +84,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 		super.init();
 		
 		this.clearWidgets();
+		this.buttonConvert = null;
+		this.buttonToggleAutoConvert = null;
 		
 		if(this.menu.canConvert())
 		{
