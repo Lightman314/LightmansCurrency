@@ -195,13 +195,13 @@ public class WalletMenu extends AbstractContainerMenu{
 			return;
 		if(this.inventory == null)
 			return;
-		if(!this.hasWallet())
-			return;
 		this.saveWalletContents();
 	}
 	
 	public void saveWalletContents()
 	{
+		if(!this.hasWallet())
+			return;
 		//Write the bag contents back into the item stack
 		NonNullList<ItemStack> walletInventory = NonNullList.withSize(WalletItem.InventorySize(this.walletItem), ItemStack.EMPTY);
 		for(int i = 0; i < walletInventory.size() && i < this.coinInput.getContainerSize(); i++)
