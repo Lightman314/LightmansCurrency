@@ -54,6 +54,28 @@ public class WalletItem extends Item{
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
 	
+	/**
+	 * Determines if the given ItemStack can be processed as a wallet.
+	 * Returns true if the stack is empty, so you will need to check for that separately.
+	 */
+	public static boolean validWalletStack(ItemStack walletStack)
+	{
+		if(walletStack.isEmpty())
+			return true;
+		return isWallet(walletStack.getItem());
+	}
+
+	/**
+	 * Determines if the given Item is a WalletItem
+	 */
+	public static boolean isWallet(Item item)
+	{
+		return item instanceof WalletItem;
+	}
+
+	/**
+	 * Whether the WalletItem is capable of converting coins to coins of higher value.
+	 */
 	public static boolean CanConvert(WalletItem wallet)
 	{
 		if(wallet == null)
@@ -61,6 +83,9 @@ public class WalletItem extends Item{
 		return wallet.canConvert;
 	}
 	
+	/**
+	 * Whether the WalletItem is capable of automatically storing coins on pickup.
+	 */
 	public static boolean CanPickup(WalletItem wallet)
 	{
 		if(wallet == null)
@@ -68,6 +93,9 @@ public class WalletItem extends Item{
 		return wallet.canPickup;
 	}
 	
+	/**
+	 * The number of inventory slots the WalletItem has.
+	 */
 	public static int InventorySize(WalletItem wallet)
 	{
 		if(wallet == null)
@@ -75,23 +103,16 @@ public class WalletItem extends Item{
 		return wallet.storageSize;
 	}
 	
+	/**
+	 * The number of inventory slots the Wallet Stack has.
+	 * Returns 0 if the item is not a valid wallet.
+	 */
 	public static int InventorySize(ItemStack wallet)
 	{
 		if(wallet.getItem() instanceof WalletItem)
 			return InventorySize((WalletItem)wallet.getItem());
 		return 0;
 	}
-	
-	/*@Nullable
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt)
-	{
-		if(!LightmansCurrency.isCuriosLoaded())
-		{
-			return null;
-		}
-		return Curios.createWalletProvider(stack);
-	}*/
 	
 	@Override
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
@@ -172,6 +193,9 @@ public class WalletItem extends Item{
 		
 	}
 	
+	/**
+	 * Whether the Wallet's Inventory is empty.
+	 */
 	public static boolean isEmpty(ItemStack wallet)
 	{
 		NonNullList<ItemStack> inventory = getWalletInventory(wallet);
@@ -194,7 +218,7 @@ public class WalletItem extends Item{
 	}
 	
 	/**
-	 * Places the given coin stack in the wallet.
+	 * Places the given coin stack in the given Wallet Stack.
 	 * @param wallet The wallet item stack in which to place the coin
 	 * @param coins The coins to place in the wallet.
 	 * @return The coins that were unable to fit in the wallet.
@@ -233,7 +257,8 @@ public class WalletItem extends Item{
 		
 	}
 	
-	public static NonNullList<ItemStack> ConvertCoins(NonNullList<ItemStack> inventory)
+	
+	private static NonNullList<ItemStack> ConvertCoins(NonNullList<ItemStack> inventory)
 	{
 		
 		inventory = MoneyUtil.ConvertAllCoinsUp(inventory);
@@ -243,7 +268,7 @@ public class WalletItem extends Item{
 	}
 	
 	/**
-	 * Writes the given wallet inventory contents to the wallets nbt data.
+	 * Writes the given wallet inventory contents to the wallets compound tag data.
 	 */
 	public static void putWalletInventory(ItemStack wallet, NonNullList<ItemStack> inventory)
 	{
@@ -267,7 +292,7 @@ public class WalletItem extends Item{
 	}
 	
 	/**
-	 * Reads & returns the wallets intentory contents from the ItemStack's nbt data.
+	 * Reads & returns the wallets inventory contents from the ItemStack's compound tag data.
 	 */
 	public static NonNullList<ItemStack> getWalletInventory(ItemStack wallet)
 	{
@@ -294,6 +319,10 @@ public class WalletItem extends Item{
 		
 	}
 	
+	/**
+	 * Gets the auto-convert state of the given Wallet Stack.
+	 * Returns false if the wallet is not capable of both converting & collecting coins.
+	 */
 	public static boolean getAutoConvert(ItemStack wallet)
 	{
 		if(!(wallet.getItem() instanceof WalletItem))
@@ -313,6 +342,10 @@ public class WalletItem extends Item{
 		
 	}
 	
+	/**
+	 * Toggles the auto-convert state of the given Wallet Stack.
+	 * Does nothing if the wallet is not capable of both converting & collecting coins.
+	 */
 	public static void toggleAutoConvert(ItemStack wallet)
 	{
 		
@@ -330,6 +363,7 @@ public class WalletItem extends Item{
 	
 	/**
 	 * Used to copy a wallets inventory contents to a newly crafted one. Also copies over any auto-conversion settings.
+	 * Used to copy a wallets inventory contents to a newly crafted one. Also copies over any auto-conversion settings, custom names, and enchantments.
 	 * @param walletIn The wallet inventory being copied.
 	 * @param walletOut The wallet whose inventory will be filled
 	 */
