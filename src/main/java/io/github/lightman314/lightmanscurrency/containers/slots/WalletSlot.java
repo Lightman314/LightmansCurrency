@@ -30,7 +30,10 @@ public class WalletSlot extends Slot{
 	@Override
 	public boolean isItemValid(ItemStack stack) {
 		if(this.blacklistIndex >= 0 && this.blacklistInventory != null)
-			return stack != this.getBlacklistedItem();
+		{
+			if(stack == this.getBlacklistedItem())
+				return false;
+		}
         return isValidWallet(stack);
 	}
 	
