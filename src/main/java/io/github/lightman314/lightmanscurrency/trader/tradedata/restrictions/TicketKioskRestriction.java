@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
@@ -49,6 +50,13 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
+	}
+	
+	@Override
+	public boolean allowItemSelectItem(ItemStack itemStack)
+	{
+		Item item = itemStack.getItem();
+		return item.getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET && item != ModItems.TICKET_MASTER;
 	}
 	
 	@Override
