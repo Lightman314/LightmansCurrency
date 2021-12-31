@@ -99,7 +99,7 @@ public class EventHandler {
 			event.getItem().setItem(ItemStack.EMPTY);
 			if(!coinStack.isEmpty())
 			{
-				if(!player.getInventory().add(coinStack))
+				if(!player.addItem(coinStack))
 				{
 					//Spawn the leftovers into the world
 					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);

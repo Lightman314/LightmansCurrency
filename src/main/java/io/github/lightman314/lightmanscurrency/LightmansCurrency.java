@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
+import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
@@ -195,15 +196,23 @@ public class LightmansCurrency {
     }
     
     /**
-     * Easy public access to the equipped wallet that functions regardless of which system (stand-alone, backpacked compatibility, curios) is being used to store the slot.
+     * Easy public access to the equipped wallet.
+     * Also confirms that the equipped wallet is either empty or a valid WalletItem.
+     * Returns an empty stack if no wallet is equipped, or if the equipped item is not a valid wallet.
      */
     public static ItemStack getWalletStack(Player player)
     {
     	AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
-    	
     	WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
 			wallet.set(walletHandler.getWallet());
 		});
+    	//Safety check to confirm that the Item Stack found is a valid wallet
+    	if(!WalletItem.validWalletStack(wallet.get()))
+    	{
+    		LightmansCurrency.LogError(player.getName().getString() + "'s equipped wallet is not a valid WalletItem.");
+    		LightmansCurrency.LogError("Equipped wallet is of type " + wallet.get().getItem().getClass().getName());
+			return ItemStack.EMPTY;
+    	}
     	return wallet.get();
     	
     }

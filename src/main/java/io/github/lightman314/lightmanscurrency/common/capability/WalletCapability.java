@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.capability;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -60,6 +62,8 @@ public class WalletCapability {
 		@Override
 		public void setWallet(ItemStack walletStack) {
 			this.walletInventory.setItem(0, walletStack);
+			if(!(walletStack.getItem() instanceof WalletItem))
+				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
 		}
 
 		@Override
