@@ -200,9 +200,7 @@ public class WalletItem extends Item{
 	}
 	
 	/**
-	 * Whether the Wallet 
-	 * @param wallet
-	 * @return
+	 * Whether the Wallet Stacks inventory contents are empty.
 	 */
 	public static boolean isEmpty(ItemStack wallet)
 	{
