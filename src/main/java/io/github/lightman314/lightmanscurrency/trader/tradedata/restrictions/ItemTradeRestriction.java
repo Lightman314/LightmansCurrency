@@ -49,6 +49,8 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	
 	public ItemStack filterSellItem(ItemStack itemStack) { return itemStack; }
 	
+	public boolean allowItemSelectItem(ItemStack itemStack) { return true; }
+	
 	public int getSaleStock(ItemStack sellItem, Container traderStorage)
 	{
 		return InventoryUtil.GetItemCount(traderStorage, sellItem) / sellItem.getCount();

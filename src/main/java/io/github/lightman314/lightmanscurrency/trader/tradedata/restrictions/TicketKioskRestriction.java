@@ -11,6 +11,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -49,6 +50,13 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
+	}
+	
+	@Override
+	public boolean allowItemSelectItem(ItemStack itemStack)
+	{
+		Item item = itemStack.getItem();
+		return item.getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET && item != ModItems.TICKET_MASTER;
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.network.message.item_trader.Messa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditSet;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
@@ -49,6 +51,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	public final int tradeIndex;
 	public final ItemTradeData tradeData;
 	
+	List<ItemStack> filteredResultItems;
 	List<ItemStack> searchResultItems;
 	//IInventory tradeDisplay;
 	Container displayInventory;
@@ -101,6 +104,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		
 		//Load the item list from the item groups
 		initItemList();
+		this.filteredResultItems = this.getFilteredItems();
 		
 		//Set the search to the default value to initialize the inventory
 		this.modifySearch("");
@@ -214,7 +218,8 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		if(this.searchString.length() > 0)
 		{
 			this.searchResultItems = new ArrayList<>();
-			for(ItemStack stack : allItems)
+			List<ItemStack> validItems = this.editSlot == 0 ? this.filteredResultItems : allItems;
+			for(ItemStack stack : validItems)
 			{
 				//Search the display name
 				if(stack.getHoverName().getString().toLowerCase().contains(this.searchString))
@@ -244,12 +249,24 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		}
 		else //No search string, so the result is just the allItems list
 		{
-			this.searchResultItems = allItems;
+			this.searchResultItems = this.editSlot == 0 ? this.filteredResultItems : allItems;
 		}
 		
 		//Run refresh page code to validate the page # and repopulate the display inventory
 		this.refreshPage();
 		
+	}
+	
+	private List<ItemStack> getFilteredItems()
+	{
+		List<ItemStack> results = Lists.newArrayList();
+		ItemTradeRestriction restriction = this.tradeData.getRestriction();
+		for(int i = 0; i < allItems.size(); ++i)
+		{
+			if(restriction.allowItemSelectItem(allItems.get(i)))
+				results.add(allItems.get(i));
+		}
+		return results;
 	}
 	
 	public void modifyStackSize(int deltaCount)
@@ -306,7 +323,10 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	public void toggleEditSlot()
 	{
 		if(this.tradeData.isBarter())
+		{
 			this.editSlot = this.editSlot == 1 ? 0 : 1;
+			this.modifySearch(this.searchString);
+		}
 	}
 	
 	public void setItem(ItemStack stack, int slot)

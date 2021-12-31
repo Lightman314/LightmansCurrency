@@ -33,6 +33,12 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	}
 	
 	@Override
+	public boolean allowItemSelectItem(ItemStack itemStack)
+	{
+		return itemStack.canEquip(this.equipmentType, null);
+	}
+	
+	@Override
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
 	{
