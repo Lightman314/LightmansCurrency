@@ -110,6 +110,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 	public void containerTick()
 	{
 		
+		this.menu.clientTick();
+		
 		if(this.walletSlotChanged) {
 			this.walletSlotChanged = false;
 			this.init();

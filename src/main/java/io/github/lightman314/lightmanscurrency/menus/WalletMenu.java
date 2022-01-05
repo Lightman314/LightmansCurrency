@@ -107,16 +107,8 @@ public class WalletMenu extends AbstractContainerMenu{
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
 		this.addSlot(walletSlot);
 		
-		//Coinslots
-		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
-		{
-			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
-			{
-				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
-			}
-		}
-		
-		//Player inventory
+		//Player Inventory before coin slots for desync safety.
+		//Should make the Player Inventory slot indexes constant regardless of the wallet state.
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)
@@ -136,6 +128,15 @@ public class WalletMenu extends AbstractContainerMenu{
 				this.addSlot(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
 			else
 				this.addSlot(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+		}
+		
+		//Coin Slots last as they may vary between client and server at times.
+		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
+		{
+			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
+			{
+				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
+			}
 		}
 		
 		this.autoConvert = WalletItem.getAutoConvert(getWallet());
@@ -182,16 +183,25 @@ public class WalletMenu extends AbstractContainerMenu{
 	@SubscribeEvent
 	public void onTick(WorldTickEvent event)
 	{
+		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
+			return;
 		if(this.walletSlotChanged)
 		{
 			this.walletSlotChanged = false;
 			this.init();
 		}
-		if(event.side.isClient() || event.phase != TickEvent.Phase.START)
-			return;
 		if(this.inventory == null)
 			return;
 		this.saveWalletContents();
+	}
+	
+	public void clientTick()
+	{
+		if(this.walletSlotChanged)
+		{
+			this.walletSlotChanged = false;
+			this.init();
+		}
 	}
 	
 	public void saveWalletContents()
