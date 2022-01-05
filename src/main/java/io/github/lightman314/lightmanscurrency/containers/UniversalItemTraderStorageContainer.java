@@ -34,11 +34,9 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 	public static final int BUTTONSPACE = ItemTradeButton.WIDTH + 20;
 	public static final int SCREEN_EXTENSION = BUTTONSPACE;
 	
-	//final IInventory tradeInventory;
 	final IInventory coinSlots;
 	private IInventory storage;
 	private IInventory copyStorage;
-	//final List<TradeInputSlot> tradeSlots;
 	
 	public UniversalItemTraderData getData()
 	{
@@ -94,15 +92,6 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		}
 		
 	}
-	
-	/*@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, PlayerEntity player)
-	{
-		if(ItemTraderStorageContainer.slotClickOverride(slotId, dragType, clickType, player, this.inventorySlots, this))
-			return ItemStack.EMPTY;
-		
-		return super.slotClick(slotId, dragType, clickType, player);
-	}*/
 	
 	public int getStorageBottom()
 	{

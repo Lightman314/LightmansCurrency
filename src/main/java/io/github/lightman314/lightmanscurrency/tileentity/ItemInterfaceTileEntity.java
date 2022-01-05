@@ -36,6 +36,8 @@ public class ItemInterfaceTileEntity extends TileEntity{
 					IItemHandler handler = tileEntity.getItemHandler(handlerBlock.getRelativeSide(this.getBlockState(), side));
 					if(handler != null)
 						return LazyOptional.of(() -> handler).cast();
+					else
+						return LazyOptional.empty();
 				}
 			}
 		}
@@ -51,6 +53,9 @@ public class ItemInterfaceTileEntity extends TileEntity{
 		{
 			if(side.getAxis() == Axis.Y)
 				return side;
+			//Since my facings are backwards, invert it
+			if(facing.getAxis() == Axis.Z)
+				facing = facing.getOpposite();
 			return Direction.byHorizontalIndex(facing.getHorizontalIndex() + side.getHorizontalIndex());
 		}
 	}

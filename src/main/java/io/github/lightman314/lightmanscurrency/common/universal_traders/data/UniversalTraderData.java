@@ -7,6 +7,8 @@ import com.google.common.base.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -34,7 +36,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public static final ResourceLocation ICON_RESOURCE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png");
 	
-	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, null);
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	UUID traderID = null;
 	public UUID getTraderID() { return this.traderID; }
@@ -90,10 +92,25 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		this.markDirty(this::writeCoreSettings);
 	}
 	
-	public void loadCoreSettings(CompoundNBT settingsTag)
+	protected final void sendSettingsUpdateToServer(ResourceLocation type, CompoundNBT updateInfo)
 	{
-		this.coreSettings.load(settingsTag);
-		this.markCoreSettingsDirty();
+		if(this.isClient())
+		{
+			//LightmansCurrency.LogInfo("Sending settings update packet from client to server.\n" + compound.toString());
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageChangeSettings2(this.traderID, type, updateInfo));
+		}
+	}
+	
+	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
+	{
+		if(this.isClient())
+			LightmansCurrency.LogError("UniversalTraderData.changeSettings was called on a client.");
+		if(type.equals(this.coreSettings.getType()))
+		{
+			//LightmansCurrency.LogInfo("Settings change message from update message.");
+			this.coreSettings.changeSetting(requestor, updateInfo);
+			//Don't need to mark it dirty. The change settings function will mark itself dirty if a change is made.
+		}
 	}
 	
 	public void addStoredMoney(CoinValue amount)

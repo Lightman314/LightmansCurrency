@@ -43,7 +43,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageContainer>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderstorage.png");
-	public static final ResourceLocation ALLY_GUI_TEXTURE = TradeRuleScreen.GUI_TEXTURE;
 	
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
@@ -187,22 +186,21 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + 20, this.guiTop - 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermissions(Permissions.COLLECT_COINS);
-		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
-		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
-		
-		
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
 		
 		int tradeCount = this.container.tileEntity.getTradeCount();
 		this.buttonStoreMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 176 + 32, this.guiTop + 25 + ItemTraderStorageUtil.getRowCount(tradeCount) * 18, this::PressStoreCoinsButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
 		this.buttonStoreMoney.visible = false;
 		
+		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
+		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
+		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.hasPermission(Permissions.CLEAR_LOGS);
 		
 		this.buttonOpenSettings = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressSettingsButton, this.font, IconData.of(GUI_TEXTURE, 176 + 32, 0)));
-		this.buttonOpenSettings.visible = this.container.hasPermissions(Permissions.EDIT_SETTINGS);
+		this.buttonOpenSettings.visible = this.container.hasPermission(Permissions.EDIT_SETTINGS);
 		
 		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressTradeRulesButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
-		this.buttonTradeRules.visible = this.container.hasPermissions(Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules.visible = this.container.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
 		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.tileEntity.getLogger(), this.font);
 		this.addListener(this.logWindow);
@@ -280,7 +278,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	@Override
 	public void tick()
 	{
-		if(!this.container.hasPermissions(Permissions.OPEN_STORAGE))
+		if(!this.container.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			this.container.player.closeScreen();
 			return;
@@ -289,13 +287,15 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		
 		this.container.tick();
 		
-		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermissions(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermission(Permissions.COLLECT_COINS);
 		this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 		
-		this.buttonOpenSettings.visible = this.container.hasPermissions(Permissions.EDIT_SETTINGS);
+		this.buttonOpenSettings.visible = this.container.hasPermission(Permissions.EDIT_SETTINGS);
 		
-		this.buttonStoreMoney.visible = this.container.HasCoinsToAdd();
-		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.hasPermissions(Permissions.CLEAR_LOGS);
+		this.buttonStoreMoney.visible = this.container.HasCoinsToAdd() && this.container.hasPermission(Permissions.STORE_COINS);
+		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.hasPermission(Permissions.CLEAR_LOGS);
+		
+		this.buttonTradeRules.visible = this.container.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
 	}
 	
@@ -406,7 +406,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(container.hasPermissions(Permissions.COLLECT_COINS))
+		if(container.hasPermission(Permissions.COLLECT_COINS))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
@@ -417,7 +417,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	
 	private void PressStoreCoinsButton(Button button)
 	{
-		if(container.hasPermissions(Permissions.STORE_COINS))
+		if(container.hasPermission(Permissions.STORE_COINS))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStoreCoins());
 		}
@@ -427,7 +427,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	
 	private void PressTradePriceButton(Button button)
 	{
-		if(!this.container.hasPermissions(Permissions.EDIT_TRADES))
+		if(!this.container.hasPermission(Permissions.EDIT_TRADES))
 			return;
 		
 		int tradeIndex = 0;

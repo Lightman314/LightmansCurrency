@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.tileentity.handler;
 
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -23,14 +22,18 @@ public class TraderItemHandler{
 		this.inputAndOutput = new InputAndOutput(trader);
 	}
 	
-	public IItemHandler getHandler(ItemTraderSettings.ItemHandlerSettings settings) {
-		if(settings == ItemHandlerSettings.INPUT_ONLY)
+	public IItemHandler getHandler(ItemHandlerSettings settings) {
+		switch(settings)
+		{
+		case INPUT_ONLY:
 			return this.inputOnly;
-		else if(settings == ItemHandlerSettings.OUTPUT_ONLY)
+		case OUTPUT_ONLY:
 			return this.outputOnly;
-		else if(settings == ItemHandlerSettings.INPUT_AND_OUTPUT)
+		case INPUT_AND_OUTPUT:
 			return this.inputAndOutput;
-		return null;
+			default:
+				return null;
+		}
 	}
 	
 	private static abstract class TraderHandlerTemplate implements IItemHandler
@@ -107,6 +110,8 @@ public class TraderItemHandler{
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 			ItemStack copyStack = stack.copy();
 			ItemStack currentStack = this.getStorage().getStackInSlot(slot);
+			if(this.limitInputs() && !this.traderSells(copyStack))
+				return copyStack;
 			if(currentStack.isEmpty() || InventoryUtil.ItemMatches(copyStack, currentStack))
 			{
 				//Get the possible fill amount
@@ -124,6 +129,8 @@ public class TraderItemHandler{
 							placeStack.setCount(fillAmount);
 							this.getStorage().setInventorySlotContents(slot, placeStack);
 						}
+						else
+							currentStack.grow(fillAmount);
 					}
 				}
 			}
@@ -198,6 +205,8 @@ public class TraderItemHandler{
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 			ItemStack copyStack = stack.copy();
 			ItemStack currentStack = this.getStorage().getStackInSlot(slot);
+			if(this.limitInputs() && !this.traderSells(copyStack))
+				return copyStack;
 			if(currentStack.isEmpty() || InventoryUtil.ItemMatches(copyStack, currentStack))
 			{
 				//Get the possible fill amount
@@ -215,6 +224,8 @@ public class TraderItemHandler{
 							placeStack.setCount(fillAmount);
 							this.getStorage().setInventorySlotContents(slot, placeStack);
 						}
+						else
+							currentStack.grow(fillAmount);
 					}
 				}
 			}

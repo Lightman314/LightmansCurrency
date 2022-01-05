@@ -25,9 +25,10 @@ public class SuppliedInventory implements IInventory{
 		return source.get().decrStackSize(arg0, arg1);
 	}
 	
-
 	@Override
 	public int getSizeInventory() {
+		if(source == null || source.get() == null)
+			return 0;
 		return source.get().getSizeInventory();
 	}
 	

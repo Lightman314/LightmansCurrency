@@ -5,13 +5,16 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class DirectionalSettingsWidget {
 
@@ -42,6 +45,16 @@ public class DirectionalSettingsWidget {
 			addButton.accept(button);
 		}
 		
+	}
+	
+	public void renderTooltips(MatrixStack matrix, int mouseX, int mouseY, Screen screen)
+	{
+		for(Direction side : Direction.values())
+		{
+			Button button = this.getButton(side);
+			if(button.isMouseOver(mouseX, mouseY))
+				screen.renderTooltip(matrix, new TranslationTextComponent("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()), mouseX, mouseY);
+		}
 	}
 	
 	private int getSidePosX(Direction side)

@@ -53,7 +53,7 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		{
 			for(int x = 0; x < columnCount && x + y * columnCount < tileEntity.getSizeInventory(); x++)
 			{
-				this.addSlot(new Slot(tileEntity, x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
+				this.addSlot(new Slot(tileEntity.getStorage(), x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
 			}
 		}
 		
@@ -288,7 +288,7 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		
 	}
 	
-	public boolean hasPermissions(String permission)
+	public boolean hasPermission(String permission)
 	{
 		return tileEntity.getCoreSettings().hasPermission(this.player, permission);
 	}

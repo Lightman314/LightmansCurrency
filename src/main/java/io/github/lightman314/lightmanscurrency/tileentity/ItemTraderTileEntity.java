@@ -20,6 +20,8 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -31,7 +33,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.Ite
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -43,6 +44,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
@@ -59,11 +61,14 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler {
+public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler {
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
@@ -78,7 +83,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
-	protected NonNullList<ItemStack> inventory;
+	protected IInventory storage = new Inventory(this.getSizeInventory());
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -94,7 +99,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	{
 		super(ModTileEntities.ITEM_TRADER);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new Inventory(this.getSizeInventory());
 	}
 	
 	public ItemTraderTileEntity(int tradeCount)
@@ -102,14 +107,14 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		super(ModTileEntities.ITEM_TRADER);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new Inventory(this.getSizeInventory());
 	}
 	
 	protected ItemTraderTileEntity(TileEntityType<?> type)
 	{
 		super(type);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new Inventory(this.getSizeInventory());
 	}
 	
 	protected ItemTraderTileEntity(TileEntityType<?> type, int tradeCount)
@@ -117,7 +122,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		super(type);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		this.storage = new Inventory(this.getSizeInventory());
 	}
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
@@ -125,7 +130,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		getTrade(index).setRestriction(restriction);
 	}
 	
-	@Override
 	public int getSizeInventory()
 	{
 		return getTradeCount() * 9;
@@ -209,18 +213,18 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		NonNullList<ItemStack> oldInventory = this.inventory;
-		this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
-		for(int i = 0; i < this.inventory.size() && i < oldInventory.size(); i++)
+		IInventory oldStorage = this.storage;
+		this.storage = new Inventory(this.getSizeInventory());
+		for(int i = 0; i < this.storage.getSizeInventory() && i < oldStorage.getSizeInventory(); i++)
 		{
-			this.inventory.set(i, oldInventory.get(i));
+			this.storage.setInventorySlotContents(i, oldStorage.getStackInSlot(i));
 		}
 		//Attempt to place lost items into the available slots
-		if(oldInventory.size() > this.getSizeInventory())
+		if(oldStorage.getSizeInventory() > this.storage.getSizeInventory())
 		{
-			for(int i = this.getSizeInventory(); i < oldInventory.size(); i++)
+			for(int i = this.storage.getSizeInventory(); i < oldStorage.getSizeInventory(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this, oldInventory.get(i));
+				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getStackInSlot(i));
 			}
 		}
 		//Send an update to the client
@@ -408,7 +412,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	
 	protected CompoundNBT writeItems(CompoundNBT compound)
 	{
-		ItemStackHelper.saveAllItems("Items", compound, this.inventory);
+		InventoryUtil.saveAllItems("Items", compound, this.storage);
 		return compound;
 	}
 	
@@ -451,17 +455,16 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		}
 		
 		//Load the inventory
-		if(this.inventory == null)
-			this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+		if(this.storage == null)
+			this.storage = new Inventory(this.getSizeInventory());
 		if(compound.contains("Items"))
 		{
-			this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
-			ItemStackHelper.loadAllItems("Items", compound, this.inventory);
+			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getSizeInventory());
 		}
 		
 		//Load the settings
-		if(compound.contains("Settings", Constants.NBT.TAG_COMPOUND))
-			this.itemSettings.load(compound.getCompound("Settings"));
+		if(compound.contains("ItemSettings", Constants.NBT.TAG_COMPOUND))
+			this.itemSettings.load(compound.getCompound("ItemSettings"));
 		
 		//Load the shop logger
 		this.logger.read(compound);
@@ -480,7 +483,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		//super.dumpContents dumps the coins automatically
 		super.dumpContents(world, pos);
 		//Dump the Inventory
-		InventoryUtil.dumpContents(world, pos, this.inventory);
+		InventoryUtil.dumpContents(world, pos, this.storage);
 		//Dump the Trade Inventory
 		//Removed as the trade inventory no longer consumes items
 		//InventoryUtil.dumpContents(world, pos, new TradeInventory(trades));
@@ -497,115 +500,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		super.tick();
 		if(this.world.isRemote)
 			this.rotationTime++;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.isEmpty().");
-		for(ItemStack stack : this.inventory)
-		{
-			if(!stack.isEmpty())
-				return false;
-		}
-		return true;
-	}
-	
-	@Override
-	public ItemStack getStackInSlot(int slot) {
-		
-		if(slot < 0 || slot >= this.inventory.size())
-		{
-			LightmansCurrency.LogError("ItemTraderTileEntity.getStackInSlot. Attempting to get slot " + slot + " but array size is " + this.inventory.size() + " instead of " + this.getSizeInventory());
-			return ItemStack.EMPTY;
-		}
-		//CurrencyMod.LOGGER.info("ATMTileEntity.getStackInSlot(int slot (" + String.valueOf(slot) + ")).");
-		return this.inventory.get(slot);
-		
-	}
-
-	@Override
-	public ItemStack decrStackSize(int slot, int amount) {
-		
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.decrStackSize(int slot (" + String.valueOf(slot) + "), int amount (" + String.valueOf(amount) + ")).");
-		
-		int currentCount = getStackInSlot(slot).getCount();
-		
-		ItemStack newStack = null;
-		
-		//Current count is less than or equal to the requested count.
-		//Return existing stack, and replace that slot with an empty ItemStack.
-		if(currentCount <= amount)
-		{
-			newStack = getStackInSlot(slot);
-			inventory.set(slot, ItemStack.EMPTY);
-		}
-		//Present count is greater than the requested count.
-		//Create copy with requested count, and decrease the existing count by the requested amount.
-		else
-		{
-			newStack = new ItemStack(getStackInSlot(slot).getItem(), amount);
-			if(getStackInSlot(slot).hasTag())
-				newStack.setTag(getStackInSlot(slot).getTag().copy());
-			inventory.get(slot).setCount(currentCount - amount);
-		}
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-		return newStack;
-		
-	}
-	
-	@Override
-	public ItemStack removeStackFromSlot(int slot) {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.removeStackFromSlot(int slot (" + String.valueOf(slot) + ")).");
-		ItemStack slotStack = inventory.get(slot);
-		inventory.set(slot, ItemStack.EMPTY);
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-		return slotStack;
-		
-	}
-	
-	@Override
-	public void setInventorySlotContents(int slot, ItemStack items) {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.setInventorySlotContents(int slot (" + String.valueOf(slot) + "), items)).");
-		inventory.set(slot, items);
-		
-		/* Send updates to client */
-		if(!this.world.isRemote)
-		{	
-			CompoundNBT compound = this.writeItems(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
-		
-	}
-	
-	@Override
-	public void clear() {
-		
-		//CurrencyMod.LOGGER.info("ATMTileEntity.clear().");
-		this.inventory.clear();
-		
-	}
-	
-	@Override
-	public boolean isUsableByPlayer(PlayerEntity player) {
-		return true;
 	}
 	
 	@Override
@@ -725,7 +619,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 
 	@Override
 	public IInventory getStorage() {
-		return this;
+		return this.storage;
 	}
 
 	@Override
@@ -740,7 +634,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			{
 				ItemStack tradeStack = trade.getSellItem();
 				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this, tradeStack);
+					tradeStack = InventoryUtil.TryPutItemStack(this.storage, tradeStack);
 				if(!tradeStack.isEmpty())
 					InventoryUtil.dumpContents(this.world, pos, InventoryUtil.buildInventory(tradeStack));
 			}
@@ -839,6 +733,30 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.pos, newRules));
 		}
 		
+	}
+	
+	//Item capability for hopper and item automation
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
+	{
+		if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+		{
+			Block block = this.getBlockState().getBlock();
+			if(block instanceof IItemHandlerBlock)
+			{
+				IItemHandlerBlock handlerBlock = (IItemHandlerBlock)block;
+				IItemHandlerTileEntity tileEntity = handlerBlock.getItemHandlerEntity(this.getBlockState(), this.world, this.pos);
+				if(tileEntity != null)
+				{
+					IItemHandler handler = tileEntity.getItemHandler(handlerBlock.getRelativeSide(this.getBlockState(), side));
+					if(handler != null)
+						return LazyOptional.of(() -> handler).cast();
+					else
+						return LazyOptional.empty();
+				}
+			}
+		}
+		return super.getCapability(cap, side);
 	}
 	
 }

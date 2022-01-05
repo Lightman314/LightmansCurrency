@@ -119,8 +119,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		//return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
-		return this.tileEntity.isUsableByPlayer(playerIn);
+		return true;
 	}
 	
 	@Override
@@ -408,7 +407,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.tileEntity, trade.getSellItem());
+				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getSellItem());
 				//Remove the coins from storage
 				this.tileEntity.removeStoredMoney(price);
 			}
@@ -460,7 +459,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.tileEntity, trade.getBarterItem());
+				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getBarterItem());
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.tileEntity.getStorage());
 			}

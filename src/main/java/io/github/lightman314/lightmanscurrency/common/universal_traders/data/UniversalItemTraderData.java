@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
@@ -68,29 +69,29 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public IItemHandler getItemHandler(Direction relativeSide)
 	{
-		ItemHandlerSettings handlerSettings = this.itemSettings.getHandlerSetting(relativeSide);
-		return this.itemHandler.getHandler(handlerSettings);
+		ItemHandlerSettings setting = this.itemSettings.getHandlerSetting(relativeSide);
+		return this.itemHandler.getHandler(setting);
 	}
 	
-	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, null);
+	private ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	int tradeCount = 1;
 	NonNullList<ItemTradeData> trades = null;
 	
-	IInventory inventory;
+	IInventory storage;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
-	public UniversalItemTraderData() {}
+	public UniversalItemTraderData() { }
 	
 	public UniversalItemTraderData(PlayerReference owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
 		super(owner, pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
-		this.inventory = new Inventory(this.inventorySize());
+		this.storage = new Inventory(this.inventorySize());
 	}
 
 	@Override
@@ -103,12 +104,15 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
 		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
-			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+			this.storage = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
 		
 		this.logger.read(compound);
 		
 		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
+		
+		if(compound.contains("ItemSettings", Constants.NBT.TAG_COMPOUND))
+			this.itemSettings.load(compound.getCompound("ItemSettings"));
 		
 		super.read(compound);
 	}
@@ -118,10 +122,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 
 		this.writeTrades(compound);
-		this.writeStorage(compound);
-		this.writeSettings(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
+		this.writeItemSettings(compound);
 		
 		return super.write(compound);
 		
@@ -136,13 +139,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	protected final CompoundNBT writeStorage(CompoundNBT compound)
 	{
-		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
-		return compound;
-	}
-
-	protected final CompoundNBT writeSettings(CompoundNBT compound)
-	{
-		compound.put("Settings", this.itemSettings.save(new CompoundNBT()));
+		InventoryUtil.saveAllItems("Storage", compound, this.storage);
 		return compound;
 	}
 	
@@ -158,6 +155,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return compound;
 	}
 	
+	protected final CompoundNBT writeItemSettings(CompoundNBT compound)
+	{
+		compound.put("ItemSettings", this.itemSettings.save(new CompoundNBT()));
+		return compound;
+	}
+	
 	public int getTradeCount()
 	{
 		return this.tradeCount;
@@ -170,7 +173,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
 	{
-		
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade2(this.traderID, isAdd));
 	}
 	
 	public void addTrade(PlayerEntity requestor)
@@ -184,6 +187,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
 		forceReOpen();
+		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
+		this.markCoreSettingsDirty();
+		
 	}
 	
 	public void removeTrade(PlayerEntity requestor)
@@ -197,6 +203,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			return;
 		this.overrideTradeCount(this.tradeCount - 1);
 		forceReOpen();
+		
+		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
+		this.markCoreSettingsDirty();
 	}
 	
 	private void forceReOpen()
@@ -217,18 +226,18 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			this.trades.set(i, oldTrades.get(i));
 		}
 		//Set the new inventory list
-		IInventory oldInventory = this.inventory;
-		this.inventory = new Inventory(this.inventorySize());
-		for(int i = 0; i < this.inventory.getSizeInventory() && i < oldInventory.getSizeInventory(); i++)
+		IInventory oldInventory = this.storage;
+		this.storage = new Inventory(this.inventorySize());
+		for(int i = 0; i < this.storage.getSizeInventory() && i < oldInventory.getSizeInventory(); i++)
 		{
-			this.inventory.setInventorySlotContents(i, oldInventory.getStackInSlot(i));
+			this.storage.setInventorySlotContents(i, oldInventory.getStackInSlot(i));
 		}
 		//Attempt to place lost items into the available slots
 		if(oldInventory.getSizeInventory() > this.inventorySize())
 		{
 			for(int i = this.inventorySize(); i < oldInventory.getSizeInventory(); i++)
 			{
-				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getStackInSlot(i));
+				InventoryUtil.TryPutItemStack(this.storage, oldInventory.getStackInSlot(i));
 			}
 		}
 		//Mark as dirty (both trades & storage)
@@ -267,19 +276,23 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return this.itemSettings;
 	}
 	
-	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.itemSettings); }
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
 	
 	public void markItemSettingsDirty()
 	{
-		this.markDirty(this::writeSettings);
+		this.markDirty(this::writeItemSettings);
 	}
 	
-	public void loadItemSettings(CompoundNBT settingsTag)
+	@Override
+	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
 	{
-		this.itemSettings.load(settingsTag);
-		this.markItemSettingsDirty();
+		if(type.equals(this.itemSettings.getType()))
+		{
+			this.itemSettings.changeSetting(requestor, updateInfo);
+		}
+		else
+			super.changeSettings(type, requestor, updateInfo);
 	}
-	
 	
 	public ItemShopLogger getLogger() { return this.logger; }
 	
@@ -301,7 +314,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public IInventory getStorage()
 	{
-		return this.inventory;
+		return this.storage;
 	}
 	
 	public void markStorageDirty()
@@ -432,7 +445,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			{
 				ItemStack tradeStack = trade.getSellItem();
 				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this.inventory, tradeStack);
+					tradeStack = InventoryUtil.TryPutItemStack(this.storage, tradeStack);
 				if(!tradeStack.isEmpty())
 					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
 			}

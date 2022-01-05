@@ -182,13 +182,12 @@ public class ItemTraderSettings extends Settings {
 	
 	public void load(CompoundNBT compound)
 	{
-		
 		this.enabledInputSides.load(compound.getCompound("InputSides"));
 		this.enabledOutputSides.load(compound.getCompound("OutputSides"));
 		this.limitInputs = compound.getBoolean("LimitInputs");
 		this.limitOutputs = compound.getBoolean("LimitOutputs");
-		
 	}
+	
 	@Override
 	protected void initSettingsTabs() {
 		this.addTab(ItemInputTab.INSTANCE);
