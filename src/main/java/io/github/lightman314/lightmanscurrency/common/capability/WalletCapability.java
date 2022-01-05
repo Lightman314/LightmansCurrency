@@ -28,11 +28,7 @@ public class WalletCapability {
 
 			@Override
 			public INBT writeNBT(Capability<IWalletHandler> capability, IWalletHandler instance, Direction side) {
-				
-				CompoundNBT compound = new CompoundNBT();
-				CompoundNBT walletItem = instance.getWallet().write(new CompoundNBT());
-				compound.put("Wallet", walletItem);
-				return compound;
+				return instance.save();
 			}
 
 			@Override
@@ -40,10 +36,7 @@ public class WalletCapability {
 					INBT nbt) {
 				if(nbt instanceof CompoundNBT)
 				{
-					CompoundNBT compound = (CompoundNBT)nbt;
-					ItemStack wallet = ItemStack.read(compound.getCompound("Wallet"));
-					instance.setWallet(wallet);
-					instance.clean();
+					instance.load((CompoundNBT)nbt);
 				}
 			}
 		}, WalletHandler::new);
@@ -105,6 +98,21 @@ public class WalletCapability {
 		
 		@Override
 		public void clean() { this.backupWallet = this.getWallet().copy(); }
+		
+		@Override
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
+			CompoundNBT walletItem = this.getWallet().write(new CompoundNBT());
+			compound.put("Wallet", walletItem);
+			return compound;
+		}
+		
+		@Override
+		public void load(CompoundNBT compound) {
+			ItemStack wallet = ItemStack.read(compound.getCompound("Wallet"));
+			this.setWallet(wallet);
+			this.clean();
+		}
 		
 	}
 	

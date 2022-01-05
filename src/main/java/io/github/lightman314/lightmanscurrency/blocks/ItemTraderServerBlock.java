@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -80,10 +81,10 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 			if(tileEntity != null)
 			{
 				//Update the owner
-				if(tileEntity.hasPermissions(playerEntity))
+				if(tileEntity.hasPermission(playerEntity, Permissions.OPEN_STORAGE))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					tileEntity.updateOwner(playerEntity);
+					tileEntity.updateNames(playerEntity);
 					tileEntity.openStorageMenu(playerEntity);
 				}
 			}

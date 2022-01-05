@@ -153,7 +153,7 @@ public class TradingOffice extends WorldSavedData{
 			if(entry.getName().getString().toLowerCase().contains(searchText))
 				return true;
 			//Search the owner name of the traders
-			if(entry.getOwnerName().toLowerCase().contains(searchText))
+			if(entry.getCoreSettings().getOwner().lastKnownName().toLowerCase().contains(searchText))
 				return true;
 			//Search any custom filters
 			return TraderSearchFilter.checkFilters(entry, searchText);

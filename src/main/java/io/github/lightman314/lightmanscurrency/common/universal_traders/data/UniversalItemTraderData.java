@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
@@ -20,13 +22,18 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -36,6 +43,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -46,6 +54,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.IItemHandler;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
@@ -54,6 +63,16 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	
 	public static final int VERSION = 1;
+	
+	TraderItemHandler itemHandler = new TraderItemHandler(this);
+	
+	public IItemHandler getItemHandler(Direction relativeSide)
+	{
+		ItemHandlerSettings handlerSettings = this.itemSettings.getHandlerSetting(relativeSide);
+		return this.itemHandler.getHandler(handlerSettings);
+	}
+	
+	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, null);
 	
 	int tradeCount = 1;
 	NonNullList<ItemTradeData> trades = null;
@@ -66,9 +85,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public UniversalItemTraderData() {}
 	
-	public UniversalItemTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
+	public UniversalItemTraderData(PlayerReference owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
-		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
+		super(owner, pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.inventory = new Inventory(this.inventorySize());
@@ -100,6 +119,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 
 		this.writeTrades(compound);
 		this.writeStorage(compound);
+		this.writeSettings(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
 		
@@ -117,6 +137,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	protected final CompoundNBT writeStorage(CompoundNBT compound)
 	{
 		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
+		return compound;
+	}
+
+	protected final CompoundNBT writeSettings(CompoundNBT compound)
+	{
+		compound.put("Settings", this.itemSettings.save(new CompoundNBT()));
 		return compound;
 	}
 	
@@ -137,16 +163,36 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return this.tradeCount;
 	}
 	
-	public void addTrade()
+	public int getTradeCountLimit()
 	{
+		return TRADELIMIT;
+	}
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		
+	}
+	
+	public void addTrade(PlayerEntity requestor)
+	{
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "toggle creative mode", Permissions.ADMIN_MODE);
+			return;
+		}
 		if(this.getTradeCount() >= TRADELIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
 		forceReOpen();
 	}
 	
-	public void removeTrade()
+	public void removeTrade(PlayerEntity requestor)
 	{
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "toggle creative mode", Permissions.ADMIN_MODE);
+			return;
+		}
 		if(this.getTradeCount() <= 1)
 			return;
 		this.overrideTradeCount(this.tradeCount - 1);
@@ -215,6 +261,25 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		//Send update to the client with only the trade data.
 		this.markDirty(this::writeTrades);
 	}
+	
+	public ItemTraderSettings getItemSettings()
+	{
+		return this.itemSettings;
+	}
+	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.itemSettings); }
+	
+	public void markItemSettingsDirty()
+	{
+		this.markDirty(this::writeSettings);
+	}
+	
+	public void loadItemSettings(CompoundNBT settingsTag)
+	{
+		this.itemSettings.load(settingsTag);
+		this.markItemSettingsDirty();
+	}
+	
 	
 	public ItemShopLogger getLogger() { return this.logger; }
 	

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
@@ -90,11 +91,11 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 		if(this.container.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 28, this::PressConvertButton, GUI_TEXTURE, this.xSize, 0));
+			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 28, this::PressConvertButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
 			
 			if(this.container.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 48, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.xSize, 16));
+				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 48, this::PressAutoConvertToggleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 16)));
 				this.updateToggleButton();
 			}
 			
@@ -122,7 +123,7 @@ public class WalletScreen extends ContainerScreen<WalletContainer>{
 	{
 		//CurrencyMod.LOGGER.info("Updating AutoConvert Button");
 		this.autoConvert = this.container.getAutoConvert();
-		this.buttonToggleAutoConvert.setResource(GUI_TEXTURE, this.xSize, this.autoConvert ? 16 : 32);
+		this.buttonToggleAutoConvert.setIcon(IconData.of(GUI_TEXTURE, this.xSize, this.autoConvert ? 16 : 32));
 	}
 	
 	@Override

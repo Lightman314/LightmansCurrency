@@ -7,6 +7,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -14,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCol
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
@@ -23,6 +25,7 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -145,20 +148,14 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 	{
 		super.init();
 		
-		if(this.container.hasPermissions())
-		{
-			
-			int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.container.tileEntity);
-			
-			this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop, this::PressStorageButton, GUI_TEXTURE, 176, 0));
-			
-			if(this.container.isOwner())
-			{
-				this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-				this.buttonCollectMoney.active = false;
-			}
-			
-		}
+		int tradeOffset = ItemTraderUtil.getTradeDisplayOffset(this.container.tileEntity);
+		
+		this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop, this::PressStorageButton, this.font, IconData.of(Items.CHEST)));
+		this.buttonShowStorage.visible = this.container.hasPermission(Permissions.OPEN_STORAGE);
+		
+		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
+		this.buttonCollectMoney.active = false;
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
 		
 		initTradeButtons();
 		
@@ -180,12 +177,17 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 		
 		this.container.tick();
 		
-		if(this.buttonCollectMoney != null)
+		this.buttonShowStorage.visible = this.container.hasPermission(Permissions.OPEN_STORAGE);
+		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.container.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
+		
 		
 	}
 	
@@ -213,25 +215,21 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 	private void PressStorageButton(Button button)
 	{
 		//Open the container screen
-		if(container.hasPermissions())
+		if(this.container.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to open the Trader's Storage.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.container.tileEntity.getPos()));
 		}
-		else
-			LightmansCurrency.LogWarning("Player without permissions attempted to open the Trader's Storage.");
 	}
 	
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
 			//LightmansCurrency.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 		}
-		else
-			LightmansCurrency.LogWarning("Non-owner attempted to collect the stored money.");
 	}
 	
 	private void PressTradeButton(Button button)

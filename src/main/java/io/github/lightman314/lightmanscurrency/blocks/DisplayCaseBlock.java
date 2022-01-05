@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,6 +18,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -63,11 +66,7 @@ public class DisplayCaseBlock extends Block implements IItemTraderBlock{
 				//if(trader.getTradeCount() != TRADECOUNT && !trader.isCreative())
 				//	trader.overrideTradeCount(TRADECOUNT);
 				//Update the owner
-				if(trader.isOwner(playerEntity) && !trader.isCreative())
-				{
-					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					trader.setOwner(playerEntity);
-				}
+				trader.getCoreSettings().updateNames(playerEntity);
 				TileEntityUtil.sendUpdatePacket(tileEntity);
 				trader.openTradeMenu((ServerPlayerEntity)playerEntity);
 			}
@@ -83,9 +82,9 @@ public class DisplayCaseBlock extends Block implements IItemTraderBlock{
 			ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)worldIn.getTileEntity(pos);
 			if(tileEntity != null)
 			{
-				tileEntity.setOwner(player);
+				tileEntity.initOwner(PlayerReference.of(player));
 				if(stack.hasDisplayName())
-					tileEntity.setCustomName(stack.getDisplayName().getString());
+					tileEntity.getCoreSettings().setCustomName(null, stack.getDisplayName().getString());
 			}
 		}
 	}
@@ -142,6 +141,21 @@ public class DisplayCaseBlock extends Block implements IItemTraderBlock{
 	@Override
 	public TileEntity getTileEntity(BlockState state, IWorld world, BlockPos pos) {
 		return world.getTileEntity(pos);
+	}
+	
+	@Override
+	public IItemHandlerTileEntity getItemHandlerEntity(BlockState state, World world, BlockPos pos)
+	{
+		TileEntity trader = this.getTileEntity(state, world, pos);
+		if(trader instanceof IItemHandlerTileEntity)
+			return (IItemHandlerTileEntity)trader;
+		return null;
+	}
+	
+	@Override
+	public Direction getRelativeSide(BlockState state, Direction side)
+	{
+		return side;
 	}
 	
 }

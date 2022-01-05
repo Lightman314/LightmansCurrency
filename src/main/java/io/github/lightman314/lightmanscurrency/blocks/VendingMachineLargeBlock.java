@@ -5,7 +5,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -38,7 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class VendingMachineLargeBlock extends RotatableBlock implements IItemTraderBlock{
+public class VendingMachineLargeBlock extends RotatableItemBlock implements IItemTraderBlock{
 	
 	public static final int TRADECOUNT = 12;
 	
@@ -282,9 +285,9 @@ public class VendingMachineLargeBlock extends RotatableBlock implements IItemTra
 			ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)worldIn.getTileEntity(pos);
 			if(tileEntity != null)
 			{
-				tileEntity.setOwner(player);
+				tileEntity.initOwner(PlayerReference.of(player));
 				if(stack.hasDisplayName())
-					tileEntity.setCustomName(stack.getDisplayName().getString());
+					tileEntity.getCoreSettings().setCustomName(null, stack.getDisplayName().getString());
 			}
 		}
 	}
@@ -303,11 +306,7 @@ public class VendingMachineLargeBlock extends RotatableBlock implements IItemTra
 				//if(trader.getTradeCount() != TRADECOUNT && !trader.isCreative())
 				//	trader.overrideTradeCount(TRADECOUNT);
 				//Update the owner
-				if(trader.isOwner(playerEntity) && !trader.isCreative())
-				{
-					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					trader.setOwner(playerEntity);
-				}
+				trader.getCoreSettings().updateNames(playerEntity);
 				TileEntityUtil.sendUpdatePacket(tileEntity);
 				trader.openTradeMenu((ServerPlayerEntity)playerEntity);
 			}
@@ -318,7 +317,7 @@ public class VendingMachineLargeBlock extends RotatableBlock implements IItemTra
 	@Override
 	public boolean hasTileEntity(BlockState state)
 	{
-		return state.get(ISBOTTOM) && state.get(ISLEFT);
+		return true;
 	}
 	
 	public TileEntity getTileEntity(BlockState state, IWorld world, BlockPos pos)
@@ -335,11 +334,22 @@ public class VendingMachineLargeBlock extends RotatableBlock implements IItemTra
 		
 	}
 	
+	@Override
+	public IItemHandlerTileEntity getItemHandlerEntity(BlockState state, World world, BlockPos pos)
+	{
+		TileEntity trader = this.getTileEntity(state, world, pos);
+		if(trader instanceof IItemHandlerTileEntity)
+			return (IItemHandlerTileEntity)trader;
+		return null;
+	}
+	
 	@Nullable
 	@Override
 	public TileEntity createTileEntity(BlockState state, IBlockReader world)
 	{
-		return new ItemTraderTileEntity(TRADECOUNT);
+		if(state.get(ISBOTTOM) && state.get(ISLEFT))
+			return new ItemTraderTileEntity(TRADECOUNT);
+		return new ItemInterfaceTileEntity();
 	}
 	
 	@Override

@@ -12,6 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -99,8 +100,8 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		this.buttonToggleSlot.visible = this.container.tradeData.isBarter();
 		
 		//Page Buttons
-		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize, 0));
-		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
 		//Count Buttons
 		this.buttonCountUp = this.addButton(new PlainButton(this.guiLeft + this.xSize, this.guiTop + 20, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.xSize + 32, 0));
 		this.buttonCountDown = this.addButton(new PlainButton(this.guiLeft + this.xSize, this.guiTop + 30, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.xSize + 32, 20));

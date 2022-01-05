@@ -6,6 +6,7 @@ import java.util.List;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -13,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.network.message.cashregister.Mess
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -79,25 +81,22 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 		if(this.container.cashRegister.getPairedTraderSize() > 1)
 		{
 			
-			this.buttonLeft = this.addButton(new IconButton(this.guiLeft + tradeOffset - 20, this.guiTop, this::PressArrowButton, GUI_TEXTURE, 176, 16));
-			this.buttonRight = this.addButton(new IconButton(this.guiLeft + this.xSize - tradeOffset, this.guiTop, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonLeft = this.addButton(new IconButton(this.guiLeft + tradeOffset - 20, this.guiTop, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
+			this.buttonRight = this.addButton(new IconButton(this.guiLeft + this.xSize - tradeOffset, this.guiTop, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			
 			this.pageInput = new TextFieldWidget(this.font, this.guiLeft + 50, this.guiTop - 19, this.xSize - 120, 18, ITextComponent.getTextComponentOrEmpty(""));
 			this.pageInput.setMaxStringLength(9);
 			this.pageInput.setText(String.valueOf(this.container.getThisIndex() + 1));
 			this.children.add(this.pageInput);
 			
-			this.buttonSkipToPage = this.addButton(new IconButton(this.guiLeft + this.xSize - 68, this.guiTop - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonSkipToPage = this.addButton(new IconButton(this.guiLeft + this.xSize - 68, this.guiTop - 20, this::PressPageSkipButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			this.buttonSkipToPage.active = false;
 			
 		}
 		
-		if(this.container.isOwner())
-		{
-			
-			this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-			this.buttonCollectMoney.active = false;
-		}
+		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
+		this.buttonCollectMoney.active = false;
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
 		
 		initTradeButtons();
 		
@@ -124,12 +123,15 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 		
 		this.container.tick();
 		
-		if(this.buttonCollectMoney != null)
+		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.container.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
 		if(this.buttonSkipToPage != null)
 		{
 			this.buttonSkipToPage.active = this.getPageInput() >= 0 && this.getPageInput() < this.container.getTotalCount() && this.getPageInput() != this.container.getThisIndex();
@@ -173,7 +175,7 @@ public class ItemTraderScreenCR extends ContainerScreen<ItemTraderContainerCR>{
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());

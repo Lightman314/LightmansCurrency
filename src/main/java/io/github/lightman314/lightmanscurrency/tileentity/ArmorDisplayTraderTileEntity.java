@@ -106,7 +106,7 @@ public class ArmorDisplayTraderTileEntity extends ItemTraderTileEntity{
 					}
 					if(slot != null)
 					{
-						if(thisTrade.hasStock(this) || this.isCreative())
+						if(thisTrade.hasStock(this) || this.coreSettings.isCreative())
 							this.armorStand.setItemStackToSlot(slot, thisTrade.getSellItem());
 						else
 							this.armorStand.setItemStackToSlot(slot, ItemStack.EMPTY);

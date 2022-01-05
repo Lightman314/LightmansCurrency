@@ -8,26 +8,23 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeItemPriceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderNameScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveAlly;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageToggleCreative;
-import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
-import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -35,15 +32,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageContainer>{
@@ -55,12 +49,9 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	
 	Button buttonShowTrades;
 	Button buttonCollectMoney;
-	Button buttonStoreMoney;
-	IconButton buttonToggleCreative;
-	Button buttonAddTrade;
-	Button buttonRemoveTrade;
+	Button buttonOpenSettings;
 	
-	Button buttonChangeName;
+	Button buttonStoreMoney;
 	
 	Button buttonShowLog;
 	Button buttonClearLog;
@@ -68,12 +59,6 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	TextLogWindow logWindow;
 	
 	Button buttonTradeRules;
-	
-	boolean allyScreenOpen = false;
-	Button buttonAllies;
-	Button buttonAddAlly;
-	Button buttonRemoveAlly;
-	TextFieldWidget allyTextInput;
 	
 	List<Button> tradePriceButtons = new ArrayList<>();
 	
@@ -193,81 +178,31 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static void drawAllyScreen(MatrixStack matrix, Screen screen, FontRenderer font, IPermissions allySource, Minecraft minecraft, int xSize, int ySize)
-	{
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		minecraft.getTextureManager().bindTexture(ALLY_GUI_TEXTURE);
-		int startX = ((screen.width - xSize) / 2) + (xSize/2) - 176/2;
-		int startY = (screen.height - ySize) / 2;
-		
-		screen.blit(matrix, startX, startY, 0, 0, 176, 176);
-		
-		screen.blit(matrix, startX, startY + 55, 0, 176, 176, 80);
-		screen.blit(matrix, startX, startY + 135, 0, 176, 176, 34);
-		
-		int x = 0;
-		int y = 0;
-		for(int i = 0; i < allySource.getAllies().size() && x < 2; i++)
-		{
-			
-			font.drawString(matrix, allySource.getAllies().get(i), startX + 10 + 78 * x, startY + 57 + 10 * y, 0xFFFFFF);
-			y++;
-			if(y > 10)
-			{
-				y = 0;
-				x++;
-			}
-		}
-		
-	}
-	
 	@Override
 	protected void init()
 	{
 		super.init();
 		
-		this.buttonShowTrades = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION, this.guiTop - 20, this::PressTradesButton, GUI_TEXTURE, 176, 0));
+		this.buttonShowTrades = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION, this.guiTop - 20, this::PressTradesButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
 		
-		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + 20, this.guiTop - 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
+		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + 20, this.guiTop - 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = !this.container.tileEntity.isCreative() && this.container.isOwner();
+		this.buttonCollectMoney.visible = this.container.hasPermissions(Permissions.COLLECT_COINS);
+		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
+		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
+		
+		
 		
 		int tradeCount = this.container.tileEntity.getTradeCount();
-		this.buttonStoreMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 176 + 32, this.guiTop + 25 + ItemTraderStorageUtil.getRowCount(tradeCount) * 18, this::PressStoreCoinsButton, GUI_TEXTURE, 176, 16));
+		this.buttonStoreMoney = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 176 + 32, this.guiTop + 25 + ItemTraderStorageUtil.getRowCount(tradeCount) * 18, this::PressStoreCoinsButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
 		this.buttonStoreMoney.visible = false;
 		
-		this.buttonChangeName = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 40, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.changename"), this::PressTraderNameButton));
-		this.buttonChangeName.visible = this.container.isOwner();
-		this.buttonShowLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 60, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
-		this.buttonClearLog = this.addButton(new Button(this.guiLeft + SCREEN_EXTENSION + 80, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
 		
-		this.buttonToggleCreative = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressCreativeButton, GUI_TEXTURE, 176 + 32, 0));
-		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.container.player);
-		this.buttonAddTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 20, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 0));
-		this.buttonAddTrade.visible = this.container.tileEntity.isCreative() && TradingOffice.isAdminPlayer(this.container.player);;
-		this.buttonAddTrade.active = this.container.tileEntity.getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
-		this.buttonRemoveTrade = this.addButton(new PlainButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 50, this.guiTop - 10, 10, 10, this::PressAddRemoveTradeButton, GUI_TEXTURE, 176 + 64, 20));
-		this.buttonRemoveTrade.visible = this.container.tileEntity.isCreative() && TradingOffice.isAdminPlayer(this.container.player);
-		this.buttonRemoveTrade.active = this.container.tileEntity.getTradeCount() > 1;
-			
-		if(this.container.isOwner())
-		{
-			
-			this.buttonAllies = this.addButton(new IconButton(this.guiLeft + SCREEN_EXTENSION + 100, this.guiTop - 20, this::PressAllyButton, GUI_TEXTURE, 176 + 32, 16));
-			
-			this.allyTextInput = this.addListener(new TextFieldWidget(this.font, this.guiLeft + this.xSize/2 - 176/2 + 10, this.guiTop + 9, 176 - 20, 20, new StringTextComponent("")));
-			this.allyTextInput.setMaxStringLength(32);
-			this.allyTextInput.visible = false;
-			
-			this.buttonAddAlly = this.addButton(new Button(this.guiLeft + this.xSize/2 - 176/2 + 10, this.guiTop + 30, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.allies.add"), this::PressAddAllyButton));
-			this.buttonAddAlly.visible = false;
-			this.buttonRemoveAlly = this.addButton(new Button(this.guiLeft + this.xSize/2 - 176/2 + 88, this.guiTop + 30, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.allies.remove"), this::PressRemoveAllyButton));
-			this.buttonRemoveAlly.visible = false;
-			
-		}
+		this.buttonOpenSettings = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressSettingsButton, this.font, IconData.of(GUI_TEXTURE, 176 + 32, 0)));
+		this.buttonOpenSettings.visible = this.container.hasPermissions(Permissions.EDIT_SETTINGS);
 		
-		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 20, this.guiTop - 20, this::PressTradeRulesButton, GUI_TEXTURE, 176 + 16, 16));
+		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + this.xSize - SCREEN_EXTENSION - 40, this.guiTop - 20, this::PressTradeRulesButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
+		this.buttonTradeRules.visible = this.container.hasPermissions(Permissions.EDIT_TRADE_RULES);
 		
 		this.logWindow = new TextLogWindow(this.guiLeft + (this.xSize / 2) - (TextLogWindow.WIDTH / 2), this.guiTop, () -> this.container.tileEntity.getLogger(), this.font);
 		this.addListener(this.logWindow);
@@ -298,23 +233,6 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
 			return;
 		}
-		else if(this.allyScreenOpen)
-		{
-			
-			drawAllyScreen(matrixStack, this, this.font, this.container.tileEntity, minecraft, this.xSize, this.ySize);
-			
-			this.allyTextInput.render(matrixStack, mouseX, mouseY, partialTicks);
-			this.buttonAddAlly.render(matrixStack, mouseX, mouseY, partialTicks);
-			this.buttonRemoveAlly.render(matrixStack, mouseX, mouseY, partialTicks);
-			
-			if(this.buttonAllies != null && this.buttonAllies.isMouseOver(mouseX, mouseY))
-			{
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.allies"), mouseX, mouseY);
-			}
-			this.buttonAllies.render(matrixStack, mouseX, mouseY, partialTicks);
-			return;
-			
-		}
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
 		
@@ -330,25 +248,6 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.storecoins"), mouseX, mouseY);
 		}
-		else if(this.buttonToggleCreative.visible && this.buttonToggleCreative.isMouseOver(mouseX, mouseY))
-		{
-			if(this.container.tileEntity.isCreative())
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.disable"), mouseX, mouseY);
-			else
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.enable"), mouseX, mouseY);
-		}
-		else if(this.buttonAddTrade.visible && this.buttonAddTrade.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.addTrade"), mouseX, mouseY);
-		}
-		else if(this.buttonRemoveTrade.visible && this.buttonRemoveTrade.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.removeTrade"), mouseX, mouseY);
-		}
-		else if(this.buttonChangeName.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.changeName"), mouseX, mouseY);
-		}
 		else if(this.buttonShowLog.isMouseOver(mouseX, mouseY))
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.show"), mouseX, mouseY);
@@ -361,9 +260,9 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		{
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
 		}
-		else if(this.buttonAllies != null && this.buttonAllies.isMouseOver(mouseX, mouseY))
+		else if(this.buttonOpenSettings.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.allies"), mouseX, mouseY);
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.settings"), mouseX, mouseY);
 		}
 		else if(this.container.player.inventory.getItemStack().isEmpty())
 		{
@@ -381,7 +280,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	@Override
 	public void tick()
 	{
-		if(!this.container.hasPermissions())
+		if(!this.container.hasPermissions(Permissions.OPEN_STORAGE))
 		{
 			this.container.player.closeScreen();
 			return;
@@ -390,53 +289,14 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		
 		this.container.tick();
 		
-		this.buttonCollectMoney.visible = (!this.container.tileEntity.isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.isOwner();
+		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermissions(Permissions.COLLECT_COINS);
 		this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 		
+		this.buttonOpenSettings.visible = this.container.hasPermissions(Permissions.EDIT_SETTINGS);
+		
 		this.buttonStoreMoney.visible = this.container.HasCoinsToAdd();
-		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.isOwner();
+		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.hasPermissions(Permissions.CLEAR_LOGS);
 		
-		if(this.container.isOwner())
-		{
-			this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.container.player);
-			if(this.buttonToggleCreative.visible)
-			{
-				if(this.container.tileEntity.isCreative())
-				{
-					this.buttonToggleCreative.setResource(GUI_TEXTURE, 176 + 32, 0);
-					this.buttonAddTrade.visible = true;
-					this.buttonAddTrade.active = this.container.tileEntity.getTradeCount() < ItemTraderTileEntity.TRADELIMIT;
-					this.buttonRemoveTrade.visible = true;
-					this.buttonRemoveTrade.active = this.container.tileEntity.getTradeCount() > 1;
-				}
-				else
-				{
-					this.buttonToggleCreative.setResource(GUI_TEXTURE, 176 + 48, 0);
-					this.buttonAddTrade.visible = false;
-					this.buttonRemoveTrade.visible = false;
-				}
-			}
-			else
-			{
-				this.buttonAddTrade.visible = false;
-				this.buttonRemoveTrade.visible = false;
-			}
-			
-			this.buttonAddAlly.visible = this.allyScreenOpen;
-			this.buttonRemoveAlly.visible = this.allyScreenOpen;
-			this.allyTextInput.visible = this.allyScreenOpen;
-			
-		}
-		
-	}
-	
-	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
-	{
-		InputMappings.Input mouseKey = InputMappings.getInputByCode(keyCode, scanCode);
-		if(this.minecraft.gameSettings.keyBindInventory.isActiveAndMatches(mouseKey) && this.allyScreenOpen)
-			return false;
-		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 	
 	//0 for left-click. 1 for right-click
@@ -546,63 +406,36 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(container.isOwner())
+		if(container.hasPermissions(Permissions.COLLECT_COINS))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 		}
 		else
-			LightmansCurrency.LogWarning("Non-owner attempted to collect the stored money.");
+			Settings.PermissionWarning(this.container.player, "collect stored coins", Permissions.COLLECT_COINS);
 	}
 	
 	private void PressStoreCoinsButton(Button button)
 	{
-		if(container.isOwner())
+		if(container.hasPermissions(Permissions.STORE_COINS))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStoreCoins());
 		}
 		else
-			LightmansCurrency.LogWarning("Non-owner attempted to store coins in the machine.");
+			Settings.PermissionWarning(this.container.player, "store coins", Permissions.STORE_COINS);
 	}
 	
 	private void PressTradePriceButton(Button button)
 	{
+		if(!this.container.hasPermissions(Permissions.EDIT_TRADES))
+			return;
+		
 		int tradeIndex = 0;
 		if(tradePriceButtons.contains(button))
 			tradeIndex = tradePriceButtons.indexOf(button);
 		
 		this.minecraft.displayGuiScreen(new TradeItemPriceScreen(this.container.tileEntity, tradeIndex, this.playerInventory.player));
 		
-	}
-	
-	private void PressTraderNameButton(Button button)
-	{
-		this.minecraft.displayGuiScreen(new TraderNameScreen(this.container.tileEntity, this.playerInventory.player));
-	}
-	
-	private void PressCreativeButton(Button button)
-	{
-		if(container.isOwner())
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageToggleCreative());
-		}
-	}
-	
-	private void PressAddRemoveTradeButton(Button button)
-	{
-		if(container.isOwner())
-		{
-			if(button == this.buttonAddTrade)
-			{
-				LightmansCurrency.LogInfo("Add Trade Button Pressed!");
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(true));
-			}
-			else
-			{
-				LightmansCurrency.LogInfo("Remove Trade Button Pressed!");
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(false));
-			}
-		}
 	}
 	
 	private void PressLogButton(Button button)
@@ -620,23 +453,10 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		Minecraft.getInstance().displayGuiScreen(new TradeRuleScreen(this.container.tileEntity.GetRuleScreenBackHandler()));
 	}
 	
-	private void PressAllyButton(Button button)
+	private void PressSettingsButton(Button button)
 	{
-		this.allyScreenOpen = !this.allyScreenOpen;
-	}
-	
-	private void PressAddAllyButton(Button button)
-	{
-		String newAlly = this.allyTextInput.getText();
-		this.allyTextInput.setText("");
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveAlly(this.container.tileEntity.getPos(), true, newAlly));
-	}
-	
-	private void PressRemoveAllyButton(Button button)
-	{
-		String newAlly = this.allyTextInput.getText();
-		this.allyTextInput.setText("");
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveAlly(this.container.tileEntity.getPos(), false, newAlly));
+		this.container.player.closeScreen();
+		Minecraft.getInstance().displayGuiScreen(new TraderSettingsScreen(() -> this.container.tileEntity, (player) ->LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.container.tileEntity.getPos()))));
 	}
 	
 }

@@ -68,7 +68,7 @@ public class UniversalTraderButton extends Button{
 		
 		//Draw the name & owner of the trader
 		this.font.drawString(matrixStack, this.data.getName().getString(), this.x + 24f, this.y + 6f, 0x404040);
-		this.font.drawString(matrixStack, this.data.getOwnerName(), this.x + 24f, this.y + 16f, 0x404040);
+		this.font.drawString(matrixStack, this.data.getCoreSettings().getOwner().lastKnownName(), this.x + 24f, this.y + 16f, 0x404040);
 		
 	}
 

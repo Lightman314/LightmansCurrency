@@ -3,8 +3,11 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainerCR;
@@ -15,8 +18,14 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.tileentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
@@ -39,7 +48,9 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -50,11 +61,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.IItemHandler;
 
-public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class ItemTraderTileEntity extends TraderTileEntity implements IInventory, IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler {
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
+	
+	TraderItemHandler itemHandler = new TraderItemHandler(this);
+	
+	public IItemHandler getItemHandler(Direction relativeSide)
+	{
+		ItemHandlerSettings handlerSettings = this.itemSettings.getHandlerSetting(relativeSide);
+		return this.itemHandler.getHandler(handlerSettings);
+	}
+	
+	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected NonNullList<ItemStack> inventory;
 	
@@ -115,24 +137,49 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		return MathUtil.clamp(tradeCount, 1, TRADELIMIT);
 	}
 	
-	public void addTrade()
+	public int getTradeCountLimit()
+	{
+		return TRADELIMIT;
+	}
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.pos, isAdd));
+	}
+	
+	public void addTrade(PlayerEntity requestor)
 	{
 		if(this.world.isRemote)
 			return;
 		if(tradeCount >= TRADELIMIT)
 			return;
-		overrideTradeCount(tradeCount + 1);
-		forceReOpen();
+		if(TradingOffice.isAdminPlayer(requestor))
+		{
+			overrideTradeCount(tradeCount + 1);
+			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
+			this.markCoreSettingsDirty();
+			forceReOpen();
+		}
+		else
+			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	public void removeTrade()
+	public void removeTrade(PlayerEntity requestor)
 	{
 		if(this.world.isRemote)
 			return;
 		if(tradeCount <= 1)
 			return;
-		overrideTradeCount(tradeCount - 1);
-		forceReOpen();
+		if(TradingOffice.isAdminPlayer(requestor))
+		{
+			overrideTradeCount(tradeCount - 1);
+			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
+			this.markCoreSettingsDirty();
+			forceReOpen();
+		}
+		else
+			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
+		
 	}
 	
 	private void forceReOpen()
@@ -214,6 +261,34 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		this.markDirty();
 	}
 	
+	public ItemTraderSettings getItemSettings()
+	{
+		return this.itemSettings;
+	}
+	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.itemSettings); }
+	
+	public void markItemSettingsDirty()
+	{
+		if(!this.world.isRemote)
+		{
+			CompoundNBT compound = this.writeItemSettings(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.markDirty();
+	}
+	
+	@Override
+	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
+	{
+		if(type.equals(this.itemSettings.getType()))
+		{
+			this.itemSettings.changeSetting(requestor, updateInfo);
+		}
+		else
+			super.changeSettings(type, requestor, updateInfo);
+	}
+	
 	public ItemShopLogger getLogger() {return this.logger; }
 	
 	public void clearLogger()
@@ -239,7 +314,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		ItemTradeData trade = getTrade(tradeSlot);
 		if(!trade.getSellItem().isEmpty())
 		{
-			if(this.isCreative)
+			if(this.coreSettings.isCreative())
 				return Integer.MAX_VALUE;
 			else
 			{
@@ -323,6 +398,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 		
 		this.writeItems(compound);
 		this.writeTrades(compound);
+		this.writeItemSettings(compound);
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
@@ -340,6 +416,12 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 	{
 		compound.putInt("TradeLimit", this.tradeCount);
 		ItemTradeData.saveAllData(compound, this.trades);
+		return compound;
+	}
+	
+	public CompoundNBT writeItemSettings(CompoundNBT compound)
+	{
+		compound.put("ItemSettings", this.itemSettings.save(new CompoundNBT()));
 		return compound;
 	}
 	
@@ -376,6 +458,10 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IInventory
 			this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 			ItemStackHelper.loadAllItems("Items", compound, this.inventory);
 		}
+		
+		//Load the settings
+		if(compound.contains("Settings", Constants.NBT.TAG_COMPOUND))
+			this.itemSettings.load(compound.getCompound("Settings"));
 		
 		//Load the shop logger
 		this.logger.read(compound);

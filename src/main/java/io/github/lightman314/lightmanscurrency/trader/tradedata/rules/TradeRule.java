@@ -11,6 +11,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -53,10 +54,7 @@ public abstract class TradeRule {
 	
 	public abstract void readNBT(CompoundNBT compound);
 	
-	public ITextComponent getButtonText() { return null; }
-	public ResourceLocation getButtonGUI() { return ICON_TEXTURE; }
-	public int getGUIX() { return 0; }
-	public int getGUIY() { return 0; }
+	public abstract IconData getButtonIcon();
 	
 	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules)
 	{

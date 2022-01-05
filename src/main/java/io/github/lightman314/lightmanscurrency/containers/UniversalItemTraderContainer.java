@@ -15,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -275,7 +277,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		if(trade.isSale())
 		{
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.getData()) && !this.getData().isCreative())
+			if(!trade.hasStock(this.getData()) && !this.getData().getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -327,14 +329,14 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			}
 			
 			//Log the successful trade
-			this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, price, this.getData().getCoreSettings().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
 			PostTradeEvent(trade, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getData().isCreative())
+			if(!this.getData().getCoreSettings().isCreative())
 			{
 				//Remove the sold items from storage
 				//InventoryUtil.RemoveItemCount(this.getData().getStorage(), trade.getSellItem());
@@ -355,12 +357,12 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				return;
 			}
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!InventoryUtil.CanPutItemStack(this.getData().getStorage(), trade.getSellItem()) && !this.getData().isCreative())
+			if(!InventoryUtil.CanPutItemStack(this.getData().getStorage(), trade.getSellItem()) && !this.getData().getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 			}
 			//Abort if not enough money to pay them back
-			if(!trade.hasStock(this.getData()) && !this.getData().isCreative())
+			if(!trade.hasStock(this.getData()) && !this.getData().getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
 				return;
@@ -371,14 +373,14 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
 			//Log the successful trade
-			this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, price, this.getData().getCoreSettings().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
 			PostTradeEvent(trade, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getData().isCreative())
+			if(!this.getData().getCoreSettings().isCreative())
 			{
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.getData().getStorage(), trade.getSellItem());
@@ -398,13 +400,13 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 				return;
 			}
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this.getData()) && !this.getData().isCreative())
+			if(!trade.hasSpace(this.getData()) && !this.getData().getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return;
 			}
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.getData()) && !this.getData().isCreative())
+			if(!trade.hasStock(this.getData()) && !this.getData().getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -424,14 +426,14 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			InventoryUtil.PutItemStack(this.itemSlots, trade.getSellItem());
 			
 			//Log the successful trade
-			this.getData().getLogger().AddLog(player, trade, CoinValue.EMPTY, this.getData().isCreative());
+			this.getData().getLogger().AddLog(player, trade, CoinValue.EMPTY, this.getData().getCoreSettings().isCreative());
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
 			PostTradeEvent(trade, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getData().isCreative())
+			if(!this.getData().getCoreSettings().isCreative())
 			{
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.getData().getStorage(), trade.getBarterItem());
@@ -446,6 +448,11 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	
 	public void CollectCoinStorage()
 	{
+		if(!this.getData().hasPermission(this.player, Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+			return;
+		}
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
@@ -475,29 +482,17 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	
 	public void tick()
 	{
-		//UpdateTradeDisplays();
+		
 	}
 	
-	/*public void UpdateTradeDisplays()
+	public boolean hasPermissions(String permission)
 	{
-		for(int i = 0; i < tradeDisplays.getSizeInventory(); i++)
-		{
-			ItemTradeData trade = this.getData().getTrade(i);
-			if(trade != null)
-				tradeDisplays.setInventorySlotContents(i, trade.getDisplayItem(this.getData(), this.getData().isCreative(), this.getData().getStoredMoney()));
-			else
-				tradeDisplays.setInventorySlotContents(i, ItemStack.EMPTY);
-		}
-	}*/
-	
-	public boolean isOwner()
-	{
-		return this.getData().isOwner(player);
+		return this.getData().hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermisisonLevel(String permission)
 	{
-		return this.getData().hasPermissions(player);
+		return this.getData().getPermissionLevel(this.player, permission);
 	}
 
 	@Override

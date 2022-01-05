@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.capability;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 
 public interface IWalletHandler{
 
@@ -35,5 +36,8 @@ public interface IWalletHandler{
 	 * Removes the dirty flag, called when an update packet is sent.
 	 */
 	void clean();
+	
+	public CompoundNBT save();
+	public void load(CompoundNBT compound);
 	
 }

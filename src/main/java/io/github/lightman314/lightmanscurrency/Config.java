@@ -195,6 +195,7 @@ public class Config {
 		
 		//Entity Loot
 		public final ForgeConfigSpec.BooleanValue enableEntityDrops;
+		public final ForgeConfigSpec.BooleanValue enableSpawnerEntityDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> copperEntityDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> ironEntityDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> goldEntityDrops;
@@ -312,6 +313,11 @@ public class Config {
 			this.enableEntityDrops = builder
 					.comment("Whether coins can be dropped by entities. Does not effect chest loot generation.")
 					.define("enableEntityDrops", true);
+			//Entity spawned loot drops
+			this.enableSpawnerEntityDrops = builder
+					.comment("Whether coins can be dropped by entities that were spawned by the vanilla spawner.")
+					.define("enableSpawnerEntityDrops", false);
+			
 			//Copper
 			this.copperEntityDrops = builder
 					.comment("Entities that will occasionally drop copper coins.")

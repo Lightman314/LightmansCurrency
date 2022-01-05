@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -11,12 +9,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -33,24 +34,16 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public static final ResourceLocation ICON_RESOURCE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png");
 	
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, null);
+	
 	UUID traderID = null;
 	public UUID getTraderID() { return this.traderID; }
-	UUID ownerID;
-	public UUID getOwnerID() { return this.ownerID; }
-	String ownerName;
-	public String getOwnerName() { return this.ownerName; }
-	String traderName = "";
 	BlockPos pos;
 	public BlockPos getPos() { return this.pos; }
 	RegistryKey<World> world = World.OVERWORLD;
 	public RegistryKey<World> getWorld() { return this.world; }
-	boolean creative = false;
-	public boolean isCreative() { return this.creative; }
-	public void toggleCreative() { this.creative = !this.creative; this.markDirty(); LightmansCurrency.LogInfo("Creative has been toggled on a Universal Trader.");}
 	CoinValue storedMoney = new CoinValue();
 	public CoinValue getStoredMoney() { return this.storedMoney; }
-	
-	List<String> allies = new ArrayList<>();
 	
 	private boolean isServer = true;
 	public final boolean isServer() { return this.isServer; }
@@ -91,6 +84,18 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	 */
 	public final void markDirty(Function<CompoundNBT,CompoundNBT> writer) { if(this.isServer) this.markDirty(writer.apply(new CompoundNBT())); }
 	
+	public CoreTraderSettings getCoreSettings() { return this.coreSettings; }
+	
+	public void markCoreSettingsDirty() {
+		this.markDirty(this::writeCoreSettings);
+	}
+	
+	public void loadCoreSettings(CompoundNBT settingsTag)
+	{
+		this.coreSettings.load(settingsTag);
+		this.markCoreSettingsDirty();
+	}
+	
 	public void addStoredMoney(CoinValue amount)
 	{
 		this.storedMoney.addValue(amount);
@@ -112,11 +117,9 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public UniversalTraderData() {};
 	
-	public UniversalTraderData(UUID ownerID, String ownerName, BlockPos pos, RegistryKey<World> world, UUID traderID)
+	public UniversalTraderData(PlayerReference owner, BlockPos pos, RegistryKey<World> world, UUID traderID)
 	{
-		this.ownerID = ownerID;
-		this.ownerName = ownerName;
-		this.traderName = "";
+		this.coreSettings.initializeOwner(owner);
 		this.pos = pos;
 		this.traderID = traderID;
 		this.world = world;
@@ -135,38 +138,19 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		//ID
 		if(compound.contains("ID"))
 			this.traderID = compound.getUniqueId("ID");
-		//Owner ID & Name
-		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUniqueId("OwnerID");
-		if(compound.contains("OwnerName", Constants.NBT.TAG_STRING))
-			this.ownerName = compound.getString("OwnerName");
-		//Trader Name
-		if(compound.contains("TraderName", Constants.NBT.TAG_STRING))
-			this.traderName = compound.getString("TraderName");
+		//Core Settings
+		if(compound.contains("CoreSettings", Constants.NBT.TAG_COMPOUND))
+			this.coreSettings.load(compound.getCompound("CoreSettings"));
+		else
+			this.coreSettings.loadFromOldTraderData(compound);
 		//Position
 		if(compound.contains("x") && compound.contains("y") && compound.contains("z"))
 			this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
 		if(compound.contains("World"))
 			this.world = RegistryKey.getOrCreateKey(Registry.WORLD_KEY, new ResourceLocation(compound.getString("World")));
-		//Creative
-		if(compound.contains("Creative"))
-			this.creative = compound.getBoolean("Creative");
 		//Stored Money
 		if(compound.contains("StoredMoney"))
 			this.storedMoney.readFromNBT(compound, "StoredMoney");
-		
-		//Read allies
-		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
-		{
-			this.allies.clear();
-			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
-			for(int i = 0; i < allyList.size(); i++)
-			{
-				CompoundNBT thisAlly = allyList.getCompound(i);
-				if(thisAlly.contains("name", Constants.NBT.TAG_STRING))
-					this.allies.add(thisAlly.getString("name"));
-			}
-		}
 		
 		//Read Version
 		if(checkVersion)
@@ -176,12 +160,9 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	public CompoundNBT write(CompoundNBT compound)
 	{
 		this.writeCoreData(compound);
-		this.writeOwner(compound);
+		this.writeCoreSettings(compound);
 		this.writeStoredMoney(compound);
-		this.writeName(compound);
-		this.writeCreative(compound);
 		this.writeWorldData(compound);
-		this.writeAllies(compound);
 		this.writeVersion(compound);
 		return compound;
 	}
@@ -196,23 +177,9 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		return compound;
 	}
 	
-	protected final CompoundNBT writeOwner(CompoundNBT compound)
+	protected final CompoundNBT writeCoreSettings(CompoundNBT compound)
 	{
-		if(this.ownerID != null)
-			compound.putUniqueId("OwnerID", this.ownerID);
-		compound.putString("OwnerName", this.ownerName);
-		return compound;
-	}
-	
-	protected final CompoundNBT writeName(CompoundNBT compound)
-	{
-		compound.putString("TraderName", this.traderName);
-		return compound;
-	}
-	
-	protected final CompoundNBT writeCreative(CompoundNBT compound)
-	{
-		compound.putBoolean("Creative", this.creative);
+		compound.put("CoreSettings", this.coreSettings.save(new CompoundNBT()));
 		return compound;
 	}
 	
@@ -235,19 +202,6 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		return compound;
 	}
 	
-	protected final CompoundNBT writeAllies(CompoundNBT compound)
-	{
-		//Allies
-		ListNBT allyList = new ListNBT();
-		this.allies.forEach(ally ->{
-			CompoundNBT thisAlly = new CompoundNBT();
-			thisAlly.putString("name", ally);
-			allyList.add(thisAlly);
-		});
-		compound.put("Allies", allyList);
-		return compound;
-	}
-	
 	protected final CompoundNBT writeVersion(CompoundNBT compound)
 	{
 		compound.putInt("TraderVersion", this.GetCurrentVersion());
@@ -265,32 +219,14 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		}
 	}
 	
-	public boolean isOwner(PlayerEntity player)
+	public boolean hasPermission(PlayerEntity player, String permission)
 	{
-		if(this.ownerID != null)
-			return player.getUniqueID().equals(this.ownerID) || TradingOffice.isAdminPlayer(player);
-		LightmansCurrency.LogError("Owner ID for the universal trading machine is null. Unable to determine if the owner is valid.");
-		return true;
+		return this.coreSettings.hasPermission(player, permission);
 	}
 	
-	public boolean hasPermissions(PlayerEntity player)
+	public int getPermissionLevel(PlayerEntity player, String permission)
 	{
-		return isOwner(player) || this.allies.contains(player.getName().getString());
-	}
-	
-	public List<String> getAllies()
-	{
-		return this.allies;
-	}
-	
-	public void markAlliesDirty() { this.markDirty(this::writeAllies); }
-	
-	public void updateOwnerName(String ownerName)
-	{
-		if(this.ownerName.equals(ownerName))
-			return;
-		this.ownerName = ownerName;
-		this.markDirty(this::writeOwner);
+		return this.coreSettings.getPermissionLevel(player, permission);
 	}
 	
 	protected abstract void onVersionUpdate(int oldVersion);
@@ -317,16 +253,22 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	protected abstract INamedContainerProvider getStorageMenuProvider();
 	
-	public void openStorageMenu(PlayerEntity playerEntity)
+	public void openStorageMenu(PlayerEntity player)
 	{
+		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
+		{
+			Settings.PermissionWarning(player, "open trader storage", Permissions.OPEN_STORAGE);
+			return;
+		}
+		
 		INamedContainerProvider provider = getStorageMenuProvider();
 		if(provider == null)
 		{
 			LightmansCurrency.LogError("No storage container provider was given for the universal trader of type " + this.getTraderType().toString());
 			return;
 		}
-		if(playerEntity instanceof ServerPlayerEntity)
-			NetworkHooks.openGui((ServerPlayerEntity)playerEntity, provider, new DataWriter(this.getTraderID()));
+		if(player instanceof ServerPlayerEntity)
+			NetworkHooks.openGui((ServerPlayerEntity)player, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
@@ -336,26 +278,18 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		return new TranslationTextComponent("gui.lightmanscurrency.universaltrader.default");
 	}
 	
-	public void setName(String newName)
-	{
-		this.traderName = newName;
-		this.markDirty(this::writeName);
-	}
-	
-	public boolean hasCustomName() { return this.traderName != ""; }
-	
 	public ITextComponent getName()
 	{
-		if(this.traderName != "")
-			return new StringTextComponent(this.traderName);
+		if(this.coreSettings.hasCustomName())
+			return new StringTextComponent(this.coreSettings.getCustomName());
 		return getDefaultName();
 	}
 	
 	public ITextComponent getTitle()
 	{
-		if(this.creative)
+		if(this.getCoreSettings().isCreative())
 			return this.getName();
-		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.ownerName);
+		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
 	}
 	
 	protected class DataWriter implements Consumer<PacketBuffer>

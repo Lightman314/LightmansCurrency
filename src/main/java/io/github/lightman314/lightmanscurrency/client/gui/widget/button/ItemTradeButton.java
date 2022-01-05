@@ -248,7 +248,7 @@ public class ItemTradeButton extends Button{
 			if(originalName != null)
 				tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
 			//Stock
-			tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("§6" + trade.stockCount(trader))));
+			tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("§6" + trade.stockCount(trader))));
 			//If denied, give denial reason
 			List<ITextComponent> denialText = Lists.newArrayList();
 			if(container != null)
@@ -323,7 +323,7 @@ public class ItemTradeButton extends Button{
 		if(trade.isValid())
 		{
 			//Return whether we have enough of the item we're selling in stock.
-			return trader.isCreative() || trade.hasStock(trader);
+			return trader.getCoreSettings().isCreative() || trade.hasStock(trader);
 		}
 		return false;
 	}

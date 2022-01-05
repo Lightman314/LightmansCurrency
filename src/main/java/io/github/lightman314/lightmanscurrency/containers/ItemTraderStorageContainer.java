@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
@@ -24,7 +23,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
-public class ItemTraderStorageContainer extends Container implements ITraderStorageContainer, ICreativeTraderContainer, IItemEditCapable{
+public class ItemTraderStorageContainer extends Container implements ITraderStorageContainer, IItemEditCapable{
 
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
@@ -289,14 +288,14 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		
 	}
 	
-	public boolean isOwner()
+	public boolean hasPermissions(String permission)
 	{
-		return tileEntity.isOwner(player);
+		return tileEntity.getCoreSettings().hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermissionLevel(String permission)
 	{
-		return tileEntity.hasPermissions(player);
+		return tileEntity.getCoreSettings().getPermissionLevel(this.player, permission);
 	}
 	
 	public void openItemEditScreenForTrade(int tradeIndex)
@@ -361,26 +360,6 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		//Clear the coin storage
 		tileEntity.clearStoredMoney();
 		
-	}
-	
-	public void ToggleCreative()
-	{
-		if(this.tileEntity.isRemoved())
-		{
-			this.player.closeScreen();
-			return;
-		}
-		this.tileEntity.toggleCreative();
-	}
-
-	@Override
-	public void AddTrade() {
-		this.tileEntity.addTrade();
-	}
-
-	@Override
-	public void RemoveTrade() {
-		this.tileEntity.removeTrade();
 	}
 	
 }

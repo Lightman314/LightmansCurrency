@@ -52,12 +52,10 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageStoreCoins.class, new MessageStoreCoins());
 		register(MessageOpenStorage.class, new MessageOpenStorage());
 		register(MessageOpenTrades.class, new MessageOpenTrades());
-		register(MessageSetCustomName.class, new MessageSetCustomName());
-		register(MessageToggleCreative.class, new MessageToggleCreative());
 		register(MessageAddOrRemoveTrade.class, new MessageAddOrRemoveTrade());
 		register(MessageSyncUsers.class, new MessageSyncUsers());
 		register(MessageRequestSyncUsers.class, new MessageRequestSyncUsers());
-		register(MessageAddOrRemoveAlly.class, new MessageAddOrRemoveAlly());
+		register(MessageChangeSettings.class, new MessageChangeSettings());
 		
 		//Item Trader
 		register(MessageSetItemPrice.class, new MessageSetItemPrice());
@@ -93,11 +91,10 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSyncStorage.class, new MessageSyncStorage());
 		register(MessageInitializeClientTraders.class, new MessageInitializeClientTraders());
 		register(MessageUpdateClientData.class, new MessageUpdateClientData());
-		register(MessageSetCustomName2.class, new MessageSetCustomName2());
 		register(MessageSetItemPrice2.class, new MessageSetItemPrice2());
-		register(MessageAddOrRemoveAlly2.class, new MessageAddOrRemoveAlly2());
 		register(MessageSetTradeItem2.class, new MessageSetTradeItem2());
 		register(MessageRemoveClientTrader.class, new MessageRemoveClientTrader());
+		register(MessageUpdateCoreSettings2.class, new MessageUpdateCoreSettings2());
 		
 		//Logger
 		register(MessageClearLogger.class, new MessageClearLogger());

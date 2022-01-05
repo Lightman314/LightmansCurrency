@@ -10,11 +10,11 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -46,39 +46,39 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 		return this.traderID;
 	}
 	
-	public void updateOwner(Entity player)
+	public void updateNames(PlayerEntity player)
 	{
-		if(this.getData() != null && player.getUniqueID().equals(this.getData().getOwnerID()))
+		if(this.getData() == null)
 		{
-			this.getData().updateOwnerName(player.getDisplayName().getString());
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			return;
 		}
-		else if(this.getData() == null)
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.updateOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+		this.getData().getCoreSettings().updateNames(player);
 	}
 	
-	public boolean isOwner(PlayerEntity player)
+	public boolean hasPermission(PlayerEntity player, String permission)
 	{
 		if(this.getData() == null)
 		{
 			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
 			return true;
 		}
-		return this.getData().isOwner(player);
+		return this.getData().hasPermission(player, permission);
 	}
 	
-	public boolean hasPermissions(PlayerEntity player)
+	public int getPermissionLevel(PlayerEntity player, String permission)
 	{
 		if(this.getData() == null)
 		{
 			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
-			return true;
+			return Integer.MAX_VALUE;
 		}
-		return this.getData().hasPermissions(player);
+		return this.getData().getPermissionLevel(player, permission);
 	}
 	
 	public boolean canBreak(PlayerEntity player)
 	{
-		return this.isOwner(player);
+		return this.hasPermission(player, Permissions.BREAK_TRADER);
 	}
 	
 	public void init(PlayerEntity owner)
@@ -96,14 +96,14 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 			UniversalTraderData traderData = createInitialData(owner);
 			if(customName != null)
 			{
-				traderData.setName(customName);
+				traderData.getCoreSettings().setCustomName(null, customName);
 			}
 			TradingOffice.registerTrader(this.traderID, traderData, owner);
 			TileEntityUtil.sendUpdatePacket(this);
 		}
 	}
 	
-	protected abstract UniversalTraderData createInitialData(Entity owner);
+	protected abstract UniversalTraderData createInitialData(PlayerEntity owner);
 	
 	@Override
 	public void onLoad()

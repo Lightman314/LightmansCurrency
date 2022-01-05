@@ -2,36 +2,38 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -46,16 +48,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions, ITrader{
 	
-	String customName = "";
-	
-	protected UUID ownerID = null;
-	@Override
-	public UUID getOwnerID() { return this.ownerID; }
-	protected String ownerName = "";
-	
-	protected List<String> allies = new ArrayList<>();
-	
-	protected boolean isCreative = false;
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected CoinValue storedMoney = new CoinValue();
 	
@@ -116,53 +109,62 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		this.userCount = value;
 	}
 	
-	/**
-	 * Whether or not the given player is the owner of the trader.
-	 */
-	public boolean isOwner(PlayerEntity player)
-	{	
-		if(this.ownerID != null)
-			return player.getUniqueID().equals(ownerID) || TradingOffice.isAdminPlayer(player);
-		LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
-		return true;
-	}
-	
-	public boolean hasPermissions(PlayerEntity player)
+	public CoreTraderSettings getCoreSettings()
 	{
-		return isOwner(player) || this.allies.contains(player.getName().getString());
+		return this.coreSettings;
 	}
 	
-	public List<String> getAllies()
-	{
-		return this.allies;
-	}
-	
-	public void markAlliesDirty()
+	public void markCoreSettingsDirty()
 	{
 		if(!this.world.isRemote)
 		{
-			CompoundNBT compound = this.writeAllies(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
+			CompoundNBT compound = this.writeCoreSettings(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
+		this.markDirty();
+	}
+	
+	protected final void sendSettingsUpdateToServer(ResourceLocation type, CompoundNBT compound)
+	{
+		if(this.world.isRemote)
+		{
+			//LightmansCurrency.LogInfo("Sending settings update packet from client to server.\n" + compound.toString());
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageChangeSettings(this.pos, type, compound));
 		}
 	}
 	
+	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
+	{
+		if(this.world.isRemote)
+			LightmansCurrency.LogError("TraderTileEntity.changeSettings was called on a client.");
+		if(type.equals(this.coreSettings.getType()))
+		{
+			//LightmansCurrency.LogInfo("Settings change message from update message.");
+			this.coreSettings.changeSetting(requestor, updateInfo);
+			//Don't need to mark it dirty. The change settings function will mark itself dirty if a change is made.
+		}
+		else
+			LightmansCurrency.LogInfo("Settings type '" + type.toString() + "' does not match the core settings type '" + this.coreSettings.getType().toString() + "'");
+	}
+	
+	public boolean hasPermission(PlayerEntity player, String permission)
+	{
+		return this.getPermissionLevel(player, permission) > 0;
+	}
+	
+	public int getPermissionLevel(PlayerEntity player, String permission)
+	{
+		return this.coreSettings.getPermissionLevel(player, permission);
+	}
+	
 	/**
-	 * Defines the owner of the Trader
+	 * Defines the owner of the Trader.
+	 * Does nothing if the owner is already defined.
 	 * @param player The player that will be defined as the trader's owner.
 	 */
-	public void setOwner(Entity player)
+	public void initOwner(PlayerReference player)
 	{
-		//CurrencyMod.LOGGER.info("Defining the tile's owner. UUID: " + player.getUniqueID() + " Name: " + player.getName().getString());
-		if(this.ownerID == null)
-			this.ownerID = player.getUniqueID();
-		if(this.ownerID.equals(player.getUniqueID())) //Don't update the name if it's not actually the owner
-			this.ownerName = player.getName().getString();
-		
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeOwner(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
+		this.coreSettings.initializeOwner(player);
 	}
 	
 	/**
@@ -171,23 +173,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 */
 	public boolean canBreak(PlayerEntity player)
 	{
-		return isOwner(player);
-	}
-	
-	public boolean isCreative()
-	{
-		return this.isCreative;
-	}
-	
-	public void toggleCreative()
-	{
-		this.isCreative = !this.isCreative;
-		if(!this.world.isRemote)
-		{
-			//Send update packet
-			CompoundNBT compound = this.writeCreative(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
+		return this.hasPermission(player, Permissions.BREAK_TRADER);
 	}
 	
 	/**
@@ -250,8 +236,8 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public ITextComponent getName()
 	{
-		if(this.customName != "")
-			return new StringTextComponent(this.customName);
+		if(this.coreSettings.hasCustomName())
+			return new StringTextComponent(this.coreSettings.getCustomName());
 		if(this.world.isRemote)
 			return this.getBlockState().getBlock().getTranslatedName();
 		return new TranslationTextComponent("");
@@ -259,23 +245,9 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public ITextComponent getTitle()
 	{
-		if(this.isCreative)
+		if(this.coreSettings.isCreative())
 			return this.getName();
-		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.ownerName);
-		
-	}
-	
-	public boolean hasCustomName() { return this.customName != null; }
-	
-	public void setCustomName(String customName)
-	{
-		LightmansCurrency.LogInfo("Custom Name set to '" + customName + "'");
-		this.customName = customName;
-		if(!this.world.isRemote)
-		{
-			CompoundNBT compound = this.writeCustomName(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, super.write(compound));
-		}
+		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
 	}
 	
 	public abstract INamedContainerProvider getTradeMenuProvider();
@@ -300,6 +272,11 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public void openStorageMenu(PlayerEntity player)
 	{
+		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
+		{
+			Settings.PermissionWarning(player, "open trader storage", Permissions.OPEN_STORAGE);
+			return;
+		}
 		INamedContainerProvider provider = getStorageMenuProvider();
 		if(provider == null)
 		{
@@ -335,12 +312,9 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	@Override
 	public CompoundNBT write(CompoundNBT compound)
 	{
-		writeOwner(compound);
+		writeCoreSettings(compound);
 		writeStoredMoney(compound);
-		writeCreative(compound);
-		writeCustomName(compound);
 		writeVersion(compound);
-		writeAllies(compound);
 		
 		return super.write(compound);
 	}
@@ -350,30 +324,15 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		return super.write(compound);
 	}
 	
-	protected CompoundNBT writeOwner(CompoundNBT compound)
-	{
-		if(this.ownerID != null)
-			compound.putUniqueId("OwnerID", this.ownerID);
-		if(this.ownerName != "")
-			compound.putString("OwnerName", this.ownerName);
-		return compound;
-	}
-	
 	protected CompoundNBT writeStoredMoney(CompoundNBT compound)
 	{
 		this.storedMoney.writeToNBT(compound, "StoredMoney");
 		return compound;
 	}
 	
-	protected CompoundNBT writeCreative(CompoundNBT compound)
+	protected CompoundNBT writeCoreSettings(CompoundNBT compound)
 	{
-		compound.putBoolean("Creative", this.isCreative);
-		return compound;
-	}
-	
-	protected CompoundNBT writeCustomName(CompoundNBT compound)
-	{
-		compound.putString("CustomName", this.customName);
+		compound.put("CoreSettings", this.coreSettings.save(new CompoundNBT()));
 		return compound;
 	}
 	
@@ -383,26 +342,14 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		return compound;
 	}
 	
-	protected CompoundNBT writeAllies(CompoundNBT compound)
-	{
-		ListNBT allyList = new ListNBT();
-		this.allies.forEach(ally ->{
-			CompoundNBT thisAlly = new CompoundNBT();
-			thisAlly.putString("name", ally);
-			allyList.add(thisAlly);
-		});
-		compound.put("Allies", allyList);
-		return compound;
-	}
-	
 	@Override
 	public void read(BlockState state, CompoundNBT compound)
 	{
-		//Owner
-		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUniqueId("OwnerID");
-		if(compound.contains("OwnerName", Constants.NBT.TAG_STRING))
-			this.ownerName = compound.getString("OwnerName");
+		//Core Settings
+		if(compound.contains("CoreSettings", Constants.NBT.TAG_COMPOUND))
+			this.coreSettings.load(compound.getCompound("CoreSettings"));
+		else if(compound.contains("OwnerID"))//Only load from old trader data if an old tag is present to prevent invalid reloading on an update message
+			this.coreSettings.loadFromOldTraderData(compound);
 		//Stored Money
 		//Load stored money
 		if(compound.contains("StoredMoney", Constants.NBT.TAG_INT))
@@ -412,25 +359,6 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 		else if(compound.contains("StoredMoney"))
 			this.storedMoney.readFromNBT(compound, "StoredMoney");
-		//Creative
-		if(compound.contains("Creative"))
-			this.isCreative = compound.getBoolean("Creative");
-		//Custom Name
-		if(compound.contains("CustomName", Constants.NBT.TAG_STRING))
-			this.customName = compound.getString("CustomName");
-		
-		//Read Allies
-		if(compound.contains("Allies",Constants.NBT.TAG_LIST))
-		{
-			this.allies.clear();
-			ListNBT allyList = compound.getList("Allies", Constants.NBT.TAG_COMPOUND);
-			for(int i = 0; i < allyList.size(); i++)
-			{
-				CompoundNBT thisAlly = allyList.getCompound(i);
-				if(thisAlly.contains("name", Constants.NBT.TAG_STRING))
-					this.allies.add(thisAlly.getString("name"));
-			}
-		}
 		
 		//Version
 		if(compound.contains("TraderVersion", Constants.NBT.TAG_INT))

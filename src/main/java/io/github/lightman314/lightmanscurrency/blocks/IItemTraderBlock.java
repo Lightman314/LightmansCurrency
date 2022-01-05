@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public interface IItemTraderBlock extends ITraderBlock{
+public interface IItemTraderBlock extends ITraderBlock, IItemHandlerBlock{
 	
 	/**
 	 * Gets the item display render transform/position for the trade at the given tradeSlot.

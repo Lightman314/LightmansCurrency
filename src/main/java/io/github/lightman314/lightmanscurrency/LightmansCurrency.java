@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -90,6 +91,7 @@ public class LightmansCurrency {
 		
     	//Register the Wallet Capability
     	WalletCapability.register();
+    	SpawnTrackerCapability.register();
     	
     	//Initialize the UniversalTraderData deserializers
     	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());
