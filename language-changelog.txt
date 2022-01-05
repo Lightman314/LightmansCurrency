@@ -1,4 +1,50 @@
+----1.0.2.0----
+REMOVED:
+"tooltip.lightmanscurrency.trader.changeName", "tooltip.lightmanscurrency.trader.allies",
 
+ADDED:
+"gui.lightmanscurrency.resetname" : "Reset Name",
+"tooltip.lightmanscurrency.trader.settings": "Trader Settings",
+"tooltip.lightmanscurrency.settings.name": "Trader Name",
+"tooltip.lightmanscurrency.settings.log": "Settings History",
+"tooltip.lightmanscurrency.settings.ally": "Allies",
+"tooltip.lightmanscurrency.settings.allyperms": "Ally Permissions",
+
+"gui.lightmanscurrency.settings.side.down": "Bottom",
+"gui.lightmanscurrency.settings.side.up": "Top",
+"gui.lightmanscurrency.settings.side.north": "Back",
+"gui.lightmanscurrency.settings.side.south": "Front",
+"gui.lightmanscurrency.settings.side.west": "Left",
+"gui.lightmanscurrency.settings.side.east": "Right",
+
+"gui.lightmanscurrency.settings.iteminput.side": "Input Sides",
+"gui.lightmanscurrency.settings.itemoutput.side": "Output Sides",
+"gui.lightmanscurrency.settings.iteminput.limit": "Limit Inputs:",
+"gui.lightmanscurrency.settings.iteminput.limit.sold": "Sold Items",
+"gui.lightmanscurrency.settings.iteminput.limit.any": "Any",
+"gui.lightmanscurrency.settings.itemoutput.limit": "Limit Outputs:",
+"gui.lightmanscurrency.settings.itemoutput.limit.purchased": "Purchased Items",
+"gui.lightmanscurrency.settings.itemoutput.limit.any": "Any",
+
+"log.settings.to": "to",
+"log.settings.from": "from",
+"log.settings.enabled": "ENABLED",
+"log.settings.disabled": "DISABLED",
+"log.settings.add" : "added",
+"log.settings.remove" : "removed",
+"log.settings.changename" : "%1$s changed the name from %2$s to %3$s",
+"log.settings.changename.set" : "%1$s set the name to %2$s",
+"log.settings.changename.reset" : "%1$s reset the name to default",
+"log.settings.creativemode": "%1$s %2$s creative mode",
+"log.settings.addremovetrade" : "%1$s %2$s a trade slot. Trader now has %3$s trades.",
+"log.settings.addremoveally" : "%1$s %2$s %3$s %4$s the list of allies.",
+"log.settings.permission.ally" : "%1$s changed allies %2$s value from %3$s to %4$s",
+"log.settings.permission.ally.simple" : "%1$s changed allies %2$s value to %3$s",
+"log.settings.change" : "%1$s changed %2$s from %3$s to %4$s",
+"log.settings.change.simple" : "%1$s changed %2$s to %3$s",
+"log.settings.newowner.passed" : "%1$s transferred ownership to %2$s",
+"log.settings.newowner.taken" : "%1$s claimed ownership from %2$s",
+"log.settings.newowner.transferred" : "%1$s transferred ownership from %2$s to %3$s",
 
 ----1.0.1.3----
 -Added German Translations, courtesy of GeradesoLukas
