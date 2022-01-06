@@ -209,7 +209,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	@Override
 	public boolean stillValid(Player playerIn)
 	{
-		return true;
+		return this.traderSource.get().hasPermission(playerIn, Permissions.EDIT_TRADES);
 	}
 
 	public void modifySearch(String newSearch)
@@ -336,7 +336,6 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		if(!this.traderSource.get().getCoreSettings().hasPermission(this.player, Permissions.EDIT_TRADES))
 		{
 			Settings.PermissionWarning(this.player, "edit trade item", Permissions.EDIT_TRADES);
-			this.openTraderStorage();
 			return;
 		}
 		if(isClient())

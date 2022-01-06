@@ -295,7 +295,7 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public Component getTitle()
 	{
-		if(this.coreSettings.isCreative())
+		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
 			return this.getName();
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
 	}

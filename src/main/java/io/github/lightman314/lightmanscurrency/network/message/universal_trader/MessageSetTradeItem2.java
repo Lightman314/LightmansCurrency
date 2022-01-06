@@ -7,6 +7,8 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
@@ -47,6 +49,11 @@ public class MessageSetTradeItem2 {
 			if(data1 != null && data1 instanceof UniversalItemTraderData)
 			{
 				UniversalItemTraderData data2 = (UniversalItemTraderData)data1;
+				if(!data2.hasPermission(supplier.get().getSender(), Permissions.EDIT_TRADES))
+				{
+					Settings.PermissionWarning(supplier.get().getSender(), "change trade item", Permissions.EDIT_TRADES);
+					return;
+				}
 				ItemStack oldItem = ItemStack.EMPTY;
 				ItemTradeData trade = data2.getTrade(message.tradeIndex);
 				if(message.slot == 1)
