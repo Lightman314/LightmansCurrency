@@ -59,12 +59,10 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageStoreCoins.class, MessageStoreCoins::encode, MessageStoreCoins::decode, MessageStoreCoins::handle);
 		register(MessageOpenStorage.class, MessageOpenStorage::encode, MessageOpenStorage::decode, MessageOpenStorage::handle);
 		register(MessageOpenTrades.class, MessageOpenTrades::encode, MessageOpenTrades::decode, MessageOpenTrades::handle);
-		register(MessageSetCustomName.class, MessageSetCustomName::encode, MessageSetCustomName::decode, MessageSetCustomName::handle);
-		register(MessageToggleCreative.class, MessageToggleCreative::encode, MessageToggleCreative::decode, MessageToggleCreative::handle);
-		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
 		register(MessageSyncUsers.class, MessageSyncUsers::encode, MessageSyncUsers::decode, MessageSyncUsers::handle);
 		register(MessageRequestSyncUsers.class, MessageRequestSyncUsers::encode, MessageRequestSyncUsers::decode, MessageRequestSyncUsers::handle);
-		register(MessageAddOrRemoveAlly.class, MessageAddOrRemoveAlly::encode, MessageAddOrRemoveAlly::decode, MessageAddOrRemoveAlly::handle);
+		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
+		register(MessageChangeSettings.class, MessageChangeSettings::encode, MessageChangeSettings::decode, MessageChangeSettings::handle);
 		
 		//Item Trader
 		register(MessageSetItemPrice.class, MessageSetItemPrice::encode, MessageSetItemPrice::decode, MessageSetItemPrice::handle);
@@ -100,11 +98,11 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSyncStorage.class, MessageSyncStorage::encode, MessageSyncStorage::decode, MessageSyncStorage::handle);
 		register(MessageInitializeClientTraders.class, MessageInitializeClientTraders::encode, MessageInitializeClientTraders::decode, MessageInitializeClientTraders::handle);
 		register(MessageUpdateClientData.class, MessageUpdateClientData::encode, MessageUpdateClientData::decode, MessageUpdateClientData::handle);
-		register(MessageSetCustomName2.class, MessageSetCustomName2::encode, MessageSetCustomName2::decode, MessageSetCustomName2::handle);
 		register(MessageSetItemPrice2.class, MessageSetItemPrice2::encode, MessageSetItemPrice2::decode, MessageSetItemPrice2::handle);
-		register(MessageAddOrRemoveAlly2.class, MessageAddOrRemoveAlly2::encode, MessageAddOrRemoveAlly2::decode, MessageAddOrRemoveAlly2::handle);
 		register(MessageSetTradeItem2.class, MessageSetTradeItem2::encode, MessageSetTradeItem2::decode, MessageSetTradeItem2::handle);
 		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
+		register(MessageAddOrRemoveTrade2.class, MessageAddOrRemoveTrade2::encode, MessageAddOrRemoveTrade2::decode, MessageAddOrRemoveTrade2::handle);
+		register(MessageChangeSettings2.class, MessageChangeSettings2::encode, MessageChangeSettings2::decode, MessageChangeSettings2::handle);
 		
 		//Logger
 		register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);

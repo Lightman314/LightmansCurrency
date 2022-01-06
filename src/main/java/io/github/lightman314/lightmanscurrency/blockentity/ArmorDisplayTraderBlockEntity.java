@@ -103,7 +103,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 				}
 				if(slot != null)
 				{
-					if(thisTrade.hasStock(this) || this.isCreative())
+					if(thisTrade.hasStock(this) || this.getCoreSettings().isCreative())
 						this.armorStand.setItemSlot(slot, thisTrade.getSellItem());
 					else
 						this.armorStand.setItemSlot(slot, ItemStack.EMPTY);

@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -231,7 +233,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		if(trade.isSale())
 		{
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative())
+			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -283,14 +285,14 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			}
 			
 			//Log the successful trade
-			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
 			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.tileEntity.isCreative())
+			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Remove the sold items from storage
 				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
@@ -314,13 +316,13 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			}
 			
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this.tileEntity) && !this.tileEntity.isCreative())
+			if(!trade.hasSpace(this.tileEntity) && !this.tileEntity.getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return;
 			}
 			//Abort if not enough money to pay them back
-			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative())
+			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
 				return;
@@ -331,14 +333,14 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
 			//Log the successful trade
-			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
 			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.tileEntity.isCreative())
+			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getSellItem());
@@ -360,13 +362,13 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 				return;
 			}
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this.tileEntity) && !this.tileEntity.isCreative())
+			if(!trade.hasSpace(this.tileEntity) && !this.tileEntity.getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return;
 			}
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.isCreative())
+			if(!trade.hasStock(this.tileEntity) && !this.tileEntity.getCoreSettings().isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
@@ -386,14 +388,14 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			InventoryUtil.PutItemStack(this.itemSlots, trade.getSellItem());
 			
 			//Log the successful trade
-			this.tileEntity.getLogger().AddLog(player, trade, CoinValue.EMPTY, this.tileEntity.isCreative());
+			this.tileEntity.getLogger().AddLog(player, trade, CoinValue.EMPTY, this.tileEntity.getCoreSettings().isCreative());
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
 			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.tileEntity.isCreative())
+			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Put the item in storage
 				InventoryUtil.TryPutItemStack(this.tileEntity.getStorage(), trade.getBarterItem());
@@ -413,6 +415,11 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeContainer();
+			return;
+		}
+		if(!this.tileEntity.hasPermission(this.player, Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
@@ -451,14 +458,14 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		}
 	}
 	
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return tileEntity.isOwner(player);
+		return this.tileEntity.hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermissionLevel(String permission)
 	{
-		return tileEntity.hasPermissions(player);
+		return this.tileEntity.getPermissionLevel(this.player, permission);
 	}
 	
 }

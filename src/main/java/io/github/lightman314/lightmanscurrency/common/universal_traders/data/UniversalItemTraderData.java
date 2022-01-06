@@ -4,19 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -27,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.menus.UniversalItemEditMenu;
 import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderStorageMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -39,12 +49,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
@@ -54,6 +64,16 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	
 	public static final int VERSION = 1;
+	
+	TraderItemHandler itemHandler = new TraderItemHandler(this);
+	
+	public IItemHandler getItemHandler(Direction relativeSide)
+	{
+		ItemHandlerSettings handlerSetting = this.itemSettings.getHandlerSetting(relativeSide);
+		return this.itemHandler.getHandler(handlerSetting);
+	}
+	
+	private ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	int tradeCount = 1;
 	NonNullList<ItemTradeData> trades = null;
@@ -66,9 +86,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public UniversalItemTraderData() {}
 	
-	public UniversalItemTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
+	public UniversalItemTraderData(PlayerReference owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
 	{
-		super(owner.getUUID(), owner.getDisplayName().getString(), pos, world, traderID);
+		super(owner, pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.inventory = new SimpleContainer(this.inventorySize());
@@ -91,6 +111,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
+		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
+			this.itemSettings.load(compound.getCompound("ItemSettings"));
+		
 		super.read(compound);
 	}
 	
@@ -102,6 +125,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.writeStorage(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
+		this.writeItemSettings(compound);
 		
 		return super.write(compound);
 		
@@ -132,25 +156,52 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return compound;
 	}
 	
+	protected final CompoundTag writeItemSettings(CompoundTag compound)
+	{
+		compound.put("ItemSettings", this.itemSettings.save(new CompoundTag()));
+		return compound;
+	}
+	
 	public int getTradeCount()
 	{
 		return this.tradeCount;
 	}
 	
-	public void addTrade()
+	public int getTradeCountLimit() { return TRADELIMIT; }
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
 	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade2(this.traderID, isAdd));
+	}
+	
+	public void addTrade(Player requestor)
+	{
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		if(this.getTradeCount() >= TRADELIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
 		forceReOpen();
+		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
+		this.markCoreSettingsDirty();
 	}
 	
-	public void removeTrade()
+	public void removeTrade(Player requestor)
 	{
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "remove trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		if(this.getTradeCount() <= 1)
 			return;
 		this.overrideTradeCount(this.tradeCount - 1);
 		forceReOpen();
+		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
+		this.markCoreSettingsDirty();
 	}
 	
 	private void forceReOpen()
@@ -214,6 +265,26 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		//Send update to the client with only the trade data.
 		this.markDirty(this::writeTrades);
+	}
+	
+	public ItemTraderSettings getItemSettings() { return this.itemSettings; }
+	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
+	
+	public void markItemSettingsDirty()
+	{
+		this.markDirty(this::writeItemSettings);
+	}
+	
+	@Override
+	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
+	{
+		if(type.equals(this.itemSettings.getType()))
+		{
+			this.itemSettings.changeSetting(requestor, updateInfo);
+		}
+		else
+			super.changeSettings(type, requestor, updateInfo);
 	}
 	
 	public ItemShopLogger getLogger() { return this.logger; }

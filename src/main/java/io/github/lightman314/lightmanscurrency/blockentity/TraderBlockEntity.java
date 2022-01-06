@@ -2,33 +2,34 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,18 +39,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 
-public abstract class TraderBlockEntity extends TickableBlockEntity implements IOwnableBlockEntity, IPermissions, ITrader{
+public abstract class TraderBlockEntity extends TickableBlockEntity implements IOwnableBlockEntity, ITrader{
 	
-	String customName = "";
-	
-	protected UUID ownerID = null;
-	@Override
-	public UUID getOwnerID() { return this.ownerID; }
-	protected String ownerName = "";
-	
-	protected List<String> allies = new ArrayList<>();
-	
-	protected boolean isCreative = false;
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected CoinValue storedMoney = new CoinValue();
 	
@@ -109,53 +101,49 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		this.userCount = value;
 	}
 	
-	/**
-	 * Whether or not the given player is the owner of the trader.
-	 */
-	public boolean isOwner(Player player)
-	{	
-		if(this.ownerID != null)
-			return player.getUUID().equals(ownerID) || TradingOffice.isAdminPlayer(player);
-		LightmansCurrency.LogError("Owner ID for the trading machine is null. Unable to determine if the owner is valid.");
-		return true;
-	}
+	public CoreTraderSettings getCoreSettings() { return this.coreSettings; }
 	
-	public boolean hasPermissions(Player player)
-	{
-		return isOwner(player) || this.allies.contains(player.getName().getString());
-	}
-	
-	public List<String> getAllies()
-	{
-		return this.allies;
-	}
-	
-	public void markAlliesDirty()
+	public void markCoreSettingsDirty()
 	{
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeAllies(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			CompoundTag compound = this.writeCoreSettings(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
+		this.setChanged();
+	}
+	
+	protected final void sendSettingsUpdateToServer(ResourceLocation type, CompoundTag updateInfo)
+	{
+		if(this.level.isClientSide)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageChangeSettings(this.worldPosition, type, updateInfo));
 		}
 	}
 	
-	/**
-	 * Defines the owner of the Trader
-	 * @param player The player that will be defined as the trader's owner.
-	 */
-	public void setOwner(Entity player)
+	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
 	{
-		//CurrencyMod.LOGGER.info("Defining the tile's owner. UUID: " + player.getUniqueID() + " Name: " + player.getName().getString());
-		if(this.ownerID == null)
-			this.ownerID = player.getUUID();
-		if(this.ownerID.equals(player.getUUID())) //Don't update the name if it's not actually the owner
-			this.ownerName = player.getName().getString();
-		
-		if(!this.level.isClientSide)
+		if(this.level.isClientSide)
+			LightmansCurrency.LogError("TraderTileEntity.changeSettings was called on a client.");
+		if(type.equals(this.coreSettings.getType()))
 		{
-			CompoundTag compound = this.writeOwner(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			this.coreSettings.changeSetting(requestor, updateInfo);
 		}
+	}
+	
+	public boolean hasPermission(Player player, String permission)
+	{
+		return this.coreSettings.hasPermission(player, permission);
+	}
+	
+	public int getPermissionLevel(Player player, String permission)
+	{
+		return this.coreSettings.getPermissionLevel(player, permission);
+	}
+	
+	public void initOwner(PlayerReference player)
+	{
+		this.coreSettings.initializeOwner(player);
 	}
 	
 	/**
@@ -164,23 +152,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	 */
 	public boolean canBreak(Player player)
 	{
-		return isOwner(player);
-	}
-	
-	public boolean isCreative()
-	{
-		return this.isCreative;
-	}
-	
-	public void toggleCreative()
-	{
-		this.isCreative = !this.isCreative;
-		if(!this.level.isClientSide)
-		{
-			//Send update packet
-			CompoundTag compound = this.writeCreative(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
-		}
+		return this.hasPermission(player, Permissions.BREAK_TRADER);
 	}
 	
 	/**
@@ -243,8 +215,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public Component getName()
 	{
-		if(this.customName != "")
-			return new TextComponent(this.customName);
+		if(this.coreSettings.hasCustomName())
+			return new TextComponent(this.coreSettings.getCustomName());
 		if(this.level.isClientSide)
 			return this.getBlockState().getBlock().getName();
 		return new TextComponent("");
@@ -252,23 +224,10 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public Component getTitle()
 	{
-		if(this.isCreative)
+		if(this.coreSettings.isCreative())
 			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.ownerName);
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
 		
-	}
-	
-	public boolean hasCustomName() { return this.customName != null; }
-	
-	public void setCustomName(String customName)
-	{
-		LightmansCurrency.LogInfo("Custom Name set to '" + customName + "'");
-		this.customName = customName;
-		if(!this.level.isClientSide)
-		{
-			CompoundTag compound = this.writeCustomName(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
-		}
 	}
 	
 	public abstract MenuProvider getTradeMenuProvider();
@@ -293,6 +252,11 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public void openStorageMenu(Player player)
 	{
+		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
+		{
+			Settings.PermissionWarning(player, "open trader storage", Permissions.OPEN_STORAGE);
+			return;
+		}
 		MenuProvider provider = getStorageMenuProvider();
 		if(provider == null)
 		{
@@ -328,12 +292,9 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	@Override
 	public void saveAdditional(CompoundTag compound)
 	{
-		writeOwner(compound);
+		writeCoreSettings(compound);
 		writeStoredMoney(compound);
-		writeCreative(compound);
-		writeCustomName(compound);
 		writeVersion(compound);
-		writeAllies(compound);
 		
 		super.saveAdditional(compound);
 		
@@ -344,30 +305,15 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		return super.save(compound);
 	}
 	
-	protected CompoundTag writeOwner(CompoundTag compound)
-	{
-		if(this.ownerID != null)
-			compound.putUUID("OwnerID", this.ownerID);
-		if(this.ownerName != "")
-			compound.putString("OwnerName", this.ownerName);
-		return compound;
-	}
-	
 	protected CompoundTag writeStoredMoney(CompoundTag compound)
 	{
 		this.storedMoney.writeToNBT(compound, "StoredMoney");
 		return compound;
 	}
 	
-	protected CompoundTag writeCreative(CompoundTag compound)
+	protected CompoundTag writeCoreSettings(CompoundTag compound)
 	{
-		compound.putBoolean("Creative", this.isCreative);
-		return compound;
-	}
-	
-	protected CompoundTag writeCustomName(CompoundTag compound)
-	{
-		compound.putString("CustomName", this.customName);
+		compound.put("CoreSettings", this.coreSettings.save(new CompoundTag()));
 		return compound;
 	}
 	
@@ -377,49 +323,17 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		return compound;
 	}
 	
-	protected CompoundTag writeAllies(CompoundTag compound)
-	{
-		ListTag allyList = new ListTag();
-		this.allies.forEach(ally ->{
-			CompoundTag thisAlly = new CompoundTag();
-			thisAlly.putString("name", ally);
-			allyList.add(thisAlly);
-		});
-		compound.put("Allies", allyList);
-		return compound;
-	}
-	
 	@Override
 	public void load(CompoundTag compound)
 	{
-		//Owner
-		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUUID("OwnerID");
-		if(compound.contains("OwnerName", Tag.TAG_STRING))
-			this.ownerName = compound.getString("OwnerName");
+		//Core Settings
+		if(compound.contains("CoreSettings", Tag.TAG_COMPOUND))
+			this.coreSettings.load(compound.getCompound("CoreSettings"));
+		else if(compound.contains("OwnerID"))
+			this.coreSettings.loadFromOldTraderData(compound);
 		//Stored Money
 		//Load stored money
 		this.storedMoney.readFromNBT(compound, "StoredMoney");
-		
-		//Creative
-		if(compound.contains("Creative"))
-			this.isCreative = compound.getBoolean("Creative");
-		//Custom Name
-		if(compound.contains("CustomName", Tag.TAG_STRING))
-			this.customName = compound.getString("CustomName");
-		
-		//Read Allies
-		if(compound.contains("Allies", Tag.TAG_LIST))
-		{
-			this.allies.clear();
-			ListTag allyList = compound.getList("Allies", Tag.TAG_COMPOUND);
-			for(int i = 0; i < allyList.size(); i++)
-			{
-				CompoundTag thisAlly = allyList.getCompound(i);
-				if(thisAlly.contains("name", Tag.TAG_STRING))
-					this.allies.add(thisAlly.getString("name"));
-			}
-		}
 		
 		//Version
 		if(compound.contains("TraderVersion", Tag.TAG_INT))

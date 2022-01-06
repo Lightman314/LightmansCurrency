@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,6 +52,11 @@ public class MessageSetTradeItem {
 					if(blockEntity instanceof ItemTraderBlockEntity)
 					{
 						ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)blockEntity;
+						if(!traderEntity.hasPermission(player, Permissions.EDIT_TRADES))
+						{
+							Settings.PermissionWarning(player, "change trade item", Permissions.EDIT_TRADES);
+							return;
+						}
 						ItemStack oldItem = ItemStack.EMPTY;
 						if(message.slot == 1)
 						{

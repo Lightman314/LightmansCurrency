@@ -141,7 +141,7 @@ public class CommandLCAdmin {
 		//Type
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getTraderType()), true);
 		//Owner / Owner ID
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwnerName(), thisTrader.getOwnerID().toString()), true);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getCoreSettings().getOwner().lastKnownName(), thisTrader.getCoreSettings().getOwner().id.toString()), true);
 		//Dimension
 		String dimension = thisTrader.getWorld().location().toString();
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), true);
@@ -151,7 +151,7 @@ public class CommandLCAdmin {
 		String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.position", new TextComponent(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
 		//Custom Name (if applicable)
-		if(thisTrader.hasCustomName())
+		if(thisTrader.getCoreSettings().hasCustomName())
 			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
 	}
 	

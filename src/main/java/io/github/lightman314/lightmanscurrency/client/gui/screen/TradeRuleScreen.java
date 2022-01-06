@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -92,8 +93,8 @@ public class TradeRuleScreen extends Screen{
 	{
 		
 		//Back button
-		this.addRenderableWidget(new IconButton(guiLeft() + this.xSize, guiTop(), this::PressBackButton, GUI_TEXTURE, this.xSize, 0));
-		this.managerTab = this.addRenderableWidget(new IconButton(guiLeft(), guiTop() - 20, this::PressTabButton, TradeRule.ICON_TEXTURE, 0, 0));
+		this.addRenderableWidget(new IconButton(guiLeft() + this.xSize, guiTop(), this::PressBackButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.managerTab = this.addRenderableWidget(new IconButton(guiLeft(), guiTop() - 20, this::PressTabButton, this.font, IconData.of(TradeRule.ICON_TEXTURE, 0, 0)));
 		
 		this.refreshTabs();
 		
@@ -107,13 +108,13 @@ public class TradeRuleScreen extends Screen{
 		this.removeRuleButtons.clear();
 		for(int i = 0; i < this.activeRules().size(); i++)
 		{
-			this.removeRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressRemoveRuleButton, GUI_TEXTURE, this.xSize + 32, 0)));
+			this.removeRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressRemoveRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 32, 0))));
 			y++;
 		}
 		this.addRuleButtons.clear();
 		for(int i = 0; i < this.addableRules().size(); i++)
 		{
-			this.addRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressAddRuleButton, GUI_TEXTURE, this.xSize + 16, 0)));
+			this.addRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressAddRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0))));
 			y++;
 		}
 	}
@@ -305,10 +306,8 @@ public class TradeRuleScreen extends Screen{
 		for(int i = 0; i < activeRules.size(); i++)
 		{
 			TradeRule thisRule = activeRules.get(i);
-			if(thisRule.getButtonText() != null)
-				this.tabButtons.add(this.addRenderableWidget(new Button(guiLeft() + 20 + 20 * i, guiTop() - 20, 20, 20, thisRule.getButtonText(), this::PressTabButton)));
-			else
-				this.tabButtons.add(this.addRenderableWidget(new IconButton(guiLeft() + 20 + 20 * i, guiTop() - 20, this::PressTabButton, thisRule.getButtonGUI(), thisRule.getGUIX(), thisRule.getGUIY())));
+			this.tabButtons.add(this.addRenderableWidget(new IconButton(guiLeft() + 20 + 20 * i, guiTop() - 20, this::PressTabButton, this.font, thisRule.getButtonIcon())));
+				
 		}
 		
 	}

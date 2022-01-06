@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -25,7 +26,7 @@ public class UniversalItemTraderBlockEntity extends UniversalTraderBlockEntity{
 
 	@Override
 	protected UniversalTraderData createInitialData(Entity owner) {
-		return new UniversalItemTraderData(owner, this.worldPosition, this.level.dimension(), this.traderID, this.tradeCount);
+		return new UniversalItemTraderData(PlayerReference.of(owner), this.worldPosition, this.level.dimension(), this.traderID, this.tradeCount);
 	}
 	
 	@Override

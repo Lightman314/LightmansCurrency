@@ -122,6 +122,49 @@ public class ModBlockEntities {
 	//Universal Item Trader
 	public static final BlockEntityType<UniversalItemTraderBlockEntity> UNIVERSAL_ITEM_TRADER = buildType("universal_item_trader", BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.block, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.block, ModBlocks.ITEM_TRADER_SERVER_LARGE.block));
 	
+	//Item Interface for multi-block traders
+	public static final BlockEntityType<ItemInterfaceBlockEntity> ITEM_INTERFACE = buildType("item_interface", BlockEntityType.Builder.of(ItemInterfaceBlockEntity::new,
+			//Vending Machine 1
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.WHITE),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.ORANGE),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.MAGENTA),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.LIGHTBLUE),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.YELLOW),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.LIME),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.PINK),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.GRAY),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.LIGHTGRAY),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.CYAN),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.PURPLE),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.BLUE),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.BROWN),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.GREEN),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.RED),
+			ModBlocks.VENDING_MACHINE1.getBlock(Colors.BLACK),
+			//Vending Machine 2
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.WHITE),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.ORANGE),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.MAGENTA),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.LIGHTBLUE),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.YELLOW),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.LIME),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.PINK),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.GRAY),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.LIGHTGRAY),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.CYAN),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.PURPLE),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.BLUE),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.BROWN),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.GREEN),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.RED),
+			ModBlocks.VENDING_MACHINE2.getBlock(Colors.BLACK),
+			//Armor Display
+			ModBlocks.ARMOR_DISPLAY.block,
+			//Freezer
+			ModBlocks.FREEZER.block
+			
+	));
+	
 	//Cash Register
 	public static final BlockEntityType<CashRegisterBlockEntity> CASH_REGISTER = buildType("cash_register", BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER.block));
 	

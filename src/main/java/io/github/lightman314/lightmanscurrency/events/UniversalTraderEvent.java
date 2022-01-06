@@ -11,7 +11,7 @@ public abstract class UniversalTraderEvent extends Event{
 	
 	private final UUID traderID;
 	public final UUID getID() { return this.traderID; }
-	public final UUID getOwnerID() { return this.getData() == null ? null : this.getData().getOwnerID(); }
+	public final UUID getOwnerID() { return this.getData() == null ? null : this.getData().getCoreSettings().getOwner().id; }
 	public UniversalTraderData getData() { return TradingOffice.getData(this.traderID); }
 	
 	protected UniversalTraderEvent(UUID traderID)

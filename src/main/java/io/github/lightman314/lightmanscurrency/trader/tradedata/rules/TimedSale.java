@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -113,9 +114,8 @@ public class TimedSale extends TradeRule {
 		}
 	}
 	
-	@Override
-	public Component getButtonText() { return new TranslatableComponent("gui.button.lightmanscurrency.timed_sale"); }
-
+	public IconData getButtonIcon() { return IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.timed_sale")); }
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)

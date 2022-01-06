@@ -7,7 +7,6 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IUniversalTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
@@ -17,6 +16,8 @@ import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContaine
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSyncStorage;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -28,7 +29,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUniversalTraderStorageMenu, ICreativeTraderMenu, IItemEditCapable{
+public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUniversalTraderStorageMenu, IItemEditCapable{
 
 	public static final int BUTTONSPACE = ItemTradeButton.WIDTH + 20;
 	public static final int SCREEN_EXTENSION = BUTTONSPACE;
@@ -207,24 +208,13 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 		}
 	}
 	
-	public boolean isOwner()
-	{
-		return getData().isOwner(player);
-	}
-	
-	public boolean hasPermissions()
-	{
-		return getData().hasPermissions(player);
-	}
-	
-	public void openItemEditScreenForSlot(int slotIndex)
-	{
-		int tradeIndex = slotIndex - this.storage.getContainerSize();
-		openItemEditScreenForTrade(tradeIndex);
-	}
-	
 	public void openItemEditScreenForTrade(int tradeIndex)
 	{
+		if(!this.hasPermission(Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(this.player, "open item edit", Permissions.EDIT_TRADES);
+			return;
+		}
 		if(this.isClient())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenItemEdit(tradeIndex));
@@ -238,6 +228,11 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 		if(this.getData() == null)
 		{
 			this.player.closeContainer();
+			return;
+		}
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
 			return;
 		}
 		//Get the value of the current 
@@ -256,6 +251,11 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 		if(this.getData() == null)
 		{
 			this.player.closeContainer();
+			return;
+		}
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(getData().getStoredMoney());
@@ -282,31 +282,11 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 		getData().clearStoredMoney();
 		
 	}
-	
-	public void ToggleCreative()
-	{
-		if(this.getData() == null)
-		{
-			this.player.closeContainer();
-			return;
-		}
-		this.getData().toggleCreative();
-	}
 
 	@Override
 	protected void onForceReopen() {
 		LightmansCurrency.LogInfo("UniversalItemTraderStorageContainer.onForceReopen()");
 		this.getData().openStorageMenu(this.player);
-	}
-
-	@Override
-	public void AddTrade() {
-		this.getData().addTrade();
-	}
-
-	@Override
-	public void RemoveTrade() {
-		this.getData().removeTrade();
 	}
 	
 }

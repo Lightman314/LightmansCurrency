@@ -9,7 +9,11 @@ import io.github.lightman314.lightmanscurrency.blockentity.ArmorDisplayTraderBlo
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +33,9 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ArmorDisplayTraderBlockEntity(pos, state); }
+	
+	@Override
+	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER; }
@@ -72,6 +79,19 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public int maxRenderIndex()
 	{
 		return -1;
+	}
+
+	@Override
+	public Direction getRelativeSide(BlockState state, Direction side) {
+		return IItemHandlerBlock.getRelativeSide(this.getFacing(state), side);
+	}
+
+	@Override
+	public IItemHandlerBlockEntity getItemHandlerEntity(BlockState state, Level level, BlockPos pos) {
+		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
+		if(blockEntity instanceof IItemHandlerBlockEntity)
+			return (IItemHandlerBlockEntity)blockEntity;
+		return null;
 	}
 	
 }

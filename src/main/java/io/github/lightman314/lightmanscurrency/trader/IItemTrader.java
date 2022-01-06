@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.*;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -10,7 +12,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IItemTrader extends ITrader {
+public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
 
 	public ItemTradeData getTrade(int index);
 	public List<ItemTradeData> getAllTrades();
@@ -20,6 +22,8 @@ public interface IItemTrader extends ITrader {
 	public void openTradeMenu(Player player);
 	public void openStorageMenu(Player player);
 	public void openItemEditMenu(Player player, int tradeIndex);
+	public ItemTraderSettings getItemSettings();
+	public void markItemSettingsDirty();
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex)
 	{

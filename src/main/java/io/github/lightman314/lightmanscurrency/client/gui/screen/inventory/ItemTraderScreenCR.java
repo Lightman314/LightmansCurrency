@@ -6,6 +6,7 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -13,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.network.message.cashregister.Mess
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenuCR;
 import net.minecraft.client.gui.components.Button;
@@ -81,22 +83,21 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderMenuCR
 		if(this.menu.cashRegister.getPairedTraderSize() > 1)
 		{
 			
-			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176, 16));
-			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
+			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			
 			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, new TextComponent("")));
 			this.pageInput.setMaxLength(9);
 			this.pageInput.setValue(String.valueOf(this.menu.getThisIndex() + 1));
 			
-			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			this.buttonSkipToPage.active = false;
 			
 		}
 		
-		if(this.menu.isOwner())
+		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
-			
-			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
+			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 			this.buttonCollectMoney.active = false;
 		}
 		
@@ -128,7 +129,7 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderMenuCR
 		{
 			this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.menu.tileEntity.getCoreSettings().isCreative();
 		}
 		if(this.buttonSkipToPage != null)
 		{
@@ -171,7 +172,7 @@ public class ItemTraderScreenCR extends AbstractContainerScreen<ItemTraderMenuCR
 	private void PressCollectionButton(Button button)
 	{
 		//Open the container screen
-		if(menu.isOwner())
+		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
 			//CurrencyMod.LOGGER.info("Owner attempted to collect the stored money.");
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());

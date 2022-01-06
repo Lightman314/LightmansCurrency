@@ -116,8 +116,8 @@ public class ItemTradeButton extends Button{
 		boolean hasPermission = forceActive ? true : false;
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
-		boolean hasStock = forceActive ? true : trader.isCreative() || trade.hasStock(trader);
-		boolean hasSpace = forceActive ? true : trader.isCreative() || trade.hasSpace(trader);
+		boolean hasStock = forceActive ? true : trader.getCoreSettings().isCreative() || trade.hasStock(trader);
+		boolean hasSpace = forceActive ? true : trader.getCoreSettings().isCreative() || trade.hasSpace(trader);
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
 		if(!forceActive)
@@ -267,7 +267,7 @@ public class ItemTradeButton extends Button{
 			if(originalName != null)
 				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
 			//Stock
-			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.stockCount(trader))));
+			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.stockCount(trader))));
 			//If denied, give denial reason
 			PreTradeEvent pte = trader.runPreTradeEvent(player, tradeIndex);
 			if(pte.isCanceled())
@@ -337,7 +337,7 @@ public class ItemTradeButton extends Button{
 		if(trade.isValid())
 		{
 			//Return whether we have enough of the item we're selling in stock.
-			return trader.isCreative() || (trade.hasStock(trader) && trade.hasSpace(trader));
+			return trader.getCoreSettings().isCreative() || (trade.hasStock(trader) && trade.hasSpace(trader));
 		}
 		return false;
 	}

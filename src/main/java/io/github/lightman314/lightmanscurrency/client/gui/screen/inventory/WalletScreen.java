@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
@@ -90,11 +91,11 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 		if(this.menu.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 28, this::PressConvertButton, GUI_TEXTURE, this.imageWidth, 0));
+			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 28, this::PressConvertButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
 			
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 48, this::PressAutoConvertToggleButton, GUI_TEXTURE, this.imageWidth, 16));
+				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 48, this::PressAutoConvertToggleButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 16)));
 				this.updateToggleButton();
 			}
 			
@@ -130,7 +131,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu>{
 	{
 		//CurrencyMod.LOGGER.info("Updating AutoConvert Button");
 		this.autoConvert = this.menu.getAutoConvert();
-		this.buttonToggleAutoConvert.setResource(GUI_TEXTURE, this.imageWidth, this.autoConvert ? 16 : 32);
+		this.buttonToggleAutoConvert.setIcon(IconData.of(GUI_TEXTURE, this.imageWidth, this.autoConvert ? 16 : 32));
 	}
 	
 	@Override

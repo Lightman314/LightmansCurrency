@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -52,6 +53,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
+	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new DummyBlockEntity(pos, state); }
 	protected abstract BlockEntityType<?> traderType();
 	
 	@Nullable 
@@ -65,7 +67,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	{
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
-		return new DummyBlockEntity(pos, state);
+		return this.makeDummy(pos, state);
 	}
 	
 	@Override
@@ -77,9 +79,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 			if(blockEntity instanceof TraderBlockEntity)
 			{
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				//Update the owner's name
-				if(trader.isOwner(player))
-					trader.setOwner(player);
+				trader.getCoreSettings().updateNames(player);
 				//Send update packet for safety, and open the menu
 				TileEntityUtil.sendUpdatePacket(blockEntity);
 				trader.openTradeMenu(player);
@@ -102,9 +102,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 			if(blockEntity instanceof TraderBlockEntity)
 			{
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				trader.setOwner(player);
+				trader.initOwner(PlayerReference.of(player));
 				if(stack.hasCustomHoverName())
-					trader.setCustomName(stack.getHoverName().getString());
+					trader.getCoreSettings().setCustomName(null, stack.getHoverName().getString());
 			}
 			else
 			{

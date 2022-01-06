@@ -2,41 +2,47 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageAddOrRemoveTrade {
 	
-	public boolean isTradeAdd;
+	BlockPos pos;
+	boolean isTradeAdd;
 	
-	public MessageAddOrRemoveTrade(boolean isTradeAdd)
+	public MessageAddOrRemoveTrade(BlockPos pos, boolean isTradeAdd)
 	{
+		this.pos = pos;
 		this.isTradeAdd = isTradeAdd;
 	}
 	
 	public static void encode(MessageAddOrRemoveTrade message, FriendlyByteBuf buffer) {
+		buffer.writeBlockPos(message.pos);
 		buffer.writeBoolean(message.isTradeAdd);
 	}
 
 	public static MessageAddOrRemoveTrade decode(FriendlyByteBuf buffer) {
-		return new MessageAddOrRemoveTrade(buffer.readBoolean());
+		return new MessageAddOrRemoveTrade(buffer.readBlockPos(), buffer.readBoolean());
 	}
 
 	public static void handle(MessageAddOrRemoveTrade message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer entity = supplier.get().getSender();
-			if(entity != null)
+			ServerPlayer player = supplier.get().getSender();
+			if(player != null)
 			{
-				if(entity.containerMenu instanceof ICreativeTraderMenu)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity instanceof TraderBlockEntity)
 				{
-					ICreativeTraderMenu menu = (ICreativeTraderMenu)entity.containerMenu;
+					TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 					if(message.isTradeAdd)
-						menu.AddTrade();
+						trader.addTrade(player);
 					else
-						menu.RemoveTrade();
+						trader.removeTrade(player);
 				}
 			}
 		});

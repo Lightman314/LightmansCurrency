@@ -61,4 +61,14 @@ public abstract class UniversalMenu extends AbstractContainerMenu{
 		super.removed(player);
 	}
 	
+	public boolean hasPermission(String permission)
+	{
+		return this.getRawData().hasPermission(this.player, permission);
+	}
+	
+	public int getPermissionLevel(String permission)
+	{
+		return this.getRawData().getPermissionLevel(this.player, permission);
+	}
+	
 }

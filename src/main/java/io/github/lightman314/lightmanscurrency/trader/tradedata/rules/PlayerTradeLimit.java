@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
@@ -22,7 +23,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -173,7 +173,7 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
-	public Component getButtonText() { return new TranslatableComponent("gui.button.lightmanscurrency.playerlimit"); }
+	public IconData getButtonIcon() { return IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.playerlimit")); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

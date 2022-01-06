@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.client.gui.components.Button;
@@ -97,8 +98,8 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 		this.buttonToggleSlot.visible = this.menu.tradeData.isBarter();
 		
 		//Page Buttons
-		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth, 0));
-		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton, GUI_TEXTURE, this.imageWidth + 16, 0));
+		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
+		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 0)));
 		//Count Buttons
 		this.buttonCountUp = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 20, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 0));
 		this.buttonCountDown = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 30, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 20));

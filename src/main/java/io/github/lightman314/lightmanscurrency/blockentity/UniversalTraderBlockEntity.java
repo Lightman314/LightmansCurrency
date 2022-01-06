@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -42,39 +43,35 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 		return this.traderID;
 	}
 	
-	public void updateOwner(Entity player)
-	{
-		if(this.getData() != null && player.getUUID().equals(this.getData().getOwnerID()))
-		{
-			this.getData().updateOwnerName(player.getDisplayName().getString());
-		}
-		else if(this.getData() == null)
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.updateOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
-	}
-	
-	public boolean isOwner(Player player)
+	public boolean hasPermission(Player player, String permission)
 	{
 		if(this.getData() == null)
 		{
 			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
 			return true;
 		}
-		return this.getData().isOwner(player);
+		return this.getData().hasPermission(player, permission);
 	}
 	
-	public boolean hasPermissions(Player player)
+	public int getPermissionLevel(Player player, String permission)
 	{
 		if(this.getData() == null)
 		{
 			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
-			return true;
+			return Integer.MAX_VALUE;
 		}
-		return this.getData().hasPermissions(player);
+		return this.getData().getPermissionLevel(player, permission);
+	}
+	
+	public void updateNames(Player player)
+	{
+		if(this.getData() != null)
+			this.getData().getCoreSettings().updateNames(player);
 	}
 	
 	public boolean canBreak(Player player)
 	{
-		return this.isOwner(player);
+		return this.hasPermission(player, Permissions.BREAK_TRADER);
 	}
 	
 	public void init(Player owner)
@@ -92,7 +89,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 			UniversalTraderData traderData = createInitialData(owner);
 			if(customName != null)
 			{
-				traderData.setName(customName);
+				traderData.getCoreSettings().setCustomName(null, customName);
 			}
 			TradingOffice.registerTrader(this.traderID, traderData, owner);
 			TileEntityUtil.sendUpdatePacket(this);

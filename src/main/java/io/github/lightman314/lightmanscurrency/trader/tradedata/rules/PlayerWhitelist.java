@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -69,8 +70,7 @@ public class PlayerWhitelist extends TradeRule{
 		
 	}
 	
-	@Override
-	public int getGUIX() { return 16; }
+	public IconData getButtonIcon() { return IconData.of(ICON_TEXTURE, 16, 0); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

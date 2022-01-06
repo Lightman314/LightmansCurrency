@@ -16,6 +16,8 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditClose;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditSet;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -331,6 +333,12 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	
 	public void setItem(ItemStack stack, int slot)
 	{
+		if(!this.traderSource.get().getCoreSettings().hasPermission(this.player, Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(this.player, "edit trade item", Permissions.EDIT_TRADES);
+			this.openTraderStorage();
+			return;
+		}
 		if(isClient())
 		{
 			//Send message to server

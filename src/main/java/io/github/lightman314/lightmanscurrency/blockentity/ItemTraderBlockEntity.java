@@ -3,18 +3,25 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
@@ -29,12 +36,17 @@ import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -50,12 +62,26 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
+	
+	TraderItemHandler itemHandler = new TraderItemHandler(this);
+	
+	public IItemHandler getItemHandler(Direction relativeSide)
+	{
+		ItemHandlerSettings handlerSettings = this.itemSettings.getHandlerSetting(relativeSide);
+		return this.itemHandler.getHandler(handlerSettings);
+	}
+	
+	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected Container storage;
 	
@@ -115,24 +141,49 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		return MathUtil.clamp(tradeCount, 1, TRADELIMIT);
 	}
 	
-	public void addTrade()
+	@Override
+	public int getTradeCountLimit()
+	{
+		return TRADELIMIT;
+	}
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
+	}
+	
+	public void addTrade(Player requestor)
 	{
 		if(this.level.isClientSide)
 			return;
 		if(tradeCount >= TRADELIMIT)
 			return;
-		overrideTradeCount(tradeCount + 1);
-		forceReOpen();
+		if(TradingOffice.isAdminPlayer(requestor))
+		{
+			overrideTradeCount(tradeCount + 1);
+			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
+			this.markCoreSettingsDirty();
+			forceReOpen();
+		}
+		else
+			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	public void removeTrade()
+	public void removeTrade(Player requestor)
 	{
 		if(this.level.isClientSide)
 			return;
 		if(tradeCount <= 1)
 			return;
-		overrideTradeCount(tradeCount - 1);
-		forceReOpen();
+		if(TradingOffice.isAdminPlayer(requestor))
+		{
+			overrideTradeCount(tradeCount - 1);
+			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
+			this.markCoreSettingsDirty();
+			forceReOpen();
+		}
+		else
+			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 	
 	private void forceReOpen()
@@ -213,6 +264,33 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.setChanged();
 	}
 	
+	public ItemTraderSettings getItemSettings()
+	{
+		return this.itemSettings;
+	}
+	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.itemSettings); }
+	
+	public void markItemSettingsDirty()
+	{
+		if(this.level.isClientSide)
+		{
+			CompoundTag compound = this.writeItemSettings(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
+	}
+	
+	@Override
+	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
+	{
+		if(type.equals(this.itemSettings.getType()))
+		{
+			this.itemSettings.changeSetting(requestor, updateInfo);
+		}
+		else
+			super.changeSettings(type, requestor, updateInfo);
+	}
+	
 	public void markStorageDirty()
 	{
 		//Send an update to the client
@@ -250,7 +328,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		ItemTradeData trade = getTrade(tradeSlot);
 		if(!trade.getSellItem().isEmpty())
 		{
-			if(this.isCreative)
+			if(this.coreSettings.isCreative())
 				return Integer.MAX_VALUE;
 			else
 			{
@@ -334,6 +412,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		
 		this.writeStorage(compound);
 		this.writeTrades(compound);
+		this.writeItemSettings(compound);
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
@@ -351,6 +430,12 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		compound.putInt("TradeLimit", this.tradeCount);
 		ItemTradeData.saveAllData(compound, this.trades);
+		return compound;
+	}
+	
+	public CompoundTag writeItemSettings(CompoundTag compound)
+	{
+		compound.put("ItemSettings", this.itemSettings.save(new CompoundTag()));
 		return compound;
 	}
 	
@@ -384,6 +469,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getStorageSize());
 		}
+		
+		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
+			this.itemSettings.load(compound.getCompound("ItemSettings"));
 		
 		//Load the shop logger
 		this.logger.read(compound);
@@ -648,6 +736,30 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.worldPosition, newRules));
 		}
 		
+	}
+	
+	//Item capability for hopper and item automation
+	@Override
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
+	{
+		if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+		{
+			Block block = this.getBlockState().getBlock();
+			if(block instanceof IItemHandlerBlock)
+			{
+				IItemHandlerBlock handlerBlock = (IItemHandlerBlock)block;
+				IItemHandlerBlockEntity blockEntity = handlerBlock.getItemHandlerEntity(this.getBlockState(), this.level, this.worldPosition);
+				if(blockEntity != null)
+				{
+					IItemHandler handler = blockEntity.getItemHandler(handlerBlock.getRelativeSide(this.getBlockState(), side));
+					if(handler != null)
+						return LazyOptional.of(() -> handler).cast();
+					else
+						return LazyOptional.empty();
+				}
+			}
+		}
+		return super.getCapability(cap, side);
 	}
 	
 }

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -171,6 +172,7 @@ public class LightmansCurrency {
     private void registerCapabilities(RegisterCapabilitiesEvent event)
     {
     	event.register(IWalletHandler.class);
+    	event.register(ISpawnTracker.class);
     }
     
     @SubscribeEvent

@@ -5,11 +5,12 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public interface IItemTraderBlock extends ITraderBlock{
+public interface IItemTraderBlock extends ITraderBlock, IItemHandlerBlock{
 	
 	/**
 	 * Gets the item display render transform/position for the trade at the given tradeSlot.

@@ -1,14 +1,10 @@
 package io.github.lightman314.lightmanscurrency.blockentity.interfaces;
 
-import java.util.List;
-
 import net.minecraft.world.entity.player.Player;
 
 public interface IPermissions {
 
-	public boolean isOwner(Player player);
-	public boolean hasPermissions(Player player);
-	public List<String> getAllies();
-	public void markAlliesDirty();
+	public default boolean hasPermission(Player player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
+	public int getPermissionLevel(Player player, String permission);
 	
 }

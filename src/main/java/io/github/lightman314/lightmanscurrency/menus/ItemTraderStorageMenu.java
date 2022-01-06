@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
@@ -12,6 +11,8 @@ import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.world.Container;
@@ -24,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 
-public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu, ICreativeTraderMenu, IItemEditCapable{
+public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu, IItemEditCapable{
 
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
 	
@@ -119,7 +120,6 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			//Merge items from the coin slots back into the players inventory
 			else if(index < this.tileEntity.getStorage().getContainerSize() + this.coinSlots.getContainerSize())
 			{
-				LightmansCurrency.LogInfo("Merging coin slots back into inventory.");
 				if(!this.moveItemStackTo(slotStack, this.tileEntity.getStorage().getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
@@ -159,7 +159,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 	@Override
 	public boolean stillValid(Player playerIn)
 	{
-		return true;
+		return this.tileEntity.hasPermission(playerIn, Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -174,18 +174,23 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		
 	}
 	
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return tileEntity.isOwner(player);
+		return this.tileEntity.getCoreSettings().hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermissionLevel(String permission)
 	{
-		return tileEntity.hasPermissions(player);
+		return this.tileEntity.getCoreSettings().getPermissionLevel(this.player, permission);
 	}
 	
 	public void openItemEditScreenForTrade(int tradeIndex)
 	{
+		if(!this.hasPermission(Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(this.player, "open item edit", Permissions.EDIT_TRADES);
+			return;
+		}
 		if(this.player.level.isClientSide)
 		{
 			//LightmansCurrency.LogInfo("Attempting to open item edit container for tradeIndex " + tradeIndex);
@@ -210,6 +215,11 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			this.player.closeContainer();
 			return;
 		}
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
+			return;
+		}
 		//Get the value of the current 
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
 		this.tileEntity.addStoredMoney(addValue);
@@ -221,6 +231,11 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeContainer();
+			return;
+		}
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
@@ -246,26 +261,6 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		//Clear the coin storage
 		tileEntity.clearStoredMoney();
 		
-	}
-	
-	public void ToggleCreative()
-	{
-		if(this.tileEntity.isRemoved())
-		{
-			this.player.closeContainer();
-			return;
-		}
-		this.tileEntity.toggleCreative();
-	}
-
-	@Override
-	public void AddTrade() {
-		this.tileEntity.addTrade();
-	}
-
-	@Override
-	public void RemoveTrade() {
-		this.tileEntity.removeTrade();
 	}
 	
 }

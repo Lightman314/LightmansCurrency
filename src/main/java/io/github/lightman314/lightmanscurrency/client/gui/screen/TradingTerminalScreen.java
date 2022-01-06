@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -72,8 +73,8 @@ public class TradingTerminalScreen extends Screen{
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		this.buttonPreviousPage = this.addRenderableWidget(new IconButton(guiLeft - 6, guiTop + 18, this::PreviousPage, GUI_TEXTURE, this.xSize, 0));
-		this.buttonNextPage = this.addRenderableWidget(new IconButton(guiLeft + this.xSize - 14, guiTop + 18, this::NextPage, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPreviousPage = this.addRenderableWidget(new IconButton(guiLeft - 6, guiTop + 18, this::PreviousPage, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonNextPage = this.addRenderableWidget(new IconButton(guiLeft + this.xSize - 14, guiTop + 18, this::NextPage, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
 		
 		this.initTraderButtons(guiLeft, guiTop);
 		
@@ -241,7 +242,7 @@ public class TradingTerminalScreen extends Screen{
 			int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
 			//Sort by owner name if trader name is equal
 			if(sort == 0)
-				sort = a.getOwnerName().toLowerCase().compareTo(b.getOwnerName().toLowerCase());
+				sort = a.getCoreSettings().getOwner().lastKnownName().toLowerCase().compareTo(b.getCoreSettings().getOwner().lastKnownName().toLowerCase());
 			return sort;
 		}
 		
