@@ -29,9 +29,9 @@ import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSetting
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -182,7 +182,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 			forceReOpen();
 		}
 		else
-			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
+			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 		
 	}
 	

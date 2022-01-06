@@ -172,7 +172,7 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		return true;
+		return this.getData().hasPermission(playerIn, Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -227,14 +227,13 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		return getData().getPermissionLevel(this.player, permission);
 	}
 	
-	public void openItemEditScreenForSlot(int slotIndex)
-	{
-		int tradeIndex = slotIndex - this.storage.getSizeInventory();
-		openItemEditScreenForTrade(tradeIndex);
-	}
-	
 	public void openItemEditScreenForTrade(int tradeIndex)
 	{
+		if(!this.hasPermission(Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(this.player, "open item edit", Permissions.EDIT_TRADES);
+			return;
+		}
 		if(this.isClient())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenItemEdit(tradeIndex));
@@ -248,6 +247,11 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 		if(this.getData() == null)
 		{
 			this.player.closeScreen();
+			return;
+		}
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player,"store coins", Permissions.STORE_COINS);
 			return;
 		}
 		//Get the value of the current 

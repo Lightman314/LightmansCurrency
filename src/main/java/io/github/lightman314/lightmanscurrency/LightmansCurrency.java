@@ -23,12 +23,12 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerBlacklist;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerDiscounts;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.entity.player.PlayerEntity;

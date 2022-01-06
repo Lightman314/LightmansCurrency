@@ -173,7 +173,7 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 			{
 				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
 				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.container.getData(), this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY, null);
-				if(result < 0) //Result is negative if the mouse is over a slot, but the slot is empty.
+				if(result < 0 && this.container.hasPermission(Permissions.EDIT_TRADES)) //Result is negative if the mouse is over a slot, but the slot is empty.
 					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
 			}
 		}
@@ -208,6 +208,8 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
+		if(!this.container.hasPermission(Permissions.EDIT_TRADES))
+			return super.mouseClicked(mouseX, mouseY, button);
 		ItemStack heldItem = this.container.player.inventory.getItemStack();
 		int tradeCount = this.container.getData().getTradeCount();
 		for(int i = 0; i < tradeCount; ++i)
@@ -331,6 +333,9 @@ public class UniversalItemTraderStorageScreen extends ContainerScreen<UniversalI
 	
 	private void PressTradePriceButton(Button button)
 	{
+		if(!this.container.hasPermission(Permissions.EDIT_TRADES))
+			return;
+		
 		int tradeIndex = 0;
 		if(tradePriceButtons.contains(button))
 			tradeIndex = tradePriceButtons.indexOf(button);

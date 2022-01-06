@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -274,7 +276,7 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		return true;
+		return this.tileEntity.hasPermission(playerIn, Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -300,6 +302,11 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 	
 	public void openItemEditScreenForTrade(int tradeIndex)
 	{
+		if(!this.hasPermission(Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(this.player, "open item edit", Permissions.EDIT_TRADES);
+			return;
+		}
 		if(this.player.world.isRemote)
 		{
 			//LightmansCurrency.LogInfo("Attempting to open item edit container for tradeIndex " + tradeIndex);
@@ -324,6 +331,11 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 			this.player.closeScreen();
 			return;
 		}
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player,"store coins", Permissions.STORE_COINS);
+			return;
+		}
 		//Get the value of the current 
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
 		this.tileEntity.addStoredMoney(addValue);
@@ -335,6 +347,11 @@ public class ItemTraderStorageContainer extends Container implements ITraderStor
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeScreen();
+			return;
+		}
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());

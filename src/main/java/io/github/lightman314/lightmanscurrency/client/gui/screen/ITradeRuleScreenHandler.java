@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 
 public interface ITradeRuleScreenHandler {
 

@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditClose;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditSet;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -188,8 +189,6 @@ public class ItemEditContainer extends Container{
 		}
 	}
 	
-	
-	
 	private static boolean itemListAlreadyContains(ItemStack stack)
 	{
 		for(ItemStack s : allItems)
@@ -210,7 +209,7 @@ public class ItemEditContainer extends Container{
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		return true;
+		return this.traderSource.get().hasPermission(playerIn, Permissions.EDIT_TRADES);
 	}
 
 	public void modifySearch(String newSearch)
@@ -335,6 +334,8 @@ public class ItemEditContainer extends Container{
 	
 	public void setItem(ItemStack stack, int slot)
 	{
+		if(!this.traderSource.get().hasPermission(this.player, Permissions.EDIT_TRADES))
+			return;
 		if(isClient())
 		{
 			//Send message to server

@@ -158,8 +158,8 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		//Core Settings
 		if(compound.contains("CoreSettings", Constants.NBT.TAG_COMPOUND))
 			this.coreSettings.load(compound.getCompound("CoreSettings"));
-		else
-			this.coreSettings.loadFromOldTraderData(compound);
+		else if(compound.contains("OwnerID"))
+			this.coreSettings.loadFromOldUniversalData(compound);
 		//Position
 		if(compound.contains("x") && compound.contains("y") && compound.contains("z"))
 			this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));

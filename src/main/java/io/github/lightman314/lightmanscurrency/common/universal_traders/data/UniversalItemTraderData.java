@@ -31,8 +31,8 @@ import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSetting
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.entity.player.PlayerEntity;
@@ -103,8 +103,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
+		if(this.storage == null)
+			this.storage = new Inventory(this.inventorySize());
 		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
-			this.storage = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+			this.storage = InventoryUtil.loadAllItems("Storage", compound, this.inventorySize());
 		
 		this.logger.read(compound);
 		
@@ -122,6 +124,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 
 		this.writeTrades(compound);
+		this.writeStorage(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
 		this.writeItemSettings(compound);
@@ -180,7 +183,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		if(!TradingOffice.isAdminPlayer(requestor))
 		{
-			Settings.PermissionWarning(requestor, "toggle creative mode", Permissions.ADMIN_MODE);
+			Settings.PermissionWarning(requestor, "add trader slot", Permissions.ADMIN_MODE);
 			return;
 		}
 		if(this.getTradeCount() >= TRADELIMIT)
@@ -196,7 +199,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		if(!TradingOffice.isAdminPlayer(requestor))
 		{
-			Settings.PermissionWarning(requestor, "toggle creative mode", Permissions.ADMIN_MODE);
+			Settings.PermissionWarning(requestor, "remove trader slot", Permissions.ADMIN_MODE);
 			return;
 		}
 		if(this.getTradeCount() <= 1)

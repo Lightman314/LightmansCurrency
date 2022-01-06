@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -63,6 +64,8 @@ public class MessageSetTradeItem implements IMessage<MessageSetTradeItem> {
 					if(tileEntity instanceof ItemTraderTileEntity)
 					{
 						ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)tileEntity;
+						if(!traderEntity.hasPermission(entity, Permissions.EDIT_TRADES))
+							return;
 						ItemStack oldItem = ItemStack.EMPTY;
 						if(message.slot == 1)
 						{

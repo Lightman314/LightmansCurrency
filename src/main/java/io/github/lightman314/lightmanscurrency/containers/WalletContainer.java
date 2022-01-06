@@ -115,15 +115,6 @@ public class WalletContainer extends Container{
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
 		this.addSlot(walletSlot);
 		
-		//Coinslots
-		for(int y = 0; (y * 9) < this.coinInput.getSizeInventory(); y++)
-		{
-			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getSizeInventory(); x++)
-			{
-				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
-			}
-		}
-		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -143,6 +134,15 @@ public class WalletContainer extends Container{
 				this.addSlot(new DisplaySlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
 			else
 				this.addSlot(new BlacklistSlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+		}
+		
+		//Coinslots
+		for(int y = 0; (y * 9) < this.coinInput.getSizeInventory(); y++)
+		{
+			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getSizeInventory(); x++)
+			{
+				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
+			}
 		}
 		
 		this.autoConvert = WalletItem.getAutoConvert(this.getWallet());
