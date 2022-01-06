@@ -304,7 +304,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public ITextComponent getTitle()
 	{
-		if(this.getCoreSettings().isCreative())
+		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
 			return this.getName();
 		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
 	}
