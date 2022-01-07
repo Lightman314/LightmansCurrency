@@ -1,3 +1,19 @@
+----1.0.2.1----
+ADDED:
+"permission.openStorage": "Open Storage",
+"permission.changeName": "Change Trader Name",
+"permission.editTrades": "Modify Trades",
+"permission.collectCoins": "Collect Coins",
+"permission.storeCoins": "Store Coins",
+"permission.editTradeRules": "Change Trade Rules",
+"permission.editSettings": "Access Settings",
+"permission.addRemoveAllies": "Add/Remove Allies",
+"permission.editPermissions": "Edit Permissions",
+"permission.clearLogs": "Clear Shop Log",
+"permission.breakTrader": "Break Trader",
+"permission.transferOwnership": "Transfer Ownership",
+"permission.changeExternalInputs": "Change Item Settings",
+
 ----1.0.2.0----
 REMOVED:
 "tooltip.lightmanscurrency.trader.changeName", "tooltip.lightmanscurrency.trader.allies",
