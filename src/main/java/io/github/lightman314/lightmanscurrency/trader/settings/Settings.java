@@ -3,13 +3,9 @@ package io.github.lightman314.lightmanscurrency.trader.settings;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.Lists;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
-import io.github.lightman314.lightmanscurrency.trader.permissions.options.IntegerPermission;
 import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -72,88 +68,13 @@ public abstract class Settings {
 	}
 	
 	//--------Client Only--------
+	@OnlyIn(Dist.CLIENT)
+	public abstract List<SettingsTab> getSettingsTabs();
 	
 	@OnlyIn(Dist.CLIENT)
-	private List<SettingsTab> settingsTabs = null;
-	@OnlyIn(Dist.CLIENT)
-	private List<SettingsTab> backEndTabs = Lists.newArrayList();
-	@OnlyIn(Dist.CLIENT)
-	private List<PermissionOption> permissionOptions = null;
+	public abstract List<SettingsTab> getBackEndSettingsTabs();
 	
 	@OnlyIn(Dist.CLIENT)
-	protected abstract void initSettingsTabs();
-	
-	@OnlyIn(Dist.CLIENT)
-	protected final Settings addTab(SettingsTab tab)
-	{
-		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
-			this.settingsTabs.add(tab);
-		return this;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	protected final Settings addBackEndTab(SettingsTab tab)
-	{
-		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
-			this.backEndTabs.add(tab);
-		return this;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsTab> getSettingsTabs()
-	{
-		if(this.settingsTabs == null)
-		{
-			this.settingsTabs = Lists.newArrayList();
-			this.initSettingsTabs();
-		}
-		return this.settingsTabs;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsTab> getBackEndSettingsTabs()
-	{
-		if(this.settingsTabs == null)
-		{
-			this.settingsTabs = Lists.newArrayList();
-			this.initSettingsTabs();
-		}
-		return this.backEndTabs;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public abstract void initPermissionOptions();
-	
-	@OnlyIn(Dist.CLIENT)
-	protected final Settings addPermissionBool(String permission)
-	{
-		this.permissionOptions.add(BooleanPermission.of(permission));
-		return this;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	protected final Settings addPermissionInt(String permission, int maxValue)
-	{
-		this.permissionOptions.add(IntegerPermission.of(permission, maxValue));
-		return this;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	protected final Settings addPermission(PermissionOption option)
-	{
-		this.permissionOptions.add(option);
-		return this;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public final List<PermissionOption> getPermissionOptions()
-	{
-		if(this.permissionOptions == null)
-		{
-			this.permissionOptions = Lists.newArrayList();
-			this.initPermissionOptions();
-		}
-		return this.permissionOptions;
-	}
+	public abstract List<PermissionOption> getPermissionOptions();
 	
 }

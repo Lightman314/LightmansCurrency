@@ -1,12 +1,17 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.item.ItemInputTab;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -192,18 +197,23 @@ public class ItemTraderSettings extends Settings {
 		this.limitInputs = compound.getBoolean("LimitInputs");
 		this.limitOutputs = compound.getBoolean("LimitOutputs");
 	}
-	
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	protected void initSettingsTabs() {
-		this.addTab(ItemInputTab.INSTANCE);
+	public List<SettingsTab> getSettingsTabs() {
+		return Lists.newArrayList(ItemInputTab.INSTANCE);
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void initPermissionOptions() {
-		this.addPermission(BooleanPermission.of(Permissions.ItemTrader.EXTERNAL_INPUTS));
+	public List<SettingsTab> getBackEndSettingsTabs() {
+		return Lists.newArrayList();
 	}
-	
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public List<PermissionOption> getPermissionOptions() {
+		return Lists.newArrayList(BooleanPermission.of(Permissions.ItemTrader.EXTERNAL_INPUTS));
+	}
 	
 }

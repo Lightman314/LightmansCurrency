@@ -292,7 +292,6 @@
     "permission.clearLogs": "Clear Shop Log",
     "permission.breakTrader": "Break Trader",
     "permission.transferOwnership": "Transfer Ownership",
-    
     "permission.changeExternalInputs": "Change Item Settings",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",

@@ -303,6 +303,10 @@ public class TradingOffice extends WorldSavedData{
 		if(adminPlayers.contains(playerID))
 		{
 			adminPlayers.remove(playerID);
+			if(!player.world.isRemote)
+			{
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
+			}
 		}
 		else
 		{

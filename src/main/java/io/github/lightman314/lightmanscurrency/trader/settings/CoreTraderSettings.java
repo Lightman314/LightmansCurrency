@@ -12,11 +12,14 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.SettingsLogger;
+import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.permissions.PermissionsList;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -481,26 +484,33 @@ public class CoreTraderSettings extends Settings{
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	protected void initSettingsTabs() {
-		//Main Tab Contains 
-		this.addTab(MainTab.INSTANCE).addBackEndTab(LoggerTab.INSTANCE).addTab(AllyTab.INSTANCE).addTab(AllyPermissionsTab.INSTANCE);
+	public List<SettingsTab> getSettingsTabs() {
+		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE);
 	}
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void initPermissionOptions() {
-		this.addPermissionBool(Permissions.OPEN_STORAGE)
-		.addPermissionBool(Permissions.CHANGE_NAME)
-		.addPermissionBool(Permissions.EDIT_TRADES)
-		.addPermissionBool(Permissions.COLLECT_COINS)
-		.addPermissionBool(Permissions.STORE_COINS)
-		.addPermissionBool(Permissions.EDIT_TRADE_RULES)
-		.addPermissionBool(Permissions.EDIT_SETTINGS)
-		.addPermissionBool(Permissions.ADD_REMOVE_ALLIES)
-		.addPermissionBool(Permissions.EDIT_PERMISSIONS)
-		.addPermissionBool(Permissions.CLEAR_LOGS)
-		.addPermissionBool(Permissions.BREAK_TRADER)
-		.addPermissionBool(Permissions.TRANSFER_OWNERSHIP);
+	public List<SettingsTab> getBackEndSettingsTabs() {
+		return Lists.newArrayList(LoggerTab.INSTANCE);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public List<PermissionOption> getPermissionOptions() {
+		return Lists.newArrayList(
+				BooleanPermission.of(Permissions.OPEN_STORAGE),
+				BooleanPermission.of(Permissions.CHANGE_NAME),
+				BooleanPermission.of(Permissions.EDIT_TRADES),
+				BooleanPermission.of(Permissions.COLLECT_COINS),
+				BooleanPermission.of(Permissions.STORE_COINS),
+				BooleanPermission.of(Permissions.EDIT_TRADE_RULES),
+				BooleanPermission.of(Permissions.EDIT_SETTINGS),
+				BooleanPermission.of(Permissions.ADD_REMOVE_ALLIES),
+				BooleanPermission.of(Permissions.EDIT_PERMISSIONS),
+				BooleanPermission.of(Permissions.CLEAR_LOGS),
+				BooleanPermission.of(Permissions.BREAK_TRADER),
+				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)
+			);
 	}
 	
 }
