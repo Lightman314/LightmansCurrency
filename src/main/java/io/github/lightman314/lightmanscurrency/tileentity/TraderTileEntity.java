@@ -48,7 +48,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public abstract class TraderTileEntity extends TileEntity implements IOwnableTileEntity, ITickableTileEntity, IPermissions, ITrader{
 	
-	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this, this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected CoinValue storedMoney = new CoinValue();
 	

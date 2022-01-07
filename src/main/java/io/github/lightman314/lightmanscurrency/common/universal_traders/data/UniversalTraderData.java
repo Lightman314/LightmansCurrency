@@ -36,7 +36,7 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public static final ResourceLocation ICON_RESOURCE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png");
 	
-	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this, this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	UUID traderID = null;
 	public UUID getTraderID() { return this.traderID; }

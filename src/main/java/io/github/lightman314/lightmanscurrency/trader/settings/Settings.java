@@ -7,6 +7,10 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.IntegerPermission;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -21,10 +25,15 @@ public abstract class Settings {
 	private final ResourceLocation type;
 	public final ResourceLocation getType() { return this.type; }
 	
-	private List<SettingsTab> settingsTabs = null;
-	private List<SettingsTab> backEndTabs = Lists.newArrayList();
+	protected final ITrader trader;
 	
-	protected Settings(IMarkDirty dirtyMarker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer, ResourceLocation type) { this.dirtyMarker = dirtyMarker; this.sendToServer = sendToServer; this.type = type; }
+	protected Settings(ITrader trader, IMarkDirty dirtyMarker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer, ResourceLocation type)
+	{
+		this.dirtyMarker = dirtyMarker;
+		this.sendToServer = sendToServer;
+		this.type = type;
+		this.trader = trader;
+	}
 	
 	public final void markDirty() { this.dirtyMarker.markDirty(); }
 	
@@ -36,7 +45,7 @@ public abstract class Settings {
 	
 	public abstract void changeSetting(PlayerEntity requestor, CompoundNBT updateInfo);
 	
-	protected final CompoundNBT initUpdateInfo(String updateType)
+	public static final CompoundNBT initUpdateInfo(String updateType)
 	{
 		CompoundNBT compound = new CompoundNBT();
 		compound.putString("UpdateType", updateType);
@@ -62,9 +71,19 @@ public abstract class Settings {
 		LightmansCurrency.LogWarning(player.getName().getString() + " attempted to " + action + " without the appropriate permission level.\nHas " + permission + " level " + hasLevel + ". Level " + requiredLevel + " required.");
 	}
 	
+	//--------Client Only--------
+	
+	@OnlyIn(Dist.CLIENT)
+	private List<SettingsTab> settingsTabs = null;
+	@OnlyIn(Dist.CLIENT)
+	private List<SettingsTab> backEndTabs = Lists.newArrayList();
+	@OnlyIn(Dist.CLIENT)
+	private List<PermissionOption> permissionOptions = null;
+	
 	@OnlyIn(Dist.CLIENT)
 	protected abstract void initSettingsTabs();
 	
+	@OnlyIn(Dist.CLIENT)
 	protected final Settings addTab(SettingsTab tab)
 	{
 		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
@@ -72,6 +91,7 @@ public abstract class Settings {
 		return this;
 	}
 	
+	@OnlyIn(Dist.CLIENT)
 	protected final Settings addBackEndTab(SettingsTab tab)
 	{
 		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
@@ -101,5 +121,39 @@ public abstract class Settings {
 		return this.backEndTabs;
 	}
 	
+	@OnlyIn(Dist.CLIENT)
+	public abstract void initPermissionOptions();
+	
+	@OnlyIn(Dist.CLIENT)
+	protected final Settings addPermissionBool(String permission)
+	{
+		this.permissionOptions.add(BooleanPermission.of(permission));
+		return this;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	protected final Settings addPermissionInt(String permission, int maxValue)
+	{
+		this.permissionOptions.add(IntegerPermission.of(permission, maxValue));
+		return this;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	protected final Settings addPermission(PermissionOption option)
+	{
+		this.permissionOptions.add(option);
+		return this;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public final List<PermissionOption> getPermissionOptions()
+	{
+		if(this.permissionOptions == null)
+		{
+			this.permissionOptions = Lists.newArrayList();
+			this.initPermissionOptions();
+		}
+		return this.permissionOptions;
+	}
 	
 }

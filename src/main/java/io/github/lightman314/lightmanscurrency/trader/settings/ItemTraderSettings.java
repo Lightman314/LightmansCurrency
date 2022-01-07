@@ -6,11 +6,14 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.item.ItemInputTab;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemTraderSettings extends Settings {
 
@@ -29,7 +32,7 @@ public class ItemTraderSettings extends Settings {
 		INPUT_AND_OUTPUT
 	}
 	
-	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(marker, sendToServer, TYPE); this.trader = trader;}
+	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(trader, marker, sendToServer, TYPE); this.trader = trader;}
 	
 	private final ITrader trader;
 	
@@ -50,6 +53,8 @@ public class ItemTraderSettings extends Settings {
 	
 	public ItemHandlerSettings getHandlerSetting(Direction side)
 	{
+		if(side == null)
+			return ItemHandlerSettings.DISABLED;
 		if(this.enabledInputSides.get(side))
 		{
 			if(this.enabledOutputSides.get(side))
@@ -72,7 +77,7 @@ public class ItemTraderSettings extends Settings {
 		this.enabledInputSides.set(side, !this.enabledInputSides.get(side));
 		boolean newValue = this.enabledInputSides.get(side);
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "inputSide." + side.toString(), newValue);
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_INPUT_SIDE);
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_INPUT_SIDE);
 		updateInfo.putInt("side", side.getIndex());
 		updateInfo.putBoolean("enabled", newValue);
 		return updateInfo;
@@ -88,7 +93,7 @@ public class ItemTraderSettings extends Settings {
 		this.enabledOutputSides.set(side, !this.enabledOutputSides.get(side));
 		boolean newValue = this.enabledOutputSides.get(side);
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "outputSide." + side.toString(), newValue);
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_OUTPUT_SIDE);
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_OUTPUT_SIDE);
 		updateInfo.putInt("side", side.getIndex());
 		updateInfo.putBoolean("enabled", newValue);
 		return updateInfo;
@@ -103,7 +108,7 @@ public class ItemTraderSettings extends Settings {
 		}
 		this.limitInputs = !this.limitInputs;
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "inputLimit", this.limitInputs);
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_INPUT_LIMIT);
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_INPUT_LIMIT);
 		updateInfo.putBoolean("limited", this.limitInputs);
 		return updateInfo;
 	}
@@ -117,7 +122,7 @@ public class ItemTraderSettings extends Settings {
 		}
 		this.limitOutputs = !this.limitOutputs;
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "outputLimit", this.limitOutputs);
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_OUTPUT_LIMIT);
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_OUTPUT_LIMIT);
 		updateInfo.putBoolean("limited", this.limitOutputs);
 		return updateInfo;
 	}
@@ -189,8 +194,15 @@ public class ItemTraderSettings extends Settings {
 	}
 	
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	protected void initSettingsTabs() {
 		this.addTab(ItemInputTab.INSTANCE);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void initPermissionOptions() {
+		this.addPermission(BooleanPermission.of(Permissions.ItemTrader.EXTERNAL_INPUTS));
 	}
 	
 	

@@ -14,12 +14,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.SettingsLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.permissions.PermissionsList;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 
 public class CoreTraderSettings extends Settings{
@@ -29,17 +32,21 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_CUSTOM_NAME = "customName";
 	private static final String UPDATE_ADD_ALLY = "addAlly";
 	private static final String UPDATE_REMOVE_ALLY = "removeAlly";
+	//private static final String UPDATE_ADD_CUSTOM_PERM = "addCustomPerm";
+	//private static final String UPDATE_REMOVE_CUSTOM_PERM = "removeCustomPerm";
 	private static final String UPDATE_ALLY_PERMISSIONS = "allyPermissions";
+	private static final String UPDATE_CUSTOM_PERMISSIONS = "customPermissions";
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	
-	public static PermissionsList getAllyDefaultPermissions() { return new PermissionsList(ImmutableMap.of(Permissions.OPEN_STORAGE, 1, Permissions.EDIT_TRADES, 1, Permissions.EDIT_TRADE_RULES, 1, Permissions.EDIT_SETTINGS, 1, Permissions.CHANGE_NAME, 1)); }
+	public static PermissionsList getAllyDefaultPermissions(ITrader trader) { return new PermissionsList(trader, UPDATE_ALLY_PERMISSIONS, ImmutableMap.of(Permissions.OPEN_STORAGE, 1, Permissions.EDIT_TRADES, 1, Permissions.EDIT_TRADE_RULES, 1, Permissions.EDIT_SETTINGS, 1, Permissions.CHANGE_NAME, 1)); }
 	
 	//Owner
 	PlayerReference owner = null;
 	//Ally Permissions
 	List<PlayerReference> allies = Lists.newArrayList();
-	PermissionsList allyPermissions = getAllyDefaultPermissions();
+	PermissionsList allyPermissions = getAllyDefaultPermissions(this.trader);
+	public PermissionsList getAllyPermissions() { return this.allyPermissions; }
 	//Custom Permissions
 	Map<PlayerReference,PermissionsList> customPermissions = Maps.newHashMap();
 
@@ -60,7 +67,7 @@ public class CoreTraderSettings extends Settings{
 			this.customName = newName;
 			this.logger.LogNameChange(requestor, oldName, this.customName);
 			this.markDirty();
-			CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_CUSTOM_NAME);
+			CompoundNBT updateInfo = initUpdateInfo(UPDATE_CUSTOM_NAME);
 			updateInfo.putString("NewName", this.customName);
 			return updateInfo;
 		}
@@ -72,7 +79,7 @@ public class CoreTraderSettings extends Settings{
 	
 	SettingsLogger logger = new SettingsLogger();
 	
-	public CoreTraderSettings(IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(marker, sendToServer, TYPE); }
+	public CoreTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(trader, marker, sendToServer, TYPE); }
 	
 	public PlayerReference getOwner() { return this.owner; }
 	/**
@@ -98,7 +105,7 @@ public class CoreTraderSettings extends Settings{
 			this.owner = PlayerReference.of(newOwnerName);
 			if(this.owner != null)
 			{
-				CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_OWNERSHIP);
+				CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 				updateInfo.putString("newOwner", newOwnerName);
 				return updateInfo;
 			}
@@ -113,7 +120,7 @@ public class CoreTraderSettings extends Settings{
 				this.logger.LogOwnerChange(requestor, oldOwner, this.owner);
 				this.markDirty();
 				
-				CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_OWNERSHIP);
+				CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 				updateInfo.putString("newOwner", newOwnerName);
 				return updateInfo;
 			}
@@ -140,7 +147,7 @@ public class CoreTraderSettings extends Settings{
 			}
 			if(newAlly != null || requestor.world.isRemote)
 			{
-				CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_ADD_ALLY);
+				CompoundNBT updateInfo = initUpdateInfo(UPDATE_ADD_ALLY);
 				updateInfo.putString("AllyName", newAllyName);
 				return updateInfo;
 			}
@@ -169,28 +176,11 @@ public class CoreTraderSettings extends Settings{
 				return null;
 			this.logger.LogAllyChange(requestor, removedAlly, false);
 			this.markDirty();
-			CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_REMOVE_ALLY);
+			CompoundNBT updateInfo = initUpdateInfo(UPDATE_REMOVE_ALLY);
 			updateInfo.putString("AllyName", removedAllyName);
 			return updateInfo;
 		}
 		return null;
-	}
-	public CompoundNBT setAllyPermissionLevel(PlayerEntity requestor, String permission, int level)
-	{
-		if(!this.hasPermission(requestor, Permissions.EDIT_PERMISSIONS))
-		{
-			PermissionWarning(requestor, "edit ally permissions", Permissions.EDIT_PERMISSIONS);
-			return null;
-		}
-		if(this.allyPermissions.getLevel(permission) != level)
-		{
-			this.allyPermissions.setLevel(permission, level);
-			this.markDirty();
-		}
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_ALLY_PERMISSIONS);
-		updateInfo.putString("Permission", permission);
-		updateInfo.putInt("Level", level);
-		return updateInfo;
 	}
 	
 	/**
@@ -217,7 +207,7 @@ public class CoreTraderSettings extends Settings{
 		}
 		if(this.customPermissions.containsKey(player))
 			return this.customPermissions.get(player);
-		return this.customPermissions.put(player, new PermissionsList());
+		return this.customPermissions.put(player, new PermissionsList(this.trader, UPDATE_CUSTOM_PERMISSIONS));
 	}
 	
 	public void removeCustomPermissionEntry(PlayerReference player)
@@ -261,7 +251,7 @@ public class CoreTraderSettings extends Settings{
 		this.isCreative = !this.isCreative;
 		this.logger.LogCreativeToggle(requestor, this.isCreative);
 		this.markDirty();
-		CompoundNBT updateInfo = this.initUpdateInfo(UPDATE_CREATIVE);
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_CREATIVE);
 		updateInfo.putBoolean("isCreative", this.isCreative);
 		return updateInfo;
 	}
@@ -304,14 +294,19 @@ public class CoreTraderSettings extends Settings{
 					this.markDirty();
 			}
 		}
+		else if(this.isUpdateType(updateInfo, UPDATE_ALLY_PERMISSIONS))
+		{
+			if(this.allyPermissions.changeLevel(requestor, updateInfo))
+				this.markDirty();
+		}
 	}
 	
 	public CompoundNBT save(CompoundNBT compound)
 	{
 		
 		this.saveOwner(compound);
-		this.saveAllyPermissions(compound);
 		this.saveAllyList(compound);
+		this.saveAllyPermissions(compound);
 		this.saveCustomPermissions(compound);
 		this.saveCustomName(compound);
 		this.saveCreative(compound);
@@ -327,15 +322,15 @@ public class CoreTraderSettings extends Settings{
 		return compound;
 	}
 	
-	public CompoundNBT saveAllyPermissions(CompoundNBT compound)
-	{
-		this.allyPermissions.save(compound, "AllyPermissions");
-		return compound;
-	}
-	
 	public CompoundNBT saveAllyList(CompoundNBT compound)
 	{
 		PlayerReference.saveList(compound, this.allies, "Allies");
+		return compound;
+	}
+	
+	public CompoundNBT saveAllyPermissions(CompoundNBT compound)
+	{
+		this.allyPermissions.save(compound, "AllyPermissions");
 		return compound;
 	}
 	
@@ -451,11 +446,12 @@ public class CoreTraderSettings extends Settings{
 		//Owner
 		if(compound.contains("Owner", Constants.NBT.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
-		//Ally Permissions
-		if(compound.contains("AllyPermissions", Constants.NBT.TAG_COMPOUND))
-			this.allyPermissions = PermissionsList.load(compound, "AllyPermissions");
+		//Ally List
 		if(compound.contains("Allies", Constants.NBT.TAG_LIST))
 			this.allies = PlayerReference.loadList(compound, "Allies");
+		//Ally Permissions
+		if(compound.contains("AllyPermissions", Constants.NBT.TAG_LIST))
+			this.allyPermissions = PermissionsList.load(this.trader, UPDATE_ALLY_PERMISSIONS, compound, "AllyPermissions");
 		//Custom Permissions
 		if(compound.contains("CustomPermissions", Constants.NBT.TAG_LIST))
 		{
@@ -465,7 +461,7 @@ public class CoreTraderSettings extends Settings{
 			{
 				CompoundNBT thisCompound = customPermissionsList.getCompound(i);
 				PlayerReference player = PlayerReference.load(thisCompound.getCompound("Player"));
-				PermissionsList permissions = PermissionsList.load(thisCompound, "Permissions");
+				PermissionsList permissions = PermissionsList.load(this.trader, UPDATE_CUSTOM_PERMISSIONS, thisCompound, "Permissions");
 				this.customPermissions.put(player, permissions);
 			}
 		}
@@ -484,10 +480,27 @@ public class CoreTraderSettings extends Settings{
 	}
 	
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	protected void initSettingsTabs() {
 		//Main Tab Contains 
-		this.addTab(MainTab.INSTANCE).addBackEndTab(LoggerTab.INSTANCE).addTab(AllyTab.INSTANCE);
+		this.addTab(MainTab.INSTANCE).addBackEndTab(LoggerTab.INSTANCE).addTab(AllyTab.INSTANCE).addTab(AllyPermissionsTab.INSTANCE);
 	}
 	
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void initPermissionOptions() {
+		this.addPermissionBool(Permissions.OPEN_STORAGE)
+		.addPermissionBool(Permissions.CHANGE_NAME)
+		.addPermissionBool(Permissions.EDIT_TRADES)
+		.addPermissionBool(Permissions.COLLECT_COINS)
+		.addPermissionBool(Permissions.STORE_COINS)
+		.addPermissionBool(Permissions.EDIT_TRADE_RULES)
+		.addPermissionBool(Permissions.EDIT_SETTINGS)
+		.addPermissionBool(Permissions.ADD_REMOVE_ALLIES)
+		.addPermissionBool(Permissions.EDIT_PERMISSIONS)
+		.addPermissionBool(Permissions.CLEAR_LOGS)
+		.addPermissionBool(Permissions.BREAK_TRADER)
+		.addPermissionBool(Permissions.TRANSFER_OWNERSHIP);
+	}
 	
 }
