@@ -250,7 +250,7 @@
     "gui.lightmanscurrency.settings.iteminput.limit": "Omezit vstupy:",
     "gui.lightmanscurrency.settings.iteminput.limit.limited": "Prodávané předměty",
     "gui.lightmanscurrency.settings.iteminput.limit.any": "Jakékoliv předměty",
-    "gui.lightmanscurrency.settings.itemoutput.limit": "Limit Výstupy:",
+    "gui.lightmanscurrency.settings.itemoutput.limit": "Omezit Výstupy:",
     "gui.lightmanscurrency.settings.itemoutput.limit.limited": "Zakoupené předměty",
     "gui.lightmanscurrency.settings.itemoutput.limit.any": "Jakékoliv předměty",
     "gui.lightmanscurrency.settings.side.down": "Spodní",
