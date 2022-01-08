@@ -42,6 +42,7 @@ public class TraderSettingsScreen extends Screen{
 	public final int ySize = 200;
 	
 	List<Settings> settings;
+	public List<Settings> getSettings() { return this.settings; }
 	
 	List<AbstractWidget> tabWidgets = Lists.newArrayList();
 	List<GuiEventListener> tabListeners = Lists.newArrayList();

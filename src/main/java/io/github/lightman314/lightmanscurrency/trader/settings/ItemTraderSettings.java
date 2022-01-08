@@ -1,16 +1,24 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.item.*;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemTraderSettings extends Settings {
 
@@ -29,7 +37,7 @@ public class ItemTraderSettings extends Settings {
 		INPUT_AND_OUTPUT
 	}
 	
-	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(marker, sendToServer, TYPE); this.trader = trader;}
+	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(trader, marker, sendToServer, TYPE); this.trader = trader;}
 	
 	private final ITrader trader;
 	
@@ -50,6 +58,8 @@ public class ItemTraderSettings extends Settings {
 	
 	public ItemHandlerSettings getHandlerSetting(Direction side)
 	{
+		if(side == null)
+			return ItemHandlerSettings.DISABLED;
 		if(this.enabledInputSides.get(side))
 		{
 			if(this.enabledOutputSides.get(side))
@@ -72,7 +82,7 @@ public class ItemTraderSettings extends Settings {
 		this.enabledInputSides.set(side, !this.enabledInputSides.get(side));
 		boolean newValue = this.enabledInputSides.get(side);
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "inputSide." + side.toString(), newValue);
-		CompoundTag updateInfo = this.initUpdateInfo(UPDATE_INPUT_SIDE);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_INPUT_SIDE);
 		updateInfo.putInt("side", side.get3DDataValue());
 		updateInfo.putBoolean("enabled", newValue);
 		return updateInfo;
@@ -88,7 +98,7 @@ public class ItemTraderSettings extends Settings {
 		this.enabledOutputSides.set(side, !this.enabledOutputSides.get(side));
 		boolean newValue = this.enabledOutputSides.get(side);
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "outputSide." + side.toString(), newValue);
-		CompoundTag updateInfo = this.initUpdateInfo(UPDATE_OUTPUT_SIDE);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_OUTPUT_SIDE);
 		updateInfo.putInt("side", side.get3DDataValue());
 		updateInfo.putBoolean("enabled", newValue);
 		return updateInfo;
@@ -103,7 +113,7 @@ public class ItemTraderSettings extends Settings {
 		}
 		this.limitInputs = !this.limitInputs;
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "inputLimit", this.limitInputs);
-		CompoundTag updateInfo = this.initUpdateInfo(UPDATE_INPUT_LIMIT);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_INPUT_LIMIT);
 		updateInfo.putBoolean("limited", this.limitInputs);
 		return updateInfo;
 	}
@@ -117,7 +127,7 @@ public class ItemTraderSettings extends Settings {
 		}
 		this.limitOutputs = !this.limitOutputs;
 		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "outputLimit", this.limitOutputs);
-		CompoundTag updateInfo = this.initUpdateInfo(UPDATE_OUTPUT_LIMIT);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_OUTPUT_LIMIT);
 		updateInfo.putBoolean("limited", this.limitOutputs);
 		return updateInfo;
 	}
@@ -189,8 +199,21 @@ public class ItemTraderSettings extends Settings {
 	}
 	
 	@Override
-	protected void initSettingsTabs() {
-		this.addTab(ItemInputTab.INSTANCE);
+	@OnlyIn(Dist.CLIENT)
+	public List<SettingsTab> getSettingsTabs() {
+		return Lists.newArrayList(ItemInputTab.INSTANCE);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public List<SettingsTab> getBackEndSettingsTabs() {
+		return Lists.newArrayList();
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public List<PermissionOption> getPermissionOptions() {
+		return Lists.newArrayList(BooleanPermission.of(Permissions.ItemTrader.EXTERNAL_INPUTS));
 	}
 	
 	

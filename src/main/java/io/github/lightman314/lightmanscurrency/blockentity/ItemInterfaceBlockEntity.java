@@ -51,6 +51,8 @@ public class ItemInterfaceBlockEntity extends BlockEntity{
 		
 		public static Direction getRelativeSide(Direction facing, Direction side)
 		{
+			if(side == null)
+				return side;
 			if(side.getAxis() == Axis.Y)
 				return side;
 			//Since my facings are backwards, invert it

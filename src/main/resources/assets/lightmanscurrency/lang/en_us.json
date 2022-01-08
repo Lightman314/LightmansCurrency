@@ -280,6 +280,20 @@
     "log.settings.newowner.taken" : "%1$s claimed ownership from %2$s",
     "log.settings.newowner.transferred" : "%1$s transferred ownership from %2$s to %3$s",
     
+    "permission.openStorage": "Open Storage",
+    "permission.changeName": "Change Trader Name",
+    "permission.editTrades": "Modify Trades",
+    "permission.collectCoins": "Collect Coins",
+    "permission.storeCoins": "Store Coins",
+    "permission.editTradeRules": "Change Trade Rules",
+    "permission.editSettings": "Access Settings",
+    "permission.addRemoveAllies": "Add/Remove Allies",
+    "permission.editPermissions": "Edit Permissions",
+    "permission.clearLogs": "Clear Shop Log",
+    "permission.breakTrader": "Break Trader",
+    "permission.transferOwnership": "Transfer Ownership",
+    "permission.changeExternalInputs": "Change Item Settings",
+    
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
@@ -314,4 +328,3 @@
     "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration."
     
 }
-    

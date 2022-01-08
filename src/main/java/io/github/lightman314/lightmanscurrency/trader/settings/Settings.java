@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.trader.settings;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.Lists;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -21,10 +21,9 @@ public abstract class Settings {
 	private final ResourceLocation type;
 	public final ResourceLocation getType() { return this.type; }
 	
-	private List<SettingsTab> settingsTabs = null;
-	private List<SettingsTab> backEndTabs = Lists.newArrayList();
+	protected final ITrader trader;
 	
-	protected Settings(IMarkDirty dirtyMarker, BiConsumer<ResourceLocation,CompoundTag> sendToServer, ResourceLocation type) { this.dirtyMarker = dirtyMarker; this.sendToServer = sendToServer; this.type = type; }
+	protected Settings(ITrader trader, IMarkDirty dirtyMarker, BiConsumer<ResourceLocation,CompoundTag> sendToServer, ResourceLocation type) { this.dirtyMarker = dirtyMarker; this.sendToServer = sendToServer; this.type = type; this.trader = trader; }
 	
 	public final void markDirty() { this.dirtyMarker.markDirty(); }
 	
@@ -36,7 +35,7 @@ public abstract class Settings {
 	
 	public abstract void changeSetting(Player requestor, CompoundTag updateInfo);
 	
-	protected final CompoundTag initUpdateInfo(String updateType)
+	public static final CompoundTag initUpdateInfo(String updateType)
 	{
 		CompoundTag compound = new CompoundTag();
 		compound.putString("UpdateType", updateType);
@@ -62,44 +61,16 @@ public abstract class Settings {
 		LightmansCurrency.LogWarning(player.getName().getString() + " attempted to " + action + " without the appropriate permission level.\nHas " + permission + " level " + hasLevel + ". Level " + requiredLevel + " required.");
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	protected abstract void initSettingsTabs();
-	
-	protected final Settings addTab(SettingsTab tab)
-	{
-		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
-			this.settingsTabs.add(tab);
-		return this;
-	}
-	
-	protected final Settings addBackEndTab(SettingsTab tab)
-	{
-		if(!this.settingsTabs.contains(tab) && !this.backEndTabs.contains(tab))
-			this.backEndTabs.add(tab);
-		return this;
-	}
+	//--------Client Only--------
 	
 	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsTab> getSettingsTabs()
-	{
-		if(this.settingsTabs == null)
-		{
-			this.settingsTabs = Lists.newArrayList();
-			this.initSettingsTabs();
-		}
-		return this.settingsTabs;
-	}
+	public abstract List<SettingsTab> getSettingsTabs();
 	
 	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsTab> getBackEndSettingsTabs()
-	{
-		if(this.settingsTabs == null)
-		{
-			this.settingsTabs = Lists.newArrayList();
-			this.initSettingsTabs();
-		}
-		return this.backEndTabs;
-	}
+	public abstract List<SettingsTab> getBackEndSettingsTabs();
+	
+	@OnlyIn(Dist.CLIENT)
+	public abstract List<PermissionOption> getPermissionOptions();
 	
 	
 }

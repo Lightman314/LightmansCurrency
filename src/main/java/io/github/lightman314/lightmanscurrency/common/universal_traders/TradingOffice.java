@@ -295,6 +295,10 @@ public class TradingOffice extends SavedData{
 		if(adminPlayers.contains(playerID))
 		{
 			adminPlayers.remove(playerID);
+			if(!player.level.isClientSide)
+			{
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
+			}
 		}
 		else
 		{

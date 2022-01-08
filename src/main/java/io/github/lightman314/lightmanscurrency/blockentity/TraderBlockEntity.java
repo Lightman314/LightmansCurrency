@@ -41,7 +41,7 @@ import net.minecraftforge.network.PacketDistributor;
 
 public abstract class TraderBlockEntity extends TickableBlockEntity implements IOwnableBlockEntity, ITrader{
 	
-	CoreTraderSettings coreSettings = new CoreTraderSettings(this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
+	CoreTraderSettings coreSettings = new CoreTraderSettings(this, this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	protected CoinValue storedMoney = new CoinValue();
 	
