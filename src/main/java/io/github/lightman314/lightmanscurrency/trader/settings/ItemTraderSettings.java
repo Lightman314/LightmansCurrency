@@ -1,10 +1,8 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -171,9 +169,6 @@ public class ItemTraderSettings extends Settings {
 			}
 		}
 	}
-	
-	@Override
-	public Map<String,Integer> getAllyDefaultPermisisons() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
 	public CompoundNBT save(CompoundNBT compound)
 	{

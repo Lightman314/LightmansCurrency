@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.tileentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.blocks.IItemTraderBlock;
@@ -81,6 +83,9 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	}
 	
 	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
+	
+	@Override
+	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
 	protected IInventory storage = new Inventory(this.getSizeInventory());
 	

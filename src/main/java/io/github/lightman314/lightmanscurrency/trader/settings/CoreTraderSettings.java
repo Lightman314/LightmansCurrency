@@ -6,6 +6,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -41,7 +43,7 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	
-	public static PermissionsList getAllyDefaultPermissions(ITrader trader)
+	public static PermissionsList getAllyDefaultPermissions(@Nonnull ITrader trader)
 	{
 		Map<String,Integer> defaultPermissions = Maps.newHashMap();
 		defaultPermissions.put(Permissions.OPEN_STORAGE, 1);
@@ -50,7 +52,9 @@ public class CoreTraderSettings extends Settings{
 		defaultPermissions.put(Permissions.EDIT_SETTINGS, 1);
 		defaultPermissions.put(Permissions.CHANGE_NAME, 1);
 		
-		trader.getAdditionalSettings().forEach(setting -> setting.getAllyDefaultPermisisons().forEach((key,value) -> defaultPermissions.put(key, value)));
+		try {
+		trader.getAllyDefaultPermissions().forEach((key,value) -> defaultPermissions.put(key, value));
+		} catch(Exception e) { LightmansCurrency.LogError("Error getting additional default ally permissions for trader type " + trader.getClass().getName(), e); }
 		
 		return new PermissionsList(trader, UPDATE_ALLY_PERMISSIONS, defaultPermissions);
 	}
