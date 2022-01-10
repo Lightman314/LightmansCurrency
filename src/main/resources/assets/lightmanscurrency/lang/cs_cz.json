@@ -128,7 +128,7 @@
     "gui.lightmanscurrency.item_edit.title" : "Výběr předmětu",
     "gui.lightmanscurrency.item_edit.search": "Prohledat předměty",
     "tooltip.lightmanscurrency.coinworth.down": "§eMá hodnotu %1$s %2$s§e",
-    "tooltip.lightmanscurrency.coinworth.up": "§e%1$s§e má hodnotu 1 %2$e",
+    "tooltip.lightmanscurrency.coinworth.up": "§e%1$s§e má hodnotu 1 %2$s",
     "tooptip.lightmanscurrency.cash_register": "Propojeno s %s obchody.",
     "tooptip.lightmanscurrency.cash_register.holdshift": "§ePodrž SHIFT pro zobrazení detailu.§r",
     "tooptip.lightmanscurrency.cash_register.instructions": "Stiskni Shift + RMB na obchod pro zaregistrování.",
