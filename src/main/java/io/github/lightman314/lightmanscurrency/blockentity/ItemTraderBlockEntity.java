@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
@@ -46,7 +48,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -82,6 +83,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
+	
+	@Override
+	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
 	protected Container storage;
 	
@@ -278,17 +282,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			CompoundTag compound = this.writeItemSettings(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
-	}
-	
-	@Override
-	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
-	{
-		if(type.equals(this.itemSettings.getType()))
-		{
-			this.itemSettings.changeSetting(requestor, updateInfo);
-		}
-		else
-			super.changeSettings(type, requestor, updateInfo);
 	}
 	
 	public void markStorageDirty()

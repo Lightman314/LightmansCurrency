@@ -121,13 +121,18 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
+	public final void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
 	{
 		if(this.level.isClientSide)
 			LightmansCurrency.LogError("TraderTileEntity.changeSettings was called on a client.");
 		if(type.equals(this.coreSettings.getType()))
-		{
 			this.coreSettings.changeSetting(requestor, updateInfo);
+		else
+		{
+			this.getAdditionalSettings().forEach(setting ->{
+				if(type.equals(setting.getType()))
+					setting.changeSetting(requestor, updateInfo);
+			});
 		}
 	}
 	
@@ -226,7 +231,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	{
 		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
 			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
 	public abstract MenuProvider getTradeMenuProvider();

@@ -101,15 +101,18 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
+	public final void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
 	{
 		if(this.isClient())
 			LightmansCurrency.LogError("UniversalTraderData.changeSettings was called on a client.");
 		if(type.equals(this.coreSettings.getType()))
-		{
-			//LightmansCurrency.LogInfo("Settings change message from update message.");
 			this.coreSettings.changeSetting(requestor, updateInfo);
-			//Don't need to mark it dirty. The change settings function will mark itself dirty if a change is made.
+		else
+		{
+			this.getAdditionalSettings().forEach(setting ->{
+				if(type.equals(setting.getType()))
+					setting.changeSetting(requestor, updateInfo);
+			});
 		}
 	}
 	
@@ -297,7 +300,7 @@ public abstract class UniversalTraderData implements ITrader{
 	{
 		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
 			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
 	protected class DataWriter implements Consumer<FriendlyByteBuf>

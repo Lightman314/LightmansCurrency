@@ -37,13 +37,7 @@ public class ItemTraderSettings extends Settings {
 		INPUT_AND_OUTPUT
 	}
 	
-	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(trader, marker, sendToServer, TYPE); this.trader = trader;}
-	
-	private final ITrader trader;
-	
-	protected final boolean hasPermission(Player player, String permission) { return this.trader.getCoreSettings().hasPermission(player, permission); }
-	
-	protected final int getPermissionLevel(Player player, String permission) { return this.trader.getCoreSettings().getPermissionLevel(player, permission); }
+	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(trader, marker, sendToServer, TYPE); }
 	
 	DirectionalSettings enabledInputSides = new DirectionalSettings();
 	public DirectionalSettings getInputSides() { return this.enabledInputSides; }
@@ -51,10 +45,8 @@ public class ItemTraderSettings extends Settings {
 	public DirectionalSettings getOutputSides() { return this.enabledOutputSides; }
 	boolean limitInputs = true;
 	public boolean limitInputsToSales() { return this.limitInputs; }
-	public void setLimitInputsToSales(boolean limitInputs) { this.limitInputs = limitInputs; }
 	boolean limitOutputs = true;
 	public boolean limitOutputsToPurchases() { return this.limitOutputs; }
-	public void setLimitOutputsToPurchases(boolean limitOutputs) { this.limitOutputs = limitOutputs; }
 	
 	public ItemHandlerSettings getHandlerSetting(Direction side)
 	{
@@ -74,7 +66,7 @@ public class ItemTraderSettings extends Settings {
 	
 	public CompoundTag toggleInputSide(Player requestor, Direction side)
 	{
-		if(!this.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
+		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
 		{
 			PermissionWarning(requestor, "toggle external input side", Permissions.ItemTrader.EXTERNAL_INPUTS);
 			return null;
@@ -90,7 +82,7 @@ public class ItemTraderSettings extends Settings {
 	
 	public CompoundTag toggleOutputSide(Player requestor, Direction side)
 	{
-		if(!this.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
+		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
 		{
 			PermissionWarning(requestor, "toggle external output side", Permissions.ItemTrader.EXTERNAL_INPUTS);
 			return null;
@@ -106,7 +98,7 @@ public class ItemTraderSettings extends Settings {
 	
 	public CompoundTag toggleInputLimit(Player requestor)
 	{
-		if(!this.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
+		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
 		{
 			PermissionWarning(requestor, "toggle external output side", Permissions.ItemTrader.EXTERNAL_INPUTS);
 			return null;
@@ -120,7 +112,7 @@ public class ItemTraderSettings extends Settings {
 	
 	public CompoundTag toggleOutputLimit(Player requestor)
 	{
-		if(!this.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
+		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
 		{
 			PermissionWarning(requestor, "toggle external output side", Permissions.ItemTrader.EXTERNAL_INPUTS);
 			return null;
