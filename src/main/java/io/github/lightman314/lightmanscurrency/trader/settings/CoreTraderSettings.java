@@ -6,7 +6,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -42,7 +41,19 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	
-	public static PermissionsList getAllyDefaultPermissions(ITrader trader) { return new PermissionsList(trader, UPDATE_ALLY_PERMISSIONS, ImmutableMap.of(Permissions.OPEN_STORAGE, 1, Permissions.EDIT_TRADES, 1, Permissions.EDIT_TRADE_RULES, 1, Permissions.EDIT_SETTINGS, 1, Permissions.CHANGE_NAME, 1)); }
+	public static PermissionsList getAllyDefaultPermissions(ITrader trader)
+	{
+		Map<String,Integer> defaultPermissions = Maps.newHashMap();
+		defaultPermissions.put(Permissions.OPEN_STORAGE, 1);
+		defaultPermissions.put(Permissions.EDIT_TRADES, 1);
+		defaultPermissions.put(Permissions.EDIT_TRADE_RULES, 1);
+		defaultPermissions.put(Permissions.EDIT_SETTINGS, 1);
+		defaultPermissions.put(Permissions.CHANGE_NAME, 1);
+		
+		trader.getAdditionalSettings().forEach(setting -> setting.getAllyDefaultPermisisons().forEach((key,value) -> defaultPermissions.put(key, value)));
+		
+		return new PermissionsList(trader, UPDATE_ALLY_PERMISSIONS, defaultPermissions);
+	}
 	
 	//Owner
 	PlayerReference owner = null;
@@ -85,6 +96,16 @@ public class CoreTraderSettings extends Settings{
 	public CoreTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(trader, marker, sendToServer, TYPE); }
 	
 	public PlayerReference getOwner() { return this.owner; }
+	/**
+	 * Returns the display name of the traders owner.
+	 * If the trader is owned by a team (WIP), it will display the team name instead.
+	 */
+	public String getOwnerName()
+	{
+		if(this.owner != null)
+			return this.owner.lastKnownName();
+		return "";
+	}
 	/**
 	 * Initialized the traders owner.
 	 * Does nothing if the owner is already defined.

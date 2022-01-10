@@ -52,7 +52,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -280,17 +279,6 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
 		}
 		this.markDirty();
-	}
-	
-	@Override
-	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
-	{
-		if(type.equals(this.itemSettings.getType()))
-		{
-			this.itemSettings.changeSetting(requestor, updateInfo);
-		}
-		else
-			super.changeSettings(type, requestor, updateInfo);
 	}
 	
 	public ItemShopLogger getLogger() {return this.logger; }

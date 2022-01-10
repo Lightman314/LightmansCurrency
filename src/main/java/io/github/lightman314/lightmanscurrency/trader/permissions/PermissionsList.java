@@ -79,7 +79,7 @@ public class PermissionsList {
 		return true;
 	}
 	
-	private void setLevel(String permission, int level)
+	public void setLevel(String permission, int level)
 	{
 		if(level <= 0)
 			resetLevel(permission);

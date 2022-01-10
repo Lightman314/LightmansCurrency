@@ -1,7 +1,10 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
+
+import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
@@ -34,6 +37,8 @@ public abstract class Settings {
 	public final void markDirty() { this.dirtyMarker.markDirty(); }
 	
 	public final void sendToServer(CompoundNBT updateMessage) { if(updateMessage != null) this.sendToServer.accept(this.type, updateMessage); }
+	
+	public Map<String,Integer> getAllyDefaultPermisisons() { return Maps.newHashMap(); }
 	
 	public abstract CompoundNBT save(CompoundNBT compound);
 	

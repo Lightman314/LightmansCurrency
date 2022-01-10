@@ -7,9 +7,12 @@ import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSetting
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 
 public interface ITrader extends IPermissions{
 
+	public ITextComponent getName();
+	public ITextComponent getTitle();
 	public CoinValue getStoredMoney();
 	public int getTradeCount();
 	public int getTradeCountLimit();

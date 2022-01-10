@@ -286,17 +286,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.markDirty(this::writeItemSettings);
 	}
 	
-	@Override
-	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
-	{
-		if(type.equals(this.itemSettings.getType()))
-		{
-			this.itemSettings.changeSetting(requestor, updateInfo);
-		}
-		else
-			super.changeSettings(type, requestor, updateInfo);
-	}
-	
 	public ItemShopLogger getLogger() { return this.logger; }
 	
 	public void clearLogger()

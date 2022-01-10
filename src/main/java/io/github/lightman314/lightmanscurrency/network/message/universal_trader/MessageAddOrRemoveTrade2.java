@@ -4,7 +4,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -47,14 +46,10 @@ public class MessageAddOrRemoveTrade2 implements IMessage<MessageAddOrRemoveTrad
 			if(entity != null)
 			{
 				UniversalTraderData trader = TradingOffice.getData(message.traderID);
-				if(trader instanceof UniversalItemTraderData)
-				{
-					UniversalItemTraderData itemTrader = (UniversalItemTraderData)trader;
-					if(message.isTradeAdd)
-						itemTrader.addTrade(entity);
-					else
-						itemTrader.removeTrade(entity);
-				}
+				if(message.isTradeAdd)
+					trader.addTrade(entity);
+				else
+					trader.removeTrade(entity);
 			}
 		});
 		supplier.get().setPacketHandled(true);

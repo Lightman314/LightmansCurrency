@@ -133,18 +133,19 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 	}
 	
-	public void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
+	public final void changeSettings(ResourceLocation type, PlayerEntity requestor, CompoundNBT updateInfo)
 	{
 		if(this.world.isRemote)
 			LightmansCurrency.LogError("TraderTileEntity.changeSettings was called on a client.");
 		if(type.equals(this.coreSettings.getType()))
-		{
-			//LightmansCurrency.LogInfo("Settings change message from update message.");
 			this.coreSettings.changeSetting(requestor, updateInfo);
-			//Don't need to mark it dirty. The change settings function will mark itself dirty if a change is made.
-		}
 		else
-			LightmansCurrency.LogInfo("Settings type '" + type.toString() + "' does not match the core settings type '" + this.coreSettings.getType().toString() + "'");
+		{
+			this.getAdditionalSettings().forEach(setting ->{
+				if(type.equals(setting.getType()))
+					setting.changeSetting(requestor, updateInfo);
+			});
+		}
 	}
 	
 	public boolean hasPermission(PlayerEntity player, String permission)
@@ -247,7 +248,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	{
 		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
 			return this.getName();
-		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwner().lastKnownName());
+		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
 	public abstract INamedContainerProvider getTradeMenuProvider();
