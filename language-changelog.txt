@@ -1,3 +1,33 @@
+----1.0.2.3----
+ADDED:
+"key.team_settings": "Open Team Manager",
+"tooltip.lightmanscurrency.settings.owner": "Transfer Team Ownership",
+"tooltip.lightmanscurrency.warning": "WARNING: Cannot be undone.",
+"gui.button.lightmanscurrency.set_owner": "Transfer Ownership",
+
+"tooltip.lightmanscurrency.team.selection": "Team Selection",
+"tooltip.lightmanscurrency.team.members": "Members",
+"tooltip.lightmanscurrency.team.name": "Name",
+"tooltip.lightmanscurrency.team.member_edit": "Add/Promote/Remove Members",
+"tooltip.lightmanscurrency.team.owner": "Transfer Team Ownership",
+
+"gui.lightmanscurrency.team.select": "Select Team to Manage:",
+"gui.lightmanscurrency.team.create": "Create New Team",
+"gui.lightmanscurrency.team.name.current": "Current Name: %s",
+"gui.button.lightmanscurrency.team.owner": "Current Owner: %s",
+
+"gui.button.lightmanscurrency.team.owner": "Owner: %s",
+"gui.button.lightmanscurrency.team.create": "Create",
+"gui.button.lightmanscurrency.team.rename": "Rename Team",
+"gui.button.lightmanscurrency.team.member.add": "Add",
+"gui.button.lightmanscurrency.team.member.promote": "Set Admin",
+"gui.button.lightmanscurrency.team.member.remove": "Remove",
+"gui.button.lightmanscurrency.team.disband": "Disband Team",
+
+
+----1.0.2.2----
+-Added Czech Translations, courtesy of HonzaVinCZ
+
 ----1.0.2.0----
 REMOVED:
 "tooltip.lightmanscurrency.trader.changeName", "tooltip.lightmanscurrency.trader.allies",

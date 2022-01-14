@@ -27,7 +27,7 @@ public abstract class Settings {
 	
 	public final void markDirty() { this.dirtyMarker.markDirty(); }
 	
-	public final void sendToServer(CompoundTag updateMessage) { if(updateMessage != null) this.sendToServer.accept(this.type, updateMessage); }
+	public final void sendToServer(CompoundTag updateInfo) { if(updateInfo != null) this.sendToServer.accept(this.type, updateInfo); }
 	
 	public abstract CompoundTag save(CompoundTag compound);
 	

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -52,6 +53,7 @@ public class WalletItem extends Item{
 		this.canConvert = canConvert;
 		this.canPickup = canPickup;
 		this.storageSize = storageSize;
+		WalletMenu.updateMaxWalletSlots(this.storageSize);
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
 	

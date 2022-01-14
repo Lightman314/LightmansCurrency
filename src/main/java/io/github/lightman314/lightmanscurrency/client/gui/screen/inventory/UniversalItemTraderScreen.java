@@ -169,7 +169,7 @@ public class UniversalItemTraderScreen extends AbstractContainerScreen<Universal
 	
 	private void PressBackButton(Button button)
 	{
-		this.minecraft.setScreen(new TradingTerminalScreen(this.menu.player));
+		this.minecraft.setScreen(new TradingTerminalScreen());
 	}
 	
 }

@@ -1,39 +1,32 @@
-package io.github.lightman314.lightmanscurrency.client.gui.settings;
+package io.github.lightman314.lightmanscurrency.client.gui.team;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-public abstract class SettingsTab implements ITab{
+public abstract class TeamTab implements ITab{
 
-	public abstract int getColor();
+	public int getColor() { return 0xFFFFFF; }
 	public abstract IconData getIcon();
 	public abstract Component getTooltip();
 	
-	private TraderSettingsScreen screen;
-	protected final TraderSettingsScreen getScreen() { return this.screen; }
+	private TeamManagerScreen screen;
+	protected final TeamManagerScreen getScreen() { return this.screen; }
 	protected final Player getPlayer() { return this.screen.getPlayer(); }
 	protected final Font getFont() { return this.screen.getFont(); }
-	protected final <T extends Settings> T getSetting(Class<T> type) { return this.screen.getSetting(type); }
-	public final void setScreen(TraderSettingsScreen screen) { this.screen = screen; }
-	
-	public boolean canOpen()
-	{
-		return this.getScreen().hasPermissions(this.requiredPermissions());
-	}
+	protected final Team getActiveTeam() { return this.screen.getActiveTeam(); }
+	public final void setScreen(TeamManagerScreen screen) { this.screen = screen; }
 	
 	/**
-	 * Returns a list of required permissions that the player must have in order to see this tab.
+	 * Returns whether a player is allowed to view this tab.
 	 */
-	@Deprecated //Use canOpen instead
-	public abstract ImmutableList<String> requiredPermissions();
+	public abstract boolean allowViewing(Player player, Team team);
 	
 	/**
 	 * Called when the tab is opened.

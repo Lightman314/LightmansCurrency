@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.trader.settings;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +38,11 @@ public class PlayerReference {
 		if(player == null)
 			return false;
 		return is(player.id);
+	}
+	
+	public boolean is(GameProfile profile)
+	{
+		return is(profile.getId());
 	}
 	
 	public boolean is(UUID entityID)
@@ -108,12 +113,15 @@ public class PlayerReference {
 		//Attempt to the the players profile, for latest name updates
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
-		{
-			AtomicReference<PlayerReference> result = new AtomicReference<PlayerReference>(null);
-			server.getProfileCache().get(playerID).ifPresent(profile -> result.set(new PlayerReference(profile.getId(), profile.getName())));
-			return result.get();
-		}
+			return of(server.getProfileCache().get(playerID).orElse(null));
 		return new PlayerReference(playerID, name);
+	}
+	
+	public static PlayerReference of(GameProfile playerProfile)
+	{
+		if(playerProfile == null)
+			return null;
+		return new PlayerReference(playerProfile.getId(), playerProfile.getName());
 	}
 	
 	public static PlayerReference of(Entity entity)
@@ -125,18 +133,14 @@ public class PlayerReference {
 	
 	public static PlayerReference of(Player player)
 	{
-		return new PlayerReference(player.getUUID(), player.getGameProfile().getName());
+		return of(player.getGameProfile());
 	}
 	
 	public static PlayerReference of(String playerName)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
-		{
-			AtomicReference<PlayerReference> result = new AtomicReference<PlayerReference>(null);
-			server.getProfileCache().get(playerName).ifPresent(profile -> result.set(new PlayerReference(profile.getId(), profile.getName())));
-			return result.get();
-		}
+			return of(server.getProfileCache().get(playerName).orElse(null));
 		return null;
 	}
 	

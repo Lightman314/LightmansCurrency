@@ -10,15 +10,18 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -89,6 +92,9 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		this.addRenderableWidget(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::Back));
 		//this.buttonSetFree = this.addRenderableWidget(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslatableComponent("gui.button.lightmanscurrency.free"), this::SetFree));
 		this.buttonTradeRules = this.addRenderableWidget(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		UniversalTraderData trader = ClientTradingOffice.getData(this.traderID);
+		if(trader != null)
+			this.buttonTradeRules.visible = trader.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		tick();
 		
@@ -104,6 +110,10 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
 		this.priceInput.visible = this.localDirection != ItemTradeType.BARTER;
+		
+		UniversalTraderData trader = ClientTradingOffice.getData(this.traderID);
+		if(trader != null)
+			this.buttonTradeRules.visible = trader.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.priceInput.tick();
 		this.nameField.tick();

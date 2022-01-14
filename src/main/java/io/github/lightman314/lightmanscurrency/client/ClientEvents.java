@@ -29,7 +29,8 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientEvents {
 
 	
-	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, "key.categories.inventory");
+	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_TEAM = new KeyMapping("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, KeyMapping.CATEGORY_INTERFACE);
 	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.KeyInputEvent event)
@@ -59,6 +60,10 @@ public class ClientEvents {
 					if(!WalletItem.isEmpty(wallet))
 						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
 				}
+			}
+			else if(KEY_TEAM.isDown())
+			{
+				LightmansCurrency.PROXY.openTeamManager();
 			}
 		}
 	}

@@ -413,4 +413,11 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		
 	}
 	
+	public boolean isClient()
+	{
+		if(this.level == null)
+			return true;
+		return this.level.isClientSide;
+	}
+	
 }

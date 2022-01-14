@@ -12,6 +12,7 @@ public class CommandLoader {
 	public static void onCommandLoading(RegisterCommandsEvent event)
 	{
 		CommandLCAdmin.register(event.getDispatcher());
+		CommandTeamManager.register(event.getDispatcher());
 	}
 	
 }

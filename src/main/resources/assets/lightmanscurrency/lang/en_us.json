@@ -224,6 +224,7 @@
     "gui.coinvalue.free": "Free",
     
     "key.wallet": "Open Wallet",
+    "key.team_settings": "Open Team Manager",
     
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
     
@@ -243,6 +244,9 @@
     "tooltip.lightmanscurrency.settings.ally": "Allies",
     "tooltip.lightmanscurrency.settings.allyperms": "Ally Permissions",
     "tooltip.lightmanscurrency.settings.iteminput": "External Item Input & Output",
+    "tooltip.lightmanscurrency.settings.owner": "Transfer Team Ownership",
+    "tooltip.lightmanscurrency.warning": "WARNING: Cannot be undone.",
+    
     "gui.lightmanscurrency.changename": "Change Name",
     "gui.lightmanscurrency.resetname": "Reset Name",
     "gui.lightmanscurrency.settings.iteminput.side": "Input Sides",
@@ -259,6 +263,8 @@
     "gui.lightmanscurrency.settings.side.south": "Front",
     "gui.lightmanscurrency.settings.side.west": "Left",
     "gui.lightmanscurrency.settings.side.east": "Right",
+    
+    "gui.button.lightmanscurrency.set_owner": "Transfer Ownership",
 
     "log.settings.to": "to",
     "log.settings.from": "from",
@@ -293,6 +299,28 @@
     "permission.breakTrader": "Break Trader",
     "permission.transferOwnership": "Transfer Ownership",
     "permission.changeExternalInputs": "Change Item Settings",
+    
+    
+    "tooltip.lightmanscurrency.team.selection": "Team Selection",
+    "tooltip.lightmanscurrency.team.members": "Members",
+    "tooltip.lightmanscurrency.team.name": "Name",
+    "tooltip.lightmanscurrency.team.member_edit": "Add/Promote/Remove Members",
+    "tooltip.lightmanscurrency.team.owner": "Transfer Team Ownership",
+   
+    
+    "gui.lightmanscurrency.team.select": "Select Team to Manage:",
+    "gui.lightmanscurrency.team.create": "Create New Team",
+    "gui.lightmanscurrency.team.name.current": "Current Name: %s",
+    "gui.button.lightmanscurrency.team.owner": "Current Owner: %s",
+    
+    "gui.button.lightmanscurrency.team.owner": "Owner: %s",
+    "gui.button.lightmanscurrency.team.create": "Create",
+    "gui.button.lightmanscurrency.team.rename": "Rename Team",
+    "gui.button.lightmanscurrency.team.member.add": "Add",
+    "gui.button.lightmanscurrency.team.member.promote": "Set Admin",
+    "gui.button.lightmanscurrency.team.member.remove": "Remove",
+    "gui.button.lightmanscurrency.team.disband": "Disband Team",
+    
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",

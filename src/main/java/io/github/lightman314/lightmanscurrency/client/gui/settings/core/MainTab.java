@@ -39,7 +39,7 @@ public class MainTab extends SettingsTab{
 	
 	@Override
 	public ImmutableList<String> requiredPermissions() {
-		return ImmutableList.of(Permissions.EDIT_SETTINGS);
+		return ImmutableList.of();
 	}
 
 	@Override

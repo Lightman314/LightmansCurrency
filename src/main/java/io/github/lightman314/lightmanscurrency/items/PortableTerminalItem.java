@@ -18,7 +18,7 @@ public class PortableTerminalItem extends Item{
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
 	{
-		LightmansCurrency.PROXY.openTerminalScreen(player);
+		LightmansCurrency.PROXY.openTerminalScreen();
 		return InteractionResultHolder.success(player.getItemInHand(hand));
 	}
 	

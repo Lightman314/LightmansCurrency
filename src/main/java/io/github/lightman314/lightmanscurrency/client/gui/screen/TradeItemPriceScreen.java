@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
@@ -89,6 +90,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.addRenderableWidget(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.buttonSetFree = this.addRenderableWidget(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslatableComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
 		this.buttonTradeRules = this.addRenderableWidget(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonTradeRules.visible = this.tileEntity.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		tick();
 		
@@ -106,7 +108,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
-		//this.buttonSetFree.active = this.localDirection != ItemTradeType.BARTER;
+		this.buttonTradeRules.visible = this.tileEntity.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.priceInput.visible = this.localDirection != ItemTradeType.BARTER;
 		

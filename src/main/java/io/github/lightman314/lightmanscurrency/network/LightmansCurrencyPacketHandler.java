@@ -4,11 +4,12 @@ import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.atm.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
-import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
+import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
@@ -103,6 +104,17 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
 		register(MessageAddOrRemoveTrade2.class, MessageAddOrRemoveTrade2::encode, MessageAddOrRemoveTrade2::decode, MessageAddOrRemoveTrade2::handle);
 		register(MessageChangeSettings2.class, MessageChangeSettings2::encode, MessageChangeSettings2::decode, MessageChangeSettings2::handle);
+		
+		//Teams
+		register(MessageInitializeClientTeams.class, MessageInitializeClientTeams::encode, MessageInitializeClientTeams::decode, MessageInitializeClientTeams::handle);
+		register(MessageRemoveClientTeam.class, MessageRemoveClientTeam::encode, MessageRemoveClientTeam::decode, MessageRemoveClientTeam::handle);
+		register(MessageUpdateClientTeam.class, MessageUpdateClientTeam::encode, MessageUpdateClientTeam::decode, MessageUpdateClientTeam::handle);
+		register(MessageEditTeam.class, MessageEditTeam::encode, MessageEditTeam::decode, MessageEditTeam::handle);
+		register(MessageRenameTeam.class, MessageRenameTeam::encode, MessageRenameTeam::decode, MessageRenameTeam::handle);
+		register(MessageDisbandTeam.class, MessageDisbandTeam::encode, MessageDisbandTeam::decode, MessageDisbandTeam::handle);
+		register(MessageOpenTeamManager.class, MessageOpenTeamManager::encode, MessageOpenTeamManager::decode, MessageOpenTeamManager::handle);
+		register(MessageCreateTeam.class, MessageCreateTeam::encode, MessageCreateTeam::decode, MessageCreateTeam::handle);
+		register(MessageCreateTeamResponse.class, MessageCreateTeamResponse::encode, MessageCreateTeamResponse::decode, MessageCreateTeamResponse::handle);
 		
 		//Logger
 		register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);

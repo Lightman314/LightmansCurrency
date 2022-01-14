@@ -25,7 +25,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
@@ -36,8 +35,6 @@ public class TradingTerminalScreen extends Screen{
 	
 	private int xSize = 176;
 	private int ySize = 187;
-	
-	Player player;
 	
 	private EditBox searchField;
 	private static int page = 0;
@@ -53,10 +50,9 @@ public class TradingTerminalScreen extends Screen{
 	}
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
-	public TradingTerminalScreen(Player player)
+	public TradingTerminalScreen()
 	{
 		super(new TranslatableComponent("block.lightmanscurrency.terminal"));
-		this.player = player;
 	}
 	
 	@Override
@@ -242,7 +238,7 @@ public class TradingTerminalScreen extends Screen{
 			int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
 			//Sort by owner name if trader name is equal
 			if(sort == 0)
-				sort = a.getCoreSettings().getOwner().lastKnownName().toLowerCase().compareTo(b.getCoreSettings().getOwner().lastKnownName().toLowerCase());
+				sort = a.getCoreSettings().getOwnerName().compareToIgnoreCase(b.getCoreSettings().getOwnerName());
 			return sort;
 		}
 		

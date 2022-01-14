@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
 
 public class CommonProxy {
 	
@@ -16,9 +15,17 @@ public class CommonProxy {
 	
 	public void removeTrader(UUID traderID) {}
 	
-	public void openTerminalScreen(Player player) {}
+	public void initializeTeams(CompoundTag compound) {}
 	
-	public void openInventoryScreen(Player player) {}
+	public void updateTeam(CompoundTag compound) {}
+	
+	public void removeTeam(UUID teamID) {}
+	
+	public void openTerminalScreen() {}
+	
+	public void openTeamManager() {}
+	
+	public void createTeamResponse(UUID teamID) {}
 	
 	public long getTimeDesync() { return 0; }
 	

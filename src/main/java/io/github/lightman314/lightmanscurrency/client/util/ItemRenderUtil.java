@@ -11,13 +11,37 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class ItemRenderUtil {
 
 	public static final int ITEM_BLIT_OFFSET = 200;
 	
+	private static ItemStack alexHead = null;
+	
+	public static ItemStack getAlexHead()
+	{
+		if(alexHead != null)
+			return alexHead;
+		ItemStack alexHead = new ItemStack(Items.PLAYER_HEAD);
+		CompoundTag headData = new CompoundTag();
+		CompoundTag skullOwner = new CompoundTag();
+		skullOwner.putIntArray("Id", new int[] {-731408145, -304985227, -1778597514, 158507129 });
+		CompoundTag properties = new CompoundTag();
+		ListTag textureList = new ListTag();
+		CompoundTag texture = new CompoundTag();
+		texture.putString("Value", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjNiMDk4OTY3MzQwZGFhYzUyOTI5M2MyNGUwNDkxMDUwOWIyMDhlN2I5NDU2M2MzZWYzMWRlYzdiMzc1MCJ9fX0=");
+		textureList.add(texture);
+		properties.put("textures", textureList);
+		skullOwner.put("Properties", properties);
+		headData.put("SkullOwner", skullOwner);
+		alexHead.setTag(headData);
+		return alexHead;
+	}
 	
 	/**
     * Draws an ItemStack.

@@ -226,7 +226,7 @@ public class LightmansCurrency {
     
     public static void LogInfo(String message)
     {
-    	if(Config.COMMON.debugLevel.get() > 0)
+    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 0)
     		LOGGER.debug("INFO: " + message);
     	else
     		LOGGER.info(message);
@@ -234,7 +234,7 @@ public class LightmansCurrency {
     
     public static void LogWarning(String message)
     {
-    	if(Config.COMMON.debugLevel.get() > 1)
+    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 1)
     		LOGGER.debug("WARN: " + message);
     	else
     		LOGGER.warn(message);
@@ -242,7 +242,7 @@ public class LightmansCurrency {
     
     public static void LogError(String message, Object... objects)
     {
-    	if(Config.COMMON.debugLevel.get() > 2)
+    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 2)
     		LOGGER.debug("ERROR: " + message, objects);
     	else
     		LOGGER.error(message, objects);
@@ -250,7 +250,7 @@ public class LightmansCurrency {
     
     public static void LogError(String message)
     {
-    	if(Config.COMMON.debugLevel.get() > 2)
+    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 2)
     		LOGGER.debug("ERROR: " + message);
     	else
     		LOGGER.error(message);

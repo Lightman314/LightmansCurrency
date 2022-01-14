@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
@@ -98,7 +99,7 @@ public class TraderSettingsScreen extends Screen{
 		{
 			TabButton button = this.addRenderableWidget(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
 			button.active = i != this.currentTabIndex;
-			button.visible = this.hasPermissions(this.tabs.get(i).requiredPermissions());
+			button.visible = this.tabs.get(i).canOpen();
 			this.tabButtons.add(button);
 		}
 		this.positionTabButtons();
@@ -193,11 +194,18 @@ public class TraderSettingsScreen extends Screen{
 	@Override
 	public void tick()
 	{
+		if(!this.hasPermission(Permissions.EDIT_SETTINGS))
+		{
+			this.minecraft.setScreen(null);
+			if(this.hasPermission(Permissions.OPEN_STORAGE))
+				this.openStorage.accept(this.getPlayer());
+			return;
+		}
 		//Update the tabs visibility
 		boolean updateTabs = false;
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
-			boolean visible = hasPermissions(this.tabs.get(i).requiredPermissions());
+			boolean visible = this.tabs.get(i).canOpen();
 			if(visible != this.tabButtons.get(i).visible)
 			{
 				updateTabs = true;
@@ -206,6 +214,11 @@ public class TraderSettingsScreen extends Screen{
 		}
 		if(updateTabs)
 			this.positionTabButtons();
+		
+		if(!this.currentTab().canOpen())
+		{
+			this.clickedOnTab(this.tabButtons.get(0));
+		}
 		
 		//Tick the current tab
 		this.currentTab().tick();

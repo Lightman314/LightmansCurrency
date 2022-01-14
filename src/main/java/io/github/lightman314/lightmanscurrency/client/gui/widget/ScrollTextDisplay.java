@@ -122,6 +122,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 		
 		return true;
 	}
+	
 	@Override
 	public void updateNarration(NarrationElementOutput narrator) {
 		

@@ -35,6 +35,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class WalletMenu extends AbstractContainerMenu{
 	
+	private static int maxWalletSlots = 0;
+	public static void updateMaxWalletSlots(int slotCount)
+	{
+		if(slotCount > maxWalletSlots)
+			maxWalletSlots = slotCount;
+	}
+	
+	private Container dummyInventory = new SimpleContainer(1);
+	
 	private final int walletStackIndex;
 	public int getWalletIndex()
 	{
@@ -86,7 +95,7 @@ public class WalletMenu extends AbstractContainerMenu{
 	private void init()
 	{
 		
-		this.slots.clear();
+		NonNullList<Slot> newSlots = NonNullList.create();
 		
 		Item item = this.getWallet().getItem();
 		if(item instanceof WalletItem)
@@ -105,7 +114,7 @@ public class WalletMenu extends AbstractContainerMenu{
 		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6).addListener(this::onWalletSlotChanged);
 		if(this.walletStackIndex >= 0)
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
-		this.addSlot(walletSlot);
+		newSlots.add(walletSlot);
 		
 		//Player Inventory before coin slots for desync safety.
 		//Should make the Player Inventory slot indexes constant regardless of the wallet state.
@@ -115,9 +124,9 @@ public class WalletMenu extends AbstractContainerMenu{
 			{
 				int index = x + (y * 9) + 9;
 				if(index == this.walletStackIndex)
-					this.addSlot(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18));
+					newSlots.add(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18));
 				else
-					this.addSlot(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
+					newSlots.add(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
 			}
 		}
 		
@@ -125,9 +134,9 @@ public class WalletMenu extends AbstractContainerMenu{
 		for(int x = 0; x < 9; x++)
 		{
 			if(x == this.walletStackIndex)
-				this.addSlot(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
+				newSlots.add(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
 			else
-				this.addSlot(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+				newSlots.add(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
 		}
 		
 		//Coin Slots last as they may vary between client and server at times.
@@ -135,14 +144,28 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
 			{
-				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
+				newSlots.add(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
 			}
+		}
+		
+		while(newSlots.size() < 37 + maxWalletSlots)
+		{
+			newSlots.add(new DisplaySlot(dummyInventory, 0, Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2));
 		}
 		
 		this.autoConvert = WalletItem.getAutoConvert(getWallet());
 		
 		this.listeners.forEach(listener -> listener.onReload());
 		
+		//Reset the slots at the very end to prevent conflict with any for loops that may or may not be going on atm.
+		this.setSlots(newSlots);
+		
+	}
+	
+	protected void setSlots(List<Slot> newSlots)
+	{
+		this.slots.clear();
+		newSlots.forEach(newSlot -> this.addSlot(newSlot));
 	}
 	
 	private void onWalletSlotChanged() {
@@ -173,6 +196,9 @@ public class WalletMenu extends AbstractContainerMenu{
 	{
 		
 		super.removed(playerIn);
+		
+		//Clear the dummy inventory, just in case an item somehow got put inside of it.
+		this.clearContainer(playerIn, this.dummyInventory);
 		
 		this.saveWalletContents();
 		
@@ -255,14 +281,23 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getContainerSize() + 1)
+			if(index == 0)
 			{
-				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize() + 1, this.slots.size(), true))
+				this.moveItemStackTo(slotStack, 1, 37, false);
+			}
+			else if(index < 37)
+			{
+				if(clickedStack.getItem() instanceof WalletItem)
+				{
+					if(!this.moveItemStackTo(slotStack, 0, 1, true))
+						return ItemStack.EMPTY;
+				}
+				if(!this.moveItemStackTo(slotStack, 37, this.slots.size(), false))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize() + 1, false))
+			else if(!this.moveItemStackTo(slotStack, 1, 37, true))
 			{
 				return ItemStack.EMPTY;
 			}

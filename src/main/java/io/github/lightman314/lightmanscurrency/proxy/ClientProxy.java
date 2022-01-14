@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -22,14 +26,13 @@ import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.event.TickEvent;
@@ -39,8 +42,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class ClientProxy extends CommonProxy{
 	
 	boolean openTerminal = false;
-	boolean openVanillaInventory = false;
-	Player player = null;
+	boolean openTeamManager = false;
 	
 	private long timeOffset = 0;
 	
@@ -82,6 +84,7 @@ public class ClientProxy extends CommonProxy{
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
+    	ClientRegistry.registerKeyBinding(ClientEvents.KEY_TEAM);
     	
     	//Wallet layer is now registered in ClientModEvents
     	
@@ -116,18 +119,49 @@ public class ClientProxy extends CommonProxy{
 		ClientTradingOffice.removeTrader(traderID);
 	}
 	
-	@Override
-	public void openTerminalScreen(Player player)
+	public void initializeTeams(CompoundTag compound)
 	{
-		this.openTerminal = true;
-		this.player = player;
+		if(compound.contains("Teams", Tag.TAG_LIST))
+		{
+			List<Team> teams = Lists.newArrayList();
+			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
+			teamList.forEach(nbt -> teams.add(Team.load((CompoundTag)nbt)));
+			ClientTradingOffice.initTeams(teams);
+		}
+	}
+	
+	public void updateTeam(CompoundTag compound)
+	{
+		ClientTradingOffice.updateTeam(compound);
+	}
+	
+	public void removeTeam(UUID teamID)
+	{
+		ClientTradingOffice.removeTeam(teamID);
 	}
 	
 	@Override
-	public void openInventoryScreen(Player player)
+	public void openTerminalScreen()
 	{
-		this.openVanillaInventory = true;
-		this.player = player;
+		this.openTerminal = true;
+	}
+	
+	@Override
+	public void openTeamManager()
+	{
+		this.openTeamManager = true;
+	}
+	
+	@Override
+	public void createTeamResponse(UUID teamID)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		Screen openScreen = minecraft.screen;
+		if(openScreen instanceof TeamManagerScreen)
+		{
+			TeamManagerScreen screen = (TeamManagerScreen)openScreen;
+			screen.setActiveTeam(teamID);
+		}
 	}
 	
 	@Override
@@ -159,19 +193,19 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@SubscribeEvent
-	public void openTerminalScreenOnRenderTick(RenderTickEvent event)
+	public void openScreenOnRenderTick(RenderTickEvent event)
 	{
-		if(event.phase == TickEvent.Phase.START && this.player != null)
+		if(event.phase == TickEvent.Phase.START)
 		{
 			if(this.openTerminal)
 			{
 				this.openTerminal = false;
-				Minecraft.getInstance().setScreen(new TradingTerminalScreen(this.player));
+				Minecraft.getInstance().setScreen(new TradingTerminalScreen());
 			}
-			else if(this.openVanillaInventory)
+			else if(this.openTeamManager)
 			{
-				this.openVanillaInventory = false;
-				Minecraft.getInstance().setScreen(new InventoryScreen(this.player));
+				this.openTeamManager = false;
+				Minecraft.getInstance().setScreen(new TeamManagerScreen());
 			}
 		}
 	}
