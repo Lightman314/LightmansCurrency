@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -32,7 +33,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	{
 		if(this.traderID != null)
 			return TradingOffice.getData(this.traderID);
-		LightmansCurrency.LogError("Trader ID is null. Cannot get the data (" + (this.world.isRemote ? "client" : "server"));
+		LightmansCurrency.LogError("Trader ID is null. Cannot get the trader data (" + DebugUtil.getSideText(this.world) + ").");
 		return null;
 	}
 	
@@ -50,7 +51,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.updateNames," + DebugUtil.getSideText(player) + ").");
 			return;
 		}
 		this.getData().getCoreSettings().updateNames(player);
@@ -60,7 +61,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.hasPermission," + DebugUtil.getSideText(player) + ").");
 			return true;
 		}
 		return this.getData().hasPermission(player, permission);
@@ -70,7 +71,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.world.isRemote ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.getPermisisonLevel," + DebugUtil.getSideText(player) + ").");
 			return Integer.MAX_VALUE;
 		}
 		return this.getData().getPermissionLevel(player, permission);

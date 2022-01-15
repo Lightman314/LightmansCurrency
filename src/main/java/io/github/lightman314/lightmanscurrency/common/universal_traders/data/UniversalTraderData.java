@@ -40,6 +40,14 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	UUID traderID = null;
 	public UUID getTraderID() { return this.traderID; }
+	public void initTraderID(UUID traderID)
+	{
+		if(this.traderID == null)
+			this.traderID = traderID;
+		else
+			LightmansCurrency.LogWarning("Attempted to set the traders ID when it's already been defined.");
+	}
+	
 	BlockPos pos;
 	public BlockPos getPos() { return this.pos; }
 	RegistryKey<World> world = World.OVERWORLD;
