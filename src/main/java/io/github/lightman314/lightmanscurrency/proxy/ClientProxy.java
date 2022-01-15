@@ -5,17 +5,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -25,6 +29,7 @@ import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.entity.LivingRenderer;
@@ -36,7 +41,6 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 
@@ -85,6 +89,7 @@ public class ClientProxy extends CommonProxy{
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
+    	ClientRegistry.registerKeyBinding(ClientEvents.KEY_TEAM);
     	
     	//Add wallet layer
     	Map<String, PlayerRenderer> skinMap = Minecraft.getInstance().getRenderManager().getSkinMap();
@@ -133,9 +138,50 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void openTerminalScreen(PlayerEntity player)
+	public void initializeTeams(CompoundNBT compound)
 	{
-		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen(player));
+		if(compound.contains("Teams", Constants.NBT.TAG_LIST))
+		{
+			List<Team> teams = Lists.newArrayList();
+			ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
+			teamList.forEach(nbt -> teams.add(Team.load((CompoundNBT)nbt)));
+			ClientTradingOffice.initTeams(teams);
+		}
+	}
+	
+	@Override
+	public void updateTeam(CompoundNBT compound)
+	{
+		ClientTradingOffice.updateTeam(compound);
+	}
+	
+	@Override
+	public void removeTeam(UUID teamID)
+	{
+		ClientTradingOffice.removeTeam(teamID);
+	}
+	
+	@Override
+	public void openTerminalScreen()
+	{
+		Minecraft.getInstance().displayGuiScreen(new TradingTerminalScreen());
+	}
+	
+	@Override
+	public void openTeamManager()
+	{
+		Minecraft.getInstance().displayGuiScreen(new TeamManagerScreen());
+	}
+	
+	@Override
+	public void createTeamResponse(UUID teamID)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		if(minecraft.currentScreen instanceof TeamManagerScreen)
+		{
+			TeamManagerScreen screen = (TeamManagerScreen)minecraft.currentScreen;
+			screen.setActiveTeam(teamID);
+		}
 	}
 	
 	@Override

@@ -33,7 +33,7 @@ public abstract class Settings {
 	
 	public final void markDirty() { this.dirtyMarker.markDirty(); }
 	
-	public final void sendToServer(CompoundNBT updateMessage) { if(updateMessage != null) this.sendToServer.accept(this.type, updateMessage); }
+	public final void sendToServer(CompoundNBT updateInfo) { if(updateInfo != null) this.sendToServer.accept(this.type, updateInfo); }
 	
 	public abstract CompoundNBT save(CompoundNBT compound);
 	

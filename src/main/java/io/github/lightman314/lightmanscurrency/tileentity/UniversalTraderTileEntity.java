@@ -92,13 +92,12 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 			return;
 		if(this.traderID == null)
 		{
-			this.traderID = UUID.randomUUID();
 			UniversalTraderData traderData = createInitialData(owner);
 			if(customName != null)
 			{
 				traderData.getCoreSettings().setCustomName(null, customName);
 			}
-			TradingOffice.registerTrader(this.traderID, traderData, owner);
+			this.traderID = TradingOffice.registerTrader(traderData, owner);
 			TileEntityUtil.sendUpdatePacket(this);
 		}
 	}

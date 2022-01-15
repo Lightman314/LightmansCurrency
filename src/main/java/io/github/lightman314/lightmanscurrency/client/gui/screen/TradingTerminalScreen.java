@@ -21,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -34,8 +33,6 @@ public class TradingTerminalScreen extends Screen{
 	
 	private int xSize = 176;
 	private int ySize = 187;
-	
-	PlayerEntity player;
 	
 	private TextFieldWidget searchField;
 	private static int page = 0;
@@ -51,10 +48,9 @@ public class TradingTerminalScreen extends Screen{
 	}
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
-	public TradingTerminalScreen(PlayerEntity player)
+	public TradingTerminalScreen()
 	{
 		super(new TranslationTextComponent("block.lightmanscurrency.terminal"));
-		this.player = player;
 	}
 	
 	@Override

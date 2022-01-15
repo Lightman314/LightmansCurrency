@@ -30,6 +30,7 @@ public class ClientEvents {
 
 	
 	public static final KeyBinding KEY_WALLET = new KeyBinding("key.wallet", GLFW.GLFW_KEY_V, "key.categories.inventory");
+	public static final KeyBinding KEY_TEAM = new KeyBinding("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, "key.categories.ui");
 	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.KeyInputEvent event)
@@ -58,6 +59,10 @@ public class ClientEvents {
 					if(!WalletItem.isEmpty(wallet))
 						minecraft.getSoundHandler().play(SimpleSound.master(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
 				}
+			}
+			else if(KEY_TEAM.isPressed())
+			{
+				LightmansCurrency.PROXY.openTeamManager();
 			}
 		}
 	}

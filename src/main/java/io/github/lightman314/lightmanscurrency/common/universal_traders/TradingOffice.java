@@ -12,15 +12,20 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
+import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
+import io.github.lightman314.lightmanscurrency.network.message.teams.MessageUpdateClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageInitializeClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -39,6 +44,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
@@ -62,6 +68,7 @@ public class TradingOffice extends WorldSavedData{
 	private static List<UUID> adminPlayers = new ArrayList<>();
 	
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
+	private Map<UUID, Team> playerTeams = new HashMap<>();
 	
 	public TradingOffice()
 	{
@@ -104,6 +111,16 @@ public class TradingOffice extends WorldSavedData{
 					universalTraderMap.put(data.getTraderID(), data);
 			});
 		}
+		if(compound.contains("Teams", Constants.NBT.TAG_LIST))
+		{
+			ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < teamList.size(); ++i)
+			{
+				Team team = Team.load(teamList.getCompound(i));
+				if(team != null)
+					this.playerTeams.put(team.getID(), team);
+			}
+		}
 		
 	}
 
@@ -120,6 +137,14 @@ public class TradingOffice extends WorldSavedData{
 			}
 		});
 		compound.put("UniversalTraders", universalTraderDataList);
+		
+		ListNBT teamList = new ListNBT();
+		this.playerTeams.forEach((teamID, team) ->{
+			if(team != null)
+				teamList.add(team.save());
+		});
+		compound.put("Teams", teamList);
+		
 		return compound;
 	}
 	
@@ -195,17 +220,53 @@ public class TradingOffice extends WorldSavedData{
 		}
 	}
 	
-	public static void registerTrader(UUID traderID, UniversalTraderData data, PlayerEntity owner)
+	public static List<Team> getTeams()
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return get(server).playerTeams.values().stream().collect(Collectors.toList());
+		return new ArrayList<>();
+	}
+	
+	public static Team getTeam(UUID teamID)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
 			TradingOffice office = get(server);
-			if(office.universalTraderMap.containsKey(traderID))
+			if(office.playerTeams.containsKey(teamID))
+				return office.playerTeams.get(teamID);
+		}
+		return null;
+	}
+	
+	public static void MarkTeamDirty(UUID teamID)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			get(server).markDirty();
+			//Send update packet to all connected clients
+			Team team = getTeam(teamID);
+			if(team != null)
 			{
-				LightmansCurrency.LogError("Attempted to register a universal trader with id '" + traderID + "', but one is already present.");
-				return;
+				CompoundNBT compound = team.save();
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTeam(compound));
 			}
+		}
+	}
+	
+	public static UUID registerTrader(UniversalTraderData data, PlayerEntity owner)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			//Generate a trader ID
+			UUID traderID = UUID.randomUUID();
+			while(office.universalTraderMap.containsKey(traderID))
+				traderID = UUID.randomUUID();
+			
 			LightmansCurrency.LogInfo("Successfully registered the universal trader with id '" + traderID + "'!");
 			office.universalTraderMap.put(traderID, data);
 			office.markDirty();
@@ -214,7 +275,10 @@ public class TradingOffice extends WorldSavedData{
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			//Post Universal Trader Create Event
 			MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
+			
+			return traderID;
 		}
+		return null;
 	}
 	
 	public static void removeTrader(UUID traderID)
@@ -233,6 +297,43 @@ public class TradingOffice extends WorldSavedData{
 		}
 	}
 	
+	public static Team registerTeam(PlayerEntity owner, String teamName)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			UUID teamID = UUID.randomUUID();
+			while(office.playerTeams.containsKey(teamID))
+				teamID = UUID.randomUUID();
+			
+			Team newTeam = Team.of(teamID, PlayerReference.of(owner), teamName);
+			office.playerTeams.put(teamID, newTeam);
+			
+			//Send update packet to the connected clients
+			MarkTeamDirty(newTeam.getID());
+			
+			return newTeam;
+		}
+		return null;
+	}
+	
+	public static void removeTeam(UUID teamID)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			if(office.playerTeams.containsKey(teamID))
+			{
+				office.playerTeams.remove(teamID);
+				office.markDirty();
+				//Send update packet to the connected clients
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTeam(teamID));
+			}
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerWorld world = server.getWorld(World.OVERWORLD);
@@ -248,13 +349,20 @@ public class TradingOffice extends WorldSavedData{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
+			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 			TradingOffice office = get(server);
 			//Send update message to the connected clients
 			CompoundNBT compound = new CompoundNBT();
 			ListNBT traderList = new ListNBT();
 			office.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundNBT())) );
 			compound.put("Traders", traderList);
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new MessageInitializeClientTraders(compound));
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTraders(compound));
+			
+			CompoundNBT compound2 = new CompoundNBT();
+			ListNBT teamList = new ListNBT();
+			office.playerTeams.forEach((id,team) -> teamList.add(team.save()));
+			compound2.put("Teams", teamList);
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound2));
 		}
 	}
 	

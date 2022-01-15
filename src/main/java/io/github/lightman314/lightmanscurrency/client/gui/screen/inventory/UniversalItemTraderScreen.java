@@ -171,7 +171,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 	
 	private void PressBackButton(Button button)
 	{
-		this.minecraft.displayGuiScreen(new TradingTerminalScreen(this.container.player));
+		this.minecraft.displayGuiScreen(new TradingTerminalScreen());
 	}
 	
 }

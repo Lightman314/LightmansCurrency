@@ -29,5 +29,8 @@ public interface ITrader extends IPermissions{
 	public void requestAddOrRemoveTrade(boolean isAdd);
 	public void addTrade(PlayerEntity requestor);
 	public void removeTrade(PlayerEntity requestor);
+	//Client check
+	public boolean isClient();
+	public default boolean isServer() { return !this.isClient(); }
 	
 }

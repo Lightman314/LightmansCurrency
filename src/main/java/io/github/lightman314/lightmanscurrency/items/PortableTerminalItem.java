@@ -18,7 +18,7 @@ public class PortableTerminalItem extends Item{
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand)
 	{
-		LightmansCurrency.PROXY.openTerminalScreen(player);
+		LightmansCurrency.PROXY.openTerminalScreen();
 		return ActionResult.resultSuccess(player.getHeldItem(hand));
 	}
 	

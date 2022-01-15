@@ -447,4 +447,12 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		
 	}
 	
+	@Override
+	public boolean isClient()
+	{
+		if(this.world == null)
+			return true;
+		return this.world.isRemote;
+	}
+	
 }

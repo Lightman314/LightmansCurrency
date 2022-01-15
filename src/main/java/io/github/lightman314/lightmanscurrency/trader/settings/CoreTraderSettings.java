@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -15,6 +16,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.SettingsLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -42,6 +45,7 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_CUSTOM_PERMISSIONS = "customPermissions";
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
+	private static final String UPDATE_TEAM = "changeTeam";
 	
 	public static PermissionsList getAllyDefaultPermissions(@Nonnull ITrader trader)
 	{
@@ -61,6 +65,14 @@ public class CoreTraderSettings extends Settings{
 	
 	//Owner
 	PlayerReference owner = null;
+	//Team
+	TeamReference team = null;
+	public Team getTeam()
+	{
+		if(this.team != null)
+			return this.team.getTeam(this.trader.isClient());
+		return null;
+	}
 	//Ally Permissions
 	List<PlayerReference> allies = Lists.newArrayList();
 	PermissionsList allyPermissions = getAllyDefaultPermissions(this.trader);
@@ -106,10 +118,13 @@ public class CoreTraderSettings extends Settings{
 	 */
 	public String getOwnerName()
 	{
+		if(this.getTeam() != null)
+			return this.getTeam().getName();
 		if(this.owner != null)
 			return this.owner.lastKnownName();
 		return "";
 	}
+	
 	/**
 	 * Initialized the traders owner.
 	 * Does nothing if the owner is already defined.
@@ -122,6 +137,7 @@ public class CoreTraderSettings extends Settings{
 		else
 			LightmansCurrency.LogWarning("Attempted to initialize the owner for a trader that is already owned.");
 	}
+	
 	public CompoundNBT setOwner(PlayerEntity requestor, String newOwnerName){
 		if(!this.hasPermission(requestor, Permissions.TRANSFER_OWNERSHIP))
 		{
@@ -130,23 +146,32 @@ public class CoreTraderSettings extends Settings{
 		}
 		else if(this.owner == null)
 		{
+			Team oldTeam = this.getTeam();
+			if(oldTeam != null)
+				this.team = null;
 			this.owner = PlayerReference.of(newOwnerName);
-			if(this.owner != null)
-			{
-				CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
-				updateInfo.putString("newOwner", newOwnerName);
-				return updateInfo;
-			}
+			if(this.owner != null && oldTeam != null)
+				this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
+			
+			CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
+			updateInfo.putString("newOwner", newOwnerName);
+			return updateInfo;
 		}
 		else
 		{
 			PlayerReference newOwner = PlayerReference.of(newOwnerName);
-			if(newOwner != null && !this.owner.is(newOwner))
+			if(newOwner != null && (!this.owner.is(newOwner) || this.team != null))
 			{
+				//Reset the team, if setting the traders owner to a player
+				Team oldTeam = this.getTeam();
+				if(oldTeam != null)
+					this.team = null;
 				PlayerReference oldOwner = this.owner;
 				this.owner = newOwner;
-				this.logger.LogOwnerChange(requestor, oldOwner, this.owner);
-				this.markDirty();
+				if(oldTeam == null)
+					this.logger.LogOwnerChange(requestor, oldOwner, this.owner);
+				else
+					this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
 				
 				CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 				updateInfo.putString("newOwner", newOwnerName);
@@ -154,6 +179,35 @@ public class CoreTraderSettings extends Settings{
 			}
 		}
 		return null;
+	}
+	
+	public CompoundNBT setTeam(PlayerEntity requestor, @Nullable UUID newTeamID)
+	{
+		if(!this.hasPermission(requestor, Permissions.TRANSFER_OWNERSHIP))
+		{
+			PermissionWarning(requestor, "transfer team ownership", Permissions.TRANSFER_OWNERSHIP);
+			return null;
+		}
+		
+		Team oldTeam = null;
+		if(this.team != null)
+		{
+			//Abort if that team is already selected
+			if(this.team.getID().equals(newTeamID))
+				return null;
+			oldTeam = this.getTeam();
+		}
+		
+		this.team = Team.referenceOf(newTeamID);
+		
+		Team newTeam = this.getTeam();
+		
+		this.logger.LogTeamChange(requestor, this.owner, oldTeam, newTeam);
+		
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_TEAM);
+		if(newTeamID != null)
+			updateInfo.putUniqueId("Team", newTeamID);
+		return updateInfo;
 	}
 	
 	public List<PlayerReference> getAllies() { return this.allies; }
@@ -171,7 +225,6 @@ public class CoreTraderSettings extends Settings{
 			{
 				this.allies.add(newAlly);
 				this.logger.LogAllyChange(requestor, newAlly, true);
-				this.markDirty();
 			}
 			if(newAlly != null || requestor.world.isRemote)
 			{
@@ -203,7 +256,6 @@ public class CoreTraderSettings extends Settings{
 			if(removedAlly == null)
 				return null;
 			this.logger.LogAllyChange(requestor, removedAlly, false);
-			this.markDirty();
 			CompoundNBT updateInfo = initUpdateInfo(UPDATE_REMOVE_ALLY);
 			updateInfo.putString("AllyName", removedAllyName);
 			return updateInfo;
@@ -265,6 +317,17 @@ public class CoreTraderSettings extends Settings{
 					level.set(l);
 			}
 		});
+		if(this.getTeam() != null)
+		{
+			if(this.getTeam().isAdmin(player))
+				return Integer.MAX_VALUE;
+			else if(this.getTeam().isMember(player))
+			{
+				int l = this.allyPermissions.getLevel(permission);
+				if(l > level.get())
+					level.set(l);
+			}
+		}
 		return level.get();
 	}
 	
@@ -327,12 +390,29 @@ public class CoreTraderSettings extends Settings{
 			if(this.allyPermissions.changeLevel(requestor, updateInfo))
 				this.markDirty();
 		}
+		else if(this.isUpdateType(updateInfo, UPDATE_OWNERSHIP))
+		{
+			String newOwnerName = updateInfo.getString("newOwner");
+			CompoundNBT result = this.setOwner(requestor, newOwnerName);
+			if(result != null)
+				this.markDirty();
+		}
+		else if(this.isUpdateType(updateInfo, UPDATE_TEAM))
+		{
+			UUID newTeamID = null;
+			if(updateInfo.contains("Team"))
+				newTeamID = updateInfo.getUniqueId("Team");
+			CompoundNBT result = this.setTeam(requestor, newTeamID);
+			if(result != null)
+				this.markDirty();
+		}
 	}
 	
 	public CompoundNBT save(CompoundNBT compound)
 	{
 		
 		this.saveOwner(compound);
+		this.saveTeam(compound);
 		this.saveAllyList(compound);
 		this.saveAllyPermissions(compound);
 		this.saveCustomPermissions(compound);
@@ -347,6 +427,15 @@ public class CoreTraderSettings extends Settings{
 	{
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
+		return compound;
+	}
+	
+	public CompoundNBT saveTeam(CompoundNBT compound)
+	{
+		if(this.team != null)
+			compound.putUniqueId("Team", this.team.getID());
+		else
+			compound.putBoolean("Team", false);
 		return compound;
 	}
 	
@@ -474,6 +563,11 @@ public class CoreTraderSettings extends Settings{
 		//Owner
 		if(compound.contains("Owner", Constants.NBT.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
+		//Team
+		if(compound.contains("Team", Constants.NBT.TAG_BYTE))
+			this.team = null;
+		else if(compound.contains("Team"))
+			this.team = Team.referenceOf(compound.getUniqueId("Team"));
 		//Ally List
 		if(compound.contains("Allies", Constants.NBT.TAG_LIST))
 			this.allies = PlayerReference.loadList(compound, "Allies");
@@ -510,7 +604,7 @@ public class CoreTraderSettings extends Settings{
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<SettingsTab> getSettingsTabs() {
-		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE);
+		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE, OwnershipTab.INSTANCE);
 	}
 	
 	@Override

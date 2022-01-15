@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import net.minecraft.nbt.CompoundNBT;
@@ -16,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientTradingOffice {
 
 	private static Map<UUID, UniversalTraderData> loadedTraders = new HashMap<>();
+	private static Map<UUID,Team> loadedTeams = new HashMap<>();
 	
 	public static List<UniversalTraderData> getTraderList()
 	{
@@ -50,6 +52,36 @@ public class ClientTradingOffice {
 	{
 		if(loadedTraders.containsKey(traderID))
 			loadedTraders.remove(traderID);
+	}
+	
+	public static List<Team> getTeamList()
+	{
+		return loadedTeams.values().stream().collect(Collectors.toList());
+	}
+	
+	public static Team getTeam(UUID teamID)
+	{
+		if(loadedTeams.containsKey(teamID))
+			return loadedTeams.get(teamID);
+		return null;
+	}
+	
+	public static void initTeams(List<Team> teams)
+	{
+		loadedTeams.clear();
+		teams.forEach(team -> loadedTeams.put(team.getID(), team));
+	}
+	
+	public static void updateTeam(CompoundNBT compound)
+	{
+		Team updatedTeam = Team.load(compound);
+		loadedTeams.put(updatedTeam.getID(), updatedTeam);
+	}
+	
+	public static void removeTeam(UUID teamID)
+	{
+		if(loadedTeams.containsKey(teamID))
+			loadedTeams.remove(teamID);
 	}
 	
 }

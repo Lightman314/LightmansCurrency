@@ -1,15 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
+import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -19,12 +22,12 @@ public class TabButton extends Button{
 	
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/tradersettings.png");
 	
-	public final SettingsTab tab;
+	public final ITab tab;
 	private final FontRenderer font;
 	
 	private int rotation = 0;
 	
-	public TabButton(IPressable pressable, FontRenderer font, SettingsTab tab)
+	public TabButton(IPressable pressable, FontRenderer font, ITab tab)
 	{
 		super(0, 0, 25, 25, new StringTextComponent(""), pressable);
 		this.font = font;
@@ -57,6 +60,14 @@ public class TabButton extends Button{
         RenderSystem.color3f(activeColor, activeColor, activeColor);
         this.tab.getIcon().render(matrixStack, this, this.font, this.x + 4, this.y + 4);
 		
+	}
+	
+	public interface ITab
+	{
+		@Nonnull
+		public IconData getIcon();
+		public int getColor();
+		public ITextComponent getTooltip();
 	}
 
 }

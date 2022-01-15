@@ -27,7 +27,7 @@ public class TerminalBlock extends RotatableBlock{
 	{
 		if(world.isRemote)
 		{
-			LightmansCurrency.PROXY.openTerminalScreen(playerEntity);
+			LightmansCurrency.PROXY.openTerminalScreen();
 		}
 		return ActionResultType.SUCCESS;
 	}

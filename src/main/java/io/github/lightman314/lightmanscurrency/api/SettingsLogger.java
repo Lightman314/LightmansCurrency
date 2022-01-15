@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api;
 
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
@@ -31,6 +32,13 @@ public class SettingsLogger extends TextLogger{
 	public static final ITextComponent getPlayerName(PlayerEntity player)
 	{
 		return new StringTextComponent(player.getName().getString()).mergeStyle(TextFormatting.GREEN);
+	}
+	
+	public static final ITextComponent getTeamName(Team team)
+	{
+		if(team != null)
+			return new StringTextComponent(team.getName()).mergeStyle(TextFormatting.GREEN);
+		return new StringTextComponent("NULL");
 	}
 	
 	public static final ITextComponent getPlayerName(PlayerReference player)
@@ -83,6 +91,43 @@ public class SettingsLogger extends TextLogger{
 		{
 			//{player} transfered ownership from {oldOwner} to {newOwner}
 			this.AddLog(new TranslationTextComponent("log.settings.newowner.transferred", getPlayerName(player), getPlayerName(oldOwner), getPlayerName(newOwner)));
+		}
+	}
+	
+	public void LogTeamChange(PlayerEntity player, PlayerReference owner, Team oldTeam, Team newTeam)
+	{
+		if(player == null || owner == null)
+			return;
+		if(oldTeam == null)
+		{
+			if(owner.is(player))
+			{
+				//{owner} transferred ownership to {newTeam}
+				this.AddLog(new TranslationTextComponent("log.settings.newowner.passed", getPlayerName(player), getTeamName(newTeam)));
+			}
+			else
+			{
+				//{player} transfered ownership from {owner} to {newTeam}
+				this.AddLog(new TranslationTextComponent("log.settings.newowner.transferred", getPlayerName(player), getPlayerName(owner), getTeamName(newTeam)));
+			}
+		}
+		else if(newTeam == null)
+		{
+			if(owner.is(player))
+			{
+				//{newOwner} claimed ownership from {oldTeam}
+				this.AddLog(new TranslationTextComponent("log.settings.newowner.taken", getPlayerName(player), getTeamName(oldTeam)));
+			}
+			else
+			{
+				//{player} transfered ownership from {oldTeam} to {owner}
+				this.AddLog(new TranslationTextComponent("log.settings.newowner.transferred", getPlayerName(player), getTeamName(oldTeam), getPlayerName(owner)));
+			}
+		}
+		else
+		{
+			//{player} transfered ownership from {oldTeam} to {newTeam}
+			this.AddLog(new TranslationTextComponent("log.settings.newowner.transferred", getPlayerName(player), getTeamName(oldTeam), getTeamName(newTeam)));
 		}
 	}
 	

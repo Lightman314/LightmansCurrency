@@ -40,6 +40,11 @@ public class PlayerReference {
 		return is(player.id);
 	}
 	
+	public boolean is(GameProfile profile)
+	{
+		return is(profile.getId());
+	}
+	
 	public boolean is(UUID entityID)
 	{
 		if(entityID == null)
@@ -108,12 +113,15 @@ public class PlayerReference {
 		//Attempt to the the players profile, for latest name updates
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
-		{
-			GameProfile profile = server.getPlayerProfileCache().getProfileByUUID(playerID);
-			if(profile != null)
-				return new PlayerReference(profile.getId(), profile.getName());
-		}
+			return of(server.getPlayerProfileCache().getProfileByUUID(playerID));
 		return new PlayerReference(playerID, name);
+	}
+	
+	public static PlayerReference of(GameProfile profile)
+	{
+		if(profile == null)
+			return null;
+		return new PlayerReference(profile.getId(), profile.getName());
 	}
 	
 	public static PlayerReference of(Entity entity)
@@ -125,18 +133,14 @@ public class PlayerReference {
 	
 	public static PlayerReference of(PlayerEntity player)
 	{
-		return new PlayerReference(player.getUniqueID(), player.getGameProfile().getName());
+		return of(player.getGameProfile());
 	}
 	
 	public static PlayerReference of(String playerName)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
-		{
-			GameProfile profile = server.getPlayerProfileCache().getGameProfileForUsername(playerName);
-			if(profile != null)
-				return new PlayerReference(profile.getId(), profile.getName());
-		}
+			return of(server.getPlayerProfileCache().getGameProfileForUsername(playerName));
 		return null;
 	}
 	
