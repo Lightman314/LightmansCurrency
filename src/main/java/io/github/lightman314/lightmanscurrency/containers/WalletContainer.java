@@ -250,14 +250,22 @@ public class WalletContainer extends Container{
 		{
 			ItemStack slotStack = slot.getStack();
 			clickedStack = slotStack.copy();
-			if(index < this.coinInput.getSizeInventory() + 1)
+			if(index == 0)
 			{
-				if(!this.mergeItemStack(slotStack,  this.coinInput.getSizeInventory() + 1, this.inventorySlots.size(), true))
-				{
+				if(!this.mergeItemStack(slotStack, 1, 37, false))
 					return ItemStack.EMPTY;
-				}
 			}
-			else if(!this.mergeItemStack(slotStack, 0, this.coinInput.getSizeInventory() + 1, false))
+			else if(index < 37)
+			{
+				if(clickedStack.getItem() instanceof WalletItem)
+				{
+					if(!this.mergeItemStack(slotStack, 0, 1, false))
+						return ItemStack.EMPTY;
+				}
+				if(!this.mergeItemStack(slotStack, 37, this.inventorySlots.size(), false))
+					return ItemStack.EMPTY;
+			}
+			else if(!this.mergeItemStack(slotStack, 1, 37, true))
 			{
 				return ItemStack.EMPTY;
 			}

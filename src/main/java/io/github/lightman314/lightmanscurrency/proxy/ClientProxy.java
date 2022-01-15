@@ -29,7 +29,6 @@ import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.entity.LivingRenderer;
