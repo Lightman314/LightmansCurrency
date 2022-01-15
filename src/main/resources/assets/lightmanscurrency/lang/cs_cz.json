@@ -224,7 +224,8 @@
     "gui.coinvalue.free": "Zdarma",
     
     "key.wallet": "Otevřít peněženku",
-    
+    "key.team_settings": "Otevřít správu týmu",    
+
     "lightmanscurrency.subtitle.coins_clinking": "Cinkání mincí",
     
     "log.shoplog.item.format": "%1$s%2$s %3$s %4$s za %5$s",
@@ -243,6 +244,9 @@
     "tooltip.lightmanscurrency.settings.ally": "Spojenci",
     "tooltip.lightmanscurrency.settings.allyperms": "Povolení pro spojence",
     "tooltip.lightmanscurrency.settings.iteminput": "Externí vstup a výstup pro předměty",
+    "tooltip.lightmanscurrency.settings.owner": "Převést vlastnictví týmu",
+    "tooltip.lightmanscurrency.warning": "UPOZORNĚNÍ: Nelze vrátit zpět",
+
     "gui.lightmanscurrency.changename": "Změnit název",
     "gui.lightmanscurrency.resetname": "Obnovit název",
     "gui.lightmanscurrency.settings.iteminput.side": "Vstupní strany",
@@ -259,6 +263,8 @@
     "gui.lightmanscurrency.settings.side.south": "Přední",
     "gui.lightmanscurrency.settings.side.west": "Levá",
     "gui.lightmanscurrency.settings.side.east": "Pravá",
+
+    "gui.button.lightmanscurrency.set_owner": "Převést vlastnictví",
 
     "log.settings.to": "na",
     "log.settings.from": "z",
@@ -294,6 +300,27 @@
     "permission.transferOwnership": "Převést vlastnictví",
     "permission.changeExternalInputs": "Měnit nastavení vstupu/výstupu",
     
+
+    "tooltip.lightmanscurrency.team.selection": "Výběr týmu",
+    "tooltip.lightmanscurrency.team.members": "Členové",
+    "tooltip.lightmanscurrency.team.name": "Název",
+    "tooltip.lightmanscurrency.team.member_edit": "Přidat/Povýšit/Odebrat členy",
+    "tooltip.lightmanscurrency.team.owner": "Převést vlastnictví týmu",
+
+
+    "gui.lightmanscurrency.team.select": "Správa týmu:",
+    "gui.lightmanscurrency.team.create": "Vytvořit tým",
+    "gui.lightmanscurrency.team.name.current": "Aktuální název: %s",
+    "gui.button.lightmanscurrency.team.owner": "Aktuální majitel: %s",
+
+    "gui.button.lightmanscurrency.team.owner": "Majitel: %s",
+    "gui.button.lightmanscurrency.team.create": "Vytvořit",
+    "gui.button.lightmanscurrency.team.rename": "Přejmenovat tým",
+    "gui.button.lightmanscurrency.team.member.add": "Přidat",
+    "gui.button.lightmanscurrency.team.member.promote": "Povýšit",
+    "gui.button.lightmanscurrency.team.member.remove": "Odebrat",
+    "gui.button.lightmanscurrency.team.disband": "Rozpustit tým",
+
     "traderule.lightmanscurrency.whitelist": "Bílá listina",
     "traderule.lightmanscurrency.whitelist.denial": "§4Nejsi na bílé listině.",
     "traderule.lightmanscurrency.blacklist": "Černá listina",
