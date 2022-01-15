@@ -259,6 +259,9 @@ public class TradingOffice extends SavedData{
 			while(office.universalTraderMap.containsKey(traderID))
 				traderID = UUID.randomUUID();
 			
+			//Apply it to the trader
+			data.initTraderID(traderID);
+			
 			LightmansCurrency.LogInfo("Successfully registered the universal trader with id '" + traderID + "'!");
 			office.universalTraderMap.put(traderID, data);
 			office.setDirty();

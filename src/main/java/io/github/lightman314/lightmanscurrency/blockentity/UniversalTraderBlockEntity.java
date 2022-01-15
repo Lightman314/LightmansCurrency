@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBl
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -29,7 +30,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	{
 		if(this.traderID != null)
 			return TradingOffice.getData(this.traderID);
-		LightmansCurrency.LogError("Trader ID is null. Cannot get the data (" + (this.level.isClientSide ? "client" : "server"));
+		LightmansCurrency.LogError("Trader ID is null. Cannot get the trader data (" + DebugUtil.getSideText(this.level) + ").");
 		return null;
 	}
 	
@@ -47,7 +48,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.hasPermission," + DebugUtil.getSideText(player) + ").");
 			return true;
 		}
 		return this.getData().hasPermission(player, permission);
@@ -57,7 +58,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	{
 		if(this.getData() == null)
 		{
-			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.isOwner," + (this.level.isClientSide ? "client" : "server" ) + ").");
+			LightmansCurrency.LogError("Trader Data for trader of id '" + this.traderID + "' is null (tileEntity.getPermissionLevel," + DebugUtil.getSideText(player) + ").");
 			return Integer.MAX_VALUE;
 		}
 		return this.getData().getPermissionLevel(player, permission);
@@ -91,6 +92,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 				traderData.getCoreSettings().setCustomName(null, customName);
 			}
 			this.traderID = TradingOffice.registerTrader(traderData, owner);
+			//Inform client of the trader ID so that it can cancel block breakage vfx/sfx client-side
 			TileEntityUtil.sendUpdatePacket(this);
 		}
 	}
