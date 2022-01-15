@@ -332,6 +332,30 @@
     "log.settings.change.simple" : "%1$s änderte %2$s zu %3$s",
     "log.settings.newowner.passed" : "%1$s übertrug das Eigentum an %2$s",
     "log.settings.newowner.taken" : "%1$s beanspruchte das Eigentum von %2$s",
-    "log.settings.newowner.transferred" : "%1$s übertrug das Eigentum von %2$s zu %3$s"
+    "log.settings.newowner.transferred" : "%1$s übertrug das Eigentum von %2$s zu %3$s",
+    
+    "key.team_settings": "Öffne Team-Manager",
+    "tooltip.lightmanscurrency.settings.owner": "Übertrage Team-Eigentum",
+    "tooltip.lightmanscurrency.warning": "WARNUNG: Kann nicht rückgängig gemacht werden.",
+    "gui.button.lightmanscurrency.set_owner": "Übertrage Eigentum",
+
+    "tooltip.lightmanscurrency.team.selection": "Teamauswahl",
+    "tooltip.lightmanscurrency.team.members": "Mitglieder",
+    "tooltip.lightmanscurrency.team.name": "Name",
+    "tooltip.lightmanscurrency.team.member_edit": "Hinzufügen/Befördern/Mitglieder entfernen",
+    "tooltip.lightmanscurrency.team.owner": "Transfer Team Ownership",
+
+    "gui.lightmanscurrency.team.select": "Wähle das zu verwaltendes Team aus:",
+    "gui.lightmanscurrency.team.create": "Erstellen sie ein neues Team",
+    "gui.lightmanscurrency.team.name.current": "Aktueller Name: %s",
+    "gui.button.lightmanscurrency.team.owner": "Aktueller Besitzer: %s",
+
+    "gui.button.lightmanscurrency.team.owner": "Besitzer: %s",
+    "gui.button.lightmanscurrency.team.create": "Erstellen ",
+    "gui.button.lightmanscurrency.team.rename": "Benenne Team um",
+    "gui.button.lightmanscurrency.team.member.add": "Hinzufügen",
+    "gui.button.lightmanscurrency.team.member.promote": "Admin festlegen",
+    "gui.button.lightmanscurrency.team.member.remove": "Entfernen",
+    "gui.button.lightmanscurrency.team.disband": "Team auflösen"
 
 }
