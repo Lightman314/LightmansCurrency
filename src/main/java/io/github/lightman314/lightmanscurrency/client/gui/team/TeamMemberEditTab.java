@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageEditTeam;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -95,7 +96,15 @@ public class TeamMemberEditTab extends TeamTab {
 	@Override
 	public void tick() {
 		
-		this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = !this.memberNameInput.getValue().isBlank();
+		if(this.getActiveTeam().isAdmin(this.getPlayer()))
+		{
+			this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = !this.memberNameInput.getValue().isBlank();
+		}
+		else
+		{
+			this.buttonAddMember.active = this.buttonPromoteMember.active = false;
+			this.buttonRemoveMember.active = PlayerReference.of(this.getPlayer()).is(this.memberNameInput.getValue());
+		}
 		
 	}
 

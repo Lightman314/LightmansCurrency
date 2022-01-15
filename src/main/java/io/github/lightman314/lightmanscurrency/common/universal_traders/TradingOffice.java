@@ -136,7 +136,6 @@ public class TradingOffice extends SavedData{
 				teamList.add(team.save());
 		});
 		compound.put("Teams", teamList);
-		LightmansCurrency.LogInfo("Saved " + teamList.size() + " teams to file.");
 		
 		return compound;
 	}

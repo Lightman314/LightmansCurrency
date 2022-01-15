@@ -49,7 +49,10 @@ public class TeamManagerScreen extends Screen{
 	{
 		if(this.activeTeamID == null)
 			return null;
-		return ClientTradingOffice.getTeam(this.activeTeamID);
+		Team team = ClientTradingOffice.getTeam(this.activeTeamID);
+		if(team != null && team.isMember(this.getPlayer()))
+			return team;
+		return null;
 	}
 	public void setActiveTeam(UUID teamID) { this.activeTeamID = teamID; }
 	
@@ -132,15 +135,20 @@ public class TeamManagerScreen extends Screen{
 		this.renderBackground(pose);
 		//Render the background
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		this.blit(pose, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
 		//Render the tab buttons
 		super.render(pose, mouseX, mouseY, partialTicks);
-		//Pre-render the tab
-		this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
-		//Render the renderables
-		this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
-		//Post-render the tab
-		this.currentTab().postRender(pose, mouseX, mouseY, partialTicks);
+		
+		try {
+			//Pre-render the tab
+			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
+			//Render the renderables
+			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
+			//Post-render the tab
+			this.currentTab().postRender(pose, mouseX, mouseY, partialTicks);
+		} catch(Exception e) { }
+		
 		
 		//Render the tab button tooltips
 		for(int i = 0; i < this.tabButtons.size(); ++i)

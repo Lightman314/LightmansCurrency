@@ -79,11 +79,7 @@ public class TeamOwnerTab extends TeamTab{
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		if(this.buttonChangeOwner.isMouseOver(mouseX, mouseY))
-		{
-			this.getScreen().renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
-		}
-		else if(this.buttonDisbandTeam.isMouseOver(mouseX, mouseY))
+		if(this.buttonChangeOwner.isMouseOver(mouseX, mouseY) || this.buttonDisbandTeam.isMouseOver(mouseX, mouseY))
 		{
 			this.getScreen().renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
 		}

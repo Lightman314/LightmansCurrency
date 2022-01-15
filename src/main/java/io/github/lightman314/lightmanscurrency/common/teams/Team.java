@@ -131,7 +131,7 @@ public class Team {
 			}
 			return true;
 		}
-		else if(category.contentEquals(CATEGORY_REMOVE) && this.isAdmin(requestor))
+		else if(category.contentEquals(CATEGORY_REMOVE) && (this.isAdmin(requestor) || PlayerReference.of(requestor).is(playerName)))
 		{
 			GameProfile profile = this.getProfile(playerName);
 			if(profile != null)
@@ -141,7 +141,7 @@ public class Team {
 					return false;
 				
 				//Confirm that this player isn't an admin, and if they are, confirm that this is the owner
-				if(this.isAdmin(profile.getId()) && !this.isOwner(requestor))
+				if(this.isAdmin(profile.getId()) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(profile)))
 					return false;
 				//Cannot remove the owner, can only replace them with the Owner-transfer category.
 				if(this.isOwner(profile.getId()))

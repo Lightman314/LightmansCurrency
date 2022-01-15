@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -115,9 +116,8 @@ public class OwnershipTab extends SettingsTab{
 		//Render button tooltips
 		if(this.buttonSetOwner.isMouseOver(mouseX, mouseY) || this.buttonSetTeamOwner.isMouseOver(mouseX, mouseY))
 		{
-			screen.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning"), mouseX, mouseY);
+			screen.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
 		}
-		
 	}
 
 	@Override

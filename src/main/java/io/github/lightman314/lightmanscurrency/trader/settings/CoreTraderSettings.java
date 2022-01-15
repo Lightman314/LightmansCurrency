@@ -67,6 +67,12 @@ public class CoreTraderSettings extends Settings{
 	PlayerReference owner = null;
 	//Team
 	TeamReference team = null;
+	public Team getTeam()
+	{
+		if(this.team == null)
+			return null;
+		return this.team.getTeam(this.trader.isClient());
+	}
 	//Ally Permissions
 	List<PlayerReference> allies = Lists.newArrayList();
 	PermissionsList allyPermissions = getAllyDefaultPermissions(this.trader);
@@ -90,7 +96,6 @@ public class CoreTraderSettings extends Settings{
 			String oldName = this.customName;
 			this.customName = newName;
 			this.logger.LogNameChange(requestor, oldName, this.customName);
-			this.markDirty();
 			CompoundTag updateInfo = initUpdateInfo(UPDATE_CUSTOM_NAME);
 			updateInfo.putString("NewName", this.customName);
 			return updateInfo;
@@ -113,11 +118,9 @@ public class CoreTraderSettings extends Settings{
 	 */
 	public String getOwnerName()
 	{
-		if(this.team != null)
+		if(this.getTeam() != null)
 		{
-			Team actualTeam = this.team.getTeam(this.trader.isClient());
-			if(actualTeam != null)
-				return actualTeam.getName();
+			return this.getTeam().getName();
 		}
 		if(this.owner != null)
 			return this.owner.lastKnownName();
@@ -145,19 +148,15 @@ public class CoreTraderSettings extends Settings{
 		}
 		else if(this.owner == null)
 		{
-			Team oldTeam = null;
-			if(this.team != null)
-			{
-				oldTeam = this.team.getTeam(this.trader.isClient());
+			Team oldTeam = this.getTeam();
+			if(oldTeam != null)
 				this.team = null;
-			}
 			this.owner = PlayerReference.of(newOwnerName);
 			if(this.owner != null && oldTeam != null)
 				this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
 			
 			CompoundTag updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 			updateInfo.putString("newOwner", newOwnerName);
-			this.markDirty();
 			return updateInfo;
 		}
 		else
@@ -166,12 +165,8 @@ public class CoreTraderSettings extends Settings{
 			if(newOwner != null && (!this.owner.is(newOwner) || this.team != null))
 			{
 				//Reset the teams owner, if setting the traders owner to a player
-				Team oldTeam = null;
-				if(this.team != null)
-				{
-					oldTeam = this.team.getTeam(this.trader.isClient());
+				Team oldTeam = this.getTeam();
 					this.team = null;
-				}
 				
 				PlayerReference oldOwner = this.owner;
 				this.owner = newOwner;
@@ -179,8 +174,6 @@ public class CoreTraderSettings extends Settings{
 					this.logger.LogOwnerChange(requestor, oldOwner, this.owner);
 				else
 					this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
-				
-				this.markDirty();
 				
 				CompoundTag updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 				updateInfo.putString("newOwner", newOwnerName);
@@ -198,23 +191,15 @@ public class CoreTraderSettings extends Settings{
 			return null;
 		}
 		
-		Team oldTeam = null;
-		if(this.team != null)
-		{
-			//Abort if that team is already selected
-			if(this.team.getID().equals(newTeamID))
-				return null;
-			oldTeam = this.team.getTeam(this.trader.isClient());
-		}
+		Team oldTeam = this.getTeam();
+		if(oldTeam != null && this.team.getID().equals(newTeamID))
+			return null;
 		
 		this.team = Team.referenceOf(newTeamID);
 		
-		Team newTeam = null;
-		if(this.team != null)
-			newTeam = this.team.getTeam(this.trader.isClient());
+		Team newTeam = this.getTeam();
 		
 		this.logger.LogTeamChange(requestor, this.owner, oldTeam, newTeam);
-		this.markDirty();
 		
 		CompoundTag updateInfo = initUpdateInfo(UPDATE_TEAM);
 		if(newTeamID != null)
@@ -237,7 +222,6 @@ public class CoreTraderSettings extends Settings{
 			{
 				this.allies.add(newAlly);
 				this.logger.LogAllyChange(requestor, newAlly, true);
-				this.markDirty();
 			}
 			if(newAlly != null || requestor.level.isClientSide)
 			{
@@ -269,7 +253,6 @@ public class CoreTraderSettings extends Settings{
 			if(removedAlly == null)
 				return null;
 			this.logger.LogAllyChange(requestor, removedAlly, false);
-			this.markDirty();
 			CompoundTag updateInfo = initUpdateInfo(UPDATE_REMOVE_ALLY);
 			updateInfo.putString("AllyName", removedAllyName);
 			return updateInfo;
@@ -357,7 +340,6 @@ public class CoreTraderSettings extends Settings{
 		}
 		this.isCreative = !this.isCreative;
 		this.logger.LogCreativeToggle(requestor, this.isCreative);
-		this.markDirty();
 		CompoundTag updateInfo = initUpdateInfo(UPDATE_CREATIVE);
 		updateInfo.putBoolean("isCreative", this.isCreative);
 		return updateInfo;
@@ -450,6 +432,8 @@ public class CoreTraderSettings extends Settings{
 	{
 		if(this.team != null)
 			compound.putUUID("Team", this.team.getID());
+		else
+			compound.putBoolean("Team", false);
 		return compound;
 	}
 	
@@ -577,7 +561,10 @@ public class CoreTraderSettings extends Settings{
 		//Owner
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
-		if(compound.contains("Team"))
+		//Team
+		if(compound.contains("Team", Tag.TAG_BYTE))
+			this.team = null;
+		else if(compound.contains("Team"))
 			this.team = Team.referenceOf(compound.getUUID("Team"));
 		//Ally List
 		if(compound.contains("Allies", Tag.TAG_LIST))

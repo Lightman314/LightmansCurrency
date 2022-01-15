@@ -283,7 +283,8 @@ public class WalletMenu extends AbstractContainerMenu{
 			clickedStack = slotStack.copy();
 			if(index == 0)
 			{
-				this.moveItemStackTo(slotStack, 1, 37, false);
+				if(!this.moveItemStackTo(slotStack, 1, 37, false))
+					return ItemStack.EMPTY;
 			}
 			else if(index < 37)
 			{
