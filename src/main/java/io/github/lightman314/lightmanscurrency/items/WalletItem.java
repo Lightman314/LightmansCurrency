@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -41,15 +42,13 @@ public class WalletItem extends Item{
 	private static final SoundEvent emptyOpenSound = new SoundEvent(new ResourceLocation("minecraft","item.armor.equip_leather"));
 	private final ResourceLocation MODEL_TEXTURE;
 	
-	private final boolean canConvert;
-	private final boolean canPickup;
+	private final int level;
 	private final int storageSize;
 	
-	public WalletItem(boolean canConvert, boolean canPickup, int storageSize, String modelName, Properties properties)
+	public WalletItem(int level, int storageSize, String modelName, Properties properties)
 	{
 		super(properties);
-		this.canConvert = canConvert;
-		this.canPickup = canPickup;
+		this.level = level;
 		this.storageSize = storageSize;
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
@@ -80,7 +79,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.canConvert;
+		return wallet.level >= Config.getConvertLevel() || wallet.level >= Config.getPickupLevel();
 	}
 	
 	/**
@@ -90,7 +89,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.canPickup;
+		return wallet.level >= Config.getPickupLevel();
 	}
 	
 	/**
@@ -120,13 +119,13 @@ public class WalletItem extends Item{
 		
 		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
 		
-		if(this.canPickup)
+		if(CanPickup(this))
 		{
 			tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.pickup"));
 		}
-		if(this.canConvert)
+		if(CanConvert(this))
 		{
-			if(this.canPickup)
+			if(CanPickup(this))
 			{
 				ITextComponent onOffText = getAutoConvert(stack) ? new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert.on") : new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert.off");
 				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText));

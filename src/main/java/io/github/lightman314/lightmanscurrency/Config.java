@@ -109,6 +109,11 @@ public class Config {
 		return true;
 	}
 	
+	private static int convertLevel = 0;
+	public static int getConvertLevel() { return convertLevel; }
+	private static int pickupLevel = 0;
+	public static int getPickupLevel() { return pickupLevel; }
+	
 	public static class Client
 	{
 		
@@ -184,6 +189,10 @@ public class Config {
 		private final ForgeConfigSpec.BooleanValue meltEmerald;
 		private final ForgeConfigSpec.BooleanValue meltDiamond;
 		private final ForgeConfigSpec.BooleanValue meltNetherite;
+		
+		//Wallet Options
+		private final ForgeConfigSpec.IntValue walletConvertLevel;
+		private final ForgeConfigSpec.IntValue walletPickupLevel;
 		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
@@ -288,6 +297,19 @@ public class Config {
 					.define("canMeltNetherite", true);
 			builder.pop();
 			
+			builder.comment("Wallet Settings.").push("wallet");
+			
+			this.walletConvertLevel = builder.comment("The lowest level wallet capable of converting coins in the UI.",
+						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet",
+						"Must be less than or equal to 'pickupLevel'.")
+					.defineInRange("convertLevel", 2, 0, 5);
+			
+			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
+					"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
+				.defineInRange("pickupLevel", 3, 0, 5);
+			
+			builder.pop();
+			
 			builder.comment("Villager Related Settings.").push("villagers");
 			
 			this.addCustomWanderingTrades = builder
@@ -308,7 +330,7 @@ public class Config {
 					.defineInRange("debugLevel", 0, 0, 3);
 			
 			//Entity loot modification
-			builder.comment("Entity loot settings. Inputs can be either loot-table id ('minecraft:entities/zombie'), or the LivingEntities id ('minecraft:zombie').").push("entity_loot");
+			builder.comment("Entity loot settings. Accepts entity ids (i.e. minecraft:zombie)").push("entity_loot");
 			
 			this.enableEntityDrops = builder
 					.comment("Whether coins can be dropped by entities. Does not effect chest loot generation.")
@@ -554,6 +576,10 @@ public class Config {
 		coinblockValues.putInt("netherite", COMMON.coinBlockNetheriteWorth.get());
 		data.put("coinblockValues", coinblockValues);
 		
+		//Wallet Levels
+		data.putInt("walletConvertLevel", COMMON.walletConvertLevel.get());
+		data.putInt("walletPickupLevel", COMMON.walletPickupLevel.get());
+		
 		return data;
 	}
 	
@@ -607,6 +633,10 @@ public class Config {
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_EMERALD.item, ModBlocks.COINPILE_EMERALD.item, coinblockValues.getInt("emerald"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_DIAMOND.item, ModBlocks.COINPILE_DIAMOND.item, coinblockValues.getInt("diamond"));
 		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_NETHERITE.item, ModBlocks.COINPILE_NETHERITE.item, coinblockValues.getInt("netherite"));
+		
+		//Wallet Levels
+		convertLevel = data.getInt("walletConvertLevel");
+		pickupLevel = data.getInt("walletPickupLevel");
 		
 	}
 	
