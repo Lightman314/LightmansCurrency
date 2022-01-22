@@ -161,7 +161,7 @@ public class LightmansCurrency {
         
     }
     
-    private void onConfigLoad(ModConfigEvent event)
+    private void onConfigLoad(ModConfigEvent.Loading event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
