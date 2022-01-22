@@ -29,12 +29,12 @@ public class ModItems {
 	public static final Item TICKET_MASTER = register("master_ticket", new TicketItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE).stacksTo(1)));
 	public static final Item TICKET_STUB = register("ticket_stub", new Item(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
 	
-	public static final WalletItem WALLET_COPPER = register("wallet_copper", new WalletItem(false, false, 6, "wallet_copper", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
-	public static final WalletItem WALLET_IRON = register("wallet_iron", new WalletItem(false, false, 12, "wallet_iron" , new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
-	public static final WalletItem WALLET_GOLD = register("wallet_gold", new WalletItem(true, false, 18, "wallet_gold", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
-	public static final WalletItem WALLET_EMERALD = register("wallet_emerald", new WalletItem(true, true, 24, "wallet_emerald", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
-	public static final WalletItem WALLET_DIAMOND = register("wallet_diamond", new WalletItem(true, true, 30, "wallet_diamond", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
-	public static final WalletItem WALLET_NETHERITE = register("wallet_netherite", new WalletItem(true, true, 36, "wallet_netherite", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1).fireResistant()));
+	public static final WalletItem WALLET_COPPER = register("wallet_copper", new WalletItem(0, 6, "wallet_copper", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
+	public static final WalletItem WALLET_IRON = register("wallet_iron", new WalletItem(1, 12, "wallet_iron" , new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
+	public static final WalletItem WALLET_GOLD = register("wallet_gold", new WalletItem(2, 18, "wallet_gold", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
+	public static final WalletItem WALLET_EMERALD = register("wallet_emerald", new WalletItem(3, 24, "wallet_emerald", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
+	public static final WalletItem WALLET_DIAMOND = register("wallet_diamond", new WalletItem(4, 30, "wallet_diamond", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1)));
+	public static final WalletItem WALLET_NETHERITE = register("wallet_netherite", new WalletItem(5, 36, "wallet_netherite", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).stacksTo(1).fireResistant()));
 	
 	public static final Item PORTABLE_TERMINAL = register("portable_terminal", new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).stacksTo(1)));
 	

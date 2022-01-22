@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.compress.utils.Lists;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
@@ -19,6 +21,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -363,6 +366,48 @@ public class LootManager {
     			}
     		}
     	}
+	}
+	
+	public static void validateEntityDropList()
+	{
+		validateDropList(Config.COMMON.copperEntityDrops);
+		validateDropList(Config.COMMON.ironEntityDrops);
+		validateDropList(Config.COMMON.goldEntityDrops);
+		validateDropList(Config.COMMON.emeraldEntityDrops);
+		validateDropList(Config.COMMON.diamondEntityDrops);
+		validateDropList(Config.COMMON.netheriteEntityDrops);
+		validateDropList(Config.COMMON.bossCopperEntityDrops);
+		validateDropList(Config.COMMON.bossIronEntityDrops);
+		validateDropList(Config.COMMON.bossGoldEntityDrops);
+		validateDropList(Config.COMMON.bossEmeraldEntityDrops);
+		validateDropList(Config.COMMON.bossDiamondEntityDrops);
+		validateDropList(Config.COMMON.bossNetheriteEntityDrops);
+	}
+	
+	private static void validateDropList(ConfigValue<List<? extends String>> config)
+	{
+		List<? extends String> configList = config.get();
+		List<String> list = Lists.newArrayList();
+		configList.forEach(value -> list.add(value));
+		boolean modified = false;
+		for(int i = 0; i < list.size(); ++i)
+		{
+			String value = list.get(i);
+			if(value.contains("entities/"))
+			{
+				value = value.replace("entities/", "");
+				list.set(i, value);
+				modified = true;
+			}
+			if(value.contains("entities\\"))
+			{
+				value = value.replace("entities/", "");
+				list.set(i, value);
+				modified = true;
+			}
+		}
+		if(modified)
+			config.set(list);
 	}
 	
 	private static void DropEntityLoot(Entity entity, Player player, PoolLevel coinPool)
