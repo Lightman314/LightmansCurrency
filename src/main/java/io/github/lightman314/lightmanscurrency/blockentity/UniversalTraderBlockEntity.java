@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -93,7 +93,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 			}
 			this.traderID = TradingOffice.registerTrader(traderData, owner);
 			//Inform client of the trader ID so that it can cancel block breakage vfx/sfx client-side
-			TileEntityUtil.sendUpdatePacket(this);
+			BlockEntityUtil.sendUpdatePacket(this);
 		}
 	}
 	

@@ -30,7 +30,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRule
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenuCR;
@@ -235,8 +235,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			//Send update packet
 			CompoundTag compound = this.writeTrades(new CompoundTag());
-			this.writeStorage(compound);
-			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(compound));
 		}
 		
 	}
@@ -262,8 +261,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundTag compound = this.writeTrades(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTrades(new CompoundTag()));
 		}
 		this.setChanged();
 	}
@@ -279,8 +277,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		if(this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeItemSettings(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeItemSettings(new CompoundTag()));
 		}
 	}
 	
@@ -290,8 +287,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundTag compound = this.writeStorage(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag()));
 		}
 		this.setChanged();
 	}
@@ -310,8 +306,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundTag compound = this.writeLogger(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeLogger(new CompoundTag()));
 		}
 		this.setChanged();
 	}
@@ -691,8 +686,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(!this.level.isClientSide)
 		{
 			//Send update packet
-			CompoundTag compound = this.writeTradeRules(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTradeRules(new CompoundTag()));
 		}
 		this.setChanged();
 	}

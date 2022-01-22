@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -52,8 +52,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.ownerName = player.getName().getString();
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeOwner(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeOwner(new CompoundTag()));
 		}
 	}
 	
@@ -86,8 +85,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.storedMoney.addValue(amount);;
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
 		}
 	}
 	
@@ -96,8 +94,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.storedMoney = new CoinValue();
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
 		}
 	}
 	
@@ -111,8 +108,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.price = value;
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writePrice(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writePrice(new CompoundTag()));
 		}
 	}
 	
@@ -126,8 +122,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.duration = MathUtil.clamp(value, 1, 200);
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeDuration(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeDuration(new CompoundTag()));
 		}
 	}
 	
@@ -136,8 +131,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		this.ticketID = ticketID;
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeTicket(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTicket(new CompoundTag()));
 		}
 	}
 	
@@ -181,7 +175,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		if(this.level.isClientSide)
 		{
 			//CurrencyMod.LOGGER.info("Loaded client-side PaygateTileEntity. Requesting update packet.");
-			TileEntityUtil.requestUpdatePacket(this);
+			BlockEntityUtil.requestUpdatePacket(this);
 		}
 	}
 	
@@ -283,8 +277,7 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 			this.timer--;
 			if(!this.level.isClientSide)
 			{
-				CompoundTag compound = this.writeTimer(new CompoundTag());
-				TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+				BlockEntityUtil.sendUpdatePacket(this, this.writeTimer(new CompoundTag()));
 			}
 			if(timer <= 0)
 			{

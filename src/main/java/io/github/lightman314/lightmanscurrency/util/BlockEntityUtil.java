@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class TileEntityUtil
+public class BlockEntityUtil
 {
     /**
      * Sends an update packet to clients tracking a tile entity.

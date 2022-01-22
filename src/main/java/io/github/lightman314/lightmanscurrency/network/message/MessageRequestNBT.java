@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,7 +41,7 @@ public class MessageRequestNBT {
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity != null)
 				{
-					TileEntityUtil.sendUpdatePacket(blockEntity);
+					BlockEntityUtil.sendUpdatePacket(blockEntity);
 				}
 			}
 		});

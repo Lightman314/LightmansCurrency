@@ -6,7 +6,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -56,8 +56,7 @@ public class CoinJarBlockEntity extends BlockEntity
 		
 		if(!level.isClientSide)
 		{
-			CompoundTag compound = this.writeStorage(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag()));
 		}
 		return true;
 	}
@@ -112,7 +111,7 @@ public class CoinJarBlockEntity extends BlockEntity
 	{
 		if(this.level.isClientSide)
 		{
-			TileEntityUtil.requestUpdatePacket(this);
+			BlockEntityUtil.requestUpdatePacket(this);
 		}
 	}
 	

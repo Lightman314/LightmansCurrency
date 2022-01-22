@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -58,7 +58,7 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock{
 			if(blockEntity instanceof CashRegisterBlockEntity)
 			{
 				CashRegisterBlockEntity register = (CashRegisterBlockEntity)blockEntity;
-				TileEntityUtil.sendUpdatePacket(blockEntity);
+				BlockEntityUtil.sendUpdatePacket(blockEntity);
 				register.OpenContainer(player);
 			}
 		}

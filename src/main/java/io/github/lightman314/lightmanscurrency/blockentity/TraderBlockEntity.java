@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -108,7 +108,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(!this.level.isClientSide)
 		{
 			CompoundTag compound = this.writeCoreSettings(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
 		this.setChanged();
 	}
@@ -176,8 +176,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		storedMoney.addValue(addedAmount);
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
 		}
 	}
 	
@@ -190,8 +189,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		this.storedMoney.readFromOldValue(newValue);
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
 		}
 	}
 	
@@ -203,8 +201,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		storedMoney = new CoinValue();
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeStoredMoney(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, super.save(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
 		}
 	}
 	
@@ -304,9 +301,10 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		
 	}
 	
+	@Deprecated //Unecessary. Metadata is written directly into the update packet.
 	public CompoundTag superWrite(CompoundTag compound)
 	{
-		return super.save(compound);
+		return compound;
 	}
 	
 	protected CompoundTag writeStoredMoney(CompoundTag compound)

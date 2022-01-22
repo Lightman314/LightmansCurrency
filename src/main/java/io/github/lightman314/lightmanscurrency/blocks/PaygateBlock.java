@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -101,7 +101,7 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 					player.getInventory().placeItemBackInInventory(ticketStub);
 					return InteractionResult.SUCCESS;
 				}
-				TileEntityUtil.sendUpdatePacket(tileEntity);
+				BlockEntityUtil.sendUpdatePacket(tileEntity);
 				NetworkHooks.openGui((ServerPlayer)player, paygate, pos);
 			}
 		}

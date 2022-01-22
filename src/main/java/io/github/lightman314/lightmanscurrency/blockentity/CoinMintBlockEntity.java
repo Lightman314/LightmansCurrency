@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -161,7 +161,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 	@Override
 	public void onLoad() {
 		if(this.level.isClientSide)
-			TileEntityUtil.requestUpdatePacket(this);
+			BlockEntityUtil.requestUpdatePacket(this);
 	}
 	
 	@Override

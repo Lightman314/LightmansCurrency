@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IT
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -81,7 +81,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 				trader.getCoreSettings().updateNames(player);
 				//Send update packet for safety, and open the menu
-				TileEntityUtil.sendUpdatePacket(blockEntity);
+				BlockEntityUtil.sendUpdatePacket(blockEntity);
 				trader.openTradeMenu(player);
 			}
 		}
