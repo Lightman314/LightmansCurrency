@@ -1,0 +1,8 @@
+{
+  "type": "lightmanscurrency:coin_mint",
+  "mintType": "MINT",
+  "ingredient": {
+    "item": "tconstruct:copper_ingot"
+  },
+  "result": "lightmanscurrency:coin_copper"
+}
