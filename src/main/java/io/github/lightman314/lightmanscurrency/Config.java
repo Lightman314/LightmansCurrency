@@ -306,11 +306,11 @@ public class Config {
 			this.walletConvertLevel = builder.comment("The lowest level wallet capable of converting coins in the UI.",
 						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet",
 						"Must be less than or equal to 'pickupLevel'.")
-					.defineInRange("convertLevel", 2, 0, 5);
+					.defineInRange("convertLevel", 1, 0, 5);
 			
 			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
 						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
-					.defineInRange("pickupLevel", 3, 0, 5);
+					.defineInRange("pickupLevel", 2, 0, 5);
 			
 			builder.pop();
 			

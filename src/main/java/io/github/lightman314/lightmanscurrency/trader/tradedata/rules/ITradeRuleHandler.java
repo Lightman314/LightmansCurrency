@@ -12,6 +12,7 @@ public interface ITradeRuleHandler {
 	public void tradeCost(TradeCostEvent event);
 	public void afterTrade(PostTradeEvent event);
 	
+	public default boolean allowRule(TradeRule rule) { return true; }
 	public List<TradeRule> getRules();
 	public void addRule(TradeRule newRule);
 	public void removeRule(TradeRule rule);
