@@ -45,9 +45,9 @@ public class RecipeGen extends RecipeProvider{
 		//Copper -> Iron
 		upgrade(consumer, ModItems.WALLET_COPPER, ModItems.WALLET_IRON, Ingredient.fromItems(ModItems.COIN_IRON));
 		//Iron -> Gold (redstone material)
-		upgrade(consumer, ModItems.WALLET_IRON, ModItems.WALLET_GOLD, Ingredient.fromItems(ModItems.COIN_GOLD), Ingredient.fromItems(Items.REDSTONE));
+		upgrade(consumer, ModItems.WALLET_IRON, ModItems.WALLET_GOLD, Ingredient.fromItems(ModItems.COIN_GOLD));
 		//Gold -> Emerald (ender pearl material)
-		upgrade(consumer, ModItems.WALLET_GOLD, ModItems.WALLET_EMERALD, Ingredient.fromItems(ModItems.COIN_EMERALD), Ingredient.fromItems(Items.ENDER_PEARL));
+		upgrade(consumer, ModItems.WALLET_GOLD, ModItems.WALLET_EMERALD, Ingredient.fromItems(ModItems.COIN_EMERALD));
 		//Emerald -> Diamond
 		upgrade(consumer, ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND, Ingredient.fromItems(ModItems.COIN_DIAMOND));
 		//Diamond -> Netherite
