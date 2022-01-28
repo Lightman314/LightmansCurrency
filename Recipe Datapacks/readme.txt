@@ -9,4 +9,5 @@ How to install:
 6- Profit :)
 
 If a datapack has not yet been made for your mod of choice, you may create one by downloading any of the other datapacks and editing the copper_coin_melt.json & copper_coin_mint.json files and changing the copper ingot id to match your mods copper ingot.
+
 If you don't wish to make one yourself, or don't know how, feel free to leave a comment on the curseforge page or make a feature request in the Issues tab requesting that I make one myself.
