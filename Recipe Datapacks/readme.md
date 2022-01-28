@@ -1,6 +1,6 @@
-Copper coin recipe datapacks:
+## Copper coin recipe datapacks
 
-How to install:
+### How to install
 1- Identify which datapack corresponds to a tech mod that you have installed that adds copper ingots.
 2- Download the CopperCoins_{modname}.zip file corresponding to your desired mod.
 3- Place that zip file into your worlds datapack folder (i.e. .minecraft\saves\{world}\datapack)
