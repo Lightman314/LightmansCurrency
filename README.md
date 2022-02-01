@@ -4,6 +4,7 @@ Lightman's Currency is a forge mod that adds a simple currency system of 6 diffe
 ## Features
 #### Coins
 - 6 different interchangable coins (Copper, Iron, Gold, Emerald, Diamond, and Netherite), each of which can be minted or melted back into their base material at a coin mint.
+- Disclaimer: Copper coins cannot be minted or melted in 1.16 without use of a datapack to add mint/melt recipes for another mods copper ingots. More info can be found [here](https://github.com/Lightman314/LightmansCurrency/tree/LC-1.16/Recipe%20Datapacks).
 - Server owners can customize which coins are allowed to be minted or melted.
 - Coins can be converted all different types of coins at an ATM.
 #### Wallets
