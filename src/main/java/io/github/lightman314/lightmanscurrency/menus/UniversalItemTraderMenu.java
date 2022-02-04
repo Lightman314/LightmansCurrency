@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -29,7 +29,7 @@ import net.minecraft.world.item.ItemStack;
 public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMenu{
 	
 	
-	protected static final MenuType<?> type = ModContainers.ITEMTRADER;
+	protected static final MenuType<?> type = ModMenus.ITEMTRADER;
 	
 	protected final Container coinSlots = new SimpleContainer(5);
 	protected final Container itemSlots = new SimpleContainer(3);
@@ -44,7 +44,7 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 	
 	public UniversalItemTraderMenu(int windowId, Inventory inventory, UUID traderID)
 	{
-		super(ModContainers.UNIVERSAL_ITEMTRADER, windowId, traderID, inventory.player);
+		super(ModMenus.UNIVERSAL_ITEMTRADER, windowId, traderID, inventory.player);
 		
 		//int tradeCount = this.getTradeCount();
 		
@@ -400,6 +400,8 @@ public class UniversalItemTraderMenu extends UniversalMenu implements ITraderMen
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.getData().getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

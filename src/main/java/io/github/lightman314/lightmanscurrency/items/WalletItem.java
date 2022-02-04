@@ -96,6 +96,16 @@ public class WalletItem extends Item{
 	}
 	
 	/**
+	 * Whether the WalletItem is capable of interfacing with the players bank account.
+	 */
+	public static boolean HasBankAccess(WalletItem wallet)
+	{
+		if(wallet == null)
+			return false;
+		return wallet.level >= Config.getBankLevel();
+	}
+	
+	/**
 	 * The number of inventory slots the WalletItem has.
 	 */
 	public static int InventorySize(WalletItem wallet)

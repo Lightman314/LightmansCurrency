@@ -90,7 +90,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 		
 		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos + SCREEN_EXTENSION + 20, this.topPos - 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getData().getCoreSettings().hasBankAccount();
 		
 		int tradeCount = this.menu.getData().getTradeCount();
 		this.buttonStoreMoney = this.addRenderableWidget(new IconButton(this.leftPos + SCREEN_EXTENSION + ItemTraderStorageUtil.getInventoryOffset(tradeCount) + 176 + 32, this.topPos + 25 + ItemTraderStorageUtil.getRowCount(tradeCount) * 18, this::PressStoreCoinsButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
@@ -183,7 +183,7 @@ public class UniversalItemTraderStorageScreen extends AbstractContainerScreen<Un
 
 		this.menu.tick();
 		
-		this.buttonCollectMoney.visible = (!this.menu.getData().getCoreSettings().isCreative() || this.menu.getData().getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = (!this.menu.getData().getCoreSettings().isCreative() || this.menu.getData().getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getData().getCoreSettings().hasBankAccount();
 		this.buttonCollectMoney.active = this.menu.getData().getStoredMoney().getRawValue() > 0;
 		
 		this.buttonOpenSettings.visible = this.menu.hasPermission(Permissions.EDIT_SETTINGS);

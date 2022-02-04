@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
@@ -37,7 +37,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 	
 	public ItemTraderStorageMenu(int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity)
 	{
-		super(ModContainers.ITEMTRADERSTORAGE, windowId);
+		super(ModMenus.ITEMTRADERSTORAGE, windowId);
 		this.tileEntity = tileEntity;
 		
 		this.player = inventory.player;
@@ -238,6 +238,8 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

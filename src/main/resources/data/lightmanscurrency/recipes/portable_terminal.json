@@ -1,21 +1,11 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern":[
-    "igi",
-    "igi",
-    "iei"
-  ],
-  "key": {
-    "e": {
-      "item": "minecraft:ender_eye"
-    },
-    "g": {
-      "item": "minecraft:glass"
-    },
-    "i": {
-      "item": "minecraft:iron_ingot"
+  "type": "minecraft:crafting_shapeless",
+  "group": "portable_terminal_swap",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:terminal"
     }
-  },
+  ],
   "result": {
     "item": "lightmanscurrency:portable_terminal"
   }

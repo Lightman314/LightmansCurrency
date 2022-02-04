@@ -1,6 +1,11 @@
 package io.github.lightman314.lightmanscurrency.menus;
 
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
+
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -12,13 +17,24 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ATMMenu extends AbstractContainerMenu{
+public class ATMMenu extends AbstractContainerMenu implements IBankAccountMenu{
+	
+	private Player player;
+	public Player getPlayer() { return this.player; }
 	
 	private final Container coinInput = new SimpleContainer(9);
+	public Container getCoinInput() { return this.coinInput; }
+	
+	private AccountReference accountSource = null;
+	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
 	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
-		super(ModContainers.ATM, windowId);
+		super(ModMenus.ATM, windowId);
+		
+		this.player = inventory.player;
+		//Auto-select the players bank account for now.
+		this.accountSource = BankAccount.GenerateReference(this.player.level.isClientSide, AccountType.Player, this.player.getUUID());
 		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
@@ -42,10 +58,7 @@ public class ATMMenu extends AbstractContainerMenu{
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
-	{
-		return true;
-	}
+	public boolean stillValid(Player playerIn) { return true; }
 	
 	@Override
 	public void removed(Player playerIn)
@@ -53,7 +66,6 @@ public class ATMMenu extends AbstractContainerMenu{
 		super.removed(playerIn);
 		this.clearContainer(playerIn,  this.coinInput);
 	}
-
 	
 	@Override
 	public ItemStack quickMoveStack(Player playerEntity, int index)
@@ -170,6 +182,11 @@ public class ATMMenu extends AbstractContainerMenu{
 			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_IRON);
 		}
 		
+	}
+	
+	public void SetAccount(AccountReference account)
+	{
+		this.accountSource = account;
 	}
 	
 }

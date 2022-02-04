@@ -6,7 +6,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -37,7 +37,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	
 	public ItemTraderMenu(int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity)
 	{
-		this(ModContainers.ITEMTRADER, windowId, inventory, tileEntity);
+		this(ModMenus.ITEMTRADER, windowId, inventory, tileEntity);
 	}
 	
 	protected ItemTraderMenu(MenuType<?> type, int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity)
@@ -422,6 +422,8 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

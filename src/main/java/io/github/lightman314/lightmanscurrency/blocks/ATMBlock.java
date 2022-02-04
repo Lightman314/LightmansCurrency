@@ -5,8 +5,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.blocks.templates.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -18,7 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class ATMBlock extends TallRotatableBlock{
 	
-	private static final Component TITLE = new TranslatableComponent("gui.lightmanscurrency.atm.title");
+	//private static final Component TITLE = new TranslatableComponent("gui.lightmanscurrency.atm.title");
 	
 	public ATMBlock(Properties properties)
 	{
@@ -36,7 +35,7 @@ public class ATMBlock extends TallRotatableBlock{
 	@Override
 	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, TITLE);
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
 	}
 	
 	

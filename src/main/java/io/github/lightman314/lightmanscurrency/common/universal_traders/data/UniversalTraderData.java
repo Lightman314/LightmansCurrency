@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -52,7 +53,16 @@ public abstract class UniversalTraderData implements ITrader{
 	ResourceKey<Level> world = Level.OVERWORLD;
 	public ResourceKey<Level> getWorld() { return this.world; }
 	CoinValue storedMoney = new CoinValue();
-	public CoinValue getStoredMoney() { return this.storedMoney; }
+	public CoinValue getStoredMoney() {
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+				return account.getCoinStorage().copy();
+		}
+		return this.storedMoney;
+	}
+	public CoinValue getInternalStoredMoney() { return this.storedMoney; }
 	
 	private boolean isServer = true;
 	public final boolean isServer() { return this.isServer; }
@@ -125,12 +135,30 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public void addStoredMoney(CoinValue amount)
 	{
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+			{
+				account.depositCoins(amount);
+				return;
+			}
+		}
 		this.storedMoney.addValue(amount);
 		this.markDirty(this::writeStoredMoney);
 	}
 	
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+			{
+				account.withdrawCoins(removedAmount);
+				return;
+			}
+		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
 		this.markDirty(this::writeStoredMoney);

@@ -357,10 +357,22 @@ public class MoneyUtil {
      * Gets the total value of the item stack.
      * @param coinStack The item stack to get the value of.
      */
+    public static CoinValue getCoinValue(ItemStack coinStack) { return new CoinValue(getValue(coinStack)); }
+    
+    /**
+     * Gets the total value of the item stack.
+     * @param coinStack The item stack to get the value of.
+     */
     public static long getValue(ItemStack coinStack)
     {
     	return getValue(coinStack.getItem()) * coinStack.getCount();
     }
+    
+    /**
+	 * Gets the total value of the items in the given ItemStack list.
+	 * @param inventory The list full of coins from which to get the value of.
+	 */
+    public static CoinValue getCoinValue(NonNullList<ItemStack> inventory) { return new CoinValue(getValue(inventory)); }
     
     /**
 	 * Gets the total value of the items in the given ItemStack list.
@@ -375,6 +387,12 @@ public class MoneyUtil {
 		}
 		return value;
 	}
+    
+    /**
+	 * Gets the total value of the items in the given inventory.
+	 * @param inventory The inventory full of coins with which to get the value of.
+	 */
+    public static CoinValue getCoinValue(Container inventory) { return new CoinValue(getValue(inventory)); }
     
     /**
 	 * Gets the total value of the items in the given inventory.
@@ -1533,7 +1551,9 @@ public class MoneyUtil {
     		return new CoinValue(this);
     	}
     	
-    	public String getString()
+    	public String getString() { return this.getString(""); }
+    	
+    	public String getString(String emptyFiller)
     	{
     		if(this.isFree)
     			return new TranslatableComponent("gui.coinvalue.free").getString();
@@ -1548,6 +1568,9 @@ public class MoneyUtil {
         			string += coinData.getInitial().getString();
         		}
         	}
+        	
+        	if(string.isBlank())
+        		return emptyFiller;
         	
         	return string;
     	}

@@ -12,6 +12,7 @@ import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -43,6 +44,21 @@ public class Team {
 	public List<PlayerReference> getAdmins() { return this.admins; }
 	List<PlayerReference> members = Lists.newArrayList();
 	public List<PlayerReference> getMembers() { return this.members; }
+	
+	//0 for members, 1 for admins, 2 for owners only
+	int bankAccountLimit = 2;
+	public int getBankLimit() { return this.bankAccountLimit; }
+	BankAccount bankAccount = null;
+	public boolean hasBankAccount() { return this.bankAccount != null; }
+	public boolean canAccessBankAccount(Player player) {
+		if(this.bankAccountLimit < 1)
+			return this.isMember(player);
+		else if(this.bankAccountLimit < 2)
+			return this.isAdmin(player);
+		else
+			return this.isOwner(player);
+	}
+	public BankAccount getBankAccount() { return this.bankAccount; }
 	
 	/**
 	 * Determines if the given player is the owner of this team.
@@ -216,6 +232,31 @@ public class Team {
 			return false;
 	}
 	
+	public void createBankAccount(Player requestor)
+	{
+		if(this.hasBankAccount() || !isOwner(requestor))
+			return;
+		this.bankAccount = new BankAccount(() -> this.markDirty());
+		this.markDirty();
+	}
+	
+	public void changeBankLimit(Player requestor, int newLimit)
+	{
+		if(isOwner(requestor) && this.bankAccountLimit != newLimit)
+		{
+			this.bankAccountLimit = newLimit;
+			this.markDirty();
+		}
+	}
+	
+	public static int NextBankLimit(int currentLimit)
+	{
+		int result = currentLimit - 1;
+		if(result < 0)
+			result = 2;
+		return result;
+	}
+	
 	private GameProfile getProfile(String playerName)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -262,6 +303,13 @@ public class Team {
 		}
 		compound.put("Admins", adminList);
 		
+		//Bank Account
+		if(this.bankAccount != null)
+		{
+			compound.put("BankAccount", this.bankAccount.save());
+			compound.putInt("BankLimit", this.bankAccountLimit);
+		}
+		
 		return compound;
 	}
 	
@@ -293,6 +341,13 @@ public class Team {
 				PlayerReference member = PlayerReference.load(memberList.getCompound(i));
 				if(member != null)
 					team.members.add(member);
+			}
+			
+			if(compound.contains("BankAccount", Tag.TAG_COMPOUND))
+			{
+				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"));
+				if(compound.contains("BankLimit", Tag.TAG_INT))
+					team.bankAccountLimit = compound.getInt("BankLimit");
 			}
 			
 			return team;

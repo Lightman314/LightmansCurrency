@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
@@ -162,17 +163,42 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	/**
 	 * Gets the amount of stored money.
+	 * If a bank account is linked, it will return the amount stored in the account instead.
 	 */
 	public CoinValue getStoredMoney()
 	{
-		return storedMoney;
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+				return account.getCoinStorage().copy();
+		}
+		return this.storedMoney;
+	}
+	
+	/**
+	 * Gets the amount of stored money.
+	 * Always returns the amount contained within regardless of the linked bank account
+	 */
+	public CoinValue getInternalStoredMoney() {
+		return this.storedMoney;
 	}
 	
 	/**
 	 * Adds the given amount of money to the stored money.
+	 * If a bank account is linked, it will add it to the account instead.
 	 */
 	public void addStoredMoney(CoinValue addedAmount)
 	{
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+			{
+				account.depositCoins(addedAmount);
+				return;
+			}
+		}
 		storedMoney.addValue(addedAmount);
 		if(!this.level.isClientSide)
 		{
@@ -182,9 +208,19 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	/**
 	 * Removes the given amount of money to the stored money.
+	 * If a bank account is linked, it will remove it from the account instead.
 	 */
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
+		if(this.coreSettings.isBankAccountLinked())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			if(account != null)
+			{
+				account.withdrawCoins(removedAmount);
+				return;
+			}
+		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
 		if(!this.level.isClientSide)

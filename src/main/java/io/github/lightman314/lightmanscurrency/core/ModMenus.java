@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.IContainerFactory;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModContainers {
+public class ModMenus {
 	
 	private static final List<MenuType<?>> CONTAINER_TYPES = new ArrayList<>();
 	

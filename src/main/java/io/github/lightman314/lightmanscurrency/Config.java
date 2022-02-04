@@ -113,7 +113,8 @@ public class Config {
 	public static int getConvertLevel() { return convertLevel; }
 	private static int pickupLevel = 0;
 	public static int getPickupLevel() { return pickupLevel; }
-	
+	private static int bankLevel = 0;
+	public static int getBankLevel() { return bankLevel; }
 	
 	public static class Client
 	{
@@ -199,6 +200,7 @@ public class Config {
 		//Wallet Options
 		private final ForgeConfigSpec.IntValue walletConvertLevel;
 		private final ForgeConfigSpec.IntValue walletPickupLevel;
+		private final ForgeConfigSpec.IntValue walletBankLevel;
 		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
@@ -311,6 +313,10 @@ public class Config {
 			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
 						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
 					.defineInRange("pickupLevel", 2, 0, 5);
+			
+			this.walletBankLevel = builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
+						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
+					.defineInRange("bankLevel", 5, 0, 5);
 			
 			builder.pop();
 			
@@ -583,6 +589,7 @@ public class Config {
 		//Wallet Levels
 		data.putInt("walletConvertLevel", COMMON.walletConvertLevel.get());
 		data.putInt("walletPickupLevel", COMMON.walletPickupLevel.get());
+		data.putInt("walletBankLevel", COMMON.walletBankLevel.get());
 		
 		return data;
 	}
@@ -641,6 +648,7 @@ public class Config {
 		//Wallet Levels
 		convertLevel = data.getInt("walletConvertLevel");
 		pickupLevel = data.getInt("walletPickupLevel");
+		bankLevel = data.getInt("walletBankLevel");
 		
 	}
 	

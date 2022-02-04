@@ -21,6 +21,8 @@ public class TabButton extends Button{
 	
 	public static final ResourceLocation GUI_TEXTURE = TraderSettingsScreen.GUI_TEXTURE;
 	
+	public static final int SIZE = 25;
+	
 	public final ITab tab;
 	private final Font font;
 	
@@ -28,7 +30,7 @@ public class TabButton extends Button{
 	
 	public TabButton(OnPress pressable, Font font, ITab tab)
 	{
-		super(0, 0, 25, 25, new TextComponent(""), pressable);
+		super(0, 0, SIZE, SIZE, new TextComponent(""), pressable);
 		this.font = font;
 		this.tab = tab;
 	}

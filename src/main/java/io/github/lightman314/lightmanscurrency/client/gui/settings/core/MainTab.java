@@ -33,6 +33,8 @@ public class MainTab extends SettingsTab{
 	Button buttonSetName;
 	Button buttonResetName;
 	
+	PlainButton buttonToggleBankLink;
+	
 	IconButton buttonToggleCreative;
 	Button buttonAddTrade;
 	Button buttonRemoveTrade;
@@ -61,6 +63,9 @@ public class MainTab extends SettingsTab{
 		this.buttonAddTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 4, 10, 10, this::AddTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 200));
 		this.buttonRemoveTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 14, 10, 10, this::RemoveTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 220));
 		
+		this.buttonToggleBankLink = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 100, 10, 10, this::ToggleBankLink, TraderSettingsScreen.GUI_TEXTURE, 10, coreSettings.isBankAccountLinked() ? 200 : 220));
+		this.buttonToggleBankLink.visible = screen.hasPermission(Permissions.BANK_LINK);
+		
 		this.tick();
 		
 	}
@@ -71,6 +76,9 @@ public class MainTab extends SettingsTab{
 		TraderSettingsScreen screen = this.getScreen();
 		
 		screen.getFont().draw(matrix, new TranslatableComponent("gui.lightmanscurrency.customname"), screen.guiLeft() + 20, screen.guiTop() + 15, 0x404040);
+		
+		if(screen.hasPermission(Permissions.BANK_LINK))
+			this.getFont().draw(matrix, new TranslatableComponent("gui.lightmanscurrency.settings.banklink"), screen.guiLeft() + 32, screen.guiTop() + 101, 0x404040);
 		
 	}
 	
@@ -131,6 +139,15 @@ public class MainTab extends SettingsTab{
 			this.buttonRemoveTrade.visible = false;
 		}
 		
+		boolean canLinkAccount = this.getScreen().hasPermission(Permissions.BANK_LINK);
+		this.buttonToggleBankLink.visible = canLinkAccount;
+		if(canLinkAccount)
+		{
+			this.buttonToggleBankLink.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, coreSettings.isBankAccountLinked() ? 200 : 220);
+			this.buttonToggleBankLink.active = coreSettings.canLinkBankAccount() || coreSettings.isBankAccountLinked();
+		}
+			
+		
 	}
 
 	@Override
@@ -168,6 +185,13 @@ public class MainTab extends SettingsTab{
 	{
 		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
 		CompoundTag updateInfo = coreSettings.toggleCreative(this.getPlayer());
+		coreSettings.sendToServer(updateInfo);
+	}
+	
+	private void ToggleBankLink(Button button)
+	{
+		CoreTraderSettings coreSettings = this.getSetting(CoreTraderSettings.class);
+		CompoundTag updateInfo = coreSettings.toggleBankAccountLink(this.getPlayer());
 		coreSettings.sendToServer(updateInfo);
 	}
 	

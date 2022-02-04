@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.menus;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import net.minecraft.world.entity.player.Inventory;
 
 public class ItemTraderMenuCR extends ItemTraderMenu implements ITraderCashRegisterMenu{
@@ -13,7 +13,7 @@ public class ItemTraderMenuCR extends ItemTraderMenu implements ITraderCashRegis
 	public ItemTraderMenuCR(int windowId, Inventory inventory, ItemTraderBlockEntity tileEntity, CashRegisterBlockEntity cashRegister)
 	{
 		
-		super(ModContainers.ITEMTRADERCR, windowId, inventory, tileEntity);
+		super(ModMenus.ITEMTRADERCR, windowId, inventory, tileEntity);
 		this.cashRegister = cashRegister;
 		
 	}

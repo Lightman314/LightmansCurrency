@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
@@ -26,7 +26,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 	
 	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity tileEntity)
 	{
-		super(ModContainers.TICKET_MACHINE, windowId);
+		super(ModMenus.TICKET_MACHINE, windowId);
 		this.tileEntity = tileEntity;
 		
 		//Slots

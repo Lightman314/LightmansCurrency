@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.slots.MintSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
@@ -16,7 +16,7 @@ public class MintMenu extends AbstractContainerMenu{
 	
 	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity tileEntity)
 	{
-		super(ModContainers.MINT, windowId);
+		super(ModMenus.MINT, windowId);
 		this.tileEntity = tileEntity;
 		
 		//Slots

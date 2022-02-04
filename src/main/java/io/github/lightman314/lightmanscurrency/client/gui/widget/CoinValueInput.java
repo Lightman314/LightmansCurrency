@@ -23,7 +23,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -43,6 +42,11 @@ public class CoinValueInput extends AbstractWidget{
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
 	private Component title;
+	public void setTitle(Component title) {this.title = title; }
+	
+	public boolean allowFreeToggle = true;
+	
+	public boolean drawBG = true;
 	
 	public CoinValueInput(int y, Component title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
@@ -84,31 +88,35 @@ public class CoinValueInput extends AbstractWidget{
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Match the buttons visibility to our visibility.
-		this.toggleFree.visible = this.visible;
+		this.toggleFree.visible = this.allowFreeToggle && this.visible;
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
 		this.decreaseButtons.forEach(button -> button.visible = this.visible);
 		if(!this.visible) //If not visible, render nothing
 			return;
 		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
 		
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
-		//Render the left edge
-		this.blit(poseStack, startX, startY, 0, 0, 10, HEIGHT);
 		List<CoinData> coinData = MoneyUtil.getAllData();
 		int buttonCount = coinData.size();
-		//Render each column & spacer
-		for(int x = 0; x < buttonCount; x++)
+		
+		if(this.drawBG)
 		{
-			//Render the button column;
-			this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
-			//Render the in-between button spacer
-			if(x < (buttonCount - 1)) //Don't render the last spacer
-				this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+			//Render the left edge
+			this.blit(poseStack, startX, startY, 0, 0, 10, HEIGHT);
+			//Render each column & spacer
+			for(int x = 0; x < buttonCount; x++)
+			{
+				//Render the button column;
+				this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
+				//Render the in-between button spacer
+				if(x < (buttonCount - 1)) //Don't render the last spacer
+					this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+			}
 		}
+		
 		
 		//Render the right edge
 		this.blit(poseStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
@@ -128,7 +136,8 @@ public class CoinValueInput extends AbstractWidget{
 		this.parent.getFont().draw(poseStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
 		int priceWidth = this.parent.getFont().width(this.coinValue.getString());
-		this.parent.getFont().draw(poseStack, this.coinValue.getString(), startX + this.width - 15F - priceWidth, startY + 5F, 0x404040);
+		int freeButtonOffset = this.allowFreeToggle ? 15 : 5;
+		this.parent.getFont().draw(poseStack, this.coinValue.getString(), startX + this.width - freeButtonOffset - priceWidth, startY + 5F, 0x404040);
 		
 	}
 	
@@ -239,6 +248,11 @@ public class CoinValueInput extends AbstractWidget{
 	public CoinValue getCoinValue()
 	{
 		return this.coinValue;
+	}
+	
+	public void setCoinValue(CoinValue newValue)
+	{
+		this.coinValue = newValue.copy();
 	}
 	
 	public static interface ICoinValueInput

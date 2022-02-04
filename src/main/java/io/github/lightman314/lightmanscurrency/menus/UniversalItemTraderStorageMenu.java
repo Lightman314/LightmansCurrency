@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IItemEditCapable;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.IUniversalTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -48,7 +48,7 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 	public UniversalItemTraderStorageMenu(int windowId, Inventory inventory, UUID traderID)
 	{
 		
-		super(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player);
+		super(ModMenus.UNIVERSAL_ITEMTRADERSTORAGE, windowId, traderID, inventory.player);
 		
 		//Init storage inventory as a supplied inventory
 		this.storage = new SuppliedContainer(() -> this.getData().getStorage());
@@ -258,6 +258,8 @@ public class UniversalItemTraderStorageMenu extends UniversalMenu implements IUn
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.getData().getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

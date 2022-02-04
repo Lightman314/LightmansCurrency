@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerDisc
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeLimit;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.data.DataGenerator;
@@ -105,6 +106,7 @@ public class LightmansCurrency {
     	TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, () -> new PlayerTradeLimit());
     	TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, () -> new PlayerDiscounts());
     	TradeRule.RegisterDeserializer(TimedSale.TYPE, () -> new TimedSale());
+    	TradeRule.RegisterDeserializer(TradeLimit.TYPE, () -> new TradeLimit());
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
@@ -120,8 +122,8 @@ public class LightmansCurrency {
 				ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE
 			));
 		
-		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
-				ModItems.PORTABLE_TERMINAL, ModBlocks.TERMINAL, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
+		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
+				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
 			));
 		
 		TRADING_GROUP.initSortingList(Arrays.asList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),

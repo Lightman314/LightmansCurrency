@@ -26,6 +26,7 @@
     "item.lightmanscurrency.master_ticket": "Master Ticket",
     "item.lightmanscurrency.ticket_stub": "Ticket Stub",
     "item.lightmanscurrency.portable_terminal": "Trading Terminal",
+    "item.lightmanscurrency.portable_atm": "ATM",
     "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
     
     "block.lightmanscurrency.coinpile_copper" : "Copper Coinpile",
@@ -203,6 +204,7 @@
     "gui.lightmanscurrency.discount.tooltip": "% Discount",
     "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit.info": "Players can do %s trade(s).",
+    "gui.button.lightmanscurrency.playerlimit2": "1-3",
     "gui.button.lightmanscurrency.playerlimit.setlimit": "Set",
     "gui.button.lightmanscurrency.playerlimit.clearmemory": "Clear Memory",
     "gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip": "Clears the memory of how many trades have been handled.",
@@ -264,6 +266,8 @@
     "gui.lightmanscurrency.settings.side.west": "Left",
     "gui.lightmanscurrency.settings.side.east": "Right",
     
+    "gui.lightmanscurrency.settings.banklink": "Link to Bank Account",
+    
     "gui.button.lightmanscurrency.set_owner": "Transfer Ownership",
 
     "log.settings.to": "to",
@@ -296,6 +300,7 @@
     "permission.addRemoveAllies": "Add/Remove Allies",
     "permission.editPermissions": "Edit Permissions",
     "permission.clearLogs": "Clear Shop Log",
+    "permission.bankLink": "Link Bank Account",
     "permission.breakTrader": "Break Trader",
     "permission.transferOwnership": "Transfer Ownership",
     "permission.changeExternalInputs": "Change Item Settings",
@@ -305,6 +310,7 @@
     "tooltip.lightmanscurrency.team.members": "Members",
     "tooltip.lightmanscurrency.team.name": "Name",
     "tooltip.lightmanscurrency.team.member_edit": "Add/Promote/Remove Members",
+    "tooltip.lightmanscurrency.team.bank": "Bank Account Settings",
     "tooltip.lightmanscurrency.team.owner": "Transfer Team Ownership",
    
     
@@ -313,6 +319,19 @@
     "gui.lightmanscurrency.team.name.current": "Current Name: %s",
     "gui.button.lightmanscurrency.team.owner": "Current Owner: %s",
     
+    
+    "gui.lightmanscurrency.bank.null": "No account selected.",
+    "gui.lightmanscurrency.bank.balance": "Balance: %s",
+    "gui.lightmanscurrency.bank.amounttip": "Deposit/Withdraw Amount",
+    "gui.button.bank.deposit": "Deposit",
+    "gui.button.bank.withdraw": "Withdraw",
+    
+    "gui.button.bank.playeraccount": "My Account",
+    
+    "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
+    "tooltip.lightmanscurrency.atm.selection": "Select Account",
+    "tooltip.lightmanscurrency.atm.interact": "Manage Account",
+    
     "gui.button.lightmanscurrency.team.owner": "Owner: %s",
     "gui.button.lightmanscurrency.team.create": "Create",
     "gui.button.lightmanscurrency.team.rename": "Rename Team",
@@ -320,16 +339,23 @@
     "gui.button.lightmanscurrency.team.member.promote": "Set Admin",
     "gui.button.lightmanscurrency.team.member.remove": "Remove",
     "gui.button.lightmanscurrency.team.disband": "Disband Team",
+    "gui.button.lightmanscurrency.team.bank.create": "Create Bank Account",
+    "gui.button.lightmanscurrency.team.bank.limit": "Limit To: %s",
+    "gui.button.lightmanscurrency.team.bank.limit.0": "Members",
+    "gui.button.lightmanscurrency.team.bank.limit.1": "Admins",
+    "gui.button.lightmanscurrency.team.bank.limit.2": "Owner",
     
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
     "traderule.lightmanscurrency.blacklist.denial": "§4You are blacklisted.",
-    "traderule.lightmanscurrency.tradelimit": "Trade Limit",
+    "traderule.lightmanscurrency.tradelimit": "Player Trade Limit",
     "traderule.lightmanscurrency.tradelimit.denial": "§4You have done this trade %s §4times already.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4You have done this trade %1$s §4times within the last %2$s§4.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Limit is %s§4.",
+    "traderule.lightmanscurrency.tradelimit2": "Trade Limit",
+    "traderule.lightmanscurrency.tradelimit2.denial": "§4This trade has been done %s §4times already.",
     "traderule.lightmanscurrency.discount_list": "Discount",
     "traderule.lightmanscurrency.timed_sale": "Sale",
     

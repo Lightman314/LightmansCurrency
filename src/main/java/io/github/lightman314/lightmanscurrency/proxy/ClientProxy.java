@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
@@ -18,9 +20,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
@@ -58,18 +61,18 @@ public class ClientProxy extends CommonProxy{
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.cutout());
     	
     	//Register Screens
-    	MenuScreens.register(ModContainers.ATM, ATMScreen::new);
-    	MenuScreens.register(ModContainers.MINT, MintScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADER, ItemTraderScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
-    	MenuScreens.register(ModContainers.ITEMTRADERCR, ItemTraderScreenCR::new);
-    	MenuScreens.register(ModContainers.ITEM_EDIT, ItemEditScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
-    	MenuScreens.register(ModContainers.WALLET, WalletScreen::new);
-    	MenuScreens.register(ModContainers.PAYGATE, PaygateScreen::new);
-    	MenuScreens.register(ModContainers.TICKET_MACHINE, TicketMachineScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
-    	MenuScreens.register(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
+    	MenuScreens.register(ModMenus.ATM, ATMScreen::new);
+    	MenuScreens.register(ModMenus.MINT, MintScreen::new);
+    	MenuScreens.register(ModMenus.ITEMTRADER, ItemTraderScreen::new);
+    	MenuScreens.register(ModMenus.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
+    	MenuScreens.register(ModMenus.ITEMTRADERCR, ItemTraderScreenCR::new);
+    	MenuScreens.register(ModMenus.ITEM_EDIT, ItemEditScreen::new);
+    	MenuScreens.register(ModMenus.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
+    	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
+    	MenuScreens.register(ModMenus.PAYGATE, PaygateScreen::new);
+    	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
+    	MenuScreens.register(ModMenus.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
+    	MenuScreens.register(ModMenus.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
@@ -81,6 +84,7 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
     	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
+    	TradeRuleScreen.RegisterTradeRule(() -> new TradeLimit());
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
@@ -138,6 +142,30 @@ public class ClientProxy extends CommonProxy{
 	public void removeTeam(UUID teamID)
 	{
 		ClientTradingOffice.removeTeam(teamID);
+	}
+	
+	@Override
+	public void initializeBankAccounts(CompoundTag compound)
+	{
+		if(compound.contains("BankAccounts", Tag.TAG_LIST))
+		{
+			Map<UUID,BankAccount> bank = new HashMap<>();
+			ListTag bankList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
+			for(int i = 0; i < bankList.size(); ++i)
+			{
+				CompoundTag tag = bankList.getCompound(i);
+				UUID id = tag.getUUID("Player");
+				BankAccount bankAccount = new BankAccount(tag);
+				bank.put(id,bankAccount);
+			}
+			ClientTradingOffice.initBankAccounts(bank);
+		}
+	}
+	
+	@Override
+	public void updateBankAccount(CompoundTag compound)
+	{
+		ClientTradingOffice.updateBankAccount(compound);
 	}
 	
 	@Override

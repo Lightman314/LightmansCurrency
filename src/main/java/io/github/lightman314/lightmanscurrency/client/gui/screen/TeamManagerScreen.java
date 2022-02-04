@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.gui.team.TeamBankAccountTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamMemberEditTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamMemberListTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamNameTab;
@@ -59,7 +60,7 @@ public class TeamManagerScreen extends Screen{
 	List<AbstractWidget> tabWidgets = Lists.newArrayList();
 	List<GuiEventListener> tabListeners = Lists.newArrayList();
 	
-	List<TeamTab> tabs = Lists.newArrayList(TeamSelectionTab.INSTANCE, TeamMemberListTab.INSTANCE, TeamNameTab.INSTANCE, TeamMemberEditTab.INSTANCE, TeamOwnerTab.INSTANCE);
+	List<TeamTab> tabs = Lists.newArrayList(TeamSelectionTab.INSTANCE, TeamMemberListTab.INSTANCE, TeamNameTab.INSTANCE, TeamMemberEditTab.INSTANCE, TeamBankAccountTab.INSTANCE, TeamOwnerTab.INSTANCE);
 	public TeamTab currentTab() { return tabs.get(MathUtil.clamp(currentTabIndex, 0, this.tabs.size() - 1)); }
 	List<TabButton> tabButtons = Lists.newArrayList();
 	int currentTabIndex = 0;

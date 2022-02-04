@@ -9,7 +9,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenuPrimitive;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
@@ -32,7 +32,7 @@ public class PaygateMenu extends AbstractContainerMenu implements ITraderMenuPri
 	
 	public final Player player;
 	
-	protected static final MenuType<?> type = ModContainers.ITEMTRADER;
+	protected static final MenuType<?> type = ModMenus.ITEMTRADER;
 	
 	protected final Container coinInput = new SimpleContainer(5);
 	protected final Container ticketInput = new TicketInventory(1);
@@ -42,7 +42,7 @@ public class PaygateMenu extends AbstractContainerMenu implements ITraderMenuPri
 	
 	public PaygateMenu(int windowId, Inventory inventory, PaygateBlockEntity tileEntity)
 	{
-		super(ModContainers.PAYGATE, windowId);
+		super(ModMenus.PAYGATE, windowId);
 		this.tileEntity = tileEntity;
 		
 		this.player = inventory.player;

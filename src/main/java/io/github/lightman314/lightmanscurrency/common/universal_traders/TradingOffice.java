@@ -14,10 +14,13 @@ import com.google.common.collect.Maps;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
@@ -59,10 +62,7 @@ public class TradingOffice extends SavedData{
 	public static final void RegisterDataType(ResourceLocation key, Supplier<? extends UniversalTraderData> source)
 	{
 		if(registeredDeserializers.containsKey(key))
-		{
 			LightmansCurrency.LogError("A universal trader type of key " + key + " has already been registered.");
-			return;
-		}
 		else
 			registeredDeserializers.put(key, source);
 	}
@@ -73,6 +73,7 @@ public class TradingOffice extends SavedData{
 	
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
+	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
 
 	public static UniversalTraderData Deserialize(CompoundTag compound)
 	{
@@ -89,7 +90,7 @@ public class TradingOffice extends SavedData{
 	
 	public void load(CompoundTag compound) {
 		
-		universalTraderMap.clear();
+		this.universalTraderMap.clear();
 		if(compound.contains("UniversalTraders", Tag.TAG_LIST))
 		{
 			ListTag universalTraderDataList = compound.getList("UniversalTraders", Tag.TAG_COMPOUND);
@@ -102,6 +103,7 @@ public class TradingOffice extends SavedData{
 					universalTraderMap.put(data.getTraderID(), data);
 			});
 		}
+		this.playerTeams.clear();
 		if(compound.contains("Teams", Tag.TAG_LIST))
 		{
 			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
@@ -110,6 +112,21 @@ public class TradingOffice extends SavedData{
 				Team team = Team.load(teamList.getCompound(i));
 				if(team != null)
 					this.playerTeams.put(team.getID(), team);
+			}
+		}
+		this.playerBankAccounts.clear();
+		if(compound.contains("BankAccounts", Tag.TAG_LIST))
+		{
+			ListTag bankAccountList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
+			for(int i = 0; i < bankAccountList.size(); ++i)
+			{
+				CompoundTag accountCompound = bankAccountList.getCompound(i);
+				try {
+					UUID owner = accountCompound.getUUID("Player");
+					BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(owner), accountCompound);
+					if(owner != null && bankAccount != null)
+						this.playerBankAccounts.put(owner, bankAccount);
+				} catch(Exception e) { e.printStackTrace(); }
 			}
 		}
 		
@@ -136,6 +153,14 @@ public class TradingOffice extends SavedData{
 				teamList.add(team.save());
 		});
 		compound.put("Teams", teamList);
+		
+		ListTag bankAccountList = new ListTag();
+		this.playerBankAccounts.forEach((playerID, account) ->{
+			CompoundTag accountNBT = account.save();
+			accountNBT.putUUID("Player", playerID);
+			bankAccountList.add(accountNBT);
+		});
+		compound.put("BankAccounts", bankAccountList);
 		
 		return compound;
 	}
@@ -331,6 +356,49 @@ public class TradingOffice extends SavedData{
 		}
 	}
 	
+	/**
+	 * Gets the bank account for the given player.
+	 * If no account exists for that player, a new one will be created and synced to clients.
+	 */
+	public static BankAccount getBankAccount(Player player) {
+		return getBankAccount(player.getUUID());
+	}
+	
+	/**
+	 * Gets the bank account for the given player.
+	 * If no account exists for that player, a new one will be created and synced to clients.
+	 */
+	public static BankAccount getBankAccount(UUID playerID) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		TradingOffice office = get(server);
+		if(office != null)
+		{
+			if(office.playerBankAccounts.containsKey(playerID))
+				return office.playerBankAccounts.get(playerID);
+			//Create a new bank account for the player;
+			BankAccount newAccount = new BankAccount(() -> MarkBankAccountDirty(playerID));
+			office.playerBankAccounts.put(playerID, newAccount);
+			MarkBankAccountDirty(playerID);
+		}
+		return null;
+	}
+	
+	public static void MarkBankAccountDirty(Player player) { if(player.level.isClientSide) return; MarkBankAccountDirty(player.getUUID()); }
+	
+	public static void MarkBankAccountDirty(UUID playerID)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			get(server).setDirty();
+			//Send update packet to all connected clients
+			BankAccount bankAccount = getBankAccount(playerID);
+			CompoundTag compound = bankAccount.save();
+			compound.putUUID("Player", playerID);
+			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientBank(compound));
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerLevel world = server.getLevel(Level.OVERWORLD);
@@ -361,6 +429,16 @@ public class TradingOffice extends SavedData{
 			office.playerTeams.forEach((id, team) -> teamList.add(team.save()));
 			compound2.put("Teams", teamList);
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound2));
+			
+			CompoundTag compound3 = new CompoundTag();
+			ListTag bankList = new ListTag();
+			office.playerBankAccounts.forEach((id, team) -> {
+				CompoundTag tag = team.save();
+				tag.putUUID("Player", id);
+				bankList.add(tag);
+			});
+			compound3.put("BankAccounts", bankList);
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound3));
 		}
 	}
 	

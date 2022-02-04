@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.menus;
 
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
@@ -16,7 +16,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -33,7 +37,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class WalletMenu extends AbstractContainerMenu{
+public class WalletMenu extends AbstractContainerMenu implements IBankAccountMenu{
 	
 	private static int maxWalletSlots = 0;
 	public static void updateMaxWalletSlots(int slotCount)
@@ -71,10 +75,16 @@ public class WalletMenu extends AbstractContainerMenu{
 	
 	boolean autoConvert = false;
 	
+	private final Player player;
+	public Player getPlayer() { return this.player; }
+	
+	AccountReference accountSource;
+	public BankAccount getAccount() { return accountSource.get(); }
+	
 	public WalletMenu(int windowId, Inventory inventory, int walletStackIndex)
 	{
 		
-		super(ModContainers.WALLET, windowId);
+		super(ModMenus.WALLET, windowId);
 		
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
@@ -84,6 +94,9 @@ public class WalletMenu extends AbstractContainerMenu{
 			WalletCapability.getWalletHandler(this.inventory.player).ifPresent(walletHandler -> container.set(walletHandler.getInventory()));
 			return container.get();
 		});
+		
+		this.player = inventory.player;
+		this.accountSource = BankAccount.GenerateReference(this.player);
 		
 		this.init();
 		
@@ -103,6 +116,8 @@ public class WalletMenu extends AbstractContainerMenu{
 		else
 			this.walletItem = null;
 		
+		int yOffset = this.getVerticalOffset();
+		
 		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
 		for(int i = 0; i < this.coinInput.getContainerSize() && i < walletInventory.size(); i++)
@@ -111,7 +126,7 @@ public class WalletMenu extends AbstractContainerMenu{
 		}
 		
 		//Wallet Slot
-		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6).addListener(this::onWalletSlotChanged);
+		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6 + yOffset).addListener(this::onWalletSlotChanged);
 		if(this.walletStackIndex >= 0)
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
 		newSlots.add(walletSlot);
@@ -124,9 +139,9 @@ public class WalletMenu extends AbstractContainerMenu{
 			{
 				int index = x + (y * 9) + 9;
 				if(index == this.walletStackIndex)
-					newSlots.add(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18));
+					newSlots.add(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18 + yOffset));
 				else
-					newSlots.add(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
+					newSlots.add(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18 + yOffset, this.inventory, this.walletStackIndex));
 			}
 		}
 		
@@ -134,9 +149,9 @@ public class WalletMenu extends AbstractContainerMenu{
 		for(int x = 0; x < 9; x++)
 		{
 			if(x == this.walletStackIndex)
-				newSlots.add(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
+				newSlots.add(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18 + yOffset));
 			else
-				newSlots.add(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+				newSlots.add(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18 + yOffset, this.inventory, this.walletStackIndex));
 		}
 		
 		//Coin Slots last as they may vary between client and server at times.
@@ -144,7 +159,7 @@ public class WalletMenu extends AbstractContainerMenu{
 		{
 			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
 			{
-				newSlots.add(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
+				newSlots.add(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18 + yOffset));
 			}
 		}
 		
@@ -176,6 +191,13 @@ public class WalletMenu extends AbstractContainerMenu{
 	{
 		if(!this.listeners.contains(listener))
 			listeners.add(listener);
+	}
+	
+	public int getVerticalOffset()
+	{
+		if(this.hasBankAccess())
+			return BankAccountWidget.HEIGHT;
+		return 0;
 	}
 	
 	public int getRowCount()
@@ -255,6 +277,11 @@ public class WalletMenu extends AbstractContainerMenu{
 		return WalletItem.CanPickup(walletItem);
 	}
 	
+	public boolean hasBankAccess()
+	{
+		return WalletItem.HasBankAccess(walletItem);
+	}
+	
 	public boolean getAutoConvert()
 	{
 		return this.autoConvert;//WalletItem.getAutoConvert(this.getWallet());
@@ -323,6 +350,12 @@ public class WalletMenu extends AbstractContainerMenu{
 		MoneyUtil.SortCoins(this.coinInput);
 	}
 	
+	@Override
+	public void onDepositOrWithdraw() {
+		if(this.canConvert())
+			this.ConvertCoins();
+	}
+	
 	public ItemStack PickupCoins(ItemStack stack)
 	{
 		
@@ -352,6 +385,11 @@ public class WalletMenu extends AbstractContainerMenu{
 	
 	public interface IWalletMenuListener {
 		public void onReload();
+	}
+	
+	@Override
+	public Container getCoinInput() {
+		return this.coinInput;
 	}
 	
 }

@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.core.ModContainers;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditClose;
@@ -72,7 +72,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	
 	public ItemEditMenu(int windowId, Inventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex)
 	{
-		this(ModContainers.ITEM_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
+		this(ModMenus.ITEM_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
 	}
 	
 	protected ItemEditMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex, ItemTradeData tradeData)

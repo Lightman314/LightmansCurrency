@@ -17,6 +17,8 @@ public interface ITrader extends IPermissions {
 	public Component getName();
 	public Component getTitle();
 	public CoinValue getStoredMoney();
+	public CoinValue getInternalStoredMoney();
+	public void clearStoredMoney();
 	public int getTradeCount();
 	public int getTradeCountLimit();
 	public int getTradeStock(int index);
