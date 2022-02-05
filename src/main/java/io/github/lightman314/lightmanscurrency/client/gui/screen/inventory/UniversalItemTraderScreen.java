@@ -76,7 +76,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 		
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermissions(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.container.hasPermissions(Permissions.COLLECT_COINS) && !this.container.getData().getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -102,7 +102,7 @@ public class UniversalItemTraderScreen extends ContainerScreen<UniversalItemTrad
 		
 		if(this.container.hasPermissions(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.container.getData().getCoreSettings().hasBankAccount();;
 			this.buttonCollectMoney.active = this.container.getData().getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.container.getData().getCoreSettings().isCreative();

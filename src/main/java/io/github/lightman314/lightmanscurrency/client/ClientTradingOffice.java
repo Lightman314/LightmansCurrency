@@ -6,9 +6,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,6 +21,7 @@ public class ClientTradingOffice {
 
 	private static Map<UUID, UniversalTraderData> loadedTraders = new HashMap<>();
 	private static Map<UUID,Team> loadedTeams = new HashMap<>();
+	private static Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
 	
 	public static List<UniversalTraderData> getTraderList()
 	{
@@ -82,6 +86,36 @@ public class ClientTradingOffice {
 	{
 		if(loadedTeams.containsKey(teamID))
 			loadedTeams.remove(teamID);
+	}
+	
+	public static BankAccount getPlayerBankAccount(PlayerEntity player)
+	{
+		return getPlayerBankAccount(player.getUniqueID());
+	}
+	
+	public static BankAccount getPlayerBankAccount(UUID playerID)
+	{
+		if(loadedBankAccounts.containsKey(playerID))
+			return loadedBankAccounts.get(playerID);
+		//Return an empty account until the server notifies us of the new accounts creation.
+		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
+		return new BankAccount();
+		
+	}
+	
+	public static void initBankAccounts(Map<UUID,BankAccount> bankAccounts)
+	{
+		loadedBankAccounts.clear();
+		bankAccounts.forEach((id,account) -> loadedBankAccounts.put(id, account));
+	}
+	
+	public static void updateBankAccount(CompoundNBT compound)
+	{
+		try {
+			UUID owner = compound.getUniqueId("Player");
+			BankAccount account = new BankAccount(compound);
+			loadedBankAccounts.put(owner, account);
+		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
 }

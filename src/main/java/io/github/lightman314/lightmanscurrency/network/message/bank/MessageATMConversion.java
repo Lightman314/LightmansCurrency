@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.network.message.atm;
+package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
@@ -8,33 +8,33 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
-public class MessageATM implements IMessage<MessageATM> {
+public class MessageATMConversion implements IMessage<MessageATMConversion> {
 	
 	private int buttonHit;
 	
-	public MessageATM()
+	public MessageATMConversion()
 	{
 		
 	}
 	
-	public MessageATM(int buttonHit)
+	public MessageATMConversion(int buttonHit)
 	{
 		this.buttonHit = buttonHit;
 	}
 	
 	
 	@Override
-	public void encode(MessageATM message, PacketBuffer buffer) {
+	public void encode(MessageATMConversion message, PacketBuffer buffer) {
 		buffer.writeInt(message.buttonHit);
 	}
 
 	@Override
-	public MessageATM decode(PacketBuffer buffer) {
-		return new MessageATM(buffer.readInt());
+	public MessageATMConversion decode(PacketBuffer buffer) {
+		return new MessageATMConversion(buffer.readInt());
 	}
 
 	@Override
-	public void handle(MessageATM message, Supplier<Context> supplier) {
+	public void handle(MessageATMConversion message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayerEntity entity = supplier.get().getSender();

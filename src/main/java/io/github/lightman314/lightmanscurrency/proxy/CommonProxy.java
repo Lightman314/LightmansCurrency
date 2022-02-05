@@ -21,6 +21,10 @@ public class CommonProxy {
 	
 	public void removeTeam(UUID teamID) {}
 	
+	public void initializeBankAccounts(CompoundNBT compound) {}
+	
+	public void updateBankAccount(CompoundNBT compound) {}
+	
 	public void openTerminalScreen() {}
 	
 	public void openTeamManager() {}

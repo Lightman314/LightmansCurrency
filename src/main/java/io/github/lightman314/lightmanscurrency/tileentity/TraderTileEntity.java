@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
@@ -179,10 +180,21 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	/**
 	 * Gets the amount of stored money.
+	 * If a bank account is linked, it will return the amount stored in the account instead.
 	 */
 	public CoinValue getStoredMoney()
 	{
-		return storedMoney;
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			return account.getCoinStorage().copy();
+		}
+		return this.storedMoney;
+	}
+	
+	public CoinValue getInternalStoredMoney() 
+	{
+		return this.storedMoney;
 	}
 	
 	/**
@@ -190,7 +202,13 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 */
 	public void addStoredMoney(CoinValue addedAmount)
 	{
-		storedMoney.addValue(addedAmount);
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			account.depositCoins(addedAmount);
+			return;
+		}
+		this.storedMoney.addValue(addedAmount);
 		if(!this.world.isRemote)
 		{
 			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
@@ -203,6 +221,12 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 */
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			account.withdrawCoins(removedAmount);
+			return;
+		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
 		if(!this.world.isRemote)

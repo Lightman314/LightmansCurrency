@@ -3,10 +3,10 @@
   "group": "portable_terminal_swap",
   "ingredients": [
     {
-      "item": "lightmanscurrency:terminal"
+      "item": "lightmanscurrency:portable_terminal"
     }
   ],
   "result": {
-    "item": "lightmanscurrency:portable_terminal"
+    "item": "lightmanscurrency:terminal"
   }
 }

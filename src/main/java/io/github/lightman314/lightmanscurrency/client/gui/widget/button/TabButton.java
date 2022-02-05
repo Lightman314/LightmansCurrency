@@ -22,6 +22,8 @@ public class TabButton extends Button{
 	
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/tradersettings.png");
 	
+	public static final int SIZE = 25;
+	
 	public final ITab tab;
 	private final FontRenderer font;
 	
@@ -29,7 +31,7 @@ public class TabButton extends Button{
 	
 	public TabButton(IPressable pressable, FontRenderer font, ITab tab)
 	{
-		super(0, 0, 25, 25, new StringTextComponent(""), pressable);
+		super(0, 0, SIZE, SIZE, new StringTextComponent(""), pressable);
 		this.font = font;
 		this.tab = tab;
 	}

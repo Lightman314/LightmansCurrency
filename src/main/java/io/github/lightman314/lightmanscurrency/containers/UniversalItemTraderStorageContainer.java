@@ -277,6 +277,8 @@ public class UniversalItemTraderStorageContainer extends UniversalContainer impl
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.getData().getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

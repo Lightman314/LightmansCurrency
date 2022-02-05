@@ -23,12 +23,11 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
@@ -37,7 +36,7 @@ import net.minecraft.world.World;
 
 public class ATMBlock extends RotatableBlock{
 	
-	private static final TranslationTextComponent TITLE = new TranslationTextComponent("gui.lightmanscurrency.atm.title");
+	//private static final TranslationTextComponent TITLE = new TranslationTextComponent("gui.lightmanscurrency.atm.title");
 	
 	private static final VoxelShape SHAPE_BOTTOM = makeCuboidShape(0d,0d,0d,16d,32d,16d);
 	private static final VoxelShape SHAPE_TOP = makeCuboidShape(0d,-16d,0d,16d,16d,16d);
@@ -149,7 +148,7 @@ public class ATMBlock extends RotatableBlock{
 	@Override
 	public INamedContainerProvider getContainer(BlockState state, World world, BlockPos pos)
 	{
-		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new ATMContainer(windowId, playerInventory, IWorldPosCallable.of(world,pos));}, TITLE);
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> { return new ATMContainer(windowId, playerInventory);}, new StringTextComponent(""));
 	}
 	
 	

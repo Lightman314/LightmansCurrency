@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.client.renderer.tileentity.*;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
@@ -82,6 +84,7 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
     	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
+    	TradeRuleScreen.RegisterTradeRule(() -> new TradeLimit());
     	
     	//Register ClientEvents
     	//MinecraftForge.EVENT_BUS.register(new ClientEvents());
@@ -158,6 +161,30 @@ public class ClientProxy extends CommonProxy{
 	public void removeTeam(UUID teamID)
 	{
 		ClientTradingOffice.removeTeam(teamID);
+	}
+	
+	@Override
+	public void initializeBankAccounts(CompoundNBT compound)
+	{
+		if(compound.contains("BankAccounts", Constants.NBT.TAG_LIST))
+		{
+			Map<UUID,BankAccount> bank = new HashMap<>();
+			ListNBT bankList = compound.getList("BankAccounts", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < bankList.size(); ++i)
+			{
+				CompoundNBT tag = bankList.getCompound(i);
+				UUID id = tag.getUniqueId("Player");
+				BankAccount bankAccount = new BankAccount(tag);
+				bank.put(id, bankAccount);
+			}
+			ClientTradingOffice.initBankAccounts(bank);
+		}
+	}
+	
+	@Override
+	public void updateBankAccount(CompoundNBT compound)
+	{
+		ClientTradingOffice.updateBankAccount(compound);
 	}
 	
 	@Override

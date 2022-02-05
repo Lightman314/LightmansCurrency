@@ -13,6 +13,7 @@ public class Permissions {
 	public static final String EDIT_PERMISSIONS = "editPermissions";
 	public static final String CLEAR_LOGS = "clearLogs";
 	public static final String BREAK_TRADER = "breakTrader";
+	public static final String BANK_LINK = "bankLink";
 	public static final String TRANSFER_OWNERSHIP = "transferOwnership";
 	
 	//Item Trader

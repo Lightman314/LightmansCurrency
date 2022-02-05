@@ -18,14 +18,20 @@ import net.minecraft.util.text.StringTextComponent;
 public class TeamSelectWidget extends Widget {
 
 	private final int rows;
+	private final boolean narrow;
 	private final Supplier<List<Team>> teamSource;
 	private final Supplier<Team> selectedTeam;
 	private final Consumer<Integer> onPress;
 	private List<TeamButton> teamButtons = Lists.newArrayList();
 	
 	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, TeamButton.WIDTH, TeamButton.HEIGHT * rows, new StringTextComponent(""));
+		this(x,y,rows, false, teamSource, selectedTeam, onPress);
+	}
+	
+	public TeamSelectWidget(int x, int y, int rows, boolean narrow, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
+		super(x, y, narrow ? TeamButton.NARROW_WIDTH : TeamButton.WIDTH, TeamButton.HEIGHT * rows, new StringTextComponent(""));
 		this.rows = rows;
+		this.narrow = narrow;
 		this.teamSource = teamSource;
 		this.selectedTeam = selectedTeam;
 		this.onPress = onPress;
@@ -36,7 +42,7 @@ public class TeamSelectWidget extends Widget {
 		for(int i = 0; i < this.rows; ++i)
 		{
 			int index = i;
-			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
+			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this.narrow, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
 			this.teamButtons.add(button);
 			addButton.accept(button);
 		}

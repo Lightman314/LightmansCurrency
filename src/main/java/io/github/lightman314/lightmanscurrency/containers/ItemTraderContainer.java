@@ -480,6 +480,8 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

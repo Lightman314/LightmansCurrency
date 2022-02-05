@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network;
 
 import io.github.lightman314.lightmanscurrency.network.message.*;
-import io.github.lightman314.lightmanscurrency.network.message.atm.*;
+import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
@@ -49,7 +49,11 @@ public class LightmansCurrencyPacketHandler {
 				.serverAcceptedVersions(PROTOCOL_VERSION::equals)
 				.simpleChannel();
 		//ATM
-		register(MessageATM.class, new MessageATM());
+		register(MessageATMConversion.class, new MessageATMConversion());
+		register(MessageATMSetAccount.class, MessageATMSetAccount::encode, MessageATMSetAccount::decode, MessageATMSetAccount::handle);
+		register(MessageBankInteraction.class, MessageBankInteraction::encode, MessageBankInteraction::decode, MessageBankInteraction::handle);
+		register(MessageInitializeClientBank.class, MessageInitializeClientBank::encode, MessageInitializeClientBank::decode, MessageInitializeClientBank::handle);
+		register(MessageUpdateClientBank.class, MessageUpdateClientBank::encode, MessageUpdateClientBank::decode, MessageUpdateClientBank::handle);
 		
 		//Coinmint
 		register(MessageMintCoin.class, new MessageMintCoin());
@@ -115,6 +119,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenTeamManager.class, MessageOpenTeamManager::encode, MessageOpenTeamManager::decode, MessageOpenTeamManager::handle);
 		register(MessageCreateTeam.class, MessageCreateTeam::encode, MessageCreateTeam::decode, MessageCreateTeam::handle);
 		register(MessageCreateTeamResponse.class, MessageCreateTeamResponse::encode, MessageCreateTeamResponse::decode, MessageCreateTeamResponse::handle);
+		register(MessageCreateTeamBankAccount.class, MessageCreateTeamBankAccount::encode, MessageCreateTeamBankAccount::decode, MessageCreateTeamBankAccount::handle);
+		register(MessageSetTeamBankLimit.class, MessageSetTeamBankLimit::encode, MessageSetTeamBankLimit::decode, MessageSetTeamBankLimit::handle);
 		
 		//Logger
 		register(MessageClearLogger.class, new MessageClearLogger());

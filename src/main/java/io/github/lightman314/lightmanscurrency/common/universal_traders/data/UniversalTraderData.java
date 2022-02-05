@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
@@ -53,7 +54,15 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	RegistryKey<World> world = World.OVERWORLD;
 	public RegistryKey<World> getWorld() { return this.world; }
 	CoinValue storedMoney = new CoinValue();
-	public CoinValue getStoredMoney() { return this.storedMoney; }
+	public CoinValue getStoredMoney() {
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			return account.getCoinStorage().copy();
+		}
+		return this.storedMoney;
+	}
+	public CoinValue getInternalStoredMoney() { return this.storedMoney; }
 	
 	private boolean isServer = true;
 	public final boolean isServer() { return this.isServer; }
@@ -126,12 +135,24 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	
 	public void addStoredMoney(CoinValue amount)
 	{
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			account.depositCoins(amount);
+			return;
+		}
 		this.storedMoney.addValue(amount);
 		this.markDirty(this::writeStoredMoney);
 	}
 	
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
+		if(this.coreSettings.hasBankAccount())
+		{
+			BankAccount account = this.coreSettings.getBankAccount();
+			account.withdrawCoins(removedAmount);
+			return;
+		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
 		this.markDirty(this::writeStoredMoney);

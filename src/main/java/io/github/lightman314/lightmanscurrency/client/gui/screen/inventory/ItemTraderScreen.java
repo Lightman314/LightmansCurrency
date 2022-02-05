@@ -155,7 +155,7 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 		
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -180,7 +180,7 @@ public class ItemTraderScreen extends ContainerScreen<ItemTraderContainer>{
 		this.buttonShowStorage.visible = this.container.hasPermission(Permissions.OPEN_STORAGE);
 		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().hasBankAccount();
 			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().isCreative();

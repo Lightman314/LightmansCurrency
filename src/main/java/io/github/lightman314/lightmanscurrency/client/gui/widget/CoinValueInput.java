@@ -24,6 +24,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 public class CoinValueInput extends Widget{
 
@@ -38,10 +39,18 @@ public class CoinValueInput extends Widget{
 	Button toggleFree;
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
+	private ITextComponent title;
+	public void setTitle(ITextComponent title) { this.title = title; }
+	
+	public boolean allowFreeToggle = true;
+	
+	public boolean drawBG = true;
+	
 	
 	public CoinValueInput(int y, ITextComponent title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
-		super(0, y, calculateWidth(), HEIGHT, title);
+		super(0, y, calculateWidth(), HEIGHT, new StringTextComponent(""));
+		this.title = title;
 		
 		if(this.width == parent.getWidth())
 			this.leftOffset = 0;
@@ -55,7 +64,7 @@ public class CoinValueInput extends Widget{
 		
 	}
 	
-	protected void init()
+	private void init()
 	{
 		
 		this.toggleFree = this.parent.addButton(new PlainButton(this.leftOffset  + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
@@ -79,7 +88,7 @@ public class CoinValueInput extends Widget{
 		//Match the buttons visibility to our visibility.
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
 		this.decreaseButtons.forEach(button -> button.visible = this.visible);
-		this.toggleFree.visible = this.visible;
+		this.toggleFree.visible = this.allowFreeToggle && this.visible;
 		if(!this.visible) //If not visible, render nothing
 			return;
 		
@@ -87,22 +96,27 @@ public class CoinValueInput extends Widget{
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
-		//Render the left edge
-		this.blit(matrixStack, startX, startY, 0, 0, 10, HEIGHT);
 		List<CoinData> coinData = MoneyUtil.getAllData();
 		int buttonCount = coinData.size();
-		//Render each column & spacer
-		for(int x = 0; x < buttonCount; x++)
-		{
-			//Render the button column;
-			this.blit(matrixStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
-			//Render the in-between button spacer
-			if(x < (buttonCount - 1)) //Don't render the last spacer
-				this.blit(matrixStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
-		}
 		
-		//Render the right edge
-		this.blit(matrixStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
+		if(this.drawBG)
+		{
+			//Render the left edge
+			this.blit(matrixStack, startX, startY, 0, 0, 10, HEIGHT);
+			
+			//Render each column & spacer
+			for(int x = 0; x < buttonCount; x++)
+			{
+				//Render the button column;
+				this.blit(matrixStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
+				//Render the in-between button spacer
+				if(x < (buttonCount - 1)) //Don't render the last spacer
+					this.blit(matrixStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+			}
+			
+			//Render the right edge
+			this.blit(matrixStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
+		}
 		
 		//Draw the coins initial & sprite
 		for(int x = 0; x < buttonCount; x++)
@@ -116,11 +130,12 @@ public class CoinValueInput extends Widget{
 			
 		}
 		//Render the title
-		this.parent.getFont().drawString(matrixStack, this.getMessage().getString(), startX + 8F, startY + 5F, 0x404040);
+		this.parent.getFont().drawString(matrixStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
 		String value = this.coinValue.getString();
 		int priceWidth = this.parent.getFont().getStringWidth(value);
-		this.parent.getFont().drawString(matrixStack, value, startX + this.width - 15f - priceWidth, startY + 5f, 0x404040);
+		int freeButtonOffset = this.allowFreeToggle ? 15 : 5;
+		this.parent.getFont().drawString(matrixStack, value, startX + this.width - freeButtonOffset - priceWidth, startY + 5f, 0x404040);
 		
 	}
 	
@@ -231,6 +246,11 @@ public class CoinValueInput extends Widget{
 	public CoinValue getCoinValue()
 	{
 		return this.coinValue;
+	}
+	
+	public void setCoinValue(CoinValue newValue)
+	{
+		this.coinValue = newValue.copy();
 	}
 	
 	public static interface ICoinValueInput

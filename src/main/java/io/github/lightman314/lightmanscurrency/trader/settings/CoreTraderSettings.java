@@ -19,11 +19,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.permissions.PermissionsList;
 import io.github.lightman314.lightmanscurrency.trader.permissions.options.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.trader.permissions.options.PermissionOption;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -46,6 +49,7 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	private static final String UPDATE_TEAM = "changeTeam";
+	private static final String UPDATE_BANK_LINK = "bankLink";
 	
 	public static PermissionsList getAllyDefaultPermissions(@Nonnull ITrader trader)
 	{
@@ -107,6 +111,27 @@ public class CoreTraderSettings extends Settings{
 	//Creative Mode
 	boolean isCreative = false;
 	
+	//Bank Account Link
+	boolean bankAccountLinked = false;
+	public boolean canLinkBankAccount() {
+		Team t = this.getTeam();
+		if(t != null)
+			return t.hasBankAccount();
+		return true;
+	}
+	public boolean isBankAccountLinked() { return this.bankAccountLinked; }
+	public boolean hasBankAccount() { return this.getBankAccount() != null; }
+	public BankAccount getBankAccount() {
+		if(!this.bankAccountLinked)
+			return null;
+		Team t = this.getTeam();
+		if(t != null)
+			return t.getBankAccount();
+		else if(this.owner != null)
+			return BankAccount.GenerateReference(this.trader.isClient(), AccountType.Player, this.owner.id).get();
+		return null;
+	}
+	
 	SettingsLogger logger = new SettingsLogger();
 	
 	public CoreTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(trader, marker, sendToServer, TYPE); }
@@ -153,6 +178,10 @@ public class CoreTraderSettings extends Settings{
 			if(this.owner != null && oldTeam != null)
 				this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
 			
+			//Reset the bank link when the owner is changed
+			if(this.bankAccountLinked)
+				this.bankAccountLinked = false;
+			
 			CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 			updateInfo.putString("newOwner", newOwnerName);
 			return updateInfo;
@@ -172,6 +201,10 @@ public class CoreTraderSettings extends Settings{
 					this.logger.LogOwnerChange(requestor, oldOwner, this.owner);
 				else
 					this.logger.LogTeamChange(requestor, this.owner, oldTeam, null);
+				
+				//Reset the bank link when the owner is changed
+				if(this.bankAccountLinked)
+					this.bankAccountLinked = false;
 				
 				CompoundNBT updateInfo = initUpdateInfo(UPDATE_OWNERSHIP);
 				updateInfo.putString("newOwner", newOwnerName);
@@ -203,6 +236,10 @@ public class CoreTraderSettings extends Settings{
 		Team newTeam = this.getTeam();
 		
 		this.logger.LogTeamChange(requestor, this.owner, oldTeam, newTeam);
+		
+		//Reset the bank link when the owner is changed
+		if(this.bankAccountLinked)
+			this.bankAccountLinked = false;
 		
 		CompoundNBT updateInfo = initUpdateInfo(UPDATE_TEAM);
 		if(newTeamID != null)
@@ -347,6 +384,31 @@ public class CoreTraderSettings extends Settings{
 		return updateInfo;
 	}
 	
+	public CompoundNBT toggleBankAccountLink(PlayerEntity requestor)
+	{
+		if(!this.hasPermission(requestor, Permissions.BANK_LINK))
+		{
+			PermissionWarning(requestor, "toggle bank account link", Permissions.BANK_LINK);
+			return null;
+		}
+		boolean sendValue = !this.bankAccountLinked;
+		if(this.bankAccountLinked || this.canLinkBankAccount())
+		{
+			this.bankAccountLinked = !this.bankAccountLinked;
+			//Push any currently stored money into the bank account.
+			if(this.bankAccountLinked && this.getBankAccount() != null && this.trader.getInternalStoredMoney().getRawValue() > 0)
+			{
+				CoinValue money = this.trader.getInternalStoredMoney();
+				this.getBankAccount().depositCoins(money);
+				this.trader.clearStoredMoney();
+			}
+		}
+		
+		CompoundNBT result = initUpdateInfo(UPDATE_BANK_LINK);
+		result.putBoolean("IsLinked", sendValue);
+		return result;
+	}
+	
 	public SettingsLogger getLogger() { return this.logger; }
 	
 	@Override
@@ -406,6 +468,16 @@ public class CoreTraderSettings extends Settings{
 			if(result != null)
 				this.markDirty();
 		}
+		else if(this.isUpdateType(updateInfo, UPDATE_BANK_LINK))
+		{
+			boolean newValue = updateInfo.getBoolean("IsLinked");
+			if(newValue != this.bankAccountLinked)
+			{
+				CompoundNBT result = this.toggleBankAccountLink(requestor);
+				if(result != null)
+					this.markDirty();
+			}
+		}
 	}
 	
 	public CompoundNBT save(CompoundNBT compound)
@@ -418,6 +490,7 @@ public class CoreTraderSettings extends Settings{
 		this.saveCustomPermissions(compound);
 		this.saveCustomName(compound);
 		this.saveCreative(compound);
+		this.saveBankAccountLink(compound);
 		this.saveLogger(compound);
 		
 		return compound;
@@ -474,6 +547,12 @@ public class CoreTraderSettings extends Settings{
 	public CompoundNBT saveCreative(CompoundNBT compound)
 	{
 		compound.putBoolean("Creative", this.isCreative);
+		return compound;
+	}
+	
+	public CompoundNBT saveBankAccountLink(CompoundNBT compound)
+	{
+		compound.putBoolean("BankLink", this.bankAccountLinked);
 		return compound;
 	}
 	
@@ -595,6 +674,10 @@ public class CoreTraderSettings extends Settings{
 		//Creative
 		if(compound.contains("Creative"))
 			this.isCreative = compound.getBoolean("Creative");
+		
+		//Bank Account Link
+		if(compound.contains("BankLink"))
+			this.bankAccountLinked = compound.getBoolean("BankLink");
 		
 		//Logger
 		this.logger.read(compound);

@@ -14,11 +14,11 @@ public class CoinSlot extends Slot{
 	
 	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_coin_slot");
 	
-	private boolean acceptHiddenCoins = true;
+	private boolean acceptHiddenCoins;
 	
 	public CoinSlot(IInventory inventory, int index, int x, int y)
 	{
-		super(inventory, index, x, y);
+		this(inventory, index, x, y, true);
 	}
 	
 	public CoinSlot(IInventory inventory, int index, int x, int y, boolean acceptHiddenCoins)

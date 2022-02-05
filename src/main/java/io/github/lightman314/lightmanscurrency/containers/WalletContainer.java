@@ -15,7 +15,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -32,7 +36,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class WalletContainer extends Container{
+public class WalletContainer extends Container implements IBankAccountMenu{
 	
 	private final int walletStackIndex;
 	public int getWalletIndex()
@@ -59,6 +63,12 @@ public class WalletContainer extends Container{
 	
 	boolean autoConvert = false;
 	
+	private final PlayerEntity player;
+	public PlayerEntity getPlayer() { return this.player; }
+	
+	AccountReference accountSource;
+	public BankAccount getAccount() { return accountSource.get(); }
+	
 	int width = 0;
 	public int getWidth() { return this.width; }
 	int height = 0;
@@ -83,6 +93,9 @@ public class WalletContainer extends Container{
 			inventory.player.closeScreen();
 		}
 		
+		this.player = inventory.player;
+		this.accountSource = BankAccount.GenerateReference(this.player);
+		
 		this.init();
 		
 		//Register at the end to ensure that the player inventory & walletSlotIndex have been set.
@@ -102,6 +115,8 @@ public class WalletContainer extends Container{
 		else
 			this.walletItem = null;
 		
+		int yOffset = this.getVerticalOffset();
+		
 		this.coinInput = new Inventory(WalletItem.InventorySize(this.walletItem));
 		NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(getWallet());
 		for(int i = 0; i < this.coinInput.getSizeInventory() && i < walletInventory.size(); i++)
@@ -110,7 +125,7 @@ public class WalletContainer extends Container{
 		}
 		
 		//Wallet Slot
-		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6).addListener(this::init);
+		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6 + yOffset).addListener(this::init);
 		if(this.walletStackIndex >= 0)
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
 		this.addSlot(walletSlot);
@@ -121,9 +136,9 @@ public class WalletContainer extends Container{
 			for(int x = 0; x < 9; x++)
 			{
 				if((x + (y * 9) + 9) == this.walletStackIndex)
-					this.addSlot(new DisplaySlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18));
+					this.addSlot(new DisplaySlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18 + yOffset));
 				else
-					this.addSlot(new BlacklistSlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
+					this.addSlot(new BlacklistSlot(inventory, x + y * 9 + 9, 8 + x * 18, 32 + (y + getRowCount()) * 18 + yOffset, this.inventory, this.walletStackIndex));
 			}
 		}
 		
@@ -131,9 +146,9 @@ public class WalletContainer extends Container{
 		for(int x = 0; x < 9; x++)
 		{
 			if(x == this.walletStackIndex)
-				this.addSlot(new DisplaySlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
+				this.addSlot(new DisplaySlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18 + yOffset));
 			else
-				this.addSlot(new BlacklistSlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+				this.addSlot(new BlacklistSlot(inventory, x, 8 + x * 18, 90 + getRowCount() * 18 + yOffset, this.inventory, this.walletStackIndex));
 		}
 		
 		//Coinslots
@@ -141,7 +156,7 @@ public class WalletContainer extends Container{
 		{
 			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getSizeInventory(); x++)
 			{
-				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18));
+				this.addSlot(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18 + yOffset));
 			}
 		}
 		
@@ -155,6 +170,13 @@ public class WalletContainer extends Container{
 	{
 		if(!listeners.contains(listener))
 			listeners.add(listener);
+	}
+	
+	public int getVerticalOffset()
+	{
+		if(this.hasBankAccess())
+			return BankAccountWidget.HEIGHT;
+		return 0;
 	}
 	
 	public int getRowCount()
@@ -224,6 +246,11 @@ public class WalletContainer extends Container{
 		return WalletItem.CanPickup(walletItem);
 	}
 	
+	public boolean hasBankAccess()
+	{
+		return WalletItem.HasBankAccess(walletItem);
+	}
+	
 	public boolean getAutoConvert()
 	{
 		return this.autoConvert;//WalletItem.getAutoConvert(this.getWallet());
@@ -290,6 +317,12 @@ public class WalletContainer extends Container{
 		MoneyUtil.SortCoins(this.coinInput);
 	}
 	
+	@Override
+	public void onDepositOrWithdraw() {
+		if(this.canConvert())
+			this.ConvertCoins();
+	}
+	
 	public ItemStack PickupCoins(ItemStack stack)
 	{
 		
@@ -318,5 +351,10 @@ public class WalletContainer extends Container{
 	}
 	
 	public interface IWalletContainerListener { public void onReload(); }
+	
+	@Override
+	public IInventory getCoinInput() {
+		return this.coinInput;
+	}
 	
 }

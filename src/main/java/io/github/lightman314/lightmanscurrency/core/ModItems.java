@@ -36,6 +36,7 @@ public class ModItems {
 	public static final WalletItem WALLET_NETHERITE = register("wallet_netherite", new WalletItem(5, 36, "wallet_netherite", new Item.Properties().group(LightmansCurrency.COIN_GROUP).maxStackSize(1).isImmuneToFire()));
 	
 	public static final Item PORTABLE_TERMINAL = register("portable_terminal", new PortableTerminalItem(new Item.Properties().group(LightmansCurrency.MACHINE_GROUP).maxStackSize(1)));
+	public static final Item PORTABLE_ATM = register("portable_atm", new PortableATMItem(new Item.Properties().group(LightmansCurrency.MACHINE_GROUP).maxStackSize(1)));
 	
 	//Hidden item
 	public static final Item FREEZER_DOOR = register("freezer_door", new Item(new Item.Properties()));

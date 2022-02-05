@@ -1,48 +1,41 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ATMTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ConversionTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.InteractionTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.atm.MessageATM;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-public class ATMScreen extends ContainerScreen<ATMContainer>{
+public class ATMScreen extends ContainerScreen<ATMContainer> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
-	private static final int LARGEBUTTON_WIDTH = 82;
-	private static final int LARGEBUTTON_HEIGHT = 18;
+	public FontRenderer getFont() { return this.font; }
 	
-	private static final int SMALLBUTTON_WIDTH = 26;
-	private static final int SMALLBUTTON_HEIGHT = 18;
+	int currentTabIndex = 0;
+	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this));
+	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	//Large Buttons
-	private Button buttonConvertAllUp;
-	private Button buttonConvertAllDown;
-	//Small Buttons
-	//Copper & Iron
-	private Button buttonConvertCopperToIron;
-	private Button buttonConvertIronToCopper;
-	//Iron & Gold
-	private Button buttonConvertIronToGold;
-	private Button buttonConvertGoldToIron;
-	//Gold & Emerald
-	private Button buttonConvertGoldToEmerald;
-	private Button buttonConvertEmeraldToGold;
-	//Emerald & Diamond
-	private Button buttonConvertEmeraldToDiamond;
-	private Button buttonConvertDiamondToEmerald;
-	//Diamond & Netherrite
-	private Button buttonConvertDiamondToNetherrite;
-	private Button buttonConvertNetherriteToDiamond;
+	List<Widget> tabWidgets = Lists.newArrayList();
+	List<IGuiEventListener> tabListeners = Lists.newArrayList();
+	
+	List<TabButton> tabButtons = Lists.newArrayList();
 	
 	public ATMScreen(ATMContainer container, PlayerInventory inventory, ITextComponent title)
 	{
@@ -66,7 +59,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer>{
 	@Override
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, this.title.getString(), 8.0f, 4.0f, 0x404040);
+		this.font.drawString(matrix, this.currentTab().getTooltip().getString(), 8.0f, 4.0f, 0x404040);
 		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
 	}
 	
@@ -74,34 +67,17 @@ public class ATMScreen extends ContainerScreen<ATMContainer>{
 	protected void init()
 	{
 		super.init();
-		//Large Buttons
-		this.buttonConvertAllUp = this.addButton(new PlainButton(this.guiLeft + 5, this.guiTop + 13, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, 0, this.ySize));
-		this.buttonConvertAllDown = this.addButton(new PlainButton(this.guiLeft + 89, this.guiTop + 13, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, LARGEBUTTON_WIDTH, this.ySize));
 		
-		//Small Buttons
-		//Copper & Iron
-		this.buttonConvertIronToCopper = this.addButton(new PlainButton(this.guiLeft + 6, this.guiTop + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize, 0));
-		this.buttonConvertCopperToIron = this.addButton(new PlainButton(this.guiLeft + 6, this.guiTop + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize + SMALLBUTTON_WIDTH, 0));
-		//Iron & Gold
-		this.buttonConvertGoldToIron = this.addButton(new PlainButton(this.guiLeft + 41, this.guiTop + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize, 2 * SMALLBUTTON_HEIGHT));
-		this.buttonConvertIronToGold = this.addButton(new PlainButton(this.guiLeft + 41, this.guiTop + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize + SMALLBUTTON_WIDTH, 2 * SMALLBUTTON_HEIGHT));
-		//Gold & Emerald
-		this.buttonConvertEmeraldToGold = this.addButton(new PlainButton(this.guiLeft + 75, this.guiTop + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize, 4 * SMALLBUTTON_HEIGHT));
-		this.buttonConvertGoldToEmerald = this.addButton(new PlainButton(this.guiLeft + 75, this.guiTop + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize + SMALLBUTTON_WIDTH, 4 * SMALLBUTTON_HEIGHT));
-		//Emerald & Diamond
-		this.buttonConvertDiamondToEmerald = this.addButton(new PlainButton(this.guiLeft + 109, this.guiTop + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize, 6 * SMALLBUTTON_HEIGHT));
-		this.buttonConvertEmeraldToDiamond = this.addButton(new PlainButton(this.guiLeft + 109, this.guiTop + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize + SMALLBUTTON_WIDTH, 6 * SMALLBUTTON_HEIGHT));
-		//Diamond & Netherrite
-		this.buttonConvertNetherriteToDiamond = this.addButton(new PlainButton(this.guiLeft + 144, this.guiTop + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize, 8 * SMALLBUTTON_HEIGHT));
-		this.buttonConvertDiamondToNetherrite = this.addButton(new PlainButton(this.guiLeft + 144, this.guiTop + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::pressButton , GUI_TEXTURE, this.xSize + SMALLBUTTON_WIDTH, 8 * SMALLBUTTON_HEIGHT));
+		for(int i = 0; i < this.tabs.size(); ++i)
+		{
+			TabButton button = this.addButton(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
+			button.reposition(this.guiLeft - TabButton.SIZE, this.guiTop + i * TabButton.SIZE, 3);
+			button.active = i != this.currentTabIndex;
+			this.tabButtons.add(button);
+		}
 		
+		this.currentTab().init();
 		
-	}
-	
-	@Override
-	public void tick()
-	{
-		super.tick();
 	}
 	
 	@Override
@@ -109,72 +85,94 @@ public class ATMScreen extends ContainerScreen<ATMContainer>{
 	{
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
+		
+		//Render the current tab
+		try {
+			this.currentTab().preRender(matrixStack, mouseX, mouseY, partialTicks);
+			this.tabWidgets.forEach(widget -> widget.render(matrixStack, mouseX, mouseY, partialTicks));
+			this.currentTab().postRender(matrixStack, mouseX, mouseY);
+		} catch(Exception e) { e.printStackTrace(); }
+		
 		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
+		
+		//Render the tab button tooltips
+		for(int i = 0; i < this.tabButtons.size(); ++i)
+		{
+			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
+				this.renderTooltip(matrixStack, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		}
 	}
 	
-	private void pressButton(Button button)
+	public void changeTab(int tabIndex)
 	{
-		int buttonInput = 0;
-		if(button == buttonConvertAllUp)
-		{
-			buttonInput = 100;
-			//CurrencyMod.LOGGER.info("Hit ConvertAllUp button!");
-		}
-		else if(button == buttonConvertAllDown)
-		{
-			buttonInput = -100;
-			//CurrencyMod.LOGGER.info("Hit ConvertAllDown button!");
-		}
-		else if(button == buttonConvertCopperToIron)
-		{
-			buttonInput = 1;
-		}
-		else if(button == buttonConvertIronToCopper)
-		{
-			buttonInput = -1;
-		}
-		else if(button == buttonConvertIronToGold)
-		{
-			buttonInput = 2;
-		}
-		else if(button == buttonConvertGoldToIron)
-		{
-			buttonInput = -2;
-		}
-		else if(button == buttonConvertGoldToEmerald)
-		{
-			buttonInput = 3;
-		}
-		else if(button == buttonConvertEmeraldToGold)
-		{
-			buttonInput = -3;
-		}
-		else if(button == buttonConvertEmeraldToDiamond)
-		{
-			buttonInput = 4;
-		}
-		else if(button == buttonConvertDiamondToEmerald)
-		{
-			buttonInput = -4;
-		}
-		else if(button == buttonConvertDiamondToNetherrite)
-		{
-			buttonInput = 5;
-		}
-		else if(button == buttonConvertNetherriteToDiamond)
-		{
-			buttonInput = -5;
-		}
+		int oldTab = this.currentTabIndex;
+		//Close the old tab
+		this.currentTab().onClose();
+		this.tabButtons.get(this.currentTabIndex).active = true;
+		this.currentTabIndex = tabIndex;
+		this.tabButtons.get(this.currentTabIndex).active = false;
 		
-		if(buttonInput != 0)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageATM(buttonInput));
-		}
-		else
-		{
-			LightmansCurrency.LogError("Unknown Button was hit for on the ATM Screen.");
-		}
+		LightmansCurrency.LogInfo("Changed from tab " + oldTab + " to tab " + this.currentTabIndex + ".");
+		LightmansCurrency.LogInfo(this.tabWidgets.size() + " tab widgets & " + this.tabListeners.size() + " tab listeners were present.");
 		
+		//Clear the previous tabs widgets
+		this.tabWidgets.clear();
+		this.tabListeners.clear();
+		
+		//Initialize the new tab
+		this.currentTab().init();
+		
+		LightmansCurrency.LogInfo(this.tabWidgets.size() + " tab widgets & " + this.tabListeners.size() + " tab listeners are now present.");
+		
+	}
+	
+	private void clickedOnTab(Button tab)
+	{
+		int tabIndex = this.tabButtons.indexOf(tab);
+		if(tabIndex < 0)
+			return;
+		this.changeTab(tabIndex);
+	}
+	
+	public void tick()
+	{
+		this.currentTab().tick();
+	}
+	
+	public <T extends Widget> T addRenderableTabWidget(T widget)
+	{
+		this.tabWidgets.add(widget);
+		return widget;
+	}
+	
+	public void removeRenderableTabWidget(Widget widget)
+	{
+		if(this.tabWidgets.contains(widget))
+			this.tabWidgets.remove(widget);
+	}
+	
+	public <T extends IGuiEventListener> T addTabListener(T listener)
+	{
+		this.tabListeners.add(listener);
+		return listener;
+	}
+	
+	public void removeTabListener(IGuiEventListener listener)
+	{
+		if(this.tabListeners.contains(listener))
+			this.tabListeners.remove(listener);
+	}
+	
+	@Override
+	public List<? extends IGuiEventListener> getEventListeners()
+	{
+		List<? extends IGuiEventListener> coreListeners = super.getEventListeners();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
+		for(int i = 0; i < coreListeners.size(); ++i)
+			listeners.add(coreListeners.get(i));
+		listeners.addAll(this.tabWidgets);
+		listeners.addAll(this.tabListeners);
+		return listeners;
 	}
 	
 }

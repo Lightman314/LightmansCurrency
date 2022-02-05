@@ -13,10 +13,13 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
@@ -69,6 +72,7 @@ public class TradingOffice extends WorldSavedData{
 	
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
+	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
 	
 	public TradingOffice()
 	{
@@ -98,7 +102,7 @@ public class TradingOffice extends WorldSavedData{
 	@Override
 	public void read(CompoundNBT compound) {
 		
-		universalTraderMap.clear();
+		this.universalTraderMap.clear();
 		if(compound.contains("UniversalTraders", Constants.NBT.TAG_LIST))
 		{
 			ListNBT universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
@@ -111,6 +115,7 @@ public class TradingOffice extends WorldSavedData{
 					universalTraderMap.put(data.getTraderID(), data);
 			});
 		}
+		this.playerTeams.clear();
 		if(compound.contains("Teams", Constants.NBT.TAG_LIST))
 		{
 			ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
@@ -119,6 +124,21 @@ public class TradingOffice extends WorldSavedData{
 				Team team = Team.load(teamList.getCompound(i));
 				if(team != null)
 					this.playerTeams.put(team.getID(), team);
+			}
+		}
+		this.playerBankAccounts.clear();
+		if(compound.contains("BankAccounts", Constants.NBT.TAG_LIST))
+		{
+			ListNBT bankAccountList = compound.getList("BankAccounts", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < bankAccountList.size(); ++i)
+			{
+				CompoundNBT accountCompound = bankAccountList.getCompound(i);
+				try {
+					UUID owner = accountCompound.getUniqueId("Player");
+					BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(owner), accountCompound);
+					if(owner != null && bankAccount != null)
+						this.playerBankAccounts.put(owner, bankAccount);
+				} catch(Exception e) { e.printStackTrace(); }
 			}
 		}
 		
@@ -144,6 +164,14 @@ public class TradingOffice extends WorldSavedData{
 				teamList.add(team.save());
 		});
 		compound.put("Teams", teamList);
+		
+		ListNBT bankAccountList = new ListNBT();
+		this.playerBankAccounts.forEach((playerID, account) ->{
+			CompoundNBT accountNBT = account.save();
+			accountNBT.putUniqueId("Player", playerID);
+			bankAccountList.add(accountNBT);
+		});
+		compound.put("BankAccounts", bankAccountList);
 		
 		return compound;
 	}
@@ -337,6 +365,51 @@ public class TradingOffice extends WorldSavedData{
 		}
 	}
 	
+	/**
+	 * Gets the bank account for the given player.
+	 * If no account exists for that player, a new one will be created and synced to clients.
+	 */
+	public static BankAccount getBankAccount(PlayerEntity player) {
+		return getBankAccount(player.getUniqueID());
+	}
+	
+	/**
+	 * Gets the bank account for the given player.
+	 * If no account exists for that player, a new one will be created and synced to clients.
+	 */
+	public static BankAccount getBankAccount(UUID playerID) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		TradingOffice office = get(server);
+		if(office != null)
+		{
+			if(office.playerBankAccounts.containsKey(playerID))
+				return office.playerBankAccounts.get(playerID);
+			//Create a new bank account for the player
+			BankAccount newAccount = new BankAccount(() -> MarkBankAccountDirty(playerID));
+			office.playerBankAccounts.put(playerID, newAccount);
+			office.markDirty();
+			MarkBankAccountDirty(playerID);
+		}
+		return null;
+	}
+	
+	public static void MarkBankAccountDirty(PlayerEntity player) { if(player.world.isRemote) return; MarkBankAccountDirty(player.getUniqueID()); }
+	
+	public static void MarkBankAccountDirty(UUID playerID)
+	{
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			get(server).markDirty();
+			//Send update packet to all connected clients
+			BankAccount bankAccount = getBankAccount(playerID);
+			CompoundNBT compound = bankAccount.save();
+			compound.putUniqueId("Player", playerID);
+			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientBank(compound));
+			
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerWorld world = server.getWorld(World.OVERWORLD);
@@ -366,6 +439,19 @@ public class TradingOffice extends WorldSavedData{
 			office.playerTeams.forEach((id,team) -> teamList.add(team.save()));
 			compound2.put("Teams", teamList);
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound2));
+			
+			//Confirm the presence of the loading players bank account
+			getBankAccount(event.getPlayer());
+			
+			CompoundNBT compound3 = new CompoundNBT();
+			ListNBT bankList = new ListNBT();
+			office.playerBankAccounts.forEach((id,team) ->{
+				CompoundNBT tag = team.save();
+				tag.putUniqueId("Player", id);
+				bankList.add(tag);
+			});
+			compound3.put("BankAccounts", bankList);
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound3));
 		}
 	}
 	

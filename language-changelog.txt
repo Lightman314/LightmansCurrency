@@ -1,3 +1,34 @@
+----1.0.3.0----
+ADDED:
+"gui.lightmanscurrency.bank.null": "No account selected.",
+"gui.lightmanscurrency.bank.balance": "Balance: %s",
+"gui.lightmanscurrency.bank.amounttip": "Deposit/Withdraw Amount",
+"gui.button.bank.deposit": "Deposit",
+"gui.button.bank.withdraw": "Withdraw",
+"gui.button.bank.playeraccount": "My Account",
+
+"tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
+"tooltip.lightmanscurrency.atm.selection": "Select Account",
+"tooltip.lightmanscurrency.atm.interact": "Manage Account",
+
+"tooltip.lightmanscurrency.team.bank": "Bank Account Settings",
+"gui.button.lightmanscurrency.team.bank.create": "Create Bank Account",
+
+"gui.button.lightmanscurrency.team.bank.limit": "Limit To: %s",
+"gui.button.lightmanscurrency.team.bank.limit.0": "Members",
+"gui.button.lightmanscurrency.team.bank.limit.1": "Admins",
+"gui.button.lightmanscurrency.team.bank.limit.2": "Owner",
+
+"permission.bankLink": "Link Bank Account",
+"gui.lightmanscurrency.settings.banklink": "Link to Bank Account",
+
+"gui.button.lightmanscurrency.playerlimit2": "1-3",
+"traderule.lightmanscurrency.tradelimit2" : "Trade Limit",
+"traderule.lightmanscurrency.tradelimit2.denial": "§4This trade has been done %s §4times already.",
+
+EDITED:
+"traderule.lightmanscurrency.tradelimit": "Player Trade Limit", (formerly "Trade Limit")
+
 ----1.0.2.3----
 ADDED:
 "key.team_settings": "Open Team Manager",

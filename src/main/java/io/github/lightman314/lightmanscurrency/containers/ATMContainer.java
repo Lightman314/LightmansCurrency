@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.containers;
 
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -11,22 +14,26 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IWorldPosCallable;
 
-public class ATMContainer extends Container{
+public class ATMContainer extends Container implements IBankAccountMenu{
+	
+	private PlayerEntity player;
+	public PlayerEntity getPlayer() { return this.player; }
 	
 	private final IInventory coinInput = new Inventory(9);
-	private final IWorldPosCallable callable;
+	public IInventory getCoinInput() { return this.coinInput; }
+	
+	private AccountReference accountSource;
+	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
 	
 	public ATMContainer(int windowId, PlayerInventory inventory)
 	{
-		this(windowId, inventory, IWorldPosCallable.DUMMY);
-	}
-	
-	public ATMContainer(int windowId, PlayerInventory inventory, final IWorldPosCallable callable)
-	{
 		super(ModContainers.ATM, windowId);
-		this.callable = callable;
+		
+		this.player = inventory.player;
+		
+		//Auto-select the players bank account for now
+		this.accountSource = BankAccount.GenerateReference(this.player);
 		
 		//Coinslots
 		for(int x = 0; x < coinInput.getSizeInventory(); x++)
@@ -52,17 +59,14 @@ public class ATMContainer extends Container{
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn)
 	{
-		return this.callable.applyOrElse((world,pos) -> playerIn.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
+		return true;
 	}
 	
 	@Override
 	public void onContainerClosed(PlayerEntity playerIn)
 	{
 		super.onContainerClosed(playerIn);
-		this.callable.consume((world,pos) ->
-		{
-			this.clearContainer(playerIn,  world,  this.coinInput);
-		});
+		this.clearContainer(playerIn, playerIn.world, this.coinInput);
 	}
 
 	
@@ -105,6 +109,11 @@ public class ATMContainer extends Container{
 		
 		return clickedStack;
 		
+	}
+	
+	public void SetAccount(AccountReference account)
+	{
+		this.accountSource = account;
 	}
 	
 	//Button Input Codes:
