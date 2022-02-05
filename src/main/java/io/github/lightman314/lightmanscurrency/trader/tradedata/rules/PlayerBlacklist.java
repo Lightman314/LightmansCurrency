@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -25,28 +29,36 @@ public class PlayerBlacklist extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "blacklist");
 	
-	List<String> bannedPlayerNames = new ArrayList<>();
+	List<PlayerReference> bannedPlayers = new ArrayList<>();
 	
 	public PlayerBlacklist() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		if(bannedPlayerNames.contains(event.getPlayer().getDisplayName().getString()))
+		if(this.isBlacklisted(event.getPlayerReference()))
 			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.blacklist.denial"));
 	}
 
+	public boolean isBlacklisted(PlayerReference player)
+	{
+		for(int i = 0; i < this.bannedPlayers.size(); ++i)
+		{
+			if(this.bannedPlayers.get(i).is(player))
+				return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public CompoundTag write(CompoundTag compound) {
-		//Save player names
+		//Save player
 		ListTag playerNameList = new ListTag();
-		for(int i = 0; i < bannedPlayerNames.size(); i++)
+		for(int i = 0; i < this.bannedPlayers.size(); i++)
 		{
-			CompoundTag thisCompound = new CompoundTag();
-			thisCompound.putString("name", bannedPlayerNames.get(i));
-			playerNameList.add(thisCompound);
+			playerNameList.add(this.bannedPlayers.get(i).save());
 		}
-		compound.put("BannedPlayersNames", playerNameList);
+		compound.put("BannedPlayers", playerNameList);
 		
 		return compound;
 	}
@@ -54,16 +66,32 @@ public class PlayerBlacklist extends TradeRule{
 	@Override
 	public void readNBT(CompoundTag compound) {
 		
-		//Load player names
+		//Load blacklisted players
+		if(compound.contains("BannedPlayers", Tag.TAG_LIST))
+		{
+			this.bannedPlayers.clear();
+			ListTag playerList = compound.getList("BannedPlayers", Tag.TAG_COMPOUND);
+			for(int i = 0; i < playerList.size(); ++i)
+			{
+				PlayerReference reference = PlayerReference.load(playerList.getCompound(i));
+				if(reference != null)
+					this.bannedPlayers.add(reference);
+			}
+		}
+		//Load player names (old method) and convert them to player references
 		if(compound.contains("BannedPlayersNames", Tag.TAG_LIST))
 		{
-			this.bannedPlayerNames.clear();
+			this.bannedPlayers.clear();
 			ListTag playerNameList = compound.getList("BannedPlayersNames", Tag.TAG_COMPOUND);
 			for(int i = 0; i < playerNameList.size(); i++)
 			{
 				CompoundTag thisCompound = playerNameList.getCompound(i);
 				if(thisCompound.contains("name", Tag.TAG_STRING))
-					this.bannedPlayerNames.add(thisCompound.getString("name"));
+				{
+					PlayerReference reference = PlayerReference.of(thisCompound.getString("name"));
+					if(reference != null && !this.isBlacklisted(reference))
+						this.bannedPlayers.add(reference);
+				}
 			}
 		}
 		
@@ -99,7 +127,7 @@ public class PlayerBlacklist extends TradeRule{
 		Button buttonAddPlayer;
 		Button buttonRemovePlayer;
 		
-		final int namesPerPage = 11;
+		ScrollTextDisplay playerDisplay;
 		
 		@Override
 		public void initTab() {
@@ -109,31 +137,23 @@ public class PlayerBlacklist extends TradeRule{
 			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
 			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
 			
+			this.playerDisplay = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getBlacklistedPlayers));
+			this.playerDisplay.setColumnCount(2);
+			
+		}
+		
+		private List<Component> getBlacklistedPlayers()
+		{
+			List<Component> playerList = Lists.newArrayList();
+			if(getBlacklistRule() == null)
+				return playerList;
+			for(PlayerReference player : getBlacklistRule().bannedPlayers)
+				playerList.add(new TextComponent(player.lastKnownName()));
+			return playerList;
 		}
 		
 		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-			
-			if(getBlacklistRule() == null)
-				return;
-			
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 55, 0, this.screen.ySize, this.screen.xSize, 80);
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 55 + 80, 0, this.screen.ySize, this.screen.xSize, 34);
-			
-			int x = 0;
-			int y = 0;
-			for(int i = 0; i < getBlacklistRule().bannedPlayerNames.size() && i < this.namesPerPage * 2; i++)
-			{
-				screen.getFont().draw(matrixStack, getBlacklistRule().bannedPlayerNames.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 57 + 10 * y, 0xFFFFFF);
-				y++;
-				if(y >= this.namesPerPage)
-				{
-					y = 0;
-					x++;
-				}
-			}
-			
-		}
+		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) { }
 		
 		@Override
 		public void onTabClose() {
@@ -141,6 +161,7 @@ public class PlayerBlacklist extends TradeRule{
 			this.removeCustomWidget(this.nameInput);
 			this.removeCustomWidget(this.buttonAddPlayer);
 			this.removeCustomWidget(this.buttonRemovePlayer);
+			this.removeCustomWidget(this.playerDisplay);
 			
 		}
 		
@@ -149,9 +170,10 @@ public class PlayerBlacklist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
-				if(!getBlacklistRule().bannedPlayerNames.contains(name))
+				PlayerReference reference = PlayerReference.of(name);
+				if(!getBlacklistRule().isBlacklisted(reference))
 				{
-					getBlacklistRule().bannedPlayerNames.add(name);
+					getBlacklistRule().bannedPlayers.add(reference);
 					screen.markRulesDirty();
 				}
 				nameInput.setValue("");
@@ -163,14 +185,22 @@ public class PlayerBlacklist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
-				if(getBlacklistRule().bannedPlayerNames.contains(name))
+				PlayerReference reference = PlayerReference.of(name);
+				if(getBlacklistRule().isBlacklisted(reference))
 				{
-					getBlacklistRule().bannedPlayerNames.remove(name);
+					boolean notFound = true;
+					for(int i = 0; notFound && i < getBlacklistRule().bannedPlayers.size(); ++i)
+					{
+						if(getBlacklistRule().bannedPlayers.get(i).is(reference))
+						{
+							notFound = false;
+							getBlacklistRule().bannedPlayers.remove(i);
+						}
+					}
 					screen.markRulesDirty();
 				}
 				nameInput.setValue("");
 			}
-			
 		}
 		
 	}

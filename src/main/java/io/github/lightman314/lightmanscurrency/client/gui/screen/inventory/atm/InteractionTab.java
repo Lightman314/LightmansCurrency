@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -7,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidg
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.client.gui.Font;
@@ -16,6 +19,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 
@@ -40,11 +44,29 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 
 	@Override
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		Component accountName = this.screen.getMenu().getPlayer().getDisplayName();
+		if(this.screen.getMenu().getAccount() != null)
+		{
+			Team selectedTeam = this.getSelectionTab().selectedTeam();
+			if(selectedTeam != null)
+				accountName = new TextComponent(selectedTeam.getName());
+		}
+		this.screen.getFont().draw(pose, accountName, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		this.accountWidget.renderInfo(pose);
 	}
 
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) { }
+	
+	private SelectionTab getSelectionTab() {
+		List<ATMTab> tabs = this.screen.getTabs();
+		for(int i = 0; i < tabs.size(); ++i)
+		{
+			if(tabs.get(i) instanceof SelectionTab)
+				return (SelectionTab)tabs.get(i);
+		}
+		return new SelectionTab(this.screen);
+	}
 
 	@Override
 	public void tick() { this.accountWidget.tick(); }

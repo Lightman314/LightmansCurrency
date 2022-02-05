@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.ChatFormatting;
@@ -18,11 +19,15 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
+	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative) {
+		this.AddLog(PlayerReference.of(player), trade, pricePaid, isCreative);
+	}
+	
+	public void AddLog(PlayerReference player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
 		
 		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
-		Component playerName = new TextComponent("§a" + player.getName().getString());
+		Component playerName = new TextComponent("§a" + player.lastKnownName());
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only

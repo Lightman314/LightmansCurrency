@@ -59,9 +59,9 @@ public class TeamSelectWidget extends AbstractWidget {
 	
 	private Team getTeam(int index)
 	{
-		index += scroll;
 		List<Team> teamList = teamSource.get();
 		this.validateScroll(teamList.size());
+		index += this.scroll;
 		if(index >= 0 && index < teamList.size())
 			return teamList.get(index);
 		return null;
@@ -77,17 +77,17 @@ public class TeamSelectWidget extends AbstractWidget {
 	
 	private void validateScroll(int teamListSize)
 	{
-		this.scroll = MathUtil.clamp(scroll, 0, teamListSize - this.teamButtons.size());
+		this.scroll = MathUtil.clamp(scroll, 0, this.maxScroll(teamListSize));
 	}
 	
-	private int maxScroll()
+	private int maxScroll(int teamListSize)
 	{
-		return MathUtil.clamp(this.teamButtons.size() - 4, 0, Integer.MAX_VALUE);
+		return MathUtil.clamp(teamListSize - this.rows, 0, Integer.MAX_VALUE);
 	}
 	
 	private boolean canScrollDown()
 	{
-		return scroll < this.maxScroll();
+		return scroll < this.maxScroll(this.teamSource.get().size());
 	}
 	
 	@Override
@@ -119,7 +119,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		int index = this.teamButtons.indexOf(button);
 		if(index < 0)
 			return;
-		this.onPress.accept(scroll + index);
+		this.onPress.accept(this.scroll + index);
 	}
 	
 	@Override

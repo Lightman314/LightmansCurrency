@@ -12,7 +12,9 @@ import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -31,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRule
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
 import io.github.lightman314.lightmanscurrency.menus.UniversalItemEditMenu;
 import io.github.lightman314.lightmanscurrency.menus.UniversalItemTraderMenu;
@@ -496,6 +499,150 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
 		}
 		
+	}
+	
+	@Override
+	public RemoteTradeResult handleRemotePurchase(int tradeIndex, RemoteTradeData data) {
+		
+		if(tradeIndex < 0 || tradeIndex >= this.trades.size())
+			return RemoteTradeResult.FAIL_INVALID_TRADE;
+		
+		ItemTradeData trade = this.getTrade(tradeIndex);
+		//Abort if the trade is null
+		if(trade == null)
+			return RemoteTradeResult.FAIL_INVALID_TRADE;
+		//Abort if the trade is not valid
+		if(!trade.isValid())
+			return RemoteTradeResult.FAIL_INVALID_TRADE;
+		//Check if the player is allowed to do the trade
+		if(this.runPreTradeEvent(data.getPlayerSource(), tradeIndex).isCanceled())
+			return RemoteTradeResult.FAIL_TRADE_RULE_DENIAL;
+		
+		CoinValue price = this.runTradeCostEvent(data.getPlayerSource(), tradeIndex).getCostResult();
+		
+		//Execute a sale
+		if(trade.isSale())
+		{
+			//Abort if not enough items in inventory
+			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
+				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
+			//Abort if not enough room to put the sold item
+			if(!data.canFitItem(trade.getSellItem()))
+				return RemoteTradeResult.FAIL_NO_OUTPUT_SPACE;
+			//Abort if not enough 
+			if(!data.getPayment(price))
+				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
+			
+			//We have enough money, and the trade is valid. Execute the trade
+			//Get the trade item stack
+			ItemStack giveStack = trade.getSellItem();
+			//Give the trade item
+			data.putItem(giveStack);
+			
+			//Log the successful trade
+			this.getLogger().AddLog(data.getPlayerSource(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
+			
+			//Ignore editing internal storage if this is flagged as creative
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Remove the sold items from storage
+				trade.RemoveItemsFromStorage(this.getStorage());
+				//Give the paid cost to storage
+				this.addStoredMoney(price);
+				this.markStorageDirty();
+			}
+			
+			return RemoteTradeResult.SUCCESS;
+			
+		}
+		//Process a purchase
+		else if(trade.isPurchase())
+		{
+			//Abort if not enough items in the item slots
+			if(!data.hasItem(trade.getSellItem()))
+				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
+			//Abort if not enough room to store the purchased items (unless we're in creative)
+			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
+				return RemoteTradeResult.FAIL_NO_INPUT_SPACE;
+			//Abort if not enough money to pay them back
+			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
+				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
+			
+			//Passed the checks. Take the item(s) from the input
+			data.collectItem(trade.getSellItem());
+			//Give the payment to the purchaser
+			data.givePayment(price);
+			
+			//Log the successful trade
+			this.getLogger().AddLog(data.getPlayerSource(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
+			
+			//Ignore editing internal storage if this is flagged as creative.
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Put the item in storage
+				InventoryUtil.TryPutItemStack(this.getStorage(), trade.getSellItem());
+				//Remove the coins from storage
+				this.removeStoredMoney(price);
+				this.markStorageDirty();
+			}
+			
+			return RemoteTradeResult.SUCCESS;
+			
+		}
+		//Process a barter
+		else if(trade.isBarter())
+		{
+			//Abort if not enough items in the item slots
+			if(!data.hasItem(trade.getBarterItem()))
+				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
+			//Abort if not enough room to store the purchased items (unless we're creative)
+			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
+				return RemoteTradeResult.FAIL_NO_INPUT_SPACE;
+			//Abort if not enough items in inventory
+			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
+				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
+			
+			//Passed the checks. Take the item(s) from the input slot
+			data.collectItem(trade.getBarterItem());
+			//Check if there's room for the new items
+			if(!data.putItem(trade.getSellItem()))
+			{
+				//Abort if no room for the sold item
+				//Put the barter item back
+				data.putItem(trade.getBarterItem());
+				return RemoteTradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			
+			//Log the successful trade
+			this.getLogger().AddLog(data.getPlayerSource(), trade, CoinValue.EMPTY, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
+			
+			//Ignore editing internal storage if this is flagged as creative.
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Put the item in storage
+				InventoryUtil.TryPutItemStack(this.getStorage(), trade.getBarterItem());
+				//Remove the item from storage
+				trade.RemoveItemsFromStorage(this.getStorage());
+				this.markStorageDirty();
+			}
+			
+			return RemoteTradeResult.SUCCESS;
+			
+		}
+		
+		return RemoteTradeResult.FAIL_INVALID_TRADE;
 	}
 	
 }

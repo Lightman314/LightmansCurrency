@@ -1,4 +1,5 @@
 ----1.0.3.0----
+Completed: German/Czech
 ADDED:
 "item.lightmanscurrency.portable_atm": "ATM",
 

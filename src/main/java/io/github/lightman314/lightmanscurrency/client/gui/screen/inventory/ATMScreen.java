@@ -28,6 +28,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	
 	int currentTabIndex = 0;
 	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this));
+	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
 	List<AbstractWidget> tabWidgets = Lists.newArrayList();
@@ -55,7 +56,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	@Override
 	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.draw(poseStack, this.currentTab().getTooltip(), 8.0f, 4.0f, 0x404040);
+		//this.font.draw(poseStack, this.currentTab().getTooltip(), 8.0f, 4.0f, 0x404040);
 		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	

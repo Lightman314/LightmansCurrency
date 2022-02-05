@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +31,7 @@ public class PlayerDiscounts extends TradeRule {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "discount_list");
 	
-	List<String> playerList = new ArrayList<>();
+	List<PlayerReference> playerList = new ArrayList<>();
 	int discount = 10;
 	public int getDiscountPercent() { return this.discount; }
 	public void setDiscountPercent(int percent) { this.discount = MathUtil.clamp(percent, 0, 100); }
@@ -39,7 +43,7 @@ public class PlayerDiscounts extends TradeRule {
 	@Override
 	public void tradeCost(TradeCostEvent event)
 	{
-		if(this.playerList.contains(event.getPlayer().getDisplayName().getString()))
+		if(this.isOnList(event.getPlayerReference()))
 		{
 			switch(event.getTrade().getTradeDirection())
 			{
@@ -54,15 +58,23 @@ public class PlayerDiscounts extends TradeRule {
 		}
 	}
 	
+	public boolean isOnList(PlayerReference player)
+	{
+		for(int i = 0; i < this.playerList.size(); ++i)
+		{
+			if(this.playerList.get(i).is(player))
+				return true;
+		}
+		return false;
+	}
+	
 	@Override
 	protected CompoundTag write(CompoundTag compound) {
 		//Save player names
 		ListTag playerNameList = new ListTag();
 		for(int i = 0; i < playerList.size(); i++)
 		{
-			CompoundTag thisCompound = new CompoundTag();
-			thisCompound.putString("name", playerList.get(i));
-			playerNameList.add(thisCompound);
+			playerNameList.add(this.playerList.get(i).save());
 		}
 		compound.put("Players", playerNameList);
 		//Save discount
@@ -81,8 +93,16 @@ public class PlayerDiscounts extends TradeRule {
 			for(int i = 0; i < playerNameList.size(); i++)
 			{
 				CompoundTag thisCompound = playerNameList.getCompound(i);
-				if(thisCompound.contains("name", Tag.TAG_STRING))
-					this.playerList.add(thisCompound.getString("name"));
+				PlayerReference reference = PlayerReference.load(thisCompound);
+				if(reference != null)
+					this.playerList.add(reference);
+				//Load old method
+				else if(thisCompound.contains("name", Tag.TAG_STRING))
+				{
+					reference = PlayerReference.of(thisCompound.getString("name"));
+					if(reference != null && !this.isOnList(reference))
+						this.playerList.add(reference);
+				}
 			}
 		}
 		//Load discount
@@ -124,7 +144,7 @@ public class PlayerDiscounts extends TradeRule {
 		
 		Button buttonSetDiscount;
 		
-		final int namesPerPage = 9;
+		ScrollTextDisplay playerList;
 		
 		@Override
 		public void initTab() {
@@ -139,8 +159,21 @@ public class PlayerDiscounts extends TradeRule {
 			this.discountInput.setValue(Integer.toString(this.getRule().discount));
 			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
+			this.playerList = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 78, screen.xSize - 14, 91, this.screen.getFont(), this::getPlayerList));
+			this.playerList.setColumnCount(2);	
+			
 		}
-		
+				
+		private List<Component> getPlayerList()
+		{
+			List<Component> playerList = Lists.newArrayList();
+			if(getRule() == null)
+				return playerList;
+			for(PlayerReference player : getRule().playerList)
+				playerList.add(new TextComponent(player.lastKnownName()));
+			return playerList;
+		}
+				
 		@Override
 		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 			
@@ -151,19 +184,6 @@ public class PlayerDiscounts extends TradeRule {
 			this.screen.blit(poseStack, this.screen.guiLeft(), this.screen.guiTop() + 78 + 80, 0, this.screen.ySize, this.screen.xSize, 11);
 			
 			this.screen.getFont().draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
-			
-			int x = 0;
-			int y = 0;
-			for(int i = 0; i < getRule().playerList.size() && x < 2; i++)
-			{
-				screen.getFont().draw(poseStack, getRule().playerList.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 80 + 10 * y, 0xFFFFFF);
-				y++;
-				if(y >= this.namesPerPage)
-				{
-					y = 0;
-					x++;
-				}
-			}
 			
 		}
 		
@@ -182,6 +202,7 @@ public class PlayerDiscounts extends TradeRule {
 			this.removeCustomWidget(this.buttonRemovePlayer);
 			this.removeCustomWidget(this.discountInput);
 			this.removeCustomWidget(this.buttonSetDiscount);
+			this.removeCustomWidget(this.playerList);
 			
 		}
 		
@@ -190,12 +211,16 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getValue();
 			if(name != "")
 			{
-				if(!getRule().playerList.contains(name))
+				PlayerReference reference = PlayerReference.of(name);
+				if(reference != null)
 				{
-					getRule().playerList.add(name);
-					screen.markRulesDirty();
+					if(!getRule().isOnList(reference))
+					{
+						getRule().playerList.add(reference);
+						screen.markRulesDirty();
+					}
+					nameInput.setValue("");
 				}
-				nameInput.setValue("");
 			}
 		}
 		
@@ -204,12 +229,24 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getValue();
 			if(name != "")
 			{
-				if(getRule().playerList.contains(name))
+				PlayerReference reference = PlayerReference.of(name);
+				if(reference != null)
 				{
-					getRule().playerList.remove(name);
-					screen.markRulesDirty();
+					if(getRule().isOnList(reference))
+					{
+						boolean notFound = true;
+						for(int i = 0; notFound && i < getRule().playerList.size(); ++i)
+						{
+							if(getRule().playerList.get(i).is(reference))
+							{
+								notFound = false;
+								getRule().playerList.remove(i);
+							}
+						}
+						screen.markRulesDirty();
+					}
+					nameInput.setValue("");
 				}
-				nameInput.setValue("");
 			}
 			
 		}

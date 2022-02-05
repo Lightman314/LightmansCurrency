@@ -47,31 +47,33 @@ public class ConversionTab extends ATMTab{
 	public void init() {
 		
 		//Large Buttons
-		this.buttonConvertAllUp = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 5, this.screen.getGuiTop() + 13, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, 0, this.screen.getYSize()));
-		this.buttonConvertAllDown = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 89, this.screen.getGuiTop() + 13, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, LARGEBUTTON_WIDTH, this.screen.getYSize()));
+		this.buttonConvertAllUp = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 5, this.screen.getGuiTop() + 15, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, 0, this.screen.getYSize()));
+		this.buttonConvertAllDown = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 89, this.screen.getGuiTop() + 15, LARGEBUTTON_WIDTH, LARGEBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, LARGEBUTTON_WIDTH, this.screen.getYSize()));
 		
 		//Small Buttons
 		//Copper & Iron
-		this.buttonConvertIronToCopper = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 0));
+		this.buttonConvertIronToCopper = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 42, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 0));
 		this.buttonConvertCopperToIron = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize() + SMALLBUTTON_WIDTH, 0));
 		//Iron & Gold
-		this.buttonConvertGoldToIron = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 41, this.screen.getGuiTop() + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 2 * SMALLBUTTON_HEIGHT));
+		this.buttonConvertGoldToIron = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 41, this.screen.getGuiTop() + 42, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 2 * SMALLBUTTON_HEIGHT));
 		this.buttonConvertIronToGold = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 41, this.screen.getGuiTop() + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize() + SMALLBUTTON_WIDTH, 2 * SMALLBUTTON_HEIGHT));
 		//Gold & Emerald
-		this.buttonConvertEmeraldToGold = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 75, this.screen.getGuiTop() + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 4 * SMALLBUTTON_HEIGHT));
+		this.buttonConvertEmeraldToGold = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 75, this.screen.getGuiTop() + 42, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 4 * SMALLBUTTON_HEIGHT));
 		this.buttonConvertGoldToEmerald = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 75, this.screen.getGuiTop() + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize() + SMALLBUTTON_WIDTH, 4 * SMALLBUTTON_HEIGHT));
 		//Emerald & Diamond
-		this.buttonConvertDiamondToEmerald = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 109, this.screen.getGuiTop() + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 6 * SMALLBUTTON_HEIGHT));
+		this.buttonConvertDiamondToEmerald = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 109, this.screen.getGuiTop() + 42, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 6 * SMALLBUTTON_HEIGHT));
 		this.buttonConvertEmeraldToDiamond = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 109, this.screen.getGuiTop() + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize() + SMALLBUTTON_WIDTH, 6 * SMALLBUTTON_HEIGHT));
 		//Diamond & Netherrite
-		this.buttonConvertNetherriteToDiamond = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 144, this.screen.getGuiTop() + 41, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 8 * SMALLBUTTON_HEIGHT));
+		this.buttonConvertNetherriteToDiamond = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 144, this.screen.getGuiTop() + 42, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize(), 8 * SMALLBUTTON_HEIGHT));
 		this.buttonConvertDiamondToNetherrite = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 144, this.screen.getGuiTop() + 69, SMALLBUTTON_WIDTH, SMALLBUTTON_HEIGHT, this::PressConversionButton , ATMScreen.GUI_TEXTURE, this.screen.getXSize() + SMALLBUTTON_WIDTH, 8 * SMALLBUTTON_HEIGHT));
 		
 		
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
+	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
+	}
 
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) { }

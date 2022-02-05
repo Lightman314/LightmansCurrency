@@ -5,6 +5,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.*;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -25,7 +26,8 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
 	
-	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex)
+	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
+	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)
 	{
 		ItemTradeData trade = this.getTrade(tradeIndex);
 		PreTradeEvent event = new PreTradeEvent(player, trade, () -> this);
@@ -36,7 +38,8 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
 		return event;
 	}
 	
-	default TradeCostEvent runTradeCostEvent(Player player, int tradeIndex)
+	default TradeCostEvent runTradeCostEvent(Player player, int tradeIndex) { return this.runTradeCostEvent(PlayerReference.of(player), tradeIndex); }
+	default TradeCostEvent runTradeCostEvent(PlayerReference player, int tradeIndex)
 	{
 		ItemTradeData trade = this.getTrade(tradeIndex);
 		TradeCostEvent event = new TradeCostEvent(player, trade, () -> this);
@@ -47,7 +50,8 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
 		return event;
 	}
 	
-	default void runPostTradeEvent(Player player, int tradeIndex, CoinValue pricePaid)
+	default void runPostTradeEvent(Player player, int tradeIndex, CoinValue pricePaid) { this.runPostTradeEvent(PlayerReference.of(player), tradeIndex, pricePaid); }
+	default void runPostTradeEvent(PlayerReference player, int tradeIndex, CoinValue pricePaid)
 	{
 		ItemTradeData trade = this.getTrade(tradeIndex);
 		PostTradeEvent event = new PostTradeEvent(player, trade, () -> this, pricePaid);

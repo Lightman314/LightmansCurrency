@@ -64,6 +64,18 @@ public class PlayerReference {
 		return this.name.toLowerCase().contentEquals(name.toLowerCase());
 	}
 	
+	public boolean isOnline()
+	{
+		return this.getPlayer() != null;
+	}
+	
+	public Player getPlayer() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.getPlayerList().getPlayer(this.id);
+		return null;
+	}
+	
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
