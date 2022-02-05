@@ -29,6 +29,7 @@
     "item.lightmanscurrency.master_ticket": "Master-Ticket",
     "item.lightmanscurrency.ticket_stub": "Kassenbeleg",
     "item.lightmanscurrency.portable_terminal": "Handelsterminal",
+    "item.lightmanscurrency.portable_atm": "Geldautomat",
     "item.lightmanscurrency.freezer_door": "Kühlschrank Tür (INTERNAL USE ONLY)",
 
     "block.lightmanscurrency.coinpile_copper" : "Haufen Kupfermünzen",
@@ -244,7 +245,7 @@
     "traderule.lightmanscurrency.whitelist.denial": "§4Du bist nicht auf der Whitelist.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
     "traderule.lightmanscurrency.blacklist.denial": "§4Du bist auf der Blacklist.",
-    "traderule.lightmanscurrency.tradelimit": "Handelslimit",
+    "traderule.lightmanscurrency.tradelimit": "Spieler-Handelslimit",
     "traderule.lightmanscurrency.tradelimit.denial": "§4Du hast dieses Angebot bereits %s §4mal genutzt.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4Du hast dieses Angebot bereits %1$s §4mal während der letzten %2$s§4 genutzt.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Das Limit ist %s§4.",
@@ -356,6 +357,32 @@
     "gui.button.lightmanscurrency.team.member.add": "Hinzufügen",
     "gui.button.lightmanscurrency.team.member.promote": "Admin festlegen",
     "gui.button.lightmanscurrency.team.member.remove": "Entfernen",
-    "gui.button.lightmanscurrency.team.disband": "Team auflösen"
+    "gui.button.lightmanscurrency.team.disband": "Team auflösen",
+    
+    "gui.lightmanscurrency.bank.null": "Kein Konto ausgewählt.",
+    "gui.lightmanscurrency.bank.balance": "Kontostand: %s",
+    "gui.lightmanscurrency.bank.amounttip": "Betrag Einzahlen/Abheben",
+    "gui.button.bank.deposit": "Einzahlen",
+    "gui.button.bank.withdraw": "Abheben",
+    "gui.button.bank.playeraccount": "Mein Konto",
+
+    "tooltip.lightmanscurrency.atm.conversion": "Münzen wechseln",
+    "tooltip.lightmanscurrency.atm.selection": "Wähle Konto aus",
+    "tooltip.lightmanscurrency.atm.interact": "Verwalte Konto",
+
+    "tooltip.lightmanscurrency.team.bank": "Bankkonto-Einstellungen",
+    "gui.button.lightmanscurrency.team.bank.create": "Erstelle Bankkonto",
+
+    "gui.button.lightmanscurrency.team.bank.limit": "Limitiere zu: %s",
+    "gui.button.lightmanscurrency.team.bank.limit.0": "Mitglieder",
+    "gui.button.lightmanscurrency.team.bank.limit.1": "Admins",
+    "gui.button.lightmanscurrency.team.bank.limit.2": "Besitzer",
+
+    "permission.bankLink": "Bankkonto verknüpfen",
+    "gui.lightmanscurrency.settings.banklink": "Mit Bankkonto verknüpfen",
+
+    "gui.button.lightmanscurrency.playerlimit2": "1-3",
+    "traderule.lightmanscurrency.tradelimit2" : "Handelslimit",
+    "traderule.lightmanscurrency.tradelimit2.denial": "§4Dieser Handel wurde bereits %s §4mal gemacht."
 
 }
