@@ -170,13 +170,13 @@ public class PlayerBlacklist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(!getBlacklistRule().isBlacklisted(reference))
 				{
 					getBlacklistRule().bannedPlayers.add(reference);
 					screen.markRulesDirty();
 				}
-				nameInput.setValue("");
 			}
 		}
 		
@@ -185,6 +185,7 @@ public class PlayerBlacklist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(getBlacklistRule().isBlacklisted(reference))
 				{
@@ -199,7 +200,6 @@ public class PlayerBlacklist extends TradeRule{
 					}
 					screen.markRulesDirty();
 				}
-				nameInput.setValue("");
 			}
 		}
 		

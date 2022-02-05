@@ -173,6 +173,7 @@ public class PlayerWhitelist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(reference != null)
 				{
@@ -181,7 +182,6 @@ public class PlayerWhitelist extends TradeRule{
 						getWhitelistRule().whitelistedPlayers.add(reference);
 						screen.markRulesDirty();
 					}
-					nameInput.setValue("");
 				}
 			}
 		}
@@ -191,6 +191,7 @@ public class PlayerWhitelist extends TradeRule{
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(reference != null)
 				{
@@ -207,7 +208,6 @@ public class PlayerWhitelist extends TradeRule{
 						}
 						screen.markRulesDirty();
 					}
-					nameInput.setValue("");
 				}
 			}
 			

@@ -135,7 +135,7 @@ public class Team {
 					{
 						//Remove them from the admin list
 						boolean notFound = true;
-						for(int i = 0; notFound || i < this.admins.size(); ++i)
+						for(int i = 0; notFound && i < this.admins.size(); ++i)
 						{
 							if(this.admins.get(i).is(profile))
 							{
@@ -155,7 +155,7 @@ public class Team {
 					if(this.isMember(profile.getId()))
 					{
 						boolean notFound = true;
-						for(int i = 0; notFound || i < this.members.size(); ++i)
+						for(int i = 0; notFound && i < this.members.size(); ++i)
 						{
 							if(this.members.get(i).is(profile))
 							{
@@ -190,7 +190,7 @@ public class Team {
 				if(this.isAdmin(profile.getId()))
 				{
 					//Remove from admin list if admin
-					for(int i = 0; notFound || i < this.admins.size(); ++i)
+					for(int i = 0; notFound && i < this.admins.size(); ++i)
 					{
 						if(this.admins.get(i).is(profile))
 						{
@@ -202,7 +202,7 @@ public class Team {
 				else
 				{
 					//Remove from member list if member
-					for(int i = 0; notFound || i < this.members.size(); ++i)
+					for(int i = 0; notFound && i < this.members.size(); ++i)
 					{
 						if(this.members.get(i).is(profile))
 						{

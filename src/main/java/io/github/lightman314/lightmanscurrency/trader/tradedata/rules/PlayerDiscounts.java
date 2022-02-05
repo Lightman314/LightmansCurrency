@@ -211,6 +211,7 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(reference != null)
 				{
@@ -219,7 +220,6 @@ public class PlayerDiscounts extends TradeRule {
 						getRule().playerList.add(reference);
 						screen.markRulesDirty();
 					}
-					nameInput.setValue("");
 				}
 			}
 		}
@@ -229,6 +229,7 @@ public class PlayerDiscounts extends TradeRule {
 			String name = nameInput.getValue();
 			if(name != "")
 			{
+				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
 				if(reference != null)
 				{
@@ -245,7 +246,6 @@ public class PlayerDiscounts extends TradeRule {
 						}
 						screen.markRulesDirty();
 					}
-					nameInput.setValue("");
 				}
 			}
 			
