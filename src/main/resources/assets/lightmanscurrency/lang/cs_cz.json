@@ -26,6 +26,7 @@
     "item.lightmanscurrency.master_ticket": "Hlavní lístek",
     "item.lightmanscurrency.ticket_stub": "Útržek lístku",
     "item.lightmanscurrency.portable_terminal": "Obchodní terminál",
+    "item.lightmanscurrency.portable_atm": "Přenosný bankomat",
     "item.lightmanscurrency.freezer_door": "Dveře mrazáku (POUZE VNITŘNÍ POUŽITÍ)",
     
     "block.lightmanscurrency.coinpile_copper" : "Hromada měděných mincí",
@@ -203,6 +204,7 @@
     "gui.lightmanscurrency.discount.tooltip": "% sleva",
     "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit.info": "Hráči mohou provést %s obchodů.",
+    "gui.button.lightmanscurrency.playerlimit2": "1-3",
     "gui.button.lightmanscurrency.playerlimit.setlimit": "Nastavit",
     "gui.button.lightmanscurrency.playerlimit.clearmemory": "Vymazat paměť",
     "gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip": "Vymaže paměť provedených obchodů.",
@@ -264,6 +266,8 @@
     "gui.lightmanscurrency.settings.side.west": "Levá",
     "gui.lightmanscurrency.settings.side.east": "Pravá",
 
+    "gui.lightmanscurrency.settings.banklink": "Propojit s bankovním účtem",
+
     "gui.button.lightmanscurrency.set_owner": "Převést vlastnictví",
 
     "log.settings.to": "na",
@@ -296,6 +300,7 @@
     "permission.addRemoveAllies": "Přidat/Odebrat spojence",
     "permission.editPermissions": "Měnit povolení",
     "permission.clearLogs": "Vyčistit log obchodu",
+    "permission.bankLink": "Propojit bankovní účet",
     "permission.breakTrader": "Zničit obchod",
     "permission.transferOwnership": "Převést vlastnictví",
     "permission.changeExternalInputs": "Měnit nastavení vstupu/výstupu",
@@ -314,24 +319,45 @@
     "gui.button.lightmanscurrency.team.owner": "Aktuální majitel: %s",
 
     "gui.button.lightmanscurrency.team.owner": "Majitel: %s",
+
+    "gui.lightmanscurrency.bank.null": "Žádný účet nebyl vybrán",
+    "gui.lightmanscurrency.bank.balance": "Zůstatek: %s",
+    "gui.lightmanscurrency.bank.amounttip": "Vložit/Vybrat peníze",
+    "gui.button.bank.deposit": "Vložit",
+    "gui.button.bank.withdraw": "Vybrat",
+
+    "gui.button.bank.playeraccount": "Můj účet",
+
+    "tooltip.lightmanscurrency.atm.conversion": "Směnit mince",
+    "tooltip.lightmanscurrency.atm.selection": "Vybrat účet",
+    "tooltip.lightmanscurrency.atm.interact": "Spravovat účet",
+
     "gui.button.lightmanscurrency.team.create": "Vytvořit",
     "gui.button.lightmanscurrency.team.rename": "Přejmenovat tým",
     "gui.button.lightmanscurrency.team.member.add": "Přidat",
     "gui.button.lightmanscurrency.team.member.promote": "Povýšit",
     "gui.button.lightmanscurrency.team.member.remove": "Odebrat",
     "gui.button.lightmanscurrency.team.disband": "Rozpustit tým",
+    "gui.button.lightmanscurrency.team.bank.create": "Založit bankovní účet",
+    "gui.button.lightmanscurrency.team.bank.limit": "Omezit na: %s",
+    "gui.button.lightmanscurrency.team.bank.limit.0": "Členové",
+    "gui.button.lightmanscurrency.team.bank.limit.1": "Správci",
+    "gui.button.lightmanscurrency.team.bank.limit.2": "Majitel",
 
     "traderule.lightmanscurrency.whitelist": "Bílá listina",
     "traderule.lightmanscurrency.whitelist.denial": "§4Nejsi na bílé listině.",
     "traderule.lightmanscurrency.blacklist": "Černá listina",
     "traderule.lightmanscurrency.blacklist.denial": "§4Jsi na černé listině.",
-    "traderule.lightmanscurrency.tradelimit": "Limit provedených obchodů",
+    "traderule.lightmanscurrency.tradelimit": "Hráčův limit provedených obchodů",
     "traderule.lightmanscurrency.tradelimit.denial": "§4Již jsi provedl %s §4obchodů.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4Provedl jsi %1$s §4obchodů během %2$s§4.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Limit je %s§4.",
     "traderule.lightmanscurrency.discount_list": "Osobní sleva",
     "traderule.lightmanscurrency.timed_sale": "Sleva",
-    
+    "traderule.lightmanscurrency.tradelimit2": "Limit provedených obchodů",
+    "traderule.lightmanscurrency.tradelimit2.denial": "§4Tento obchod byl již proveden %s §4x",
+
+
     "command.lightmanscurrency.lcadmin.help.help": "%sZobrazit příkazy",
     "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mód: %s",
     "command.lightmanscurrency.lcadmin.toggleadmin.enabled": "§aPOVOLENO",
