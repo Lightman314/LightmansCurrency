@@ -10,25 +10,19 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.A
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ConversionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.InteractionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
-public class ATMScreen extends AbstractContainerScreen<ATMMenu> implements IBankAccountWidget{
+public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
@@ -161,37 +155,9 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> implements IBank
 		if(this.tabListeners.contains(listener))
 			this.tabListeners.remove(listener);
 	}
-
-	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget) {
-		if(widget instanceof AbstractWidget)
-			this.addRenderableTabWidget((AbstractWidget)widget);
-		return widget;
-	}
-
-	@Override
+	
 	public Font getFont() {
 		return this.font;
-	}
-
-	@Override
-	public Screen getScreen() {
-		return this;
-	}
-
-	@Override
-	public BankAccount getAccount() {
-		return this.getAccount();
-	}
-
-	@Override
-	public Container getCoinAccess() {
-		return this.menu.getCoinInput();
-	}
-
-	@Override
-	public int getWidth() {
-		return this.imageWidth;
 	}
 	
 	@Override

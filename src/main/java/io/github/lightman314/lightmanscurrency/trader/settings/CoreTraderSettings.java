@@ -14,13 +14,13 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.SettingsLogger;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.permissions.PermissionsList;
@@ -128,12 +128,7 @@ public class CoreTraderSettings extends Settings{
 		if(t != null)
 			return t.getBankAccount();
 		else if(this.owner != null)
-		{
-			if(this.trader.isClient())
-				return ClientTradingOffice.getPlayerBankAccount(this.owner.id);
-			else
-				return TradingOffice.getBankAccount(this.owner.id);
-		}
+			return BankAccount.GenerateReference(this.trader.isClient(), AccountType.Player, this.owner.id).get();
 		return null;
 		
 	}

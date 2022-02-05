@@ -167,11 +167,10 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	 */
 	public CoinValue getStoredMoney()
 	{
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-				return account.getCoinStorage().copy();
+			return account.getCoinStorage().copy();
 		}
 		return this.storedMoney;
 	}
@@ -190,14 +189,11 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	 */
 	public void addStoredMoney(CoinValue addedAmount)
 	{
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-			{
-				account.depositCoins(addedAmount);
-				return;
-			}
+			account.depositCoins(addedAmount);
+			return;
 		}
 		storedMoney.addValue(addedAmount);
 		if(!this.level.isClientSide)
@@ -212,14 +208,11 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	 */
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-			{
-				account.withdrawCoins(removedAmount);
-				return;
-			}
+			account.withdrawCoins(removedAmount);
+			return;
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);

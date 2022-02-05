@@ -430,6 +430,9 @@ public class TradingOffice extends SavedData{
 			compound2.put("Teams", teamList);
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound2));
 			
+			//Confirm the presence of the loading players bank account
+			getBankAccount(event.getPlayer());
+			
 			CompoundTag compound3 = new CompoundTag();
 			ListTag bankList = new ListTag();
 			office.playerBankAccounts.forEach((id, team) -> {

@@ -54,11 +54,10 @@ public abstract class UniversalTraderData implements ITrader{
 	public ResourceKey<Level> getWorld() { return this.world; }
 	CoinValue storedMoney = new CoinValue();
 	public CoinValue getStoredMoney() {
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-				return account.getCoinStorage().copy();
+			return account.getCoinStorage().copy();
 		}
 		return this.storedMoney;
 	}
@@ -135,14 +134,11 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public void addStoredMoney(CoinValue amount)
 	{
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-			{
-				account.depositCoins(amount);
-				return;
-			}
+			account.depositCoins(amount);
+			return;
 		}
 		this.storedMoney.addValue(amount);
 		this.markDirty(this::writeStoredMoney);
@@ -150,14 +146,11 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public void removeStoredMoney(CoinValue removedAmount)
 	{
-		if(this.coreSettings.isBankAccountLinked())
+		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			if(account != null)
-			{
-				account.withdrawCoins(removedAmount);
-				return;
-			}
+			account.withdrawCoins(removedAmount);
+			return;
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
