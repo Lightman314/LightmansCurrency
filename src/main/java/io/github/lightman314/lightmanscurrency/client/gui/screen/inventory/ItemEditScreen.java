@@ -70,7 +70,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
 		
 		//Render the fake trade button
-		ItemTradeButton.renderItemTradeButton(matrix, (Screen)this, font, startX, startY - ItemTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), null, false, true, false);
+		ItemTradeButton.renderItemTradeButton(matrix, (Screen)this, font, startX, startY - ItemTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), false);
 		
 	}
 	
@@ -121,7 +121,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		
 		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY, null);
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
 		
 	}
 	

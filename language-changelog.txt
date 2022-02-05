@@ -1,5 +1,8 @@
 ----1.0.3.0----
+Completed: German/Czech
 ADDED:
+"item.lightmanscurrency.portable_atm": "ATM",
+
 "gui.lightmanscurrency.bank.null": "No account selected.",
 "gui.lightmanscurrency.bank.balance": "Balance: %s",
 "gui.lightmanscurrency.bank.amounttip": "Deposit/Withdraw Amount",

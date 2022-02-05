@@ -64,6 +64,18 @@ public class PlayerReference {
 		return this.name.toLowerCase().contentEquals(name.toLowerCase());
 	}
 	
+	public boolean isOnline()
+	{
+		return this.getPlayer() != null;
+	}
+	
+	public PlayerEntity getPlayer() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.getPlayerList().getPlayerByUUID(this.id);
+		return null;
+	}
+	
 	public CompoundNBT save()
 	{
 		CompoundNBT compound = new CompoundNBT();

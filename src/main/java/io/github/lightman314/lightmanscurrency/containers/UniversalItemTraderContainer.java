@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -30,10 +26,8 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.MinecraftForge;
 
-public class UniversalItemTraderContainer extends UniversalContainer implements ITraderContainer, ITradeButtonContainer{
+public class UniversalItemTraderContainer extends UniversalContainer implements ITraderContainer{
 	
 	
 	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
@@ -199,25 +193,6 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	
 	public IInventory GetItemInventory() { return this.itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput)
-	{
-		ItemTradeData trade = this.getData().getTrade(tradeIndex);
-		if(trade == null)
-			return false;
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, this, () -> this.getData());
-		if(!event.isCanceled())
-			this.getData().beforeTrade(event);
-		if(!event.isCanceled())
-			trade.beforeTrade(event);
-		if(!event.isCanceled())
-			MinecraftForge.EVENT_BUS.post(event);
-		
-		if(denialOutput != null)
-			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
-		
-		return !event.isCanceled();
-	}
-	
 	public IItemTrader getTrader()
 	{
 		return this.getData();
@@ -226,28 +201,6 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 	public ItemTradeData GetTrade(int tradeIndex)
 	{
 		return this.getData().getTrade(tradeIndex);
-	}
-	
-	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
-	{
-		TradeCostEvent event = new TradeCostEvent(this.player, trade, this, () -> this.getData());
-		this.getData().tradeCost(event);
-		trade.tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	private void PostTradeEvent(ItemTradeData trade, CoinValue pricePaid)
-	{
-		PostTradeEvent event = new PostTradeEvent(this.player, trade, this, () -> this.getData(), pricePaid);
-		this.getData().afterTrade(event);
-		trade.afterTrade(event);
-		if(event.isDirty())
-		{
-			this.getData().markRulesDirty();
-			event.clean();
-		}
-		MinecraftForge.EVENT_BUS.post(event);
 	}
 	
 	public void ExecuteTrade(int tradeIndex)
@@ -268,10 +221,10 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex, null))
+		if(!this.getData().runPreTradeEvent(this.player, tradeIndex).isCanceled())
 			return;
 		
-		CoinValue price = this.TradeCostEvent(trade).getCostResult();
+		CoinValue price = this.getData().runTradeCostEvent(this.player, tradeIndex).getCostResult();
 		
 		//Execute a sale
 		if(trade.isSale())
@@ -333,7 +286,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().getCoreSettings().isCreative())
@@ -377,7 +330,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().getCoreSettings().isCreative())
@@ -430,7 +383,7 @@ public class UniversalItemTraderContainer extends UniversalContainer implements 
 			this.getData().markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getData().getCoreSettings().isCreative())

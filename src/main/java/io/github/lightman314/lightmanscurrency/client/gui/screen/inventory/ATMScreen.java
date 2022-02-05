@@ -30,6 +30,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 	
 	int currentTabIndex = 0;
 	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this));
+	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
 	List<Widget> tabWidgets = Lists.newArrayList();
@@ -59,7 +60,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 	@Override
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, this.currentTab().getTooltip().getString(), 8.0f, 4.0f, 0x404040);
+		//this.font.drawString(matrix, this.currentTab().getTooltip().getString(), 8.0f, 4.0f, 0x404040);
 		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
 	}
 	

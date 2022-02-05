@@ -51,7 +51,7 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		int tradeCount = getTradeCount(event.getPlayer().getUniqueID());
+		int tradeCount = getTradeCount(event.getPlayerReference().id);
 		if(tradeCount >= this.limit)
 		{
 			if(this.enforceTimeLimit())
@@ -65,7 +65,7 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public void afterTrade(PostTradeEvent event) {
 		
-		this.addEvent(event.getPlayer().getUniqueID(), TimeUtil.getCurrentTime());
+		this.addEvent(event.getPlayerReference().id, TimeUtil.getCurrentTime());
 		
 		this.clearExpiredData();
 		

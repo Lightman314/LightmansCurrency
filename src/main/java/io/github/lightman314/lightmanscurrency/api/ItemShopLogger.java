@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,11 +19,15 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
-	public void AddLog(PlayerEntity player, ItemTradeData trade, @Nonnull CoinValue pricePayed, boolean isCreative)
+	public void AddLog(PlayerEntity player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative) {
+		this.AddLog(PlayerReference.of(player), trade, pricePaid, isCreative);
+	}
+	
+	public void AddLog(PlayerReference player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
 		
 		ITextComponent creativeText = isCreative ? new TranslationTextComponent("log.shoplog.creative") : new StringTextComponent("");
-		ITextComponent playerName = new StringTextComponent("§a" + player.getName().getString());
+		ITextComponent playerName = new StringTextComponent("§a" + player.lastKnownName());
 		ITextComponent boughtText = new TranslationTextComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only
@@ -32,7 +37,7 @@ public class ItemShopLogger extends TextLogger{
 		}
 		
 		ITextComponent itemText = new TranslationTextComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
-		ITextComponent cost = new StringTextComponent("§e" + pricePayed.getString());
+		ITextComponent cost = new StringTextComponent("§e" + pricePaid.getString());
 		if(trade.isBarter())
 		{
 			//Flip the sell item to the cost position

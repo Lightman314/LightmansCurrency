@@ -286,6 +286,18 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		this.markDirty();
 	}
 	
+	public void markStorageDirty()
+	{
+		//Send an update to the client
+		if(!this.world.isRemote)
+		{
+			//Send update packet
+			CompoundNBT compound = this.writeItemSettings(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, superWrite(compound));
+		}
+		this.markDirty();
+	}
+	
 	public ItemShopLogger getLogger() {return this.logger; }
 	
 	public void clearLogger()

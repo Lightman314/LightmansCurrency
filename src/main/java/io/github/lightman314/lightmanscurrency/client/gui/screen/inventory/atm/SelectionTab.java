@@ -36,7 +36,7 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void init() {
 		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 13, 4, true, this::getTeamList, this::selectedTeam, this::SelectTeam));
+		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 4, true, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
 		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, new TranslationTextComponent("gui.button.bank.playeraccount"), this::PressPersonalAccount));
@@ -57,7 +57,7 @@ public class SelectionTab extends ATMTab{
 		return results;
 	}
 	
-	private Team selectedTeam()
+	public Team selectedTeam()
 	{
 		if(this.selectedTeam != null)
 			return ClientTradingOffice.getTeam(this.selectedTeam);
@@ -86,7 +86,9 @@ public class SelectionTab extends ATMTab{
 	}
 
 	@Override
-	public void preRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) { }
+	public void preRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+		this.screen.getFont().drawString(matrix, this.getTooltip().getString(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
+	}
 
 	@Override
 	public void postRender(MatrixStack matrix, int mouseX, int mouseY) { }

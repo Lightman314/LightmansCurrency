@@ -4,18 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,29 +30,37 @@ public class PlayerWhitelist extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
 	
-	List<String> whitelistPlayerNames = new ArrayList<>();
+	List<PlayerReference> whitelistedPlayers = new ArrayList<>();
 	
 	public PlayerWhitelist() { super(TYPE); }
 	
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		if(!whitelistPlayerNames.contains(event.getPlayer().getDisplayName().getString()))
+		if(!this.isWhitelisted(event.getPlayerReference()))
 			event.denyTrade(new TranslationTextComponent("traderule.lightmanscurrency.whitelist.denial"));
 		
 	}
 
+	public boolean isWhitelisted(PlayerReference player)
+	{
+		for(int i = 0; i < this.whitelistedPlayers.size(); ++i)
+		{
+			if(this.whitelistedPlayers.get(i).is(player))
+				return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public CompoundNBT write(CompoundNBT compound) {
 		//Save player names
 		ListNBT playerNameList = new ListNBT();
-		for(int i = 0; i < whitelistPlayerNames.size(); i++)
+		for(int i = 0; i < this.whitelistedPlayers.size(); i++)
 		{
-			CompoundNBT thisCompound = new CompoundNBT();
-			thisCompound.putString("name", whitelistPlayerNames.get(i));
-			playerNameList.add(thisCompound);
+			playerNameList.add(this.whitelistedPlayers.get(i).save());
 		}
-		compound.put("WhitelistedPlayersNames", playerNameList);
+		compound.put("WhitelistedPlayers", playerNameList);
 		
 		return compound;
 	}
@@ -56,16 +68,32 @@ public class PlayerWhitelist extends TradeRule{
 	@Override
 	public void readNBT(CompoundNBT compound) {
 		
+		//Load whitelisted players
+		if(compound.contains("WhitelistedPlayers", Constants.NBT.TAG_LIST))
+		{
+			this.whitelistedPlayers.clear();
+			ListNBT playerList = compound.getList("WhitelistedPlayers", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < playerList.size(); i++)
+			{
+				PlayerReference reference = PlayerReference.load(playerList.getCompound(i));
+				if(reference != null)
+					this.whitelistedPlayers.add(reference);
+			}
+		}
 		//Load player names
 		if(compound.contains("WhitelistedPlayersNames", Constants.NBT.TAG_LIST))
 		{
-			this.whitelistPlayerNames.clear();
+			this.whitelistedPlayers.clear();
 			ListNBT playerNameList = compound.getList("WhitelistedPlayersNames", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < playerNameList.size(); i++)
 			{
 				CompoundNBT thisCompound = playerNameList.getCompound(i);
 				if(thisCompound.contains("name", Constants.NBT.TAG_STRING))
-					this.whitelistPlayerNames.add(thisCompound.getString("name"));
+				{
+					PlayerReference reference = PlayerReference.of(thisCompound.getString("name"));
+					if(reference != null && !this.isWhitelisted(reference))
+						this.whitelistedPlayers.add(reference);
+				}
 			}
 		}
 		
@@ -103,7 +131,7 @@ public class PlayerWhitelist extends TradeRule{
 		Button buttonAddPlayer;
 		Button buttonRemovePlayer;
 		
-		final int namesPerPage = 11;
+		ScrollTextDisplay playerDisplay;
 		
 		@Override
 		public void initTab() {
@@ -114,6 +142,19 @@ public class PlayerWhitelist extends TradeRule{
 			this.buttonAddPlayer = this.screen.addCustomButton(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
 			this.buttonRemovePlayer = this.screen.addCustomButton(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslationTextComponent("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
 			
+			this.playerDisplay = this.addListener(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));
+			this.playerDisplay.setColumnCount(2);
+			
+		}
+		
+		private List<ITextComponent> getWhitelistedPlayers()
+		{
+			List<ITextComponent> playerList = Lists.newArrayList();
+			if(getWhitelistRule() == null)
+				return playerList;
+			for(PlayerReference player : getWhitelistRule().whitelistedPlayers)
+				playerList.add(new StringTextComponent(player.lastKnownName()));
+			return playerList;
 		}
 		
 		@Override
@@ -122,23 +163,8 @@ public class PlayerWhitelist extends TradeRule{
 			if(getWhitelistRule() == null)
 				return;
 			
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 55, 0, this.screen.ySize, this.screen.xSize, 80);
-			this.screen.blit(matrixStack, this.screen.guiLeft(), this.screen.guiTop() + 55 + 80, 0, this.screen.ySize, this.screen.xSize, 34);
-			
 			this.nameInput.render(matrixStack, mouseX, mouseY, partialTicks);
-			
-			int x = 0;
-			int y = 0;
-			for(int i = 0; i < getWhitelistRule().whitelistPlayerNames.size() && i < this.namesPerPage * 2; i++)
-			{
-				screen.getFont().drawString(matrixStack, getWhitelistRule().whitelistPlayerNames.get(i), screen.guiLeft() + 10 + 78 * x, screen.guiTop() + 57 + 10 * y, 0xFFFFFF);
-				y++;
-				if(y >= this.namesPerPage)
-				{
-					y = 0;
-					x++;
-				}
-			}
+			this.playerDisplay.render(matrixStack, mouseX, mouseY, partialTicks);
 			
 		}
 		
@@ -148,6 +174,7 @@ public class PlayerWhitelist extends TradeRule{
 			screen.removeListener(this.nameInput);
 			screen.removeButton(this.buttonAddPlayer);
 			screen.removeButton(this.buttonRemovePlayer);
+			screen.removeListener(this.playerDisplay);
 			
 		}
 		
@@ -156,12 +183,16 @@ public class PlayerWhitelist extends TradeRule{
 			String name = nameInput.getText();
 			if(name != "")
 			{
-				if(!getWhitelistRule().whitelistPlayerNames.contains(name))
-				{
-					getWhitelistRule().whitelistPlayerNames.add(name);
-					screen.markRulesDirty();
-				}
 				nameInput.setText("");
+				PlayerReference reference = PlayerReference.of(name);
+				if(reference != null)
+				{
+					if(!getWhitelistRule().isWhitelisted(reference))
+					{
+						getWhitelistRule().whitelistedPlayers.add(reference);
+						screen.markRulesDirty();
+					}
+				}
 			}
 		}
 		
@@ -170,12 +201,24 @@ public class PlayerWhitelist extends TradeRule{
 			String name = nameInput.getText();
 			if(name != "")
 			{
-				if(getWhitelistRule().whitelistPlayerNames.contains(name))
-				{
-					getWhitelistRule().whitelistPlayerNames.remove(name);
-					screen.markRulesDirty();
-				}
 				nameInput.setText("");
+				PlayerReference reference = PlayerReference.of(name);
+				if(reference != null)
+				{
+					if(getWhitelistRule().isWhitelisted(reference))
+					{
+						boolean notFound = true;
+						for(int i = 0; notFound && i < getWhitelistRule().whitelistedPlayers.size(); ++i)
+						{
+							if(getWhitelistRule().whitelistedPlayers.get(i).is(reference))
+							{
+								notFound = false;
+								getWhitelistRule().whitelistedPlayers.remove(i);
+							}
+						}
+						screen.markRulesDirty();
+					}
+				}
 			}
 			
 		}

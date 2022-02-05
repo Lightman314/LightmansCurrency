@@ -150,7 +150,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 		for(int i = 0; i < tradeCount; i++)
 		{
 			boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-			ItemTradeButton.renderItemTradeButton(matrix, screen, font, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), i, trader, null, false, true, inverted);
+			ItemTradeButton.renderItemTradeButton(matrix, screen, font, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), i, trader, inverted);
 			//if(inverted)
 			//	screen.blit(matrix, startX + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), startY + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), ItemTradeButton.WIDTH, yOffset, ItemTradeButton.WIDTH, ItemTradeButton.HEIGHT);
 			//else
@@ -268,7 +268,7 @@ public class ItemTraderStorageScreen extends ContainerScreen<ItemTraderStorageCo
 			for(int i = 0; i < this.container.tileEntity.getTradeCount(); i++)
 			{
 				boolean inverted = ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i);
-				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.container.tileEntity, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY, null);
+				int result = ItemTradeButton.tryRenderTooltip(matrixStack, this, i, this.container.tileEntity, this.guiLeft + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.guiTop + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), inverted, mouseX, mouseY);
 				if(result < 0 && this.container.hasPermission(Permissions.EDIT_TRADES)) //Result is negative if the mouse is over a slot, but the slot is empty.
 					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.item_edit"), mouseX, mouseY);
 			}

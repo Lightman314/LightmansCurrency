@@ -3,14 +3,10 @@ package io.github.lightman314.lightmanscurrency.containers;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.interfaces.ITradeButtonContainer;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
@@ -29,10 +25,8 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.common.MinecraftForge;
 
-public class ItemTraderContainer extends Container implements ITraderContainer, ITradeButtonContainer{
+public class ItemTraderContainer extends Container implements ITraderContainer{
 	
 	public final PlayerEntity player;
 	
@@ -204,25 +198,6 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	
 	public IInventory GetItemInventory() { return itemSlots; }
 	
-	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput)
-	{
-		ItemTradeData trade = tileEntity.getTrade(tradeIndex);
-		if(trade == null)
-			return false;
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, this, () -> this.tileEntity);
-		if(!event.isCanceled())
-			this.tileEntity.beforeTrade(event);
-		if(!event.isCanceled())
-			trade.beforeTrade(event);
-		if(!event.isCanceled())
-			MinecraftForge.EVENT_BUS.post(event);
-		
-		if(denialOutput != null)
-			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
-		
-		return !event.isCanceled();
-	}
-	
 	public IItemTrader getTrader()
 	{
 		return this.tileEntity;
@@ -231,37 +206,6 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 	public ItemTradeData GetTrade(int tradeIndex)
 	{
 		return this.tileEntity.getTrade(tradeIndex);
-	}
-	
-	public TradeCostEvent TradeCostEvent(ItemTradeData trade)
-	{
-		TradeCostEvent event = new TradeCostEvent(this.player, trade, this, () -> this.tileEntity);
-		this.tileEntity.tradeCost(event);
-		trade.tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	private void PostTradeEvent(ItemTradeData trade, CoinValue pricePaid)
-	{
-		//Enclose post trade event to prevent the trader owner from not getting compensated for the trade.
-		try {
-			PostTradeEvent event = new PostTradeEvent(this.player, trade, this, () -> this.tileEntity, pricePaid);
-			this.tileEntity.afterTrade(event);
-			if(event.isDirty())
-			{
-				this.tileEntity.markRulesDirty();
-				event.clean();
-			}
-			trade.afterTrade(event);
-			if(event.isDirty())
-			{
-				this.tileEntity.markTradesDirty();
-				event.clean();
-			}
-			MinecraftForge.EVENT_BUS.post(event);
-		}
-		catch(Exception e) { e.printStackTrace(); }
 	}
 	
 	public void ExecuteTrade(int tradeIndex)
@@ -290,11 +234,11 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex, null))
+		if(this.tileEntity.runPreTradeEvent(this.player, tradeIndex).isCanceled())
 			return;
 		
 		//Get the cost of the trade
-		CoinValue price = this.TradeCostEvent(trade).getCostResult();
+		CoinValue price = this.tileEntity.runTradeCostEvent(this.player, tradeIndex).getCostResult();
 		
 		//Process a sale
 		if(trade.isSale())
@@ -356,7 +300,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.getCoreSettings().isCreative())
@@ -401,7 +345,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.getCoreSettings().isCreative())
@@ -453,7 +397,7 @@ public class ItemTraderContainer extends Container implements ITraderContainer, 
 			this.tileEntity.markLoggerDirty();
 			
 			//Push the post-trade event
-			PostTradeEvent(trade, price);
+			this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
 			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.tileEntity.getCoreSettings().isCreative())

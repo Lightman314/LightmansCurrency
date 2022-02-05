@@ -6,7 +6,9 @@ import java.util.function.Consumer;
 import com.google.common.base.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
@@ -277,6 +279,8 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 	{
 		return this.coreSettings.getPermissionLevel(player, permission);
 	}
+	
+	public RemoteTradeResult handleRemotePurchase(int tradeIndex, RemoteTradeData data) { return RemoteTradeResult.FAIL_NOT_SUPPORTED; }
 	
 	protected abstract void onVersionUpdate(int oldVersion);
 	

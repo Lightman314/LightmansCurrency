@@ -88,10 +88,10 @@ public class Team {
 	 */
 	public boolean isMember(UUID playerID) { return PlayerReference.listContains(this.members, playerID) || this.isAdmin(playerID); }
 	
-	public boolean changeAddMember(PlayerEntity requestor, String name) { return this.changeAny(requestor, name, CATEGORY_MEMBER); }
-	public boolean changeAddAdmin(PlayerEntity requestor, String name) { return this.changeAny(requestor, name, CATEGORY_ADMIN); }
-	public boolean changeRemoveMember(PlayerEntity requestor, String name) { return this.changeAny(requestor, name, CATEGORY_REMOVE); }
-	public boolean changeOwner(PlayerEntity requestor, String name) { return this.changeAny(requestor, name, CATEGORY_OWNER); }
+	public void changeAddMember(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_MEMBER); }
+	public void changeAddAdmin(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_ADMIN); }
+	public void changeRemoveMember(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_REMOVE); }
+	public void changeOwner(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_OWNER); }
 	
 	public void changeName(PlayerEntity requestor, String newName)
 	{
@@ -102,7 +102,7 @@ public class Team {
 		}
 	}
 	
-	public boolean changeAny(PlayerEntity requestor, String playerName, String category)
+	public void changeAny(PlayerEntity requestor, String playerName, String category)
 	{
 		if(category.contentEquals(CATEGORY_MEMBER) && this.isAdmin(requestor))
 		{
@@ -112,40 +112,64 @@ public class Team {
 			{
 				//Confirm that this player isn't already on a list
 				if(this.isMember(profile.getId()))
-					return false;
+					return;
 				//Add the member
 				this.members.add(PlayerReference.of(profile));
 				this.markDirty();
 			}
-			return true;
 		}
-		else if(category.contentEquals(CATEGORY_ADMIN) && this.isOwner(requestor))
+		else if(category.contentEquals(CATEGORY_ADMIN) && this.isAdmin(requestor))
 		{
 			//Add or remove the admin
 			GameProfile profile = this.getProfile(playerName);
 			if(profile != null)
 			{
-				//Confirm that this player isn't already an admin
+				//Check if the player is an admin. If they are demote them
 				if(this.isAdmin(profile.getId()))
-					return false;
-				//Remove from the member list if making them an admin
-				if(this.isMember(profile.getId()))
 				{
-					boolean notFound = true;
-					for(int i = 0; notFound || i < this.members.size(); ++i)
+					//If the player is the owner, cannot do anything. Requires the owner transfer command
+					if(this.isOwner(profile.getId()))
+						return;
+					//Can only demote admins if owner or self
+					if(PlayerReference.of(requestor).is(profile) || this.isOwner(requestor))
 					{
-						if(this.members.get(i).is(profile))
+						//Remove them from the admin list
+						boolean notFound = true;
+						for(int i = 0; notFound && i < this.admins.size(); ++i)
 						{
-							notFound = false;
-							this.members.remove(i);
+							if(this.admins.get(i).is(profile))
+							{
+								notFound = false;
+								this.admins.remove(i);
+							}
 						}
+						//Add them as a member
+						this.members.add(PlayerReference.of(profile));
+						this.markDirty();
 					}
 				}
-				//Add to the admin list
-				this.admins.add(PlayerReference.of(profile));
-				this.markDirty();
+				//If the owner is not already an admin, confirm that this is the owner promoting them and promote them to admin
+				else if(this.isOwner(requestor))
+				{
+					//Remove from the member list if making them an admin
+					if(this.isMember(profile.getId()))
+					{
+						boolean notFound = true;
+						for(int i = 0; notFound && i < this.members.size(); ++i)
+						{
+							if(this.members.get(i).is(profile))
+							{
+								notFound = false;
+								this.members.remove(i);
+							}
+						}
+					}
+					//Add to the admin list
+					this.admins.add(PlayerReference.of(profile));
+					this.markDirty();
+				}
+				
 			}
-			return true;
 		}
 		else if(category.contentEquals(CATEGORY_REMOVE) && (this.isAdmin(requestor) || PlayerReference.of(requestor).is(playerName)))
 		{
@@ -154,20 +178,20 @@ public class Team {
 			{
 				//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
 				if(!this.isMember(profile.getId()))
-					return false;
+					return;
 				
 				//Confirm that this player isn't an admin, and if they are, confirm that this is the owner
 				if(this.isAdmin(profile.getId()) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(profile)))
-					return false;
+					return;
 				//Cannot remove the owner, can only replace them with the Owner-transfer category.
 				if(this.isOwner(profile.getId()))
-					return false;
+					return;
 				
 				boolean notFound = true;
 				if(this.isAdmin(profile.getId()))
 				{
 					//Remove from admin list if admin
-					for(int i = 0; notFound || i < this.admins.size(); ++i)
+					for(int i = 0; notFound && i < this.admins.size(); ++i)
 					{
 						if(this.admins.get(i).is(profile))
 						{
@@ -179,7 +203,7 @@ public class Team {
 				else
 				{
 					//Remove from member list if member
-					for(int i = 0; notFound || i < this.members.size(); ++i)
+					for(int i = 0; notFound && i < this.members.size(); ++i)
 					{
 						if(this.members.get(i).is(profile))
 						{
@@ -190,12 +214,11 @@ public class Team {
 				}
 				
 				if(notFound)
-					return false;
+					return;
 				
 				this.markDirty();
 				
 			}
-			return true;
 		}
 		else if(category.contentEquals(CATEGORY_OWNER) && this.isOwner(requestor))
 		{
@@ -205,7 +228,7 @@ public class Team {
 			{
 				//Cannot set the owner to yourself
 				if(this.owner.is(profile))
-					return false;
+					return;
 				//Set the previous owner as an admin
 				this.admins.add(this.owner);
 				//Set the new owner
@@ -226,10 +249,7 @@ public class Team {
 				this.markDirty();
 				
 			}
-			return true;
 		}
-		else
-			return false;
 	}
 	
 	public void createBankAccount(PlayerEntity requestor)
