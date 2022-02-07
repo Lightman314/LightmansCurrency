@@ -9,21 +9,26 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.ValueType;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -33,9 +38,12 @@ public class CoinValueInput extends AbstractWidget{
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
 	
 	public static final int HEIGHT = 69;
+	public static final int DISPLAY_WIDTH = 176;
 	
 	private final int leftOffset;
 	private final ICoinValueInput parent;
+	
+	private final ValueType inputType;
 	
 	private CoinValue coinValue;
 	Button toggleFree;
@@ -43,6 +51,11 @@ public class CoinValueInput extends AbstractWidget{
 	private List<Button> decreaseButtons;
 	private Component title;
 	public void setTitle(Component title) {this.title = title; }
+	
+	String lastInput = "";
+	EditBox valueInput;
+	String prefix;
+	String postfix;
 	
 	public boolean allowFreeToggle = true;
 	
@@ -52,6 +65,7 @@ public class CoinValueInput extends AbstractWidget{
 		
 		super(0, y, calculateWidth(), HEIGHT, title);
 		
+		this.inputType = Config.getValueInputType();
 		this.title = title;
 		
 		if(this.width == parent.getWidth())
@@ -61,9 +75,39 @@ public class CoinValueInput extends AbstractWidget{
 		this.parent = parent;
 		this.coinValue = startingValue.copy();
 		
+		
+		if(this.inputType == ValueType.VALUE)
+			this.setPrefixAndPostfix();
 		//To be called manually by the screen so that the buttons will render after the main body
 		//this.init();
 		
+	}
+	
+	private void setPrefixAndPostfix()
+	{
+		String format = Config.getValueDisplayFormat();
+		//Have to replace the {value} with a non-illegal character in order to split the string
+		String[] splitFormat = format.replace("{value}", "`").split("`",2);
+		if(splitFormat.length < 2)
+		{
+			//Determine which is the prefix, and which is the postfix
+			if(format.startsWith("{value}"))
+			{
+				prefix = "";
+				postfix = splitFormat[0];
+			}
+			else
+			{
+				prefix = splitFormat[0];
+				postfix = "";
+			}
+		}
+		else
+		{
+			prefix = splitFormat[0];
+			postfix = splitFormat[1];
+		}
+				
 	}
 	
 	public void init()
@@ -71,15 +115,30 @@ public class CoinValueInput extends AbstractWidget{
 		this.toggleFree = this.parent.addCustomWidget(new PlainButton(this.leftOffset + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
-		int buttonCount = MoneyUtil.getAllData().size();
-		for(int x = 0; x < buttonCount; x++)
+		//Initialize default button setup
+		if(this.inputType == ValueType.DEFAULT)
 		{
-			Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
-			newButton.active = true;
-			increaseButtons.add(newButton);
-			newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
-			newButton.active = false;
-			decreaseButtons.add(newButton);
+			int buttonCount = MoneyUtil.getAllData().size();
+			for(int x = 0; x < buttonCount; x++)
+			{
+				Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
+				newButton.active = true;
+				increaseButtons.add(newButton);
+				newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
+				newButton.active = false;
+				decreaseButtons.add(newButton);
+			}
+		}
+		else
+		{
+			//Value input
+			int prefixWidth = this.parent.getFont().width(this.prefix);
+			if(prefixWidth > 0)
+				prefixWidth += 2;
+			int postfixWidth = this.parent.getFont().width(this.postfix);
+			if(postfixWidth > 0)
+				postfixWidth += 2;
+			this.valueInput = this.parent.addCustomWidget(new EditBox(this.parent.getFont(), this.leftOffset + 10 + prefixWidth, this.y + 20, 156 - prefixWidth - postfixWidth, 20, new TextComponent("")));
 		}
 		this.tick();
 	}
@@ -99,39 +158,66 @@ public class CoinValueInput extends AbstractWidget{
 		
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
-		List<CoinData> coinData = MoneyUtil.getAllData();
-		int buttonCount = coinData.size();
 		
-		if(this.drawBG)
+		if(this.inputType == ValueType.DEFAULT)
+		{
+			List<CoinData> coinData = MoneyUtil.getAllData();
+			int buttonCount = coinData.size();
+			
+			if(this.drawBG)
+			{
+				//Render the left edge
+				this.blit(poseStack, startX, startY, 0, 0, 10, HEIGHT);
+				//Render each column & spacer
+				for(int x = 0; x < buttonCount; x++)
+				{
+					//Render the button column;
+					this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
+					//Render the in-between button spacer
+					if(x < (buttonCount - 1)) //Don't render the last spacer
+						this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+				}
+			}
+			
+			
+			//Render the right edge
+			this.blit(poseStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
+			
+			//Draw the coins initial & sprite
+			for(int x = 0; x < buttonCount; x++)
+			{
+				//Draw sprite
+				ItemRenderUtil.drawItemStack(this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
+				//Draw string
+				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
+				int width = this.parent.getFont().width(countString);
+				this.parent.getFont().draw(poseStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
+				
+			}
+		}
+		//Draw background for the text input field variant
+		else if(this.drawBG)
 		{
 			//Render the left edge
 			this.blit(poseStack, startX, startY, 0, 0, 10, HEIGHT);
-			//Render each column & spacer
-			for(int x = 0; x < buttonCount; x++)
+			//Render the center until we've hit the end
+			int xPos = startX + 10;
+			while(xPos < startX + DISPLAY_WIDTH - 10)
 			{
-				//Render the button column;
-				this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
-				//Render the in-between button spacer
-				if(x < (buttonCount - 1)) //Don't render the last spacer
-					this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+				int xSize = Math.min(30, startX + DISPLAY_WIDTH - 10 - xPos);
+				this.blit(poseStack, xPos, startY, 10, 0, xSize, HEIGHT);
+				xPos += xSize;
 			}
-		}
-		
-		
-		//Render the right edge
-		this.blit(poseStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
-		
-		//Draw the coins initial & sprite
-		for(int x = 0; x < buttonCount; x++)
-		{
-			//Draw sprite
-			ItemRenderUtil.drawItemStack(this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
-			//Draw string
-			String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
-			int width = this.parent.getFont().width(countString);
-			this.parent.getFont().draw(poseStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
+			//Render the right edge
+			this.blit(poseStack, xPos, startY, 40, 0, 10, HEIGHT);
+			
+			//Draw the prefix and postfix
+			this.parent.getFont().draw(poseStack, this.prefix, startX + 10, startY + 26, 0xFFFFFF);
+			int postfixWidth = this.parent.getFont().width(this.postfix);
+			this.parent.getFont().draw(poseStack, this.postfix, startX + DISPLAY_WIDTH - 10 - postfixWidth, startY + 26, 0xFFFFFF);
 			
 		}
+		
 		//Render the title
 		this.parent.getFont().draw(poseStack, this.title.getString(), startX + 8F, startY + 5F, 0x404040);
 		//Render the current price in the top-right corner
@@ -144,27 +230,51 @@ public class CoinValueInput extends AbstractWidget{
 	public void tick()
 	{
 		//Set the decrease buttons as inactive if their value is 0;
-		List<Item> coinItems = MoneyUtil.getAllCoins();
-		for(int i = 0; i < decreaseButtons.size(); i++)
+		if(this.inputType == ValueType.DEFAULT)
 		{
-			if(i >= coinItems.size())
-				decreaseButtons.get(i).active = false;
+			List<Item> coinItems = MoneyUtil.getAllCoins();
+			for(int i = 0; i < decreaseButtons.size(); i++)
+			{
+				if(i >= coinItems.size())
+					decreaseButtons.get(i).active = false;
+				else
+				{
+					decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i)) > 0;
+				}
+			}
+			for(int i = 0; i < this.increaseButtons.size(); i++)
+				this.increaseButtons.get(i).active = !this.coinValue.isFree();
+		}
+		else if(this.valueInput != null)
+		{
+			this.valueInput.tick();
+			this.valueInput.active = !this.coinValue.isFree();
+			if(!this.coinValue.isFree())
+			{
+				TextInputUtil.whitelistFloat(this.valueInput);
+				if(!this.lastInput.contentEquals(this.valueInput.getValue()))
+				{
+					this.lastInput = this.valueInput.getValue();
+					this.coinValue = MoneyUtil.displayValueToCoinValue(this.getDisplayValue());
+					this.parent.OnCoinValueChanged(this);
+				}
+			}
 			else
 			{
-				decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i)) > 0;
+				this.valueInput.setValue("");
+				this.lastInput = this.valueInput.getValue();
 			}
 		}
-		for(int i = 0; i < this.increaseButtons.size(); i++)
-			this.increaseButtons.get(i).active = !this.coinValue.isFree();
+		
 	}
 	
 	public static int calculateWidth()
 	{
-		//Get button count
+		if(Config.getValueInputType() == ValueType.VALUE)
+			return DISPLAY_WIDTH;
+		//Default width based on coin count
 		int buttonCount = MoneyUtil.getAllData().size();
-		
 		return 20 + (20 * buttonCount) + (10 * (buttonCount - 1));
-		
 	}
 	
 	public void IncreaseButtonHit(Button button)
@@ -243,6 +353,7 @@ public class CoinValueInput extends AbstractWidget{
 	private void ToggleFree(Button button)
 	{
 		this.coinValue.setFree(!this.coinValue.isFree());
+		this.parent.OnCoinValueChanged(this);
 	}
 	
 	public CoinValue getCoinValue()
@@ -250,9 +361,22 @@ public class CoinValueInput extends AbstractWidget{
 		return this.coinValue;
 	}
 	
+	public double getDisplayValue()
+	{
+		if(this.valueInput != null)
+		{
+			return TextInputUtil.getDoubleValue(this.valueInput);
+		}
+		return this.coinValue.getDisplayValue();
+	}
+	
 	public void setCoinValue(CoinValue newValue)
 	{
 		this.coinValue = newValue.copy();
+		if(this.inputType == ValueType.VALUE)
+		{
+			this.valueInput.setValue(Config.formatValueOnly(newValue.getDisplayValue()));
+		}
 	}
 	
 	public static interface ICoinValueInput

@@ -833,6 +833,7 @@ public class MoneyUtil {
      * Used to convert from a stored value back into coins, or give change after processing a payment.
      */
     //@Deprecated //No longer used in favor of the new CoinValue data type
+    //Do not replace, as the CoinValue uses this to read from long values
     public static List<ItemStack> getCoinsOfValue(long value)
 	{
     	
@@ -897,32 +898,7 @@ public class MoneyUtil {
      */
     public static String getStringOfValue(long value)
     {
-    	String string = "";
-    	if(value <= 0)
-    		return string;
-    	
-    	for(int i = 0; i < coinList.size(); i++)
-    	{
-    		CoinData coinData = coinList.get(i);
-    		if(!coinData.isHidden)
-    		{
-	    		int coinCount = 0;
-	    		long coinValue = coinList.get(i).getValue();
-	    		while(coinValue <= value)
-	    		{
-	    			value -= coinValue;
-	    			coinCount++;
-	    		}
-	    		if(coinCount > 0)
-	    		{
-	    			string += String.valueOf(coinCount);
-	    			string += coinData.getInitial().getString();
-	    		}
-    		}
-    	}
-    	
-    	return string;
-    	
+    	return new CoinValue(value).getString();
     }
     
     /**
@@ -1051,6 +1027,19 @@ public class MoneyUtil {
     	return null;
     }
     
+    public static long displayValueToLong(double displayValue)
+    {
+    	long baseCoinValue = getValue(Config.getBaseCoinItem());
+    	double totalValue = displayValue * baseCoinValue;
+    	long value = (long)totalValue;
+    	return totalValue % 1d >= 0.5d ? value + 1 : value;
+    }
+    
+    public static CoinValue displayValueToCoinValue(double displayValue)
+    {
+    	return new CoinValue(displayValueToLong(displayValue));
+    }
+    
     public static class CoinData
     {
     	//Coin item
@@ -1091,6 +1080,17 @@ public class MoneyUtil {
     			LightmansCurrency.LogError("CoinData.getValue() returning 1 due it's dependent coin not being registered.");
     			return 1;
     		}
+    	}
+    	
+    	/**
+    	 * Gets the display value in double format
+    	 */
+    	public double getDisplayValue()
+    	{
+    		double coreValue = this.getValue();
+    		double baseValue = MoneyUtil.getValue(Config.getBaseCoinItem());
+    		//LightmansCurrency.LogInfo("Core Value of " + this.getCoinItem().getRegistryName() + "=" + coreValue + "\nBase Value of " + Config.getBaseCoinItem().getRegistryName() + "=" + baseValue + "\nDisplay Value: " + coreValue/baseValue);
+    		return coreValue / baseValue;
     	}
     	
     	public Item getCoinItem()
@@ -1202,6 +1202,8 @@ public class MoneyUtil {
 	
     public static class CoinValue
     {
+    	
+    	public enum ValueType { DEFAULT, VALUE }
     	
     	public static final String DEFAULT_KEY = "CoinValue";
     	
@@ -1551,28 +1553,53 @@ public class MoneyUtil {
     		return new CoinValue(this);
     	}
     	
+    	public double getDisplayValue()
+    	{
+    		double totalValue = 0d;
+			for(int i = 0; i < this.coinValues.size(); ++i)
+			{
+				CoinValuePair pricePair = this.coinValues.get(i);
+				CoinData coinData = getData(pricePair.coin);
+				if(coinData != null)
+				{
+					totalValue += coinData.getDisplayValue() * pricePair.amount;
+				}
+			}
+			return totalValue;
+    	}
+    	
     	public String getString() { return this.getString(""); }
     	
     	public String getString(String emptyFiller)
     	{
+    		
     		if(this.isFree)
     			return new TranslatableComponent("gui.coinvalue.free").getString();
-    		String string = "";
-        	for(int i = 0; i < this.coinValues.size(); i++)
-        	{
-        		CoinValuePair pricePair = this.coinValues.get(i);
-        		CoinData coinData = getData(pricePair.coin);
-        		if(coinData != null)
-        		{
-        			string += String.valueOf(pricePair.amount);
-        			string += coinData.getInitial().getString();
-        		}
-        	}
-        	
-        	if(string.isBlank())
-        		return emptyFiller;
-        	
-        	return string;
+    		
+    		switch(Config.getValueDisplayType())
+    		{
+    		case DEFAULT:
+    			String string = "";
+            	for(int i = 0; i < this.coinValues.size(); i++)
+            	{
+            		CoinValuePair pricePair = this.coinValues.get(i);
+            		CoinData coinData = getData(pricePair.coin);
+            		if(coinData != null)
+            		{
+            			string += String.valueOf(pricePair.amount);
+            			string += coinData.getInitial().getString();
+            		}
+            	}
+            	if(string.isBlank())
+            		return emptyFiller;
+            	return string;
+    		case VALUE:
+    			
+            	return Config.formatValueDisplay(this.getDisplayValue());
+            	default:
+            		return "?";
+    		}
+    		
     	}
     	
     	public long getRawValue()

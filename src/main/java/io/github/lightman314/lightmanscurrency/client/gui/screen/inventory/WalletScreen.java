@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -28,6 +30,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
+@IPNIgnore
 public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements IBankAccountWidget{
 
 	private final int BASEHEIGHT = 114;

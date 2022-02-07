@@ -159,7 +159,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		{
 			for(int x = 0; x < 9 && (x + y * 9) < this.coinInput.getContainerSize(); x++)
 			{
-				newSlots.add(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18 + yOffset));
+				newSlots.add(new CoinSlot(this.coinInput, x + y * 9, 8 + x * 18, 18 + y * 18 + yOffset).addListener(this::saveWalletContents));
 			}
 		}
 		
@@ -185,6 +185,12 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	
 	private void onWalletSlotChanged() {
 		this.walletSlotChanged = true;
+		//Lock the coin slots when the wallet is changed so that any auto-sorters can't mess up their contents while they can't be saved to the wallet.
+		this.slots.forEach(slot ->{
+			if(slot instanceof CoinSlot)
+				((CoinSlot)slot).Lock();
+		});
+			
 	}
 	
 	public void addListener(IWalletMenuListener listener)
@@ -240,7 +246,8 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		}
 		if(this.inventory == null)
 			return;
-		this.saveWalletContents();
+		//Moved to a Coin Slot listener
+		//this.saveWalletContents();
 	}
 	
 	public void clientTick()
@@ -348,6 +355,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	{
 		MoneyUtil.ConvertAllCoinsUp(this.coinInput);
 		MoneyUtil.SortCoins(this.coinInput);
+		this.saveWalletContents();
 	}
 	
 	@Override
@@ -379,6 +387,8 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		
 		if(this.autoConvert)
 			ConvertCoins();
+		
+		this.saveWalletContents();
 		
 		return returnValue;
 	}

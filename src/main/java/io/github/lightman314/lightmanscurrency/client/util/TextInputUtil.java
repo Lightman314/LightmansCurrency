@@ -76,6 +76,68 @@ public class TextInputUtil {
 		return defaultValue;
 	}
 	
+	public static boolean isFloat(EditBox textInput)
+	{
+		return isFloat(textInput.getValue());
+	}
+	
+	public static boolean isFloat(String text)
+	{
+		if(text == null)
+			return false;
+		try {
+			@SuppressWarnings("unused")
+			float f = Float.parseFloat(text);
+		} catch(NumberFormatException nfe)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public static float getFloatValue(EditBox textInput)
+	{
+		return getFloatValue(textInput, 0f);
+	}
+	
+	public static float getFloatValue(EditBox textInput, float defaultValue)
+	{
+		if(isFloat(textInput))
+			return Float.parseFloat(textInput.getValue());
+		return defaultValue;
+	}
+	
+	public static boolean isDouble(EditBox textInput)
+	{
+		return isDouble(textInput.getValue());
+	}
+	
+	public static boolean isDouble(String text)
+	{
+		if(text == null)
+			return false;
+		try {
+			@SuppressWarnings("unused")
+			double d = Double.parseDouble(text);
+		} catch(NumberFormatException nfe)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	public static double getDoubleValue(EditBox textInput)
+	{
+		return getDoubleValue(textInput, 0d);
+	}
+	
+	public static double getDoubleValue(EditBox textInput, double defaultValue)
+	{
+		if(isDouble(textInput))
+			return Double.parseDouble(textInput.getValue());
+		return defaultValue;
+	}
+	
 	/**
 	 * Also works for long values.
 	 */
@@ -122,7 +184,7 @@ public class TextInputUtil {
 			}
 			if(!allowed)
 			{
-				newText.deleteCharAt(i);
+				newText.deleteCharAt(i--);
 			}
 		}
 		textInput.setValue(newText.toString());
