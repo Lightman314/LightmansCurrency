@@ -7,9 +7,9 @@ assignees: Lightman314
 
 ---
 
-Minecraft Version: 
-Forge Version: 
-Lightman's Currency Version: 
+Minecraft Version (REQUIRED): 
+Forge Version (REQUIRED): 
+Lightman's Currency Version (REQUIRED): 
 Other Relevant Mods & Version (LC Tech, etc.): 
 Connection Type (Single-player, server/client, LAN world): 
 
