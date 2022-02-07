@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,10 +10,15 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class Config {
 	
@@ -115,6 +121,48 @@ public class Config {
 	public static int getPickupLevel() { return pickupLevel; }
 	private static int bankLevel = 0;
 	public static int getBankLevel() { return bankLevel; }
+	
+	private static CoinItem.CoinItemTooltipType coinTooltipType;
+	public static CoinItem.CoinItemTooltipType getCoinTooltipType() { return coinTooltipType; }
+	private static CoinValue.ValueType valueDisplayType;
+	public static CoinValue.ValueType getValueDisplayType() { return valueDisplayType; }
+	private static CoinValue.ValueType valueInputType;
+	public static CoinValue.ValueType getValueInputType() { return valueInputType; }
+	private static String baseCoinItem;
+	public static Item getBaseCoinItem() {
+		Item coinItem = null;
+		try {
+			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(baseCoinItem));
+		} catch(Exception e) { e.printStackTrace(); }
+		if(coinItem != null && MoneyUtil.isCoin(coinItem))
+			return coinItem;
+		return ModItems.COIN_COPPER;
+	}
+	
+	private static String valueDisplayFormat;
+	public static String getValueDisplayFormat() { return valueDisplayFormat; }
+	public static String formatValueDisplay(double value)
+	{
+		return valueDisplayFormat.replace("{value}", formatValueOnly(value));
+	}
+	public static String formatValueOnly(double value)
+	{
+		DecimalFormat df = new DecimalFormat();
+		df.setMaximumFractionDigits(getMaxDecimal());
+		return df.format(value);
+	}
+	
+	private static int getMaxDecimal()
+	{
+		double minFraction = MoneyUtil.getData(new CoinValue(1).coinValues.get(0).coin).getDisplayValue() % 1d;
+		if(minFraction > 0d)
+		{
+			//-2 to ignore the 0.
+			return Double.toString(minFraction).length() - 2;
+		}
+		else
+			return 0;
+	}
 	
 	public static class Client
 	{
@@ -229,6 +277,13 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> emeraldChestDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> diamondChestDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> netheriteChestDrops;
+		
+		//Value Display Options
+		private final ForgeConfigSpec.EnumValue<CoinItem.CoinItemTooltipType> coinTooltipType;
+		private final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueType;
+		private final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueInputType;
+		private final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
+		private final ForgeConfigSpec.ConfigValue<String> valueFormat;
 		
 		//Coin Values
 		public final ForgeConfigSpec.IntValue ironCoinWorth;
@@ -419,6 +474,37 @@ public class Config {
 			
 			builder.pop();
 			
+			builder.comment("Coin value display setting.").push("coin_value_display");
+			
+			this.coinTooltipType = builder
+					.comment("Tooltip type displayed on coin items.",
+							"DEFAULT: Conversion tooltips, explaining it's value based on the coins it can be converted to/from.",
+							"VALUE: Coins numerical display value as defined by the coinValueType option below. Not recommend if using the DEFAULT coinValueType.")
+					.defineEnum("coinTooltipType", CoinItem.CoinItemTooltipType.DEFAULT);
+
+			this.coinValueType = builder
+					.comment("Value display method used throughout the mod.",
+							"DEFAULT: Coin Count & Icon aglomerate (1n5g for 1 netherite and 5 gold)",
+							"VALUE: Coin numerical display value as defined by the baseValueCoin and valueFormat config options below.")
+					.defineEnum("coinValueType", CoinValue.ValueType.DEFAULT);
+
+			this.coinValueInputType = builder
+					.comment("Input method used for the Coin Value Input.",
+							"DEFAULT: Default coin input with up/down buttons for each coin type.",
+							"VALUE: Text box input for the coins display value.")
+					.defineEnum("coinValueInputType", CoinValue.ValueType.DEFAULT);
+
+			this.valueBaseCoin = builder
+					.comment("Coin item defined as 1 value unit for display purposes. Any coins worth less than the base coin will have a decimal value.")
+					.define("baseValueCoin", "lightmanscurrency:coin_copper");
+
+			this.valueFormat = builder
+					.comment("Value display format. Used to add currency signs to coin value displays.",
+							"{value} will be replaced with the coins numerical value. Only 1 should be present at any given time.")
+					.define("valueFormat", "${value}");
+			
+			builder.pop();
+			
 			builder.comment("Coin value settings.").push("coin_value");
 			
 			this.ironCoinWorth = builder
@@ -588,6 +674,13 @@ public class Config {
 		data.putInt("walletPickupLevel", COMMON.walletPickupLevel.get());
 		data.putInt("walletBankLevel", COMMON.walletBankLevel.get());
 		
+		//Coin Tooltip & Value Displays
+		data.putString("coinTooltipType", COMMON.coinTooltipType.get().name());
+		data.putString("coinValueType", COMMON.coinValueType.get().name());
+		data.putString("coinValueInputType", COMMON.coinValueInputType.get().name());
+		data.putString("valueBaseCoin", COMMON.valueBaseCoin.get());
+		data.putString("valueFormat", COMMON.valueFormat.get());
+		
 		return data;
 	}
 	
@@ -646,6 +739,13 @@ public class Config {
 		convertLevel = data.getInt("walletConvertLevel");
 		pickupLevel = data.getInt("walletPickupLevel");
 		bankLevel = data.getInt("walletBankLevel");
+		
+		//Coin Tooltip & Value Displays
+		coinTooltipType = EnumUtil.enumFromString(data.getString("coinTooltipType"), CoinItem.CoinItemTooltipType.values(), CoinItem.CoinItemTooltipType.DEFAULT);
+		valueDisplayType = EnumUtil.enumFromString(data.getString("coinValueType"), CoinValue.ValueType.values(), CoinValue.ValueType.DEFAULT);
+		valueInputType = EnumUtil.enumFromString(data.getString("coinValueInputType"), CoinValue.ValueType.values(), CoinValue.ValueType.DEFAULT);
+		baseCoinItem = data.getString("valueBaseCoin");
+		valueDisplayFormat = data.getString("valueFormat");
 		
 	}
 	

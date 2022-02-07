@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -214,6 +215,11 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	@Override
 	public <T extends Button> T addButton(T button) {
 		return super.addButton(button);
+	}
+	
+	@Override
+	public <T extends IGuiEventListener> T addListener(T listener) {
+		return super.addListener(listener);
 	}
 
 	@Override

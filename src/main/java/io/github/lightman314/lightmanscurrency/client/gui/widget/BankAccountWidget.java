@@ -114,6 +114,11 @@ public class BankAccountWidget implements ICoinValueInput{
 	public <T extends Button> T addButton(T button) {
 		return this.parent.addCustomWidget(button);
 	}
+	
+	@Override
+	public <T extends IGuiEventListener> T addListener(T listener) {
+		return this.parent.addCustomListener(listener);
+	}
 
 	@Override
 	public FontRenderer getFont() {

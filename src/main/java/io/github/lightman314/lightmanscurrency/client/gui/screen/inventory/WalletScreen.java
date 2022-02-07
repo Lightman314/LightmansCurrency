@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -18,16 +20,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
-//import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-//import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
+@IPNIgnore
 public class WalletScreen extends ContainerScreen<WalletContainer> implements IBankAccountWidget{
 
 	private final int BASEHEIGHT = 114;

@@ -17,7 +17,6 @@ public class ModGameRules {
 	public static final GameRules.RuleKey<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet", GameRules.Category.PLAYER, createBoolean(false));
 	public static final GameRules.RuleKey<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.Category.PLAYER, createInteger(0));
 	
-	
 	@SuppressWarnings("unchecked")
 	private static GameRules.RuleType<GameRules.IntegerValue> createInteger(int defaultVal)
 	{

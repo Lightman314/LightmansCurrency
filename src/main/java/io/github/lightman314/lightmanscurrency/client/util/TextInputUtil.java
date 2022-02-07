@@ -76,6 +76,68 @@ public class TextInputUtil {
 		return defaultValue;
 	}
 	
+	public static boolean isFloat(TextFieldWidget textInput)
+	{
+		return isFloat(textInput.getText());
+	}
+
+	public static boolean isFloat(String text)
+	{
+		if(text == null)
+			return false;
+		try {
+			@SuppressWarnings("unused")
+			float f = Float.parseFloat(text);
+		} catch(NumberFormatException nfe)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static float getFloatValue(TextFieldWidget textInput)
+	{
+		return getFloatValue(textInput, 0f);
+	}
+
+	public static float getFloatValue(TextFieldWidget textInput, float defaultValue)
+	{
+		if(isFloat(textInput))
+			return Float.parseFloat(textInput.getText());
+		return defaultValue;
+	}
+
+	public static boolean isDouble(TextFieldWidget textInput)
+	{
+		return isDouble(textInput.getText());
+	}
+
+	public static boolean isDouble(String text)
+	{
+		if(text == null)
+			return false;
+		try {
+			@SuppressWarnings("unused")
+			double d = Double.parseDouble(text);
+		} catch(NumberFormatException nfe)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static double getDoubleValue(TextFieldWidget textInput)
+	{
+		return getDoubleValue(textInput, 0d);
+	}
+
+	public static double getDoubleValue(TextFieldWidget textInput, double defaultValue)
+	{
+		if(isDouble(textInput))
+			return Double.parseDouble(textInput.getText());
+		return defaultValue;
+	}
+	
 	/**
 	 * Also works for long values.
 	 */

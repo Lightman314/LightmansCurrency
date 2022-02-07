@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.4-1.0.3.1'
+version = '1.16.4-1.0.3.2'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
@@ -70,10 +70,11 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.37'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.20'
     //compileOnly fg.deobf('curse.maven:curios-309927:3343065')
     compile fg.deobf('curse.maven:jei-238222:3564654')
-    //compileOnly fg.deobf('curse.maven:wthit-forge-455982:3531244')
+    //For compatibility fix
+    compileOnly 'curse.maven:inventory-profiles-next-495267:3639040'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
