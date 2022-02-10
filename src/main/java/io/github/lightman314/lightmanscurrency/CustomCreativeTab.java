@@ -69,17 +69,28 @@ public class CustomCreativeTab extends CreativeModeTab {
 			
 		}
 		
-		private ArrayList<ItemLike> sortList = null;
+		private ArrayList<Item> sortList = null;
+		
+		private ArrayList<Item> convertList(List<ItemLike> sourceList)
+		{
+			ArrayList<Item> list = Lists.newArrayList();
+			for(int i = 0; i < sourceList.size(); ++i)
+			{
+				list.add(sourceList.get(i).asItem());
+			}
+			return list;
+		}
+		
 		public void initSortingList(List<ItemLike> sortList)
 		{
 			if(this.sortList == null)
 			{
-				this.sortList = Lists.newArrayList(sortList);
+				this.sortList = this.convertList(sortList);
 			}
 			else
 			{
-				List<ItemLike> copyList = this.sortList;
-				this.sortList = Lists.newArrayList(sortList);
+				List<Item> copyList = this.sortList;
+				this.sortList = this.convertList(sortList);
 				for(int i = 0; i < copyList.size(); i++)
 				{
 					this.sortList.add(copyList.get(i));
@@ -92,12 +103,12 @@ public class CustomCreativeTab extends CreativeModeTab {
 			if(this.sortList == null)
 			{
 				//LightmansCurrency.LogWarning("Sorting list has not been initialized. Adding temporarily, until the official init arrives.");
-				this.sortList = Lists.newArrayList(extras);
+				this.sortList = this.convertList(extras);
 				return;
 			}
 			for(int i = 0; i < extras.size(); i++)
 			{
-				this.sortList.add(extras.get(i));
+				this.sortList.add(extras.get(i).asItem());
 			}
 			LightmansCurrency.LogInfo("Added " + extras.size() + " items to the creative tab sorting list.");
 		}
@@ -153,7 +164,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 		{
 			for(int i = 0; i < this.sortList.size(); i++)
 			{
-				if(item == this.sortList.get(i).asItem())
+				if(item == this.sortList.get(i))
 					return i;
 			}
 			return -1;
