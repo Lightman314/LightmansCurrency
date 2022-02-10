@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
@@ -112,7 +113,7 @@ public class LightmansCurrency {
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
     	
     	//Initialized the sorting lists
-		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
+		COIN_GROUP.initSortingList(Lists.newArrayList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
 				ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_COPPER.item,
 				ModBlocks.COINPILE_IRON.item, ModBlocks.COINPILE_GOLD.item, ModBlocks.COINPILE_EMERALD.item,
 				ModBlocks.COINPILE_DIAMOND.item, ModBlocks.COINPILE_NETHERITE.item, ModBlocks.COINBLOCK_COPPER.item,
@@ -122,11 +123,11 @@ public class LightmansCurrency {
 				ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE
 			));
 		
-		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
+		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
 				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
 			));
 		
-		TRADING_GROUP.initSortingList(Arrays.asList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
+		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
 				ModBlocks.SHELF.getItem(WoodType.SPRUCE), ModBlocks.SHELF.getItem(WoodType.JUNGLE),
 				ModBlocks.SHELF.getItem(WoodType.ACACIA), ModBlocks.SHELF.getItem(WoodType.DARK_OAK),
 				ModBlocks.SHELF.getItem(WoodType.CRIMSON), ModBlocks.SHELF.getItem(WoodType.WARPED),

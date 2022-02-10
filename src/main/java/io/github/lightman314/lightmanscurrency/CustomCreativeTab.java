@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
@@ -66,15 +69,17 @@ public class CustomCreativeTab extends CreativeModeTab {
 			
 		}
 		
-		private List<ItemLike> sortList = null;
+		private ArrayList<ItemLike> sortList = null;
 		public void initSortingList(List<ItemLike> sortList)
 		{
 			if(this.sortList == null)
-				this.sortList = sortList;
+			{
+				this.sortList = Lists.newArrayList(sortList);
+			}
 			else
 			{
 				List<ItemLike> copyList = this.sortList;
-				this.sortList = sortList;
+				this.sortList = Lists.newArrayList(sortList);
 				for(int i = 0; i < copyList.size(); i++)
 				{
 					this.sortList.add(copyList.get(i));
@@ -86,9 +91,9 @@ public class CustomCreativeTab extends CreativeModeTab {
 		{
 			if(this.sortList == null)
 			{
-				LightmansCurrency.LogWarning("Sorting list has not been initialized. Adding temporarily, until the official init arrives.");
-				this.sortList = extras;
-				//return;
+				//LightmansCurrency.LogWarning("Sorting list has not been initialized. Adding temporarily, until the official init arrives.");
+				this.sortList = Lists.newArrayList(extras);
+				return;
 			}
 			for(int i = 0; i < extras.size(); i++)
 			{
@@ -146,9 +151,9 @@ public class CustomCreativeTab extends CreativeModeTab {
 		
 		private int indexOf(Item item)
 		{
-			for(int i = 0; i < sortList.size(); i++)
+			for(int i = 0; i < this.sortList.size(); i++)
 			{
-				if(item == sortList.get(i).asItem())
+				if(item == this.sortList.get(i).asItem())
 					return i;
 			}
 			return -1;
