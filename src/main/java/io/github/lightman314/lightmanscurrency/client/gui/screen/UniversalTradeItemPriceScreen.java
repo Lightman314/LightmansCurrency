@@ -211,12 +211,12 @@ public class UniversalTradeItemPriceScreen extends Screen implements ICoinValueI
 	}
 	
 	@Override
-	public <T extends Button> T addButton(T button) {
+	public <T extends Button> T addCustomButton(T button) {
 		return super.addButton(button);
 	}
 	
 	@Override
-	public <T extends IGuiEventListener> T addListener(T listener) {
+	public <T extends IGuiEventListener> T addCustomListener(T listener) {
 		return super.addListener(listener);
 	}
 

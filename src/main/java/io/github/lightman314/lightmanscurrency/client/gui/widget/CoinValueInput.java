@@ -108,7 +108,7 @@ public class CoinValueInput extends Widget{
 	private void init()
 	{
 		
-		this.toggleFree = this.parent.addButton(new PlainButton(this.leftOffset  + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
+		this.toggleFree = this.parent.addCustomButton(new PlainButton(this.leftOffset  + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT));
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
 		
@@ -117,8 +117,8 @@ public class CoinValueInput extends Widget{
 			int buttonCount = MoneyUtil.getAllData().size();
 			for(int x = 0; x < buttonCount; x++)
 			{
-				increaseButtons.add(this.parent.addButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
-				Button newButton = this.parent.addButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
+				increaseButtons.add(this.parent.addCustomButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
+				Button newButton = this.parent.addCustomButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
 				newButton.active = false;
 				decreaseButtons.add(newButton);
 			}
@@ -131,7 +131,7 @@ public class CoinValueInput extends Widget{
 			int postfixWidth = this.parent.getFont().getStringWidth(this.prefix);
 			if(postfixWidth > 0)
 				postfixWidth += 2;
-			this.valueInput = this.parent.addListener(new TextFieldWidget(this.parent.getFont(), this.leftOffset + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, new StringTextComponent("")));
+			this.valueInput = this.parent.addCustomListener(new TextFieldWidget(this.parent.getFont(), this.leftOffset + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, new StringTextComponent("")));
 		}
 		
 		this.tick();
@@ -375,8 +375,8 @@ public class CoinValueInput extends Widget{
 	
 	public static interface ICoinValueInput
 	{
-		public <T extends Button> T addButton(T button);
-		public <T extends IGuiEventListener> T addListener(T listener);
+		public <T extends Button> T addCustomButton(T button);
+		public <T extends IGuiEventListener> T addCustomListener(T listener);
 		public int getWidth();
 		public FontRenderer getFont();
 		public void OnCoinValueChanged(CoinValueInput input);
