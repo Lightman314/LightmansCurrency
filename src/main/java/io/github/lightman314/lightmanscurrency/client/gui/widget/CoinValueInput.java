@@ -252,11 +252,11 @@ public class CoinValueInput extends Widget{
 					this.coinValue = MoneyUtil.displayValueToCoinValue(this.getDisplayValue());
 					this.parent.OnCoinValueChanged(this);
 				}
-				else
-				{
-					this.valueInput.setText("");
-					this.lastInput = this.valueInput.getText();
-				}
+			}
+			else
+			{
+				this.valueInput.setText("");
+				this.lastInput = this.valueInput.getText();
 			}
 		}
 		
