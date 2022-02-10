@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
@@ -113,7 +114,7 @@ public class LightmansCurrency {
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
     	
     	//Initialized the sorting lists
-		COIN_GROUP.initSortingList(Arrays.asList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
+		COIN_GROUP.initSortingList(Lists.newArrayList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
 				ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_COPPER.item,
 				ModBlocks.COINPILE_IRON.item, ModBlocks.COINPILE_GOLD.item, ModBlocks.COINPILE_EMERALD.item,
 				ModBlocks.COINPILE_DIAMOND.item, ModBlocks.COINPILE_NETHERITE.item, ModBlocks.COINBLOCK_COPPER.item,
@@ -123,15 +124,15 @@ public class LightmansCurrency {
 				ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE
 			));
 		
-		MACHINE_GROUP.initSortingList(Arrays.asList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
+		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
 				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
 			));
 		
-		TRADING_GROUP.initSortingList(Arrays.asList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
+		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
 				ModBlocks.SHELF.getItem(WoodType.SPRUCE), ModBlocks.SHELF.getItem(WoodType.JUNGLE),
 				ModBlocks.SHELF.getItem(WoodType.ACACIA), ModBlocks.SHELF.getItem(WoodType.DARK_OAK),
 				ModBlocks.SHELF.getItem(WoodType.CRIMSON), ModBlocks.SHELF.getItem(WoodType.WARPED),
-				ModBlocks.DISPLAY_CASE, ModBlocks.ARMOR_DISPLAY, ModBlocks.CARD_DISPLAY.getItem(WoodType.OAK),
+				ModBlocks.DISPLAY_CASE.item, ModBlocks.ARMOR_DISPLAY.item, ModBlocks.CARD_DISPLAY.getItem(WoodType.OAK),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.getItem(WoodType.SPRUCE),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.JUNGLE), ModBlocks.CARD_DISPLAY.getItem(WoodType.ACACIA),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.getItem(WoodType.CRIMSON),
@@ -143,7 +144,7 @@ public class LightmansCurrency {
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.CYAN), ModBlocks.VENDING_MACHINE1.getItem(Colors.PURPLE),
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLUE), ModBlocks.VENDING_MACHINE1.getItem(Colors.BROWN),
 				ModBlocks.VENDING_MACHINE1.getItem(Colors.GREEN), ModBlocks.VENDING_MACHINE1.getItem(Colors.RED),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLACK), ModBlocks.FREEZER,
+				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLACK), ModBlocks.FREEZER.item,
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.WHITE), ModBlocks.VENDING_MACHINE2.getItem(Colors.ORANGE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.MAGENTA), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIGHTBLUE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.YELLOW), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIME),
@@ -152,8 +153,8 @@ public class LightmansCurrency {
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.PURPLE), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLUE),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.BROWN), ModBlocks.VENDING_MACHINE2.getItem(Colors.GREEN),
 				ModBlocks.VENDING_MACHINE2.getItem(Colors.RED), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLACK),
-				ModBlocks.TICKET_KIOSK, ModBlocks.ITEM_TRADER_SERVER_SMALL, ModBlocks.ITEM_TRADER_SERVER_MEDIUM,
-				ModBlocks.ITEM_TRADER_SERVER_LARGE, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE
+				ModBlocks.TICKET_KIOSK.item, ModBlocks.ITEM_TRADER_SERVER_SMALL.item, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.item,
+				ModBlocks.ITEM_TRADER_SERVER_LARGE.item, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.item
 			));
 		
     }

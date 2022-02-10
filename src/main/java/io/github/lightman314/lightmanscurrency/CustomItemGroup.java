@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -66,15 +69,28 @@ public class CustomItemGroup extends ItemGroup {
 			
 		}
 		
-		private List<IItemProvider> sortList = null;
+		private ArrayList<Item> sortList = null;
+		
+		private ArrayList<Item> convertList(List<IItemProvider> sourceList)
+		{
+			ArrayList<Item> list = Lists.newArrayList();
+			for(int i = 0; i < sourceList.size(); ++i)
+			{
+				list.add(sourceList.get(i).asItem());
+			}
+			return list;
+		}
+		
 		public void initSortingList(List<IItemProvider> sortList)
 		{
 			if(this.sortList == null)
-				this.sortList = sortList;
+			{
+				this.sortList = this.convertList(sortList);
+			}
 			else
 			{
-				List<IItemProvider> copyList = this.sortList;
-				this.sortList = sortList;
+				List<Item> copyList = this.sortList;
+				this.sortList = this.convertList(sortList);
 				for(int i = 0; i < copyList.size(); i++)
 				{
 					this.sortList.add(copyList.get(i));
@@ -86,13 +102,13 @@ public class CustomItemGroup extends ItemGroup {
 		{
 			if(this.sortList == null)
 			{
-				LightmansCurrency.LogWarning("Sorting list has not been initialized. Adding temporarily, until the official init arrives.");
-				this.sortList = extras;
-				//return;
+				//LightmansCurrency.LogWarning("Sorting list has not been initialized. Adding temporarily, until the official init arrives.");
+				this.sortList = this.convertList(extras);
+				return;
 			}
 			for(int i = 0; i < extras.size(); i++)
 			{
-				this.sortList.add(extras.get(i));
+				this.sortList.add(extras.get(i).asItem());
 			}
 			LightmansCurrency.LogInfo("Added " + extras.size() + " items to the creative tab sorting list.");
 		}
@@ -146,9 +162,9 @@ public class CustomItemGroup extends ItemGroup {
 		
 		private int indexOf(Item item)
 		{
-			for(int i = 0; i < sortList.size(); i++)
+			for(int i = 0; i < this.sortList.size(); i++)
 			{
-				if(item == sortList.get(i).asItem())
+				if(item == this.sortList.get(i))
 					return i;
 			}
 			return -1;
