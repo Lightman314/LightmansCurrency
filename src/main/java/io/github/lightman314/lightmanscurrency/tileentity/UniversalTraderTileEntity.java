@@ -169,7 +169,7 @@ public abstract class UniversalTraderTileEntity extends TileEntity implements IO
 	
 	protected void dumpContents(@Nonnull UniversalTraderData data)
 	{
-		InventoryUtil.dumpContents(this.world, this.pos, MoneyUtil.getCoinsOfValue(data.getStoredMoney()));
+		InventoryUtil.dumpContents(this.world, this.pos, MoneyUtil.getCoinsOfValue(data.getInternalStoredMoney()));
 	}
 	
 }
