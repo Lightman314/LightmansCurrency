@@ -140,7 +140,7 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	
 	protected void dumpContents(@Nonnull UniversalTraderData data)
 	{
-		InventoryUtil.dumpContents(this.level, this.getBlockPos(), MoneyUtil.getCoinsOfValue(data.getStoredMoney()));
+		InventoryUtil.dumpContents(this.level, this.getBlockPos(), MoneyUtil.getCoinsOfValue(data.getInternalStoredMoney()));
 	}
 	
 }
