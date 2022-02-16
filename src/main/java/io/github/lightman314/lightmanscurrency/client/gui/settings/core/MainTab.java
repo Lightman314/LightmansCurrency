@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -59,7 +60,7 @@ public class MainTab extends SettingsTab{
 		this.buttonResetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50, 74, 20, new TranslatableComponent("gui.lightmanscurrency.resetname"), this::ResetName));
 		
 		//Creative Toggle
-		this.buttonToggleCreative = screen.addRenderableTabWidget(new IconButton(screen.guiLeft() + 176, screen.guiTop() + 4, this::ToggleCreative, this.getScreen().getFont(), IconData.of(TraderSettingsScreen.GUI_TEXTURE, 216, 100)));
+		this.buttonToggleCreative = screen.addRenderableTabWidget(new IconButton(screen.guiLeft() + 176, screen.guiTop() + 4, this::ToggleCreative, IconData.of(TraderSettingsScreen.GUI_TEXTURE, 216, 100)));
 		this.buttonAddTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 4, 10, 10, this::AddTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 200));
 		this.buttonRemoveTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 14, 10, 10, this::RemoveTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 220));
 		
@@ -86,11 +87,7 @@ public class MainTab extends SettingsTab{
 	public void postRender(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 		TraderSettingsScreen screen = this.getScreen();
 		//Render button tooltips
-		if(this.buttonToggleCreative.isMouseOver(mouseX, mouseY))
-		{
-			screen.renderTooltip(matrix, new TranslatableComponent("tooltip.lightmanscurrency.trader.creative." + (this.getSetting(CoreTraderSettings.class).isCreative() ? "disable" : "enable")), mouseX, mouseY);
-		}
-		else if(this.buttonAddTrade.isMouseOver(mouseX, mouseY))
+		if(this.buttonAddTrade.isMouseOver(mouseX, mouseY))
 		{
 			screen.renderTooltip(matrix, new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.addTrade"), mouseX, mouseY);
 		}
@@ -118,7 +115,7 @@ public class MainTab extends SettingsTab{
 		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.getScreen().getPlayer());
 		if(this.buttonToggleCreative.visible)
 		{
-			this.buttonToggleCreative.setIcon(IconData.of(TraderSettingsScreen.GUI_TEXTURE, coreSettings.isCreative() ? 216 : 232, 100));
+			IconAndButtonUtil.updateCreativeToggleButton(this.buttonToggleCreative, coreSettings.isCreative());
 			if(coreSettings.isCreative())
 			{
 				ITrader trader = this.getScreen().getTrader();

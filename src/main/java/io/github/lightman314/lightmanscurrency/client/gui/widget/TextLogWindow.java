@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.TextLogger;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -20,42 +20,79 @@ public class TextLogWindow extends AbstractWidget{
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/textlog.png");
 	
-	public static final int WIDTH = 256;
-	public static final int HEIGHT = 256;
-	
-	private static final int TEXT_WIDTH = WIDTH - 20;
-	private static final int TEXT_HEIGHT = HEIGHT - 30;
-	
 	private final Supplier<TextLogger> logger;
 	private final Font font;
 	
 	int scroll = 0;
 	
+	//OG 
 	public TextLogWindow(int x, int y, Supplier<TextLogger> logger, Font font)
 	{
-		super(x,y, WIDTH, HEIGHT, new TextComponent(""));
+		super(x, y, 256, 256, new TextComponent(""));
 		this.logger = logger;
 		this.font = font;
+	}
+	
+	@SuppressWarnings("resource")
+	public TextLogWindow(AbstractContainerScreen<?> screen, Supplier<TextLogger> logger)
+	{
+		super(screen.getGuiLeft(), screen.getGuiTop(), screen.getXSize(), screen.getYSize(), new TextComponent(""));
+		this.logger = logger;
+		this.font = screen.getMinecraft().font;
 	}
 	
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
 		//Render the background
-		this.blit(poseStack, this.x, this.y, 0, 0, WIDTH, HEIGHT);
+		//Render the top edge
+		this.blit(poseStack, this.x, this.y, 0, 0, 7, 7);
+		int xOffset = 7;
+		while(xOffset < this.width - 7)
+		{
+			int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+			this.blit(poseStack, this.x + xOffset, this.y, 7, 0, thisWidth, 7);
+			xOffset += thisWidth;
+		}
+		this.blit(poseStack, this.x + this.width - 7, this.y, 256 - 7, 0, 7, 7);
+		//Render the middle
+		int yOffset = 7;
+		while(yOffset < this.height - 7)
+		{
+			int thisHeight = Math.min(256 - 14, this.height - 7 - yOffset);
+			this.blit(poseStack, this.x, this.y + yOffset, 0, 7, 7, thisHeight);
+			xOffset = 7;
+			while(xOffset < this.width - 7)
+			{
+				int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+				this.blit(poseStack, this.x + xOffset, this.y + yOffset, 7, 7, thisWidth, thisHeight);
+				xOffset += thisWidth;
+			}
+			this.blit(poseStack, this.x + this.width - 7, this.y + yOffset, 256 - 7, 7, 7, thisHeight);
+			yOffset += thisHeight;
+		}
+		//Render the bottom edge
+		this.blit(poseStack, this.x, this.y + this.height - 7, 0, 256 - 7, 7, 7);
+		xOffset = 7;
+		while(xOffset < this.width - 7)
+		{
+			int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+			this.blit(poseStack, this.x + xOffset, this.y + this.height - 7, 7, 256 - 7, thisWidth, 7);
+			xOffset += thisWidth;
+		}
+		this.blit(poseStack, this.x + this.width - 7, this.y + this.height - 7, 256 - 7, 256 - 7, 7, 7);
 		
-		//Render the text (WILL need changing later)
+		//Render the text
 		List<MutableComponent> logText = this.logger.get().logText;
 		int yPos = 0;
-		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < TEXT_HEIGHT; i--)
+		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < this.height - 20; i--)
 		{
-			int thisHeight = this.font.wordWrapHeight(logText.get(i).getString(), TEXT_WIDTH);
-			if(yPos + thisHeight <= TEXT_HEIGHT)
-				this.font.drawWordWrap(logText.get(i), this.x + 10, this.y + 10 + yPos, TEXT_WIDTH, 0xFFFFFF);
+			int thisHeight = this.font.wordWrapHeight(logText.get(i).getString(), this.width - 20);
+			if(yPos + thisHeight <= this.height - 20)
+				this.font.drawWordWrap(logText.get(i), this.x + 10, this.y + 10 + yPos, this.width - 20, 0xFFFFFF);
 			yPos += thisHeight;
 		}
 		
@@ -66,11 +103,11 @@ public class TextLogWindow extends AbstractWidget{
 		//Faux render the text, to see if we overflow the height limit or not
 		List<MutableComponent> logText = this.logger.get().logText;
 		int yPos = 0;
-		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < TEXT_HEIGHT; i--)
+		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < this.height - 20; i--)
 		{
-			yPos += this.font.wordWrapHeight(logText.get(i).getString(), TEXT_WIDTH);
+			yPos += this.font.wordWrapHeight(logText.get(i).getString(), this.width - 20);
 		}
-		return yPos >= TEXT_HEIGHT;
+		return yPos >= this.height - 20;
 	}
 	
 	@Override

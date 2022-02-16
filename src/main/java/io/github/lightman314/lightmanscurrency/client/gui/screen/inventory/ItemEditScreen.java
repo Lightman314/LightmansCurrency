@@ -9,10 +9,9 @@ import java.util.Objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderStorageUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import net.minecraft.client.gui.components.Button;
@@ -69,7 +68,7 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Render the fake trade button
-		ItemTradeButton.renderItemTradeButton(poseStack, (Screen)this, font, this.leftPos, this.topPos - ItemTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), false);
+		ItemTradeButton.renderItemTradeButton(poseStack, (Screen)this, font, this.leftPos, this.topPos - ItemTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.getTrader(), false);
 		
 	}
 	
@@ -95,11 +94,11 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 		//Initialize the buttons
 		//Toggle button
 		this.buttonToggleSlot = this.addRenderableWidget(new Button(this.leftPos + this.imageWidth - 80, this.topPos - 20, 80, 20, new TranslatableComponent("gui.button.lightmanscurrency.item_edit.toggle.sell"), this::PressToggleSlotButton));
-		this.buttonToggleSlot.visible = this.menu.tradeData.isBarter();
+		this.buttonToggleSlot.visible = this.menu.getTrade().isBarter();
 		
 		//Page Buttons
-		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
-		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 0)));
+		this.buttonPageLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos - 20, this.topPos, this::PressPageButton));
+		this.buttonPageRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth, this.topPos, this::PressPageButton));
 		//Count Buttons
 		this.buttonCountUp = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 20, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 0));
 		this.buttonCountDown = this.addRenderableWidget(new PlainButton(this.leftPos + this.imageWidth, this.topPos + 30, 10, 10, this::PressStackCountButton, GUI_TEXTURE, this.imageWidth + 32, 20));
@@ -117,7 +116,7 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
-		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
+		ItemTradeButton.tryRenderTooltip(matrixStack, this, this.menu.tradeIndex, this.menu.getTrader(), this.leftPos, this.topPos - ItemTradeButton.HEIGHT, false, mouseX, mouseY);
 		
 	}
 	

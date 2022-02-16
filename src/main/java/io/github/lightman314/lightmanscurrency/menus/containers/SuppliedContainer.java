@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.menus.containers;
 
 import java.util.Set;
-
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

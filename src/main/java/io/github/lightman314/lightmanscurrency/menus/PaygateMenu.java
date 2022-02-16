@@ -32,7 +32,7 @@ public class PaygateMenu extends AbstractContainerMenu implements ITraderMenuPri
 	
 	public final Player player;
 	
-	protected static final MenuType<?> type = ModMenus.ITEMTRADER;
+	protected static final MenuType<?> type = ModMenus.ITEM_TRADER;
 	
 	protected final Container coinInput = new SimpleContainer(5);
 	protected final Container ticketInput = new TicketInventory(1);

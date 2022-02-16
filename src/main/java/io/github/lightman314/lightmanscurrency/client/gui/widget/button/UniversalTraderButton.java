@@ -59,12 +59,7 @@ public class UniversalTraderButton extends Button{
 		this.blit(poseStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
 		//Draw the icon
-		ResourceLocation iconResource = this.data.IconLocation();
-		if(iconResource != null)
-		{
-			RenderSystem.setShaderTexture(0, iconResource);
-			this.blit(poseStack, this.x + 4, this.y + 7, this.data.IconPositionX(), this.data.IconPositionY(), 16, 16);
-		}
+		this.data.getIcon().render(poseStack, this, this.font, this.x + 4, this.y + 7);
 		
 		//Draw the name & owner of the trader
 		this.font.draw(poseStack, this.data.getName().getString(), this.x + 24f, this.y + 6f, 0x404040);

@@ -1594,7 +1594,6 @@ public class MoneyUtil {
             		return emptyFiller;
             	return string;
     		case VALUE:
-    			
             	return Config.formatValueDisplay(this.getDisplayValue());
             	default:
             		return "?";
@@ -1620,6 +1619,12 @@ public class MoneyUtil {
     	public CoinValue ApplyMultiplier(double costMultiplier)
     	{
     		CoinValue multipliedValue = new CoinValue();
+    		if(this.isFree)
+    		{
+    			//Anything multiplied by free is still free
+    			multipliedValue.setFree(true);
+    			return multipliedValue;
+    		}
     		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 10d);
     		
     		for(int i = 0; i < this.coinValues.size(); i++)
@@ -1640,6 +1645,8 @@ public class MoneyUtil {
     				multipliedValue.addValue(coin, (int)newAmount);
     			}
     		}
+    		if(multipliedValue.getRawValue() <= 0) //If it became free, flag the result as free.
+    			multipliedValue.setFree(true);
     		return multipliedValue;
     	}
     	

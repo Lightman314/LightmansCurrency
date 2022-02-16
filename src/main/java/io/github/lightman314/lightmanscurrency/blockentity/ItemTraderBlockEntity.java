@@ -16,24 +16,27 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
+import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenuCR;
+import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.ItemTraderMenuCR;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
@@ -69,7 +72,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader, ILoggerSupport<ItemShopLogger> {
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
@@ -167,7 +170,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			overrideTradeCount(tradeCount + 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
 			this.markCoreSettingsDirty();
-			forceReOpen();
+			this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
@@ -184,20 +187,20 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			overrideTradeCount(tradeCount - 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
 			this.markCoreSettingsDirty();
-			forceReOpen();
+			this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	private void forceReOpen()
+	protected void forceReopen(List<Player> users)
 	{
-		for(Player player : this.getUsers())
+		for(Player player : users)
 		{
 			if(player.containerMenu instanceof ItemTraderStorageMenu)
 				this.openStorageMenu(player);
 			else if(player.containerMenu instanceof ItemTraderMenuCR)
-				this.openCashRegisterTradeMenu(player, ((ItemTraderMenuCR)player.containerMenu).cashRegister);
+				this.openCashRegisterTradeMenu(player, ((ItemTraderMenuCR)player.containerMenu).getCashRegister());
 			else if(player.containerMenu instanceof ItemTraderMenu)
 				this.openTradeMenu(player);
 		}
@@ -522,21 +525,21 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	private class TradeContainerProvider implements MenuProvider{
 
-		ItemTraderBlockEntity tileEntity;
+		ItemTraderBlockEntity trader;
 		
 		public TradeContainerProvider(ItemTraderBlockEntity tileEntity)
 		{
-			this.tileEntity = tileEntity;
+			this.trader = tileEntity;
 		}
 		
 		public Component getDisplayName()
 		{
-			return tileEntity.getName();
+			return trader.getName();
 		}
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderMenu(id, inventory, tileEntity);
+			return new ItemTraderMenu(id, inventory, this.trader.worldPosition);
 		}
 		
 	}
@@ -557,7 +560,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderStorageMenu(id, inventory, tileEntity);
+			return new ItemTraderStorageMenu(id, inventory, tileEntity.worldPosition);
 		}
 		
 	}
@@ -580,7 +583,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemTraderMenuCR(id, inventory, tileEntity, registerEntity);
+			return new ItemTraderMenuCR(id, inventory, tileEntity.worldPosition, registerEntity);
 		}
 		
 	}
@@ -603,7 +606,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new ItemEditMenu(id, inventory, () -> tileEntity, tradeIndex);
+			return new ItemEditMenu(id, inventory, tileEntity.worldPosition, tradeIndex);
 		}
 		
 	}
@@ -696,7 +699,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.openStorageMenu(player);
 	}
 	
-	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TraderScreenHandler(this); }
 	
 	private static class TraderScreenHandler implements ITradeRuleScreenHandler
 	{
@@ -714,7 +717,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		@Override
 		public void reopenLastScreen()
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.worldPosition));
+			this.tileEntity.sendOpenStorageMessage();
 		}
 		
 		@Override
@@ -722,6 +725,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.worldPosition, newRules));
 		}
+		
+		@Override
+		public boolean stillValid() { return !this.tileEntity.isRemoved(); }
 		
 	}
 	
@@ -747,6 +753,24 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			}
 		}
 		return super.getCapability(cap, side);
+	}
+
+	@Override
+	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.worldPosition, tradeIndex, sellItem, 0));
+	}
+	
+	@Override
+	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType) {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice(this.worldPosition, tradeIndex, newPrice, newCustomName, newTradeType.name()));
+	}
+
+	@Override
+	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.worldPosition, newRules, tradeIndex));
 	}
 	
 }

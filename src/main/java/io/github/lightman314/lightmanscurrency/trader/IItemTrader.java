@@ -2,18 +2,24 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.*;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
+public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ILoggerSupport<ItemShopLogger> {
 
 	public ItemTradeData getTrade(int index);
 	public List<ItemTradeData> getAllTrades();
@@ -25,6 +31,12 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity {
 	public void openItemEditMenu(Player player, int tradeIndex);
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
+	//Open menu functions
+	public ITradeRuleScreenHandler getRuleScreenHandler();
+	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
+	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
+	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules);
+	
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)

@@ -18,6 +18,8 @@ public interface ITrader extends IPermissions {
 	public Component getTitle();
 	public CoinValue getStoredMoney();
 	public CoinValue getInternalStoredMoney();
+	public void addStoredMoney(CoinValue amount);
+	public void removeStoredMoney(CoinValue amount);
 	public void clearStoredMoney();
 	public int getTradeCount();
 	public int getTradeCountLimit();
@@ -34,5 +36,12 @@ public interface ITrader extends IPermissions {
 	//Client Check
 	public boolean isClient();
 	public default boolean isServer() { return !this.isClient(); }
+	//Menu Functions
+	public void userOpen(Player player);
+	public void userClose(Player player);
+	//Client-side messages
+	public void sendOpenTraderMessage();
+	public void sendOpenStorageMessage();
+	public void sendClearLogMessage();
 	
 }

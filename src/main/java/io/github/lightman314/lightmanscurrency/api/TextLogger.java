@@ -12,7 +12,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class TextLogger {
 
@@ -70,9 +69,12 @@ public abstract class TextLogger {
 		}
 	}
 	
-	public static Component getCostText(boolean isFree, CoinValue cost)
+	@Deprecated //Use getCostText(CoinValue cost)
+	public static Component getCostText(boolean isFree, CoinValue cost)  { return getCostText(cost); }
+	
+	public static Component getCostText(CoinValue cost)
 	{
-		return isFree ? new TranslatableComponent("log.shoplog.cost.free").withStyle(ChatFormatting.YELLOW) : new TextComponent(cost.getString()).withStyle(ChatFormatting.YELLOW);
+		return new TextComponent(cost.getString()).withStyle(ChatFormatting.YELLOW);
 	}
 	
 }

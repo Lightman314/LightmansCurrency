@@ -287,10 +287,10 @@ public class ItemTradeButton extends Button{
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(isValid && !hasSpace)
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(isValid && isFree)
-			return new TranslatableComponent("gui.button.lightmanscurrency.free").getString();
-		else
+		else if(isValid)
 			return cost.getString();
+		else
+			return "";
 	}
 	
 	public static int getTradeTextColor(boolean isValid, boolean canAfford, boolean hasStock, boolean hasPermission, boolean hasDiscount)

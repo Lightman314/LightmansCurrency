@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
@@ -93,7 +93,7 @@ public class TraderSettingsScreen extends Screen{
 	public void init()
 	{
 		//Initialize the back button
-		this.addRenderableWidget(new IconButton(this.guiLeft(), this.guiTop() - 20, this::OpenStorage, this.font, IconData.of(GUI_TEXTURE, 200, 100)));
+		this.addRenderableWidget(new IconButton(this.guiLeft(), this.guiTop() - 20, this::OpenStorage, IconAndButtonUtil.ICON_BACK));
 		//Initialize the tab buttons
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
@@ -194,6 +194,11 @@ public class TraderSettingsScreen extends Screen{
 	@Override
 	public void tick()
 	{
+		if(this.getTrader() == null)
+		{
+			this.minecraft.setScreen(null);
+			return;
+		}
 		if(!this.hasPermission(Permissions.EDIT_SETTINGS))
 		{
 			this.minecraft.setScreen(null);
@@ -226,19 +231,23 @@ public class TraderSettingsScreen extends Screen{
 	
 	public boolean hasPermission(String permission)
 	{
-		return this.trader.get().getCoreSettings().hasPermission(this.getPlayer(), permission);
+		if(this.trader.get() != null)
+			return this.trader.get().getCoreSettings().hasPermission(this.getPlayer(), permission);
+		return false;
 	}
 	
 	public int getPermissionLevel(String permission)
 	{
-		return this.trader.get().getCoreSettings().getPermissionLevel(this.getPlayer(), permission);
+		if(this.trader.get() != null)
+			return this.trader.get().getCoreSettings().getPermissionLevel(this.getPlayer(), permission);
+		return 0;
 	}
 	
 	public boolean hasPermissions(List<String> permissions)
 	{
 		for(int i = 0; i < permissions.size(); ++i)
 		{
-			if(!this.trader.get().getCoreSettings().hasPermission(this.getPlayer(), permissions.get(i)))
+			if(!this.hasPermission(permissions.get(i)))
 				return false;
 		}
 		return true;

@@ -18,22 +18,28 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class IconButton extends Button{
 	
 	private IconData icon;
-	private Font font;
 	
-	public IconButton(int x, int y, OnPress pressable, Font font, IconData icon)
+	
+	
+	public IconButton(int x, int y, OnPress pressable, IconData icon)
 	{
 		super(x,y,20,20,new TextComponent(""), pressable);
 		this.setIcon(icon);
-		this.font = font;
 	}
 	
-	@SuppressWarnings("resource")
+	public IconButton(int x, int y, OnPress pressable, IconData icon, OnTooltip tooltip)
+	{
+		super(x,y,20,20, new TextComponent(""), pressable, tooltip);
+		this.setIcon(icon);
+	}
+	
+	@Deprecated
+	public IconButton(int x, int y, OnPress pressable, Font font, IconData icon) { this(x, y, pressable, icon); }
 	@Deprecated
 	public IconButton(int x, int y, OnPress pressable, ResourceLocation iconResource, int resourceX, int resourceY)
 	{
 		super(x,y,20,20, new TextComponent(""), pressable);
 		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
-		this.font = Minecraft.getInstance().font;
 	}
 	
 	@Deprecated
@@ -47,7 +53,9 @@ public class IconButton extends Button{
 		this.icon = icon;
 	}
 	
+	
 	@Override
+	@SuppressWarnings("resource")
 	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -63,7 +71,7 @@ public class IconButton extends Button{
         if(!this.active)
             RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         
-        this.icon.render(matrixStack, this, this.font, this.x + 2, this.y + 2);
+        this.icon.render(matrixStack, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
 		
 	}
 

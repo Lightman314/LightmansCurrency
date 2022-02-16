@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
+import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -85,6 +90,10 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		else
 			return this.users.size();
 	}
+	
+	public final void forceReopen() { this.forceReopen(Lists.newArrayList(this.users)); }
+	
+	protected abstract void forceReopen(List<Player> users);
 	
 	protected List<Player> getUsers() { return this.users; }
 	
@@ -445,6 +454,24 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(this.level == null)
 			return true;
 		return this.level.isClientSide;
+	}
+	
+	@Override
+	public void sendOpenTraderMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.worldPosition));
+	}
+
+	@Override
+	public void sendOpenStorageMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.worldPosition));
+	}
+
+	@Override
+	public void sendClearLogMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearLogger(this.worldPosition));
 	}
 	
 }

@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.client.gui.components.Button;
@@ -97,7 +98,7 @@ public class PlayerBlacklist extends TradeRule{
 		
 	}
 	
-	public IconData getButtonIcon() { return IconData.of(ICON_TEXTURE, 32, 0); }
+	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_BLACKLIST; }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

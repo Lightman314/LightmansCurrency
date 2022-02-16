@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
+@Deprecated
 public abstract class UniversalMenu extends AbstractContainerMenu{
 	
 	private static final List<UniversalMenu> activeContainers = new ArrayList<>();
@@ -37,6 +38,7 @@ public abstract class UniversalMenu extends AbstractContainerMenu{
 		activeContainers.add(this);
 	}
 	
+	@Deprecated
 	public static void onForceReopen(UUID traderID)
 	{
 		//Create a local copy of the active container list, as re-opening the containers will modify the active containers list

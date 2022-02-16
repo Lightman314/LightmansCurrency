@@ -37,7 +37,7 @@ public class ItemShopLogger extends TextLogger{
 		}
 		
 		Component itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
-		Component cost = getCostText(trade.getCost().isFree(), pricePaid);
+		Component cost = getCostText(pricePaid);
 		if(trade.isBarter())
 		{
 			//Flip the sell item to the cost position

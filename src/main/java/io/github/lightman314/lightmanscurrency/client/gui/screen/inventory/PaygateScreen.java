@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageActivatePaygate;
@@ -95,15 +95,15 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implemen
 			this.durationInput.setValue(String.valueOf(this.menu.tileEntity.getDuration()));
 			this.durationInput.setMaxLength(3);
 			
-			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + this.menu.priceInputOffset, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 0)));
+			this.buttonCollectMoney = this.addRenderableWidget(IconAndButtonUtil.collectCoinButtonAlt(this.leftPos - 20, this.topPos + this.menu.priceInputOffset, this::PressCollectionButton, () -> this.menu.tileEntity.getStoredMoney().getString()));
 			this.buttonCollectMoney.active = false;
 			
-			this.buttonSetTicket = this.addRenderableWidget(new IconButton(this.leftPos + 40, this.topPos + 34 + this.menu.priceInputOffset, this::PressTicketButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 32, 0)));
+			this.buttonSetTicket = this.addRenderableWidget(new IconButton(this.leftPos + 40, this.topPos + 34 + this.menu.priceInputOffset, this::PressTicketButton, IconAndButtonUtil.ICON_TICKET, IconAndButtonUtil.TOOLTIP_PAIR_TICKET));
 			this.buttonSetTicket.visible = false;
 			
 		}
 		
-		this.buttonPay = this.addRenderableWidget((new IconButton(this.leftPos + 149, this.topPos + 6 + this.menu.priceInputOffset, this::PressActivateButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 0))));
+		this.buttonPay = this.addRenderableWidget((new IconButton(this.leftPos + 149, this.topPos + 6 + this.menu.priceInputOffset, this::PressActivateButton, IconAndButtonUtil.ICON_PAYGATE_ACTIVATE, IconAndButtonUtil.TOOLTIP_PAYGATE_ACTIVATE)));
 		this.buttonPay.active = false;
 		
 		tick();
@@ -164,18 +164,7 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implemen
 			this.durationInput.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(matrixStack, mouseX,  mouseY);
 		
-		if(this.buttonPay != null && this.buttonPay.active && this.buttonPay.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.paygate.paybutton"), mouseX, mouseY);
-		}
-		else if(this.buttonCollectMoney != null && this.buttonCollectMoney.active && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.tileEntity.getStoredMoney().getString()), mouseX, mouseY);
-		}
-		else if(this.buttonSetTicket != null && this.buttonSetTicket.visible && this.buttonSetTicket.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket", this.menu.tileEntity.getStoredMoney()), mouseX, mouseY);
-		}
+		IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, this.renderables);
 		
 	}
 	

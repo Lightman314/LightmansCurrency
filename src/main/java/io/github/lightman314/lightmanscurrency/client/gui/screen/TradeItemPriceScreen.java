@@ -1,25 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -42,7 +38,8 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	private int ySize = 88 + CoinValueInput.HEIGHT;
 	
 	Player player;
-	ItemTraderBlockEntity tileEntity;
+	private Supplier<IItemTrader> traderSource;
+	public IItemTrader getTrader() { return this.traderSource.get(); }
 	ItemTradeData trade;
 	int tradeIndex;
 	
@@ -58,12 +55,12 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	EditBox nameField;
 	
-	public TradeItemPriceScreen(ItemTraderBlockEntity tileEntity, int tradeIndex, Player player)
+	public TradeItemPriceScreen(Supplier<IItemTrader> traderSource, int tradeIndex, Player player)
 	{
 		super(new TranslatableComponent("gui.lightmanscurrency.changeprice"));
-		this.tileEntity = tileEntity;
+		this.traderSource = traderSource;
 		this.tradeIndex = tradeIndex;
-		this.trade = tileEntity.getTrade(this.tradeIndex);
+		this.trade = this.getTrader().getTrade(this.tradeIndex);
 		this.player = player;
 		this.localDirection = this.trade.getTradeType();
 	}
@@ -89,8 +86,8 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.addRenderableWidget(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addRenderableWidget(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.buttonSetFree = this.addRenderableWidget(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslatableComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
-		this.buttonTradeRules = this.addRenderableWidget(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
-		this.buttonTradeRules.visible = this.tileEntity.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton));
+		this.buttonTradeRules.visible = this.getTrader().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		tick();
 		
@@ -99,7 +96,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	@Override
 	public void tick()
 	{
-		if(this.tileEntity.isRemoved())
+		if(this.getTrader() == null)
 		{
 			this.player.closeContainer();
 			return;
@@ -108,7 +105,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonSetPurchase.active = this.localDirection != ItemTradeType.PURCHASE;
 		this.buttonSetBarter.active = this.localDirection != ItemTradeType.BARTER;
 		
-		this.buttonTradeRules.visible = this.tileEntity.hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules.visible = this.getTrader().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.priceInput.visible = this.localDirection != ItemTradeType.BARTER;
 		
@@ -149,12 +146,12 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges()
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice(tileEntity.getBlockPos(), this.tradeIndex, this.priceInput.getCoinValue(), this.nameField.getValue(), this.localDirection.name()));
+		this.getTrader().sendSetTradePriceMessage(this.tradeIndex, this.priceInput.getCoinValue(), this.nameField.getValue(), this.localDirection);
 	}
 	
 	protected void PressBackButton(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(tileEntity.getBlockPos()));
+		this.getTrader().sendOpenStorageMessage();
 	}
 
 	protected void SetTradeDirection(Button button)
@@ -171,36 +168,41 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void PressTradeRuleButton(Button button)
 	{
-		Minecraft.getInstance().setScreen(new TradeRuleScreen(GetRuleScreenBackHandler()));
+		Minecraft.getInstance().setScreen(new TradeRuleScreen(getRuleScreenHandler()));
 	}
 	
-	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new CloseRuleHandler(this.tileEntity, this.tradeIndex, this.player); }
+	public ITradeRuleScreenHandler getRuleScreenHandler() { return new CloseRuleHandler(this.traderSource, this.tradeIndex, this.player); }
 	
 	private static class CloseRuleHandler implements ITradeRuleScreenHandler
 	{
 
-		final ItemTraderBlockEntity tileEntity;
+		final Supplier<IItemTrader> traderSource;
+		private IItemTrader getTrader() { return this.traderSource.get(); }
 		final int tradeIndex;
 		final Player player;
 		
-		public CloseRuleHandler(ItemTraderBlockEntity tileEntity, int tradeIndex, Player player)
+		public CloseRuleHandler(Supplier<IItemTrader> traderSource, int tradeIndex, Player player)
 		{
-			this.tileEntity = tileEntity;
+			this.traderSource = traderSource;
 			this.tradeIndex = tradeIndex;
 			this.player = player;
 		}
 		
-		public ITradeRuleHandler ruleHandler() { return this.tileEntity.getTrade(this.tradeIndex); }
+		public ITradeRuleHandler ruleHandler() { return this.getTrader().getTrade(this.tradeIndex); }
 		
 		@Override
 		public void reopenLastScreen() {
-			Minecraft.getInstance().setScreen(new TradeItemPriceScreen(this.tileEntity, this.tradeIndex, this.player));
+			Minecraft.getInstance().setScreen(new TradeItemPriceScreen(this.traderSource, this.tradeIndex, this.player));
 		}
 		
+		@Override
 		public void updateServer(List<TradeRule> newRules)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.getBlockPos(), newRules, this.tradeIndex));
+			this.getTrader().sendSetTradeRuleMessage(this.tradeIndex, newRules);
 		}
+		
+		@Override
+		public boolean stillValid() { return this.getTrader() != null; }
 		
 	}
 	

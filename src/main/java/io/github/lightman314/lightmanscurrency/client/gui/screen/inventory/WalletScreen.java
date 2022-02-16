@@ -153,11 +153,11 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		if(this.menu.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 28 + yOffset, this::PressConvertButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
+			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 28 + yOffset, this::PressConvertButton, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
 			
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 48 + yOffset, this::PressAutoConvertToggleButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth, 16)));
+				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 48 + yOffset, this::PressAutoConvertToggleButton, IconData.of(GUI_TEXTURE, this.imageWidth, 16)));
 				this.updateToggleButton();
 			}
 		}

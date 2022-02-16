@@ -63,16 +63,20 @@ public class ClientProxy extends CommonProxy{
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM, ATMScreen::new);
     	MenuScreens.register(ModMenus.MINT, MintScreen::new);
-    	MenuScreens.register(ModMenus.ITEMTRADER, ItemTraderScreen::new);
-    	MenuScreens.register(ModMenus.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
-    	MenuScreens.register(ModMenus.ITEMTRADERCR, ItemTraderScreenCR::new);
+    	MenuScreens.register(ModMenus.ITEM_TRADER, ItemTraderScreen::new);
+    	MenuScreens.register(ModMenus.ITEM_TRADER_CR, ItemTraderScreen::new);
+    	MenuScreens.register(ModMenus.ITEM_TRADER_UNIVERSAL, ItemTraderScreen::new);
+    	
+    	MenuScreens.register(ModMenus.ITEM_TRADER_STORAGE, ItemTraderStorageScreen::new);
+    	MenuScreens.register(ModMenus.ITEM_TRADER_STORAGE_UNIVERSAL, ItemTraderStorageScreen::new);
+    	
     	MenuScreens.register(ModMenus.ITEM_EDIT, ItemEditScreen::new);
     	MenuScreens.register(ModMenus.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
     	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
     	MenuScreens.register(ModMenus.PAYGATE, PaygateScreen::new);
     	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
-    	MenuScreens.register(ModMenus.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
-    	MenuScreens.register(ModMenus.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
+    	
+    	
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
