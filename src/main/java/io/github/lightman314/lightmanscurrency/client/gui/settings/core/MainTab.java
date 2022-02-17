@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
@@ -60,7 +61,7 @@ public class MainTab extends SettingsTab{
 		this.buttonResetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50, 74, 20, new TranslatableComponent("gui.lightmanscurrency.resetname"), this::ResetName));
 		
 		//Creative Toggle
-		this.buttonToggleCreative = screen.addRenderableTabWidget(new IconButton(screen.guiLeft() + 176, screen.guiTop() + 4, this::ToggleCreative, IconData.of(TraderSettingsScreen.GUI_TEXTURE, 216, 100)));
+		this.buttonToggleCreative = screen.addRenderableTabWidget(IconAndButtonUtil.creativeToggleButton(screen.guiLeft() + 176, screen.guiTop() + 4, this::ToggleCreative, () -> this.getScreen().getSetting(CoreTraderSettings.class).isCreative()));
 		this.buttonAddTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 4, 10, 10, this::AddTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 200));
 		this.buttonRemoveTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 14, 10, 10, this::RemoveTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 220));
 		
@@ -86,6 +87,9 @@ public class MainTab extends SettingsTab{
 	@Override
 	public void postRender(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 		TraderSettingsScreen screen = this.getScreen();
+		
+		IconAndButtonUtil.renderButtonTooltips(matrix, mouseX, mouseY, Lists.newArrayList(this.buttonToggleCreative));
+		
 		//Render button tooltips
 		if(this.buttonAddTrade.isMouseOver(mouseX, mouseY))
 		{

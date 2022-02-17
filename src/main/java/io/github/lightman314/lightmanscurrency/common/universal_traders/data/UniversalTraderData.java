@@ -388,7 +388,7 @@ public abstract class UniversalTraderData implements ITrader{
 			this.users.remove(player);
 	}
 	
-	public final void forceReopen() { this.forceReopen(Lists.newArrayList(this.users)); }
+	public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
 	
 	protected abstract void forceReopen(List<Player> users);
 	

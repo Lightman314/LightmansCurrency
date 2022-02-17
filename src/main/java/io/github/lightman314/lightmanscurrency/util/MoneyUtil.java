@@ -1212,6 +1212,8 @@ public class MoneyUtil {
     	public void setFree(boolean free) { this.isFree = free; if(this.isFree) this.coinValues.clear(); }
     	public final List<CoinValuePair> coinValues;
     	
+    	public boolean isValid() { return this.isFree || this.coinValues.size() > 0; }
+    	
     	public CoinValue(CompoundTag compound)
     	{
     		this.coinValues = new ArrayList<>();

@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
@@ -66,7 +65,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader, ILoggerSupport<ItemShopLogger>, ITradeRuleHandler{
+public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader {
 	
 	public static final int TRADELIMIT = ItemTraderBlockEntity.TRADELIMIT;
 	
@@ -481,7 +480,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		}
 		
 		@Override
-		public boolean stillValid() { return ClientTradingOffice.getData(this.trader.traderID) == null; }
+		public boolean stillValid() { return ClientTradingOffice.getData(this.trader.traderID) != null; }
 		
 	}
 	

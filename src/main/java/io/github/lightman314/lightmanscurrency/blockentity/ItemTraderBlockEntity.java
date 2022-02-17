@@ -39,7 +39,6 @@ import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.ItemTraderMenuCR;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
@@ -72,7 +71,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader, ILoggerSupport<ItemShopLogger> {
+public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader {
 	
 	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
@@ -758,7 +757,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	@Override
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
 		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.worldPosition, tradeIndex, sellItem, 0));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.worldPosition, tradeIndex, sellItem, slot));
 	}
 	
 	@Override

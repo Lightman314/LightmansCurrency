@@ -287,7 +287,7 @@ public class ItemTradeButton extends Button{
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(isValid && !hasSpace)
 			return new TranslatableComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(isValid)
+		else if(isValid && cost.isValid())
 			return cost.getString();
 		else
 			return "";

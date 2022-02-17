@@ -60,6 +60,9 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
 		
+		if(this.menu.getTrader() == null)
+			return;
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -112,6 +115,13 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 	@Override
 	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
+		
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(matrixStack, mouseX,  mouseY);
@@ -123,6 +133,12 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 	@Override
 	public void containerTick()
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
 		
 		this.searchField.tick();
 		
@@ -189,11 +205,14 @@ public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 	
 	private void PressStackCountButton(Button button)
 	{
-		int direction = 1;
+		int deltaCount = 1;
 		if(button == this.buttonCountDown)
-			direction = -1;
+			deltaCount = -1;
 		
-		menu.modifyStackSize(direction);
+		if(Screen.hasShiftDown())
+			deltaCount *= 16;
+		
+		this.menu.modifyStackSize(deltaCount);
 		
 	}
 	

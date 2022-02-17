@@ -72,7 +72,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		this.safeStorage = new SuppliedContainer(new SafeStorageSupplier(this.traderSource));
 		for(int y = 0; y < rowCount; y++)
 		{
-			for(int x = 0; x < columnCount && x + y * columnCount < this.getTrader().getStorage().getContainerSize(); x++)
+			for(int x = 0; x < columnCount && x + y * columnCount < this.safeStorage.getContainerSize(); x++)
 			{
 				this.addSlot(new Slot(this.safeStorage, x + y * columnCount, 8 + x * 18 + SCREEN_EXTENSION + ItemTraderStorageUtil.getStorageSlotOffset(tradeCount, y), 18 + y * 18));
 			}

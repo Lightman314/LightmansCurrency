@@ -91,7 +91,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			return this.users.size();
 	}
 	
-	public final void forceReopen() { this.forceReopen(Lists.newArrayList(this.users)); }
+	public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
 	
 	protected abstract void forceReopen(List<Player> users);
 	

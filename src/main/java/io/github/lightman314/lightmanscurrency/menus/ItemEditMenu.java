@@ -96,12 +96,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		this.traderSource = traderSource;
 		this.tradeSlots = new ArrayList<>();
 		
-		//this.tradeDisplay = new Inventory(1);
-		//this.tradeDisplay.setInventorySlotContents(0, tradeData.getSellItem());
 		this.displayInventory = new SimpleContainer(columnCount * rowCount);
-		
-		//Trade slot
-		//this.addSlot(new DisplaySlot(this.tradeDisplay, 0, ItemTradeButton.SLOT_OFFSET1_X, ItemTradeButton.SLOT_OFFSET_Y - ItemTradeButton.HEIGHT));
 		
 		if(!this.isClient())
 			return;
@@ -218,10 +213,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
-	{
-		return this.traderSource.get().hasPermission(playerIn, Permissions.EDIT_TRADES);
-	}
+	public boolean stillValid(Player playerIn) { return this.getTrader() != null && this.getTrader().hasPermission(playerIn, Permissions.EDIT_TRADES); }
 
 	public void modifySearch(String newSearch)
 	{

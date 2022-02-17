@@ -689,13 +689,13 @@ public class CoreTraderSettings extends Settings{
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<SettingsTab> getSettingsTabs() {
-		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE, OwnershipTab.INSTANCE);
+		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE);
 	}
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<SettingsTab> getBackEndSettingsTabs() {
-		return Lists.newArrayList(LoggerTab.INSTANCE);
+		return Lists.newArrayList(LoggerTab.INSTANCE, OwnershipTab.INSTANCE);
 	}
 	
 	@Override

@@ -160,7 +160,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 		if(this.menu.isUniversal())
 			this.buttonBack = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos - 20 + inventoryOffset, this.topPos + this.imageHeight - 20, this::PressBackButton));
 		
-		if(this.menu.isCashRegister() && this.menu.getCashRegister().getPairedTraderSize() > 1)
+		if(this.menu.isCashRegister() && this.menu.getTotalCRSize() > 1)
 		{
 			this.buttonLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos + tradeOffset - 20,  this.topPos, this::PressArrowButton));
 			this.buttonRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageHeight - tradeOffset, this.topPos, this::PressArrowButton));
