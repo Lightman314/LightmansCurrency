@@ -17,21 +17,30 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class IconButton extends Button{
 	
 	private IconData icon;
-	private FontRenderer font;
 	
+	public IconButton(int x, int y, IPressable pressable, IconData icon)
+	{
+		super(x, y, 20, 20, new StringTextComponent(""), pressable);
+		this.setIcon(icon);
+	}
+	
+	public IconButton(int x, int y, IPressable pressable, IconData icon, ITooltip tooltip)
+	{
+		super(x, y, 20, 20, new StringTextComponent(""), pressable, tooltip);
+		this.setIcon(icon);
+	}
+	
+	@Deprecated
 	public IconButton(int x, int y, IPressable pressable, FontRenderer font, IconData icon)
 	{
-		super(x,y,20,20, new StringTextComponent(""), pressable);
-		this.setIcon(icon);
-		this.font = font;
+		this(x, y, pressable, icon);
 	}
-	@SuppressWarnings("resource")
+	
 	@Deprecated
 	public IconButton(int x, int y, IPressable pressable, ResourceLocation iconResource, int resourceX, int resourceY)
 	{
 		super(x,y,20,20, new StringTextComponent(""), pressable);
 		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
-		this.font = Minecraft.getInstance().fontRenderer;
 	}
 	
 	@Deprecated //Use setIcon instead
@@ -45,8 +54,8 @@ public class IconButton extends Button{
 		this.icon = icon;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
+	@SuppressWarnings({ "deprecation", "resource" })
 	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		Minecraft.getInstance().getTextureManager().bindTexture(WIDGETS_LOCATION);
@@ -60,7 +69,7 @@ public class IconButton extends Button{
         if(!this.active)
             RenderSystem.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         
-        this.icon.render(matrixStack, this, this.font, this.x + 2, this.y + 2);
+        this.icon.render(matrixStack, this, Minecraft.getInstance().fontRenderer, this.x + 2, this.y + 2);
 		
 	}
 

@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.Constants;
 
 public abstract class TextLogger {
@@ -63,6 +66,11 @@ public abstract class TextLogger {
 					this.logText.add(text);
 			}
 		}
+	}
+	
+	public static ITextComponent getCostText(CoinValue cost)
+	{
+		return new StringTextComponent(cost.getString()).mergeStyle(TextFormatting.YELLOW);
 	}
 	
 }

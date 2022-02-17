@@ -63,16 +63,20 @@ public class ClientProxy extends CommonProxy{
     	//Register Screens
     	ScreenManager.registerFactory(ModContainers.ATM, ATMScreen::new);
     	ScreenManager.registerFactory(ModContainers.MINT, MintScreen::new);
-    	ScreenManager.registerFactory(ModContainers.ITEMTRADER, ItemTraderScreen::new);
-    	ScreenManager.registerFactory(ModContainers.ITEMTRADERSTORAGE, ItemTraderStorageScreen::new);
-    	ScreenManager.registerFactory(ModContainers.ITEMTRADERCR, ItemTraderScreenCR::new);
+    	
+    	ScreenManager.registerFactory(ModContainers.ITEM_TRADER, ItemTraderScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEM_TRADER_CR, ItemTraderScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEM_TRADER_UNIVERSAL, ItemTraderScreen::new);
+    	
+    	ScreenManager.registerFactory(ModContainers.ITEM_TRADER_STORAGE, ItemTraderStorageScreen::new);
+    	ScreenManager.registerFactory(ModContainers.ITEM_TRADER_STORAGE_UNIVERSAL, ItemTraderStorageScreen::new);
+    	
     	ScreenManager.registerFactory(ModContainers.ITEM_EDIT, ItemEditScreen::new);
     	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);
+    	
     	ScreenManager.registerFactory(ModContainers.WALLET, WalletScreen::new);
     	ScreenManager.registerFactory(ModContainers.PAYGATE, PaygateScreen::new);
     	ScreenManager.registerFactory(ModContainers.TICKET_MACHINE, TicketMachineScreen::new);
-    	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEMTRADER, UniversalItemTraderScreen::new);
-    	ScreenManager.registerFactory(ModContainers.UNIVERSAL_ITEMTRADERSTORAGE, UniversalItemTraderStorageScreen::new);
     	
     	//Register Tile Entity Renderers
     	ClientRegistry.bindTileEntityRenderer(ModTileEntities.ITEM_TRADER, ItemTraderTileEntityRenderer::new);

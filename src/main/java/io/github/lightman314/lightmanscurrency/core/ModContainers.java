@@ -2,15 +2,17 @@ package io.github.lightman314.lightmanscurrency.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.containers.*;
+import io.github.lightman314.lightmanscurrency.containers.ItemEditContainer.UniversalItemEditContainer;
+import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer.ItemTraderContainerCR;
+import io.github.lightman314.lightmanscurrency.containers.ItemTraderContainer.ItemTraderContainerUniversal;
+import io.github.lightman314.lightmanscurrency.containers.ItemTraderStorageContainer.ItemTraderStorageContainerUniversal;
 import io.github.lightman314.lightmanscurrency.tileentity.*;
-import io.github.lightman314.lightmanscurrency.util.SafeTradingOffice;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,46 +32,30 @@ public class ModContainers {
 
 	});
 	
-	public static final ContainerType<ItemTraderContainer> ITEMTRADER = register("item_trader", (IContainerFactory<ItemTraderContainer>)(windowId, playerInventory, data)->{
-		
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new ItemTraderContainer(windowId, playerInventory, tileEntity);
-		
+	public static final ContainerType<ItemTraderContainer> ITEM_TRADER = register("item_trader", (IContainerFactory<ItemTraderContainer>)(windowId, playerInventory, data)->{
+		return new ItemTraderContainer(windowId, playerInventory, data.readBlockPos());
 	});
-	public static final ContainerType<ItemTraderStorageContainer> ITEMTRADERSTORAGE = register("item_trader_storage", (IContainerFactory<ItemTraderStorageContainer>)(windowId, playerInventory, data)->{
-		
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new ItemTraderStorageContainer(windowId, playerInventory, tileEntity);
-		
-	});
-	public static final ContainerType<ItemTraderContainerCR> ITEMTRADERCR = register("item_trader_cr", (IContainerFactory<ItemTraderContainerCR>)(windowId, playerInventory, data)->{
-		
-		ItemTraderTileEntity traderEntity = (ItemTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
+	public static final ContainerType<ItemTraderContainerCR> ITEM_TRADER_CR = register("item_trader_cr", (IContainerFactory<ItemTraderContainerCR>)(windowId, playerInventory, data)->{
+		BlockPos traderPos = data.readBlockPos();
 		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new ItemTraderContainerCR(windowId, playerInventory, traderEntity, registerEntity);
-		
+		return new ItemTraderContainerCR(windowId, playerInventory, traderPos, registerEntity);
+	});
+	public static final ContainerType<ItemTraderContainerUniversal> ITEM_TRADER_UNIVERSAL = register("universal_item_trader", (IContainerFactory<ItemTraderContainerUniversal>)(windowId, playerInventory, data)->{
+		return new ItemTraderContainerUniversal(windowId, playerInventory, data.readUniqueId());
 	});
 	
-	public static final ContainerType<UniversalItemTraderContainer> UNIVERSAL_ITEMTRADER = register("universal_item_trader", (IContainerFactory<UniversalItemTraderContainer>)(windowId, playerInventory, data)->{
-		
-		return new UniversalItemTraderContainer(windowId, playerInventory, data.readUniqueId());
-		
+	public static final ContainerType<ItemTraderStorageContainer> ITEM_TRADER_STORAGE = register("item_trader_storage", (IContainerFactory<ItemTraderStorageContainer>)(windowId, playerInventory, data)->{
+		return new ItemTraderStorageContainer(windowId, playerInventory, data.readBlockPos());
 	});
-	
-	public static final ContainerType<UniversalItemTraderStorageContainer> UNIVERSAL_ITEMTRADERSTORAGE = register("universal_item_trader_storage", (IContainerFactory<UniversalItemTraderStorageContainer>)(windowId, playerInventory, data)->{
-		
-		return new UniversalItemTraderStorageContainer(windowId, playerInventory, data.readUniqueId());
-		
+	public static final ContainerType<ItemTraderStorageContainerUniversal> ITEM_TRADER_STORAGE_UNIVERSAL = register("universal_item_trader_storage", (IContainerFactory<ItemTraderStorageContainerUniversal>)(windowId, playerInventory, data)->{
+		return new ItemTraderStorageContainerUniversal(windowId, playerInventory, data.readUniqueId());
 	});
 	
 	public static final ContainerType<WalletContainer> WALLET = register("wallet", (IContainerFactory<WalletContainer>)(windowId, playerInventory, data) ->{
-		
 		return new WalletContainer(windowId, playerInventory, data.readInt());
-		
 	});
 	
 	public static final ContainerType<PaygateContainer> PAYGATE = register("paygate", (IContainerFactory<PaygateContainer>)(windowId, playerInventory, data)->{
-		
 		PaygateTileEntity tileEntity = (PaygateTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
 		return new PaygateContainer(windowId, playerInventory, tileEntity);
 	});
@@ -77,18 +63,14 @@ public class ModContainers {
 	public static final ContainerType<TicketMachineContainer> TICKET_MACHINE = register("ticket_machine", (IContainerFactory<TicketMachineContainer>)(windowId, playerInventory, data)->{
 		TicketMachineTileEntity tileEntity = (TicketMachineTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
 		return new TicketMachineContainer(windowId, playerInventory, tileEntity);
-		
 	});
 	
 	
 	public static final ContainerType<ItemEditContainer> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditContainer>)(windowId, playerInventory, data)->{
-		ItemTraderTileEntity tileEntity = (ItemTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new ItemEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
+		return new ItemEditContainer(windowId, playerInventory, data.readBlockPos(), data.readInt());
 	});
-	
 	public static final ContainerType<UniversalItemEditContainer> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditContainer>)(windowId, playerInventory, data)->{
-		UUID traderID = data.readUniqueId();
-		return new UniversalItemEditContainer(windowId, playerInventory, () -> (UniversalItemTraderData)SafeTradingOffice.getData(traderID), data.readInt());
+		return new UniversalItemEditContainer(windowId, playerInventory, data.readUniqueId(), data.readInt());
 	});
 	
 	//Code

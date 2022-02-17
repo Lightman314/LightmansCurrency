@@ -28,7 +28,6 @@ import net.minecraftforge.common.util.Constants;
 
 public abstract class TradeRule {
 	
-	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderuleicons.png");
 	public static final String DEFAULT_TAG = "TradeRules";
 	
 	public final ResourceLocation type;

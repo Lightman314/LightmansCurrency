@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 
+@Deprecated
 public abstract class UniversalContainer extends Container{
 	
 	private static final List<UniversalContainer> activeContainers = new ArrayList<>();
@@ -37,6 +38,7 @@ public abstract class UniversalContainer extends Container{
 		activeContainers.add(this);
 	}
 	
+	@Deprecated
 	public static void onForceReopen(UUID traderID)
 	{
 		//Create a local copy of the active container list, as re-opening the containers will modify the active containers list

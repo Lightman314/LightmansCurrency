@@ -154,11 +154,11 @@ public class WalletScreen extends ContainerScreen<WalletContainer> implements IB
 		if(this.container.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 28 + yOffset, this::PressConvertButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+			this.buttonConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 28 + yOffset, this::PressConvertButton, IconData.of(GUI_TEXTURE, this.xSize, 0)));
 			
 			if(this.container.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 48 + yOffset, this::PressAutoConvertToggleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 16)));
+				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 48 + yOffset, this::PressAutoConvertToggleButton, IconData.of(GUI_TEXTURE, this.xSize, 16)));
 				this.updateToggleButton();
 			}
 			

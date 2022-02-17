@@ -32,7 +32,7 @@ public class PaygateContainer extends Container implements ITraderContainerPrimi
 	
 	public final PlayerEntity player;
 	
-	protected static final ContainerType<?> type = ModContainers.ITEMTRADER;
+	protected static final ContainerType<?> type = ModContainers.ITEM_TRADER;
 	
 	protected final IInventory coinInput = new Inventory(5);
 	protected final IInventory ticketInput = new TicketInventory(1);

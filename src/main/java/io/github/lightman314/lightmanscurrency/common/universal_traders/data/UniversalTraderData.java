@@ -1,17 +1,24 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -367,10 +374,52 @@ public abstract class UniversalTraderData implements IPermissions, ITrader{
 		return data1.write(new CompoundNBT()).equals(data2.write(new CompoundNBT()));
 	}
 	
-	public abstract ResourceLocation IconLocation();
+	public IconData getIcon() { return IconData.of(this.IconLocation(), this.IconPositionX(), this.IconPositionY()); }
 	
-	public abstract int IconPositionX();
+	@Deprecated
+	public ResourceLocation IconLocation() { return new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png"); }
 	
-	public abstract int IconPositionY();
+	@Deprecated
+	public int IconPositionX() { return 0; }
+	
+	@Deprecated
+	public int IconPositionY() { return 0; }
+	
+	/** A list of players using this trader */
+	private List<PlayerEntity> users = new ArrayList<>();
+	
+	public void userOpen(PlayerEntity player)
+	{
+		if(!this.users.contains(player))
+			this.users.add(player);
+	}
+	
+	public void userClose(PlayerEntity player)
+	{
+		if(this.users.contains(player))
+			this.users.remove(player);
+	}
+	
+	public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
+	
+	protected abstract void forceReopen(List<PlayerEntity> users);
+	
+	@Override
+	public void sendOpenTraderMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades2(this.traderID));
+	}
+	
+	@Override
+	public void sendOpenStorageMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.traderID));
+	}
+	
+	@Override
+	public void sendClearLogMessage() {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearUniversalLogger(this.traderID));
+	}
 	
 }

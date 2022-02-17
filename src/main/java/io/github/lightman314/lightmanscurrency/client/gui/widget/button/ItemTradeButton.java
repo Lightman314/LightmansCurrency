@@ -59,7 +59,7 @@ public class ItemTradeButton extends Button{
 	
 	public ItemTradeButton(int x, int y, IPressable pressable, int tradeIndex, Screen screen, FontRenderer font, Supplier<IItemTrader> source, Supplier<Long> availableCoins, Supplier<IInventory> itemSlots)
 	{
-		super(x, y, WIDTH, HEIGHT, ITextComponent.getTextComponentOrEmpty(""), pressable);
+		super(x, y, WIDTH, HEIGHT, new StringTextComponent(""), pressable);
 		this.tradeIndex = tradeIndex;
 		this.screen = screen;
 		this.font = font;
@@ -280,10 +280,10 @@ public class ItemTradeButton extends Button{
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofstock").getString();
 		else if(isValid && !hasSpace)
 			return new TranslationTextComponent("tooltip.lightmanscurrency.outofspace").getString();
-		else if(isValid && isFree)
-			return new TranslationTextComponent("gui.button.lightmanscurrency.free").getString();
-		else
+		else if(isValid && cost.isValid())
 			return cost.getString();
+		else
+			return "";
 	}
 	
 	public static int getTradeTextColor(boolean isValid, boolean canAfford, boolean hasStock, boolean hasPermission, boolean hasDiscount)

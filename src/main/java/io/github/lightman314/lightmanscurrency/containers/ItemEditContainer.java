@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.containers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
@@ -10,6 +11,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -34,7 +38,9 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
 
@@ -48,13 +54,13 @@ public class ItemEditContainer extends Container{
 	private static List<ItemStack> allItems = null;
 	
 	public final PlayerEntity player;
-	public final Supplier<IItemTrader> traderSource;
+	private final Supplier<IItemTrader> traderSource;
+	public IItemTrader getTrader() { return this.traderSource.get(); }
 	public final int tradeIndex;
-	public final ItemTradeData tradeData;
+	public ItemTradeData getTrade() { return this.getTrader().getTrade(this.tradeIndex); }
 	
 	List<ItemStack> filteredResultItems;
 	List<ItemStack> searchResultItems;
-	//IInventory tradeDisplay;
 	IInventory displayInventory;
 	
 	private String searchString;
@@ -69,27 +75,26 @@ public class ItemEditContainer extends Container{
 	
 	protected boolean isClient() { return this.player.world.isRemote; }
 	
-	public ItemEditContainer(int windowId, PlayerInventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex)
+	public ItemEditContainer(int windowId, PlayerInventory inventory, BlockPos traderPos, int tradeIndex)
 	{
-		this(ModContainers.ITEM_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
+		this(ModContainers.ITEM_EDIT, windowId, inventory, tradeIndex, () ->{
+			TileEntity te = inventory.player.world.getTileEntity(traderPos);
+			if(te instanceof IItemTrader)
+				return (IItemTrader)te;
+			return null;
+		});
 	}
 	
-	protected ItemEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, Supplier<IItemTrader> traderSource, int tradeIndex, ItemTradeData tradeData)
+	protected ItemEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, int tradeIndex, Supplier<IItemTrader> traderSource)
 	{
 		super(type, windowId);
 		
 		this.player = inventory.player;
-		this.tradeData = tradeData;
 		this.tradeIndex = tradeIndex;
 		this.traderSource = traderSource;
 		this.tradeSlots = new ArrayList<>();
 		
-		//this.tradeDisplay = new Inventory(1);
-		//this.tradeDisplay.setInventorySlotContents(0, tradeData.getSellItem());
 		this.displayInventory = new Inventory(columnCount * rowCount);
-		
-		//Trade slot
-		//this.addSlot(new DisplaySlot(this.tradeDisplay, 0, ItemTradeButton.SLOT_OFFSET1_X, ItemTradeButton.SLOT_OFFSET_Y - ItemTradeButton.HEIGHT));
 		
 		if(!this.isClient())
 			return;
@@ -207,10 +212,7 @@ public class ItemEditContainer extends Container{
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn)
-	{
-		return this.traderSource.get().hasPermission(playerIn, Permissions.EDIT_TRADES);
-	}
+	public boolean canInteractWith(PlayerEntity playerIn) { return this.getTrader() != null && this.getTrader().hasPermission(playerIn, Permissions.EDIT_TRADES); }
 
 	public void modifySearch(String newSearch)
 	{
@@ -262,7 +264,7 @@ public class ItemEditContainer extends Container{
 	private List<ItemStack> getFilteredItems()
 	{
 		List<ItemStack> results = Lists.newArrayList();
-		ItemTradeRestriction restriction = this.tradeData.getRestriction();
+		ItemTradeRestriction restriction = this.getTrade().getRestriction();
 		for(int i = 0; i < allItems.size(); ++i)
 		{
 			if(restriction.allowItemSelectItem(allItems.get(i)))
@@ -324,7 +326,7 @@ public class ItemEditContainer extends Container{
 	
 	public void toggleEditSlot()
 	{
-		if(this.tradeData.isBarter())
+		if(this.getTrade().isBarter())
 		{
 			this.editSlot = this.editSlot == 1 ? 0 : 1;
 			this.modifySearch(this.searchString);
@@ -340,9 +342,9 @@ public class ItemEditContainer extends Container{
 		{
 			//Send message to server
 			if(this.editSlot == 1)
-				this.tradeData.setBarterItem(stack);
+				this.getTrade().setBarterItem(stack);
 			else
-				this.tradeData.setSellItem(stack);
+				this.getTrade().setSellItem(stack);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageItemEditSet(stack, this.editSlot));
 		}
 		else
@@ -367,5 +369,24 @@ public class ItemEditContainer extends Container{
 			this.traderSource.get().openStorageMenu(this.player);
 		}
 	}
+
+	public static class UniversalItemEditContainer extends ItemEditContainer{
+		
+		public UniversalItemEditContainer(int windowId, PlayerInventory inventory, UUID traderID, int tradeIndex)
+		{
+			super(ModContainers.UNIVERSAL_ITEM_EDIT, windowId, inventory, tradeIndex, () ->{
+				UniversalTraderData data = null;
+				if(inventory.player.world.isRemote)
+					data = ClientTradingOffice.getData(traderID);
+				else
+					data = TradingOffice.getData(traderID);
+				if(data instanceof IItemTrader)
+					return (IItemTrader)data;
+				return null;
+			});
+		}
+		
+	}
+
 	
 }

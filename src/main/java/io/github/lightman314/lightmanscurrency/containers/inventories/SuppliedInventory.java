@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.containers.inventories;
 
-import com.google.common.base.Supplier;
+import java.util.function.Supplier;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;

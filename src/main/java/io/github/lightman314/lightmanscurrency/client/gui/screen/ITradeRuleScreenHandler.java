@@ -13,4 +13,6 @@ public interface ITradeRuleScreenHandler {
 	
 	public void updateServer(List<TradeRule> newRules);
 	
+	public default boolean stillValid() { return this.ruleHandler() != null; }
+	
 }

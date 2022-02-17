@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.TextLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -19,27 +20,25 @@ public class TextLogWindow extends Widget{
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/textlog.png");
 	
-	public static final int WIDTH = 256;
-	public static final int HEIGHT = 256;
-	
-	//private static final int LINE_LIMIT = 10;
-	private static final int TEXT_WIDTH = WIDTH - 20;
-	private static final int TEXT_HEIGHT = HEIGHT - 30;
-	//private static final int TEXT_SPACER = 3; //May be inaccurate
-	
 	private final Supplier<TextLogger> logger;
 	private final FontRenderer font;
 	
 	int scroll = 0;
 	
-	//boolean debugMessage = true;
-	//boolean canScrollDown = false;
-	
+	//OG
 	public TextLogWindow(int x, int y, Supplier<TextLogger> logger, FontRenderer font)
 	{
-		super(x,y, WIDTH, HEIGHT, new StringTextComponent(""));
+		super(x,y, 256, 256, new StringTextComponent(""));
 		this.logger = logger;
 		this.font = font;
+	}
+	
+	@SuppressWarnings("resource")
+	public TextLogWindow(ContainerScreen<?> screen, Supplier<TextLogger> logger)
+	{
+		super(screen.getGuiLeft(), screen.getGuiTop(), screen.getXSize(), screen.getYSize(), new StringTextComponent(""));
+		this.logger = logger;
+		this.font = screen.getMinecraft().fontRenderer;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -47,39 +46,57 @@ public class TextLogWindow extends Widget{
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		//Render the background
-		this.blit(matrixStack, this.x, this.y, 0, 0, WIDTH, HEIGHT);
+		//Render the top edge
+		//Render the top edge
+		this.blit(matrixStack, this.x, this.y, 0, 0, 7, 7);
+		int xOffset = 7;
+		while(xOffset < this.width - 7)
+		{
+			int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+			this.blit(matrixStack, this.x + xOffset, this.y, 7, 0, thisWidth, 7);
+			xOffset += thisWidth;
+		}
+		this.blit(matrixStack, this.x + this.width - 7, this.y, 256 - 7, 0, 7, 7);
+		//Render the middle
+		int yOffset = 7;
+		while(yOffset < this.height - 7)
+		{
+			int thisHeight = Math.min(256 - 14, this.height - 7 - yOffset);
+			this.blit(matrixStack, this.x, this.y + yOffset, 0, 7, 7, thisHeight);
+			xOffset = 7;
+			while(xOffset < this.width - 7)
+			{
+				int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+				this.blit(matrixStack, this.x + xOffset, this.y + yOffset, 7, 7, thisWidth, thisHeight);
+				xOffset += thisWidth;
+			}
+			this.blit(matrixStack, this.x + this.width - 7, this.y + yOffset, 256 - 7, 7, 7, thisHeight);
+			yOffset += thisHeight;
+		}
+		//Render the bottom edge
+		this.blit(matrixStack, this.x, this.y + this.height - 7, 0, 256 - 7, 7, 7);
+		xOffset = 7;
+		while(xOffset < this.width - 7)
+		{
+			int thisWidth = Math.min(256 - 14, this.width - 7 - xOffset);
+			this.blit(matrixStack, this.x + xOffset, this.y + this.height - 7, 7, 256 - 7, thisWidth, 7);
+			xOffset += thisWidth;
+		}
+		this.blit(matrixStack, this.x + this.width - 7, this.y + this.height - 7, 256 - 7, 256 - 7, 7, 7);
 		
-		//Render the text (WILL need changing later)
+		//Render the text
 		List<ITextComponent> logText = this.logger.get().logText;
 		int yPos = 0;
-		//int renderCount = 0;
-		//int i;
-		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < TEXT_HEIGHT; i--)
+		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < this.height - 20; i--)
 		{
-			int thisHeight = this.font.getWordWrappedHeight(logText.get(i).getString(), TEXT_WIDTH);
-			if(yPos + thisHeight <= TEXT_HEIGHT)
-				this.font.func_238418_a_(logText.get(i), this.x + 10, this.y + 10 + yPos, TEXT_WIDTH, 0xFFFFFF);
-				//this.font.func_243248_b(matrixStack, logText.get(i), this.x + 10, this.y + 10 + yPos, 0xFFFFFF);
+			int thisHeight = this.font.getWordWrappedHeight(logText.get(i).getString(), this.width - 20);
+			if(yPos + thisHeight <= this.height - 20)
+				this.font.func_238418_a_(logText.get(i), this.x + 10, this.y + 10 + yPos, this.width - 20, 0xFFFFFF);
 			yPos += thisHeight;
-			//renderCount++;
 		}
-		
-		/* Old debug stuff trying to determine the best scroll stop determination method
-		boolean test1 = yPos >= TEXT_HEIGHT; //Method 1
-		boolean test2 = i >= 0; //Method 2
-		boolean test3 = renderCount > 1; //Method 3
-		boolean test4 = this.scroll < logText.size() - 1; //Method 4
-		
-		this.canScrollDown = test1;
-		
-		if(debugMessage)
-		{
-			LightmansCurrency.LogInfo("Scroll: " + scroll + " Method1: " + test1 + " Method2: " + test2 + " Method3: " + test3 + " Method4: " + test4);
-			debugMessage = false;
-		}*/
 		
 	}
 	
@@ -88,11 +105,11 @@ public class TextLogWindow extends Widget{
 		//Faux render the text, to see if we overflow the height limit or not
 		List<ITextComponent> logText = this.logger.get().logText;
 		int yPos = 0;
-		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < TEXT_HEIGHT; i--)
+		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < this.height - 20; i--)
 		{
-			yPos += this.font.getWordWrappedHeight(logText.get(i).getString(), TEXT_WIDTH);
+			yPos += this.font.getWordWrappedHeight(logText.get(i).getString(), this.width - 20);
 		}
-		return yPos >= TEXT_HEIGHT;
+		return yPos >= this.height - 20;
 	}
 	
 	@Override
