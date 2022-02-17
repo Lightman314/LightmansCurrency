@@ -119,7 +119,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 	{
 		if(this.container.getTrader() == null)
 		{
-			this.minecraft.displayGuiScreen(null);
+			this.container.player.closeScreen();
 			return;
 		}
 		
@@ -139,7 +139,7 @@ public class ItemEditScreen extends ContainerScreen<ItemEditContainer>{
 		
 		if(this.container.getTrader() == null)
 		{
-			this.minecraft.displayGuiScreen(null);
+			this.container.player.closeScreen();
 			return;
 		}
 		
