@@ -104,6 +104,11 @@ public class TimedSale extends TradeRule {
 		
 	}
 	
+	@Override
+	public CompoundTag savePersistentData() { return null; }
+	@Override
+	public void loadPersistentData(CompoundTag data) { }
+	
 	public TimeData getTimeRemaining()
 	{
 		if(!isActive())

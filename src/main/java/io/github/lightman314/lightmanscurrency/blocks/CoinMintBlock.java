@@ -45,13 +45,13 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 		if(!level.isClientSide)
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof CoinMintBlockEntity && Config.canMint() || Config.canMelt())
+			if(tileEntity instanceof CoinMintBlockEntity && Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
 			{
 				NetworkHooks.openGui((ServerPlayer)player, new CoinMintMenuProvider((CoinMintBlockEntity)tileEntity), pos);
 				return InteractionResult.SUCCESS;
 			}
 		}
-		if(Config.canMint() || Config.canMelt())
+		if(Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
 			return InteractionResult.SUCCESS;
 		return InteractionResult.SUCCESS;
 			

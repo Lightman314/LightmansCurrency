@@ -8,13 +8,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.core.LootManager;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -56,85 +53,47 @@ public class Config {
 			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
 			);
 	
-	private static boolean canMint = false;
-	public static boolean canMint() { return canMint; }
-	public static boolean localCanMint() { return COMMON.allowCoinMinting.get(); }
-	private static boolean canMelt = false;
-	public static boolean canMelt() { return canMelt; }
-	public static boolean localCanMelt() { return COMMON.allowCoinMelting.get(); }
-	
-	private static boolean mintCopper = false;
-	private static boolean mintIron = false;
-	private static boolean mintGold = false;
-	private static boolean mintEmerald = false;
-	private static boolean mintDiamond = false;
-	private static boolean mintNetherite = false;
 	public static boolean canMint(Item item)
 	{
 		if(item == ModItems.COIN_COPPER)
-			return mintCopper;
+			return SERVER.mintCopper.get();
 		else if(item == ModItems.COIN_IRON)
-			return mintIron;
+			return SERVER.mintIron.get();
 		else if(item == ModItems.COIN_GOLD)
-			return mintGold;
+			return SERVER.mintGold.get();
 		else if(item == ModItems.COIN_EMERALD)
-			return mintEmerald;
+			return SERVER.mintEmerald.get();
 		else if(item == ModItems.COIN_DIAMOND)
-			return mintDiamond;
+			return SERVER.mintDiamond.get();
 		else if(item == ModItems.COIN_NETHERITE)
-			return mintNetherite;
+			return SERVER.mintNetherite.get();
 		
 		//If no rule is against it, allow the minting
 		return true;
 	}
 	
-	private static boolean meltCopper = false;
-	private static boolean meltIron = false;
-	private static boolean meltGold = false;
-	private static boolean meltEmerald = false;
-	private static boolean meltDiamond = false;
-	private static boolean meltNetherite = false;
 	public static boolean canMelt(Item item)
 	{
 		if(item == ModItems.COIN_COPPER)
-			return meltCopper;
+			return SERVER.meltCopper.get();
 		else if(item == ModItems.COIN_IRON)
-			return meltIron;
+			return SERVER.meltIron.get();
 		else if(item == ModItems.COIN_GOLD)
-			return meltGold;
+			return SERVER.meltGold.get();
 		else if(item == ModItems.COIN_EMERALD)
-			return meltEmerald;
+			return SERVER.meltEmerald.get();
 		else if(item == ModItems.COIN_DIAMOND)
-			return meltDiamond;
+			return SERVER.meltDiamond.get();
 		else if(item == ModItems.COIN_NETHERITE)
-			return meltNetherite;
+			return SERVER.meltNetherite.get();
 		
 		//If no rule is against it, allow the minting
 		return true;
 	}
 	
-	private static CoinItem.CoinItemTooltipType coinTooltipType;
-	public static CoinItem.CoinItemTooltipType getCoinTooltipType() { return coinTooltipType; }
-	private static CoinValue.ValueType valueDisplayType;
-	public static CoinValue.ValueType getValueDisplayType() { return valueDisplayType; }
-	private static CoinValue.ValueType valueInputType;
-	public static CoinValue.ValueType getValueInputType() { return valueInputType; }
-	private static String baseCoinItem;
-	public static Item getBaseCoinItem() {
-		Item coinItem = null;
-		try{
-			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(baseCoinItem));
-		} catch(Exception e) { e.printStackTrace(); }
-		if(coinItem != null && MoneyUtil.isCoin(coinItem))
-			return coinItem;
-		return ModItems.COIN_GOLD;
-	}
-	
-	private static String valueDisplayFormat;
-	public static String getValueDisplayFormat() { return valueDisplayFormat; }
 	public static String formatValueDisplay(double value)
 	{
-		return valueDisplayFormat.replace("{value}", formatValueOnly(value));
+		return SERVER.valueFormat.get().replace("{value}", formatValueOnly(value));
 	}
 	public static String formatValueOnly(double value)
 	{
@@ -153,6 +112,16 @@ public class Config {
 		}
 		else
 			return 0;
+	}
+	
+	public static Item getBaseCoinItem() {
+		Item coinItem = null;
+		try{
+			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(SERVER.valueBaseCoin.get()));
+		} catch(Exception e) { e.printStackTrace(); }
+		if(coinItem != null && MoneyUtil.isCoin(coinItem))
+			return coinItem;
+		return ModItems.COIN_GOLD;
 	}
 	
 	
@@ -225,30 +194,6 @@ public class Config {
 	public static class Common
 	{
 		
-		//Melt/Mint Options
-		private final ForgeConfigSpec.BooleanValue allowCoinMinting;
-		private final ForgeConfigSpec.BooleanValue allowCoinMelting;
-		
-		//Specific Melt/Mint Options
-		private final ForgeConfigSpec.BooleanValue mintCopper;
-		private final ForgeConfigSpec.BooleanValue mintIron;
-		private final ForgeConfigSpec.BooleanValue mintGold;
-		private final ForgeConfigSpec.BooleanValue mintEmerald;
-		private final ForgeConfigSpec.BooleanValue mintDiamond;
-		private final ForgeConfigSpec.BooleanValue mintNetherite;
-		
-		private final ForgeConfigSpec.BooleanValue meltCopper;
-		private final ForgeConfigSpec.BooleanValue meltIron;
-		private final ForgeConfigSpec.BooleanValue meltGold;
-		private final ForgeConfigSpec.BooleanValue meltEmerald;
-		private final ForgeConfigSpec.BooleanValue meltDiamond;
-		private final ForgeConfigSpec.BooleanValue meltNetherite;
-		
-		//Wallet Options
-		private final ForgeConfigSpec.IntValue walletConvertLevel;
-		private final ForgeConfigSpec.IntValue walletPickupLevel;
-		private final ForgeConfigSpec.IntValue walletBankLevel;
-		
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
 		public final ForgeConfigSpec.BooleanValue addBankerVillager;
@@ -282,97 +227,10 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> diamondChestDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> netheriteChestDrops;
 		
-		//Value Display Options
-		private final ForgeConfigSpec.EnumValue<CoinItem.CoinItemTooltipType> coinTooltipType;
-		private final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueType;
-		private final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueInputType;
-		private final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
-		private final ForgeConfigSpec.ConfigValue<String> valueFormat;
-		
-		//Coin Values
-		public final ForgeConfigSpec.IntValue ironCoinWorth;
-		public final ForgeConfigSpec.IntValue goldCoinWorth;
-		public final ForgeConfigSpec.IntValue emeraldCoinWorth;
-		public final ForgeConfigSpec.IntValue diamondCoinWorth;
-		public final ForgeConfigSpec.IntValue netheriteCoinWorth;
-		
-		//Coin Pile Values
-		public final ForgeConfigSpec.IntValue coinpileCopperWorth;
-		public final ForgeConfigSpec.IntValue coinpileIronWorth;
-		public final ForgeConfigSpec.IntValue coinpileGoldWorth;
-		public final ForgeConfigSpec.IntValue coinpileEmeraldWorth;
-		public final ForgeConfigSpec.IntValue coinpileDiamondWorth;
-		public final ForgeConfigSpec.IntValue coinpileNetheriteWorth;
-		
-		//Coin Block Values
-		public final ForgeConfigSpec.IntValue coinBlockCopperWorth;
-		public final ForgeConfigSpec.IntValue coinBlockIronWorth;
-		public final ForgeConfigSpec.IntValue coinBlockGoldWorth;
-		public final ForgeConfigSpec.IntValue coinBlockEmeraldWorth;
-		public final ForgeConfigSpec.IntValue coinBlockDiamondWorth;
-		public final ForgeConfigSpec.IntValue coinBlockNetheriteWorth;
-		
-		
-		
 		Common(ForgeConfigSpec.Builder builder)
 		{
 			
 			builder.comment("Common configuration settings").push("common");
-			this.allowCoinMinting = builder
-					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")
-					.translation("lightmanscurrency.configgui.canMintCoins")
-					.define("canMintCoins", true);
-			this.allowCoinMelting = builder
-					.comment("Determines whether or not coins can be melted back into their source material in the Coin Minting Machine.")
-					.translation("lightmanscurrency.configgui.canMeltCoins")
-					.define("canMeltCoins", false);
-			
-			builder.comment("Specific Coin Minting Settings.").push("coin_minting");
-			this.mintCopper = builder.comment("Whether copper coins can be minted.")
-					.define("canMintCopper", true);
-			this.mintIron = builder.comment("Whether iron coins can be minted.")
-					.define("canMintIron", true);
-			this.mintGold = builder.comment("Whether gold coins can be minted.")
-					.define("canMintGold", true);
-			this.mintEmerald = builder.comment("Whether emerald coins can be minted.")
-					.define("canMintEmerald", true);
-			this.mintDiamond = builder.comment("Whether diamond coins can be minted.")
-					.define("canMintDiamond", true);
-			this.mintNetherite = builder.comment("Whether netherite coins can be minted.")
-					.define("canMintNetherite", true);
-			builder.pop();
-			
-			builder.comment("Specific Coin Melting Settings.").push("coin_melting");
-			this.meltCopper = builder.comment("Whether copper coins can be melted.")
-					.define("canMeltCopper", true);
-			this.meltIron = builder.comment("Whether iron coins can be melted.")
-					.define("canMeltIron", true);
-			this.meltGold = builder.comment("Whether gold coins can be melted.")
-					.define("canMeltGold", true);
-			this.meltEmerald = builder.comment("Whether emerald coins can be melted.")
-					.define("canMeltEmerald", true);
-			this.meltDiamond = builder.comment("Whether diamond coins can be melted.")
-					.define("canMeltDiamond", true);
-			this.meltNetherite = builder.comment("Whether netherite coins can be melted.")
-					.define("canMeltNetherite", true);
-			builder.pop();
-			
-			builder.comment("Wallet Settings.").push("wallet");
-			
-			this.walletConvertLevel = builder.comment("The lowest level wallet capable of converting coins in the UI.",
-						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet",
-						"Must be less than or equal to 'pickupLevel'.")
-					.defineInRange("convertLevel", 1, 0, 5);
-			
-			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
-						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
-					.defineInRange("pickupLevel", 2, 0, 5);
-			
-			this.walletBankLevel = builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
-						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
-					.defineInRange("bankLevel", 5, 0, 5);
-			
-			builder.pop();
 			
 			builder.comment("Villager Related Settings.").push("villagers");
 			
@@ -476,6 +334,129 @@ public class Config {
 			
 			builder.pop();
 			
+			
+		}
+		
+	}
+	
+	public static class Server
+	{
+		
+		//Melt/Mint Options
+		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
+		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
+		
+		//Specific Melt/Mint Options
+		public final ForgeConfigSpec.BooleanValue mintCopper;
+		public final ForgeConfigSpec.BooleanValue mintIron;
+		public final ForgeConfigSpec.BooleanValue mintGold;
+		public final ForgeConfigSpec.BooleanValue mintEmerald;
+		public final ForgeConfigSpec.BooleanValue mintDiamond;
+		public final ForgeConfigSpec.BooleanValue mintNetherite;
+		
+		public final ForgeConfigSpec.BooleanValue meltCopper;
+		public final ForgeConfigSpec.BooleanValue meltIron;
+		public final ForgeConfigSpec.BooleanValue meltGold;
+		public final ForgeConfigSpec.BooleanValue meltEmerald;
+		public final ForgeConfigSpec.BooleanValue meltDiamond;
+		public final ForgeConfigSpec.BooleanValue meltNetherite;
+		
+		//Wallet Options
+		public final ForgeConfigSpec.IntValue walletConvertLevel;
+		public final ForgeConfigSpec.IntValue walletPickupLevel;
+		public final ForgeConfigSpec.IntValue walletBankLevel;
+		
+		//Value Display Options
+		public final ForgeConfigSpec.EnumValue<CoinItem.CoinItemTooltipType> coinTooltipType;
+		public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueType;
+		public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueInputType;
+		public final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
+		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
+		
+		//Coin Values
+		public final ForgeConfigSpec.IntValue ironCoinWorth;
+		public final ForgeConfigSpec.IntValue goldCoinWorth;
+		public final ForgeConfigSpec.IntValue emeraldCoinWorth;
+		public final ForgeConfigSpec.IntValue diamondCoinWorth;
+		public final ForgeConfigSpec.IntValue netheriteCoinWorth;
+		
+		//Coin Pile Values
+		public final ForgeConfigSpec.IntValue coinpileCopperWorth;
+		public final ForgeConfigSpec.IntValue coinpileIronWorth;
+		public final ForgeConfigSpec.IntValue coinpileGoldWorth;
+		public final ForgeConfigSpec.IntValue coinpileEmeraldWorth;
+		public final ForgeConfigSpec.IntValue coinpileDiamondWorth;
+		public final ForgeConfigSpec.IntValue coinpileNetheriteWorth;
+		
+		//Coin Block Values
+		public final ForgeConfigSpec.IntValue coinBlockCopperWorth;
+		public final ForgeConfigSpec.IntValue coinBlockIronWorth;
+		public final ForgeConfigSpec.IntValue coinBlockGoldWorth;
+		public final ForgeConfigSpec.IntValue coinBlockEmeraldWorth;
+		public final ForgeConfigSpec.IntValue coinBlockDiamondWorth;
+		public final ForgeConfigSpec.IntValue coinBlockNetheriteWorth;
+		
+		Server(ForgeConfigSpec.Builder builder)
+		{
+			
+			builder.comment("Server Config Settings").push("server");
+			
+			this.allowCoinMinting = builder
+					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")
+					.translation("lightmanscurrency.configgui.canMintCoins")
+					.define("canMintCoins", true);
+			this.allowCoinMelting = builder
+					.comment("Determines whether or not coins can be melted back into their source material in the Coin Minting Machine.")
+					.translation("lightmanscurrency.configgui.canMeltCoins")
+					.define("canMeltCoins", false);
+			
+			builder.comment("Specific Coin Minting Settings.").push("coin_minting");
+			this.mintCopper = builder.comment("Whether copper coins can be minted.")
+					.define("canMintCopper", true);
+			this.mintIron = builder.comment("Whether iron coins can be minted.")
+					.define("canMintIron", true);
+			this.mintGold = builder.comment("Whether gold coins can be minted.")
+					.define("canMintGold", true);
+			this.mintEmerald = builder.comment("Whether emerald coins can be minted.")
+					.define("canMintEmerald", true);
+			this.mintDiamond = builder.comment("Whether diamond coins can be minted.")
+					.define("canMintDiamond", true);
+			this.mintNetherite = builder.comment("Whether netherite coins can be minted.")
+					.define("canMintNetherite", true);
+			builder.pop();
+			
+			builder.comment("Specific Coin Melting Settings.").push("coin_melting");
+			this.meltCopper = builder.comment("Whether copper coins can be melted.")
+					.define("canMeltCopper", true);
+			this.meltIron = builder.comment("Whether iron coins can be melted.")
+					.define("canMeltIron", true);
+			this.meltGold = builder.comment("Whether gold coins can be melted.")
+					.define("canMeltGold", true);
+			this.meltEmerald = builder.comment("Whether emerald coins can be melted.")
+					.define("canMeltEmerald", true);
+			this.meltDiamond = builder.comment("Whether diamond coins can be melted.")
+					.define("canMeltDiamond", true);
+			this.meltNetherite = builder.comment("Whether netherite coins can be melted.")
+					.define("canMeltNetherite", true);
+			builder.pop();
+			
+			builder.comment("Wallet Settings.").push("wallet");
+			
+			this.walletConvertLevel = builder.comment("The lowest level wallet capable of converting coins in the UI.",
+						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet",
+						"Must be less than or equal to 'pickupLevel'.")
+					.defineInRange("convertLevel", 1, 0, 5);
+			
+			this.walletPickupLevel = builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
+						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
+					.defineInRange("pickupLevel", 2, 0, 5);
+			
+			this.walletBankLevel = builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
+						"0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet")
+					.defineInRange("bankLevel", 5, 0, 5);
+			
+			builder.pop();
+			
 			builder.comment("Coin value display settings.").push("coin_value_display");
 			
 			this.coinTooltipType = builder
@@ -574,26 +555,6 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.pop();
-		}
-		
-	}
-	
-	public static class Server
-	{
-		
-		public final ForgeConfigSpec.IntValue logLimit;
-		
-		Server(ForgeConfigSpec.Builder builder)
-		{
-			
-			builder.comment("Server Config Settings").push("server");
-			
-			this.logLimit = builder.comment("The maximum amount of entries allowed in a text log.")
-					.defineInRange("logLimit", 100, 1, Integer.MAX_VALUE);
-			
-			builder.pop();
-			
 		}
 		
 	}
@@ -619,136 +580,6 @@ public class Config {
 		final Pair<Server,ForgeConfigSpec> serverPair = new ForgeConfigSpec.Builder().configure(Config.Server::new);
 		serverSpec = serverPair.getRight();
 		SERVER = serverPair.getLeft();
-		
-	}
-	
-	public static CompoundTag getSyncData()
-	{
-		CompoundTag data = new CompoundTag();
-		
-		//Put mint/melt data
-		data.putBoolean("canMint", COMMON.allowCoinMinting.get());
-		data.putBoolean("canMelt", COMMON.allowCoinMelting.get());
-		
-		//Put coin-specific mint/melt data
-		data.putBoolean("mintCopper", COMMON.mintCopper.get());
-		data.putBoolean("mintIron", COMMON.mintIron.get());
-		data.putBoolean("mintGold", COMMON.mintGold.get());
-		data.putBoolean("mintEmerald", COMMON.mintEmerald.get());
-		data.putBoolean("mintDiamond", COMMON.mintDiamond.get());
-		data.putBoolean("mintNetherite", COMMON.mintNetherite.get());
-		
-		data.putBoolean("meltCopper", COMMON.meltCopper.get());
-		data.putBoolean("meltIron", COMMON.meltIron.get());
-		data.putBoolean("meltGold", COMMON.meltGold.get());
-		data.putBoolean("meltEmerald", COMMON.meltEmerald.get());
-		data.putBoolean("meltDiamond", COMMON.meltDiamond.get());
-		data.putBoolean("meltNetherite", COMMON.meltNetherite.get());
-		
-		//Coin worth
-		CompoundTag coinValues = new CompoundTag();
-		coinValues.putInt("iron", COMMON.ironCoinWorth.get());
-		coinValues.putInt("gold", COMMON.goldCoinWorth.get());
-		coinValues.putInt("emerald", COMMON.emeraldCoinWorth.get());
-		coinValues.putInt("diamond", COMMON.diamondCoinWorth.get());
-		coinValues.putInt("netherite", COMMON.netheriteCoinWorth.get());
-		data.put("coinValues", coinValues);
-		//Coinpile worth
-		CompoundTag coinpileValues = new CompoundTag();
-		coinpileValues.putInt("copper", COMMON.coinpileCopperWorth.get());
-		coinpileValues.putInt("iron", COMMON.coinpileIronWorth.get());
-		coinpileValues.putInt("gold", COMMON.coinpileGoldWorth.get());
-		coinpileValues.putInt("emerald", COMMON.coinpileEmeraldWorth.get());
-		coinpileValues.putInt("diamond", COMMON.coinpileDiamondWorth.get());
-		coinpileValues.putInt("netherite", COMMON.coinpileNetheriteWorth.get());
-		data.put("coinpileValues", coinpileValues);
-		//Coinblock worth
-		CompoundTag coinblockValues = new CompoundTag();
-		coinblockValues.putInt("copper", COMMON.coinBlockCopperWorth.get());
-		coinblockValues.putInt("iron", COMMON.coinBlockIronWorth.get());
-		coinblockValues.putInt("gold", COMMON.coinBlockGoldWorth.get());
-		coinblockValues.putInt("emerald", COMMON.coinBlockEmeraldWorth.get());
-		coinblockValues.putInt("diamond", COMMON.coinBlockDiamondWorth.get());
-		coinblockValues.putInt("netherite", COMMON.coinBlockNetheriteWorth.get());
-		data.put("coinblockValues", coinblockValues);
-		
-		//Wallet Levels
-		data.putInt("walletConvertLevel", COMMON.walletConvertLevel.get());
-		data.putInt("walletPickupLevel", COMMON.walletPickupLevel.get());
-		data.putInt("walletBankLevel", COMMON.walletBankLevel.get());
-		
-		//Coin Tooltip & Value Displays
-		data.putString("coinTooltipType", COMMON.coinTooltipType.get().name());
-		data.putString("coinValueType", COMMON.coinValueType.get().name());
-		data.putString("coinValueInputType", COMMON.coinValueInputType.get().name());
-		data.putString("valueBaseCoin", COMMON.valueBaseCoin.get());
-		data.putString("valueFormat", COMMON.valueFormat.get());
-		
-		return data;
-	}
-	
-	public static void syncConfig()
-	{
-		syncConfig(getSyncData());
-	}
-	
-	public static void syncConfig(CompoundTag data)
-	{
-		//Can Mint/Melt
-		canMint = data.getBoolean("canMint");
-		canMelt = data.getBoolean("canMelt");
-		
-		mintCopper = data.getBoolean("mintCopper");
-		mintIron = data.getBoolean("mintIron");
-		mintGold = data.getBoolean("mintGold");
-		mintEmerald = data.getBoolean("mintEmerald");
-		mintDiamond = data.getBoolean("mintDiamond");
-		mintNetherite = data.getBoolean("mintNetherite");
-		
-		meltCopper = data.getBoolean("meltCopper");
-		meltIron = data.getBoolean("meltIron");
-		meltGold = data.getBoolean("meltGold");
-		meltEmerald = data.getBoolean("meltEmerald");
-		meltDiamond = data.getBoolean("meltDiamond");
-		meltNetherite = data.getBoolean("meltNetherite");
-		
-		//Coin worth
-		CompoundTag coinValues = data.getCompound("coinValues");
-		MoneyUtil.changeCoinConversion(ModItems.COIN_IRON, ModItems.COIN_COPPER, coinValues.getInt("iron"));
-		MoneyUtil.changeCoinConversion(ModItems.COIN_GOLD, ModItems.COIN_IRON, coinValues.getInt("gold"));
-		MoneyUtil.changeCoinConversion(ModItems.COIN_EMERALD, ModItems.COIN_GOLD, coinValues.getInt("emerald"));
-		MoneyUtil.changeCoinConversion(ModItems.COIN_DIAMOND, ModItems.COIN_EMERALD, coinValues.getInt("diamond"));
-		MoneyUtil.changeCoinConversion(ModItems.COIN_NETHERITE, ModItems.COIN_DIAMOND, coinValues.getInt("netherite"));
-		
-		//Coinpile worth
-		CompoundTag coinpileValues = data.getCompound("coinpileValues");
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_COPPER.item, ModItems.COIN_COPPER, coinpileValues.getInt("copper"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_IRON.item, ModItems.COIN_IRON, coinpileValues.getInt("iron"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_GOLD.item, ModItems.COIN_GOLD, coinpileValues.getInt("gold"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_EMERALD.item, ModItems.COIN_EMERALD, coinpileValues.getInt("emerald"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_DIAMOND.item, ModItems.COIN_DIAMOND, coinpileValues.getInt("diamond"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINPILE_NETHERITE.item, ModItems.COIN_NETHERITE, coinpileValues.getInt("netherite"));
-		
-		//Coinblock worth
-		CompoundTag coinblockValues = data.getCompound("coinblockValues");
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_COPPER.item, ModBlocks.COINPILE_COPPER.item, coinblockValues.getInt("copper"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_IRON.item, ModBlocks.COINPILE_IRON.item, coinblockValues.getInt("iron"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_GOLD.item, ModBlocks.COINPILE_GOLD.item, coinblockValues.getInt("gold"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_EMERALD.item, ModBlocks.COINPILE_EMERALD.item, coinblockValues.getInt("emerald"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_DIAMOND.item, ModBlocks.COINPILE_DIAMOND.item, coinblockValues.getInt("diamond"));
-		MoneyUtil.changeCoinConversion(ModBlocks.COINBLOCK_NETHERITE.item, ModBlocks.COINPILE_NETHERITE.item, coinblockValues.getInt("netherite"));
-		
-		//Wallet Levels
-		convertLevel = data.getInt("walletConvertLevel");
-		pickupLevel = data.getInt("walletPickupLevel");
-		bankLevel = data.getInt("walletBankLevel");
-		
-		//Coin Tooltip & Value Displays
-		coinTooltipType = EnumUtil.enumFromString(data.getString("coinTooltipType"), CoinItem.CoinItemTooltipType.values(), CoinItem.CoinItemTooltipType.DEFAULT);
-		valueDisplayType = EnumUtil.enumFromString(data.getString("coinValueType"), CoinValue.ValueType.values(), CoinValue.ValueType.DEFAULT);
-		valueInputType = EnumUtil.enumFromString(data.getString("coinValueInputType"), CoinValue.ValueType.values(), CoinValue.ValueType.DEFAULT);
-		baseCoinItem = data.getString("valueBaseCoin");
-		valueDisplayFormat = data.getString("valueFormat");
 		
 	}
 	

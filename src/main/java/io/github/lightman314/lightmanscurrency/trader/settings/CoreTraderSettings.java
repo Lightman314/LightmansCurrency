@@ -69,6 +69,11 @@ public class CoreTraderSettings extends Settings{
 	
 	//Owner
 	PlayerReference owner = null;
+	private String customOwnerName = "";
+	/**
+	 * Used to define the owner name for persistent traders, which have no owner.
+	 */
+	public void setCustomOwnerName(String ownerName) { this.customOwnerName = ownerName; }
 	//Team
 	TeamReference team = null;
 	public Team getTeam()
@@ -146,12 +151,10 @@ public class CoreTraderSettings extends Settings{
 	public String getOwnerName()
 	{
 		if(this.getTeam() != null)
-		{
 			return this.getTeam().getName();
-		}
 		if(this.owner != null)
 			return this.owner.lastKnownName();
-		return "";
+		return this.customOwnerName;
 	}
 	
 	/**
@@ -384,6 +387,11 @@ public class CoreTraderSettings extends Settings{
 		return updateInfo;
 	}
 	
+	/**
+	 * Used to force persistent traders as creative
+	 */
+	public void forceCreative() { this.isCreative = true; }
+	
 	public CompoundTag toggleBankAccountLink(Player requestor)
 	{
 		if(!this.hasPermission(requestor, Permissions.BANK_LINK))
@@ -502,6 +510,8 @@ public class CoreTraderSettings extends Settings{
 	{
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
+		if(!this.customOwnerName.isBlank())
+			compound.putString("CustomOwnerName", this.customOwnerName);
 		return compound;
 	}
 	
@@ -644,6 +654,8 @@ public class CoreTraderSettings extends Settings{
 		//Owner
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
+		if(compound.contains("CustomOwnerName", Tag.TAG_STRING))
+			this.customOwnerName = compound.getString("CustomOwnerName");
 		//Team
 		if(compound.contains("Team", Tag.TAG_BYTE))
 			this.team = null;

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -337,7 +338,7 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public Component getTitle()
 	{
-		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
+		if(this.coreSettings.isCreative() || this.coreSettings.getOwnerName().isEmpty())
 			return this.getName();
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
@@ -409,4 +410,25 @@ public abstract class UniversalTraderData implements ITrader{
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearUniversalLogger(this.traderID));
 	}
+	
+	/**
+	 * Adds persistent data, such as trade rules tracking player limitations
+	 */
+	public abstract CompoundTag getPersistentData();
+	/**
+	 * Loads persistent data
+	 */
+	public abstract void loadPersistentData(CompoundTag data);
+	
+	/**
+	 * Safely loads the trader from JSON data.
+	 * Commonly used to load persistent traders from the persistentTraders.json file.
+	 */
+	public void loadFromJson(JsonObject json) throws Exception {
+		if(json.has("TraderName"))
+			this.coreSettings.setCustomName(null, json.get("TraderName").getAsString());
+		if(json.has("OwnerName"))
+			this.coreSettings.setCustomOwnerName(json.get("OwnerName").getAsString());
+	}
+	
 }

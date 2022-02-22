@@ -13,6 +13,7 @@ public class CommandLoader {
 	{
 		CommandLCAdmin.register(event.getDispatcher());
 		CommandTeamManager.register(event.getDispatcher());
+		CommandReloadTraders.register(event.getDispatcher());
 	}
 	
 }

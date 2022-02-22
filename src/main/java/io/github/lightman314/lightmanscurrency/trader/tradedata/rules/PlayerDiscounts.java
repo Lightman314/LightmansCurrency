@@ -111,6 +111,11 @@ public class PlayerDiscounts extends TradeRule {
 		
 	}
 	
+	@Override
+	public CompoundTag savePersistentData() { return null; }
+	@Override
+	public void loadPersistentData(CompoundTag data) { }
+	
 	public IconData getButtonIcon() { return IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.discount_list")); }
 
 	@Override

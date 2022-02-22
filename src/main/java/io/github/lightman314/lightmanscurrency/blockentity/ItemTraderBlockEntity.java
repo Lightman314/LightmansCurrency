@@ -46,7 +46,6 @@ import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHan
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -97,7 +96,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	private long rotationTime = 0;
 	
-	protected NonNullList<ItemTradeData> trades;
+	protected List<ItemTradeData> trades;
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
@@ -210,7 +209,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(tradeCount == newTradeCount)
 			return;
 		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADELIMIT);
-		NonNullList<ItemTradeData> oldTrades = trades;
+		List<ItemTradeData> oldTrades = trades;
 		trades = ItemTradeData.listOfSize(getTradeCount());
 		//Write the old trade data into the array.
 		for(int i = 0; i < oldTrades.size() && i < trades.size(); i++)
@@ -252,7 +251,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		return this.trades.get(tradeSlot);
 	}
 	
-	public NonNullList<ItemTradeData> getAllTrades()
+	public List<ItemTradeData> getAllTrades()
 	{
 		return this.trades;
 	}

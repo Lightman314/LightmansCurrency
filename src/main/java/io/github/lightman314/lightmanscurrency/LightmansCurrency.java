@@ -23,7 +23,6 @@ import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.config.MessageSyncConfig;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerBlacklist;
@@ -168,8 +167,6 @@ public class LightmansCurrency {
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
-    		//Only need to sync the common config
-    		Config.syncConfig();
     		//Have the loot manager validate the entity loot contents
     		LootManager.validateEntityDropList();
     	}
@@ -187,9 +184,6 @@ public class LightmansCurrency {
     	
     	//Preload target
     	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
-    	//Sync config
-    	LightmansCurrency.LogDebug("Player has logged in to the server. Sending config syncronization message.");
-    	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncConfig(Config.getSyncData()));
     	//Sync time
     	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
     	//Sync admin list

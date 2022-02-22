@@ -379,6 +379,7 @@
     "command.lightmanscurrency.lcadmin.universaldata.delete.noid": "Please input a valid trader id.",
     "command.lightmanscurrency.lcadmin.universaldata.delete.notfound": "No trader found with id %s",
     "command.lightmanscurrency.lcadmin.universaldata.delete.success": "Successfully deleted the universal trader of id %s",
-    "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration."
+    "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration.",
+    "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data."
     
 }

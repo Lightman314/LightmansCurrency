@@ -54,6 +54,9 @@ public abstract class TradeRule {
 	
 	public abstract void readNBT(CompoundTag compound);
 	
+	public abstract CompoundTag savePersistentData();
+	public abstract void loadPersistentData(CompoundTag data);
+	
 	public abstract IconData getButtonIcon();
 	
 	public static CompoundTag writeRules(CompoundTag compound, List<TradeRule> rules)
@@ -72,6 +75,23 @@ public abstract class TradeRule {
 		}
 		compound.put(tag, ruleData);
 		return compound;
+	}
+	
+	public static boolean writePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
+		ListTag ruleData = new ListTag();
+		for(int i = 0; i < rules.size(); ++i)
+		{
+			CompoundTag thisRuleData = rules.get(i).savePersistentData();
+			if(thisRuleData != null)
+			{
+				thisRuleData.putString("type", rules.get(i).type.toString());
+				ruleData.add(thisRuleData);
+			}
+		}
+		if(ruleData.size() <= 0)
+			return false;
+		compound.put(tag, ruleData);
+		return true;
 	}
 	
 	public static List<TradeRule> readRules(CompoundTag compound)
@@ -94,6 +114,26 @@ public abstract class TradeRule {
 			}
 		}
 		return rules;
+	}
+	
+	public static void readPersistentData(CompoundTag compound, List<TradeRule> tradeRules, String tag)
+	{
+		if(compound.contains(tag, Tag.TAG_LIST))
+		{
+			ListTag ruleData = compound.getList(tag, Tag.TAG_COMPOUND);
+			for(int i = 0; i < ruleData.size(); ++i)
+			{
+				CompoundTag thisRuleData = ruleData.getCompound(i);
+				boolean query = true;
+				for(int r = 0; query && r < tradeRules.size(); ++i)
+				{
+					if(tradeRules.get(r).type.toString().contentEquals(thisRuleData.getString("type")))
+					{
+						tradeRules.get(r).loadPersistentData(thisRuleData);
+					}
+				}
+			}
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)

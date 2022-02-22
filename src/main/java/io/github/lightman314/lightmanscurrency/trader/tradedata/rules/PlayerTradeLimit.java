@@ -174,6 +174,53 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
+	public CompoundTag savePersistentData() {
+		CompoundTag data = new CompoundTag();
+		ListTag memoryList = new ListTag();
+		this.memory.forEach((id, eventTimes) ->{
+			CompoundTag thisMemory = new CompoundTag();
+			thisMemory.putUUID("id", id);
+			thisMemory.putLongArray("times", eventTimes);
+			memoryList.add(thisMemory);
+		});
+		data.put("Memory", memoryList);
+		return data;
+	}
+	
+	@Override
+	public void loadPersistentData(CompoundTag data) {
+		if(data.contains("Memory", Tag.TAG_LIST))
+		{
+			this.memory.clear();
+			ListTag memoryList = data.getList("Memory", Tag.TAG_COMPOUND);
+			for(int i = 0; i < memoryList.size(); i++)
+			{
+				CompoundTag thisMemory = memoryList.getCompound(i);
+				UUID id = null;
+				List<Long> eventTimes = new ArrayList<>();
+				if(thisMemory.contains("id"))
+					id = thisMemory.getUUID("id");
+				if(thisMemory.contains("count", Tag.TAG_INT))
+				{
+					int count = thisMemory.getInt("count");
+					for(int z = 0; z < count; z++)
+					{
+						eventTimes.add(0l);
+					}
+				}
+				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))
+				{
+					for(long time : thisMemory.getLongArray("times"))
+					{
+						eventTimes.add(time);
+					}
+				}
+				this.memory.put(id, eventTimes);
+			}
+		}
+	}
+	
+	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT_PLAYER; }
 
 	@Override

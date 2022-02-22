@@ -1,10 +1,14 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeComparisonResult.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -179,12 +183,12 @@ public class ItemTradeData extends TradeData {
 		return tradeNBT;
 	}
 	
-	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data)
+	public static CompoundTag saveAllData(CompoundTag nbt, List<ItemTradeData> data)
 	{
 		return saveAllData(nbt, data, DEFAULT_KEY);
 	}
 	
-	public static CompoundTag saveAllData(CompoundTag nbt, NonNullList<ItemTradeData> data, String key)
+	public static CompoundTag saveAllData(CompoundTag nbt, List<ItemTradeData> data, String key)
 	{
 		ListTag listNBT = new ListTag();
 		
@@ -199,16 +203,16 @@ public class ItemTradeData extends TradeData {
 		return nbt;
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(CompoundTag nbt, int arraySize)
+	public static List<ItemTradeData> loadAllData(CompoundTag nbt, int arraySize)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, arraySize);
 	}
 	
-	public static NonNullList<ItemTradeData> loadAllData(String key, CompoundTag nbt, int arraySize)
+	public static List<ItemTradeData> loadAllData(String key, CompoundTag nbt, int arraySize)
 	{
 		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
 		
-		NonNullList<ItemTradeData> data = listOfSize(arraySize);
+		List<ItemTradeData> data = listOfSize(arraySize);
 		
 		for(int i = 0; i < listNBT.size() && i < arraySize; i++)
 		{
@@ -268,16 +272,81 @@ public class ItemTradeData extends TradeData {
 		return value;
 	}
 	
-	public static NonNullList<ItemTradeData> listOfSize(int tradeCount)
+	public static List<ItemTradeData> listOfSize(int tradeCount)
 	{
-		NonNullList<ItemTradeData> data = NonNullList.withSize(tradeCount, new ItemTradeData());
-		for(int i = 0; i < tradeCount; i++)
-		{
-			data.set(i, new ItemTradeData());
-		}
+		List<ItemTradeData> data = Lists.newArrayList();
+		while(data.size() < tradeCount)
+			data.add(new ItemTradeData());
 		return data;
 	}
 	
 	public void markRulesDirty() { }
+	
+	public TradeComparisonResult compare(ItemTradeData otherTrade) {
+		TradeComparisonResult result = new TradeComparisonResult();
+		//Compare sell items
+		result.addProductResult(ProductComparisonResult.CompareItem(this.sellItem, otherTrade.sellItem));
+		//Compare barter items
+		if(this.isBarter())
+			result.addProductResult(ProductComparisonResult.CompareItem(this.barterItem, otherTrade.barterItem));
+		//Compare prices
+		result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+		//Compare types
+		result.setTypeResult(this.tradeType == otherTrade.tradeType);
+		//Return the comparison results
+		return result;
+	}
+	
+	public boolean AcceptableDifferences(TradeComparisonResult result) {
+		
+		//Confirm the types match
+		if(!result.TypeMatches())
+			return false;
+		
+		//Confirm the sell item is acceptable
+		if(result.getProductResultCount() < 1)
+			return false;
+		ProductComparisonResult sellResult = result.getProductResult(0);
+		if(sellResult.SameProductType() && sellResult.SameProductNBT())
+		{
+			if(this.isSale() || this.isBarter())
+			{
+				//Sell product should be greater than or equal to pass
+				if(sellResult.ProductQuantityDifference() < 0)
+					return false;
+			}
+			else if(this.isPurchase())
+			{
+				//Purchase product should be less than or equal to pass
+				if(sellResult.ProductQuantityDifference() > 0)
+					return false;
+			}
+		}
+		else //Item & tag don't match. Failure.
+			return false;
+		//Confirm the barter item is acceptable
+		if(this.isBarter())
+		{
+			if(result.getProductResultCount() < 2)
+				return false;
+			ProductComparisonResult barterResult = result.getProductResult(1);
+			if(barterResult.SameProductType() && barterResult.SameProductNBT())
+			{
+				//Barter product should be less than or equal to pass
+				if(barterResult.ProductQuantityDifference() > 0)
+					return false;
+			}
+			else //Item & tag don't match. Failure.
+				return false;
+		}
+		//Product is acceptable, now check the price
+		if(this.isSale() && result.isPriceExpensive())
+			return false;
+		if(this.isPurchase() && result.isPriceCheaper())
+			return false;
+		
+		//Products, price, and types are all acceptable.
+		return true;
+	}
 	
 }

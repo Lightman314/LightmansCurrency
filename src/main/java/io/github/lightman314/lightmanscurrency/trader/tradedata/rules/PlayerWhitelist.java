@@ -100,6 +100,11 @@ public class PlayerWhitelist extends TradeRule{
 		
 	}
 	
+	@Override
+	public CompoundTag savePersistentData() { return null; }
+	@Override
+	public void loadPersistentData(CompoundTag data) { }
+	
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_WHITELIST; }
 
 	@Override
