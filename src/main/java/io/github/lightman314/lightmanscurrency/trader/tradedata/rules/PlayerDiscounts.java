@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -84,6 +86,18 @@ public class PlayerDiscounts extends TradeRule {
 	}
 
 	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		JsonArray playerList = new JsonArray();
+		for(int i = 0; i < this.playerList.size(); ++i)
+		{
+			playerList.add(this.playerList.get(i).saveAsJson());
+		}
+		json.add("Players", playerList);
+		json.addProperty("discounrd", this.discount);
+		return json;
+	}
+	
+	@Override
 	public void readNBT(CompoundTag compound) {
 		//Load player names
 		if(compound.contains("Players", Tag.TAG_LIST))
@@ -109,6 +123,22 @@ public class PlayerDiscounts extends TradeRule {
 		if(compound.contains("discount", Tag.TAG_INT))
 			this.discount = compound.getInt("discount");
 		
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) {
+		if(json.has("Players"))
+		{
+			this.playerList.clear();
+			JsonArray playerList = json.get("Players").getAsJsonArray();
+			for(int i = 0; i < playerList.size(); ++i) {
+				PlayerReference reference = PlayerReference.load(playerList.get(i));
+				if(reference != null && !this.isOnList(reference))
+					this.playerList.add(reference);
+			}
+		}
+		if(json.has("discount"))
+			this.discount = json.get("discount").getAsInt();
 	}
 	
 	@Override

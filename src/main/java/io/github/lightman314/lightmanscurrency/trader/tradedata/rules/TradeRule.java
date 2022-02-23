@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -23,7 +23,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -56,6 +55,9 @@ public abstract class TradeRule {
 	protected abstract CompoundTag write(CompoundTag compound);
 	
 	public abstract void readNBT(CompoundTag compound);
+	
+	public abstract JsonObject saveToJson(JsonObject json);
+	public abstract void loadFromJson(JsonObject json);
 	
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
@@ -95,6 +97,20 @@ public abstract class TradeRule {
 			return false;
 		compound.put(tag, ruleData);
 		return true;
+	}
+	
+	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
+		JsonArray ruleData = new JsonArray();
+		for(int i = 0; i < rules.size(); ++i)
+		{
+			JsonObject thisRuleData = rules.get(i).saveToJson(new JsonObject());
+			if(thisRuleData != null)
+			{
+				thisRuleData.addProperty("type", rules.get(i).type.toString());
+				ruleData.add(thisRuleData);
+			}
+		}
+		return ruleData;
 	}
 	
 	public static List<TradeRule> readRules(CompoundTag compound)
@@ -141,15 +157,13 @@ public abstract class TradeRule {
 	
 	public static List<TradeRule> Parse(JsonArray tradeRuleData)
 	{
-		Gson g = new Gson();
 		List<TradeRule> rules = new ArrayList<>();
 		for(int i = 0; i < tradeRuleData.size(); ++i)
 		{
 			try {
-				CompoundTag thisRuleData = TagParser.parseTag(g.toJson(tradeRuleData.get(i)));
+				JsonObject thisRuleData = tradeRuleData.get(i).getAsJsonObject();
 				TradeRule thisRule = Deserialize(thisRuleData);
-				if(thisRule != null)
-					rules.add(thisRule);
+				rules.add(thisRule);
 			}
 			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
 		}
@@ -207,10 +221,16 @@ public abstract class TradeRule {
 	
 	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer)
 	{
-		RegisterDeserializer(type.toString(), deserializer);
+		RegisterDeserializer(type, deserializer, false);
 	}
 	
-	public static void RegisterDeserializer(String type, Supplier<TradeRule> deserializer)
+	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
+	{
+		RegisterDeserializer(type.toString(), deserializer, suppressDebugMessage);
+		
+	}
+	
+	private static void RegisterDeserializer(String type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
 	{
 		if(registeredDeserializers.containsKey(type))
 		{
@@ -218,7 +238,8 @@ public abstract class TradeRule {
 			return;
 		}
 		registeredDeserializers.put(type, deserializer);
-		LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
+		if(!suppressDebugMessage)
+			LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
 	
 	public static TradeRule Deserialize(CompoundTag compound)
@@ -237,6 +258,22 @@ public abstract class TradeRule {
 			return data.get();
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
+	}
+	
+	public static TradeRule Deserialize(JsonObject json) throws Exception{
+		String thisType = json.get("type").getAsString();
+		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
+		registeredDeserializers.forEach((type, deserializer) -> {
+			if(thisType.equals(type))
+			{
+				TradeRule rule = deserializer.get();
+				rule.loadFromJson(json);
+				data.set(rule);
+			}
+		});
+		if(data.get() == null)
+			throw new Exception("Could not find a deserializer of type '" + thisType + "'.");
+		return data.get();
 	}
 	
 	

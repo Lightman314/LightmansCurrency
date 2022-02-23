@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.base.Supplier;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -32,7 +33,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PlayerTradeLimit extends TradeRule{
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit");
+	public static final ResourceLocation OLD_TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit");
+	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "player_trade_limit");
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
@@ -134,6 +136,14 @@ public class PlayerTradeLimit extends TradeRule{
 		compound.putLong("ForgetTime", this.timeLimit);
 		return compound;
 	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		json.addProperty("Limit", this.limit);
+		if(this.enforceTimeLimit())
+			json.addProperty("ForgetTime", this.timeLimit);
+		return json;
+	}
 
 	@Override
 	public void readNBT(CompoundTag compound) {
@@ -218,6 +228,14 @@ public class PlayerTradeLimit extends TradeRule{
 				this.memory.put(id, eventTimes);
 			}
 		}
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) {
+		if(json.has("Limit"))
+			this.limit = json.get("Limit").getAsInt();
+		if(json.has("ForgetTime"))
+			this.timeLimit = json.get("ForgetTime").getAsLong();
 	}
 	
 	@Override

@@ -265,6 +265,9 @@
     "gui.lightmanscurrency.settings.side.south": "Front",
     "gui.lightmanscurrency.settings.side.west": "Left",
     "gui.lightmanscurrency.settings.side.east": "Right",
+    "tooltip.lightmanscurrency.persistenttrader.copy": "Copy trader to clipboard as Persistent Trader Json text.",
+    "lightmanscurrency.chat.persistenttrader":"Persistent Trader Data Copied!",
+    "tooltip.lightmanscurrency.persistenttrader.copyagain": "Click to re-copy %s to clipboard.",
     
     "gui.lightmanscurrency.settings.banklink": "Link to Bank Account",
     
@@ -350,11 +353,11 @@
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
     "traderule.lightmanscurrency.blacklist.denial": "§4You are blacklisted.",
-    "traderule.lightmanscurrency.tradelimit": "Player Trade Limit",
+    "traderule.lightmanscurrency.player_trade_limit": "Player Trade Limit",
     "traderule.lightmanscurrency.tradelimit.denial": "§4You have done this trade %s §4times already.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4You have done this trade %1$s §4times within the last %2$s§4.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Limit is %s§4.",
-    "traderule.lightmanscurrency.tradelimit2": "Trade Limit",
+    "traderule.lightmanscurrency.trade_limit": "Trade Limit",
     "traderule.lightmanscurrency.tradelimit2.denial": "§4This trade has been done %s §4times already.",
     "traderule.lightmanscurrency.discount_list": "Discount",
     "traderule.lightmanscurrency.timed_sale": "Sale",

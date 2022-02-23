@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata.rules;
 
 import com.google.common.base.Supplier;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -23,7 +24,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TradeLimit extends TradeRule{
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit2");
+	public static final ResourceLocation OLD_TYPE = new ResourceLocation(LightmansCurrency.MODID, "tradelimit2");
+	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "trade_limit");
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
@@ -60,6 +62,12 @@ public class TradeLimit extends TradeRule{
 		compound.putInt("Count", this.count);
 		return compound;
 	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		json.addProperty("Limit", this.limit);
+		return json;
+	}
 
 	@Override
 	public void readNBT(CompoundTag compound) {
@@ -69,6 +77,12 @@ public class TradeLimit extends TradeRule{
 		if(compound.contains("Count", Tag.TAG_INT))
 			this.count = compound.getInt("Count");
 		
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) {
+		if(json.has("Limit"))
+			this.limit = json.get("Limit").getAsInt();
 	}
 	
 	@Override

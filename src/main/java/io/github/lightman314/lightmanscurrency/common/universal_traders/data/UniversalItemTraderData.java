@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -40,6 +38,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -51,7 +50,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -679,7 +677,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	@Override
 	public void loadFromJson(JsonObject json) throws Exception {
 		super.loadFromJson(json);
-		Gson g = new Gson();
 		
 		if(!json.has("Trades"))
 			throw new Exception("Item Trader must have a trade list.");
@@ -692,8 +689,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
 				ItemTradeData newTrade = new ItemTradeData();
 				//Sell Item
-				JsonElement sellItem = tradeData.get("SellItem").getAsJsonObject();
-				newTrade.setSellItem(ItemStack.of(TagParser.parseTag(g.toJson(sellItem))));
+				JsonObject sellItem = tradeData.get("SellItem").getAsJsonObject();
+				newTrade.setSellItem(FileUtil.parseItemStack(sellItem));
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeType(ItemTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
@@ -714,8 +711,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				{
 					if(newTrade.isBarter())
 					{
-						JsonElement barterItem = tradeData.get("BarterItem").getAsJsonObject();
-						newTrade.setBarterItem(ItemStack.of(TagParser.parseTag(g.toJson(barterItem))));
+						JsonObject barterItem = tradeData.get("BarterItem").getAsJsonObject();
+						newTrade.setBarterItem(FileUtil.parseItemStack(barterItem));
 					}
 					else
 					{
@@ -734,6 +731,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				
 			} catch(Exception e) { LightmansCurrency.LogError("Error parsing item trade at index " + i, e); }
 			
+			if(this.trades.size() <= 0)
+				throw new Exception("Trader has no valid trades!");
+			
 			this.tradeCount = this.trades.size();
 			this.inventory = new SimpleContainer(this.inventorySize());
 			
@@ -744,6 +744,37 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			this.tradeRules = TradeRule.Parse(json.get("TradeRules").getAsJsonArray());
 		}
 		
+	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		super.saveToJson(json);
+		
+		JsonArray trades = new JsonArray();
+		for(ItemTradeData trade : this.trades) {
+			if(trade.isValid())
+			{
+				JsonObject tradeData = new JsonObject();
+				tradeData.addProperty("TradeType", trade.getTradeType().name());
+				tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem()));
+				if(trade.isSale() || trade.isPurchase())
+					tradeData.add("Price", trade.getCost().toJson());
+				if(trade.isBarter())
+					tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem()));
+				if(trade.hasCustomName())
+					tradeData.addProperty("DisplayName", trade.getCustomName());
+				if(trade.getRules().size() > 0)
+					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
+				
+				trades.add(tradeData);
+			}
+		}
+		json.add("Trades", trades);
+		
+		if(this.tradeRules.size() > 0)
+			json.add("TradeRules", TradeRule.saveRulesToJson(this.tradeRules));
+		
+		return json;
 	}
 
 	
