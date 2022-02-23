@@ -1931,7 +1931,24 @@ public class MoneyUtil {
     		throw new Exception("Coin Value entry (" + json.getClass() + ") is not a valid Json Element.");
     	}
     	
+    	public JsonElement toJson() {
+    		if(this.isFree)
+    			return new JsonPrimitive(this.isFree);
+    		else
+    		{
+    			JsonArray array = new JsonArray();
+    			for(int i = 0; i < this.coinValues.size(); ++i)
+    			{
+    				JsonObject entry = new JsonObject();
+    				CoinValuePair pair = this.coinValues.get(i);
+    				entry.addProperty("coin", pair.coin.getRegistryName().toString());
+    				entry.addProperty("count", pair.amount);
+    				array.add(entry);
+    			}
+    			return array;
+    		}
+    	}
+    	
     }
-
     
 }

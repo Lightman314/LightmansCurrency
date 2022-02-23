@@ -348,13 +348,13 @@
     "traderule.lightmanscurrency.whitelist.denial": "§4Nejsi na bílé listině.",
     "traderule.lightmanscurrency.blacklist": "Černá listina",
     "traderule.lightmanscurrency.blacklist.denial": "§4Jsi na černé listině.",
-    "traderule.lightmanscurrency.tradelimit": "Hráčův limit provedených obchodů",
+    "traderule.lightmanscurrency.player_trade_limit": "Hráčův limit provedených obchodů",
     "traderule.lightmanscurrency.tradelimit.denial": "§4Již jsi provedl %s §4obchodů.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4Provedl jsi %1$s §4obchodů během %2$s§4.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Limit je %s§4.",
     "traderule.lightmanscurrency.discount_list": "Osobní sleva",
     "traderule.lightmanscurrency.timed_sale": "Sleva",
-    "traderule.lightmanscurrency.tradelimit2": "Limit provedených obchodů",
+    "traderule.lightmanscurrency.trade_limit": "Limit provedených obchodů",
     "traderule.lightmanscurrency.tradelimit2.denial": "§4Tento obchod byl již proveden %s §4x",
 
 

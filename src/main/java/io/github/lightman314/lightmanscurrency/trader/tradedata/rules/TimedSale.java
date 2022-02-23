@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata.rules;
 
 import com.google.common.base.Supplier;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -89,6 +90,15 @@ public class TimedSale extends TradeRule {
 		
 		return compound;
 	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+
+		json.addProperty("duration", this.duration);
+		json.addProperty("discount", this.discount);
+
+		return json;
+	}
 
 	@Override
 	public void readNBT(CompoundNBT compound) {
@@ -105,10 +115,25 @@ public class TimedSale extends TradeRule {
 		
 	}
 	
+	public void loadFromJson(JsonObject json) {
+		if(json.has("duration"))
+			this.duration = json.get("duration").getAsLong();
+		if(json.has("discount"))
+			this.discount = MathUtil.clamp(this.discount, 0, 100);
+	}
+
 	@Override
-	public CompoundNBT savePersistentData() { return null; }
+	public CompoundNBT savePersistentData() {
+		CompoundNBT compound = new CompoundNBT();
+		compound.putLong("startTime", this.startTime);
+		return compound;
+	}
+	
 	@Override
-	public void loadPersistentData(CompoundNBT data) { }
+	public void loadPersistentData(CompoundNBT data) {
+		if(data.contains("startTime", Constants.NBT.TAG_LONG))
+			this.startTime = data.getLong("startTime");
+	}
 	
 	public TimeData getTimeRemaining()
 	{

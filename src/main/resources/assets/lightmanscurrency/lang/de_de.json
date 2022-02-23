@@ -245,7 +245,7 @@
     "traderule.lightmanscurrency.whitelist.denial": "§4Du bist nicht auf der Whitelist.",
     "traderule.lightmanscurrency.blacklist": "Blacklist",
     "traderule.lightmanscurrency.blacklist.denial": "§4Du bist auf der Blacklist.",
-    "traderule.lightmanscurrency.tradelimit": "Spieler-Handelslimit",
+    "traderule.lightmanscurrency.player_trade_limit": "Spieler-Handelslimit",
     "traderule.lightmanscurrency.tradelimit.denial": "§4Du hast dieses Angebot bereits %s §4mal genutzt.",
     "traderule.lightmanscurrency.tradelimit.denial.timed": "§4Du hast dieses Angebot bereits %1$s §4mal während der letzten %2$s§4 genutzt.",
     "traderule.lightmanscurrency.tradelimit.denial.limit": "§4Das Limit ist %s§4.",
@@ -382,7 +382,7 @@
     "gui.lightmanscurrency.settings.banklink": "Mit Bankkonto verknüpfen",
 
     "gui.button.lightmanscurrency.playerlimit2": "1-3",
-    "traderule.lightmanscurrency.tradelimit2" : "Handelslimit",
+    "traderule.lightmanscurrency.trade_limit" : "Handelslimit",
     "traderule.lightmanscurrency.tradelimit2.denial": "§4Dieser Handel wurde bereits %s §4mal gemacht."
 
 }

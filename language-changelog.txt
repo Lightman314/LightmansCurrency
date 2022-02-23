@@ -1,3 +1,13 @@
+----1.0.4.1----
+ADDED:
+"tooltip.lightmanscurrency.persistenttrader.copy": "Copy trader to clipboard as Persistent Trader Json text.",
+"lightmanscurrency.chat.persistenttrader":"Persistent Trader Data Copied!",
+"tooltip.lightmanscurrency.persistenttrader.copyagain": "Click to re-copy %s to clipboard.",
+
+RENAMED KEY (I took care of these already on the local files)
+"traderule.lightmanscurrency.tradelimit2" -> "traderule.lightmanscurrency.trade_limit"
+"traderule.lightmanscurrency.tradelimit" -> ""traderule.lightmanscurrency.player_trade_limit"
+
 ----1.0.4.0----
 ADDED:
 "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data."

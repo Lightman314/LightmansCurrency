@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -65,6 +67,17 @@ public class PlayerWhitelist extends TradeRule{
 		
 		return compound;
 	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		JsonArray whitelist = new JsonArray();
+		for(int i = 0; i < this.whitelistedPlayers.size(); ++i)
+		{
+			whitelist.add(this.whitelistedPlayers.get(i).saveAsJson());
+		}
+		json.add("WhitelistedPlayers", whitelist);
+		return json;
+	}
 
 	@Override
 	public void readNBT(CompoundNBT compound) {
@@ -98,6 +111,20 @@ public class PlayerWhitelist extends TradeRule{
 			}
 		}
 		
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) {
+		if(json.has("WhitelistedPlayers"))
+		{
+			this.whitelistedPlayers.clear();
+			JsonArray whitelist = json.get("WhitelistedPlayers").getAsJsonArray();
+			for(int i = 0; i < whitelist.size(); ++i) {
+				PlayerReference reference = PlayerReference.load(whitelist.get(i).getAsJsonObject());
+				if(reference != null && !this.isWhitelisted(reference))
+					this.whitelistedPlayers.add(reference);
+			}
+		}
 	}
 	
 	@Override

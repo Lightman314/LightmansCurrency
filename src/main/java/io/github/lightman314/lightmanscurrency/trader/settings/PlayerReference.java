@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -84,6 +86,13 @@ public class PlayerReference {
 		return compound;
 	}
 	
+	public JsonObject saveAsJson() {
+		JsonObject json = new JsonObject();
+		json.addProperty("id", this.id.toString());
+		json.addProperty("name", this.name);
+		return json;
+	}
+	
 	public static PlayerReference load(CompoundNBT compound)
 	{
 		try {
@@ -91,6 +100,17 @@ public class PlayerReference {
 			String name = compound.getString("name");
 			return new PlayerReference(id, name);
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading PlayerReference from tag.", e.getMessage()); return null; }
+	}
+	
+	public static PlayerReference load(JsonElement json) {
+		try {
+			if(json.isJsonPrimitive() && json.getAsJsonPrimitive().isString())
+				return PlayerReference.of(json.getAsString());
+			JsonObject j = json.getAsJsonObject();
+			UUID id = UUID.fromString(j.get("id").getAsString());
+			String name = j.get("name").getAsString();
+			return new PlayerReference(id, name);
+		} catch(Exception e) { LightmansCurrency.LogError("Error loading PlayerReference from JsonObject", e); return null; }
 	}
 	
 	public static void saveList(CompoundNBT compound, List<PlayerReference> playerList, String tag)

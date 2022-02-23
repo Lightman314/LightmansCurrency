@@ -105,9 +105,11 @@ public class LightmansCurrency {
     	TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, () -> new PlayerWhitelist());
     	TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, () -> new PlayerBlacklist());
     	TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, () -> new PlayerTradeLimit());
+    	TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, () -> new PlayerTradeLimit(), true);
     	TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, () -> new PlayerDiscounts());
     	TradeRule.RegisterDeserializer(TimedSale.TYPE, () -> new TimedSale());
     	TradeRule.RegisterDeserializer(TradeLimit.TYPE, () -> new TradeLimit());
+    	TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, () -> new TradeLimit(), true);
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());

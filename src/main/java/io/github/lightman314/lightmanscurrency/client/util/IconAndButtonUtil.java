@@ -45,6 +45,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_CREATIVE = IconData.of(ICON_TEXTURE, 48, 16);
 	public static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
 	
+	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
+	
 	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
@@ -73,6 +75,8 @@ public class IconAndButtonUtil {
 	
 	public static final ITextComponent TOOLTIP_CREATIVE_ENABLE = new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.enable");
 	public static final ITextComponent TOOLTIP_CREATIVE_DISABLE = new TranslationTextComponent("tooltip.lightmanscurrency.trader.creative.disable");
+	
+	public static final SimpleTooltip TOOLTIP_PERSISTENT_DATA = new SimpleTooltip(new TranslationTextComponent("tooltip.lightmanscurrency.persistenttrader.copy"));
 	
 	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(new TranslationTextComponent("tooltip.lightmanscurrency.paygate.setticket"));
 	

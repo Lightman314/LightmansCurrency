@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -11,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -22,6 +26,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 
 public class MainTab extends SettingsTab{
 
@@ -41,6 +47,8 @@ public class MainTab extends SettingsTab{
 	IconButton buttonToggleCreative;
 	Button buttonAddTrade;
 	Button buttonRemoveTrade;
+	
+	Button buttonSavePersistentTrader;
 	
 	@Override
 	public ImmutableList<String> requiredPermissions() {
@@ -69,6 +77,12 @@ public class MainTab extends SettingsTab{
 		this.buttonToggleBankLink = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 100, 10, 10, this::ToggleBankLink, TraderSettingsScreen.GUI_TEXTURE, 10, coreSettings.isBankAccountLinked() ? 200 : 220));
 		this.buttonToggleBankLink.visible = screen.hasPermission(Permissions.BANK_LINK);
 		
+		if(this.getScreen().getTrader() instanceof UniversalTraderData)
+		{
+			this.buttonSavePersistentTrader = screen.addRenderableTabWidget(new IconButton(screen.guiLeft() + 10, screen.guiTop() + screen.ySize - 30, this::SavePersistentTraderData, IconAndButtonUtil.ICON_PERSISTENT_DATA, IconAndButtonUtil.TOOLTIP_PERSISTENT_DATA));
+			this.buttonSavePersistentTrader.visible = TradingOffice.isAdminPlayer(this.getPlayer());
+		}
+		
 		this.tick();
 		
 	}
@@ -89,7 +103,7 @@ public class MainTab extends SettingsTab{
 	public void postRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
 		TraderSettingsScreen screen = this.getScreen();
 		
-		IconAndButtonUtil.renderButtonTooltips(matrix, mouseX, mouseY, Lists.newArrayList(this.buttonToggleCreative));
+		IconAndButtonUtil.renderButtonTooltips(matrix, mouseX, mouseY, Lists.newArrayList(this.buttonToggleCreative, this.buttonSavePersistentTrader));
 		
 		//Render button tooltips
 		if(this.buttonAddTrade.isMouseOver(mouseX, mouseY))
@@ -149,6 +163,9 @@ public class MainTab extends SettingsTab{
 			this.buttonToggleBankLink.active = coreSettings.canLinkBankAccount() || coreSettings.isBankAccountLinked();
 		}
 		
+		if(this.buttonSavePersistentTrader != null)
+			this.buttonSavePersistentTrader.visible = TradingOffice.isAdminPlayer(this.getPlayer());
+		
 	}
 
 	@Override
@@ -204,6 +221,25 @@ public class MainTab extends SettingsTab{
 	private void RemoveTrade(Button button)
 	{
 		this.getScreen().getTrader().requestAddOrRemoveTrade(false);
+	}
+	
+	@SuppressWarnings("resource")
+	private void SavePersistentTraderData(Button button)
+	{
+		try {
+			ITrader t = this.getScreen().getTrader();
+			if(t instanceof UniversalTraderData) {
+				UniversalTraderData trader = (UniversalTraderData)t;
+				JsonObject result = trader.saveToJson(new JsonObject());
+				//Copy text to clipboard
+				String resultString = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(result);
+				LightmansCurrency.LogInfo("Copied persistent trader json to clipboard.\n" + resultString);
+				this.getScreen().getMinecraft().keyboardListener.setClipboardString(resultString);
+				TranslationTextComponent message = new TranslationTextComponent("lightmanscurrency.chat.persistenttrader");
+				message.setStyle(message.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, resultString)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("tooltip.lightmanscurrency.persistenttrader.copyagain", trader.getName()))));
+				this.getScreen().getMinecraft().player.sendStatusMessage(message, false);
+			}
+		} catch(Throwable e) { LightmansCurrency.LogError("Error saving trader to Json.", e); }
 	}
 	
 }
