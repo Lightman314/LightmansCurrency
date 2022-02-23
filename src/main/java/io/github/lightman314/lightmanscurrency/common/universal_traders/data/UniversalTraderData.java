@@ -426,7 +426,7 @@ public abstract class UniversalTraderData implements ITrader{
 	 */
 	public void loadFromJson(JsonObject json) throws Exception {
 		if(json.has("TraderName"))
-			this.coreSettings.setCustomName(null, json.get("TraderName").getAsString());
+			this.coreSettings.forceCustomName(json.get("TraderName").getAsString());
 		if(json.has("OwnerName"))
 			this.coreSettings.setCustomOwnerName(json.get("OwnerName").getAsString());
 	}

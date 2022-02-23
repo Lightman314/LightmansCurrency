@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
@@ -64,9 +62,9 @@ public class TradingOffice extends SavedData{
 	
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/persistentTraders.json";
 	
-	public TradingOffice() { this.loadPersistentTraders(new CompoundTag()); }
+	public TradingOffice() { this.loadPersistentTraders(); }
 	
-	public TradingOffice(CompoundTag tag) { this.load(tag); this.loadPersistentTraders(tag); }
+	public TradingOffice(CompoundTag tag) { this.load(tag); this.loadPersistentTraders(); }
 	
 	private static final Map<ResourceLocation,Supplier<? extends UniversalTraderData>> registeredDeserializers = Maps.newHashMap();
 	
@@ -87,6 +85,8 @@ public class TradingOffice extends SavedData{
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
+	//Store persistend data locally, so that it doesn't get lost if the persistent trader file is malformed
+	ListTag persistentData = new ListTag();
 	
 	public static UniversalTraderData Deserialize(CompoundTag compound)
 	{
@@ -160,6 +160,9 @@ public class TradingOffice extends SavedData{
 			}
 		}
 		
+		if(compound.contains("PersistentTraderData", Tag.TAG_LIST))
+			this.persistentData = compound.getList("PersistentTraderData", Tag.TAG_COMPOUND);
+		
 		if(compound.contains("PersistentTraderIDs", Tag.TAG_LIST))
 		{
 			this.persistentTraderIDs.clear();
@@ -208,17 +211,16 @@ public class TradingOffice extends SavedData{
 		});
 		compound.put("BankAccounts", bankAccountList);
 		
-		ListTag persistentDataList = new ListTag();
 		this.persistentTraderMap.forEach((ID, traderData) ->{
 			if(traderData != null && this.persistentTraderIDs.containsKey(ID))
 			{
 				CompoundTag data = traderData.getPersistentData();
 				String traderID = this.persistentTraderIDs.get(ID);
 				data.putString("traderID", traderID);
-				persistentDataList.add(data);
+				this.setPersistentData(traderID, data);
 			}
 		});
-		compound.put("PersistentTraderData", persistentDataList);
+		compound.put("PersistentTraderData", this.persistentData);
 		
 		ListTag persistentTraderIDs = new ListTag();
 		this.persistentTraderIDs.forEach((uuid, traderID) ->{
@@ -233,12 +235,11 @@ public class TradingOffice extends SavedData{
 	
 	public static void reloadPersistentTraders() {
 		TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
-		CompoundTag tag = office.save(new CompoundTag());
-		office.loadPersistentTraders(tag);
+		office.loadPersistentTraders();
 		office.resendTraderData();
 	}
 	
-	private void loadPersistentTraders(@Nullable CompoundTag compound) {
+	private void loadPersistentTraders() {
 		//Get JSON file
 		File ptf = new File(PERSISTENT_TRADER_FILENAME);
 		if(!ptf.exists())
@@ -247,13 +248,13 @@ public class TradingOffice extends SavedData{
 		}
 		try { 
 			JsonObject fileData = GsonHelper.parse(Files.readString(ptf.toPath()));
-			this.loadPersistentTrader(fileData, compound);
+			this.loadPersistentTrader(fileData);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Persistent Traders.", e);
 		}
 	}
 	
-	private void loadPersistentTrader(JsonObject fileData, CompoundTag compound) throws Exception {
+	private void loadPersistentTrader(JsonObject fileData) throws Exception {
 		if(fileData.has("Traders"))
 		{
 			this.persistentTraderMap.clear();
@@ -278,7 +279,7 @@ public class TradingOffice extends SavedData{
 					data.getCoreSettings().forceCreative();
 					
 					//Load the persistent data
-					data.loadPersistentData(this.getPersistentData(compound, traderID));
+					data.loadPersistentData(this.getPersistentData(traderID));
 					
 					//Match the persistent data with traders UUID
 					UUID id = this.getPersistentTraderUUID(traderID);
@@ -313,18 +314,26 @@ public class TradingOffice extends SavedData{
 		return result.get();
 	}
 	
-	private CompoundTag getPersistentData(CompoundTag compound, String traderID) {
-		if(compound.contains("PersistentTraderData", Tag.TAG_LIST))
+	private CompoundTag getPersistentData(String traderID) {
+		for(int i = 0; i < this.persistentData.size(); ++i)
 		{
-			ListTag dataList = compound.getList("PersistentTraderData", Tag.TAG_COMPOUND);
-			for(int i = 0; i < dataList.size(); ++i)
-			{
-				CompoundTag thisData = dataList.getCompound(i);
-				if(thisData.getString("traderID").contentEquals(traderID))
-					return thisData;
-			}
+			CompoundTag thisData = this.persistentData.getCompound(i);
+			if(thisData.getString("traderID").contentEquals(traderID))
+				return thisData;
 		}
 		return new CompoundTag();
+	}
+	
+	private void setPersistentData(String traderID, CompoundTag data) {
+		for(int i = 0; i < this.persistentData.size(); ++i) {
+			CompoundTag thisData = this.persistentData.getCompound(i);
+			if(thisData.getString("traderID").contentEquals(traderID))
+			{
+				this.persistentData.set(i, data);
+				return;
+			}
+		}
+		this.persistentData.add(data);
 	}
 	
 	private void createPersistentTraderFile(File ptf) {
@@ -457,7 +466,7 @@ public class TradingOffice extends SavedData{
 	
 	private UUID getValidTraderID() { 
 		UUID traderID = UUID.randomUUID();
-		while(this.universalTraderMap.containsKey(traderID) || this.persistentTraderMap.containsKey(traderID))
+		while(this.universalTraderMap.containsKey(traderID) || this.persistentTraderIDs.containsKey(traderID))
 			traderID = UUID.randomUUID();
 		return traderID;
 	}

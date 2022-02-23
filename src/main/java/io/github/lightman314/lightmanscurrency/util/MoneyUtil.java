@@ -1776,6 +1776,11 @@ public class MoneyUtil {
     				val.setFree(true);
     				return val;
     			}
+    			else if(primitive.isString())
+    			{
+    				double displayValue = Double.parseDouble(primitive.getAsString());
+    				return MoneyUtil.displayValueToCoinValue(displayValue);
+    			}
     		}
     		else if(json.isJsonArray())
     		{
@@ -1799,6 +1804,7 @@ public class MoneyUtil {
     			}
     			if(pairs.size() <= 0)
     				throw new Exception("Coin Value entry has no valid coin/count entries to parse.");
+    			return new CoinValue(pairs);
     		}
     		throw new Exception("Coin Value entry input is not a valid Json Element.");
     	}

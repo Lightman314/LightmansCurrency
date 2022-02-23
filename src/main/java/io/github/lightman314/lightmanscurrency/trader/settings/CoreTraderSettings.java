@@ -93,6 +93,7 @@ public class CoreTraderSettings extends Settings{
 	String customName = "";
 	public boolean hasCustomName() { return !this.customName.isEmpty(); }
 	public String getCustomName() { return this.customName; }
+	public void forceCustomName(String customName) { this.customName = customName; }
 	public CompoundTag setCustomName(Player requestor, String newName)
 	{
 		if(!this.hasPermission(requestor, Permissions.CHANGE_NAME))

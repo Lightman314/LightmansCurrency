@@ -728,9 +728,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				}
 				if(tradeData.has("TradeRules"))
 				{
-					CompoundTag d = new CompoundTag();
-					d.put("TradeRules", TagParser.parseTag(g.toJson(tradeData.get("TradeRules"))));
-					newTrade.setRules(TradeRule.readRules(d, "TradeRules"));
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
 				}
 				this.trades.add(newTrade);
 				
@@ -743,9 +741,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		
 		if(json.has("TradeRules"))
 		{
-			CompoundTag d = new CompoundTag();
-			d.put("TradeRules", TagParser.parseTag(g.toJson(json.get("TradeRules"))));
-			this.tradeRules = TradeRule.readRules(d, "TradeRules");
+			this.tradeRules = TradeRule.Parse(json.get("TradeRules").getAsJsonArray());
 		}
 		
 	}

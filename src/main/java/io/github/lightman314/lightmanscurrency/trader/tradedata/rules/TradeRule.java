@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -21,6 +23,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -125,7 +128,7 @@ public abstract class TradeRule {
 			{
 				CompoundTag thisRuleData = ruleData.getCompound(i);
 				boolean query = true;
-				for(int r = 0; query && r < tradeRules.size(); ++i)
+				for(int r = 0; query && r < tradeRules.size(); ++r)
 				{
 					if(tradeRules.get(r).type.toString().contentEquals(thisRuleData.getString("type")))
 					{
@@ -134,6 +137,23 @@ public abstract class TradeRule {
 				}
 			}
 		}
+	}
+	
+	public static List<TradeRule> Parse(JsonArray tradeRuleData)
+	{
+		Gson g = new Gson();
+		List<TradeRule> rules = new ArrayList<>();
+		for(int i = 0; i < tradeRuleData.size(); ++i)
+		{
+			try {
+				CompoundTag thisRuleData = TagParser.parseTag(g.toJson(tradeRuleData.get(i)));
+				TradeRule thisRule = Deserialize(thisRuleData);
+				if(thisRule != null)
+					rules.add(thisRule);
+			}
+			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
+		}
+		return rules;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
