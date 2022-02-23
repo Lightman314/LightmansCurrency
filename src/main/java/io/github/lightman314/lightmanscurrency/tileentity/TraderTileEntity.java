@@ -279,7 +279,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	
 	public ITextComponent getTitle()
 	{
-		if(this.coreSettings.isCreative() || this.coreSettings.getOwner() == null)
+		if(this.coreSettings.isCreative() || this.coreSettings.getOwnerName().isEmpty())
 			return this.getName();
 		return new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}

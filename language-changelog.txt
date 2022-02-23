@@ -1,3 +1,7 @@
+----1.0.4.0----
+ADDED:
+"command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data."
+
 ----1.0.3.0----
 Completed: German/Czech/Russian
 ADDED:

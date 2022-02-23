@@ -2,11 +2,16 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -29,6 +34,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class MoneyUtil {
 	
@@ -61,81 +67,81 @@ public class MoneyUtil {
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_IRON)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")
     			//.defineMintingMaterial(Items.IRON_INGOT)
-    			.defineConversion(ModItems.COIN_COPPER, Config.COMMON.ironCoinWorth.get()));
+    			.defineConversion(ModItems.COIN_COPPER, Config.SERVER.ironCoinWorth::get));
     	//Gold Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_GOLD)
     			.defineInitial("item.lightmanscurrency.coin_gold.initial")
     			//.defineMintingMaterial(Items.GOLD_INGOT)
-    			.defineConversion(ModItems.COIN_IRON, Config.COMMON.goldCoinWorth.get()));
+    			.defineConversion(ModItems.COIN_IRON, Config.SERVER.goldCoinWorth::get));
     	//Emerald Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_EMERALD)
     			.defineInitial("item.lightmanscurrency.coin_emerald.initial")
     			//.defineMintingMaterial(Items.EMERALD)
-    			.defineConversion(ModItems.COIN_GOLD, Config.COMMON.emeraldCoinWorth.get()));
+    			.defineConversion(ModItems.COIN_GOLD, Config.SERVER.emeraldCoinWorth::get));
     	//Diamond Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_DIAMOND)
     			.defineInitial("item.lightmanscurrency.coin_diamond.initial")
     			//.defineMintingMaterial(Items.DIAMOND)
-    			.defineConversion(ModItems.COIN_EMERALD, Config.COMMON.diamondCoinWorth.get()));
+    			.defineConversion(ModItems.COIN_EMERALD, Config.SERVER.diamondCoinWorth::get));
     	//Netherite Coin
     	addCoinItem(CoinData.getBuilder(ModItems.COIN_NETHERITE)
     			.defineInitial("item.lightmanscurrency.coin_netherite.initial")
     			//.defineMintingMaterial(Items.NETHERITE_INGOT)
-    			.defineConversion(ModItems.COIN_DIAMOND, Config.COMMON.netheriteCoinWorth.get()));
+    			.defineConversion(ModItems.COIN_DIAMOND, Config.SERVER.netheriteCoinWorth::get));
     	
     	//Hidden coins
     	//Copper Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_COPPER.item)
-    			.defineConversion(ModItems.COIN_COPPER, Config.COMMON.coinpileCopperWorth.get())
+    			.defineConversion(ModItems.COIN_COPPER, Config.SERVER.coinpileCopperWorth::get)
     			.setHidden());
     	//Copper Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_COPPER.item)
-    			.defineConversion(ModBlocks.COINPILE_COPPER.item, Config.COMMON.coinBlockCopperWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_COPPER.item, Config.SERVER.coinBlockCopperWorth::get)
     			.setHidden());
     	
     	//Iron Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_IRON.item)
-    			.defineConversion(ModItems.COIN_IRON, Config.COMMON.coinpileIronWorth.get())
+    			.defineConversion(ModItems.COIN_IRON, Config.SERVER.coinpileIronWorth::get)
     			.setHidden());
     	//Iron Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_IRON.item)
-    			.defineConversion(ModBlocks.COINPILE_IRON.item, Config.COMMON.coinBlockIronWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_IRON.item, Config.SERVER.coinBlockIronWorth::get)
     			.setHidden());
     	
     	//Gold Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_GOLD.item)
-    			.defineConversion(ModItems.COIN_GOLD, Config.COMMON.coinpileGoldWorth.get())
+    			.defineConversion(ModItems.COIN_GOLD, Config.SERVER.coinpileGoldWorth::get)
     			.setHidden());
     	//Gold Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_GOLD.item)
-    			.defineConversion(ModBlocks.COINPILE_GOLD.item, Config.COMMON.coinBlockGoldWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_GOLD.item, Config.SERVER.coinBlockGoldWorth::get)
     			.setHidden());
     	
     	//Emerald Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_EMERALD.item)
-    			.defineConversion(ModItems.COIN_EMERALD, Config.COMMON.coinpileEmeraldWorth.get())
+    			.defineConversion(ModItems.COIN_EMERALD, Config.SERVER.coinpileEmeraldWorth::get)
     			.setHidden());
     	//Emerald Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_EMERALD.item)
-    			.defineConversion(ModBlocks.COINPILE_EMERALD.item, Config.COMMON.coinBlockEmeraldWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_EMERALD.item, Config.SERVER.coinBlockEmeraldWorth::get)
     			.setHidden());
     	
     	//Diamond Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_DIAMOND.item)
-    			.defineConversion(ModItems.COIN_DIAMOND, Config.COMMON.coinpileDiamondWorth.get())
+    			.defineConversion(ModItems.COIN_DIAMOND, Config.SERVER.coinpileDiamondWorth::get)
     			.setHidden());
     	//Diamond Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_DIAMOND.item)
-    			.defineConversion(ModBlocks.COINPILE_DIAMOND.item, Config.COMMON.coinBlockDiamondWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_DIAMOND.item, Config.SERVER.coinBlockDiamondWorth::get)
     			.setHidden());
     	
     	//Netherite Coinpile
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINPILE_NETHERITE.item)
-    			.defineConversion(ModItems.COIN_NETHERITE, Config.COMMON.coinpileNetheriteWorth.get())
+    			.defineConversion(ModItems.COIN_NETHERITE, Config.SERVER.coinpileNetheriteWorth::get)
     			.setHidden());
     	//Netherite Coin Block
     	addCoinItem(CoinData.getBuilder(ModBlocks.COINBLOCK_NETHERITE.item)
-    			.defineConversion(ModBlocks.COINPILE_NETHERITE.item, Config.COMMON.coinBlockNetheriteWorth.get())
+    			.defineConversion(ModBlocks.COINPILE_NETHERITE.item, Config.SERVER.coinBlockNetheriteWorth::get)
     			.setHidden());
     	
     	init = true;
@@ -185,15 +191,16 @@ public class MoneyUtil {
     	if(duplicateDependentOwner != null)
     	{
     		//Change the most valuable of the two coins to use the same 
-    		if(duplicateDependentOwner.worthOtherCoinCount > newCoinData.worthOtherCoinCount)
+    		if(duplicateDependentOwner.worthOtherCoinCount.get() > newCoinData.worthOtherCoinCount.get())
     		{
     			duplicateDependentOwner.worthOtherCoin = newCoinData.coinItem;
     			//Check if it comes out to a nice round number
-    			float ratio = (float)duplicateDependentOwner.worthOtherCoinCount / (float)newCoinData.worthOtherCoinCount;
+    			float ratio = (float)duplicateDependentOwner.worthOtherCoinCount.get() / (float)newCoinData.worthOtherCoinCount.get();
     			if(ratio % 1f == 0f)
     			{
     				//Ratio is exact, multiply the larger one by this number and all the values will be handled properly.
-    				duplicateDependentOwner.worthOtherCoinCount = (int)ratio;
+    				final CoinData ddo = duplicateDependentOwner;
+    				duplicateDependentOwner.worthOtherCoinCount = () -> ddo.worthOtherCoinCount.get() / newCoinData.worthOtherCoinCount.get();
     				if(!ignoreDuplicateWarning)
     				{
     					LightmansCurrency.LogInfo("Duplicate dependent fits in, so changing the other coins dependency to this coin in a manner such that its total value remains the same.");
@@ -205,11 +212,12 @@ public class MoneyUtil {
     		{
     			newCoinData.worthOtherCoin = duplicateDependentOwner.coinItem;
     			//Check if it comes out to a nice round number
-    			float ratio = (float)newCoinData.worthOtherCoinCount / (float)duplicateDependentOwner.worthOtherCoinCount;
+    			float ratio = (float)newCoinData.worthOtherCoinCount.get() / (float)duplicateDependentOwner.worthOtherCoinCount.get();
     			if(ratio % 1f == 0f)
     			{
     				//Ratio is exact, multiply the larger one by this number and all the values will be handled properly.
-    				newCoinData.worthOtherCoinCount = (int)ratio;
+    				final CoinData ddo = duplicateDependentOwner;
+    				newCoinData.worthOtherCoinCount = () -> newCoinData.worthOtherCoinCount.get() / ddo.worthOtherCoinCount.get();
     				if(!ignoreDuplicateWarning)
     				{
     					LightmansCurrency.LogInfo("Duplicate dependent fits in, so changing this coins dependency to the other coin in a manner such that its total value remains the same.");
@@ -240,7 +248,17 @@ public class MoneyUtil {
      * @param otherCoin The new coin it will define as its dependent.
      * @param otherCoinCount The amount of the other coin that the conversion will be defined as.
      */
-    public static void changeCoinConversion(Item changedCoin, Item otherCoin, int otherCoinCount)
+    public static void changeCoinConversion(Item changedCoin, Item otherCoin, int otherCoinCount) {
+    	changeCoinConversion(changedCoin, otherCoin, () -> otherCoinCount);
+    }
+    
+    /**
+     * Changes the defined value of an already registered coin.
+     * @param coinItem The already registered coin item.
+     * @param otherCoin The new coin it will define as its dependent.
+     * @param otherCoinCount The amount of the other coin that the conversion will be defined as.
+     */
+    public static void changeCoinConversion(Item changedCoin, Item otherCoin, Supplier<Integer> otherCoinCount)
     {
     	CoinData changedData = getData(changedCoin);
     	if(changedData == null)
@@ -501,7 +519,7 @@ public class MoneyUtil {
     {
     	CoinData coinData = getData(largeCoin);
     	Item smallCoin = coinData.worthOtherCoin;
-    	int smallCoinCount = coinData.worthOtherCoinCount;
+    	int smallCoinCount = coinData.worthOtherCoinCount.get();
     	if(!isCoin(smallCoin))
     		return;
     	while(InventoryUtil.GetItemCount(inventory, largeCoin) > 0)
@@ -1056,10 +1074,10 @@ public class MoneyUtil {
     	int amount = Integer.MAX_VALUE;
     	for(CoinData coinData : coinList)
     	{
-    		if(coinData.worthOtherCoin == coinItem && coinData.worthOtherCoinCount < amount && !coinData.isHidden) //Don't get upward conversion for hidden coins
+    		if(coinData.worthOtherCoin == coinItem && coinData.worthOtherCoinCount.get() < amount && !coinData.isHidden) //Don't get upward conversion for hidden coins
     		{
     			largeCoin = coinData.coinItem;
-    			amount = coinData.worthOtherCoinCount;
+    			amount = coinData.worthOtherCoinCount.get();
     		}
     	}
     	if(largeCoin != null)
@@ -1073,10 +1091,10 @@ public class MoneyUtil {
     	int amount = Integer.MAX_VALUE;
     	for(CoinData coinData : coinList)
     	{
-    		if(coinData.worthOtherCoin == coinItem && coinData.worthOtherCoinCount < amount)
+    		if(coinData.worthOtherCoin == coinItem && coinData.worthOtherCoinCount.get() < amount)
     		{
     			largeCoin = coinData.coinItem;
-    			amount = coinData.worthOtherCoinCount;
+    			amount = coinData.worthOtherCoinCount.get();
     		}
     	}
     	if(largeCoin != null)
@@ -1103,7 +1121,7 @@ public class MoneyUtil {
     	private Item coinItem;
     	//Value inputs
     	private Item worthOtherCoin = null;
-    	private int worthOtherCoinCount = 0;
+    	private Supplier<Integer> worthOtherCoinCount = () -> 0;
     	//Coin's display initial 'c','d', etc.
     	private ITextComponent initial;
 		//Is this hidden or not
@@ -1132,7 +1150,7 @@ public class MoneyUtil {
     		if(otherCoinData != null)
     		{
     			//LightmansCurrency.LOGGER.info("CoinData.getValue() calculated value of " + this.worthOtherCoinCount * otherCoinData.getValue() + ".");
-    			return this.worthOtherCoinCount * otherCoinData.getValue();
+    			return this.worthOtherCoinCount.get() * otherCoinData.getValue();
     		}
     		else
     		{
@@ -1155,17 +1173,17 @@ public class MoneyUtil {
     	
     	public boolean convertsDownwards()
     	{
-    		return this.worthOtherCoin != null && this.worthOtherCoinCount > 0;
+    		return this.worthOtherCoin != null && this.worthOtherCoinCount.get() > 0;
     	}
     	
     	public Pair<Item,Integer> getDownwardConversion()
     	{
-    		return new Pair<>(this.worthOtherCoin, this.worthOtherCoinCount);
+    		return new Pair<>(this.worthOtherCoin, this.worthOtherCoinCount.get());
     	}
     	
-    	private boolean overrideConversion(@Nonnull Item newOtherCoin, int newOtherCoinAmount)
+    	private boolean overrideConversion(@Nonnull Item newOtherCoin, Supplier<Integer> newOtherCoinAmount)
     	{
-    		if(newOtherCoin == this.worthOtherCoin && newOtherCoinAmount == this.worthOtherCoinCount)
+    		if(newOtherCoin == this.worthOtherCoin && newOtherCoinAmount.get() == this.worthOtherCoinCount.get())
     		{
     			LightmansCurrency.LogDebug("Conversion for " + this.coinItem.getRegistryName() + " does not need changing.");
     			return false;
@@ -1236,7 +1254,7 @@ public class MoneyUtil {
     		final Item coinItem;
     		//Defines its worth based on another coin's value
     		Item worthOtherCoin = null;
-    		int worthOtherCoinCount = 0;
+    		Supplier<Integer> worthOtherCoinCount = () -> 0;
     		//The shortened name of the coin
     		ITextComponent initialText = null;
     		//Whether it's publicly visible
@@ -1250,7 +1268,17 @@ public class MoneyUtil {
     		/**
     		 * Defines what lesser coin can be converted into this one, and how many of those coins are worth 1 of this coin.
     		 */
-    		public Builder defineConversion(Item otherCoin, int coinAmount)
+    		public Builder defineConversion(Item otherCoin, int coinAmount) {
+    			this.worthOtherCoin = otherCoin;
+    			this.worthOtherCoinCount = () -> coinAmount;
+    			return this;
+    		}
+    		
+    		/**
+    		 * Defines what lesser coin can be converted into this one, and how many of those coins are worth 1 of this coin.
+    		 * Supplier input allows inputs defined by a config value
+    		 */
+    		public Builder defineConversion(Item otherCoin, @Nonnull Supplier<Integer> coinAmount)
     		{
     			this.worthOtherCoin = otherCoin;
     			this.worthOtherCoinCount = coinAmount;
@@ -1699,7 +1727,7 @@ public class MoneyUtil {
     	{
     		if(this.isFree)
     			return new TranslationTextComponent("gui.coinvalue.free").getString();
-    		switch(Config.getValueDisplayType())
+    		switch(Config.SERVER.coinValueType.get())
     		{
     		case DEFAULT:
 				String string = "";
@@ -1852,50 +1880,56 @@ public class MoneyUtil {
     	public static CoinValue easyBuild2(IInventory inventory)
     	{
     		return new CoinValue(MoneyUtil.getValue(inventory));
-    		/*List<CoinValuePair> pairs = new ArrayList<>();
-    		for(int i = 0; i < inventory.getSizeInventory(); i++)
+    		
+    	}
+    	
+    	public static CoinValue Parse(JsonElement json) throws Exception
+    	{
+    		if(json.isJsonArray())
     		{
-    			Item item = inventory.getStackInSlot(i).getItem();
-    			int amountToAdd = inventory.getStackInSlot(i).getCount();
-    			if(MoneyUtil.isCoin(item) || !MoneyUtil.initialized())
+    			List<CoinValuePair> pairs = Lists.newArrayList();
+    			JsonArray list = json.getAsJsonArray();
+    			for(int i = 0; i < list.size(); ++i)
     			{
-    				for(int x = 0; x < pairs.size() && amountToAdd > 0; x++)
-    				{
-    					if(pairs.get(x).coin == item)
-    					{
-    						pairs.get(x).amount += amountToAdd;
-    						amountToAdd = 0;
-    					}
-    				}
-    				if(amountToAdd > 0)
-    				{
-    					pairs.add(new CoinValuePair(item, amountToAdd));
-    				}
+    				JsonObject coinData = list.get(i).getAsJsonObject();
+    				Item coinItem = Items.AIR;
+    				int quantity = 1;
+    				if(coinData.has("coin"))
+    					coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(coinData.get("coin").getAsString()));
+    				if(coinData.has("count"))
+    					quantity = coinData.get("count").getAsInt();
+    				if(quantity <= 0)
+    					LightmansCurrency.LogWarning("Coin Count (" + quantity + ") is <= 0. Entry will be ignored.");
+    				else if(!MoneyUtil.isCoin(coinItem))
+    					LightmansCurrency.LogWarning("Coin Item (" + coinItem.getRegistryName() + ") is not a valid coin. Entry will be ignored.");
+    				else
+    					pairs.add(new CoinValuePair(coinItem, quantity));
+    			}
+    			if(pairs.size() <= 0)
+    				throw new Exception("Coin Value entry has no valid coin/count entries to parse.");
+    			return new CoinValue(pairs);
+    		}
+    		else if(json.isJsonPrimitive())
+    		{
+    			JsonPrimitive primitive = json.getAsJsonPrimitive();
+    			if(primitive.isNumber())
+    			{
+    				return new CoinValue(primitive.getAsNumber().longValue());
+    			}
+    			else if(primitive.isBoolean() && primitive.getAsBoolean())
+    			{
+    				CoinValue val = new CoinValue();
+    				val.setFree(true);
+    				return val;
+    			}
+    			else if(primitive.isString())
+    			{
+    				double displayValue = Double.parseDouble(primitive.getAsString());
+    				return MoneyUtil.displayValueToCoinValue(displayValue);
     			}
     		}
-    		return new CoinValue(pairs);*/
+    		throw new Exception("Coin Value entry (" + json.getClass() + ") is not a valid Json Element.");
     	}
-    	
-    	/*public static boolean canAfford(CoinValue price, CoinValue availableMoney)
-    	{
-    		return price.isEqualValue(availableMoney) || price.isGreaterValue(availableMoney);
-    	}
-    	
-    	public boolean isLesserValue(CoinValue otherValue)
-    	{
-    		return false;
-    	}
-    	
-    	public boolean isEqualValue(CoinValue otherValue)
-    	{
-    		this.sortValue();
-    		return false;
-    	}
-    	
-    	public boolean isGreaterValue(CoinValue otherValue)
-    	{
-    		return false;
-    	}*/
     	
     }
 

@@ -100,6 +100,11 @@ public class PlayerBlacklist extends TradeRule{
 	}
 	
 	@Override
+	public CompoundNBT savePersistentData() { return null; }
+	@Override
+	public void loadPersistentData(CompoundNBT data) { }
+	
+	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_BLACKLIST; }
 
 	@Override

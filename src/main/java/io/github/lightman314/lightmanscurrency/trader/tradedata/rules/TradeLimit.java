@@ -73,6 +73,18 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
+	public CompoundNBT savePersistentData() {
+		CompoundNBT data = new CompoundNBT();
+		data.putInt("Count", this.count);
+		return data;
+	}
+	@Override
+	public void loadPersistentData(CompoundNBT data) {
+		if(data.contains("Count", Constants.NBT.TAG_INT))
+			this.count = data.getInt("Count");
+	}
+	
+	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT; }
 
 	@Override

@@ -175,6 +175,53 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
+	public CompoundNBT savePersistentData() {
+		CompoundNBT data = new CompoundNBT();
+		ListNBT memoryList = new ListNBT();
+		this.memory.forEach((id, eventTimes) ->{
+			CompoundNBT thisMemory = new CompoundNBT();
+			thisMemory.putUniqueId("id", id);
+			thisMemory.putLongArray("times", eventTimes);
+			memoryList.add(thisMemory);
+		});
+		data.put("Memory", memoryList);
+		return data;
+	}
+
+	@Override
+	public void loadPersistentData(CompoundNBT data) {
+		if(data.contains("Memory", Constants.NBT.TAG_LIST))
+		{
+			this.memory.clear();
+			ListNBT memoryList = data.getList("Memory", Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < memoryList.size(); i++)
+			{
+				CompoundNBT thisMemory = memoryList.getCompound(i);
+				UUID id = null;
+				List<Long> eventTimes = new ArrayList<>();
+				if(thisMemory.contains("id"))
+					id = thisMemory.getUniqueId("id");
+				if(thisMemory.contains("count", Constants.NBT.TAG_INT))
+				{
+					int count = thisMemory.getInt("count");
+					for(int z = 0; z < count; z++)
+					{
+						eventTimes.add(0l);
+					}
+				}
+				if(thisMemory.contains("times", Constants.NBT.TAG_LONG_ARRAY))
+				{
+					for(long time : thisMemory.getLongArray("times"))
+					{
+						eventTimes.add(time);
+					}
+				}
+				this.memory.put(id, eventTimes);
+			}
+		}
+	}
+	
+	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT_PLAYER; }
 
 	@Override

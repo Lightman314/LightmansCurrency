@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.base.Supplier;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -18,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -53,6 +56,9 @@ public abstract class TradeRule {
 	
 	public abstract void readNBT(CompoundNBT compound);
 	
+	public abstract CompoundNBT savePersistentData();
+	public abstract void loadPersistentData(CompoundNBT data);
+	
 	public abstract IconData getButtonIcon();
 	
 	public static CompoundNBT writeRules(CompoundNBT compound, List<TradeRule> rules)
@@ -73,6 +79,23 @@ public abstract class TradeRule {
 		return compound;
 	}
 	
+	public static boolean writePersistentData(CompoundNBT compound, List<TradeRule> rules, String tag) {
+		ListNBT ruleData = new ListNBT();
+		for(int i = 0; i < rules.size(); ++i)
+		{
+			CompoundNBT thisRuleData = rules.get(i).savePersistentData();
+			if(thisRuleData != null)
+			{
+				thisRuleData.putString("type", rules.get(i).type.toString());
+				ruleData.add(thisRuleData);
+			}
+		}
+		if(ruleData.size() <= 0)
+			return false;
+		compound.put(tag, ruleData);
+		return true;
+	}
+	
 	public static List<TradeRule> readRules(CompoundNBT compound)
 	{
 		return readRules(compound, DEFAULT_TAG);
@@ -91,6 +114,43 @@ public abstract class TradeRule {
 				if(thisRule != null)
 					rules.add(thisRule);
 			}
+		}
+		return rules;
+	}
+	
+	public static void readPersistentData(CompoundNBT compound, List<TradeRule> tradeRules, String tag)
+	{
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
+		{
+			ListNBT ruleData = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
+			for(int i = 0; i < ruleData.size(); ++i)
+			{
+				CompoundNBT thisRuleData = ruleData.getCompound(i);
+				boolean query = true;
+				for(int r = 0; query && r < tradeRules.size(); ++r)
+				{
+					if(tradeRules.get(r).type.toString().contentEquals(thisRuleData.getString("type")))
+					{
+						tradeRules.get(r).loadPersistentData(thisRuleData);
+					}
+				}
+			}
+		}
+	}
+	
+	public static List<TradeRule> Parse(JsonArray tradeRuleData)
+	{
+		Gson g = new Gson();
+		List<TradeRule> rules = new ArrayList<>();
+		for(int i = 0; i < tradeRuleData.size(); ++i)
+		{
+			try {
+				CompoundNBT thisRuleData = JsonToNBT.getTagFromJson(g.toJson(tradeRuleData.get(i)));
+				TradeRule thisRule = Deserialize(thisRuleData);
+				if(thisRule != null)
+					rules.add(thisRule);
+			}
+			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
 		}
 		return rules;
 	}

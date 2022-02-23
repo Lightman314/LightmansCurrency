@@ -49,14 +49,14 @@ public class CoinMintBlock extends RotatableBlock{
 		if(!world.isRemote)
 		{
 			TileEntity tileEntity = world.getTileEntity(pos);
-			if(tileEntity instanceof CoinMintTileEntity && Config.canMint() || Config.canMelt())
+			if(tileEntity instanceof CoinMintTileEntity && Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
 			{
 				NetworkHooks.openGui((ServerPlayerEntity)player, new CoinMintMenuProvider((CoinMintTileEntity)tileEntity), pos);
 				return ActionResultType.SUCCESS;
 			}
 		}
 		
-		if(Config.canMint() || Config.canMelt())
+		if(Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
 			return ActionResultType.SUCCESS;
 		
 		return ActionResultType.PASS;

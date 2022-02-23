@@ -61,7 +61,7 @@ public class CoinValueInput extends Widget{
 	public CoinValueInput(int y, ITextComponent title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
 		super(0, y, calculateWidth(), HEIGHT, new StringTextComponent(""));
-		this.inputType = Config.getValueInputType();
+		this.inputType = Config.SERVER.coinValueInputType.get();
 		this.title = title;
 		
 		if(this.width == parent.getWidth())
@@ -80,7 +80,7 @@ public class CoinValueInput extends Widget{
 	
 	private void setPrefixAndPostfix()
 	{
-		String format = Config.getValueDisplayFormat();
+		String format = Config.SERVER.valueFormat.get();
 		//Have to replace the {value} with a non-illegal character in order to split the string
 		String[] splitFormat = format.replace("{value}", "`").split("`",2);
 		if(splitFormat.length < 2)
@@ -264,7 +264,7 @@ public class CoinValueInput extends Widget{
 	
 	public static int calculateWidth()
 	{
-		if(Config.getValueInputType() == ValueType.VALUE)
+		if(Config.SERVER.coinValueInputType.get() == ValueType.VALUE)
 			return DISPLAY_WIDTH;
 		
 		//Get button count

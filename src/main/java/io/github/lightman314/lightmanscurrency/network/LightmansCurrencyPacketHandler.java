@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
-import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
@@ -132,7 +131,6 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());
-		register(MessageSyncConfig.class, new MessageSyncConfig());
 		register(MessageSyncClientTime.class, new MessageSyncClientTime());
 		
 		//Command/Admin

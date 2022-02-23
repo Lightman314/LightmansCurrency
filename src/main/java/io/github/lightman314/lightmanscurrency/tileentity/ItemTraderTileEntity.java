@@ -55,7 +55,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Quaternion;
@@ -73,7 +72,7 @@ import net.minecraftforge.items.IItemHandler;
 
 public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrader {
 	
-	public static final int TRADELIMIT = 16;
+	public static final int TRADE_LIMIT = 16;
 	public static final int VERSION = 1;
 	
 	TraderItemHandler itemHandler = new TraderItemHandler(this);
@@ -97,7 +96,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	
 	private long rotationTime = 0;
 	
-	protected NonNullList<ItemTradeData> trades;
+	protected List<ItemTradeData> trades;
 	
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
@@ -144,12 +143,12 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	public int getTradeCount()
 	{
 		//Limit trade count to 16 due to screen size limitations
-		return MathUtil.clamp(tradeCount, 1, TRADELIMIT);
+		return MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 	}
 	
 	public int getTradeCountLimit()
 	{
-		return TRADELIMIT;
+		return TRADE_LIMIT;
 	}
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
@@ -161,7 +160,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	{
 		if(this.world.isRemote)
 			return;
-		if(tradeCount >= TRADELIMIT)
+		if(tradeCount >= TRADE_LIMIT)
 			return;
 		if(TradingOffice.isAdminPlayer(requestor))
 		{
@@ -210,8 +209,8 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	{
 		if(tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADELIMIT);
-		NonNullList<ItemTradeData> oldTrades = trades;
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		List<ItemTradeData> oldTrades = trades;
 		trades = ItemTradeData.listOfSize(getTradeCount());
 		//Write the old trade data into the array.
 		for(int i = 0; i < oldTrades.size() && i < trades.size(); i++)
@@ -254,7 +253,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		return this.trades.get(tradeSlot);
 	}
 	
-	public NonNullList<ItemTradeData> getAllTrades()
+	public List<ItemTradeData> getAllTrades()
 	{
 		return this.trades;
 	}
@@ -454,7 +453,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		
 		//Load the trade limit
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADE_LIMIT);
 		//Load trades
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
 		{

@@ -69,6 +69,11 @@ public class CoreTraderSettings extends Settings{
 	
 	//Owner
 	PlayerReference owner = null;
+	String customOwnerName = "";
+	/**
+	 * Used to define the owner name for persistent traders, which have no owner.
+	 */
+	public void setCustomOwnerName(String ownerName) { this.customOwnerName = ownerName; }
 	//Team
 	TeamReference team = null;
 	public Team getTeam()
@@ -88,6 +93,7 @@ public class CoreTraderSettings extends Settings{
 	String customName = "";
 	public boolean hasCustomName() { return !this.customName.isEmpty(); }
 	public String getCustomName() { return this.customName; }
+	public void forceCustomName(String customName) { this.customName = customName; }
 	public CompoundNBT setCustomName(PlayerEntity requestor, String newName)
 	{
 		if(!this.hasPermission(requestor, Permissions.CHANGE_NAME))
@@ -147,7 +153,7 @@ public class CoreTraderSettings extends Settings{
 			return this.getTeam().getName();
 		if(this.owner != null)
 			return this.owner.lastKnownName();
-		return "";
+		return this.customOwnerName;
 	}
 	
 	/**
@@ -383,6 +389,7 @@ public class CoreTraderSettings extends Settings{
 		updateInfo.putBoolean("isCreative", this.isCreative);
 		return updateInfo;
 	}
+	public void forceCreative() { this.isCreative = true; }
 	
 	public CompoundNBT toggleBankAccountLink(PlayerEntity requestor)
 	{
@@ -500,6 +507,8 @@ public class CoreTraderSettings extends Settings{
 	{
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
+		if(!this.customOwnerName.isEmpty())
+			compound.putString("CustomOwnerName", this.customOwnerName);
 		return compound;
 	}
 	
@@ -642,6 +651,8 @@ public class CoreTraderSettings extends Settings{
 		//Owner
 		if(compound.contains("Owner", Constants.NBT.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
+		if(compound.contains("CustomOwnerName", Constants.NBT.TAG_STRING))
+			this.customOwnerName = compound.getString("CustomOwnerName");
 		//Team
 		if(compound.contains("Team", Constants.NBT.TAG_BYTE))
 			this.team = null;

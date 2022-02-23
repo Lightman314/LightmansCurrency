@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
@@ -51,8 +55,8 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -66,7 +70,7 @@ import net.minecraftforge.items.IItemHandler;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader {
 	
-	public static final int TRADELIMIT = ItemTraderTileEntity.TRADELIMIT;
+	public static final int TRADE_LIMIT = ItemTraderTileEntity.TRADE_LIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	
@@ -83,7 +87,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	private ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	int tradeCount = 1;
-	NonNullList<ItemTradeData> trades = null;
+	List<ItemTradeData> trades = null;
 	
 	IInventory storage;
 	
@@ -96,7 +100,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public UniversalItemTraderData(PlayerReference owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount)
 	{
 		super(owner, pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderTileEntity.TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.storage = new Inventory(this.inventorySize());
 	}
@@ -105,7 +109,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public void read(CompoundNBT compound)
 	{
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderTileEntity.TRADE_LIMIT);
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
@@ -178,7 +182,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public int getTradeCountLimit()
 	{
-		return TRADELIMIT;
+		return TRADE_LIMIT;
 	}
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
@@ -193,7 +197,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			Settings.PermissionWarning(requestor, "add trader slot", Permissions.ADMIN_MODE);
 			return;
 		}
-		if(this.getTradeCount() >= TRADELIMIT)
+		if(this.getTradeCount() >= TRADE_LIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
 		this.forceReopen();
@@ -222,8 +226,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADELIMIT);
-		NonNullList<ItemTradeData> oldTrades = this.trades;
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		List<ItemTradeData> oldTrades = this.trades;
 		this.trades = ItemTradeData.listOfSize(getTradeCount());
 		//Write the old trade data into the array.
 		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); i++)
@@ -265,7 +269,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return getTrade(tradeIndex).stockCount(this);
 	}
 	
-	public NonNullList<ItemTradeData> getAllTrades()
+	public List<ItemTradeData> getAllTrades()
 	{
 		return this.trades;
 	}
@@ -676,6 +680,89 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.traderID, newRules, tradeIndex));
+	}
+	
+	@Override
+	public CompoundNBT getPersistentData() {
+		CompoundNBT data = new CompoundNBT();
+		ITradeRuleHandler.savePersistentRuleData(data, this, this.trades);
+		this.logger.write(data);
+		return data;
+	}
+
+	@Override
+	public void loadPersistentData(CompoundNBT data) {
+		ITradeRuleHandler.readPersistentRuleData(data, this, this.trades);
+		this.logger.read(data);
+	}
+
+	@Override
+	public void loadFromJson(JsonObject json) throws Exception {
+		super.loadFromJson(json);
+		Gson g = new Gson();
+
+		if(!json.has("Trades"))
+			throw new Exception("Item Trader must have a trade list.");
+		JsonArray tradeList = json.get("Trades").getAsJsonArray();
+		this.trades = new ArrayList<>();
+		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		{
+			try {
+				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
+				ItemTradeData newTrade = new ItemTradeData();
+				//Sell Item
+				JsonElement sellItem = tradeData.get("SellItem").getAsJsonObject();
+				newTrade.setSellItem(ItemStack.read(JsonToNBT.getTagFromJson(g.toJson(sellItem))));
+				//Trade Type
+				if(tradeData.has("TradeType"))
+					newTrade.setTradeType(ItemTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
+				//Trade Price
+				if(tradeData.has("Price"))
+				{
+					if(newTrade.isBarter())
+						LightmansCurrency.LogWarning("Price is being defined for a barter trade. Price will be ignored.");
+					else
+						newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+				}
+				else if(!newTrade.isBarter())
+				{
+					LightmansCurrency.LogWarning("Price is not defined on a non-barter trade. Price will be assumed to be free.");
+					newTrade.getCost().setFree(true);
+				}
+				if(tradeData.has("BarterItem"))
+				{
+					if(newTrade.isBarter())
+					{
+						JsonElement barterItem = tradeData.get("BarterItem").getAsJsonObject();
+						newTrade.setBarterItem(ItemStack.read(JsonToNBT.getTagFromJson(g.toJson(barterItem))));
+					}
+					else
+					{
+						LightmansCurrency.LogWarning("BarterItem is being defined for a non-barter trade. Barter item will be ignored.");
+					}
+				}
+				if(tradeData.has("DisplayName"))
+				{
+					newTrade.setCustomName(tradeData.get("DisplayName").getAsString());
+				}
+				if(tradeData.has("TradeRules"))
+				{
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+				}
+				this.trades.add(newTrade);
+
+			} catch(Exception e) { LightmansCurrency.LogError("Error parsing item trade at index " + i, e); }
+
+			this.tradeCount = this.trades.size();
+			this.storage = new Inventory(this.inventorySize());
+
+		}
+
+		if(json.has("TradeRules"))
+		{
+			this.tradeRules = TradeRule.Parse(json.get("TradeRules").getAsJsonArray());
+		}
+
 	}
 	
 }

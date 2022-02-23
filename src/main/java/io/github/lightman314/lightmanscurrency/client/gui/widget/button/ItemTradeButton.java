@@ -108,8 +108,8 @@ public class ItemTradeButton extends Button{
 		boolean hasPermission = forceActive ? true : false;
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
-		boolean hasStock = forceActive ? true : trade.hasStock(trader);
-		boolean hasSpace = forceActive ? true : trade.hasSpace(trader);
+		boolean hasStock = forceActive ? true : trade.hasStock(trader) || trader.getCoreSettings().isCreative();
+		boolean hasSpace = forceActive ? true : trade.hasSpace(trader) || trader.getCoreSettings().isCreative();
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
 		if(!forceActive)

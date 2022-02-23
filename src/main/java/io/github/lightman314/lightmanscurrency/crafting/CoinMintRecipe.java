@@ -59,12 +59,12 @@ public class CoinMintRecipe implements IRecipe<IInventory>{
 	{
 		if(this.type == MintType.MINT)
 		{
-			return Config.canMint() && Config.canMint(this.result);
+			return Config.SERVER.allowCoinMinting.get() && Config.canMint(this.result);
 		}
 		else if(this.type == MintType.MELT)
 		{
 			try {
-				return Config.canMelt() && Config.canMelt(this.ingredient.getMatchingStacks()[0].getItem());
+				return Config.SERVER.allowCoinMelting.get() && Config.canMelt(this.ingredient.getMatchingStacks()[0].getItem());
 			} catch(Exception e) { return false; }
 		}
 		return true;
