@@ -124,14 +124,6 @@ public class Config {
 		return ModItems.COIN_GOLD;
 	}
 	
-	
-	private static int convertLevel = 0;
-	public static int getConvertLevel() { return convertLevel; }
-	private static int pickupLevel = 0;
-	public static int getPickupLevel() { return pickupLevel; }
-	private static int bankLevel = 0;
-	public static int getBankLevel() { return bankLevel; }
-	
 	public static class Client
 	{
 		

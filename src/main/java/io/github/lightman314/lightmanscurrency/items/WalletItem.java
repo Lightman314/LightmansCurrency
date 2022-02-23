@@ -79,7 +79,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.getConvertLevel() || wallet.level >= Config.getPickupLevel();
+		return wallet.level >= Config.SERVER.walletConvertLevel.get() || wallet.level >= Config.SERVER.walletPickupLevel.get();
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.getPickupLevel();
+		return wallet.level >= Config.SERVER.walletPickupLevel.get();
 	}
 	
 	/**
@@ -99,7 +99,7 @@ public class WalletItem extends Item{
 	{
 		if(wallet == null)
 			return false;
-		return wallet.level >= Config.getBankLevel();
+		return wallet.level >= Config.SERVER.walletBankLevel.get();
 	}
 	
 	/**
