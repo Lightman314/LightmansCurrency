@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -19,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -232,7 +232,7 @@ public class MainTab extends SettingsTab{
 				UniversalTraderData trader = (UniversalTraderData)t;
 				JsonObject result = trader.saveToJson(new JsonObject());
 				//Copy text to clipboard
-				String resultString = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(result);
+				String resultString = FileUtil.GSON.toJson(result);
 				LightmansCurrency.LogInfo("Copied persistent trader json to clipboard.\n" + resultString);
 				this.getScreen().getMinecraft().keyboardHandler.setClipboard(resultString);
 				TranslatableComponent message = new TranslatableComponent("lightmanscurrency.chat.persistenttrader");
