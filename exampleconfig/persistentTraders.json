@@ -9,7 +9,7 @@
             "Price":true,
             "DisplayName":"Free Trading Core",
             "TradeRules":[{
-                "type":"lightmanscurrency:tradelimit",
+                "type":"lightmanscurrency:player_trade_limit",
                 "Limit":1
             }]
         },{
