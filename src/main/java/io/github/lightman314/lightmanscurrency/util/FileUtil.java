@@ -20,7 +20,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class FileUtil {
 	
-	public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+	public static Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
 	public static JsonObject convertItemStack(ItemStack item) {
 		JsonObject json = new JsonObject();
