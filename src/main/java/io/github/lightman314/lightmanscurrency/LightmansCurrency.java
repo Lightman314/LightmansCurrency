@@ -32,7 +32,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeLimit;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -90,9 +89,6 @@ public class LightmansCurrency {
     {
     	//LOGGER.info("PacketHandler init");
     	LightmansCurrencyPacketHandler.init();
-    	
-    	//Initialize coinList
-    	MoneyUtil.init();
     	
     	//Initialize the UniversalTraderData deserializers
     	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());

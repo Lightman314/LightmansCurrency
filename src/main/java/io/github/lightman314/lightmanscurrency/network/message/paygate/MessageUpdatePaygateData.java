@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.network.message.paygate;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

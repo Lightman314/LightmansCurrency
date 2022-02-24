@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -13,8 +15,8 @@ import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageAc
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageSetPaygateTicket;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageUpdatePaygateData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -32,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 
+@IPNIgnore
 public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implements ICoinValueInput{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/paygate.png");

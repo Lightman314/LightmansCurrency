@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.events;
 
 import com.google.common.base.Supplier;
 
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraftforge.eventbus.api.Event;
 
 public class TradeEditEvent extends Event{

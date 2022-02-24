@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import java.util.List;

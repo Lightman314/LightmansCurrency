@@ -6,9 +6,9 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 

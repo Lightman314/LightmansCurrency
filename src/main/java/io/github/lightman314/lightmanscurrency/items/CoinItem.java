@@ -7,8 +7,8 @@ import javax.annotation.Nullable;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -56,7 +56,6 @@ public class CoinItem extends Item{
 				break;
 				default: //Default is NONE
 			}
-			
 		}
 	}
 	

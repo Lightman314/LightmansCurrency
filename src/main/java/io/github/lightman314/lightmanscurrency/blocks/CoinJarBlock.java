@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import io.github.lightman314.lightmanscurrency.blockentity.CoinJarBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

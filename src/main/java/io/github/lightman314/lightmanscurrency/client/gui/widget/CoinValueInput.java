@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.ValueType;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue.ValueType;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -118,7 +118,7 @@ public class CoinValueInput extends AbstractWidget{
 		//Initialize default button setup
 		if(this.inputType == ValueType.DEFAULT)
 		{
-			int buttonCount = MoneyUtil.getAllData().size();
+			int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
 			for(int x = 0; x < buttonCount; x++)
 			{
 				Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
@@ -161,7 +161,7 @@ public class CoinValueInput extends AbstractWidget{
 		
 		if(this.inputType == ValueType.DEFAULT)
 		{
-			List<CoinData> coinData = MoneyUtil.getAllData();
+			List<CoinData> coinData = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN);
 			int buttonCount = coinData.size();
 			
 			if(this.drawBG)
@@ -187,9 +187,9 @@ public class CoinValueInput extends AbstractWidget{
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
+				ItemRenderUtil.drawItemStack(this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * 30) + 12, startY + 26, false);
 				//Draw string
-				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
+				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).coinItem));// + coinData.get(x).getInitial().getString();
 				int width = this.parent.getFont().width(countString);
 				this.parent.getFont().draw(poseStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
 				
@@ -273,7 +273,7 @@ public class CoinValueInput extends AbstractWidget{
 		if(Config.SERVER.coinValueInputType.get() == ValueType.VALUE)
 			return DISPLAY_WIDTH;
 		//Default width based on coin count
-		int buttonCount = MoneyUtil.getAllData().size();
+		int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
 		return 20 + (20 * buttonCount) + (10 * (buttonCount - 1));
 	}
 	

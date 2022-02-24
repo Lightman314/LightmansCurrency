@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -17,8 +19,8 @@ import io.github.lightman314.lightmanscurrency.network.message.cashregister.Mess
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -30,6 +32,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+@IPNIgnore
 public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
@@ -163,7 +166,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 		if(this.menu.isCashRegister() && this.menu.getTotalCRSize() > 1)
 		{
 			this.buttonLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos + tradeOffset - 20,  this.topPos, this::PressArrowButton));
-			this.buttonRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageHeight - tradeOffset, this.topPos, this::PressArrowButton));
+			this.buttonRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton));
 			
 			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, new TextComponent("")));
 			this.pageInput.setMaxLength(9);

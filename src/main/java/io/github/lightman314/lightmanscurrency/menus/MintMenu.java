@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.slots.MintSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
