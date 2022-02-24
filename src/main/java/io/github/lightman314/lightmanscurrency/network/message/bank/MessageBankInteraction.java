@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;

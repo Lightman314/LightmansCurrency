@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.tileentity.CoinJarTileEntity;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;

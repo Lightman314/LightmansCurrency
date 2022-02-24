@@ -9,6 +9,9 @@ import io.github.lightman314.lightmanscurrency.containers.WalletContainer;
 import io.github.lightman314.lightmanscurrency.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -16,9 +19,6 @@ import io.github.lightman314.lightmanscurrency.tileentity.IOwnableTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -61,7 +61,7 @@ public class EventHandler {
 		
 		ItemStack pickupItem = event.getItem().getItem();
 		CoinData coinData = MoneyUtil.getData(pickupItem.getItem());
-		if(coinData == null || coinData.isHidden())
+		if(coinData == null || coinData.isHidden)
 			return;
 		
 		PlayerEntity player = event.getPlayer();

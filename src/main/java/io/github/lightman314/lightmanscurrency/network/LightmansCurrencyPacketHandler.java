@@ -19,6 +19,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.money.MoneyData;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import net.minecraft.entity.player.PlayerEntity;
@@ -135,6 +136,9 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Command/Admin
 		register(MessageSyncAdminList.class, new MessageSyncAdminList());
+		
+		//Money Data
+		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
 		
 	}
 

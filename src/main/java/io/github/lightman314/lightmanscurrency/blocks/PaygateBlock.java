@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.tileentity.PaygateTileEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

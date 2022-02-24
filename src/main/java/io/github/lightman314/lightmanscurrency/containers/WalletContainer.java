@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.containers.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.containers.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import java.util.List;

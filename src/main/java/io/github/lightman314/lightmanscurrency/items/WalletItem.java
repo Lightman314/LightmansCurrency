@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.containers.providers.WalletContainerProvider;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;

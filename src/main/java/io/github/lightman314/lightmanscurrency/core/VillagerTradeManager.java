@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.IItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentData;

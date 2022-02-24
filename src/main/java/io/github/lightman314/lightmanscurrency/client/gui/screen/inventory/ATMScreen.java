@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import java.util.List;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -22,6 +24,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
+@IPNIgnore
 public class ATMScreen extends ContainerScreen<ATMContainer> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");

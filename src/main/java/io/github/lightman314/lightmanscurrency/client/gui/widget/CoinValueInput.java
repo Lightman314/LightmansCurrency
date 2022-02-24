@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinData;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue.ValueType;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue.ValueType;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
@@ -114,7 +114,7 @@ public class CoinValueInput extends Widget{
 		
 		if(this.inputType == ValueType.DEFAULT)
 		{
-			int buttonCount = MoneyUtil.getAllData().size();
+			int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
 			for(int x = 0; x < buttonCount; x++)
 			{
 				increaseButtons.add(this.parent.addCustomButton(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT)));
@@ -152,7 +152,7 @@ public class CoinValueInput extends Widget{
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
 		int startX = this.x + this.leftOffset;
 		int startY = this.y;
-		List<CoinData> coinData = MoneyUtil.getAllData();
+		List<CoinData> coinData = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN);
 		int buttonCount = coinData.size();
 		
 		if(this.inputType == ValueType.DEFAULT)
@@ -177,9 +177,9 @@ public class CoinValueInput extends Widget{
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).getCoinItem()), startX + (x * 30) + 12, startY + 26, false);
+				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * 30) + 12, startY + 26, false);
 				//Draw string
-				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).getCoinItem()));// + coinData.get(x).getInitial().getString();
+				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).coinItem));// + coinData.get(x).getInitial().getString();
 				int width = this.parent.getFont().getStringWidth(countString);
 				this.parent.getFont().drawString(matrixStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
 				
@@ -268,7 +268,7 @@ public class CoinValueInput extends Widget{
 			return DISPLAY_WIDTH;
 		
 		//Get button count
-		int buttonCount = MoneyUtil.getAllData().size();
+		int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
 		return 20 + (20 * buttonCount) + (10 * (buttonCount - 1));
 		
 	}

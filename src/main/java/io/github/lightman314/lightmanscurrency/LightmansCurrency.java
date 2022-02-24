@@ -31,7 +31,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerTrad
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeLimit;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -87,9 +86,6 @@ public class LightmansCurrency {
     {
     	//LOGGER.info("PacketHandler init");
     	LightmansCurrencyPacketHandler.init();
-    	
-    	//Initialize coinList
-    	MoneyUtil.init();
 		
     	//Register the Wallet Capability
     	WalletCapability.register();

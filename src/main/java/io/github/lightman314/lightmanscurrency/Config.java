@@ -10,8 +10,8 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -365,6 +365,7 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
 		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 		
+		/*
 		//Coin Values
 		public final ForgeConfigSpec.IntValue ironCoinWorth;
 		public final ForgeConfigSpec.IntValue goldCoinWorth;
@@ -386,7 +387,7 @@ public class Config {
 		public final ForgeConfigSpec.IntValue coinBlockGoldWorth;
 		public final ForgeConfigSpec.IntValue coinBlockEmeraldWorth;
 		public final ForgeConfigSpec.IntValue coinBlockDiamondWorth;
-		public final ForgeConfigSpec.IntValue coinBlockNetheriteWorth;
+		public final ForgeConfigSpec.IntValue coinBlockNetheriteWorth;*/
 		
 		Server(ForgeConfigSpec.Builder builder)
 		{
@@ -481,7 +482,7 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.comment("Coin value settings.").push("coin_value");
+			/*builder.comment("Coin value settings.").push("coin_value");
 			
 			this.ironCoinWorth = builder
 					.comment("How many copper coins are required to make 1 iron coin.")
@@ -545,7 +546,7 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.pop();
+			builder.pop();*/
 			
 		}
 		

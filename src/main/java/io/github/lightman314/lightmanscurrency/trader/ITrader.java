@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.tileentity.IPermissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 
