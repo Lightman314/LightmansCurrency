@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.api;
+package io.github.lightman314.lightmanscurrency.money;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,6 @@ import com.google.gson.JsonParser;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.GetDefaultMoneyDataEvent;
-import io.github.lightman314.lightmanscurrency.money.CoinData;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
