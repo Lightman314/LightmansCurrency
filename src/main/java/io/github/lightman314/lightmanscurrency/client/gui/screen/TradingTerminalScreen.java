@@ -226,13 +226,16 @@ public class TradingTerminalScreen extends Screen{
 		@Override
 		public int compare(UniversalTraderData a, UniversalTraderData b) {
 			
-			//(lowercase since lowercase letters apparently get sorted after uppercase letters)
-			//Sort by trader name
-			int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
-			//Sort by owner name if trader name is equal
-			if(sort == 0)
-				sort = a.getCoreSettings().getOwner().lastKnownName().toLowerCase().compareTo(b.getCoreSettings().getOwner().lastKnownName().toLowerCase());
-			return sort;
+			try {
+				//(lowercase since lowercase letters apparently get sorted after uppercase letters)
+				//Sort by trader name
+				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
+				//Sort by owner name if trader name is equal
+				if(sort == 0)
+					sort = a.getCoreSettings().getOwner().lastKnownName().toLowerCase().compareTo(b.getCoreSettings().getOwner().lastKnownName().toLowerCase());
+				return sort;
+			} catch(Throwable t) { return 0; }
+			
 		}
 		
 	}

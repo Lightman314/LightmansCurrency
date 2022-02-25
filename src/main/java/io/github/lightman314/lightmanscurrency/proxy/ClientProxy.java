@@ -28,6 +28,10 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModContainers;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModTileEntities;
+import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
+import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
@@ -37,11 +41,14 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 
@@ -241,6 +248,17 @@ public class ClientProxy extends CommonProxy{
 	{
 		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
+	}
+	
+	@SubscribeEvent
+	//Add coin value tooltips to non CoinItem coins.
+	public void onItemTooltip(ItemTooltipEvent event) {
+		Item item = event.getItemStack().getItem();
+		CoinData coinData = MoneyUtil.getData(item);
+		if(coinData != null && !(item instanceof CoinItem || item instanceof CoinBlockItem))
+		{
+			CoinItem.addCoinTooltips(event.getItemStack(), event.getToolTip());
+		}
 	}
 	
 }

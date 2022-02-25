@@ -80,6 +80,8 @@ public class LightmansCurrency {
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
+        MinecraftForge.EVENT_BUS.register(PROXY);
+        
     }
     
     private void doCommonStuff(final FMLCommonSetupEvent event)

@@ -18,8 +18,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.events.GetDefaultMoneyDataEvent;
-import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -32,7 +30,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -188,17 +185,6 @@ public class MoneyUtil {
     			.setHidden());
 		
     }
-	
-	@SubscribeEvent
-	//Add coin value tooltips to non CoinItem coins.
-	public static void onItemTooltip(ItemTooltipEvent event) {
-		Item item = event.getItemStack().getItem();
-		CoinData coinData = getData(item);
-		if(coinData != null && !(item instanceof CoinItem || item instanceof CoinBlockItem))
-		{
-			CoinItem.addCoinTooltips(event.getItemStack(), event.getToolTip());
-		}
-	}
 	
     /**
      * Checks if the given item is in the master coin list.
