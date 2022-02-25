@@ -24,6 +24,10 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
+import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.money.CoinData;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
@@ -36,10 +40,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientProxy extends CommonProxy{
@@ -239,6 +245,17 @@ public class ClientProxy extends CommonProxy{
 				this.openTeamManager = false;
 				Minecraft.getInstance().setScreen(new TeamManagerScreen());
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	//Add coin value tooltips to non CoinItem coins.
+	public void onItemTooltip(ItemTooltipEvent event) {
+		Item item = event.getItemStack().getItem();
+		CoinData coinData = MoneyUtil.getData(item);
+		if(coinData != null && !(item instanceof CoinItem || item instanceof CoinBlockItem))
+		{
+			CoinItem.addCoinTooltips(event.getItemStack(), event.getToolTip());
 		}
 	}
 	
