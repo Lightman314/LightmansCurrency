@@ -38,7 +38,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return true;
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_TAG) && itemStack.getItem() != ModItems.TICKET;
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET;
 	}
 	
 	@Override

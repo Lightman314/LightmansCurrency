@@ -294,6 +294,8 @@ public class ItemTradeData extends TradeData {
 		if(otherTrade instanceof ItemTradeData)
 		{
 			ItemTradeData otherItemTrade = (ItemTradeData)otherTrade;
+			//Flag as compatible
+			result.setCompatible();
 			//Compare sell items
 			result.addProductResult(ProductComparisonResult.CompareItem(this.sellItem, otherItemTrade.sellItem));
 			//Compare barter items
