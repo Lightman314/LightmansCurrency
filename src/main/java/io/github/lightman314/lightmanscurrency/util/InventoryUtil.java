@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -10,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -252,7 +254,7 @@ public class InventoryUtil {
     	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
     		ItemStack stack = inventory.getItem(i);
-    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
+    		if(ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
     			count += stack.getCount();
     	}
     	return count;
@@ -266,7 +268,7 @@ public class InventoryUtil {
     	for(int i = 0; i < inventory.getContainerSize(); i++)
     	{
     		ItemStack stack = inventory.getItem(i);
-    		if(stack.getItem().getTags().contains(itemTag) && !blacklist.contains(stack.getItem()))
+    		if(ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
     		{
     			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
     			count-= amountToTake;
@@ -499,6 +501,15 @@ public class InventoryUtil {
     {
     	if(stack1.getItem() == stack2.getItem())
     		return ItemStackHelper.TagEquals(stack1, stack2);
+    	return false;
+    }
+    
+    public static boolean ItemHasTag(ItemStack item, ResourceLocation tag) {
+    	for(TagKey<Item> itemTag : item.getTags().collect(Collectors.toList()))
+    	{
+    		if(itemTag.location().equals(tag))
+    			return true;
+    	}
     	return false;
     }
     

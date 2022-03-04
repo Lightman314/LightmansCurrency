@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18-1.0.5.2'
+version = '1.18.2-1.0.5.2'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -26,7 +26,7 @@ minecraft {
     // snapshot_YYYYMMDD   Snapshot are built nightly.
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
-    mappings channel: 'official', version: '1.18'
+    mappings channel: 'official', version: '1.18.2'
     runs {
         client {
             workingDirectory project.file('run')
@@ -66,9 +66,9 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.45'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.0.3'
     compileOnly fg.deobf('curse.maven:jei-238222:3566128')
-    runtimeOnly fg.deobf('curse.maven:jei-238222:3566128')
+    //runtimeOnly fg.deobf('curse.maven:jei-238222:3566128')
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     //runtimeOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
 }

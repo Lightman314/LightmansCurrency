@@ -25,7 +25,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Reference;
 import io.github.lightman314.lightmanscurrency.Reference.Colors;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
-import net.minecraftforge.fml.common.Mod;
+//import net.minecraftforge.fml.common.Mod;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -33,9 +33,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
 
 	private enum BlockItemType { DEFAULT, COIN, NETHERITE_COIN, CASH_REGISTER, COIN_JAR };
@@ -299,7 +299,7 @@ public class ModBlocks {
 	);
 	
 	
-	/*
+	/**
 	* Block Registration Code
 	*/
 	private static BlockItemPair register(String name, CreativeModeTab itemGroup, Block block)
@@ -341,7 +341,7 @@ public class ModBlocks {
 		return new BlockItemPair(block,null);
 	}
 	
-	/*
+	/**
 	 * Colored block registration code
 	 */
 	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, @Nullable Colors dontNameThisColor)
@@ -366,7 +366,7 @@ public class ModBlocks {
 		return set;
 	}
 	
-	/*
+	/**
 	 * Wooden block registration code
 	 */
 	private static BlockItemSet<WoodType> registerWooden(String name, CreativeModeTab itemGroup, Supplier<Block> block)
@@ -390,14 +390,14 @@ public class ModBlocks {
 	}
 	
 	//Registration Events
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerBlocks(final RegistryEvent.Register<Block> event)
 	{
 		BLOCKS.forEach(block -> event.getRegistry().register(block));
 		BLOCKS.clear();
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event)
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));

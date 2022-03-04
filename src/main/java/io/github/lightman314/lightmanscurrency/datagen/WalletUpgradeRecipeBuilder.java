@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.core.ModRecipes;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -53,7 +53,7 @@ public class WalletUpgradeRecipeBuilder {
 	/**
 	 * Adds an ingredient that can be any item in the given tag.
 	 */
-	public WalletUpgradeRecipeBuilder addIngredient(Tag<Item> tagIn) {
+	public WalletUpgradeRecipeBuilder addIngredient(TagKey<Item> tagIn) {
 		return this.addIngredient(Ingredient.of(tagIn));
 	}
 

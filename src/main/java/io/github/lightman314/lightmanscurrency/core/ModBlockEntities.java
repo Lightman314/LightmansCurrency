@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.blockentity.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlockEntities {
 	
 	private static final List<BlockEntityType<?>> TILE_ENTITY_TYPES = new ArrayList<>();
@@ -188,7 +188,7 @@ public class ModBlockEntities {
 		return type;
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerTypes(final RegistryEvent.Register<BlockEntityType<?>> event)
 	{
 		TILE_ENTITY_TYPES.forEach(type -> event.getRegistry().register(type));

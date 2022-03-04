@@ -14,10 +14,10 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CustomProfessions {
 
 	private static final List<VillagerProfession> PROFESSIONS = Lists.newArrayList();
@@ -33,7 +33,7 @@ public class CustomProfessions {
 		return profession;
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerVillagerProfessions(RegistryEvent.Register<VillagerProfession> event)
 	{
 		PROFESSIONS.forEach(profession -> event.getRegistry().register(profession));

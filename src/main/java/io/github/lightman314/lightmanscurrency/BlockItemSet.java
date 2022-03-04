@@ -23,6 +23,13 @@ public class BlockItemSet<T> implements IItemSet<T>{
 		return values;
 	}
 	
+	public List<Block> getAllBlocks()
+	{
+		List<Block> values = new ArrayList<>();
+		set.forEach((key, blockItemPair) -> values.add(blockItemPair.block));
+		return values;
+	}
+	
 	public List<Item> getAllItems()
 	{
 		List<Item> values = new ArrayList<>();

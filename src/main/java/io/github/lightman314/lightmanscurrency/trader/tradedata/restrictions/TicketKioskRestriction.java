@@ -38,7 +38,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return true;
-		return itemStack.getItem().getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET;
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_TAG) && itemStack.getItem() != ModItems.TICKET;
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return TicketItem.CreateTicket(TicketItem.GetTicketID(itemStack), 1);
-		else if(itemStack.getItem().getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET)
+		else if(InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET)
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
@@ -56,7 +56,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
 		Item item = itemStack.getItem();
-		return item.getTags().contains(TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET && item != ModItems.TICKET_MASTER;
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET && item != ModItems.TICKET_MASTER;
 	}
 	
 	@Override

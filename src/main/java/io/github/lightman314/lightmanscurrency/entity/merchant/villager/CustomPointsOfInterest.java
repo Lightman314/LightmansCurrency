@@ -10,10 +10,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+//import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CustomPointsOfInterest {
 
 	private static final List<PoiType> INTEREST_TYPES = new ArrayList<>();
@@ -29,7 +29,7 @@ public class CustomPointsOfInterest {
 		return interestType;
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerInterestTypes(RegistryEvent.Register<PoiType> event)
 	{
 		INTEREST_TYPES.forEach(type -> event.getRegistry().register(type));

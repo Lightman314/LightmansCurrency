@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.menus.slots;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -20,7 +22,7 @@ public class TicketSlot extends Slot{
 	
 	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return stack.getItem().getTags().contains(new ResourceLocation(LightmansCurrency.MODID, "ticket" ));
+		return InventoryUtil.ItemHasTag(stack, TicketItem.TICKET_TAG);
 	}
 	
 	@Override
