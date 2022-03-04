@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.trader.settings;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -170,6 +172,8 @@ public class PlayerReference {
 	
 	public static PlayerReference of(String playerName)
 	{
+		if(StringUtils.isBlank(playerName))
+			return null;
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 			return of(server.getPlayerProfileCache().getGameProfileForUsername(playerName));

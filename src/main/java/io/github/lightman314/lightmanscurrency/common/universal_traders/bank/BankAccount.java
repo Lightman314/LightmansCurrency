@@ -5,17 +5,24 @@ import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.api.BankAccountLogger;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class BankAccount {
 	
@@ -38,6 +45,10 @@ public class BankAccount {
 	
 	private CoinValue coinStorage = new CoinValue();
 	public CoinValue getCoinStorage() { return this.coinStorage; }
+	
+	private BankAccountLogger logger = new BankAccountLogger();
+	public BankAccountLogger getLogs() { return this.logger; }
+	
 	public void depositCoins(CoinValue depositAmount) {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
 		this.markDirty();
@@ -49,6 +60,21 @@ public class BankAccount {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
 		this.markDirty();
 		return withdrawAmount;
+	}
+	
+	public void LogInteraction(PlayerEntity player, CoinValue amount, boolean isDeposit) {
+		this.logger.AddLog(player, amount, isDeposit);
+		this.markDirty();
+	}
+
+	public void LogInteraction(ITrader trader, CoinValue amount, boolean isDeposit) {
+		this.logger.AddLog(trader, amount, isDeposit);
+		this.markDirty();
+	}
+
+	public void LogTransfer(PlayerEntity player, CoinValue amount, ITextComponent destination, boolean wasReceived) {
+		this.logger.AddLog(player, amount, destination, wasReceived);
+		this.markDirty();
 	}
 	
 	public static void DepositCoins(IBankAccountMenu menu, CoinValue amount)
@@ -71,7 +97,7 @@ public class BankAccount {
 		MoneyUtil.ProcessPayment(coinInput, player, amount, true);
 		//Add the deposit amount to the account
 		account.depositCoins(amount);
-		
+		account.LogInteraction(player, amount, true);
 	}
 	
 	public static void WithdrawCoins(IBankAccountMenu menu, CoinValue amount)
@@ -103,6 +129,24 @@ public class BankAccount {
 				}
 			}
 		}
+		account.LogInteraction(player, withdrawnAmount, false);
+	}
+	
+	public static void TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
+	{
+		TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName(), destination.get());
+	}
+
+	public static void TransferCoins(PlayerEntity player, ITextComponent fromAccountName, BankAccount fromAccount, CoinValue amount, ITextComponent toAccountName, BankAccount destinationAccount)
+	{
+		if(fromAccount == null || destinationAccount == null || amount.getRawValue() <= 0)
+			return;
+
+		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
+		destinationAccount.depositCoins(withdrawnAmount);
+		fromAccount.LogTransfer(player, withdrawnAmount, toAccountName, false);
+		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccountName, true);
+
 	}
 	
 	public BankAccount() { this((IMarkDirty)null); }
@@ -112,6 +156,7 @@ public class BankAccount {
 	public BankAccount(IMarkDirty markDirty, CompoundNBT compound) {
 		this.markDirty = markDirty;
 		this.coinStorage.readFromNBT(compound, "CoinStorage");
+		this.logger.read(compound);
 	}
 	
 	public void markDirty()
@@ -123,10 +168,12 @@ public class BankAccount {
 	public final CompoundNBT save() {
 		CompoundNBT compound = new CompoundNBT();
 		this.coinStorage.writeToNBT(compound, "CoinStorage");
+		this.logger.write(compound);
 		return compound;
 	}
 	
 	public static AccountReference GenerateReference(PlayerEntity player) { return GenerateReference(player.world.isRemote, AccountType.Player, player.getUniqueID()); }
+	public static AccountReference GenerateReference(boolean isClient, PlayerReference player) { return GenerateReference(isClient, AccountType.Player, player.id); }
 	public static AccountReference GenerateReference(boolean isClient, Team team) { return GenerateReference(isClient, AccountType.Team, team.getID()); }
 	
 	public static AccountReference GenerateReference(boolean isClient, AccountType accountType, UUID id) { return new AccountReference(isClient, accountType, id); }
@@ -194,6 +241,22 @@ public class BankAccount {
 			}
 		}
 		
+		public ITextComponent getName() {
+			if(this.accountType == AccountType.Player)
+			{
+				PlayerReference player = PlayerReference.of(this.id, "Unknown");
+				if(player != null)
+					return new TranslationTextComponent("lightmanscurrency.bankaccount", new StringTextComponent(player.lastKnownName()).mergeStyle(TextFormatting.GOLD)).mergeStyle(TextFormatting.GOLD);
+			}
+			else if(this.accountType == AccountType.Team)
+			{
+				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
+				if(team != null)
+					return new TranslationTextComponent("lightmanscurrency.bankaccount", new StringTextComponent(team.getName()).mergeStyle(TextFormatting.GOLD)).mergeStyle(TextFormatting.GOLD);
+			}
+			return new TranslationTextComponent("lightmanscurrency.bankaccount.unknown");
+		}
+		
 	}
 	
 	public interface IMarkDirty { public void markDirty(); }
@@ -205,5 +268,12 @@ public class BankAccount {
 		public BankAccount getAccount();
 		public default void onDepositOrWithdraw() {}
 	}
+	
+	public interface IBankAccountTransferMenu extends IBankAccountMenu
+	{
+		public AccountReference getAccountSource();
+	}
+	
+	public static class DummyBankAccount extends BankAccount { }
 	
 }

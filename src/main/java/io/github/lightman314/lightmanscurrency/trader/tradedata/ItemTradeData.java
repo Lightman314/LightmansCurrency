@@ -203,6 +203,12 @@ public class ItemTradeData extends TradeData {
 		return nbt;
 	}
 	
+	public static ItemTradeData loadData(CompoundNBT nbt) {
+		ItemTradeData trade = new ItemTradeData();
+		trade.loadFromNBT(nbt);
+		return trade;
+	}
+	
 	public static List<ItemTradeData> loadAllData(CompoundNBT nbt, int arraySize)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, arraySize);
@@ -282,17 +288,23 @@ public class ItemTradeData extends TradeData {
 	
 	public void markRulesDirty() { }
 	
-	public TradeComparisonResult compare(ItemTradeData otherTrade) {
+	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
-		//Compare sell items
-		result.addProductResult(ProductComparisonResult.CompareItem(this.sellItem, otherTrade.sellItem));
-		//Compare barter items
-		if(this.isBarter())
-			result.addProductResult(ProductComparisonResult.CompareItem(this.barterItem, otherTrade.barterItem));
-		//Compare prices
-		result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
-		//Compare types
-		result.setTypeResult(this.tradeType == otherTrade.tradeType);
+		if(otherTrade instanceof ItemTradeData)
+		{
+			ItemTradeData otherItemTrade = (ItemTradeData)otherTrade;
+			//Flag as compatible
+			result.setCompatible();
+			//Compare sell items
+			result.addProductResult(ProductComparisonResult.CompareItem(this.sellItem, otherItemTrade.sellItem));
+			//Compare barter items
+			if(this.isBarter())
+				result.addProductResult(ProductComparisonResult.CompareItem(this.barterItem, otherItemTrade.barterItem));
+			//Compare prices
+			result.setPriceResult(this.getCost().getRawValue() - otherItemTrade.getCost().getRawValue());
+			//Compare types
+			result.setTypeResult(this.tradeType == otherItemTrade.tradeType);
+		}
 		//Return the comparison results
 		return result;
 	}
@@ -300,7 +312,7 @@ public class ItemTradeData extends TradeData {
 	public boolean AcceptableDifferences(TradeComparisonResult result) {
 
 		//Confirm the types match
-		if(!result.TypeMatches())
+		if(!result.TypeMatches() || !result.isCompatible())
 			return false;
 
 		//Confirm the sell item is acceptable

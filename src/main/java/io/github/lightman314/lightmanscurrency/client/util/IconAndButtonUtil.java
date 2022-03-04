@@ -18,7 +18,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.potion.PotionUtils;
+import net.minecraft.potion.Potions;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -39,8 +42,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_LEFT = IconData.of(ICON_TEXTURE, 16, 16);
 	public static final IconData ICON_RIGHT = IconData.of(ICON_TEXTURE, 32, 16);
 	
-	public static final IconData ICON_SHOW_LOGGER = IconData.of(new TranslationTextComponent("gui.button.lightmanscurrency.showlog"));
-	public static final IconData ICON_CLEAR_LOGGER = IconData.of(new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"));
+	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
+	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.WATER));
 	
 	public static final IconData ICON_CREATIVE = IconData.of(ICON_TEXTURE, 48, 16);
 	public static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
@@ -57,6 +60,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_BLACKLIST = IconData.of(ICON_TEXTURE, 48, 32);
 	public static final IconData ICON_COUNT = IconData.of(ICON_TEXTURE, 64, 32);
 	public static final IconData ICON_COUNT_PLAYER = IconData.of(ICON_TEXTURE, 80, 32);
+	public static final IconData ICON_TIMED_SALE = IconData.of(Items.CLOCK);
+	public static final IconData ICON_DISCOUNT_LIST = IconData.of(ICON_TEXTURE, 96, 32);
 	
 	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslationTextComponent("tooltip.lightmanscurrency.trader.opentrades"));
 	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslationTextComponent("tooltip.lightmanscurrency.trader.openstorage"));

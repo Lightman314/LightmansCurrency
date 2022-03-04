@@ -128,8 +128,16 @@ public abstract class TradeData implements ITradeRuleHandler {
 	
 	public void markRulesDirty() { }
 	
+	public abstract TradeComparisonResult compare(TradeData otherTrade);
+	
+	public abstract boolean AcceptableDifferences(TradeComparisonResult result);
+	
 	public static class TradeComparisonResult {
 
+		//Incompatible comparison result
+		private boolean compatible = false;
+		public boolean isCompatible() { return this.compatible; }
+		
 		//Product Comparison Result
 		private List<ProductComparisonResult> tradeProductResults = new ArrayList<>();
 		public boolean ProductMatches() { 
@@ -157,7 +165,7 @@ public abstract class TradeData implements ITradeRuleHandler {
 		/**
 		 * Returns if the trade comparison has all values matching.
 		 */
-		public boolean Identical() { return this.ProductMatches() && this.PriceMatches() && this.TypeMatches(); }
+		public boolean Identical() { return this.compatible &&  this.ProductMatches() && this.PriceMatches() && this.TypeMatches(); }
 
 		public static class ProductComparisonResult {
 
@@ -234,6 +242,11 @@ public abstract class TradeData implements ITradeRuleHandler {
 		public void setTypeResult(boolean typeMatches) {
 			this.tradeTypeMatches = typeMatches;
 		}
+		
+		/**
+		 * Defines the trade compatibility result
+		 */
+		public void setCompatible() { this.compatible = true; }
 
 	}
 	

@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders;
 
-import java.util.function.Supplier;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -52,7 +50,11 @@ public class RemoteTradeData {
 		/**
 		 * Trade failed as this trader does not support remote trades
 		 */
-		FAIL_NOT_SUPPORTED
+		FAIL_NOT_SUPPORTED,
+		/**
+		 * Trade failed as the trader was null
+		 */
+		FAIL_NULL
 	}
 	
 	private final PlayerReference playerSource;
@@ -62,38 +64,59 @@ public class RemoteTradeData {
 	public boolean hasBankAccount() { return this.bankAccount != null && this.bankAccount.get() != null; }
 	public BankAccount getBankAccount() { return this.bankAccount.get(); }
 	
-	private final Supplier<IInventory> itemSlots;
-	public boolean hasItemSlots() { return this.itemSlots != null && this.itemSlots.get() != null; }
-	public IInventory getItemSlots() { return this.itemSlots.get(); }
+	private final CoinValue storedMoney;
+	public boolean hasStoredMoney() { return this.storedMoney != null; }
+	public CoinValue getStoredMoney() { return this.storedMoney; }
 	
-	private final Supplier<IFluidHandler> fluidTank;
-	public boolean hasFluidTank() { return this.fluidTank != null && this.fluidTank.get() != null; }
-	public IFluidHandler getFluidTank() { return this.fluidTank.get(); }
+	private final IInventory itemSlots;
+	public boolean hasItemSlots() { return this.itemSlots != null; }
+	public IInventory getItemSlots() { return this.itemSlots; }
 	
-	private final Supplier<IEnergyStorage> energyTank;
-	public boolean hasEnergyTank() { return this.energyTank != null && this.energyTank.get() != null; }
-	public IEnergyStorage getEnergyTank() { return this.getEnergyTank(); }
+	private final IFluidHandler fluidTank;
+	public boolean hasFluidTank() { return this.fluidTank != null; }
+	public IFluidHandler getFluidTank() { return this.fluidTank; }
 	
-	public RemoteTradeData(@Nonnull PlayerReference playerSource, @Nonnull AccountReference bankAccount, @Nullable Supplier<IInventory> itemSlots, @Nullable Supplier<IFluidHandler> fluidTank, @Nullable Supplier<IEnergyStorage> energyTank) {
+	private final IEnergyStorage energyTank;
+	public boolean hasEnergyTank() { return this.energyTank != null; }
+	public IEnergyStorage getEnergyTank() { return this.energyTank; }
+	
+	public RemoteTradeData(@Nonnull PlayerReference playerSource, @Nonnull AccountReference bankAccount, @Nullable CoinValue storedMoney, @Nullable IInventory itemSlots, @Nullable IFluidHandler fluidTank, @Nullable IEnergyStorage energyTank) {
 		this.playerSource = playerSource;
 		this.bankAccount = bankAccount;
+		this.storedMoney = storedMoney;
 		this.itemSlots = itemSlots;
 		this.fluidTank = fluidTank;
 		this.energyTank = energyTank;
 	}
 	
+	public boolean hasPaymentMethod() { return this.hasBankAccount() || this.hasStoredMoney(); }
+	
 	public boolean hasFunds(CoinValue price)
 	{
+		long funds = 0;
 		if(this.hasBankAccount())
-			return this.getBankAccount().getCoinStorage().getRawValue() > price.getRawValue();
-		return false;
+			funds += this.getBankAccount().getCoinStorage().getRawValue();
+		if(this.hasStoredMoney())
+			funds += this.getStoredMoney().getRawValue();
+		return funds > price.getRawValue();
 	}
 	
 	public boolean getPayment(CoinValue price)
 	{
-		if(this.hasFunds(price) && this.hasBankAccount())
+		if(this.hasFunds(price))
 		{
-			this.getBankAccount().withdrawCoins(price);
+			long amountToWithdraw = price.getRawValue();
+			if(this.hasStoredMoney())
+			{
+				CoinValue storedMoney = this.getStoredMoney();
+				long removeAmount = Math.min(amountToWithdraw, storedMoney.getRawValue());
+				amountToWithdraw -= removeAmount;
+				storedMoney.readFromOldValue(storedMoney.getRawValue() - removeAmount);
+			}
+			if(this.hasBankAccount() && amountToWithdraw > 0)
+			{
+				this.getBankAccount().withdrawCoins(new CoinValue(amountToWithdraw));
+			}
 			return true;
 		}
 		return false;
@@ -105,6 +128,11 @@ public class RemoteTradeData {
 		{
 			this.getBankAccount().depositCoins(price);
 			return true;
+		}
+		else if(this.hasStoredMoney())
+		{
+			CoinValue storedMoney = this.getStoredMoney();
+			storedMoney.addValue(price);
 		}
 		return false;
 	}

@@ -8,10 +8,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ATMTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ConversionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.InteractionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.containers.ATMContainer;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -20,6 +17,7 @@ import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -32,7 +30,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 	public FontRenderer getFont() { return this.font; }
 	
 	int currentTabIndex = 0;
-	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this));
+	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this), new LogTab(this), new TransferTab(this));
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
@@ -40,6 +38,8 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 	List<IGuiEventListener> tabListeners = Lists.newArrayList();
 	
 	List<TabButton> tabButtons = Lists.newArrayList();
+	
+	boolean logError = true;
 	
 	public ATMScreen(ATMContainer container, PlayerInventory inventory, ITextComponent title)
 	{
@@ -95,7 +95,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 			this.currentTab().preRender(matrixStack, mouseX, mouseY, partialTicks);
 			this.tabWidgets.forEach(widget -> widget.render(matrixStack, mouseX, mouseY, partialTicks));
 			this.currentTab().postRender(matrixStack, mouseX, mouseY);
-		} catch(Exception e) { e.printStackTrace(); }
+		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
 		
 		this.renderHoveredTooltip(matrixStack, mouseX,  mouseY);
 		
@@ -126,7 +126,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 		//Initialize the new tab
 		this.currentTab().init();
 		
-		LightmansCurrency.LogInfo(this.tabWidgets.size() + " tab widgets & " + this.tabListeners.size() + " tab listeners are now present.");
+		this.logError = true;
 		
 	}
 	
@@ -177,6 +177,15 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 		listeners.addAll(this.tabWidgets);
 		listeners.addAll(this.tabListeners);
 		return listeners;
+	}
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		InputMappings.Input mouseKey = InputMappings.getInputByCode(keyCode, scanCode);
+		if (this.minecraft.gameSettings.keyBindInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
+	         return true;
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 	
 }

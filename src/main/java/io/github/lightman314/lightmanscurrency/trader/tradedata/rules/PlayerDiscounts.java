@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -147,7 +148,7 @@ public class PlayerDiscounts extends TradeRule {
 	public void loadPersistentData(CompoundNBT data) { }
 	
 	@Override
-	public IconData getButtonIcon() { return IconData.of(new TranslationTextComponent("gui.button.lightmanscurrency.discount_list")); }
+	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_DISCOUNT_LIST; }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

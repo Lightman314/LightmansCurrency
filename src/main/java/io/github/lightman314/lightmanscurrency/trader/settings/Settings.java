@@ -50,6 +50,11 @@ public abstract class Settings {
 	
 	protected final boolean isUpdateType(CompoundNBT updateInfo, String updateType)
 	{
+		return checkUpdateType(updateInfo, updateType);
+	}
+	
+	public static final boolean checkUpdateType(CompoundNBT updateInfo, String updateType)
+	{
 		if(updateInfo.contains("UpdateType",Constants.NBT.TAG_STRING))
 			return updateInfo.getString("UpdateType").contentEquals(updateType);
 		return false;

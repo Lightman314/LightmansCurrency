@@ -54,6 +54,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageBankInteraction.class, MessageBankInteraction::encode, MessageBankInteraction::decode, MessageBankInteraction::handle);
 		register(MessageInitializeClientBank.class, MessageInitializeClientBank::encode, MessageInitializeClientBank::decode, MessageInitializeClientBank::handle);
 		register(MessageUpdateClientBank.class, MessageUpdateClientBank::encode, MessageUpdateClientBank::decode, MessageUpdateClientBank::handle);
+		register(MessageBankTransfer.class, MessageBankTransfer::encode, MessageBankTransfer::decode, MessageBankTransfer::handle);
 		
 		//Coinmint
 		register(MessageMintCoin.class, new MessageMintCoin());

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -146,7 +147,7 @@ public class TimedSale extends TradeRule {
 	}
 	
 	@Override
-	public IconData getButtonIcon() { return IconData.of(new TranslationTextComponent("gui.button.lightmanscurrency.timed_sale")); }
+	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_TIMED_SALE; }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

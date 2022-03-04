@@ -77,6 +77,7 @@ public class MoneyData {
 			LightmansCurrency.LogInfo("Received money data packet from server. Synchronizing coin list.");
 			MoneyUtil.receiveMoneyData(data);
 		});
+		source.get().setPacketHandled(true);
 	}
 	
 	public static MoneyData generateDefault() {

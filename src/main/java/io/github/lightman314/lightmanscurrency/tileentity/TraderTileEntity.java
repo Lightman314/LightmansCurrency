@@ -158,16 +158,6 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		}
 	}
 	
-	public boolean hasPermission(PlayerEntity player, String permission)
-	{
-		return this.getPermissionLevel(player, permission) > 0;
-	}
-	
-	public int getPermissionLevel(PlayerEntity player, String permission)
-	{
-		return this.coreSettings.getPermissionLevel(player, permission);
-	}
-	
 	/**
 	 * Defines the owner of the Trader.
 	 * Does nothing if the owner is already defined.
@@ -215,6 +205,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
 			account.depositCoins(addedAmount);
+			account.LogInteraction(this, addedAmount, true);
 			return;
 		}
 		this.storedMoney.addValue(addedAmount);
@@ -234,6 +225,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
 			account.withdrawCoins(removedAmount);
+			account.LogInteraction(this, removedAmount, false);
 			return;
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
@@ -250,7 +242,7 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	 */
 	public void clearStoredMoney()
 	{
-		storedMoney = new CoinValue();
+		this.storedMoney = new CoinValue();
 		if(!this.world.isRemote)
 		{
 			CompoundNBT compound = this.writeStoredMoney(new CompoundNBT());
@@ -272,9 +264,12 @@ public abstract class TraderTileEntity extends TileEntity implements IOwnableTil
 	{
 		if(this.coreSettings.hasCustomName())
 			return new StringTextComponent(this.coreSettings.getCustomName());
-		if(this.world.isRemote)
-			return this.getBlockState().getBlock().getTranslatedName();
-		return new TranslationTextComponent("");
+		return this.getBlockName();
+	}
+	
+	//Seperated into it's own function, as this was a slightly more complicated process in 1.16
+	private ITextComponent getBlockName() {
+		return new TranslationTextComponent(this.getBlockState().getBlock().getTranslationKey());
 	}
 	
 	public ITextComponent getTitle()

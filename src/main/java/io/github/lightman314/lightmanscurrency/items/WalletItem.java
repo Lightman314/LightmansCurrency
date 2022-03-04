@@ -145,6 +145,10 @@ public class WalletItem extends Item{
 				tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.manualConvert"));
 			}
 		}
+		if(HasBankAccess(this))
+		{
+			tooltip.add(new TranslationTextComponent("tooltip.lightmanscurrency.wallet.bankaccount"));
+		}
 		
 		CoinValue contents = new CoinValue(getWalletInventory(stack));
 		if(contents.getRawValue() > 0)

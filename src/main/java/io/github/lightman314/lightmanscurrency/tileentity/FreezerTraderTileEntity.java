@@ -38,7 +38,7 @@ public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 		this.prevDoorAngle = this.doorAngle;
 		//Play the opening sound
 		if (userCount > 0 && this.doorAngle == 0.0F) {
-			this.world.playSound(null, pos, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+			this.world.playSound(null, this.pos, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 		}
 		
 		if(userCount > 0 && this.doorAngle < 1f)
@@ -49,7 +49,7 @@ public class FreezerTraderTileEntity extends ItemTraderTileEntity{
 		{
 			this.doorAngle -= 0.1f;
 			if (this.doorAngle < 0.5F && this.prevDoorAngle >= 0.5F) {
-				this.world.playSound(null, pos, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+				this.world.playSound(null, this.pos, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 			}
 		}
 		if(this.doorAngle > 1f)

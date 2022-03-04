@@ -1,3 +1,24 @@
+----1.0.5.2----
+ADDED:
+"permission.interactionLink": "Remote Stock Interactions", (not being used yet)
+
+"log.bank": "%1$s %2$s %3$s",
+"log.bank.transfer": "%1$s transferred %2$s %3$s %4$s",
+"log.bank.withdraw": "withdrew",
+"log.bank.deposit": "deposited",
+"log.bank.transfer.to": "to",
+"log.bank.transfer.from": "from",
+
+"tooltip.lightmanscurrency.atm.log": "Account Log",
+"tooltip.lightmanscurrency.atm.transfer": "Transfer Money",
+"tooltip.lightmanscurrency.atm.transfer.mode.player": "Select From Players",
+"tooltip.lightmanscurrency.atm.transfer.mode.team": "Select From Teams",
+
+"lightmanscurrency.bankaccount": "%s's Bank Account.",
+"lightmanscurrency.bankaccount.unknown": "Unknown Bank Account.",
+
+"tooltip.lightmanscurrency.wallet.bankaccount": "§eCan deposit or withdraw coins to/from your bank account in the UI.§r",
+
 ----1.0.4.1----
 ADDED:
 "tooltip.lightmanscurrency.persistenttrader.copy": "Copy trader to clipboard as Persistent Trader Json text.",

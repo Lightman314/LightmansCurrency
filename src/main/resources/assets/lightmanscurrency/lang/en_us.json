@@ -144,6 +144,7 @@
     "tooltip.lightmanscurrency.wallet.autoConvert": "§eAutoConversion: %s§r",
     "tooltip.lightmanscurrency.wallet.autoConvert.on": "§aON§r",
     "tooltip.lightmanscurrency.wallet.autoConvert.off": "§4OFF§r",
+    "tooltip.lightmanscurrency.wallet.bankaccount": "§eCan deposit or withdraw coins to/from your bank account in the UI.§r",
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",
@@ -307,7 +308,7 @@
     "permission.breakTrader": "Break Trader",
     "permission.transferOwnership": "Transfer Ownership",
     "permission.changeExternalInputs": "Change Item Settings",
-    
+    "permission.interactionLink": "Remote Stock Interactions",
     
     "tooltip.lightmanscurrency.team.selection": "Team Selection",
     "tooltip.lightmanscurrency.team.members": "Members",
@@ -326,14 +327,21 @@
     "gui.lightmanscurrency.bank.null": "No account selected.",
     "gui.lightmanscurrency.bank.balance": "Balance: %s",
     "gui.lightmanscurrency.bank.amounttip": "Deposit/Withdraw Amount",
+    "gui.lightmanscurrency.bank.transfertip": "Transfer Amount",
     "gui.button.bank.deposit": "Deposit",
     "gui.button.bank.withdraw": "Withdraw",
+    "gui.button.bank.transfer.player": "Transfer to Player",
+    "gui.button.bank.transfer.team": "Transfer to Team",
     
     "gui.button.bank.playeraccount": "My Account",
     
     "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
     "tooltip.lightmanscurrency.atm.selection": "Select Account",
     "tooltip.lightmanscurrency.atm.interact": "Manage Account",
+    "tooltip.lightmanscurrency.atm.log": "Account Log",
+    "tooltip.lightmanscurrency.atm.transfer": "Transfer Money",
+    "tooltip.lightmanscurrency.atm.transfer.mode.player": "Select From Players",
+    "tooltip.lightmanscurrency.atm.transfer.mode.team": "Select From Teams",
     
     "gui.button.lightmanscurrency.team.owner": "Owner: %s",
     "gui.button.lightmanscurrency.team.create": "Create",
@@ -348,6 +356,15 @@
     "gui.button.lightmanscurrency.team.bank.limit.1": "Admins",
     "gui.button.lightmanscurrency.team.bank.limit.2": "Owner",
     
+    "log.bank": "%1$s %2$s %3$s",
+    "log.bank.transfer": "%1$s transferred %2$s %3$s %4$s",
+    "log.bank.withdraw": "withdrew",
+    "log.bank.deposit": "deposited",
+    "log.bank.transfer.to": "to",
+    "log.bank.transfer.from": "from",
+    
+    "lightmanscurrency.bankaccount": "%s's Bank Account.",
+    "lightmanscurrency.bankaccount.unknown": "Unknown Bank Account.",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",
@@ -384,5 +401,7 @@
     "command.lightmanscurrency.lcadmin.universaldata.delete.success": "Successfully deleted the universal trader of id %s",
     "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration.",
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data."
+    
+
     
 }

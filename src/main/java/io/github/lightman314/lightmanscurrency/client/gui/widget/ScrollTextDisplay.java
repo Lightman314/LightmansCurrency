@@ -36,6 +36,10 @@ public class ScrollTextDisplay extends Widget{
 	@Override
 	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(!this.visible)
+			return;
+		
 		//Render the background
 		Screen.fill(matrix, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
 		
