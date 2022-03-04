@@ -146,16 +146,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	public boolean hasPermission(Player player, String permission)
-	{
-		return this.coreSettings.hasPermission(player, permission);
-	}
-	
-	public int getPermissionLevel(Player player, String permission)
-	{
-		return this.coreSettings.getPermissionLevel(player, permission);
-	}
-	
 	public void initOwner(PlayerReference player)
 	{
 		this.coreSettings.initializeOwner(player);
@@ -202,6 +192,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
 			account.depositCoins(addedAmount);
+			account.LogInteraction(this, addedAmount, true);
 			return;
 		}
 		storedMoney.addValue(addedAmount);
@@ -221,6 +212,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
 			account.withdrawCoins(removedAmount);
+			account.LogInteraction(this, removedAmount, false);
 			return;
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
@@ -236,7 +228,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	 */
 	public void clearStoredMoney()
 	{
-		storedMoney = new CoinValue();
+		this.storedMoney = new CoinValue();
 		if(!this.level.isClientSide)
 		{
 			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
@@ -257,9 +249,12 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	{
 		if(this.coreSettings.hasCustomName())
 			return new TextComponent(this.coreSettings.getCustomName());
-		if(this.level.isClientSide)
-			return this.getBlockState().getBlock().getName();
-		return new TextComponent("");
+		return this.getBlockName();
+	}
+	
+	//Separated into it's own function, as this will be a slightly more complicated process in 1.16, as block.getName() is client only
+	private Component getBlockName() {
+		return this.getBlockState().getBlock().getName();
 	}
 	
 	public Component getTitle()

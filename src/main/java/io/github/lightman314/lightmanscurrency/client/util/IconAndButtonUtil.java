@@ -21,7 +21,10 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 
 public class IconAndButtonUtil {
 	
@@ -39,8 +42,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_LEFT = IconData.of(ICON_TEXTURE, 16, 16);
 	public static final IconData ICON_RIGHT = IconData.of(ICON_TEXTURE, 32, 16);
 	
-	public static final IconData ICON_SHOW_LOGGER = IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.showlog"));
-	public static final IconData ICON_CLEAR_LOGGER = IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.clearlog"));
+	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
+	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
 	public static final IconData ICON_CREATIVE = IconData.of(ICON_TEXTURE, 48, 16);
 	public static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
@@ -57,6 +60,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_BLACKLIST = IconData.of(ICON_TEXTURE, 48, 32);
 	public static final IconData ICON_COUNT = IconData.of(ICON_TEXTURE, 64, 32);
 	public static final IconData ICON_COUNT_PLAYER = IconData.of(ICON_TEXTURE, 80, 32);
+	public static final IconData ICON_TIMED_SALE = IconData.of(Items.CLOCK);
+	public static final IconData ICON_DISCOUNT_LIST = IconData.of(ICON_TEXTURE, 96, 32);
 	
 	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.opentrades"));
 	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"));

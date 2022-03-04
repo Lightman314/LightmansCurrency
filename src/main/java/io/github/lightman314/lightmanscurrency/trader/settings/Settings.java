@@ -44,6 +44,11 @@ public abstract class Settings {
 	
 	protected final boolean isUpdateType(CompoundTag updateInfo, String updateType)
 	{
+		return checkUpdateType(updateInfo, updateType);
+	}
+	
+	public static final boolean checkUpdateType(CompoundTag updateInfo, String updateType)
+	{
 		if(updateInfo.contains("UpdateType",Tag.TAG_STRING))
 			return updateInfo.getString("UpdateType").contentEquals(updateType);
 		return false;

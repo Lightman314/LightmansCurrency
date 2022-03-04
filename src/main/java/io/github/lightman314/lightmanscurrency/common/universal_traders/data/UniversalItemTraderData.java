@@ -777,6 +777,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return json;
 	}
 
-	
+	@Override
+	public boolean canInteractRemotely() { return true; }
 	
 }

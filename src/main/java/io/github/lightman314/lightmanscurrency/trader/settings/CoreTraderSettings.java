@@ -43,9 +43,6 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_ADD_ALLY = "addAlly";
 	private static final String UPDATE_REMOVE_ALLY = "removeAlly";
 	private static final String UPDATE_ALLY_PERMISSIONS = "allyPermissions";
-	//private static final String UPDATE_ADD_CUSTOM_PERM = "addCustomPerm";
-	//private static final String UPDATE_REMOVE_CUSTOM_PERM = "removeCustomPerm";
-	private static final String UPDATE_CUSTOM_PERMISSIONS = "customPermissions";
 	private static final String UPDATE_CREATIVE = "creative";
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	private static final String UPDATE_TEAM = "changeTeam";
@@ -86,8 +83,6 @@ public class CoreTraderSettings extends Settings{
 	List<PlayerReference> allies = Lists.newArrayList();
 	PermissionsList allyPermissions = getAllyDefaultPermissions(this.trader);
 	public PermissionsList getAllyPermissions() { return this.allyPermissions; }
-	//Custom Permissions
-	Map<PlayerReference,PermissionsList> customPermissions = Maps.newHashMap();
 
 	//Custom Name
 	String customName = "";
@@ -313,26 +308,6 @@ public class CoreTraderSettings extends Settings{
 			this.owner.tryUpdateName(player);
 		for(PlayerReference ally : this.allies)
 			ally.tryUpdateName(player);
-		this.customPermissions.forEach((p,permission) ->{
-			p.tryUpdateName(player);
-		});
-	}
-	
-	public PermissionsList addCustomPermissionEntry(Player requestor, PlayerReference player)
-	{
-		if(!this.hasPermission(requestor, Permissions.EDIT_PERMISSIONS))
-		{
-			PermissionWarning(requestor, "add custom permission", Permissions.EDIT_PERMISSIONS);
-			return null;
-		}
-		if(this.customPermissions.containsKey(player))
-			return this.customPermissions.get(player);
-		return this.customPermissions.put(player, new PermissionsList(this.trader, UPDATE_CUSTOM_PERMISSIONS));
-	}
-	
-	public void removeCustomPermissionEntry(PlayerReference player)
-	{
-		this.customPermissions.remove(player);
 	}
 	
 	public boolean hasPermission(Player player, String permission)
@@ -342,27 +317,26 @@ public class CoreTraderSettings extends Settings{
 	
 	public int getPermissionLevel(Player player, String permission)
 	{
-		if(player == null || (this.owner != null && this.owner.is(player)) || TradingOffice.isAdminPlayer(player))
+		if(player == null || TradingOffice.isAdminPlayer(player))
 			return Integer.MAX_VALUE;
+		return this.getPermissionLevel(PlayerReference.of(player), permission);
+	}
+	
+	public int getPermissionLevel(PlayerReference player, String permission)
+	{
+		if(player == null)
+			return 0;
 		AtomicInteger level = new AtomicInteger(0);
-		if(PlayerReference.listContains(this.allies, player.getUUID()))
+		if(PlayerReference.listContains(this.allies, player.id))
 			level.set(this.allyPermissions.getLevel(permission));
-		this.customPermissions.forEach((playerRef,permissions) ->{
-			if(playerRef.is(player))
-			{
-				int l = permissions.getLevel(permission);
-				if(l > level.get())
-					level.set(l);
-			}
-		});
 		if(this.team != null)
 		{
-			Team actualTeam = this.team.getTeam(player.level.isClientSide);
+			Team actualTeam = this.team.getTeam(this.trader.isClient());
 			if(actualTeam != null)
 			{
-				if(actualTeam.isAdmin(player))
+				if(actualTeam.isAdmin(player.id))
 					return Integer.MAX_VALUE;
-				else if(actualTeam.isMember(player))
+				else if(actualTeam.isMember(player.id))
 				{
 					int l = this.allyPermissions.getLevel(permission);
 					if(l > level.get())
@@ -370,8 +344,12 @@ public class CoreTraderSettings extends Settings{
 				}
 			}
 		}
+		else if(this.owner != null && this.owner.is(player))
+			return Integer.MAX_VALUE;
 		return level.get();
 	}
+	
+	
 	
 	public boolean isCreative() { return this.isCreative; }
 	public CompoundTag toggleCreative(Player requestor)
@@ -409,6 +387,7 @@ public class CoreTraderSettings extends Settings{
 			{
 				CoinValue money = this.trader.getInternalStoredMoney();
 				this.getBankAccount().depositCoins(money);
+				this.getBankAccount().LogInteraction(this.trader, money, true);
 				this.trader.clearStoredMoney();
 			}
 		}	
@@ -498,7 +477,6 @@ public class CoreTraderSettings extends Settings{
 		this.saveTeam(compound);
 		this.saveAllyList(compound);
 		this.saveAllyPermissions(compound);
-		this.saveCustomPermissions(compound);
 		this.saveCustomName(compound);
 		this.saveCreative(compound);
 		this.saveBankAccountLink(compound);
@@ -534,20 +512,6 @@ public class CoreTraderSettings extends Settings{
 	public CompoundTag saveAllyPermissions(CompoundTag compound)
 	{
 		this.allyPermissions.save(compound, "AllyPermissions");
-		return compound;
-	}
-	
-	public CompoundTag saveCustomPermissions(CompoundTag compound)
-	{
-		//Custom Permissions
-		ListTag customPermissionsList = new ListTag();
-		this.customPermissions.forEach((player,permissions)->{
-			CompoundTag thisCompound = new CompoundTag();
-			thisCompound.put("Player", player.save());
-			permissions.save(compound, "Permissions");
-			customPermissionsList.add(thisCompound);
-		});
-		compound.put("CustomPermissions", customPermissionsList);
 		return compound;
 	}
 	
@@ -668,19 +632,6 @@ public class CoreTraderSettings extends Settings{
 		//Ally Permissions
 		if(compound.contains("AllyPermissions", Tag.TAG_LIST))
 			this.allyPermissions = PermissionsList.load(this.trader, UPDATE_ALLY_PERMISSIONS, compound, "AllyPermissions");
-		//Custom Permissions
-		if(compound.contains("CustomPermissions", Tag.TAG_LIST))
-		{
-			this.customPermissions.clear();
-			ListTag customPermissionsList = compound.getList("CustomPermissions", Tag.TAG_COMPOUND);
-			for(int i = 0; i < customPermissionsList.size(); ++i)
-			{
-				CompoundTag thisCompound = customPermissionsList.getCompound(i);
-				PlayerReference player = PlayerReference.load(thisCompound.getCompound("Player"));
-				PermissionsList permissions = PermissionsList.load(this.trader, UPDATE_CUSTOM_PERMISSIONS, thisCompound, "Permissions");
-				this.customPermissions.put(player, permissions);
-			}
-		}
 		
 		//Custom Name
 		if(compound.contains("CustomName", Tag.TAG_STRING))
@@ -714,7 +665,7 @@ public class CoreTraderSettings extends Settings{
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<PermissionOption> getPermissionOptions() {
-		return Lists.newArrayList(
+		List<PermissionOption> options = Lists.newArrayList(
 				BooleanPermission.of(Permissions.OPEN_STORAGE),
 				BooleanPermission.of(Permissions.CHANGE_NAME),
 				BooleanPermission.of(Permissions.EDIT_TRADES),
@@ -729,6 +680,9 @@ public class CoreTraderSettings extends Settings{
 				BooleanPermission.of(Permissions.BREAK_TRADER),
 				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)
 			);
+		//if(this.trader.canInteractRemotely())
+		//	options.add(BooleanPermission.of(Permissions.INTERACTION_LINK));
+		return options;
 	}
 	
 }

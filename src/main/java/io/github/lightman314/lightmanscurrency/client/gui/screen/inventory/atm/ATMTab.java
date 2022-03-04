@@ -21,6 +21,8 @@ public abstract class ATMTab implements ITab
 	
 	public abstract void onClose();
 	
+	public boolean blockInventoryClosing() { return false; }
+	
 	public final int getColor() { return 0xFFFFFF; }
 	
 }

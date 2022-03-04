@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
@@ -19,20 +20,25 @@ import net.minecraft.network.chat.TextComponent;
 public class TeamSelectWidget extends AbstractWidget {
 
 	private final int rows;
-	private final boolean narrow;
+	private final Size size;
 	private final Supplier<List<Team>> teamSource;
 	private final Supplier<Team> selectedTeam;
 	private final Consumer<Integer> onPress;
 	private List<TeamButton> teamButtons = Lists.newArrayList();
 	
-	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		this(x, y, rows, false, teamSource, selectedTeam, onPress);
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+		this.teamButtons.forEach(button -> button.visible = visible);
 	}
 	
-	public TeamSelectWidget(int x, int y, int rows, boolean narrow, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, narrow ? TeamButton.NARROW_WIDTH : TeamButton.WIDTH, TeamButton.HEIGHT * rows, new TextComponent(""));
+	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
+		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
+	}
+	
+	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
+		super(x, y, size.width, TeamButton.HEIGHT * rows, new TextComponent(""));
 		this.rows = rows;
-		this.narrow = narrow;
+		this.size = size;
 		this.teamSource = teamSource;
 		this.selectedTeam = selectedTeam;
 		this.onPress = onPress;
@@ -43,7 +49,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		for(int i = 0; i < this.rows; ++i)
 		{
 			int index = i;
-			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this.narrow, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
+			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
 			this.teamButtons.add(button);
 			addButton.accept(button);
 		}
@@ -52,6 +58,8 @@ public class TeamSelectWidget extends AbstractWidget {
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
+		if(!this.visible)
+			return;
 		fill(pose, x, y, x + this.width, y + this.height, 0xFF000000);
 	}
 

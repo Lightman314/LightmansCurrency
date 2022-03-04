@@ -3,14 +3,21 @@ package io.github.lightman314.lightmanscurrency.common.universal_traders.bank;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.api.BankAccountLogger;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +43,10 @@ public class BankAccount {
 	
 	private CoinValue coinStorage = new CoinValue();
 	public CoinValue getCoinStorage() { return this.coinStorage; }
+	
+	private BankAccountLogger logger = new BankAccountLogger();
+	public BankAccountLogger getLogs() { return this.logger; }
+	
 	public void depositCoins(CoinValue depositAmount) {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
 		this.markDirty();
@@ -47,6 +58,21 @@ public class BankAccount {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
 		this.markDirty();
 		return withdrawAmount;
+	}
+	
+	public void LogInteraction(Player player, CoinValue amount, boolean isDeposit) {
+		this.logger.AddLog(player, amount, isDeposit);
+		this.markDirty();
+	}
+	
+	public void LogInteraction(ITrader trader, CoinValue amount, boolean isDeposit) {
+		this.logger.AddLog(trader, amount, isDeposit);
+		this.markDirty();
+	}
+	
+	public void LogTransfer(Player player, CoinValue amount, Component destination, boolean wasReceived) {
+		this.logger.AddLog(player, amount, destination, wasReceived);
+		this.markDirty();
 	}
 	
 	public static void DepositCoins(IBankAccountMenu menu, CoinValue amount)
@@ -69,6 +95,7 @@ public class BankAccount {
 		MoneyUtil.ProcessPayment(coinInput, player, amount, true);
 		//Add the deposit amount to the account
 		account.depositCoins(amount);
+		account.LogInteraction(player, amount, true);
 		
 	}
 	
@@ -101,6 +128,24 @@ public class BankAccount {
 				}
 			}
 		}
+		account.LogInteraction(player, withdrawnAmount, false);
+	}
+	
+	public static void TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
+	{
+		TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName(), destination.get());
+	}
+	
+	public static void TransferCoins(Player player, Component fromAccountName, BankAccount fromAccount, CoinValue amount, Component toAccountName, BankAccount destinationAccount)
+	{
+		if(fromAccount == null || destinationAccount == null || amount.getRawValue() <= 0)
+			return;
+		
+		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
+		destinationAccount.depositCoins(withdrawnAmount);
+		fromAccount.LogTransfer(player, withdrawnAmount, toAccountName, false);
+		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccountName, true);
+		
 	}
 	
 	public BankAccount() { this((IMarkDirty)null); }
@@ -110,6 +155,7 @@ public class BankAccount {
 	public BankAccount(IMarkDirty markDirty, CompoundTag compound) {
 		this.markDirty = markDirty;
 		this.coinStorage.readFromNBT(compound, "CoinStorage");
+		this.logger.read(compound);
 	}
 	
 	public void markDirty()
@@ -121,10 +167,12 @@ public class BankAccount {
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
 		this.coinStorage.writeToNBT(compound, "CoinStorage");
+		this.logger.write(compound);
 		return compound;
 	}
 	
 	public static AccountReference GenerateReference(Player player) { return GenerateReference(player.level.isClientSide, AccountType.Player, player.getUUID()); }
+	public static AccountReference GenerateReference(boolean isClient, PlayerReference player) { return GenerateReference(isClient, AccountType.Player, player.id); }
 	public static AccountReference GenerateReference(boolean isClient, Team team) { return GenerateReference(isClient, AccountType.Team, team.getID()); }
 	
 	public static AccountReference GenerateReference(boolean isClient, AccountType accountType, UUID id) { return new AccountReference(isClient, accountType, id); }
@@ -192,6 +240,22 @@ public class BankAccount {
 			}
 		}
 		
+		public Component getName() {
+			if(this.accountType == AccountType.Player)
+			{
+				PlayerReference player = PlayerReference.of(this.id, "Unknown");
+				if(player != null)
+					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(player.lastKnownName()).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+			}
+			else if(this.accountType == AccountType.Team)
+			{
+				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
+				if(team != null)
+					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(team.getName()).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+			}
+			return new TranslatableComponent("lightmanscurrency.bankaccount.unknown");
+		}
+		
 	}
 	
 	public interface IMarkDirty { public void markDirty(); }
@@ -203,5 +267,12 @@ public class BankAccount {
 		public BankAccount getAccount();
 		public default void onDepositOrWithdraw() {}
 	}
+	
+	public interface IBankAccountTransferMenu extends IBankAccountMenu
+	{
+		public AccountReference getAccountSource();
+	}
+	
+	public static class DummyBankAccount extends BankAccount { }
 	
 }

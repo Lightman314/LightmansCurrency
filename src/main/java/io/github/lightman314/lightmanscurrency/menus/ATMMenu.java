@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountTransferMenu;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ATMMenu extends AbstractContainerMenu implements IBankAccountMenu{
+public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransferMenu{
 	
 	private Player player;
 	public Player getPlayer() { return this.player; }
@@ -187,6 +187,11 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountMenu{
 	public void SetAccount(AccountReference account)
 	{
 		this.accountSource = account;
+	}
+
+	@Override
+	public AccountReference getAccountSource() {
+		return this.accountSource;
 	}
 	
 }

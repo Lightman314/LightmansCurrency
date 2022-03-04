@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
@@ -28,7 +29,7 @@ public class SelectionTab extends ATMTab{
 	TeamSelectWidget teamSelection;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.selection"); }
@@ -36,7 +37,7 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void init() {
 		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 4, true, this::getTeamList, this::selectedTeam, this::SelectTeam));
+		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 4, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
 		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, new TranslatableComponent("gui.button.bank.playeraccount"), this::PressPersonalAccount));

@@ -170,6 +170,8 @@ public class PlayerReference {
 	
 	public static PlayerReference of(String playerName)
 	{
+		if(playerName.isBlank())
+			return null;
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 			return of(server.getProfileCache().get(playerName).orElse(null));

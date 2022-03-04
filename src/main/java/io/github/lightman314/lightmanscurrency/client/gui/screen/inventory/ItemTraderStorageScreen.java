@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -214,6 +215,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 			this.buttonShowLog.render(matrixStack, mouseX, mouseY, partialTicks);
 			if(this.buttonClearLog.visible)
 				this.buttonClearLog.render(matrixStack, mouseX, mouseY, partialTicks);
+			IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, Lists.newArrayList(this.buttonShowLog, this.buttonClearLog));
 			return;
 		}
 		super.render(matrixStack, mouseX, mouseY, partialTicks);

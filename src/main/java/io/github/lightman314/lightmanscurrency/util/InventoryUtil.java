@@ -93,6 +93,23 @@ public class InventoryUtil {
     }
     
     /**
+     * Gets the quantity of a specific item in the given container section validating NBT data where applicable
+     */
+    public static int GetItemCount(Container inventory, ItemStack item, int startIndex, int stopIndex)
+    {
+    	int count = 0;
+    	for(int i = startIndex; i < stopIndex && i < inventory.getContainerSize(); i++)
+    	{
+    		ItemStack stack = inventory.getItem(i);
+    		if(ItemMatches(stack, item))
+    		{
+    			count += stack.getCount();
+    		}
+    	}
+    	return count;
+    }
+    
+    /**
      * Removes the quantity of a specific item in the given inventory
      * Ignores NBT data as none is given
      * @return Whether the full amount of items were successfully taken.
@@ -142,6 +159,90 @@ public class InventoryUtil {
     		}
     	}
     	return true;
+    }
+    
+    /**
+     * Removes the given item stack from the given inventory, validating nbt data.
+     * @return Whether the full amount of items were successfully taken.
+     */
+    public static boolean RemoveItemCount(Container inventory, ItemStack item, int startIndex, int stopIndex)
+    {
+    	if(GetItemCount(inventory, item, startIndex, stopIndex) < item.getCount())
+    		return false;
+    	int count = item.getCount();
+    	for(int i = startIndex; i < stopIndex && i < inventory.getContainerSize(); i++)
+    	{
+    		ItemStack stack = inventory.getItem(i);
+    		if(ItemMatches(stack, item))
+    		{
+    			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
+    			count -= amountToTake;
+    			if(amountToTake == stack.getCount())
+    				inventory.setItem(i, ItemStack.EMPTY);
+    			else
+    				stack.shrink(amountToTake);
+    		}
+    	}
+    	return true;
+    }
+    
+    /**
+     * Returns the number of the given item stack that will fit in the container.
+     */
+    public static int GetItemSpace(Container container, ItemStack item)
+    {
+    	return GetItemSpace(container, item, 0, container.getContainerSize());
+    }
+    
+    /**
+     * Returns the number of the given item stack that will fit into the given portion of the container.
+     */
+    public static int GetItemSpace(Container container, ItemStack item, int startingIndex, int stopIndex)
+    {
+    	int count = 0;
+    	for(int i = startingIndex; i < stopIndex && i < container.getContainerSize(); ++i)
+    	{
+    		ItemStack stack = container.getItem(i);
+    		if(ItemMatches(item, stack))
+    			count += stack.getMaxStackSize() - stack.getCount();
+    		else if(stack.isEmpty())
+    			count += stack.getMaxStackSize();
+    	}
+    	return count;
+    }
+    
+    /**
+     * Puts the item stack into the given container.
+     * @return The any portion of the item that wasn't able to be placed in the container.
+     */
+    public static ItemStack PutItemInSlot(Container container, ItemStack item)
+    {
+    	return PutItemInSlot(container, item, 0, container.getContainerSize());
+    }
+    
+    /**
+     * Puts the item stack into the given portion of the container.
+     * @return The any portion of the item that wasn't able to be placed in the container.
+     */
+    public static ItemStack PutItemInSlot(Container container, ItemStack item, int startingIndex, int stopIndex)
+    {
+    	ItemStack copyStack = item.copy();
+    	for(int i = startingIndex; i < stopIndex && i < container.getContainerSize() && !copyStack.isEmpty(); ++i)
+    	{
+    		ItemStack stack = container.getItem(i);
+    		if(ItemMatches(copyStack, stack))
+    		{
+    			int addAmount = Math.min(stack.getMaxStackSize() - stack.getCount(), copyStack.getCount());
+    			stack.grow(addAmount);
+    			copyStack.shrink(addAmount);
+    		}
+    		else if(stack.isEmpty())
+    		{
+    			container.setItem(i, copyStack);
+    			copyStack = ItemStack.EMPTY;
+    		}
+    	}
+    	return copyStack;
     }
     
     public static int GetItemTagCount(Container inventory, ResourceLocation itemTag, Item... blacklistItems)

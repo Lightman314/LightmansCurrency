@@ -37,6 +37,10 @@ public class ScrollTextDisplay extends AbstractWidget{
 	@Override
 	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(!this.visible)
+			return;
+		
 		//Render the background
 		Screen.fill(matrix, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
 		

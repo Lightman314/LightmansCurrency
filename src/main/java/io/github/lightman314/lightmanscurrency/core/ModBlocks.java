@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
@@ -163,14 +165,14 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			.strength(5.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
-		), false);
+		), Colors.WHITE);
 	
 	//Vending Machine 2 (Large)
 	public static final BlockItemSet<Colors> VENDING_MACHINE2 = registerColored("vending_machine_large", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-			), false);
+			), Colors.WHITE);
 	
 	//Wooden Shelves
 	public static final BlockItemSet<WoodType> SHELF = registerWooden("shelf", LightmansCurrency.TRADING_GROUP, () -> new ShelfBlock(
@@ -342,18 +344,18 @@ public class ModBlocks {
 	/*
 	 * Colored block registration code
 	 */
-	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, boolean whiteNamed)
+	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, @Nullable Colors dontNameThisColor)
 	{
-		return registerColored(name, itemGroup, BlockItemType.DEFAULT, block, whiteNamed);
+		return registerColored(name, itemGroup, BlockItemType.DEFAULT, block, dontNameThisColor);
 	}
 	
-	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, BlockItemType type, Supplier<Block> block, boolean whiteNamed)
+	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, BlockItemType type, Supplier<Block> block, @Nullable Colors dontNameThisColor)
 	{
 		BlockItemSet<Reference.Colors> set = new BlockItemSet<Reference.Colors>();
 		for(Reference.Colors color : Reference.Colors.values())
 		{
 			String thisName = name;
-			if(color != Reference.Colors.WHITE || whiteNamed) //Add the color name to the end unless this is white and white is not flagged to be named
+			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
 				thisName += "_" + color.toString().toLowerCase();
 			//Register the block normally
 			BlockItemPair thisBlock = register(thisName, itemGroup, type, block.get());

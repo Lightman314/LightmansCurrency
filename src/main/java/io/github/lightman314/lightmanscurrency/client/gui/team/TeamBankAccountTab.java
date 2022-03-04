@@ -1,8 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.team;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -11,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.MessageCrea
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageSetTeamBankLimit;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +30,7 @@ public class TeamBankAccountTab extends TeamTab {
 	public IconData getIcon() {
 		return IconData.of(ModBlocks.COINPILE_GOLD);
 	}
-
+	
 	@Override
 	public Component getTooltip() {
 		return new TranslatableComponent("tooltip.lightmanscurrency.team.bank");
@@ -39,6 +44,7 @@ public class TeamBankAccountTab extends TeamTab {
 	Button buttonCreateBankAccount;
 	Button buttonToggleAccountLimit;
 	
+	ScrollTextDisplay logWidget;
 	
 	@Override
 	public void initTab() {
@@ -50,6 +56,10 @@ public class TeamBankAccountTab extends TeamTab {
 		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, new TextComponent(""), this::toggleBankLimit));
 		this.updateBankLimitText();
 		
+		this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
+		this.logWidget.invertText = true;
+		this.logWidget.visible = screen.getActiveTeam().hasBankAccount();
+		
 	}
 
 	@Override
@@ -60,7 +70,7 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		if(this.getActiveTeam() != null && this.getActiveTeam().hasBankAccount())
-			this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 100, 0x404040);
+			this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 46, 0x404040);
 		
 	}
 
@@ -72,8 +82,18 @@ public class TeamBankAccountTab extends TeamTab {
 	@Override
 	public void tick() {
 		
-		this.buttonCreateBankAccount.active = !this.getActiveTeam().hasBankAccount();
+		if(this.getActiveTeam() == null)
+			return;
 		
+		this.buttonCreateBankAccount.active = !this.getActiveTeam().hasBankAccount();
+		this.logWidget.visible = this.getScreen().getActiveTeam().hasBankAccount();
+		
+	}
+	
+	private List<MutableComponent> getAccountLog() {
+		if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
+			return new ArrayList<>();
+		return this.getActiveTeam().getBankAccount().getLogs().logText;
 	}
 
 	@Override

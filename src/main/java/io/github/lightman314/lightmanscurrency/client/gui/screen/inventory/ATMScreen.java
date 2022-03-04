@@ -3,13 +3,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ATMTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.ConversionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.InteractionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.client.gui.Font;
@@ -27,7 +25,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
 	int currentTabIndex = 0;
-	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this));
+	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this), new LogTab(this), new TransferTab(this));
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
@@ -35,6 +33,8 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	List<GuiEventListener> tabListeners = Lists.newArrayList();
 	
 	List<TabButton> tabButtons = Lists.newArrayList();
+	
+	boolean logError = true;
 	
 	public ATMScreen(ATMMenu container, Inventory inventory, Component title)
 	{
@@ -90,7 +90,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
 			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 			this.currentTab().postRender(pose, mouseX, mouseY);
-		} catch(Exception e) {} 
+		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } } 
 		
 		this.renderTooltip(pose, mouseX,  mouseY);
 		
@@ -118,6 +118,8 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		
 		//Initialize the new tab
 		this.currentTab().init();
+		
+		this.logError = true;
 	}
 	
 	private void clickedOnTab(Button tab)
@@ -171,6 +173,16 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		listeners.addAll(this.tabWidgets);
 		listeners.addAll(this.tabListeners);
 		return listeners;
+	}
+	
+	@Override
+	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
+	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+	      if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
+	    	  return true;
+	      }
+	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 	
 }

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.money;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -577,6 +578,27 @@ public class CoinValue
 				array.add(entry);
 			}
 			return array;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.isFree, this.coinValues);
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if(this == other)
+			return true;
+		else if(!(other instanceof CoinValue))
+			return false;
+		else
+		{
+			CoinValue coinValue = (CoinValue)other;
+			if(coinValue.isFree && this.isFree)
+				return true;
+			else
+				return coinValue.getRawValue() == this.getRawValue();
 		}
 	}
 	

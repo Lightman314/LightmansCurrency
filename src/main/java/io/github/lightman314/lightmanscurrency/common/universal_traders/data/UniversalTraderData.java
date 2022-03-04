@@ -142,15 +142,16 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public void addStoredMoney(CoinValue amount)
+	public void addStoredMoney(CoinValue addedAmount)
 	{
 		if(this.coreSettings.hasBankAccount())
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
-			account.depositCoins(amount);
+			account.depositCoins(addedAmount);
+			account.LogInteraction(this, addedAmount, true);
 			return;
 		}
-		this.storedMoney.addValue(amount);
+		this.storedMoney.addValue(addedAmount);
 		this.markDirty(this::writeStoredMoney);
 	}
 	
@@ -160,6 +161,7 @@ public abstract class UniversalTraderData implements ITrader{
 		{
 			BankAccount account = this.coreSettings.getBankAccount();
 			account.withdrawCoins(removedAmount);
+			account.LogInteraction(this, removedAmount, false);
 			return;
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
@@ -274,11 +276,6 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public int getPermissionLevel(Player player, String permission)
-	{
-		return this.coreSettings.getPermissionLevel(player, permission);
-	}
-	
 	public RemoteTradeResult handleRemotePurchase(int tradeIndex, RemoteTradeData data) { return RemoteTradeResult.FAIL_NOT_SUPPORTED; }
 	
 	protected abstract void onVersionUpdate(int oldVersion);
@@ -365,14 +362,7 @@ public abstract class UniversalTraderData implements ITrader{
 		return data1.write(new CompoundTag()).equals(data2.write(new CompoundTag()));
 	}
 	
-	public IconData getIcon() { return IconData.of(this.IconLocation(), this.IconPositionX(), this.IconPositionY()); }
-	
-	@Deprecated
-	public ResourceLocation IconLocation() { return new ResourceLocation(LightmansCurrency.MODID, "textures/gui/universal_trader_icons.png"); }
-	@Deprecated
-	public int IconPositionX() { return 0; }
-	@Deprecated
-	public int IconPositionY() { return 0; }
+	public abstract IconData getIcon();
 	
 	/** A list of players using this trader */
 	private List<Player> users = new ArrayList<>();

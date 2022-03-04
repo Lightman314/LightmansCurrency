@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -43,5 +44,14 @@ public interface ITrader extends IPermissions {
 	public void sendOpenTraderMessage();
 	public void sendOpenStorageMessage();
 	public void sendClearLogMessage();
+	//Permission stuff
+	public default int getPermissionLevel(Player player, String permission) {
+		return this.getCoreSettings().getPermissionLevel(player, permission);
+	}
+	public default int getPermissionLevel(PlayerReference player, String permission) {
+		return this.getCoreSettings().getPermissionLevel(player, permission);
+	}
+	
+	public default boolean canInteractRemotely() { return false; }
 	
 }

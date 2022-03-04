@@ -19,9 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ILoggerSupport<ItemShopLogger> {
+public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
-	public ItemTradeData getTrade(int index);
 	public List<ItemTradeData> getAllTrades();
 	public Container getStorage();
 	public void markTradesDirty();
