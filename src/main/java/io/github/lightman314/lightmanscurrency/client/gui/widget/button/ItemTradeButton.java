@@ -136,7 +136,7 @@ public class ItemTradeButton extends Button{
 				ItemRenderUtil.drawSlotBackground(matrixStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
 			}
 			else if(!trade.getBarterItem().isEmpty())
-				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y, true);
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y);
 			
 			//Render barter item text
 			String text = getTradeText(CoinValue.EMPTY, false, isValid, hasStock, hasSpace, hasPermission);
@@ -182,7 +182,7 @@ public class ItemTradeButton extends Button{
 			}
 		}
 		else if(!trade.getSellItem().isEmpty())
-			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y, true);
+			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y);
 		
 		
 	}

@@ -177,7 +177,7 @@ public class CoinValueInput extends Widget{
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * 30) + 12, startY + 26, false);
+				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * 30) + 12, startY + 26);
 				//Draw string
 				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).coinItem));// + coinData.get(x).getInitial().getString();
 				int width = this.parent.getFont().getStringWidth(countString);
