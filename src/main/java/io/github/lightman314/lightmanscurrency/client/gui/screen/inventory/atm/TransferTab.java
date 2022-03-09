@@ -17,21 +17,23 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.DummyBankAccount;
+import io.github.lightman314.lightmanscurrency.containers.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransfer;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
+import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.Items;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class TransferTab extends ATMTab implements ICoinValueInput {
@@ -58,6 +60,10 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 
 	@Override
 	public void init() {
+		
+		SimpleSlot.SetInactive(this.screen.getContainer());
+		
+		this.screen.getContainer().setMessage(new StringTextComponent(""));
 		
 		this.amountWidget = this.screen.addTabListener(new CoinValueInput(this.screen.getGuiTop() - CoinValueInput.HEIGHT, new TranslationTextComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this));
 		//this.amountWidget.init();
@@ -111,22 +117,15 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 	
 	private void PressTransfer(Button button)
 	{
-		AccountReference destination = null;
 		if(this.playerMode)
 		{
-			PlayerReference player = PlayerReference.of(this.playerInput.getText());
-			if(player != null)
-				destination = BankAccount.GenerateReference(true, player);
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransferPlayer(this.playerInput.getText(), this.amountWidget.getCoinValue()));
+			this.playerInput.setText("");
+			this.amountWidget.setCoinValue(CoinValue.EMPTY);
 		}
-		else
+		else if(this.selectedTeam != null)
 		{
-			Team team = this.selectedTeam();
-			if(team != null)
-				destination = BankAccount.GenerateReference(true, team);
-		}
-		if(destination != null)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransfer(destination, this.amountWidget.getCoinValue()));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransferTeam(this.selectedTeam, this.amountWidget.getCoinValue()));
 			this.amountWidget.setCoinValue(CoinValue.EMPTY);
 		}
 	}
@@ -137,6 +136,15 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 		this.teamSelection.setVisible(!this.playerMode);
 		this.playerInput.visible = this.playerMode;
 		this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
+	}
+	
+	@Override
+	public void backgroundRender(MatrixStack pose) {
+		Minecraft.getInstance().getTextureManager().bindTexture(ATMScreen.GUI_TEXTURE);
+		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
+		List<ITextProperties> lines = this.screen.getFont().getCharacterManager().func_238362_b_(this.screen.getContainer().getLastMessage(), this.screen.getXSize() - 15, Style.EMPTY);
+		for(int i = 0; i < lines.size(); ++i)
+			this.screen.getFont().drawString(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97 + (this.screen.getFont().FONT_HEIGHT * i), 0x404040);
 	}
 	
 	@Override
@@ -160,8 +168,7 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 		if(this.playerMode)
 		{
 			this.playerInput.tick();
-			PlayerReference player = PlayerReference.of(this.playerInput.getText());
-			this.buttonTransfer.active = player != null && !(ClientTradingOffice.getPlayerBankAccount(player.id) instanceof DummyBankAccount) && this.amountWidget.getCoinValue().isValid();
+			this.buttonTransfer.active = !this.playerInput.getText().isEmpty() && this.amountWidget.getCoinValue().isValid();
 		}
 		else
 		{
@@ -171,7 +178,9 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 	}
 
 	@Override
-	public void onClose() { }
+	public void onClose() {
+		SimpleSlot.SetActive(this.screen.getContainer());
+	}
 
 	@Override
 	public <T extends Button> T addCustomButton(T button) {

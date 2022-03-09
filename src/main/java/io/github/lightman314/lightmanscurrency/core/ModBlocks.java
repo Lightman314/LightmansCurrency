@@ -8,9 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
-import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
-import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.items.*;
 import io.github.lightman314.lightmanscurrency.BlockItemPair;
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;

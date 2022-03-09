@@ -132,20 +132,28 @@ public class BankAccount {
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 	
-	public static void TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
+	public static ITextComponent TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
 	{
-		TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName(), destination.get());
+		return TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName(), destination.get());
 	}
 
-	public static void TransferCoins(PlayerEntity player, ITextComponent fromAccountName, BankAccount fromAccount, CoinValue amount, ITextComponent toAccountName, BankAccount destinationAccount)
+	public static ITextComponent TransferCoins(PlayerEntity player, ITextComponent fromAccountName, BankAccount fromAccount, CoinValue amount, ITextComponent toAccountName, BankAccount destinationAccount)
 	{
-		if(fromAccount == null || destinationAccount == null || amount.getRawValue() <= 0)
-			return;
+		if(fromAccount == null)
+			return new TranslationTextComponent("gui.bank.transfer.error.null.from");
+		if(destinationAccount == null)
+			return new TranslationTextComponent("gui.bank.transfer.error.null.to");
+		if(amount.getRawValue() <= 0)
+			return new TranslationTextComponent("gui.bank.transfer.error.amount", amount.getString("nothing"));
+		if(fromAccount == destinationAccount)
+			return new TranslationTextComponent("gui.bank.transfer.error.same");
 
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
 		destinationAccount.depositCoins(withdrawnAmount);
 		fromAccount.LogTransfer(player, withdrawnAmount, toAccountName, false);
 		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccountName, true);
+		
+		return new TranslationTextComponent("gui.bank.transfer.success", amount.getString(), toAccountName);
 
 	}
 	
@@ -272,8 +280,8 @@ public class BankAccount {
 	public interface IBankAccountTransferMenu extends IBankAccountMenu
 	{
 		public AccountReference getAccountSource();
+		public ITextComponent getLastMessage();
+		public void setMessage(ITextComponent component);
 	}
-	
-	public static class DummyBankAccount extends BankAccount { }
 	
 }

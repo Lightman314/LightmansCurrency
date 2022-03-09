@@ -58,12 +58,15 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 		int startY = (this.height - this.ySize) / 2;
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
 		
+		try {
+			this.currentTab().backgroundRender(matrix);
+		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
+		
 	}
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
-		//this.font.drawString(matrix, this.currentTab().getTooltip().getString(), 8.0f, 4.0f, 0x404040);
 		this.font.drawString(matrix, this.playerInventory.getDisplayName().getString(), 8.0f, (this.ySize - 94), 0x404040);
 	}
 	

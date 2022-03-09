@@ -13,6 +13,8 @@ public abstract class ATMTab implements ITab
 	
 	public abstract void init();
 	
+	public void backgroundRender(MatrixStack matrix) { }
+	
 	public abstract void preRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks);
 	
 	public abstract void postRender(MatrixStack matrix, int mouseX, int mouseY);

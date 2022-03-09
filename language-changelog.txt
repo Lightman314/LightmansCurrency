@@ -1,3 +1,13 @@
+----1.1.0.0
+
+----1.0.5.3----
+ADDED:
+"gui.bank.transfer.error.null.from": "Your selected bank account no longer exists.",
+"gui.bank.transfer.error.null.to": "Target bank account does not exist.",
+"gui.bank.transfer.error.same": "Cannot transfer to the same account.",
+"gui.bank.transfer.error.amount": "Cannot transfer %s.",
+"gui.bank.transfer.success": "Transferred %1$s to %2$s",
+
 ----1.0.5.2----
 ADDED:
 "permission.interactionLink": "Remote Stock Interactions", (not being used yet)

@@ -10,11 +10,10 @@ import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-public class CoinSlot extends Slot{
+public class CoinSlot extends SimpleSlot{
 	
 	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_coin_slot");
 	

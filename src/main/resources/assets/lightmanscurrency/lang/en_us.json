@@ -105,6 +105,7 @@
     "block.lightmanscurrency.piggy_bank": "Piggy Bank",
     "block.lightmanscurrency.coinjar_blue": "Coin Jar",
     "block.lightmanscurrency.ticket_kiosk": "Ticket Kiosk",
+    "block.lightmanscurrency.item_trader_interface": "Item Trader Interface Terminal",
     
     "gamerule.keepWallet" : "Keep wallet on death",
     "gamerule.coinDropPercent" : "Coin percentage dropped after death",
@@ -333,6 +334,12 @@
     "gui.button.bank.transfer.player": "Transfer to Player",
     "gui.button.bank.transfer.team": "Transfer to Team",
     
+    "gui.bank.transfer.error.null.from": "Your selected bank account no longer exists.",
+    "gui.bank.transfer.error.null.to": "Target bank account does not exist.",
+    "gui.bank.transfer.error.same": "Cannot transfer to the same account.",
+    "gui.bank.transfer.error.amount": "Cannot transfer %s.",
+    "gui.bank.transfer.success": "Transferred %1$s to %2$s",
+    
     "gui.button.bank.playeraccount": "My Account",
     
     "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
@@ -365,6 +372,35 @@
     
     "lightmanscurrency.bankaccount": "%s's Bank Account.",
     "lightmanscurrency.bankaccount.unknown": "Unknown Bank Account.",
+    
+    
+    "tooltip.lightmanscurrency.interface.enable": "Activate",
+    "tooltip.lightmanscurrency.interface.disable": "Deactivate",
+    
+    "gui.lightmanscurrency.interface.item.difference.missing": "Trade or Trader no longer exists.",
+    "gui.lightmanscurrency.interface.item.difference.type": "Trade is a different trade type.",
+    "gui.lightmanscurrency.interface.item.difference.cheaper": "Trade is %s cheaper.",
+    "gui.lightmanscurrency.interface.item.difference.expensive": "Trade is %s more expensive.",
+    "gui.lightmanscurrency.interface.item.difference.product.0": "selling",
+    "gui.lightmanscurrency.interface.item.difference.product.1": "buying",
+    "gui.lightmanscurrency.interface.item.difference.itemtype": "Trade is %s a different item.",
+    "gui.lightmanscurrency.interface.item.difference.itemnbt": "Item NBT does not match.",
+    "gui.lightmanscurrency.interface.item.difference.quantity.more": "Trade is %%1$s %2$s more item(s).",
+    "gui.lightmanscurrency.interface.item.difference.quantity.less": "Trade is %%1$s %2$s less item(s).",
+    
+    "lightmanscurrency.remotetrade.fail.nostock": "Trader is out of stock.",
+    "lightmanscurrency.remotetrade.fail.cantafford": "You can no longer afford this trade.",
+    "lightmanscurrency.remotetrade.fail.nospace.output": "Interface has no space to accept the purchased product.",
+    "lightmanscurrency.remotetrade.fail.nospace.input": "Trader has no space to accept the collected product.",
+    "lightmanscurrency.remotetrade.fail.traderule": "A Trade Rule has denied your ability to interact with the trade.",
+    "lightmanscurrency.remotetrade.fail.invalid": "The trade is no longer a valid trade.",
+    "lightmanscurrency.remotetrade.fail.notsupported": "This trader does not support trader interfaces.",
+    "lightmanscurrency.remotetrade.fail.null": "The trade or trader no longer exists.",
+    
+    "gui.lightmanscurrency.interface.type.restock_and_drain": "Restock & Drain",
+    "gui.lightmanscurrency.interface.type.restock": "Restock",
+    "gui.lightmanscurrency.interface.type.drain": "Drain",
+    "gui.lightmanscurrency.interface.type.trade": "Trade",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",

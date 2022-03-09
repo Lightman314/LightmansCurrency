@@ -6,31 +6,34 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountTransferMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
-public class MessageBankTransfer {
+public class MessageBankTransferPlayer {
 	
-	AccountReference destination;
+	String playerName;
 	CoinValue amount;
 	
-	public MessageBankTransfer(AccountReference destination, CoinValue amount) {
-		this.destination = destination;
+	public MessageBankTransferPlayer(String playerName, CoinValue amount) {
+		this.playerName = playerName;
 		this.amount = amount;
 	}
 	
-	public static void encode(MessageBankTransfer message, PacketBuffer buffer) {
-		message.destination.writeToBuffer(buffer);
+	public static void encode(MessageBankTransferPlayer message, PacketBuffer buffer) {
+		buffer.writeString(message.playerName);
 		buffer.writeCompoundTag(message.amount.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
 	}
 
-	public static MessageBankTransfer decode(PacketBuffer buffer) {
-		return new MessageBankTransfer(BankAccount.LoadReference(false, buffer), new CoinValue(buffer.readCompoundTag()));
+	public static MessageBankTransferPlayer decode(PacketBuffer buffer) {
+		return new MessageBankTransferPlayer(buffer.readString(100), new CoinValue(buffer.readCompoundTag()));
 	}
 
-	public static void handle(MessageBankTransfer message, Supplier<Context> supplier) {
+	public static void handle(MessageBankTransferPlayer message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayerEntity player = supplier.get().getSender();
@@ -39,7 +42,10 @@ public class MessageBankTransfer {
 				if(player.openContainer instanceof IBankAccountTransferMenu)
 				{
 					IBankAccountTransferMenu menu = (IBankAccountTransferMenu) player.openContainer;
-					BankAccount.TransferCoins(menu, message.amount, message.destination);
+					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(message.playerName));
+					ITextComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
+					if(response != null)
+						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageBankTransferResponse(response));
 				}
 			}
 		});

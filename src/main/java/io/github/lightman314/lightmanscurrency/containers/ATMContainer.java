@@ -14,6 +14,8 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 public class ATMContainer extends Container implements IBankAccountTransferMenu{
 	
@@ -25,6 +27,8 @@ public class ATMContainer extends Container implements IBankAccountTransferMenu{
 	
 	private AccountReference accountSource;
 	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
+	
+	private ITextComponent transferMessage = new StringTextComponent("");
 	
 	public ATMContainer(int windowId, PlayerInventory inventory)
 	{
@@ -196,5 +200,11 @@ public class ATMContainer extends Container implements IBankAccountTransferMenu{
 		}
 		
 	}
+
+	@Override
+	public ITextComponent getLastMessage() { return this.transferMessage; }
+
+	@Override
+	public void setMessage(ITextComponent component) { this.transferMessage = component; }
 	
 }
