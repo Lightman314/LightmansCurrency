@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
+import javax.annotation.Nonnull;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,24 +15,35 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 @OnlyIn(Dist.CLIENT)
 public class IconButton extends Button{
 	
-	private IconData icon;
+	private NonNullSupplier<IconData> iconSource;
 	
-	
-	
-	public IconButton(int x, int y, OnPress pressable, IconData icon)
+	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon)
 	{
 		super(x,y,20,20,new TextComponent(""), pressable);
 		this.setIcon(icon);
 	}
 	
-	public IconButton(int x, int y, OnPress pressable, IconData icon, OnTooltip tooltip)
+	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource)
+	{
+		super(x,y,20,20,new TextComponent(""), pressable);
+		this.setIcon(iconSource);
+	}
+	
+	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon, OnTooltip tooltip)
 	{
 		super(x,y,20,20, new TextComponent(""), pressable, tooltip);
 		this.setIcon(icon);
+	}
+	
+	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource, OnTooltip tooltip)
+	{
+		super(x,y,20,20, new TextComponent(""), pressable, tooltip);
+		this.setIcon(iconSource);
 	}
 	
 	@Deprecated
@@ -45,12 +58,16 @@ public class IconButton extends Button{
 	@Deprecated
 	public void setResource(ResourceLocation iconResource, int resourceX, int resourceY)
 	{
-		this.icon = IconData.of(iconResource, resourceX, resourceY);
+		this.iconSource = () -> IconData.of(iconResource, resourceX, resourceY);
 	}
 	
-	public void setIcon(IconData icon)
+	public void setIcon(@Nonnull IconData icon)
 	{
-		this.icon = icon;
+		this.iconSource = () -> icon;
+	}
+	
+	public void setIcon(@Nonnull NonNullSupplier<IconData> iconSource) {
+		this.iconSource = iconSource;
 	}
 	
 	
@@ -71,7 +88,7 @@ public class IconButton extends Button{
         if(!this.active)
             RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         
-        this.icon.render(matrixStack, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
+        this.iconSource.get().render(matrixStack, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
 		
 	}
 

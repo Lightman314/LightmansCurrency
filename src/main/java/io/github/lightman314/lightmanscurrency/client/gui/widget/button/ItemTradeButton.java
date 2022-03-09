@@ -144,10 +144,10 @@ public class ItemTradeButton extends Button{
 				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
 			}
 			else if(!trade.getBarterItem().isEmpty())
-				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y, true);
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y);
 			
 			//Render barter item text
-			String text = getTradeText(CoinValue.EMPTY, false, isValid, hasStock, hasSpace, hasPermission);
+			String text = getTradeText(CoinValue.EMPTY, isValid, hasStock, hasSpace, hasPermission);
 			int textColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, false);
 			if(text == "" && !canAfford)
 			{
@@ -161,7 +161,7 @@ public class ItemTradeButton extends Button{
 		}
 		else
 		{
-			String tradeText = getTradeText(cost, trade.getCost().isFree(), isValid, hasStock, hasSpace, hasPermission);
+			String tradeText = getTradeText(cost, isValid, hasStock, hasSpace, hasPermission);
 			int tradeColor = getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, hasDiscount);
 			if(inverted)
 			{
@@ -190,7 +190,7 @@ public class ItemTradeButton extends Button{
 			}
 		}
 		else if(!trade.getSellItem().isEmpty())
-			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y, true);
+			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y);
 		
 		
 	}
@@ -279,7 +279,12 @@ public class ItemTradeButton extends Button{
 		return tooltips;
 	}
 	
-	public static String getTradeText(CoinValue cost, boolean isFree, boolean isValid, boolean hasStock, boolean hasSpace, boolean hasPermission)
+	@Deprecated /** @deprecated use version without isFree flag. */
+	public static String getTradeText(CoinValue cost, boolean isFree, boolean isValid, boolean hasStock, boolean hasSpace, boolean hasPermission) {
+		return getTradeText(cost, isValid, hasStock, hasSpace, hasPermission);
+	}
+	
+	public static String getTradeText(CoinValue cost, boolean isValid, boolean hasStock, boolean hasSpace, boolean hasPermission)
 	{
 		if(isValid && !hasPermission)
 			return new TranslatableComponent("tooltip.lightmanscurrency.denied").getString();
