@@ -134,7 +134,7 @@ public class MainTab extends SettingsTab{
 		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.getScreen().getPlayer());
 		if(this.buttonToggleCreative.visible)
 		{
-			IconAndButtonUtil.updateCreativeToggleButton(this.buttonToggleCreative, coreSettings.isCreative());
+			//IconAndButtonUtil.updateCreativeToggleButton(this.buttonToggleCreative, coreSettings.isCreative());
 			if(coreSettings.isCreative())
 			{
 				ITrader trader = this.getScreen().getTrader();

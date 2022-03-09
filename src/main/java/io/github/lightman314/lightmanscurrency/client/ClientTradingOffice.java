@@ -97,7 +97,7 @@ public class ClientTradingOffice {
 			return loadedBankAccounts.get(playerID);
 		//Return an empty account until the server notifies us of the new accounts creation.
 		LightmansCurrency.LogWarning("No bank account for player with id " + playerID.toString() + " is present on the client.");
-		return new BankAccount.DummyBankAccount();
+		return new BankAccount();
 	}
 	
 	public static void initBankAccounts(Map<UUID,BankAccount> bankAccounts)

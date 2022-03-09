@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders;
 
-import java.util.function.Supplier;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -10,12 +8,15 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.world.Container;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class RemoteTradeData {
 	
@@ -23,40 +24,43 @@ public class RemoteTradeData {
 		/**
 		 * Remote trade was successfully executed
 		 */
-		SUCCESS,
+		SUCCESS(null),
 		/**
 		 * Trade failed as the trader is out of stock
 		 */
-		FAIL_OUT_OF_STOCK,
+		FAIL_OUT_OF_STOCK("lightmanscurrency.remotetrade.fail.nostock"),
 		
 		/**
 		 * Trade failed as the player could not afford the trade
 		 */
-		FAIL_CANNOT_AFFORD,
+		FAIL_CANNOT_AFFORD("lightmanscurrency.remotetrade.fail.cantafford"),
 		/**
 		 * Trade failed as there's no room for the output items
 		 */
-		FAIL_NO_OUTPUT_SPACE,
+		FAIL_NO_OUTPUT_SPACE("lightmanscurrency.remotetrade.fail.nospace.output"),
 		/**
 		 * Trade failed as there's no room for the input items
 		 */
-		FAIL_NO_INPUT_SPACE,
+		FAIL_NO_INPUT_SPACE("lightmanscurrency.remotetrade.fail.nospace.input"),
 		/**
 		 * Trade failed as the trade rules denied the trade
 		 */
-		FAIL_TRADE_RULE_DENIAL,
+		FAIL_TRADE_RULE_DENIAL("lightmanscurrency.remotetrade.fail.traderule"),
 		/**
 		 * Trade failed as the trade is no longer valid
 		 */
-		FAIL_INVALID_TRADE,
+		FAIL_INVALID_TRADE("lightmanscurrency.remotetrade.fail.invalid"),
 		/**
 		 * Trade failed as this trader does not support remote trades
 		 */
-		FAIL_NOT_SUPPORTED,
+		FAIL_NOT_SUPPORTED("lightmanscurrency.remotetrade.fail.notsupported"),
 		/**
 		 * Trade failed as the trader was null
 		 */
-		FAIL_NULL
+		FAIL_NULL("lightmanscurrency.remotetrade.fail.null");
+		public boolean hasMessage() { return this.failMessage != null; }
+		public final Component failMessage;
+		RemoteTradeResult(String message) { this.failMessage = message == null ? null : new TranslatableComponent(message); }
 	}
 	
 	private final PlayerReference playerSource;
@@ -66,13 +70,13 @@ public class RemoteTradeData {
 	public boolean hasBankAccount() { return this.bankAccount != null && this.bankAccount.get() != null; }
 	public BankAccount getBankAccount() { return this.bankAccount.get(); }
 	
-	private final Supplier<CoinValue> storedMoney;
-	public boolean hasStoredMoney() { return this.storedMoney != null && this.storedMoney.get() != null; }
-	public CoinValue getStoredMoney() { return this.storedMoney.get(); }
+	private final CoinValue storedMoney;
+	public boolean hasStoredMoney() { return this.storedMoney != null; }
+	public CoinValue getStoredMoney() { return this.storedMoney; }
 	
-	private final Container itemSlots;
-	public boolean hasItemSlots() { return this.itemSlots != null; }
-	public Container getItemSlots() { return this.itemSlots; }
+	private final IItemHandler itemHandler;
+	public boolean hasItemHandler() { return this.itemHandler != null; }
+	public IItemHandler getItemHandler() { return this.itemHandler; }
 	
 	private final IFluidHandler fluidTank;
 	public boolean hasFluidTank() { return this.fluidTank != null; }
@@ -82,11 +86,11 @@ public class RemoteTradeData {
 	public boolean hasEnergyTank() { return this.energyTank != null; }
 	public IEnergyStorage getEnergyTank() { return this.energyTank; }
 	
-	public RemoteTradeData(@Nonnull PlayerReference playerSource, @Nonnull AccountReference bankAccount, @Nullable Supplier<CoinValue> storedMoney, @Nullable Container itemSlots, @Nullable IFluidHandler fluidTank, @Nullable IEnergyStorage energyTank) {
+	public RemoteTradeData(@Nonnull PlayerReference playerSource, @Nonnull AccountReference bankAccount, @Nullable CoinValue storedMoney, @Nullable IItemHandler itemHandler, @Nullable IFluidHandler fluidTank, @Nullable IEnergyStorage energyTank) {
 		this.playerSource = playerSource;
 		this.storedMoney = storedMoney;
 		this.bankAccount = bankAccount;
-		this.itemSlots = itemSlots;
+		this.itemHandler = itemHandler;
 		this.fluidTank = fluidTank;
 		this.energyTank = energyTank;
 	}
@@ -140,18 +144,25 @@ public class RemoteTradeData {
 		return false;
 	}
 	
+	/**
+	 * Whether the given item stack is present in the item handler, and can be successfully removed without issue.
+	 */
 	public boolean hasItem(ItemStack item)
 	{
-		if(this.hasItemSlots())
-			return InventoryUtil.GetItemCount(this.getItemSlots(), item) > item.getCount();
+		if(this.hasItemHandler())
+			return InventoryUtil.CanExtractItem(this.getItemHandler(), item);
 		return false;
 	}
 	
+	/**
+	 * Removes the given item stack from the item handler.
+	 * @return Whether the extraction was successfully. Will return false if it could not be extracted correctly.
+	 */
 	public boolean collectItem(ItemStack item)
 	{
-		if(this.hasItem(item) && this.hasItemSlots())
+		if(this.hasItem(item) && this.hasItemHandler())
 		{
-			InventoryUtil.RemoveItemCount(this.getItemSlots(), item);
+			InventoryUtil.RemoveItemCount(this.getItemHandler(), item);
 			return true;
 		}
 		return false;
@@ -159,15 +170,28 @@ public class RemoteTradeData {
 	
 	public boolean canFitItem(ItemStack item)
 	{
-		if(this.hasItemSlots())
-			return InventoryUtil.CanPutItemStack(this.getItemSlots(), item);
+		if(this.hasItemHandler())
+			return ItemHandlerHelper.insertItemStacked(this.getItemHandler(), item, true).isEmpty();
 		return false;
 	}
 	
 	public boolean putItem(ItemStack item)
 	{
-		if(this.canFitItem(item) && this.hasItemSlots())
-			return InventoryUtil.PutItemStack(this.getItemSlots(), item);
+		if(this.canFitItem(item) && this.hasItemHandler())
+		{
+			ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.getItemHandler(), item, false);
+			if(leftovers.isEmpty())
+				return true;
+			else
+			{
+				//Failed to place the items in the item handler, so take what few were placed back.
+				ItemStack placedStack = item.copy();
+				placedStack.setCount(item.getCount() - leftovers.getCount());
+				if(!item.isEmpty())
+					this.collectItem(placedStack);
+				return false;
+			}	
+		}
 		return false;
 	}
 	

@@ -1,33 +1,32 @@
 package io.github.lightman314.lightmanscurrency.blockentity.handler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalItemTraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.trader.interfacing.ItemTradeInteraction;
+import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer;
+import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer.IExternalInputOutputRules;
+import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer.LockData;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.ConfigurableSidedHandler;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public class ItemInterfaceHandler extends ConfigurableSidedHandler<ItemTradeInteraction,IItemHandler> {
+public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler> {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_interface");
 	
 	protected final UniversalItemTraderInterfaceBlockEntity blockEntity;
 	
-	private final Supplier<Container> itemBufferSource;
-	protected final Container getItemBuffer() { return this.itemBufferSource.get(); }
+	private final Supplier<LockableContainer> itemBufferSource;
+	protected final LockableContainer getItemBuffer() { return this.itemBufferSource.get(); }
 	
 	private final Map<Direction,Handler> handlers = new HashMap<Direction, Handler>();
 	
-	public ItemInterfaceHandler(UniversalItemTraderInterfaceBlockEntity blockEntity, Supplier<Container> itemBufferSource) {
+	public ItemInterfaceHandler(UniversalItemTraderInterfaceBlockEntity blockEntity, Supplier<LockableContainer> itemBufferSource) {
 		this.blockEntity = blockEntity;
 		this.itemBufferSource = itemBufferSource;
 	}
@@ -40,7 +39,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<ItemTradeInte
 	
 	@Override
 	public IItemHandler getHandler(Direction side) {
-		if(this.inputSides.get(side) || this.outputSides.get(side))
+		if(this.allowInput(side) || this.outputSides.get(side))
 		{
 			if(!this.handlers.containsKey(side))
 				this.handlers.put(side, new Handler(this, side));
@@ -49,35 +48,15 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<ItemTradeInte
 		return null;
 	}
 	
-	protected boolean allowInput(int slot, ItemStack item) {
-		List<ItemTradeInteraction> interactionList = this.getParent().getInteractions();
-		if(interactionList == null)
-			return true;
-		for(int i = 0; i < interactionList.size(); ++i)
-		{
-			ItemTradeInteraction interaction = interactionList.get(i);
-			//Only filter if the interaction is active & valid
-			if(interaction.isActive() && interaction.isValid() && interaction.allowItemInput(slot, item))
-				return true;
-		}
-		return false;
+	public boolean allowInput(Direction side) {
+		return this.inputSides.get(side) && this.blockEntity.allowAnyInput();
 	}
 	
-	protected boolean allowOutput(int slot, ItemStack item) {
-		List<ItemTradeInteraction> interactionList = this.getParent().getInteractions();
-		if(interactionList == null)
-			return true;
-		for(int i = 0; i < interactionList.size(); ++i)
-		{
-			ItemTradeInteraction interaction = interactionList.get(i);
-			//Only filter if the interaction is active & valid
-			if(interaction.isActive() && interaction.isValid() && interaction.allowItemOutput(slot, item))
-				return true;
-		}
-		return false;
+	public boolean allowOutput(Direction side) {
+		return this.outputSides.get(side) && this.blockEntity.allowAnyOutput();
 	}
 	
-	private static class Handler implements IItemHandler{
+	private static class Handler implements IItemHandler, IExternalInputOutputRules{
 
 		final ItemInterfaceHandler handler;
 		final Direction side;
@@ -86,69 +65,45 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<ItemTradeInte
 		
 		@Override
 		public int getSlots() {
-			return this.handler.getItemBuffer().getContainerSize();
+			return this.handler.getItemBuffer().getSlots();
 		}
 
 		@Override
 		public ItemStack getStackInSlot(int slot) {
-			return this.handler.getItemBuffer().getItem(slot);
+			return this.handler.getItemBuffer().getStackInSlot(slot);
 		}
 
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			if(!this.handler.inputSides.get(this.side) || !this.handler.allowInput(slot, stack))
-				return stack.copy();
-			if(simulate)
-			{
-				for(int c = stack.getCount(); c > 0; --c)
-				{
-					ItemStack smallerStack = stack.copy();
-					smallerStack.setCount(c);
-					if(InventoryUtil.CanPutItemStack(this.handler.getItemBuffer(), smallerStack))
-					{
-						if(c == stack.getCount())
-							return ItemStack.EMPTY;
-						ItemStack remainderStack = stack.copy();
-						remainderStack.shrink(c);
-						return remainderStack;
-					}
-				}
-				return stack.copy();
-			}
-			else
-				return InventoryUtil.TryPutItemStack(this.handler.getItemBuffer(), stack.copy());
+			this.handler.getItemBuffer().setAdditionalRules(this);
+			return this.handler.getItemBuffer().insertItem(slot, stack, simulate);
 		}
 
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			if(!this.handler.outputSides.get(side))
-				return ItemStack.EMPTY;
-			
-			ItemStack itemInSlot = this.getStackInSlot(slot);
-			if(!this.handler.allowOutput(slot, itemInSlot))
-				return ItemStack.EMPTY;
-			int shrinkAmount = Math.min(amount, itemInSlot.getCount());
-			if(shrinkAmount <= 0)
-				return ItemStack.EMPTY;
-			ItemStack resultStack = itemInSlot.copy();
-			resultStack.setCount(shrinkAmount);
-			if(!simulate)
-			{
-				itemInSlot.shrink(shrinkAmount);
-				if(itemInSlot.isEmpty())
-					this.handler.getItemBuffer().setItem(slot, ItemStack.EMPTY);
-			}
-			return resultStack;
+			this.handler.getItemBuffer().setAdditionalRules(this);
+			return this.handler.getItemBuffer().extractItem(slot, amount, simulate);
 		}
 
 		@Override
 		public int getSlotLimit(int slot) {
-			return this.handler.getItemBuffer().getMaxStackSize();
+			return this.handler.getItemBuffer().getSlotLimit(slot);
 		}
 
 		@Override
 		public boolean isItemValid(int slot, ItemStack stack) {
-			return true;
+			this.handler.getItemBuffer().setAdditionalRules(this);
+			return this.handler.getItemBuffer().isItemValid(slot, stack);
+		}
+
+		@Override
+		public boolean allowInput(int slot, LockData lock, ItemStack inputStack) {
+			return this.handler.allowInput(this.side) && this.handler.blockEntity.allowItemInput(inputStack);
+		}
+
+		@Override
+		public boolean allowOutput(int slot, LockData lock, ItemStack outputStack) {
+			return this.handler.allowOutput(this.side) && this.handler.blockEntity.allowItemOutput(outputStack);
 		}
 		
 	}

@@ -111,9 +111,6 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 				LightmansCurrency.LogError("Trader Block returned block entity of type '" + (blockEntity == null ? "null" : blockEntity.getClass().getName()) + "' when placing the block.");
 			}
 		}
-
-		//No need to run super.setPlacedBy, as it's empty
-		
 	}
 	
 	@Override

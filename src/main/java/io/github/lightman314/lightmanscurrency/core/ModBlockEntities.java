@@ -165,6 +165,8 @@ public class ModBlockEntities {
 			
 	));
 	
+	public static final BlockEntityType<UniversalItemTraderInterfaceBlockEntity> TRADER_INTERFACE_ITEM = buildType("trader_interface_item", BlockEntityType.Builder.of(UniversalItemTraderInterfaceBlockEntity::new, ModBlocks.ITEM_TRADER_INTERFACE.block));
+	
 	//Cash Register
 	public static final BlockEntityType<CashRegisterBlockEntity> CASH_REGISTER = buildType("cash_register", BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER.block));
 	

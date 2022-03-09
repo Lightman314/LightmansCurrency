@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,6 +29,8 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransf
 	
 	private AccountReference accountSource = null;
 	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
+	
+	private Component transferMessage = new TextComponent("");
 	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
@@ -193,5 +197,11 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransf
 	public AccountReference getAccountSource() {
 		return this.accountSource;
 	}
+	
+	@Override
+	public Component getLastMessage() { return this.transferMessage; }
+	
+	@Override
+	public void setMessage(Component message) { this.transferMessage = message; }
 	
 }

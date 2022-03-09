@@ -73,6 +73,11 @@ public class ModMenus {
 		return new UniversalItemEditMenu(id, playerInventory, data.readUUID(), data.readInt());
 	});
 	
+	public static final MenuType<ItemInterfaceMenu> ITEM_INTERFACE = register("item_interface", (IContainerFactory<ItemInterfaceMenu>)(id, playerInventory, data) ->{
+		UniversalItemTraderInterfaceBlockEntity blockEntity = (UniversalItemTraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new ItemInterfaceMenu(id, playerInventory, blockEntity);
+	});
+	
 	//Code
 	private static <T extends AbstractContainerMenu> MenuType<T> register(String key, IContainerFactory<T> factory)
 	{

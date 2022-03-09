@@ -302,7 +302,8 @@ public class ItemTradeData extends TradeData {
 			if(this.isBarter())
 				result.addProductResult(ProductComparisonResult.CompareItem(this.barterItem, otherItemTrade.barterItem));
 			//Compare prices
-			result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+			if(!this.isBarter())
+				result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
 			//Compare types
 			result.setTypeResult(this.tradeType == otherItemTrade.tradeType);
 		}
@@ -325,13 +326,13 @@ public class ItemTradeData extends TradeData {
 			if(this.isSale() || this.isBarter())
 			{
 				//Sell product should be greater than or equal to pass
-				if(sellResult.ProductQuantityDifference() < 0)
+				if(sellResult.ProductQuantityDifference() > 0)
 					return false;
 			}
 			else if(this.isPurchase())
 			{
 				//Purchase product should be less than or equal to pass
-				if(sellResult.ProductQuantityDifference() > 0)
+				if(sellResult.ProductQuantityDifference() < 0)
 					return false;
 			}
 		}
@@ -346,7 +347,7 @@ public class ItemTradeData extends TradeData {
 			if(barterResult.SameProductType() && barterResult.SameProductNBT())
 			{
 				//Barter product should be less than or equal to pass
-				if(barterResult.ProductQuantityDifference() > 0)
+				if(barterResult.ProductQuantityDifference() < 0)
 					return false;
 			}
 			else //Item & tag don't match. Failure.

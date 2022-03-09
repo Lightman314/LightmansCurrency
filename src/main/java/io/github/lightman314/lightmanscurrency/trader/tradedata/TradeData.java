@@ -131,25 +131,51 @@ public abstract class TradeData implements ITradeRuleHandler {
 		
 		//Incompatible comparison result
 		private boolean compatible = false;
+		/**
+		 * Whether the two trades were able to be compared at all.
+		 */
 		public boolean isCompatible() { return this.compatible; }
 		
 		//Product Comparison Result
 		private List<ProductComparisonResult> tradeProductResults = new ArrayList<>();
+		/**
+		 * Whether the product(s) for these trades matched.
+		 */
 		public boolean ProductMatches() { 
 			for(ProductComparisonResult result : tradeProductResults) { if(!result.Identical()) return false; }
 			return true;
 		}
+		/**
+		 * Gets the product comparison results for the given product index.
+		 */
 		public ProductComparisonResult getProductResult(int index) {
 			if(index < 0 || index >= this.tradeProductResults.size())
 				return null;
 			return this.tradeProductResults.get(index);
 		}
+		/**
+		 * The number of products that were compared to each other.
+		 */
 		public int getProductResultCount() { return this.tradeProductResults.size(); }
 		//Price Comparison Result
-		private long priceChangeDirection = 0;
-		public boolean PriceMatches() { return this.priceChangeDirection == 0; }
-		public boolean isPriceCheaper() { return this.priceChangeDirection < 0; }
-		public boolean isPriceExpensive() { return this.priceChangeDirection > 0; }
+		private long priceChange = 0;
+		/**
+		 * Whether the two trades prices are the same.
+		 */
+		public boolean PriceMatches() { return this.priceChange == 0; }
+		/**
+		 * The difference in the two prices.
+		 * Result is 'expected price - true price', so a value less than 0 is more expensive, while a value greater than 0 is cheaper.
+		 */
+		public long priceDifference() { return this.priceChange; }
+		/**
+		 * Whether the trade is now cheaper (difference > 0)
+		 */
+		public boolean isPriceCheaper() { return this.priceChange > 0; }
+		/**
+		 * Whether the trade is now more expensive (difference < 0)
+		 */
+		public boolean isPriceExpensive() { return this.priceChange < 0; }
 		//Type Comparison Result
 		private boolean tradeTypeMatches = true;
 		/**
@@ -167,11 +193,25 @@ public abstract class TradeData implements ITradeRuleHandler {
 			public boolean Identical() { return this.SameProductType() && this.SameProductNBT() && this.SameProductQuantity(); }
 			
 			private final boolean sameProduct;
+			/**
+			 * Whether the two products are the same product type (i.e. iron ingot == iron ingot; water = water, etc.)
+			 */
 			public boolean SameProductType() { return this.sameProduct; }
 			private final boolean sameNBT;
+			/**
+			 * Whether the two products have the same NBT data.
+			 * @return
+			 */
 			public boolean SameProductNBT() { return this.sameNBT; }
 			private final int quantityDifference;
+			/**
+			 * Whether the two products have the same quantity.
+			 */
 			public boolean SameProductQuantity() { return this.quantityDifference == 0; }
+			/**
+			 * The difference between the two quantities.
+			 * Calculated as 'expected quantity - true quantity', so a difference > 0 means a smaller quantity, while a difference < 0 means a larger quantity
+			 */
 			public int ProductQuantityDifference() { return this.quantityDifference; }
 			
 			private ProductComparisonResult(boolean sameProduct, boolean sameNBT, int quantityDifference) {
@@ -229,7 +269,7 @@ public abstract class TradeData implements ITradeRuleHandler {
 		 * Defines the price result
 		 * Positive for costs more, 0 for costs the same, negative for costs less.
 		 */
-		public void setPriceResult(long priceChangeDirection) { this.priceChangeDirection = priceChangeDirection; }
+		public void setPriceResult(long priceChange) { this.priceChange = priceChange; }
 		
 		/**
 		 * Defines the trade type result

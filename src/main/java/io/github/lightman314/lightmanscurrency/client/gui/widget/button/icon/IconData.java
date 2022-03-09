@@ -23,7 +23,7 @@ public abstract class IconData {
 		@Override
 		public void render(PoseStack matrixStack, AbstractWidget widget, Font font, int x, int y)
 		{
-			ItemRenderUtil.drawItemStack(font, this.iconStack, x, y, false);
+			ItemRenderUtil.drawItemStack(widget, font, this.iconStack, x, y);
 		}
 		
 	}

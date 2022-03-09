@@ -18,13 +18,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.IItemHandler;
 
 public class InventoryUtil {
 
 	
-	public static Container buildInventory(List<ItemStack> list)
+	public static SimpleContainer buildInventory(List<ItemStack> list)
 	{
-		Container inventory = new SimpleContainer(list.size());
+		SimpleContainer inventory = new SimpleContainer(list.size());
 		for(int i = 0; i < list.size(); i++)
 		{
 			inventory.setItem(i, list.get(i).copy());
@@ -95,23 +96,6 @@ public class InventoryUtil {
     }
     
     /**
-     * Gets the quantity of a specific item in the given container section validating NBT data where applicable
-     */
-    public static int GetItemCount(Container inventory, ItemStack item, int startIndex, int stopIndex)
-    {
-    	int count = 0;
-    	for(int i = startIndex; i < stopIndex && i < inventory.getContainerSize(); i++)
-    	{
-    		ItemStack stack = inventory.getItem(i);
-    		if(ItemMatches(stack, item))
-    		{
-    			count += stack.getCount();
-    		}
-    	}
-    	return count;
-    }
-    
-    /**
      * Removes the quantity of a specific item in the given inventory
      * Ignores NBT data as none is given
      * @return Whether the full amount of items were successfully taken.
@@ -167,25 +151,41 @@ public class InventoryUtil {
      * Removes the given item stack from the given inventory, validating nbt data.
      * @return Whether the full amount of items were successfully taken.
      */
-    public static boolean RemoveItemCount(Container inventory, ItemStack item, int startIndex, int stopIndex)
+    public static boolean RemoveItemCount(IItemHandler itemHandler, ItemStack item)
     {
-    	if(GetItemCount(inventory, item, startIndex, stopIndex) < item.getCount())
+    	if(!CanExtractItem(itemHandler, item))
     		return false;
-    	int count = item.getCount();
-    	for(int i = startIndex; i < stopIndex && i < inventory.getContainerSize(); i++)
+    	int amountToRemove = item.getCount();
+    	for(int i = 0; i < itemHandler.getSlots() && amountToRemove > 0; i++)
     	{
-    		ItemStack stack = inventory.getItem(i);
+    		ItemStack stack = itemHandler.getStackInSlot(i);
     		if(ItemMatches(stack, item))
     		{
-    			int amountToTake = MathUtil.clamp(count, 0, stack.getCount());
-    			count -= amountToTake;
-    			if(amountToTake == stack.getCount())
-    				inventory.setItem(i, ItemStack.EMPTY);
-    			else
-    				stack.shrink(amountToTake);
+    			ItemStack removedStack = itemHandler.extractItem(i, amountToRemove, false);
+    			if(ItemMatches(removedStack, item))
+    				amountToRemove -= removedStack.getCount();
+    			else //Put the item back
+    				itemHandler.insertItem(i, removedStack, false);
     		}
     	}
     	return true;
+    }
+    
+    /**
+     * Returns whether the given item stack can be successfully removed from the item handler.
+     */
+    public static boolean CanExtractItem(IItemHandler itemHandler, ItemStack item) {
+    	int amountToRemove = item.getCount();
+    	for(int i = 0; i < itemHandler.getSlots() && amountToRemove > 0; ++i)
+    	{
+    		if(ItemMatches(itemHandler.getStackInSlot(i), item))
+    		{
+    			ItemStack removedStack = itemHandler.extractItem(i, amountToRemove, true);
+    			if(ItemMatches(removedStack, item))
+    				amountToRemove -= removedStack.getCount();
+    		}
+    	}
+    	return amountToRemove == 0;
     }
     
     /**
@@ -211,40 +211,6 @@ public class InventoryUtil {
     			count += stack.getMaxStackSize();
     	}
     	return count;
-    }
-    
-    /**
-     * Puts the item stack into the given container.
-     * @return The any portion of the item that wasn't able to be placed in the container.
-     */
-    public static ItemStack PutItemInSlot(Container container, ItemStack item)
-    {
-    	return PutItemInSlot(container, item, 0, container.getContainerSize());
-    }
-    
-    /**
-     * Puts the item stack into the given portion of the container.
-     * @return The any portion of the item that wasn't able to be placed in the container.
-     */
-    public static ItemStack PutItemInSlot(Container container, ItemStack item, int startingIndex, int stopIndex)
-    {
-    	ItemStack copyStack = item.copy();
-    	for(int i = startingIndex; i < stopIndex && i < container.getContainerSize() && !copyStack.isEmpty(); ++i)
-    	{
-    		ItemStack stack = container.getItem(i);
-    		if(ItemMatches(copyStack, stack))
-    		{
-    			int addAmount = Math.min(stack.getMaxStackSize() - stack.getCount(), copyStack.getCount());
-    			stack.grow(addAmount);
-    			copyStack.shrink(addAmount);
-    		}
-    		else if(stack.isEmpty())
-    		{
-    			container.setItem(i, copyStack);
-    			copyStack = ItemStack.EMPTY;
-    		}
-    	}
-    	return copyStack;
     }
     
     public static int GetItemTagCount(Container inventory, ResourceLocation itemTag, Item... blacklistItems)
@@ -353,7 +319,7 @@ public class InventoryUtil {
     	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)
 		{
 			ItemStack inventoryStack = inventory.getItem(i);
-			if(ItemMatches(stack, inventoryStack) && inventoryStack.getCount() != inventoryStack.getMaxStackSize())
+			if(ItemMatches(stack, inventoryStack) && inventoryStack.getCount() < inventoryStack.getMaxStackSize())
 			{
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, inventoryStack.getMaxStackSize() - inventoryStack.getCount());
@@ -382,7 +348,11 @@ public class InventoryUtil {
 		}
     	
     	if(amountToMerge > 0)
-    		return new ItemStack(mergeItem, amountToMerge);
+    	{
+    		ItemStack leftovers = stack.copy();
+    		leftovers.setCount(amountToMerge);
+    		return leftovers;
+    	}
     	return ItemStack.EMPTY;
     }
     
@@ -455,7 +425,7 @@ public class InventoryUtil {
 		}
 	}
     
-    public static Container loadAllItems(String key, CompoundTag compound, int inventorySize)
+    public static SimpleContainer loadAllItems(String key, CompoundTag compound, int inventorySize)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);

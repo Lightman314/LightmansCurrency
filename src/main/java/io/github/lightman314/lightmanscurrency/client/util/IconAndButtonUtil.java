@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
@@ -8,6 +10,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -15,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -25,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class IconAndButtonUtil {
 	
@@ -45,13 +51,23 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	public static final IconData ICON_CREATIVE = IconData.of(ICON_TEXTURE, 48, 16);
-	public static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
+	
+	public static final NonNullSupplier<IconData> ICON_CREATIVE(Supplier<Boolean> isCreative) {
+		return () -> isCreative.get() ? ICON_CREATIVE_OFF : ICON_CREATIVE_ON;
+	}
+	private static final IconData ICON_CREATIVE_ON = IconData.of(ICON_TEXTURE, 48, 16);
+	private static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
 	
 	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
 	
 	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
+	
+	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(Supplier<Boolean> isActive) {
+		return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
+	}
+	private static final IconData ICON_INTERFACE_ON = IconData.of(Items.REDSTONE_TORCH);
+	private static final IconData ICON_INTERFACE_OFF = IconData.of(Items.TORCH);
 	
 	public static final IconData ICON_PLUS = IconData.of(ICON_TEXTURE, 0, 32);
 	public static final IconData ICON_X = IconData.of(ICON_TEXTURE, 16, 32);
@@ -81,6 +97,9 @@ public class IconAndButtonUtil {
 	public static final Component TOOLTIP_CREATIVE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.enable");
 	public static final Component TOOLTIP_CREATIVE_DISABLE = new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.disable");
 	
+	public static final Component TOOLTIP_INTERFACE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.enable");
+	public static final Component TOOLTIP_INTERFACE_DISABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.disable");
+	
 	public static final SimpleTooltip TOOLTIP_PERSISTENT_DATA = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistenttrader.copy"));
 	
 	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket"));
@@ -105,11 +124,19 @@ public class IconAndButtonUtil {
 	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, TOOLTIP_TRADE_RULES); }
 	public static IconButton openSettingsButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_SETTINGS, TOOLTIP_OPEN_SETTINGS); }
 	
-	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isCreative) { return new IconButton(x, y, pressable, isCreative.get() ? ICON_CREATIVE : ICON_CREATIVE_OFF, new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
-	public static void updateCreativeToggleButton(IconButton creativeButton, boolean isCreative) { creativeButton.setIcon(isCreative ? ICON_CREATIVE : ICON_CREATIVE_OFF); }
+	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
+	
+	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
+	
 	
 	public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	
+	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Supplier<Boolean> hasPermission, Consumer<Integer> onSelect) {
+		List<Component> options = new ArrayList<>();
+		for(int i = 0; i < InteractionType.size(); ++i)
+			options.add(InteractionType.fromIndex(i).getDisplayText());
+		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, (index) -> InteractionType.fromIndex(index).requiresPermissions ? hasPermission.get() : true, options);
+	}
 	
 	
 	public static void renderButtonTooltips(PoseStack pose, int mouseX, int mouseY, List<Widget> widgets)

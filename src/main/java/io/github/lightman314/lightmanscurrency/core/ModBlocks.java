@@ -8,14 +8,8 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.ArmorDisplayBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.CardDisplayBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.DisplayCaseBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.ShelfBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.TicketKioskBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.VendingMachineBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.VendingMachineLargeBlock;
+import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
 import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
@@ -236,6 +230,14 @@ public class ModBlocks {
 				.sound(SoundType.METAL),
 				16
 			)
+	);
+	
+	//Trader Interface
+	public static final BlockItemPair ITEM_TRADER_INTERFACE = register("item_trader_interface", null, new ItemTraderInterfaceBlock(
+			Block.Properties.of(Material.METAL)
+			.strength(5.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+		)
 	);
 	
 	//Cash Register

@@ -4,14 +4,13 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.lightman314.lightmanscurrency.trader.interfacing.TradeInteraction;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
-public abstract class ConfigurableSidedHandler<I extends TradeInteraction<I,?>,H> extends SidedHandler<I,H> {
+public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	
 	protected final DirectionalSettings inputSides;
 	protected final DirectionalSettings outputSides;
@@ -87,7 +86,5 @@ public abstract class ConfigurableSidedHandler<I extends TradeInteraction<I,?>,H
 		if(compound.contains("OutputSides", Tag.TAG_COMPOUND))
 			this.outputSides.load(compound.getCompound("OutputSides"));
 	}
-	
-	
 
 }

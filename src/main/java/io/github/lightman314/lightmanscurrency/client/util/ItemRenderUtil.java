@@ -1,19 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
-import javax.annotation.Nullable;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -45,38 +46,32 @@ public class ItemRenderUtil {
 	
 	/**
     * Draws an ItemStack.
-    *  
-    * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
     */
-	public static void drawItemStack(@Nullable Font font, ItemStack stack, int x, int y, boolean drawCount) {
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) {
 		
-		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-	   
-      	itemRenderer.blitOffset = 200.0F;
-      	itemRenderer.renderGuiItem(stack, x, y);
-      	if(drawCount && font != null)
-      		itemRenderer.renderGuiItemDecorations(font, stack, x, y);
-      	itemRenderer.blitOffset = 0.0F;
-   	}
-	
-	/**
-    * Draws an ItemStack.
-    *  
-    * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
-    */
-	public static void drawItemStack(Screen screen, @Nullable Font font, ItemStack stack, int x, int y, boolean drawCount) {
+		Minecraft minecraft = Minecraft.getInstance();
 		
-		ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+		ItemRenderer itemRenderer = minecraft.getItemRenderer();
+		Player player = minecraft.player;
+		Screen screen = minecraft.screen;
+		int imageWidth = 0;
+		if(screen != null)
+		{
+			imageWidth = screen.width;
+			if(screen instanceof AbstractContainerScreen<?>)
+				imageWidth = ((AbstractContainerScreen<?>)screen).getXSize();
+		}
 	   
-      	//RenderSystem.translatef(0.0F, 0.0F, 32.0F);
-      	screen.setBlitOffset(200);
-      	itemRenderer.blitOffset = 200.0F;
-      	itemRenderer.renderGuiItem(stack, x, y);
-      	//font = stack.getItem().getFontRenderer(stack) != null ? stack.getItem().getFontRenderer(stack) : font;
-      	if(drawCount && font != null)
-      		itemRenderer.renderGuiItemDecorations(font, stack, x, y);
-      	screen.setBlitOffset(0);
-      	itemRenderer.blitOffset = 0.0F;
+		gui.setBlitOffset(100);
+		itemRenderer.blitOffset = 100.0F;
+		
+		RenderSystem.enableDepthTest();
+		
+        itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
+        itemRenderer.renderGuiItemDecorations(font, stack, x, y, null);
+        
+        itemRenderer.blitOffset = 0.0F;
+        gui.setBlitOffset(0);
    	}
 	
 	/**

@@ -4,39 +4,32 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageHandlerMessage {
-	
-	private static final int MAX_TYPE_LENGTH = 100;
+public class MessageToggleInteractionActive {
 	
 	BlockPos pos;
-	ResourceLocation type;
-	CompoundTag updateInfo;
+	boolean isActive;
 	
-	public MessageHandlerMessage(BlockPos pos, ResourceLocation type, CompoundTag updateInfo)
+	public MessageToggleInteractionActive(BlockPos pos, boolean isActive)
 	{
 		this.pos = pos;
-		this.type = type;
-		this.updateInfo = updateInfo;
+		this.isActive = isActive;
 	}
 	
-	public static void encode(MessageHandlerMessage message, FriendlyByteBuf buffer) {
+	public static void encode(MessageToggleInteractionActive message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeUtf(message.type.toString(), MAX_TYPE_LENGTH);
-		buffer.writeNbt(message.updateInfo);
+		buffer.writeBoolean(message.isActive);
 	}
 
-	public static MessageHandlerMessage decode(FriendlyByteBuf buffer) {
-		return new MessageHandlerMessage(buffer.readBlockPos(), new ResourceLocation(buffer.readUtf(MAX_TYPE_LENGTH)), buffer.readAnySizeNbt());
+	public static MessageToggleInteractionActive decode(FriendlyByteBuf buffer) {
+		return new MessageToggleInteractionActive(buffer.readBlockPos(), buffer.readBoolean());
 	}
 
-	public static void handle(MessageHandlerMessage message, Supplier<Context> supplier) {
+	public static void handle(MessageToggleInteractionActive message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer player = supplier.get().getSender();
@@ -46,7 +39,8 @@ public class MessageHandlerMessage {
 				if(blockEntity instanceof UniversalTraderInterfaceBlockEntity<?>)
 				{
 					UniversalTraderInterfaceBlockEntity<?> interfaceBE = (UniversalTraderInterfaceBlockEntity<?>)blockEntity;
-					interfaceBE.receiveHandlerMessage(message.type, player, message.updateInfo);
+					if(interfaceBE.interactionActive() != message.isActive)
+						interfaceBE.toggleActive();
 				}
 			}
 		});

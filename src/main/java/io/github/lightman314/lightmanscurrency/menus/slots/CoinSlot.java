@@ -11,10 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class CoinSlot extends Slot{
+public class CoinSlot extends SimpleSlot{
 	
 	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_coin_slot");
 	
@@ -93,7 +92,5 @@ public class CoinSlot extends Slot{
 	public interface ICoinSlotListener {
 		public void onCoinSlotChanged();
 	}
-	
-	
 
 }
