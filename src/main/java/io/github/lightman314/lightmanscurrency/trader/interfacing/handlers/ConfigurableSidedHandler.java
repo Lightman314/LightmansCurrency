@@ -13,7 +13,9 @@ import net.minecraft.nbt.Tag;
 public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	
 	protected final DirectionalSettings inputSides;
+	public DirectionalSettings getInputSides() { return this.inputSides; }
 	protected final DirectionalSettings outputSides;
+	public DirectionalSettings getOutputSides() { return this.outputSides; }
 	
 	protected static final String UPDATE_INPUT_SIDE = "inputSide";
 	protected static final String UPDATE_OUTPUT_SIDE = "outputSide";

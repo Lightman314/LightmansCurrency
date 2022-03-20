@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalItemTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.lockableslot.LockableSlotInterface;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.lockableslot.LockableSlotInterface.ILockableSlotInteractableMenu;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer.LockData;
 import io.github.lightman314.lightmanscurrency.menus.slots.LockableSlot;
@@ -10,7 +12,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemInterfaceMenu extends AbstractContainerMenu {
+public class ItemInterfaceMenu extends AbstractContainerMenu implements ILockableSlotInteractableMenu{
 
 	public final UniversalItemTraderInterfaceBlockEntity blockEntity;
 	
@@ -91,16 +93,19 @@ public class ItemInterfaceMenu extends AbstractContainerMenu {
 	 * @param lockSlot The index of the lock slot to interact with.
 	 * @param carriedStack The clients carried stack. Only used if the player is in creative mode. Otherwise the true carried stack will be used.
 	 */
-	public void InteractWithLock(int lockSlot, ItemStack carriedStack) {
+	public void OnLockableSlotInteraction(String key, int index, ItemStack carriedStack) {
 		ItemStack interactionStack = this.player.isCreative() ? carriedStack : this.getCarried();
-		LockData data = this.blockEntity.getItemBuffer().getLockData(lockSlot);
-		if(data != null)
+		if(key.contentEquals(LockableSlotInterface.DEFAULT_KEY))
 		{
-			if(!data.hasItemFilter() && interactionStack.isEmpty())
-				data.setFullyLocked(!data.fullyLocked());
-			else
-				data.setFilter(interactionStack);
-			this.blockEntity.setItemBufferDirty();
+			LockData data = this.blockEntity.getItemBuffer().getLockData(index);
+			if(data != null)
+			{
+				if(!data.hasItemFilter() && interactionStack.isEmpty())
+					data.setFullyLocked(!data.fullyLocked());
+				else
+					data.setFilter(interactionStack);
+				this.blockEntity.setItemBufferDirty();
+			}
 		}
 	}
 	

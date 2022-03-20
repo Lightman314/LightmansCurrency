@@ -61,7 +61,10 @@ public class ItemRenderUtil {
 			if(screen instanceof AbstractContainerScreen<?>)
 				imageWidth = ((AbstractContainerScreen<?>)screen).getXSize();
 		}
-	   
+		
+		if(font == null)
+			font = minecraft.font;
+		
 		gui.setBlitOffset(100);
 		itemRenderer.blitOffset = 100.0F;
 		
@@ -72,6 +75,7 @@ public class ItemRenderUtil {
         
         itemRenderer.blitOffset = 0.0F;
         gui.setBlitOffset(0);
+        
    	}
 	
 	/**

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
@@ -131,11 +132,11 @@ public class IconAndButtonUtil {
 	
 	public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	
-	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Supplier<Boolean> hasPermission, Consumer<Integer> onSelect) {
+	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Consumer<Integer> onSelect, Function<Button,Button> addButton) {
 		List<Component> options = new ArrayList<>();
 		for(int i = 0; i < InteractionType.size(); ++i)
 			options.add(InteractionType.fromIndex(i).getDisplayText());
-		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, (index) -> InteractionType.fromIndex(index).requiresPermissions ? hasPermission.get() : true, options);
+		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, addButton, options);
 	}
 	
 	

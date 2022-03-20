@@ -9,14 +9,14 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class LockableSlot extends Slot {
+public class LockableSlot extends SimpleSlot {
 
 	public static final ResourceLocation EMPTY_LOCKED_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_locked_slot");
 	
 	private final LockableContainer container;
+	public final LockableContainer getLockableContainer() { return this.container; }
 	
 	public LockableSlot(LockableContainer container, int index, int x, int y) {
 		super(container.getContainer(), index, x, y);

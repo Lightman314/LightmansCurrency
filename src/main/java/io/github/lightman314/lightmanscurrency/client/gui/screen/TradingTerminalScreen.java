@@ -30,7 +30,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class TradingTerminalScreen extends Screen{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
-	private static final Comparator<UniversalTraderData> TRADER_SORTER = new TraderSorter();
+	public static final Comparator<UniversalTraderData> TRADER_SORTER = new TraderSorter();
 	
 	private int xSize = 176;
 	private int ySize = 187;
@@ -99,7 +99,6 @@ public class TradingTerminalScreen extends Screen{
 	{
 		super.tick();
 		this.searchField.tick();
-		if(this.buttonPreviousPage != null)
 		this.buttonPreviousPage.visible = this.pageLimit() > 0;
 		this.buttonPreviousPage.active = page > 0;
 		this.buttonNextPage.visible = this.pageLimit() > 0;

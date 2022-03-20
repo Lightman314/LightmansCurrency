@@ -113,6 +113,9 @@
     "entity.minecraft.villager.lightmanscurrency.banker": "Banker",
     "entity.minecraft.villager.lightmanscurrency.cashier": "Cashier",
     
+    "tooltip.lightmanscurrency.beta": "Feature in beta stage. May have issues!",
+    "tooltip.lightmanscurrency.disabled": "DISABLED",
+    
     "gui.lightmanscurrency.atm.title": "ATM",
     "gui.lightmanscurrency.universaltrader.default": "Trader",
     "gui.lightmanscurrency.universaltrader.item": "Item Trader",
@@ -370,8 +373,8 @@
     "log.bank.transfer.to": "to",
     "log.bank.transfer.from": "from",
     
-    "lightmanscurrency.bankaccount": "%s's Bank Account.",
-    "lightmanscurrency.bankaccount.unknown": "Unknown Bank Account.",
+    "lightmanscurrency.bankaccount": "%s's Bank Account",
+    "lightmanscurrency.bankaccount.unknown": "Unknown Bank Account",
     
     
     "tooltip.lightmanscurrency.interface.enable": "Activate",
@@ -387,6 +390,16 @@
     "gui.lightmanscurrency.interface.item.difference.itemnbt": "Item NBT does not match.",
     "gui.lightmanscurrency.interface.item.difference.quantity.more": "Trade is %%1$s %2$s more item(s).",
     "gui.lightmanscurrency.interface.item.difference.quantity.less": "Trade is %%1$s %2$s less item(s).",
+    
+    "tooltip.lightmanscurrency.interface.info": "Status",
+    "tooltip.lightmanscurrency.interface.trader": "Trader Select",
+    "tooltip.lightmanscurrency.interface.trade": "Trade Select",
+    "tooltip.lightmanscurrency.interface.item.input": "Item Input/Output",
+    
+    "gui.lightmanscurrency.lockableslot.title": "Slot Filters/Locks",
+    "tooltip.lightmanscurrency.lockableslot.item": "Only accepts %s",
+    "tooltip.lightmanscurrency.lockableslot.locked": "Locked. Click with an empty stack to unlock.",
+    "tooltip.lightmanscurrency.lockableslot.unlocked": "Unlocked. Click with an empty stack to lock. Click with an item to set an item filter.",
     
     "lightmanscurrency.remotetrade.fail.nostock": "Trader is out of stock.",
     "lightmanscurrency.remotetrade.fail.cantafford": "You can no longer afford this trade.",

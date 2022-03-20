@@ -71,7 +71,7 @@ public class TeamButton extends Button{
 		if(this.font.width(string) <= this.width - 4)
 			return string;
 		//Shorten 1 char at a time, but assume a ... will be at the end
-		while(this.font.width(string + "...") > this.width - 4)
+		while(this.font.width(string + "...") > this.width - 4 && string.length() > 0)
 			string = string.substring(0, string.length() - 1);
 		return string + "...";
 	}

@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.menus.ItemInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageToggleInteractionActive;
@@ -35,7 +36,7 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/item_interface.png");
 	
 	int currentTabIndex = 0;
-	List<ItemInterfaceTab> tabs = Lists.newArrayList(new InfoTab(this));
+	List<ItemInterfaceTab> tabs = Lists.newArrayList(new InfoTab(this), new InputOutputTab(this), new TraderSelectTab(this));
 	public List<ItemInterfaceTab> getTabs() { return this.tabs; }
 	public ItemInterfaceTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
@@ -56,12 +57,21 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 	}
 	
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		
+		if(this.currentTab().hideItemSlots) //Cover up the item slots
+			this.blit(pose, this.leftPos + 7, this.topPos + 97, 7, 79, 162, 18);
+			
+		
+		try {
+			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
+			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
+		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
 		
 	}
 	
@@ -86,7 +96,11 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 		
 		this.buttonActivate = this.addRenderableWidget(IconAndButtonUtil.interfaceActiveToggleButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleActive, this.menu.blockEntity::interactionActive));
 		
+		this.validateTabs();
+		
 		this.currentTab().init();
+		
+		this.containerTick();
 		
 	}
 	
@@ -100,10 +114,10 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 		
 		//Render the current tab
 		try {
-			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
-			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
+			//this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
+			//this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 			this.currentTab().postRender(pose, mouseX, mouseY);
-		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } } 
+		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
 		
 		this.renderTooltip(pose, mouseX,  mouseY);
 		
@@ -121,6 +135,8 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 		
 		//Close the old tab
 		this.currentTab().onClose();
+		if(this.currentTab().hideItemSlots) //Un-hide the slots
+			SimpleSlot.SetActive(this.menu);
 		this.tabButtons.get(this.currentTabIndex).active = true;
 		this.currentTabIndex = tabIndex;
 		this.tabButtons.get(this.currentTabIndex).active = false;
@@ -131,6 +147,8 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 		
 		//Initialize the new tab
 		this.currentTab().init();
+		if(this.currentTab().hideItemSlots) //Hide the slots
+			SimpleSlot.SetInactive(this.menu);
 		
 		this.logError = true;
 	}
@@ -146,7 +164,34 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 	public void containerTick()
 	{
 		this.buttonActivate.active = this.validState();
+		this.validateTabs();
 		this.currentTab().tick();
+	}
+	
+	private void validateTabs() {
+		
+		boolean changed = false;
+		for(int i = 0; i < this.tabs.size() && i < this.tabButtons.size(); ++i)
+		{
+			boolean valid = this.tabs.get(i).valid(this.menu.blockEntity.getInteractionType());
+			if(valid != this.tabButtons.get(i).visible)
+			{
+				this.tabButtons.get(i).visible = valid;
+				changed = true;
+			}
+		}
+		if(changed)
+		{
+			int pos = 0;
+			for(TabButton button : this.tabButtons)
+			{
+				if(button.visible)
+				{
+					button.reposition(this.leftPos - TabButton.SIZE, this.topPos + pos++ * TabButton.SIZE, 3);
+				}
+			}
+		}
+		
 	}
 	
 	public <T extends AbstractWidget> T addRenderableTabWidget(T widget)
@@ -190,13 +235,24 @@ public class ItemInterfaceScreen extends AbstractContainerScreen<ItemInterfaceMe
 	}
 	
 	@Override
-	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
-	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
-	      if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
-	    	  return true;
-	      }
-	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
+	public boolean charTyped(char c, int code)
+	{
+		if(this.currentTab().charTyped(c, code))
+			return true;
+		return super.charTyped(c, code);
+	}
+	
+	@Override
+	public boolean keyPressed(int key, int scanCode, int mods)
+	{
+		if(this.currentTab().keyPressed(key, scanCode, mods))
+			return true;
+		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
+		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
+    	  	return true;
+		}
+		return super.keyPressed(key, scanCode, mods);
 	}
 	
 	private void ToggleActive(Button button) {

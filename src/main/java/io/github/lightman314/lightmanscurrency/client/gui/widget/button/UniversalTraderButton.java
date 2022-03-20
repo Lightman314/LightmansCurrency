@@ -22,8 +22,11 @@ public class UniversalTraderButton extends Button{
 	public static final int HEIGHT = 30;
 	
 	UniversalTraderData data;
+	public UniversalTraderData getData() { return this.data; }
 	
 	Font font;
+	
+	public boolean selected = false;
 	
 	public UniversalTraderButton(int x, int y, OnPress pressable, Font font)
 	{
@@ -43,17 +46,20 @@ public class UniversalTraderButton extends Button{
 	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set active status
-		this.active = this.data != null;
+		this.active = this.data != null && !this.selected;
 		//Render nothing if there is no data
 		if(this.data == null)
 			return;
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, BUTTON_TEXTURES);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		if(this.active)
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		else
+			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1.0F);
 		
 		int offset = 0;
-		if(this.isHovered)
+		if(this.isHovered || this.selected)
 			offset = HEIGHT;
 		//Draw Button BG
 		this.blit(poseStack, this.x, this.y, 0, offset, WIDTH, HEIGHT);

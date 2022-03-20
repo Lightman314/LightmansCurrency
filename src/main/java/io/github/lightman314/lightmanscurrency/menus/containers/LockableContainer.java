@@ -8,6 +8,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -31,10 +32,16 @@ public class LockableContainer implements IItemHandler{
 	public LockableContainer(int size, IMarkDirty... listeners)
 	{
 		this.container = new SimpleContainer(size);
+		this.container.addListener(this::containerChanged);
 		this.lock = NonNullList.withSize(size, new LockData());
 		for(int i = 0; i < this.lock.size(); ++i)
 			this.lock.set(i, new LockData());
 		for(IMarkDirty listener : listeners) this.addListener(listener);
+	}
+	
+	private void containerChanged(Container container) {
+		if(container == this.container)
+			this.setChanged();
 	}
 	
 	public CompoundTag save(CompoundTag compound) {
@@ -46,15 +53,19 @@ public class LockableContainer implements IItemHandler{
 		return compound;
 	}
 	
-	public LockableContainer(int size, CompoundTag compound, IMarkDirty... listeners)
-	{
+	public void load(CompoundTag compound) {
 		//Load items
 		if(compound.contains("Items", Tag.TAG_LIST))
-			this.container = InventoryUtil.loadAllItems("Items", compound, size);
+		{
+			this.container.removeListener(this::containerChanged);
+			Container copyContainer = InventoryUtil.loadAllItems("Items", compound, this.getSlots());
+			for(int i = 0; i < this.container.getContainerSize() && i < copyContainer.getContainerSize(); ++i)
+				this.container.setItem(i, copyContainer.getItem(i));
+			this.container.addListener(this::containerChanged);
+		}
 		else
-			this.container = new SimpleContainer(size);
+			this.container.clearContent();
 		//Load lock data
-		this.lock = NonNullList.withSize(size, new LockData());
 		ListTag lockList = compound.contains("Lock", Tag.TAG_LIST) ? compound.getList("Lock", Tag.TAG_COMPOUND) : new ListTag();
 		for(int i = 0; i < this.lock.size(); ++i)
 		{
@@ -62,8 +73,6 @@ public class LockableContainer implements IItemHandler{
 			if(i < lockList.size())
 				this.lock.get(i).load(lockList.getCompound(i));
 		}
-		
-		for(IMarkDirty listener : listeners) this.addListener(listener);
 	}
 	
 	public void addListener(IMarkDirty listener) {

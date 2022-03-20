@@ -38,28 +38,30 @@ public class DropdownWidget extends AbstractWidget {
 	
 	List<Button> optionButtons = new ArrayList<>();
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Component... options) {
-		this(x, y, width, font, selected, onSelect, (index) -> true, options);
+	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, Component... options) {
+		this(x, y, width, font, selected, onSelect, (index) -> true, addButton, options);
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, List<Component> options) {
-		this(x, y, width, font, selected, onSelect, (index) -> true, options);
+	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<Component> options) {
+		this(x, y, width, font, selected, onSelect, (index) -> true, addButton, options);
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Component... options) {
-		this(x, y, width, font, selected, onSelect, optionActive, Lists.newArrayList(options));
+	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, Component... options) {
+		this(x, y, width, font, selected, onSelect, optionActive, addButton, Lists.newArrayList(options));
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, List<Component> options) {
+	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, List<Component> options) {
 		super(x, y, width, HEIGHT, new TextComponent(""));
 		this.font = font;
 		this.options = options;
 		this.currentlySelected = MathUtil.clamp(selected, 0, this.options.size() - 1);
 		this.onSelect = onSelect;
 		this.optionActive = optionActive;
+		//Init the buttons before this, so that they get pressed before this closes them on a offset click
+		this.init(addButton);
 	}
 	
-	public void init(Function<Button,Button> addButton) {
+	private void init(Function<Button,Button> addButton) {
 		this.optionButtons = new ArrayList<>();
 		
 		for(int i = 0; i < this.options.size(); ++i)
@@ -137,11 +139,11 @@ public class DropdownWidget extends AbstractWidget {
 	private String fitString(String text) {
 		if(this.font.width(text) <= this.width - 14)
 			return text;
-		while(this.font.width(text + "...") <= this.width - 14 && text.length() > 0)
+		while(this.font.width(text + "...") > this.width - 14 && text.length() > 0)
 		{
 			text = text.substring(0, text.length() - 1);
 		}
-		return text;
+		return text + "...";
 	}
 	
 	

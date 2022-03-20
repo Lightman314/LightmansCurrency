@@ -112,7 +112,14 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	public T getReferencedTrade() { return this.reference.getLocalTrade(); }
 	public T getTrueTrade() { return this.reference.getTrueTrade(); }
 	
-	public void setTrader(UUID traderID) { this.reference.setTrader(traderID); this.reference.setTrade(-1); this.setTradeReferenceDirty(); }
+	public void setTrader(UUID traderID) {
+		//Trader is the same id. Ignore the change.
+		if(this.reference.getTraderID() != null && this.reference.getTraderID().equals(traderID))
+			return;
+		this.reference.setTrader(traderID);
+		this.reference.setTrade(-1);
+		this.setTradeReferenceDirty();
+	}
 	public void setTradeIndex(int tradeIndex) { this.reference.setTrade(tradeIndex); this.setTradeReferenceDirty(); }
 	
 	private RemoteTradeResult lastResult = RemoteTradeResult.SUCCESS;
@@ -157,12 +164,16 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	
 	public abstract RemoteTradeData getRemoteTradeData();
 	
-	public boolean isClient() { return this.level.isClientSide; }
+	public boolean isClient() { return this.level != null ? this.level.isClientSide : true; }
 	
-	protected final void addHandler(@Nonnull SidedHandler<?> handler) {
+	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
 		handler.setParent(this);
 		this.handlers.add(handler);
+		return handler;
 	}
+	
+	@Override
+	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {

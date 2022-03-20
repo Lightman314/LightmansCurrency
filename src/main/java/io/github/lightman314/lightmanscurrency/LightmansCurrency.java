@@ -65,7 +65,6 @@ public class LightmansCurrency {
 	
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	
-	// Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
     
     public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);

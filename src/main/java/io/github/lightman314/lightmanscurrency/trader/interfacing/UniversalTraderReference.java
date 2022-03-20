@@ -12,6 +12,7 @@ public class UniversalTraderReference {
 
 	private final Supplier<Boolean> clientCheck;
 	UUID traderID = null;
+	public UUID getTraderID() { return this.traderID; }
 	public boolean hasTrader() { return this.traderID != null; }
 	public void setTrader(UUID traderID) {
 		this.traderID = traderID; 

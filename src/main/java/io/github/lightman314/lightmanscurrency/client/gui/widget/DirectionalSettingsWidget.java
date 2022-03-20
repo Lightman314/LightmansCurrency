@@ -28,6 +28,8 @@ public class DirectionalSettingsWidget {
 	private final Consumer<Direction> onPress;
 	List<PlainButton> directionButtons;
 	
+	public boolean visible = true;
+	
 	public DirectionalSettingsWidget(int x, int y, Supplier<DirectionalSettings> settingSource, Consumer<Direction> onPress, Consumer<Button> addButton)
 	{
 		//DOWN, UP, NORTH, SOUTH, WEST, EAST
@@ -104,7 +106,7 @@ public class DirectionalSettingsWidget {
 		for(Direction side : Direction.values())
 		{
 			PlainButton button = this.getButton(side);
-			button.visible = settings.allows(side);
+			button.visible = settings.allows(side) && this.visible;
 			button.setResource(BLOCK_SIDE_TEXTURE, this.getSideU(side), settings.get(side) ? 32 : 0);
 		}
 	}

@@ -402,7 +402,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
+	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 	private class CRDataWriter implements Consumer<FriendlyByteBuf>
 	{

@@ -3,33 +3,34 @@ package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity.InteractionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageToggleInteractionActive {
+public class MessageSetInteractionType {
 	
 	BlockPos pos;
-	boolean isActive;
+	InteractionType interactionType;
 	
-	public MessageToggleInteractionActive(BlockPos pos, boolean isActive)
+	public MessageSetInteractionType(BlockPos pos, InteractionType interactionType)
 	{
 		this.pos = pos;
-		this.isActive = isActive;
+		this.interactionType = interactionType;
 	}
 	
-	public static void encode(MessageToggleInteractionActive message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSetInteractionType message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeBoolean(message.isActive);
+		buffer.writeInt(message.interactionType.index);
 	}
 
-	public static MessageToggleInteractionActive decode(FriendlyByteBuf buffer) {
-		return new MessageToggleInteractionActive(buffer.readBlockPos(), buffer.readBoolean());
+	public static MessageSetInteractionType decode(FriendlyByteBuf buffer) {
+		return new MessageSetInteractionType(buffer.readBlockPos(), InteractionType.fromIndex(buffer.readInt()));
 	}
 
-	public static void handle(MessageToggleInteractionActive message, Supplier<Context> supplier) {
+	public static void handle(MessageSetInteractionType message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer player = supplier.get().getSender();
@@ -39,8 +40,8 @@ public class MessageToggleInteractionActive {
 				if(blockEntity instanceof UniversalTraderInterfaceBlockEntity<?>)
 				{
 					UniversalTraderInterfaceBlockEntity<?> interfaceBE = (UniversalTraderInterfaceBlockEntity<?>)blockEntity;
-					if(interfaceBE.interactionActive() != message.isActive && interfaceBE.isOwner(player))
-						interfaceBE.toggleActive();
+					if(interfaceBE.isOwner(player))
+						interfaceBE.setInteractionType(message.interactionType);
 				}
 			}
 		});

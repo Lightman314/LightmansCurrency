@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +14,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 
 public abstract class TextLogger {
-
+	
 	public final List<MutableComponent> logText = new ArrayList<>();
 	protected final String tag;
 	
@@ -32,6 +33,7 @@ public abstract class TextLogger {
 		if(text != null)
 		{
 			this.logText.add(text);
+			this.fitToSizeLimit();
 		}
 	}
 	
@@ -61,7 +63,14 @@ public abstract class TextLogger {
 				if(text != null)
 					this.logText.add(text);
 			}
+			//Fit to size limit on load to ensure that changing the config option will correct any log size issues.
+			this.fitToSizeLimit();
 		}
+	}
+	
+	public final void fitToSizeLimit() {
+		while(this.logText.size() > Config.SERVER.logLimit.get() && this.logText.size() > 0)
+			this.logText.remove(0);
 	}
 	
 	@Deprecated //Use getCostText(CoinValue cost)

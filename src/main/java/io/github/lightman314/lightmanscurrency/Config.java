@@ -334,6 +334,9 @@ public class Config {
 	public static class Server
 	{
 		
+		//Log Limit Option
+		public final ForgeConfigSpec.IntValue logLimit;
+		
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
 		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
@@ -393,6 +396,11 @@ public class Config {
 		{
 			
 			builder.comment("Server Config Settings").push("server");
+			
+			this.logLimit = builder
+					.comment("The maximum number of text log entries allowed before old entries are deleted.",
+							"Lower if you encounter packet size problems.")
+					.defineInRange("logLimit", 100, 0, Integer.MAX_VALUE);
 			
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")

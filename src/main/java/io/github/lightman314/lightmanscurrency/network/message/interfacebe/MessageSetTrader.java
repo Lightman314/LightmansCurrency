@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
@@ -9,27 +10,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
-public class MessageToggleInteractionActive {
+public class MessageSetTrader {
 	
 	BlockPos pos;
-	boolean isActive;
+	UUID traderID;
 	
-	public MessageToggleInteractionActive(BlockPos pos, boolean isActive)
+	public MessageSetTrader(BlockPos pos, UUID traderID)
 	{
 		this.pos = pos;
-		this.isActive = isActive;
+		this.traderID = traderID;
 	}
 	
-	public static void encode(MessageToggleInteractionActive message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSetTrader message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeBoolean(message.isActive);
+		buffer.writeUUID(message.traderID);
 	}
 
-	public static MessageToggleInteractionActive decode(FriendlyByteBuf buffer) {
-		return new MessageToggleInteractionActive(buffer.readBlockPos(), buffer.readBoolean());
+	public static MessageSetTrader decode(FriendlyByteBuf buffer) {
+		return new MessageSetTrader(buffer.readBlockPos(), buffer.readUUID());
 	}
 
-	public static void handle(MessageToggleInteractionActive message, Supplier<Context> supplier) {
+	public static void handle(MessageSetTrader message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer player = supplier.get().getSender();
@@ -39,8 +40,8 @@ public class MessageToggleInteractionActive {
 				if(blockEntity instanceof UniversalTraderInterfaceBlockEntity<?>)
 				{
 					UniversalTraderInterfaceBlockEntity<?> interfaceBE = (UniversalTraderInterfaceBlockEntity<?>)blockEntity;
-					if(interfaceBE.interactionActive() != message.isActive && interfaceBE.isOwner(player))
-						interfaceBE.toggleActive();
+					if(interfaceBE.isOwner(player))
+						interfaceBE.setTrader(message.traderID);
 				}
 			}
 		});

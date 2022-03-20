@@ -11,12 +11,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageSetInteractionType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class InfoTab extends ItemInterfaceTab{
 
-	public InfoTab(ItemInterfaceScreen screen) { super(screen); }
+	public InfoTab(ItemInterfaceScreen screen) { super(screen, false); }
 
 	ScrollTextDisplay changesDisplay;
 	
@@ -26,10 +28,11 @@ public class InfoTab extends ItemInterfaceTab{
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
-	public Component getTooltip() {
-		return new TextComponent("");
-	}
-
+	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.info"); }
+	
+	@Override
+	public boolean valid(InteractionType interaction) { return true; }
+	
 	@Override
 	public void init() {
 		
@@ -37,8 +40,8 @@ public class InfoTab extends ItemInterfaceTab{
 		//Set background color to clear.
 		this.changesDisplay.backgroundColor = 0x00000000;
 		
-		this.interactionDropdown = this.screen.addRenderableTabWidget(IconAndButtonUtil.interactionTypeDropdown(this.screen.getGuiLeft() + 95, this.screen.getGuiTop() + 15 + ItemTradeButton.HEIGHT, 80, this.screen.getFont(), this.screen.getMenu().blockEntity.getInteractionType(), this.screen.getMenu().blockEntity::hasTraderPermissions, this::onInteractionSelect));
-		this.interactionDropdown.init(this.screen::addRenderableTabWidget);
+		this.interactionDropdown = this.screen.addRenderableTabWidget(IconAndButtonUtil.interactionTypeDropdown(this.screen.getGuiLeft() + 92, this.screen.getGuiTop() + 15 + ItemTradeButton.HEIGHT, 80, this.screen.getFont(), this.screen.getMenu().blockEntity.getInteractionType(), this::onInteractionSelect, this.screen::addRenderableTabWidget));
+		//this.interactionDropdown.init(this.screen::addRenderableTabWidget);
 		
 	}
 
@@ -81,21 +84,15 @@ public class InfoTab extends ItemInterfaceTab{
 	}
 
 	@Override
-	public void tick() {
-		
-		
-	}
+	public void tick() { }
 
 	@Override
-	public void onClose() {
-		
-		
-	}
+	public void onClose() { }
 	
 	private void onInteractionSelect(int newTypeIndex) {
 		InteractionType newType = InteractionType.fromIndex(newTypeIndex);
 		this.screen.getMenu().blockEntity.setInteractionType(newType);
-		//LightmansCurrencyPacketHandler.instance.sendToServer();
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetInteractionType(this.screen.getMenu().blockEntity.getBlockPos(), newType));
 	}
 
 }

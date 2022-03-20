@@ -50,11 +50,11 @@ public class DropdownButton extends Button{
 	private String fitString(String text) {
 		if(this.font.width(text) <= this.width - 4)
 			return text;
-		while(this.font.width(text + "...") <= this.width - 4 && text.length() > 0)
+		while(this.font.width(text + "...") > this.width - 4 && text.length() > 0)
 		{
 			text = text.substring(0, text.length() - 1);
 		}
-		return text;
+		return text + "...";
 	}
 
 }

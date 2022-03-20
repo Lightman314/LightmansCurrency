@@ -32,9 +32,12 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 	private LockableContainer itemBuffer = new LockableContainer(BUFFER_SIZE, this::setItemBufferDirty);
 	public LockableContainer getItemBuffer() { return this.itemBuffer; }
 	
+	ItemInterfaceHandler itemHandler;
+	public ItemInterfaceHandler getItemHandler() { return this.itemHandler; }
+	
 	public UniversalItemTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.TRADER_INTERFACE_ITEM, pos, state, ItemTradeData::loadData);
-		this.addHandler(new ItemInterfaceHandler(this, this::getItemBuffer));
+		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this, this::getItemBuffer));
 	}
 
 	@Override
@@ -42,6 +45,9 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 		return new RemoteTradeData(this.owner, this.getBankAccount(), null, this.itemBuffer, null, null);
 	}
 	
+	/**
+	 * Whether the current interaction allows for any item to be placed into the buffer.
+	 */
 	public boolean allowAnyInput() {
 		if(this.getInteractionType().trades)
 		{
@@ -151,12 +157,12 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 	public void load(CompoundTag compound) {
 		super.load(compound);
 		if(compound.contains("ItemBuffer", Tag.TAG_COMPOUND))
-			this.itemBuffer = new LockableContainer(BUFFER_SIZE, compound.getCompound("ItemBuffer"), this::setItemBufferDirty);
+			this.itemBuffer.load(compound.getCompound("ItemBuffer"));
 	}
 
 	@Override
 	protected boolean validTraderType(UniversalTraderData trader) { return trader instanceof IItemTrader; }
-
+	
 	protected final IItemTrader getItemTrader() {
 		UniversalTraderData trader = this.getTrader();
 		if(trader instanceof IItemTrader)

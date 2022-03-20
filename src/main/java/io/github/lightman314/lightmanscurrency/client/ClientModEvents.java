@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTrad
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.LockableSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -38,6 +39,7 @@ public class ClientModEvents {
 			event.addSprite(TicketSlot.EMPTY_TICKET_SLOT);
 			event.addSprite(WalletSlot.EMPTY_WALLET_SLOT);
 			event.addSprite(ItemTradeButton.DEFAULT_BACKGROUND);
+			event.addSprite(LockableSlot.EMPTY_LOCKED_SLOT);
 		}
 	}
 	

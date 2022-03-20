@@ -142,19 +142,16 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 	}
 	
 	@Override
-	public void backgroundRender(PoseStack pose) {
+	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
+		Component balance = this.screen.getMenu().getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
+		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 18, 0x404040);
+		
 		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
 		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
 		List<FormattedText> lines = this.screen.getFont().getSplitter().splitLines(this.screen.getMenu().getLastMessage().getString(), this.screen.getXSize() - 15, Style.EMPTY);
 		for(int i = 0; i < lines.size(); ++i)
 			this.screen.getFont().draw(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97 + (this.screen.getFont().lineHeight * i), 0x404040);
-	}
-	
-	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
-		Component balance = this.screen.getMenu().getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
-		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 18, 0x404040);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import com.mojang.datafixers.util.Pair;
 
@@ -20,12 +21,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestriction>{
 
-	static IForgeRegistry<ItemTradeRestriction> ITEM_TRADE_RESTRICTIONS;
+	static Supplier<IForgeRegistry<ItemTradeRestriction>> ITEM_TRADE_RESTRICTIONS;
 	
 	private static final List<ItemTradeRestriction> RESTRICTIONS = new ArrayList<>();
 	
@@ -73,14 +75,14 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	}
 	
 	@SubscribeEvent
-	public static void createRegistry(RegistryEvent.NewRegistry event)
+	public static void createRegistry(NewRegistryEvent event)
 	{
 		RegistryBuilder<ItemTradeRestriction> builder = new RegistryBuilder<ItemTradeRestriction>();
 		builder.setType(ItemTradeRestriction.class);
 		ResourceLocation key = new ResourceLocation(LightmansCurrency.MODID, "item_trade_restrictions");
 		builder.setName(key);
 		builder.setDefaultKey(key);
-		ITEM_TRADE_RESTRICTIONS = builder.create();
+		ITEM_TRADE_RESTRICTIONS = event.create(builder);
 	}
 	
 	@SubscribeEvent
@@ -98,12 +100,12 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 		} catch(Exception e) {} //Catch invalid resource locations
 		ItemTradeRestriction restriction = null;
 		if(testKey != null)
-			restriction = ITEM_TRADE_RESTRICTIONS.getValue(testKey);
+			restriction = ITEM_TRADE_RESTRICTIONS.get().getValue(testKey);
 		if(restriction == null)
 		{
 			//Search through the classic names
 			AtomicReference<ItemTradeRestriction> temp = new AtomicReference<ItemTradeRestriction>();
-			ITEM_TRADE_RESTRICTIONS.forEach(r ->{
+			ITEM_TRADE_RESTRICTIONS.get().forEach(r ->{
 				if(r.classicType.equals(key))
 					temp.set(r);
 			});
