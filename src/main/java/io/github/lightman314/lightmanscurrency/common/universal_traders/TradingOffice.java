@@ -30,7 +30,7 @@ import io.github.lightman314.lightmanscurrency.network.message.command.MessageSy
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageUpdateClientTeam;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageInitializeClientTraders;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageClearClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -575,6 +575,7 @@ public class TradingOffice extends SavedData{
 			BankAccount newAccount = new BankAccount(() -> MarkBankAccountDirty(playerID));
 			office.playerBankAccounts.put(playerID, newAccount);
 			MarkBankAccountDirty(playerID);
+			return newAccount;
 		}
 		return null;
 	}
@@ -613,13 +614,12 @@ public class TradingOffice extends SavedData{
 			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 			
 			TradingOffice office = get(server);
-			//Send update message to the connected clients
-			CompoundTag compound = new CompoundTag();
-			ListTag traderList = new ListTag();
-			office.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundTag())) );
-			office.persistentTraderMap.forEach((id, trader) -> traderList.add(trader.write(new CompoundTag())) );
-			compound.put("Traders", traderList);
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTraders(compound));
+			
+			//Send the clear message
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+			//Send update message to the newly connected client
+			office.universalTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundTag()))));
+			office.persistentTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundTag()))));
 			
 			CompoundTag compound2 = new CompoundTag();
 			ListTag teamList = new ListTag();
@@ -643,12 +643,10 @@ public class TradingOffice extends SavedData{
 	}
 	
 	private void resendTraderData() {
-		CompoundTag compound = new CompoundTag();
-		ListTag traderList = new ListTag();
-		this.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundTag())) );
-		this.persistentTraderMap.forEach((id, trader) -> traderList.add(trader.write(new CompoundTag())) );
-		compound.put("Traders", traderList);
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageInitializeClientTraders(compound));
+		PacketTarget target = PacketDistributor.ALL.noArg();
+		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+		this.universalTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundTag()))));
+		this.persistentTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundTag()))));
 	}
 	
 	/**

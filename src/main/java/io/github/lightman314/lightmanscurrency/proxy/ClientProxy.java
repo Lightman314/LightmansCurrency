@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
@@ -110,15 +108,9 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void initializeTraders(CompoundTag compound)
+	public void clearClientTraders()
 	{
-		if(compound.contains("Traders", Tag.TAG_LIST))
-		{
-			List<UniversalTraderData> traders = new ArrayList<>();
-			ListTag traderList = compound.getList("Traders", Tag.TAG_COMPOUND);
-			traderList.forEach(nbt -> traders.add(TradingOffice.Deserialize((CompoundTag)nbt)));
-			ClientTradingOffice.initData(traders);
-		}
+		ClientTradingOffice.clearData();
 	}
 	
 	@Override

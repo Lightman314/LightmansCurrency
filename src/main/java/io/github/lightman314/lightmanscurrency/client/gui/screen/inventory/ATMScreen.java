@@ -44,15 +44,15 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		try {
-			this.currentTab().backgroundRender(poseStack);
+			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
 		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } } 
 		
 	}

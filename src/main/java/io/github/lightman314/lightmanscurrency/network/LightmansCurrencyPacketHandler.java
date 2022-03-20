@@ -106,7 +106,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenTrades2.class, MessageOpenTrades2::encode, MessageOpenTrades2::decode, MessageOpenTrades2::handle);
 		register(MessageOpenStorage2.class, MessageOpenStorage2::encode, MessageOpenStorage2::decode, MessageOpenStorage2::handle);
 		register(MessageSyncStorage.class, MessageSyncStorage::encode, MessageSyncStorage::decode, MessageSyncStorage::handle);
-		register(MessageInitializeClientTraders.class, MessageInitializeClientTraders::encode, MessageInitializeClientTraders::decode, MessageInitializeClientTraders::handle);
+		register(MessageClearClientTraders.class, MessageClearClientTraders::encode, MessageClearClientTraders::decode, MessageClearClientTraders::handle);
 		register(MessageUpdateClientData.class, MessageUpdateClientData::encode, MessageUpdateClientData::decode, MessageUpdateClientData::handle);
 		register(MessageSetItemPrice2.class, MessageSetItemPrice2::encode, MessageSetItemPrice2::decode, MessageSetItemPrice2::handle);
 		register(MessageSetTradeItem2.class, MessageSetTradeItem2::encode, MessageSetTradeItem2::decode, MessageSetTradeItem2::handle);

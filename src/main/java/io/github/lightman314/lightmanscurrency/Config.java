@@ -334,6 +334,9 @@ public class Config {
 	public static class Server
 	{
 		
+		//Log Limit Option
+		public final ForgeConfigSpec.IntValue logLimit;
+		
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
 		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
@@ -365,34 +368,15 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
 		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 		
-		/*
-		//Coin Values
-		public final ForgeConfigSpec.IntValue ironCoinWorth;
-		public final ForgeConfigSpec.IntValue goldCoinWorth;
-		public final ForgeConfigSpec.IntValue emeraldCoinWorth;
-		public final ForgeConfigSpec.IntValue diamondCoinWorth;
-		public final ForgeConfigSpec.IntValue netheriteCoinWorth;
-		
-		//Coin Pile Values
-		public final ForgeConfigSpec.IntValue coinpileCopperWorth;
-		public final ForgeConfigSpec.IntValue coinpileIronWorth;
-		public final ForgeConfigSpec.IntValue coinpileGoldWorth;
-		public final ForgeConfigSpec.IntValue coinpileEmeraldWorth;
-		public final ForgeConfigSpec.IntValue coinpileDiamondWorth;
-		public final ForgeConfigSpec.IntValue coinpileNetheriteWorth;
-		
-		//Coin Block Values
-		public final ForgeConfigSpec.IntValue coinBlockCopperWorth;
-		public final ForgeConfigSpec.IntValue coinBlockIronWorth;
-		public final ForgeConfigSpec.IntValue coinBlockGoldWorth;
-		public final ForgeConfigSpec.IntValue coinBlockEmeraldWorth;
-		public final ForgeConfigSpec.IntValue coinBlockDiamondWorth;
-		public final ForgeConfigSpec.IntValue coinBlockNetheriteWorth;*/
-		
 		Server(ForgeConfigSpec.Builder builder)
 		{
 			
 			builder.comment("Server Config Settings").push("server");
+			
+			this.logLimit = builder
+					.comment("The maximum number of text log entries allowed before old entries are deleted.",
+							"Lower if you encounter packet size problems.")
+					.defineInRange("logLimit", 100, 0, Integer.MAX_VALUE);
 			
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")

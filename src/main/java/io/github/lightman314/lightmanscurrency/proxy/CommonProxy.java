@@ -9,7 +9,7 @@ public class CommonProxy {
 	
 	public void setupClient() {}
 	
-	public void initializeTraders(CompoundTag compound) {}
+	public void clearClientTraders() {}
 	
 	public void updateTrader(CompoundTag compound) {}
 	
