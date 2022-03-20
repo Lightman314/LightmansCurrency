@@ -60,6 +60,7 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 		
 		try {
 			this.currentTab().preRender(matrix, mouseX, mouseY, partialTicks);
+			this.tabWidgets.forEach(widget -> widget.render(matrix, mouseX, mouseY, partialTicks));
 		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
 		
 	}
@@ -95,7 +96,6 @@ public class ATMScreen extends ContainerScreen<ATMContainer> {
 		
 		//Render the current tab
 		try {
-			this.tabWidgets.forEach(widget -> widget.render(matrixStack, mouseX, mouseY, partialTicks));
 			this.currentTab().postRender(matrixStack, mouseX, mouseY);
 		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } }
 		
