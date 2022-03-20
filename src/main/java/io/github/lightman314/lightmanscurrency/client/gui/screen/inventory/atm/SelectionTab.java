@@ -14,8 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButt
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.containers.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMSetAccount;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.Items;
 import net.minecraft.util.text.ITextComponent;
@@ -37,7 +39,9 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void init() {
 		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 4, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
+		SimpleSlot.SetInactive(this.screen.getContainer());
+		
+		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 5, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
 		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, new TranslationTextComponent("gui.button.bank.playeraccount"), this::PressPersonalAccount));
@@ -88,6 +92,10 @@ public class SelectionTab extends ATMTab{
 
 	@Override
 	public void preRender(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+		
+		Minecraft.getInstance().getTextureManager().bindTexture(ATMScreen.GUI_TEXTURE);
+		this.screen.blit(matrix, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
+		
 		this.screen.getFont().drawString(matrix, this.getTooltip().getString(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 	}
 
@@ -100,6 +108,8 @@ public class SelectionTab extends ATMTab{
 	}
 
 	@Override
-	public void onClose() { }
+	public void onClose() {
+		SimpleSlot.SetActive(this.screen.getContainer());
+	}
 
 }

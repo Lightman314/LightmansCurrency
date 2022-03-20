@@ -35,12 +35,9 @@ public class ClientTradingOffice {
 		return null;
 	}
 	
-	public static void initData(List<UniversalTraderData> data)
+	public static void clearData()
 	{
 		loadedTraders.clear();
-		data.forEach(trader ->{
-			loadedTraders.put(trader.getTraderID(), trader.flagAsClient());
-		});
 	}
 	
 	public static void updateTrader(CompoundNBT compound)

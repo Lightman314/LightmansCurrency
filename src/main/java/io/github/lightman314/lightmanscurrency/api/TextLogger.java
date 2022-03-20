@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -31,6 +32,7 @@ public abstract class TextLogger {
 		if(text != null)
 		{
 			this.logText.add(text);
+			this.fitToSizeLimit();
 		}
 	}
 	
@@ -60,7 +62,14 @@ public abstract class TextLogger {
 				if(text != null)
 					this.logText.add(text);
 			}
+			//Fit to size limit on load to ensure that changing the config option will correct any log size issues.
+			this.fitToSizeLimit();
 		}
+	}
+	
+	public final void fitToSizeLimit() {
+		while(this.logText.size() > Config.SERVER.logLimit.get() && this.logText.size() > 0)
+			this.logText.remove(0);
 	}
 	
 	public static ITextComponent getCostText(CoinValue cost)

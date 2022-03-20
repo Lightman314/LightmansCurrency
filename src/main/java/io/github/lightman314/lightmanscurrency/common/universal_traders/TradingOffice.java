@@ -30,7 +30,7 @@ import io.github.lightman314.lightmanscurrency.network.message.command.MessageSy
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageUpdateClientTeam;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageInitializeClientTraders;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageClearClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
@@ -629,12 +629,11 @@ public class TradingOffice extends WorldSavedData{
 			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 			TradingOffice office = get(server);
 			//Send update message to the connected clients
-			CompoundNBT compound = new CompoundNBT();
-			ListNBT traderList = new ListNBT();
-			office.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundNBT())) );
-			office.persistentTraderMap.forEach((id, trader) -> traderList.add(trader.write(new CompoundNBT())) );
-			compound.put("Traders", traderList);
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTraders(compound));
+			//Send the clear message
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+			//Send update message to the newly connected client
+			office.universalTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundNBT()))));
+			office.persistentTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundNBT()))));
 			
 			CompoundNBT compound2 = new CompoundNBT();
 			ListNBT teamList = new ListNBT();
@@ -694,12 +693,10 @@ public class TradingOffice extends WorldSavedData{
 	}
 	
 	private void resendTraderData() {
-		CompoundNBT compound = new CompoundNBT();
-		ListNBT traderList = new ListNBT();
-		this.universalTraderMap.forEach((id, trader)-> traderList.add(trader.write(new CompoundNBT())) );
-		this.persistentTraderMap.forEach((id, trader) -> traderList.add(trader.write(new CompoundNBT())) );
-		compound.put("Traders", traderList);
-		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageInitializeClientTraders(compound));
+		PacketTarget target = PacketDistributor.ALL.noArg();
+		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
+		this.universalTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundNBT()))));
+		this.persistentTraderMap.forEach((id, trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientData(trader.write(new CompoundNBT()))));
 	}
 	
 	public static boolean isAdminPlayer(PlayerEntity player)

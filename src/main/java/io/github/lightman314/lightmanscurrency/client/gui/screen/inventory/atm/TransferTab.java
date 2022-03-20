@@ -139,20 +139,17 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 	}
 	
 	@Override
-	public void backgroundRender(MatrixStack pose) {
-		Minecraft.getInstance().getTextureManager().bindTexture(ATMScreen.GUI_TEXTURE);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
-		List<ITextProperties> lines = this.screen.getFont().getCharacterManager().func_238362_b_(this.screen.getContainer().getLastMessage(), this.screen.getXSize() - 15, Style.EMPTY);
-		for(int i = 0; i < lines.size(); ++i)
-			this.screen.getFont().drawString(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97 + (this.screen.getFont().FONT_HEIGHT * i), 0x404040);
-	}
-	
-	@Override
 	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.amountWidget.render(pose, mouseX, mouseY, partialTicks);
 		this.screen.getFont().drawString(pose, this.getTooltip().getString(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		ITextComponent balance = this.screen.getContainer().getAccount() == null ? new TranslationTextComponent("gui.lightmanscurrency.bank.null") : new TranslationTextComponent("gui.lightmanscurrency.bank.balance", this.screen.getContainer().getAccount().getCoinStorage().getString("0"));
 		this.screen.getFont().drawString(pose, balance.getString(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 18, 0x404040);
+		
+		Minecraft.getInstance().getTextureManager().bindTexture(ATMScreen.GUI_TEXTURE);
+		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
+		List<ITextProperties> lines = this.screen.getFont().getCharacterManager().func_238362_b_(this.screen.getContainer().getLastMessage(), this.screen.getXSize() - 15, Style.EMPTY);
+		for(int i = 0; i < lines.size(); ++i)
+			this.screen.getFont().drawString(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97 + (this.screen.getFont().FONT_HEIGHT * i), 0x404040);
 	}
 
 	@Override

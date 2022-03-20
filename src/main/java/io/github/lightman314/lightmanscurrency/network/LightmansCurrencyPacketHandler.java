@@ -104,7 +104,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenTrades2.class, new MessageOpenTrades2());
 		register(MessageOpenStorage2.class, new MessageOpenStorage2());
 		register(MessageSyncStorage.class, new MessageSyncStorage());
-		register(MessageInitializeClientTraders.class, new MessageInitializeClientTraders());
+		register(MessageClearClientTraders.class, new MessageClearClientTraders());
 		register(MessageUpdateClientData.class, new MessageUpdateClientData());
 		register(MessageSetItemPrice2.class, new MessageSetItemPrice2());
 		register(MessageSetTradeItem2.class, new MessageSetTradeItem2());
