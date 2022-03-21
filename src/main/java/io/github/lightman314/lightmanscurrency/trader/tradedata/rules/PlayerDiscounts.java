@@ -143,6 +143,29 @@ public class PlayerDiscounts extends TradeRule {
 	}
 	
 	@Override
+	public void handleUpdateMessage(CompoundNBT updateInfo)
+	{
+		if(updateInfo.contains("Discount"))
+		{
+			this.discount = updateInfo.getInt("Discount");
+		}
+		else
+		{
+			boolean add = updateInfo.getBoolean("Add");
+			String name = updateInfo.getString("Name");
+			PlayerReference player = PlayerReference.of(name);
+			if(add && !this.isOnList(player))
+			{
+				this.playerList.add(player);
+			}
+			else if(!add && this.isOnList(player))
+			{
+				PlayerReference.removeFromList(this.playerList, name);
+			}
+		}
+	}
+	
+	@Override
 	public CompoundNBT savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundNBT data) { }
@@ -258,9 +281,12 @@ public class PlayerDiscounts extends TradeRule {
 					if(!getRule().isOnList(reference))
 					{
 						getRule().playerList.add(reference);
-						screen.markRulesDirty();
 					}
 				}
+				CompoundNBT updateInfo = new CompoundNBT();
+				updateInfo.putBoolean("Add", true);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 		}
 		
@@ -284,9 +310,12 @@ public class PlayerDiscounts extends TradeRule {
 								getRule().playerList.remove(i);
 							}
 						}
-						screen.markRulesDirty();
 					}
 				}
+				CompoundNBT updateInfo = new CompoundNBT();
+				updateInfo.putBoolean("Add", false);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 			
 		}
@@ -295,7 +324,9 @@ public class PlayerDiscounts extends TradeRule {
 		{
 			int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
 			this.getRule().discount = discount;
-			this.screen.markRulesDirty();
+			CompoundNBT updateInfo = new CompoundNBT();
+			updateInfo.putInt("Discount", discount);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 	}

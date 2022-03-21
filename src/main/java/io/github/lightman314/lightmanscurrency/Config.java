@@ -368,6 +368,10 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
 		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 		
+		//Discord Bot Options
+		public final ForgeConfigSpec.ConfigValue<String> currencyBotChannel;
+		public final ForgeConfigSpec.ConfigValue<String> currencyBotCommandPrefix;
+		
 		Server(ForgeConfigSpec.Builder builder)
 		{
 			
@@ -466,71 +470,16 @@ public class Config {
 			
 			builder.pop();
 			
-			/*builder.comment("Coin value settings.").push("coin_value");
+			builder.comment("Discord bot settings. Requires lightmansdiscord v0.0.3.0+ to use.").push("discord");
 			
-			this.ironCoinWorth = builder
-					.comment("How many copper coins are required to make 1 iron coin.")
-					.defineInRange("coinValueIron", 10, 2, 64);
-			this.goldCoinWorth = builder
-					.comment("How many iron coins are required to make 1 gold coin.")
-					.defineInRange("coinValueGold", 10, 2, 64);
-			this.emeraldCoinWorth = builder
-					.comment("How many gold coins are required to make 1 emerald coin.")
-					.defineInRange("coinValueEmerald", 10, 2, 64);
-			this.diamondCoinWorth = builder
-					.comment("How many emerald coins are required to make 1 diamond coin.")
-					.defineInRange("coinValueDiamond", 10, 2, 64);
-			this.netheriteCoinWorth = builder
-					.comment("How many diamond coins are required to make 1 netherite coin.")
-					.defineInRange("coinValueNetherite", 10, 2, 64);
-			
-			builder.comment("Coinpile values (leave as default unless a datapack/mod changes the crafting recipes)").push("coinpile");
-			
-			this.coinpileCopperWorth = builder
-					.comment("How many copper coins are used to craft a copper coinpile.")
-					.defineInRange("coinpileValueCopper", 9, 2, 9);
-			this.coinpileIronWorth = builder
-					.comment("How many iron coins are used to craft an iron coinpile.")
-					.defineInRange("coinpileValueIron", 9, 2, 9);
-			this.coinpileGoldWorth = builder
-					.comment("How many gold coins are used to craft a gold coinpile.")
-					.defineInRange("coinpileValueGold", 9, 2, 9);
-			this.coinpileEmeraldWorth = builder
-					.comment("How many emerald coins are used to craft an emerald coinpile.")
-					.defineInRange("coinpileValueEmerald", 9, 2, 9);
-			this.coinpileDiamondWorth = builder
-					.comment("How many diamond coins are used to craft a diamond coinpile.")
-					.defineInRange("coinpileValueDiamond", 9, 2, 9);
-			this.coinpileNetheriteWorth = builder
-					.comment("How many netherite coins are used to craft a netherite coinpile.")
-					.defineInRange("coinpileValueNetherite", 9, 2, 9);
-			
+			this.currencyBotChannel = builder
+					.comment("The channel where users can run the currency commands and where currency related announcements will be made.")
+					.define("channel", "000000000000000000");
+			this.currencyBotCommandPrefix = builder
+					.comment("Prefix for currency commands.")
+					.define("prefix", "!");
+
 			builder.pop();
-			
-			builder.comment("Coin block values.", "Leave at default values unless a datapack/mod changes the crafting recipes!").push("coinblock");
-			
-			this.coinBlockCopperWorth = builder
-					.comment("How many copper coinpiles are used to craft a copper coin block.")
-					.defineInRange("coinBlockValueCopper", 4, 2, 9);
-			this.coinBlockIronWorth = builder
-					.comment("How many iron coinpiles are used to craft an iron coin block.")
-					.defineInRange("coinBlockValueIron", 4, 2, 9);
-			this.coinBlockGoldWorth = builder
-					.comment("How many gold coinpiles are used to craft a gold coin block.")
-					.defineInRange("coinBlockValueGold", 4, 2, 9);
-			this.coinBlockEmeraldWorth = builder
-					.comment("How many emerald coinpiles are used to craft an emerald coin block.")
-					.defineInRange("coinBlockValueEmerald", 4, 2, 9);
-			this.coinBlockDiamondWorth = builder
-					.comment("How many diamond coinpiles are used to craft a diamond coin block.")
-					.defineInRange("coinBlockValueDiamond", 4, 2, 9);
-			this.coinBlockNetheriteWorth = builder
-					.comment("How many netherite coinpiles are used to craft a netherite coin block.")
-					.defineInRange("coinBlockValueNetherite", 4, 2, 9);
-			
-			builder.pop();
-			
-			builder.pop();*/
 			
 		}
 		

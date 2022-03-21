@@ -130,8 +130,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageClearUniversalLogger.class, new MessageClearUniversalLogger());
 		
 		//Trade Rules
-		register(MessageSetTraderRules.class, new MessageSetTraderRules());
-		register(MessageSetTraderRules2.class, new MessageSetTraderRules2());
+		register(MessageUpdateTradeRule.class, MessageUpdateTradeRule::encode, MessageUpdateTradeRule::decode, MessageUpdateTradeRule::handle);
+		register(MessageUpdateTradeRule2.class, MessageUpdateTradeRule2::encode, MessageUpdateTradeRule2::decode, MessageUpdateTradeRule2::handle);
 		
 		//Core
 		register(MessageRequestNBT.class, new MessageRequestNBT());

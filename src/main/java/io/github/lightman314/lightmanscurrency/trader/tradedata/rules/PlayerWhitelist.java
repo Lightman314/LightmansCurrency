@@ -128,6 +128,24 @@ public class PlayerWhitelist extends TradeRule{
 	}
 	
 	@Override
+	public void handleUpdateMessage(CompoundNBT updateInfo)
+	{
+		boolean add = updateInfo.getBoolean("Add");
+		String name = updateInfo.getString("Name");
+		PlayerReference player = PlayerReference.of(name);
+		if(player == null)
+			return;
+		if(add && !this.isWhitelisted(player))
+		{
+			this.whitelistedPlayers.add(player);
+		}
+		else if(!add && this.isWhitelisted(player))
+		{
+			PlayerReference.removeFromList(this.whitelistedPlayers, name);
+		}
+	}
+	
+	@Override
 	public CompoundNBT savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundNBT data) { }
@@ -222,9 +240,12 @@ public class PlayerWhitelist extends TradeRule{
 					if(!getWhitelistRule().isWhitelisted(reference))
 					{
 						getWhitelistRule().whitelistedPlayers.add(reference);
-						screen.markRulesDirty();
 					}
 				}
+				CompoundNBT updateInfo = new CompoundNBT();
+				updateInfo.putBoolean("Add", true);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 		}
 		
@@ -248,9 +269,12 @@ public class PlayerWhitelist extends TradeRule{
 								getWhitelistRule().whitelistedPlayers.remove(i);
 							}
 						}
-						screen.markRulesDirty();
 					}
 				}
+				CompoundNBT updateInfo = new CompoundNBT();
+				updateInfo.putBoolean("Add", false);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 			
 		}

@@ -25,6 +25,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -43,8 +44,8 @@ public class TicketKioskBlock extends RotatableItemBlock implements IItemTraderB
 	
 	public static final int TRADECOUNT = 4;
 	
-	private static final VoxelShape SHAPE_BOTTOM = makeCuboidShape(3d,0d,3d,13d,32d,13d);
-	private static final VoxelShape SHAPE_TOP = makeCuboidShape(3d,-16d,3d,13d,16d,13d);
+	private static final VoxelShape HORIZ_SHAPE = makeCuboidShape(3d,0d,1d,13d,32d,15d);
+	private static final VoxelShape VERT_SHAPE = makeCuboidShape(1d,0d,3d,15d,32d,13d);
 	
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	
@@ -61,10 +62,11 @@ public class TicketKioskBlock extends RotatableItemBlock implements IItemTraderB
 	@Override
 	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext contect)
 	{
+		VoxelShape shape = this.getFacing(state).getAxis() == Axis.X ? HORIZ_SHAPE : VERT_SHAPE;
 		if(state.get(ISBOTTOM))
-			return SHAPE_BOTTOM;
+			return shape;
 		else
-			return SHAPE_TOP;
+			return shape.withOffset(0d, -1d, 0d);
 	}
 	
 	@Override

@@ -554,7 +554,11 @@ public class VillagerTradeManager {
 			List<Enchantment> list = GameRegistry.findRegistry(Enchantment.class).getValues().stream().filter(Enchantment::canVillagerTrade).collect(Collectors.toList());
 			Enchantment enchantment = list.get(rand.nextInt(list.size()));
 			
-			int level = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
+			int level = 1;
+			if(enchantment.getMaxLevel() > 0)
+				level = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
+			else
+				LightmansCurrency.LogError("Enchantment of type '" + enchantment.getRegistryName().toString() + "' has a max enchantment level of " + enchantment.getMaxLevel() + ". Unable to properly randomize the enchantment level for a villager trade. Will default to a level 1 enchantment.");
 			ItemStack itemstack = EnchantedBookItem.getEnchantedItemStack(new EnchantmentData(enchantment, level));
 			
 			long coinValue = MoneyUtil.getValue(baseCoin);

@@ -122,6 +122,27 @@ public class TimedSale extends TradeRule {
 		if(json.has("discount"))
 			this.discount = MathUtil.clamp(this.discount, 0, 100);
 	}
+	
+	@Override
+	public void handleUpdateMessage(CompoundNBT updateInfo) {
+		if(updateInfo.contains("Discount"))
+		{
+			this.discount = updateInfo.getInt("Discount");
+		}
+		else if(updateInfo.contains("Duration"))
+		{
+			this.duration = updateInfo.getLong("Duration");
+		}
+		else if(updateInfo.contains("StartSale"))
+		{
+			if(this.isActive() == updateInfo.getBoolean("StartSale"))
+				return;
+			if(this.isActive())
+				this.startTime = 0;
+			else
+				this.startTime = TimeUtil.getCurrentTime();
+		}
+	}
 
 	@Override
 	public CompoundNBT savePersistentData() {
@@ -221,8 +242,6 @@ public class TimedSale extends TradeRule {
 		@Override
 		public void onScreenTick()
 		{
-			if(this.getRule().confirmStillActive())
-				screen.markRulesDirty();
 			this.buttonStartSale.setMessage(getButtonText());
 			this.buttonStartSale.active = this.getRule().isActive() || this.getRule().duration > 0;
 			TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
@@ -256,20 +275,27 @@ public class TimedSale extends TradeRule {
 		{
 			int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
 			this.getRule().discount = discount;
-			this.screen.markRulesDirty();
+			CompoundNBT updateInfo = new CompoundNBT();
+			updateInfo.putInt("Discount", discount);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 		void PressStartButton(Button button)
 		{
+			boolean setActive = !this.getRule().isActive();
 			this.getRule().startTime = this.getRule().isActive() ? 0 : TimeUtil.getCurrentTime();
-			this.screen.markRulesDirty();
+			CompoundNBT updateInfo = new CompoundNBT();
+			updateInfo.putBoolean("StartSale", setActive);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 		@Override
 		public void onTimeSet(long newTime)
 		{
 			this.getRule().duration = newTime;
-			this.screen.markRulesDirty();
+			CompoundNBT updateInfo = new CompoundNBT();
+			updateInfo.putLong("Duration", newTime);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 	}

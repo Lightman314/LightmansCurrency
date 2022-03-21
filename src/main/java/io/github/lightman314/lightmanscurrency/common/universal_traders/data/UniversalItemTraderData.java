@@ -29,7 +29,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTradeItem2;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
@@ -497,9 +497,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
 		}
 		
-		public void updateServer(List<TradeRule> newRules)
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.trader.traderID, type, updateInfo));
 		}
 		
 		@Override
@@ -675,9 +675,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	}
 	
 	@Override
-	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
+	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo) {
 		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.traderID, newRules, tradeIndex));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.traderID, tradeIndex, type, updateInfo));
 	}
 	
 	@Override
@@ -798,5 +798,25 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	@Override
 	public boolean canInteractRemotely() { return true; }
+	
+	@Override
+	public void receiveTradeRuleMessage(PlayerEntity player, int index, ResourceLocation ruleType, CompoundNBT updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
+
+	}
 	
 }

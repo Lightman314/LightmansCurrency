@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.4-1.0.5.4'
+version = '1.16.4-1.0.5.5'
 group = 'io.github.lightman314.lightmanscurrency' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lightmanscurrency'
 
@@ -75,6 +75,8 @@ dependencies {
     compile fg.deobf('curse.maven:jei-238222:3564654')
     //For compatibility fix
     compileOnly 'curse.maven:inventory-profiles-next-495267:3639040'
+    
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3706845')
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

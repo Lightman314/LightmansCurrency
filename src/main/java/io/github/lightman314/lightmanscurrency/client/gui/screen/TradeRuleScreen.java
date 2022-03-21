@@ -15,6 +15,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -268,9 +269,9 @@ public class TradeRuleScreen extends Screen{
 			if(addIndex >= 0 && addIndex < this.addableRules().size())
 			{
 				TradeRule newRule = this.addableRules().get(addIndex);
-				this.handler.ruleHandler().addRule(newRule);
+				this.handler.ruleHandler().getRules().add(newRule);
 				LightmansCurrency.LogInfo("Adding rule type " + newRule.getName().getString());
-				this.markRulesDirty();
+				this.handler.updateServer(newRule.type, TradeRule.CreateRuleMessage());
 				this.closeManagerTab();
 				this.refreshTabs();
 				this.initManagerTab();
@@ -286,9 +287,9 @@ public class TradeRuleScreen extends Screen{
 			if(removeIndex >= 0 && removeIndex < this.activeRules().size())
 			{
 				TradeRule removedRule = this.activeRules().get(removeIndex);
-				this.handler.ruleHandler().removeRule(removedRule);
+				this.handler.ruleHandler().getRules().remove(removedRule);
+				this.handler.updateServer(removedRule.type, TradeRule.RemoveRuleMessage());
 				LightmansCurrency.LogInfo("Removing rule type " + removedRule.getName().getString());
-				this.markRulesDirty();
 				this.closeManagerTab();
 				this.refreshTabs();
 				this.initManagerTab();
@@ -296,6 +297,9 @@ public class TradeRuleScreen extends Screen{
 		}
 	}
 	
+	public void updateServer(ResourceLocation type, CompoundNBT updateInfo) {
+		this.handler.updateServer(type, updateInfo);
+	}
 	
 	public void refreshTabs()
 	{
@@ -341,11 +345,6 @@ public class TradeRuleScreen extends Screen{
 	{
 		if(this.children.contains(listener))
 			this.children.remove(listener);
-	}
-	
-	public void markRulesDirty()
-	{
-		this.handler.updateServer(this.activeRules());
 	}
 	
 }

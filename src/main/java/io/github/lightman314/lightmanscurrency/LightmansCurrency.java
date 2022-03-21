@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
+import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -38,6 +39,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -61,6 +63,9 @@ public class LightmansCurrency {
     public static final CustomItemGroup MACHINE_GROUP = new CustomItemGroup(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
     public static final CustomItemGroup TRADING_GROUP = new CustomItemGroup(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
     
+    private static boolean discordIntegrationLoaded = false;
+    public static boolean isDiscordIntegrationLoaded() { return discordIntegrationLoaded; }
+    
     public LightmansCurrency() {
     	
     	//Common
@@ -81,6 +86,13 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(this);
         
         MinecraftForge.EVENT_BUS.register(PROXY);
+        
+        discordIntegrationLoaded = ModList.get().isLoaded("lightmansdiscord");
+
+        if(discordIntegrationLoaded)
+        {
+        	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+        }
         
     }
     
