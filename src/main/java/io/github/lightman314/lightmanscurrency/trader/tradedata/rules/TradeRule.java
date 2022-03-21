@@ -64,6 +64,8 @@ public abstract class TradeRule {
 	
 	public abstract IconData getButtonIcon();
 	
+	public abstract void handleUpdateMessage(CompoundTag updateInfo);
+	
 	public static CompoundTag writeRules(CompoundTag compound, List<TradeRule> rules)
 	{
 		return writeRules(compound, rules, DEFAULT_TAG);
@@ -242,6 +244,23 @@ public abstract class TradeRule {
 			LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
 	
+	public static TradeRule CreateRule(ResourceLocation ruleType)
+	{
+		String thisType = ruleType.toString();
+		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
+		registeredDeserializers.forEach((type,deserializer) -> {
+			if(thisType.equals(type))
+			{
+				TradeRule rule = deserializer.get();
+				data.set(rule);
+			}	
+		});
+		if(data.get() != null)
+			return data.get();
+		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
+		return null;
+	}
+	
 	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.getString("type");
@@ -276,5 +295,19 @@ public abstract class TradeRule {
 		return data.get();
 	}
 	
+	public static TradeRule getRule(ResourceLocation type, List<TradeRule> rules) {
+		for(TradeRule rule : rules)
+		{
+			if(rule.type.equals(type))
+				return rule;
+		}
+		return null;
+	}
+
+	public static final CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
+	public static final CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
+
+	public static final boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
+	public static final boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
 	
 }

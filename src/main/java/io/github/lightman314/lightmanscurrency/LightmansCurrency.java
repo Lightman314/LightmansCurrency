@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
+import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -40,6 +41,7 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -64,6 +66,9 @@ public class LightmansCurrency {
     public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
     public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
     
+    private static boolean discordIntegrationLoaded = false;
+    public static boolean isDiscordIntegrationLoaded() { return discordIntegrationLoaded; }
+    
     public LightmansCurrency() {
     	
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
@@ -82,6 +87,13 @@ public class LightmansCurrency {
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
+        
+        discordIntegrationLoaded = ModList.get().isLoaded("lightmansdiscord");
+
+        if(discordIntegrationLoaded)
+        {
+        	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+        }
         
     }
     

@@ -86,6 +86,19 @@ public class TradeLimit extends TradeRule{
 	}
 	
 	@Override
+	public void handleUpdateMessage(CompoundTag updateInfo)
+	{
+		if(updateInfo.contains("Limit"))
+		{
+			this.limit = updateInfo.getInt("Limit");
+		}
+		else if(updateInfo.contains("ClearMemory"))
+		{
+			this.count = 0;
+		}
+	}
+	
+	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag data = new CompoundTag();
 		data.putInt("Count", this.count);
@@ -166,14 +179,19 @@ public class TradeLimit extends TradeRule{
 		
 		void PressSetLimitButton(Button button)
 		{
-			this.getRule().limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
-			this.screen.markRulesDirty();
+			int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
+			this.getRule().limit = limit;
+			CompoundTag updateInfo = new CompoundTag();
+			updateInfo.putInt("Limit", limit);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 		void PressClearMemoryButton(Button button)
 		{
 			this.getRule().resetCount();
-			this.screen.markRulesDirty();
+			CompoundTag updateInfo = new CompoundTag();
+			updateInfo.putBoolean("ClearMemory", true);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 	}

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -11,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
@@ -25,6 +23,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -196,9 +195,9 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		}
 		
 		@Override
-		public void updateServer(List<TradeRule> newRules)
+		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
 		{
-			this.getTrader().sendSetTradeRuleMessage(this.tradeIndex, newRules);
+			this.getTrader().sendTradeRuleUpdateMessage(this.tradeIndex, type, updateInfo);
 		}
 		
 		@Override

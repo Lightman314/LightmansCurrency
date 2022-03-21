@@ -10,6 +10,8 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public interface ITradeRuleHandler {
 
@@ -19,10 +21,37 @@ public interface ITradeRuleHandler {
 	
 	public default boolean allowRule(TradeRule rule) { return true; }
 	public List<TradeRule> getRules();
-	public void addRule(TradeRule newRule);
-	public void removeRule(TradeRule rule);
+	//public void addRule(TradeRule newRule);
+	//public void removeRule(TradeRule rule);
 	public void clearRules();
-	public void setRules(List<TradeRule> rules);
+	public default void updateRule(ResourceLocation type, CompoundTag updateInfo)
+	{
+		TradeRule rule = TradeRule.getRule(type, this.getRules());
+		if(rule == null)
+		{
+			if(TradeRule.isCreateMessage(updateInfo))
+			{
+				TradeRule newRule = TradeRule.CreateRule(type);
+				if(newRule == null)
+					return;
+				this.getRules().add(newRule);
+				this.markRulesDirty();
+			}
+		}
+		if(rule != null)
+		{
+			if(TradeRule.isRemoveMessage(updateInfo))
+			{
+				this.getRules().remove(rule);
+				this.markRulesDirty();
+			}
+			else
+			{
+				rule.handleUpdateMessage(updateInfo);
+				this.markRulesDirty();
+			}
+		}
+	}
 	public void markRulesDirty();
 	
 	public static <T extends ITradeRuleHandler> void savePersistentRuleData(CompoundTag data, @Nullable ITradeRuleHandler trader, @Nullable List<T> trades) {
@@ -65,6 +94,11 @@ public interface ITradeRuleHandler {
 			}
 		}
 		
+	}
+	
+	public interface ITradeRuleMessageHandler
+	{
+		public void receiveTradeRuleMessage(Player player, int index, ResourceLocation ruleType, CompoundTag updateInfo);
 	}
 	
 }

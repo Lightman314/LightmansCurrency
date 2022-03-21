@@ -18,6 +18,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -272,9 +273,9 @@ public class TradeRuleScreen extends Screen{
 			if(addIndex >= 0 && addIndex < this.addableRules().size())
 			{
 				TradeRule newRule = this.addableRules().get(addIndex);
-				this.handler.ruleHandler().addRule(newRule);
+				this.handler.ruleHandler().getRules().add(newRule);
 				LightmansCurrency.LogInfo("Adding rule type " + newRule.getName().getString());
-				this.markRulesDirty();
+				this.handler.updateServer(newRule.type, TradeRule.CreateRuleMessage());
 				this.closeManagerTab();
 				this.refreshTabs();
 				this.initManagerTab();
@@ -290,9 +291,9 @@ public class TradeRuleScreen extends Screen{
 			if(removeIndex >= 0 && removeIndex < this.activeRules().size())
 			{
 				TradeRule removedRule = this.activeRules().get(removeIndex);
-				this.handler.ruleHandler().removeRule(removedRule);
+				this.handler.ruleHandler().getRules().remove(removedRule);
+				this.handler.updateServer(removedRule.type, TradeRule.RemoveRuleMessage());
 				LightmansCurrency.LogInfo("Removing rule type " + removedRule.getName().getString());
-				this.markRulesDirty();
 				this.closeManagerTab();
 				this.refreshTabs();
 				this.initManagerTab();
@@ -300,6 +301,9 @@ public class TradeRuleScreen extends Screen{
 		}
 	}
 	
+	public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
+		this.handler.updateServer(type, updateInfo);
+	}
 	
 	public void refreshTabs()
 	{
@@ -337,11 +341,6 @@ public class TradeRuleScreen extends Screen{
 	public <T extends GuiEventListener> void removeCustomWidget(T widget)
 	{
 		this.removeWidget(widget);
-	}
-	
-	public void markRulesDirty()
-	{
-		this.handler.updateServer(this.activeRules());
 	}
 	
 }

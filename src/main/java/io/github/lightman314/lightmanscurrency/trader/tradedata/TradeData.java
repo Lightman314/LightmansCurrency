@@ -93,28 +93,9 @@ public abstract class TradeData implements ITradeRuleHandler {
 		this.rules.forEach(rule -> rule.afterTrade(event));
 	}
 	
-	public void addRule(TradeRule newRule)
-	{
-		if(newRule == null)
-			return;
-		//Confirm a lack of duplicate rules
-		for(int i = 0; i < this.rules.size(); i++)
-		{
-			if(newRule.type == this.rules.get(i).type)
-				return;
-		}
-		this.rules.add(newRule);
-	}
-	
 	public List<TradeRule> getRules() { return this.rules; }
 	
 	public void setRules(List<TradeRule> rules) { this.rules = rules; }
-	
-	public void removeRule(TradeRule rule)
-	{
-		if(this.rules.contains(rule))
-			this.rules.remove(rule);
-	}
 	
 	public void clearRules()
 	{

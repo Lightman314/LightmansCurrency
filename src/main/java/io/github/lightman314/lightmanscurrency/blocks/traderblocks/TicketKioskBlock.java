@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEnt
 import io.github.lightman314.lightmanscurrency.blockentity.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,11 +28,12 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	
 	public static final int TRADECOUNT = 4;
 	
-	private static final VoxelShape SHAPE = box(3d,0d,3d,13d,32d,13d);
+	private static final VoxelShape HORIZ_SHAPE = box(3d,0d,1d,13d,32d,15d);
+	private static final VoxelShape VERT_SHAPE = box(1d,0d,3d,15d,32d,13d);
 	
 	public TicketKioskBlock(Properties properties)
 	{
-		super(properties, SHAPE);
+		super(properties, LazyShapes.lazyTallDirectionalShape(VERT_SHAPE, HORIZ_SHAPE, VERT_SHAPE, HORIZ_SHAPE));
 	}
 	
 	@Override

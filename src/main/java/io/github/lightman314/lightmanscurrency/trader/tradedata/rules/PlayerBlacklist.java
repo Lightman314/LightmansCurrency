@@ -112,6 +112,23 @@ public class PlayerBlacklist extends TradeRule{
 	}
 	
 	@Override
+	public void handleUpdateMessage(CompoundTag updateInfo) {
+		boolean add = updateInfo.getBoolean("Add");
+		String name = updateInfo.getString("Name");
+		PlayerReference player = PlayerReference.of(name);
+		if(player == null)
+			return;
+		if(add && !this.isBlacklisted(player))
+		{
+			this.bannedPlayers.add(player);
+		}
+		else if(!add && this.isBlacklisted(player))
+		{
+			PlayerReference.removeFromList(this.bannedPlayers, name);
+		}
+	}
+	
+	@Override
 	public void loadFromJson(JsonObject json) {
 		if(json.has("BannedPlayers"))
 		{
@@ -205,11 +222,14 @@ public class PlayerBlacklist extends TradeRule{
 			{
 				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
-				if(!getBlacklistRule().isBlacklisted(reference))
+				if(reference != null && !getBlacklistRule().isBlacklisted(reference))
 				{
 					getBlacklistRule().bannedPlayers.add(reference);
-					screen.markRulesDirty();
 				}
+				CompoundTag updateInfo = new CompoundTag();
+				updateInfo.putBoolean("Add", true);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 		}
 		
@@ -231,8 +251,11 @@ public class PlayerBlacklist extends TradeRule{
 							getBlacklistRule().bannedPlayers.remove(i);
 						}
 					}
-					screen.markRulesDirty();
 				}
+				CompoundTag updateInfo = new CompoundTag();
+				updateInfo.putBoolean("Add", false);
+				updateInfo.putString("Name", name);
+				this.screen.updateServer(TYPE, updateInfo);
 			}
 		}
 		

@@ -30,3 +30,10 @@ description="Adds a simple money & shop system to the game."
     versionRange="[1.18,1.19)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.lightmanscurrency]]
+    modId="lightmansdiscord"
+    mandatory=false
+# This version range declares a minimum of the current minecraft version up to but not including the next major version
+    versionRange="[1.18-0.0.3.0,)"
+    ordering="NONE"
+    side="SERVER"
