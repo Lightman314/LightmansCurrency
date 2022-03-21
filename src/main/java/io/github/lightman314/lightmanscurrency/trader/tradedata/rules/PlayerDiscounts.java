@@ -322,7 +322,7 @@ public class PlayerDiscounts extends TradeRule {
 			this.getRule().discount = discount;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putInt("Discount", discount);
-			this.screen.updateServer(PlayerBlacklist.TYPE, updateInfo);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 	}

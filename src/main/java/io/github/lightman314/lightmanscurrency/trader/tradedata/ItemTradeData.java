@@ -288,7 +288,6 @@ public class ItemTradeData extends TradeData {
 	
 	public void markRulesDirty() { }
 	
-	
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
 		if(otherTrade instanceof ItemTradeData)
