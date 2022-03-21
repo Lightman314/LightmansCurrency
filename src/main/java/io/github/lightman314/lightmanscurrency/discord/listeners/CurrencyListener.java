@@ -12,13 +12,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmansconsole.Config;
 import io.github.lightman314.lightmansconsole.LightmansDiscordIntegration;
 import io.github.lightman314.lightmansconsole.discord.links.AccountManager;
 import io.github.lightman314.lightmansconsole.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansconsole.discord.listeners.types.SingleChannelListener;
 import io.github.lightman314.lightmansconsole.message.MessageManager;
 import io.github.lightman314.lightmansconsole.util.MessageUtil;
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordPostTradeEvent;

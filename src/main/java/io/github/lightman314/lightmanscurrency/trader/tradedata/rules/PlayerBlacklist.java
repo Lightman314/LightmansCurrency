@@ -222,7 +222,7 @@ public class PlayerBlacklist extends TradeRule{
 			{
 				nameInput.setValue("");
 				PlayerReference reference = PlayerReference.of(name);
-				if(!getBlacklistRule().isBlacklisted(reference))
+				if(reference != null && !getBlacklistRule().isBlacklisted(reference))
 				{
 					getBlacklistRule().bannedPlayers.add(reference);
 				}

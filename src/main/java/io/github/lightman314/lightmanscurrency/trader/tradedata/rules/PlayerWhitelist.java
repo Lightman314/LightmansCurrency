@@ -263,7 +263,7 @@ public class PlayerWhitelist extends TradeRule{
 					}
 				}
 				CompoundTag updateInfo = new CompoundTag();
-				updateInfo.putBoolean("Add", true);
+				updateInfo.putBoolean("Add", false);
 				updateInfo.putString("Name", name);
 				this.screen.updateServer(TYPE, updateInfo);
 			}

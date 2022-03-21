@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.discord;
 
 import io.github.lightman314.lightmansconsole.events.JDAInitializedEvent;
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.discord.listeners.CurrencyListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,7 +14,7 @@ public class DiscordListenerRegistration {
 	@OnlyIn(Dist.DEDICATED_SERVER)
 	public static void onJDAInit(JDAInitializedEvent event)
 	{
-		CurrencyListener cl = new CurrencyListener(LCDiscordConfig.DISCORD.currencyChannel::get);
+		CurrencyListener cl = new CurrencyListener(Config.SERVER.currencyChannel::get);
 		MinecraftForge.EVENT_BUS.register(cl);
 		event.getProxy().addListener(cl);
 	}
