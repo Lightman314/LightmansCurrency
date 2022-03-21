@@ -24,6 +24,9 @@ public interface ITradeRuleHandler {
 	//public void addRule(TradeRule newRule);
 	//public void removeRule(TradeRule rule);
 	public void clearRules();
+	/**
+	 * Note: Does not mark anything dirty or send update messages to the client.
+	 */
 	public default void updateRule(ResourceLocation type, CompoundTag updateInfo)
 	{
 		TradeRule rule = TradeRule.getRule(type, this.getRules());
@@ -35,7 +38,6 @@ public interface ITradeRuleHandler {
 				if(newRule == null)
 					return;
 				this.getRules().add(newRule);
-				this.markRulesDirty();
 			}
 		}
 		if(rule != null)
@@ -43,12 +45,10 @@ public interface ITradeRuleHandler {
 			if(TradeRule.isRemoveMessage(updateInfo))
 			{
 				this.getRules().remove(rule);
-				this.markRulesDirty();
 			}
 			else
 			{
 				rule.handleUpdateMessage(updateInfo);
-				this.markRulesDirty();
 			}
 		}
 	}

@@ -780,9 +780,15 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			return;
 		}
 		if(index >= 0)
+		{
 			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
 		else
+		{
 			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
 	}
 	
 }
