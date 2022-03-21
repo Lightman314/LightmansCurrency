@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
-import java.util.List;
-
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ITradeRuleScreenHandler {
 
@@ -11,7 +10,7 @@ public interface ITradeRuleScreenHandler {
 	
 	public void reopenLastScreen();
 	
-	public void updateServer(List<TradeRule> newRules);
+	public void updateServer(ResourceLocation type, CompoundTag updateInfo);
 	
 	public default boolean stillValid() { return this.ruleHandler() != null; }
 	

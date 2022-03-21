@@ -13,13 +13,15 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
+public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
 	public List<ItemTradeData> getAllTrades();
 	public Container getStorage();
@@ -32,9 +34,9 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 	public void markItemSettingsDirty();
 	//Open menu functions
 	public ITradeRuleScreenHandler getRuleScreenHandler();
+	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
 	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
-	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules);
 	
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }

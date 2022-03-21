@@ -201,7 +201,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 		public ItemStack getStackInSlot(int slot) {
 			return this.tileEntity.getStorage().getItem(slot);
 		}
-
+		
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 			//Can only insert into slot 0

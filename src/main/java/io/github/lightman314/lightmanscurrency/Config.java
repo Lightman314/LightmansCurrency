@@ -581,7 +581,6 @@ public class Config {
 		final Pair<Server,ForgeConfigSpec> serverPair = new ForgeConfigSpec.Builder().configure(Config.Server::new);
 		serverSpec = serverPair.getRight();
 		SERVER = serverPair.getLeft();
-		
 	}
 	
 }

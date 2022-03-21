@@ -18,8 +18,8 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTraderRules;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
@@ -49,6 +49,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -719,9 +720,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		}
 		
 		@Override
-		public void updateServer(List<TradeRule> newRules)
+		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.tileEntity.worldPosition, newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.tileEntity.worldPosition, type, updateInfo));
 		}
 		
 		@Override
@@ -752,7 +753,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		}
 		return super.getCapability(cap, side);
 	}
-
+	
+	@Override
+	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.worldPosition, tradeIndex, type, updateInfo));
+	}
+	
 	@Override
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
 		if(this.isClient())
@@ -766,9 +773,16 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 
 	@Override
-	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules(this.worldPosition, newRules, tradeIndex));
+	public void receiveTradeRuleMessage(Player player, int index, ResourceLocation ruleType, CompoundTag updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+		else
+			this.updateRule(ruleType, updateInfo);
 	}
 	
 }

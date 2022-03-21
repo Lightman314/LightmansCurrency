@@ -27,7 +27,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTradeItem2;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTraderRules2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
@@ -476,9 +476,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.traderID));
 		}
 		
-		public void updateServer(List<TradeRule> newRules)
+		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.trader.traderID, newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.trader.traderID, type, updateInfo));
 		}
 		
 		@Override
@@ -641,6 +641,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		}
 		
 	}
+	
+	@Override
+	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.traderID, tradeIndex, type, updateInfo));
+	}
 
 	@Override
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
@@ -652,12 +658,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice2(this.traderID, tradeIndex, newPrice, newCustomName, newTradeType.name()));
-	}
-
-	@Override
-	public void sendSetTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTraderRules2(this.traderID, newRules, tradeIndex));
 	}
 
 	@Override
@@ -779,5 +779,23 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 
 	@Override
 	public boolean canInteractRemotely() { return true; }
+
+	@Override
+	public void receiveTradeRuleMessage(Player player, int index, ResourceLocation ruleType, CompoundTag updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+		}
+		
+	}
 	
 }

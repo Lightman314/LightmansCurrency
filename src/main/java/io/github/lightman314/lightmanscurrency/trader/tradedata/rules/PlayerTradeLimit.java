@@ -184,6 +184,23 @@ public class PlayerTradeLimit extends TradeRule{
 	}
 	
 	@Override
+	public void handleUpdateMessage(CompoundTag updateInfo)
+	{
+		if(updateInfo.contains("Limit"))
+		{
+			this.limit = updateInfo.getInt("Limit");
+		}
+		else if(updateInfo.contains("TimeLimit"))
+		{
+			this.timeLimit = updateInfo.getLong("TimeLimit");
+		}
+		else if(updateInfo.contains("ClearMemory"))
+		{
+			this.resetMemory();
+		}
+	}
+	
+	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag data = new CompoundTag();
 		ListTag memoryList = new ListTag();
@@ -316,20 +333,28 @@ public class PlayerTradeLimit extends TradeRule{
 		
 		void PressSetLimitButton(Button button)
 		{
-			this.getRule().limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
-			this.screen.markRulesDirty();
+			int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
+			this.getRule().limit = limit;
+			CompoundTag updateInfo = new CompoundTag();
+			updateInfo.putInt("Limit", limit);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 		void PressClearMemoryButton(Button button)
 		{
 			this.getRule().memory.clear();
-			this.screen.markRulesDirty();
+			CompoundTag updateInfo = new CompoundTag();
+			updateInfo.putBoolean("ClearMemory", true);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 
 		@Override
 		public void onTimeSet(long newTime) {
-			this.getRule().timeLimit = MathUtil.clamp(newTime, 0, Long.MAX_VALUE);
-			this.screen.markRulesDirty();
+			long timeLimit = MathUtil.clamp(newTime, 0, Long.MAX_VALUE);
+			this.getRule().timeLimit = timeLimit;
+			CompoundTag updateInfo = new CompoundTag();
+			updateInfo.putLong("TimeLimit", timeLimit);
+			this.screen.updateServer(TYPE, updateInfo);
 		}
 		
 	}
