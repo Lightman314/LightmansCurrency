@@ -352,7 +352,7 @@ public class InventoryUtil {
 		}
 	}
     
-    public static IInventory loadAllItems(String key, CompoundNBT compound, int inventorySize)
+    public static Inventory loadAllItems(String key, CompoundNBT compound, int inventorySize)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);

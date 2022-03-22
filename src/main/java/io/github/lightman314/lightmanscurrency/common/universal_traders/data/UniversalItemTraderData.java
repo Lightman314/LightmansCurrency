@@ -87,7 +87,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	int tradeCount = 1;
 	List<ItemTradeData> trades = null;
 	
-	IInventory storage;
+	Inventory storage;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -101,8 +101,11 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.storage = new Inventory(this.inventorySize());
+		this.storage.addListener(this::markStorageDirty);
 	}
 
+	private void markStorageDirty(IInventory inventory) { this.markStorageDirty(); }
+	
 	@Override
 	public void read(CompoundNBT compound)
 	{
@@ -113,9 +116,15 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
 		if(this.storage == null)
+		{
 			this.storage = new Inventory(this.inventorySize());
+			this.storage.addListener(this::markStorageDirty);
+		}
 		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
+		{
 			this.storage = InventoryUtil.loadAllItems("Storage", compound, this.inventorySize());
+			this.storage.addListener(this::markStorageDirty);
+		}	
 		
 		this.logger.read(compound);
 		
@@ -239,6 +248,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		{
 			this.storage.setInventorySlotContents(i, oldInventory.getStackInSlot(i));
 		}
+		this.storage.addListener(this::markStorageDirty);
 		//Attempt to place lost items into the available slots
 		if(oldInventory.getSizeInventory() > this.inventorySize())
 		{

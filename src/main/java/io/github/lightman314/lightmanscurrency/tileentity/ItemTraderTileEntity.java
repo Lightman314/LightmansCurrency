@@ -89,7 +89,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 	@Override
 	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
-	protected IInventory storage = new Inventory(this.getSizeInventory());
+	protected Inventory storage = new Inventory(this.getSizeInventory());
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -106,6 +106,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		super(ModTileEntities.ITEM_TRADER);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new Inventory(this.getSizeInventory());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	public ItemTraderTileEntity(int tradeCount)
@@ -114,6 +115,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new Inventory(this.getSizeInventory());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderTileEntity(TileEntityType<?> type)
@@ -121,6 +123,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		super(type);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new Inventory(this.getSizeInventory());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderTileEntity(TileEntityType<?> type, int tradeCount)
@@ -129,7 +132,10 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new Inventory(this.getSizeInventory());
+		this.storage.addListener(this::markStorageDirty);
 	}
+	
+	private void markStorageDirty(IInventory storage) { this.markStorageDirty(); }
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
@@ -233,6 +239,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getStackInSlot(i));
 			}
 		}
+		this.storage.addListener(this::markStorageDirty);
 		//Send an update to the client
 		if(!this.world.isRemote)
 		{
@@ -467,6 +474,7 @@ public class ItemTraderTileEntity extends TraderTileEntity implements IItemTrade
 		if(compound.contains("Items"))
 		{
 			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getSizeInventory());
+			this.storage.addListener(this::markStorageDirty);
 		}
 		
 		//Load the settings
