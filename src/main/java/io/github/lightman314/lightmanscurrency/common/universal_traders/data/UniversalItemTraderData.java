@@ -88,7 +88,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	int tradeCount = 1;
 	List<ItemTradeData> trades = null;
 	
-	Container inventory;
+	SimpleContainer inventory;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -102,7 +102,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
 		this.inventory = new SimpleContainer(this.inventorySize());
+		this.inventory.addListener(this::markStorageDirty);
 	}
+	
+	private void markStorageDirty(Container container) { this.markStorageDirty(); }
 
 	@Override
 	public void read(CompoundTag compound)
@@ -114,7 +117,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
 		
 		if(compound.contains("Storage", Tag.TAG_LIST))
+		{
 			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+			this.inventory.addListener(this::markStorageDirty);
+		}
 		
 		this.logger.read(compound);
 		
@@ -241,6 +247,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
 			}
 		}
+		this.inventory.addListener(this::markStorageDirty);
 		//Mark as dirty (both trades & storage)
 		CompoundTag compound = this.writeTrades(new CompoundTag());
 		this.writeStorage(compound);

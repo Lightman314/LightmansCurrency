@@ -140,7 +140,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void attachEntitiesCapabilities(AttachCapabilitiesEvent<Entity> event)
 	{
-		//Don't attach the wallet capability if curios is loaded
 		if(event.getObject() instanceof Player)
 		{
 			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((Player)event.getObject()));
@@ -200,6 +199,7 @@ public class EventHandler {
 		
 		if(!livingEntity.isSpectator())
 		{
+			
 			WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
 				
 				ItemStack walletStack = walletHandler.getWallet();

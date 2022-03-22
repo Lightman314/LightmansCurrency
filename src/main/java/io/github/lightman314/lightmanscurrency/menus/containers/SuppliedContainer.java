@@ -1,9 +1,15 @@
 package io.github.lightman314.lightmanscurrency.menus.containers;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerListener;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,9 +18,26 @@ public class SuppliedContainer implements Container{
 
 	public final Supplier<Container> source;
 	
+	@Nullable
+	private List<ContainerListener> listeners;
+	
 	public SuppliedContainer(Supplier<Container> source)
 	{
 		this.source = source;
+	}
+	
+	public void addListener(ContainerListener p_19165_) {
+		if (this.listeners == null) {
+			this.listeners = Lists.newArrayList();
+		}
+
+		this.listeners.add(p_19165_);
+	}
+
+	public void removeListener(ContainerListener p_19182_) {
+		if (this.listeners != null) {
+			this.listeners.remove(p_19182_);
+     	}
 	}
 	
 	@Override
@@ -42,7 +65,14 @@ public class SuppliedContainer implements Container{
 	public int getMaxStackSize() { return source.get().getMaxStackSize(); }
 	
 	@Override
-	public void setChanged() { source.get().setChanged(); }
+	public void setChanged() {
+		source.get().setChanged();
+		if (this.listeners != null) {
+			for(ContainerListener containerlistener : this.listeners) {
+				containerlistener.containerChanged(this);
+			}
+		}
+	}
 	
 	@Override
 	public boolean stillValid(Player p_18946_) { return source.get().stillValid(p_18946_); }

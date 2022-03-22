@@ -16,11 +16,11 @@ import io.github.lightman314.lightmansconsole.LightmansDiscordIntegration;
 import io.github.lightman314.lightmansconsole.discord.links.AccountManager;
 import io.github.lightman314.lightmansconsole.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansconsole.discord.listeners.types.SingleChannelListener;
-import io.github.lightman314.lightmansconsole.message.MessageManager;
 import io.github.lightman314.lightmansconsole.util.MessageUtil;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
+import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordPostTradeEvent;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
@@ -82,9 +82,9 @@ public class CurrencyListener extends SingleChannelListener{
 			if(command.startsWith("help"))
 			{
 				List<String> output = new ArrayList<>();
-				output.add(prefix + "notifications <help|enable|disable> - " + MessageManager.M_HELP_LC_NOTIFICATIONS.get());
-				output.add(prefix + "search <sales|purchases|barters|all> [searchText] - " + MessageManager.M_HELP_LC_SEARCH1.get());
-				output.add(prefix + "search <players|shops> [searchText] - " + MessageManager.M_HELP_LC_SEARCH2.get());
+				output.add(prefix + "notifications <help|enable|disable> - " + CurrencyMessages.M_HELP_LC_NOTIFICATIONS.get());
+				output.add(prefix + "search <sales|purchases|barters|all> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH1.get());
+				output.add(prefix + "search <players|shops> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH2.get());
 				MessageUtil.sendTextMessage(channel, output);
 			}
 			else if(command.startsWith("notifications "))
@@ -93,24 +93,24 @@ public class CurrencyListener extends SingleChannelListener{
 				if(subcommand.startsWith("help"))
 				{
 					List<String> output = new ArrayList<>();
-					output.add(AccountManager.currencyNotificationsEnabled(author) ? MessageManager.M_NOTIFICATIONS_ENABLED.get() : MessageManager.M_NOTIFICATIONS_DISABLED.get());
-					output.addAll(Lists.newArrayList(MessageManager.M_NOTIFICATIONS_HELP.get().split("\n")));
+					output.add(AccountManager.currencyNotificationsEnabled(author) ? CurrencyMessages.M_NOTIFICATIONS_ENABLED.get() : CurrencyMessages.M_NOTIFICATIONS_DISABLED.get());
+					output.addAll(Lists.newArrayList(CurrencyMessages.M_NOTIFICATIONS_HELP.get().split("\n")));
 					
 					MessageUtil.sendTextMessage(channel, output);
 				}
 				else if(subcommand.startsWith("enable"))
 				{
 					if(AccountManager.enableCurrencyNotifications(author))
-						MessageUtil.sendTextMessage(channel, MessageManager.M_NOTIFICATIONS_ENABLE_SUCCESS.get());
+						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_SUCCESS.get());
 					else
-						MessageUtil.sendTextMessage(channel, MessageManager.M_NOTIFICATIONS_ENABLE_FAIL.get());
+						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_FAIL.get());
 				}
 				else if(subcommand.startsWith("disable"))
 				{
 					if(AccountManager.disableCurrencyNotifications(author))
-						MessageUtil.sendTextMessage(channel, MessageManager.M_NOTIFICATIONS_DISABLE_SUCCESS.get());
+						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_SUCCESS.get());
 					else
-						MessageUtil.sendTextMessage(channel, MessageManager.M_NOTIFICATIONS_DISABLE_FAIL.get());
+						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_FAIL.get());
 				}
 			}
 			else if(command.startsWith("search "))
@@ -268,7 +268,7 @@ public class CurrencyListener extends SingleChannelListener{
 				if(output.size() > 0)
 					MessageUtil.sendTextMessage(channel, output);
 				else
-					MessageUtil.sendTextMessage(channel, MessageManager.M_SEARCH_NORESULTS.get());
+					MessageUtil.sendTextMessage(channel, CurrencyMessages.M_SEARCH_NORESULTS.get());
 				
 			}
 		}
@@ -364,7 +364,7 @@ public class CurrencyListener extends SingleChannelListener{
 						{
 							if(itemTrade.stockCount((IItemTrader)event.getTrader()) < 1)
 							{
-								this.addPendingMessage(linkedUser, MessageManager.M_NOTIFICATION_OUTOFSTOCK.get());
+								this.addPendingMessage(linkedUser, CurrencyMessages.M_NOTIFICATION_OUTOFSTOCK.get());
 								//MessageUtil.sendPrivateMessage(linkedUser, "**This trade is now out of stock!**");
 							}
 						}
@@ -449,9 +449,9 @@ public class CurrencyListener extends SingleChannelListener{
 				if(this.event.getData() == null) //Abort if the trader was removed.
 					return;
 				if(event.getData().getCoreSettings().hasCustomName())
-					cl.sendTextMessage(MessageManager.M_NEWTRADER_NAMED.format(this.event.getData().getCoreSettings().getOwnerName(), event.getData().getCoreSettings().getCustomName()));
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(this.event.getData().getCoreSettings().getOwnerName(), event.getData().getCoreSettings().getCustomName()));
 				else
-					cl.sendTextMessage(MessageManager.M_NEWTRADER.format(this.event.getData().getCoreSettings().getOwnerName()));
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(this.event.getData().getCoreSettings().getOwnerName()));
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 		

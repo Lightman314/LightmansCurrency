@@ -89,7 +89,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	@Override
 	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
-	protected Container storage;
+	protected SimpleContainer storage;
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -106,6 +106,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
@@ -114,6 +115,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
@@ -121,6 +123,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());
+		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
@@ -129,7 +132,10 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.storage = new SimpleContainer(this.getStorageSize());
+		this.storage.addListener(this::markStorageDirty);
 	}
+	
+	private void markStorageDirty(Container storage) { this.markStorageDirty(); }
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
@@ -232,6 +238,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getItem(i));
 			}
 		}
+		this.storage.addListener(this::markStorageDirty);
 		//Send an update to the client
 		if(!this.level.isClientSide)
 		{
@@ -458,6 +465,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(compound.contains("Items"))
 		{
 			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getStorageSize());
+			this.storage.addListener(this::markStorageDirty);
 		}
 		
 		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
