@@ -21,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
-import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomPointsOfInterest;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
@@ -108,7 +107,6 @@ public class LightmansCurrency {
         if(discordIntegrationLoaded)
         {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-        	CurrencyMessages.init();
         }
         	
         

@@ -1,7 +1,11 @@
 package io.github.lightman314.lightmanscurrency.discord;
 
+import io.github.lightman314.lightmansconsole.events.CreateMessageEntriesEvent;
 import io.github.lightman314.lightmansconsole.message.MessageManager.MessageEntry;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber
 public class CurrencyMessages {
 	
 	//Lightman's Currency !help
@@ -31,9 +35,10 @@ public class CurrencyMessages {
 	public static final MessageEntry M_NEWTRADER = MessageEntry.create("lightmanscurrency_newtrader", "Announcement made in the currency bot channel when a new universal trader has been made.\n{player} for the traders owner name.", "{player} has made a new Trading Server!", "player");
 	public static final MessageEntry M_NEWTRADER_NAMED = MessageEntry.create("lightmanscurrency_newtrader_named", "Announcement made in the currency bot channel when a new universal trader with a custom name has been made.\n{player} for the traders owner name.\n{trader} for the traders custom name.", "{player} has made a new Trading Server '{trader}'!", "player", "trader");
 	
-	/**
-	 * Static function to force java to load the class
-	 */
-	public static void init() { }
+	@SubscribeEvent
+	public static void confirmMessageInit(CreateMessageEntriesEvent event) 
+	{
+		//Don't need to do anything, as just subscribing to the event will cause the static values to be loaded.
+	}
 	
 }
