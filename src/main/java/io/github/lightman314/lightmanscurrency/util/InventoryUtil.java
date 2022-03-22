@@ -20,9 +20,9 @@ import net.minecraft.world.level.Level;
 public class InventoryUtil {
 
 	
-	public static Container buildInventory(List<ItemStack> list)
+	public static SimpleContainer buildInventory(List<ItemStack> list)
 	{
-		Container inventory = new SimpleContainer(list.size());
+		SimpleContainer inventory = new SimpleContainer(list.size());
 		for(int i = 0; i < list.size(); i++)
 		{
 			inventory.setItem(i, list.get(i).copy());
@@ -453,7 +453,7 @@ public class InventoryUtil {
 		}
 	}
     
-    public static Container loadAllItems(String key, CompoundTag compound, int inventorySize)
+    public static SimpleContainer loadAllItems(String key, CompoundTag compound, int inventorySize)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);
