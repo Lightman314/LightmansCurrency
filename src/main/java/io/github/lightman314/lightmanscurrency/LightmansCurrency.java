@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
+import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
@@ -92,6 +93,7 @@ public class LightmansCurrency {
         if(discordIntegrationLoaded)
         {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
+        	MinecraftForge.EVENT_BUS.register(CurrencyMessages.class);
         }
         
     }
