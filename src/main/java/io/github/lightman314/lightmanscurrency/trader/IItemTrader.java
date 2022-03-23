@@ -86,4 +86,6 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 		MinecraftForge.EVENT_BUS.post(event);
 	}
 	
+	//default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
+	
 }

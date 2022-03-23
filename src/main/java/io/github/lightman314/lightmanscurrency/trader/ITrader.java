@@ -54,4 +54,14 @@ public interface ITrader extends IPermissions {
 	
 	public default boolean canInteractRemotely() { return false; }
 	
+	/*public default void ExecuteTrade(TradeContext context, int tradeIndex) {}
+	
+	public default List<ITrader> getTraders() { return Lists.newArrayList(this); }
+	
+	//Display Stuff
+	public List<? extends ITradeData> getTradeInfo();
+	public default void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
+	@Nullable
+	public default Pair<ResourceLocation, ResourceLocation> getInteractionSlotBG(int slot) { return null; }*/
+	
 }

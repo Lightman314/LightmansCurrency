@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
@@ -212,6 +213,23 @@ public abstract class TradeData implements ITradeRuleHandler {
 				return new ProductComparisonResult(isItemEqual, isTagEqual, quantityDifference);
 			}
 			
+			public static List<ProductComparisonResult> CompareTwoItems(ItemStack original1, ItemStack original2, ItemStack query1, ItemStack query2)
+			{
+				List<ProductComparisonResult> results = new ArrayList<>();
+				boolean flipMatch = original1.getItem() == query2.getItem() && original2.getItem() == query1.getItem() && !(original1.getItem() == original2.getItem() || query1.getItem() == query2.getItem());
+				if(flipMatch)
+				{
+					results.add(CompareItem(original1, query2));
+					results.add(CompareItem(original2, query1));
+				}
+				else
+				{
+					results.add(CompareItem(original1, query2));
+					results.add(CompareItem(original2, query1));
+				}
+				return results;
+			}
+			
 			public static ProductComparisonResult CompareFluid(FluidStack original, FluidStack query) {
 				boolean isFluidEqual = original.getFluid() == query.getFluid();
 				boolean isTagEqual;
@@ -234,6 +252,13 @@ public abstract class TradeData implements ITradeRuleHandler {
 		 */
 		public void addProductResult(ProductComparisonResult result) {
 			this.tradeProductResults.add(result);
+		}
+		
+		/**
+		 * Defines the product result for the next indexes
+		 */
+		public void addProductResults(Collection<? extends ProductComparisonResult> results) {
+			this.tradeProductResults.addAll(results);
 		}
 		
 		/**

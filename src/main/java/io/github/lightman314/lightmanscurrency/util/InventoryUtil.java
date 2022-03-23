@@ -364,6 +364,8 @@ public class InventoryUtil {
      */
     public static boolean CanPutItemStack(Container inventory, ItemStack stack)
     {
+    	if(stack.isEmpty())
+    		return true;
     	int amountToMerge = stack.getCount();
 		//First pass, looking for stacks to add to
     	for(int i = 0; i < inventory.getContainerSize() && amountToMerge > 0; i++)

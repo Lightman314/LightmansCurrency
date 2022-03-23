@@ -11,8 +11,6 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -22,6 +20,8 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -276,7 +276,7 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public RemoteTradeResult handleRemotePurchase(int tradeIndex, RemoteTradeData data) { return RemoteTradeResult.FAIL_NOT_SUPPORTED; }
+	public RemoteTradeResult handleRemotePurchase(int tradeIndex, TradeContext data) { return RemoteTradeResult.FAIL_NOT_SUPPORTED; }
 	
 	protected abstract void onVersionUpdate(int oldVersion);
 	

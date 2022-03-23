@@ -324,6 +324,10 @@ public class CoinValue
 		return false;
 	}
 	
+	public List<CoinValuePair> getEntries() {
+		return this.coinValues;
+	}
+	
 	public int getEntry(Item coinItem)
 	{
 		for(CoinValuePair pair : this.coinValues)

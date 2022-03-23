@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.UniversalTradeReference;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.SidedHandler;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -162,7 +162,7 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 			BlockEntityUtil.sendUpdatePacket(this, this.saveLastResult(new CompoundTag()));
 	}
 	
-	public abstract RemoteTradeData getRemoteTradeData();
+	public abstract TradeContext getRemoteTradeData();
 	
 	public boolean isClient() { return this.level != null ? this.level.isClientSide : true; }
 	
@@ -287,7 +287,7 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	}
 	
 	public RemoteTradeResult interactWithTrader() {
-		RemoteTradeData remoteTradeData = this.getRemoteTradeData();
+		TradeContext remoteTradeData = this.getRemoteTradeData();
 		UniversalTraderData trader = this.getTrader();
 		if(trader != null)
 			this.lastResult = trader.handleRemotePurchase(this.reference.getTradeIndex(), remoteTradeData);

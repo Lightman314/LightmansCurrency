@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ItemInterfaceHandler;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.RemoteTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.menus.ItemInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.containers.LockableContainer;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
@@ -41,8 +41,8 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 	}
 
 	@Override
-	public RemoteTradeData getRemoteTradeData() {
-		return new RemoteTradeData(this.owner, this.getBankAccount(), null, this.itemBuffer, null, null);
+	public TradeContext getRemoteTradeData() {
+		return TradeContext.create(this.owner).withBankAccount(this.getBankAccount()).withItemHandler(this.itemBuffer).build();
 	}
 	
 	/**
