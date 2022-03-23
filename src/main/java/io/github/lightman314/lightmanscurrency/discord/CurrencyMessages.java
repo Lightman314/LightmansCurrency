@@ -3,9 +3,7 @@ package io.github.lightman314.lightmanscurrency.discord;
 import io.github.lightman314.lightmansconsole.events.CreateMessageEntriesEvent;
 import io.github.lightman314.lightmansconsole.message.MessageManager.MessageEntry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
 public class CurrencyMessages {
 	
 	//Lightman's Currency !help
