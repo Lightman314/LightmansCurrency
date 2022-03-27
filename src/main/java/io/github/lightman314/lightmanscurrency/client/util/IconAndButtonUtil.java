@@ -109,8 +109,28 @@ public class IconAndButtonUtil {
 	
 	public static IconButton traderButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADER, TOOLTIP_TRADER); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORAGE, TOOLTIP_STORAGE); }
+	public static IconButton storageButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visiblityCheck) {
+		IconButton button = storageButton(x,y,pressable);
+		button.setVisiblityCheck(visiblityCheck);
+		return button;
+	}
 	
-	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Supplier<ITrader> traderSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() })); }
+	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Supplier<ITrader> traderSource) {
+		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() }));
+		button.setVisiblityCheck(() -> {
+			ITrader trader = traderSource.get();
+			if(trader == null)
+				return false;
+			return !trader.getCoreSettings().hasBankAccount();
+		});
+		button.setActiveCheck(() -> {
+			ITrader trader = traderSource.get();
+			if(trader == null)
+				return false;
+			return trader.getInternalStoredMoney().getRawValue() > 0;
+		});
+		return button;
+	}
 	public static IconButton collectCoinButtonAlt(int x, int y, Button.OnPress pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { storedCoinTextSource.get() })); }
 	public static IconButton storeCoinButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS, TOOLTIP_STORE_COINS); }
 	
@@ -118,6 +138,11 @@ public class IconAndButtonUtil {
 	public static IconButton rightButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
 	
 	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable) { return new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL); }
+	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visibilityCheck) {
+		IconButton button = new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL);
+		button.setVisiblityCheck(visibilityCheck);
+		return button;
+	}
 	
 	public static IconButton showLoggerButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isLoggerVisible) { return new IconButton(x,y,pressable, ICON_SHOW_LOGGER, new ToggleTooltip(isLoggerVisible, TOOLTIP_HIDE_LOGGER, TOOLTIP_SHOW_LOGGER)); }
 	public static IconButton clearLoggerButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_CLEAR_LOGGER, TOOLTIP_CLEAR_LOGGER); }

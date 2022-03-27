@@ -38,10 +38,10 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 		{
 			
 			ItemTradeData trade = tileEntity.getTrade(tradeSlot);
-			if(!trade.getSellItem().isEmpty())
+			if(!trade.getSellItem(0).isEmpty())
 			{
 				
-				ItemStack stack = trade.getSellItem();
+				ItemStack stack = trade.getSellItem(0);
 				
 				boolean isBlock = stack.getItem() instanceof BlockItem;
 				if(isBlock && Config.CLIENT.renderBlocksAsItems.get().contains(stack.getItem().getRegistryName().toString()))

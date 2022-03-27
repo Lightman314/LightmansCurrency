@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -20,30 +21,43 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class TradeButton extends Button{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
 	
-	public final int ARROW_WIDTH = 22;
-	public final int ARROW_HEIGHT = 18;
+	public static  final int ARROW_WIDTH = 22;
+	public static  final int ARROW_HEIGHT = 18;
 	
-	public final int TEMPLATE_WIDTH = 212;
-	public final int TEMPLATE_HEIGHT = 100;
+	public static  final int TEMPLATE_WIDTH = 212;
+	public static  final int TEMPLATE_HEIGHT = 100;
+	
+	public static final int ASSUME_HEIGHT = 18;
 	
 	private final Supplier<ITradeData> tradeSource;
-	private NonNullSupplier<TradeContext> contextSource;
+	public ITradeData getTrade() { return this.tradeSource.get(); }
+	private Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
 	public boolean horizontalFlip = false;
 	
-	public TradeButton(int x, int y, int width, int height, NonNullSupplier<TradeContext> contextSource, Supplier<ITradeData> tradeSource, OnPress onPress) {
-		super(x, y, width, height, new TextComponent(""), onPress);
+	public TradeButton(Supplier<TradeContext> contextSource, Supplier<ITradeData> tradeSource, OnPress onPress) {
+		super(0, 0, 0, 0, new TextComponent(""), onPress);
 		this.tradeSource = tradeSource;
 		this.contextSource = contextSource;
+		this.recalculateSize();
+	}
+	
+	private void recalculateSize()
+	{
+		ITradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			TradeContext context = this.getContext();
+			this.width = trade.tradeButtonWidth(context);
+			this.height = trade.tradeButtonHeight(context);
+		}
 	}
 	
 	public void move(int x, int y) {
@@ -52,53 +66,234 @@ public class TradeButton extends Button{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
-	{
-		if(!this.visible)
-			return;
+	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		ITradeData trade = tradeSource.get();
+		ITradeData trade = this.getTrade();
 		if(trade == null)
 			return;
+
+		TradeContext context = this.getContext();
 		
-		this.renderBackground(pose);
+		this.recalculateSize();
 		
+		this.renderBackground(pose, context.isStorageMode ? false : this.isHovered);
 		
+		if(trade.hasArrow(context))
+			this.renderArrow(pose, trade.arrowPosition(context));
 		
+		if(trade.hasAlert(context))
+			this.renderAlert(pose, trade.alertPosition(context));
 		
+		this.renderDisplays(pose, trade, context);
+		
+		try {
+			trade.renderAdditional(this, pose, mouseX, mouseY, context);
+		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 		
 	}
 	
-	private void renderBackground(PoseStack pose)
+	private void renderBackground(PoseStack pose, boolean isHovered)
 	{
+		if(this.width < 8)
+		{
+			LightmansCurrency.LogError("Cannot render a trade button that is less than 8 pixels wide!");
+			return;
+		}
+		if(this.height < 8)
+		{
+			LightmansCurrency.LogError("Cannot render a trade button that is less than 8 pixels tall!");
+			return;
+		}
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		if(this.active)
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		
-		//int vOffset = this.isHovered ? TEMPLATE_HEIGHT : 0;
+		int vOffset = isHovered ? TEMPLATE_HEIGHT : 0;
 		
-		//int centerX = this.x + (this.width / 2);
-		//int centerY = this.y + (this.height / 2);
+		//Render the top-left
+		this.blit(pose, this.x, this.y, 0, vOffset, 4, 4);
+		//Render the top-middle
+		int xOff = 4;
+		while(xOff < this.width - 4)
+		{
+			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
+			this.blit(pose, this.x + xOff, this.y, 4, vOffset, xRend, 4);
+			xOff += xRend;
+		}
+		//Render the top-right
+		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, 4);
+		//Render the middle
+		int yOff = 4;
+		while(yOff < this.height - 4)
+		{
+			int yRend = Math.min(this.height - 4 - yOff, TEMPLATE_HEIGHT - 8);
+			//Middle-left
+			this.blit(pose, this.x, this.y + yOff, 0, vOffset + 4, 4, yRend);
+			xOff = 4;
+			while(xOff < this.width - 4)
+			{
+				int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
+				//Render the middle
+				this.blit(pose, this.x + xOff, this.y + yOff, 4, vOffset + 4, xRend, yRend);
+				xOff += xRend;
+			}
+			//Middle-right
+			this.blit(pose, this.x + this.width - 4, this.y + yOff, TEMPLATE_WIDTH - 4, vOffset + 4, 4, yRend);
+			yOff += yRend;
+		}
+		//Render the bottom - left
+		this.blit(pose, this.x, this.y + this.height - 4, 0, vOffset + TEMPLATE_HEIGHT - 4, 4, 4);
+		//Render the bottom-middle
+		xOff = 4;
+		while(xOff < this.width - 4)
+		{
+			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
+			this.blit(pose, this.x + xOff, this.y + this.height - 4, 4, vOffset + TEMPLATE_HEIGHT - 4, xRend, 4);
+			xOff += xRend;
+		}
+		//Render the bottom-right
+		this.blit(pose, this.x + this.width - 4, this.y + this.height - 4, TEMPLATE_WIDTH - 4, vOffset + TEMPLATE_HEIGHT - 4, 4, 4);
 		
+	}
+	
+	private void renderArrow(PoseStack pose, Pair<Integer,Integer> position)
+	{
 		
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		if(this.active)
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		else
+			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		
+		int vOffset = this.isHovered ? ARROW_HEIGHT : 0;
 		
+		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
+		
+	}
+	
+	private void renderAlert(PoseStack pose, Pair<Integer,Integer> position)
+	{
+		
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		if(this.active)
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		else
+			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+		
+		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
+		
+	}
+	
+	public void renderDisplays(PoseStack pose, ITradeData trade, TradeContext context)
+	{
+		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
+			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
+		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(trade, context))
+			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
 	}
 	
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY)
 	{
-		if(!this.visible)
+		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
 		
 		ITradeData trade = tradeSource.get();
 		if(trade == null)
 			return;
 		
-		//Draw the background
+		TradeContext context = this.getContext();
 		
+		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
+		{
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
+			{
+				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
+			}
+		}
 		
+		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(trade, context))
+		{
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
+			{
+				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
+			}
+		}
+		
+		if(trade.hasAlert(context) && this.isMouseOverAlert(mouseX, mouseY, trade, context))
+		{
+			DrawTooltip(pose, mouseX, mouseY, trade.getAlerts(context));
+		}
+		
+		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(mouseX - this.x, mouseY - this.y));
+		
+	}
+	
+	private static void DrawTooltip(PoseStack pose, int mouseX, int mouseY, List<Component> tooltips)
+	{
+		if(tooltips == null || tooltips.size() <= 0)
+			return;
+		
+		Minecraft mc = Minecraft.getInstance();
+		mc.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
+		
+	}
+	
+	public int isMouseOverInput(int mouseX, int mouseY)
+	{
+		ITradeData trade = this.getTrade();
+		if(trade == null)
+			return -1;
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, this.getContext());
+		for(int i = 0; i < inputDisplays.size(); ++i)
+		{
+			if(inputDisplays.get(i).getFirst().isMouseOver(this.x, this.y, inputDisplays.get(i).getSecond(), mouseX, mouseY))
+				return i;
+		}
+		return -1;
+	}
+	
+	public int isMouseOverOutput(int mouseX, int mouseY)
+	{
+		ITradeData trade = this.getTrade();
+		if(trade == null)
+			return -1;
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, this.getContext());
+		for(int i = 0; i < inputDisplays.size(); ++i)
+		{
+			if(inputDisplays.get(i).getFirst().isMouseOver(this.x, this.y, inputDisplays.get(i).getSecond(), mouseX, mouseY))
+				return i;
+		}
+		return -1;
+	}
+	
+	public boolean isMouseOverAlert(int mouseX, int mouseY, ITradeData trade, TradeContext context)
+	{
+		Pair<Integer,Integer> position = trade.alertPosition(context);
+		int left = this.x + position.getFirst();
+		int top = this.y + position.getSecond();
+		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
+	}
+	
+	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(ITradeData trade, TradeContext context)
+	{
+		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
+		List<DisplayEntry> entries = trade.getInputDisplays(context);
+		List<DisplayData> display = trade.inputDisplayArea(context).divide(entries.size());
+		for(int i = 0; i < entries.size() && i < display.size(); ++i)
+			results.add(Pair.of(entries.get(i), display.get(i)));
+		return results;
+	}
+	
+	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(ITradeData trade, TradeContext context)
+	{
+		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
+		List<DisplayEntry> entries = trade.getOutputDisplays(context);
+		List<DisplayData> display = trade.outputDisplayArea(context).divide(entries.size());
+		for(int i = 0; i < entries.size() && i < display.size(); ++i)
+			results.add(Pair.of(entries.get(i), display.get(i)));
+		return results;
 	}
 	
 	public DisplayEntry getInputDisplay(int index) {
@@ -147,8 +342,20 @@ public class TradeButton extends Button{
 		return false;
 	}
 	
+	@Override
+	protected boolean isValidClickButton(int button) {
+		if(this.getContext().isStorageMode)
+			return false;
+		return super.isValidClickButton(button);
+	}
+	
 	public static interface ITradeData
 	{
+		
+		/**
+		 * Whether the trade is fully defined and capable of being interacted with.
+		 */
+		public boolean isValid();
 		/**
 		 * The width of the trade button.
 		 */
@@ -160,7 +367,15 @@ public class TradeButton extends Button{
 		/**
 		 * Whether the trade should render an arrow pointing from the inputs to the outputs.
 		 */
-		default boolean hasArrow() { return true; }
+		default boolean hasArrow(TradeContext context) { return true; }
+		
+		/**
+		 * Where on the button the arrow should be drawn.
+		 */
+		public Pair<Integer,Integer> arrowPosition(TradeContext context);
+		
+		public Pair<Integer,Integer> alertPosition(TradeContext context);
+		
 		/**
 		 * The position and size of the input displays
 		 */
@@ -177,6 +392,12 @@ public class TradeButton extends Button{
 		 * The output display entries. For a sale this would be the product being sold.
 		 */
 		public List<DisplayEntry> getOutputDisplays(TradeContext context);
+		
+		/**
+		 * Whether the trade has any alerts
+		 */
+		public default boolean hasAlert(TradeContext context) { List<Component> alerts = this.getAlerts(context); return alerts != null && alerts.size() > 0; }
+		
 		/**
 		 * List of alert text. Used for Out of Stock & misc Trade Rule messages.
 		 * Return null to display no alert.
@@ -188,7 +409,7 @@ public class TradeButton extends Button{
 		 * @param y The y position of the button.
 		 * @param displayMode Whether the button is in display mode (storage screen).
 		 */
-		default void renderAdditional(GuiComponent gui, PoseStack pose, int x, int y, boolean displayMode) { }
+		default void renderAdditional(GuiComponent gui, PoseStack pose, int x, int y, TradeContext context) { }
 		/**
 		 * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.
 		 * @param mouseX The mouses X position relative to the left edge of the button.
@@ -196,6 +417,36 @@ public class TradeButton extends Button{
 		 * @return The list of tooltip text. Return null to display no tooltip.
 		 */
 		default List<Component> getAdditionalTooltips(int mouseX, int mouseY) { return null; }
+		
+		/**
+		 * Called when an input display is clicked on in display mode.
+		 * 
+		 * @param trader The trader this trade belongs to.
+		 * @param index The index of the input display that was interacted with.
+		 * @param button The mouse button that was clicked.
+		 * @param heldItem The item currently being held by the player.
+		 */
+		public void onInputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem);
+		
+		/**
+		 * Called when an output display is clicked on in display mode.
+		 * 
+		 * @param trader The trader this trade belongs to.
+		 * @param index The index of the input display that was interacted with.
+		 * @param button The mouse button that was clicked.
+		 * @param heldItem The item currently being held by the player.
+		 */
+		public void onOutputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem);
+		
+		/**
+		 * Called when the trade is clicked on in display mode.
+		 * 
+		 * @param trader The trader this trade belongs to.
+		 * @param index The index of the input display that was interacted with.
+		 * @param button The mouse button that was clicked.
+		 * @param heldItem The item currently being held by the player.
+		 */
+		default void onInteraction(ITrader trader, int mouseX, int mouseY, int button, ItemStack heldItem) { }
 	}
 	
 	public static class DisplayData
@@ -205,6 +456,26 @@ public class TradeButton extends Button{
 		public final int width;
 		public final int height;
 		public DisplayData(int xOffset, int yOffset, int width, int height) { this.xOffset = xOffset; this.yOffset = yOffset; this.width = width; this.height = height; }
+		
+		/**
+		 * Divides the display area horizontally into the given number of pieces.
+		 * Will always return a list of the length count
+		 */
+		public List<DisplayData> divide(int count)
+		{
+			if(count <= 1)
+				return Lists.newArrayList(this);
+			int partialWidth = this.width / count;
+			int x = this.xOffset;
+			List<DisplayData> result = new ArrayList<>();
+			for(int i = 0; i < count; ++i)
+			{
+				result.add(new DisplayData(x, this.yOffset, partialWidth, this.height));
+				x += partialWidth;
+			}
+			return result;
+		}
+		
 	}
 	
 	public static abstract class DisplayEntry
@@ -230,9 +501,9 @@ public class TradeButton extends Button{
 			return this.tooltip;
 		}
 		
-		protected abstract void render(GuiComponent gui, PoseStack pose, int x, int y, int availableWidth, int availableHeight);
+		public abstract void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area);
 		
-		protected abstract boolean isMouseOver(int x, int y, int availableWidth, int availableHeight, int mouseX, int mouseY);
+		public abstract boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY);
 		
 		public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null); }
 		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip) { return new ItemEntry(item, count, tooltip); }
@@ -240,50 +511,31 @@ public class TradeButton extends Button{
 		public static DisplayEntry of(Component text, TextFormatting format) { return new TextEntry(text, format, null); }
 		public static DisplayEntry of(Component text, TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip); }
 		
-		public static List<DisplayEntry> of(CoinValue value) { 
-			List<DisplayEntry> entries = new ArrayList<>();
-			if(value.isFree())
-			{
-				entries.add(DisplayEntry.of(new TranslatableComponent("gui.coinvalue.free"), TextFormatting.create(), new ArrayList<>()));
-				return entries;
-			}
-			for(CoinValuePair coinPair : value.getEntries())
-			{
-				entries.add(DisplayEntry.of(new ItemStack(coinPair.coin), coinPair.amount, Lists.newArrayList(new TextComponent(value.getString()))));
-			}
-			return entries;
-		}
+		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price); }
 		
 		private static class ItemEntry extends DisplayEntry
 		{
 			private final ItemStack item;
-			private final int count;
 
-			private ItemEntry(ItemStack item, int count, List<Component> tooltip) { super(tooltip); this.item = item.copy(); this.item.setCount(1); this.count = count; }
+			private ItemEntry(ItemStack item, int count, List<Component> tooltip) { super(tooltip); this.item = item.copy(); this.item.setCount(count);  }
 			
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 			
 			@Override
-			protected void render(GuiComponent gui, PoseStack pose, int x, int y, int availableWidth, int availableHeight) {
+			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
 				if(this.item.isEmpty())
 					return;
 				Font font = this.getFont();
 				//Center the x & y positions
-				int left = getTopLeft(x, availableWidth);
-				int top = getTopLeft(y, availableHeight);
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
 				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
-				if(this.count > 1)
-				{
-					String text = String.valueOf(this.count);
-					int width = font.width(text);
-					font.draw(pose, text, left + 16 - width, top + 16 - font.lineHeight, 0xFFFFFF);
-				}
 			}
 
 			@Override
-			protected boolean isMouseOver(int x, int y, int availableWidth, int availableHeight, int mouseX, int mouseY) {
-				int left = getTopLeft(x, availableWidth);
-				int top = getTopLeft(y, availableHeight);
+			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
 				return mouseX >= left && mouseX < left + 16 && mouseY >= top && mouseY < top + 16;
 			}
 		}
@@ -373,23 +625,87 @@ public class TradeButton extends Button{
 			protected int getTextWidth() { return this.getFont().width(this.text); }
 			
 			@Override
-			protected void render(GuiComponent gui, PoseStack pose, int x, int y, int availableWidth, int availableHeight) {
+			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
 				if(this.text.getString().isBlank())
 					return;
 				Font font = this.getFont();
 				//Define the x position
-				int left = this.getTextLeft(x, availableWidth);
+				int left = this.getTextLeft(x + area.xOffset, area.width);
 				//Define the y position
-				int top = this.getTextTop(y, availableHeight);
+				int top = this.getTextTop(y + area.yOffset, area.height);
 				//Draw the text
-				font.draw(pose, this.text, left, top, this.format.color);
+				font.drawShadow(pose, this.text, left, top, this.format.color);
 			}
 
 			@Override
-			protected boolean isMouseOver(int x, int y, int availableWidth, int availableHeight, int mouseX, int mouseY) {
-				int left = this.getTextLeft(mouseX, availableWidth);
-				int top = this.getTextTop(y, availableHeight);
+			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+				int left = this.getTextLeft(x + area.xOffset, area.width);
+				int top = this.getTextTop(y + area.yOffset, area.height);
 				return x >= left && x < left + this.getTextWidth() && y >= top && y < top + this.getFont().lineHeight;
+			}
+			
+		}
+		
+		private static class PriceEntry extends DisplayEntry {
+			private final CoinValue price;
+			
+			public PriceEntry(CoinValue price) {
+				super(getTooltip(price));
+				this.price = price;
+			}
+			
+			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
+			
+			private static List<Component> getTooltip(CoinValue price) { if(price.isFree() || !price.isValid()) return null; return Lists.newArrayList(new TextComponent(price.getString())); }
+			
+			@Override
+			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+				if(this.price.isFree())
+				{
+					Font font = this.getFont();
+					int left = x + area.xOffset + (area.width / 2) - (font.width(this.price.getString()) / 2);
+					int top = y + area.yOffset + (area.height / 2) - (font.lineHeight / 2);
+					font.draw(pose, new TextComponent(this.price.getString()), left, top, 0xFFFFFF);
+				}
+				else
+				{
+					List<CoinValuePair> entries = this.price.getEntries();
+					if(entries.size() * 16 <= area.width)
+					{
+						List<DisplayData> entryPositions = area.divide(entries.size());
+						for(int i = 0; i < entryPositions.size() && i < entries.size(); ++i)
+						{
+							DisplayData pos = entryPositions.get(i);
+							int left = this.getTopLeft(x + pos.xOffset, pos.width);
+							int top = this.getTopLeft(y + pos.yOffset, pos.height);
+							ItemStack stack = new ItemStack(entries.get(i).coin);
+							stack.setCount(entries.get(i).amount);
+							ItemRenderUtil.drawItemStack(gui, this.getFont(), stack, left, top);
+						}
+					}
+					else if(entries.size() > 0)
+					{
+						int spacing = (area.width - 16) / entries.size();
+						int top = this.getTopLeft(y + area.yOffset, area.height);
+						int left = x + area.xOffset + area.width - 16;
+						//Draw cheapest to most expensive
+						for(int i = entries.size() - 1; i >= 0; --i)
+						{
+							ItemStack stack = new ItemStack(entries.get(i).coin);
+							stack.setCount(entries.get(i).amount);
+							ItemRenderUtil.drawItemStack(gui, this.getFont(), stack, left, top);
+							left -= spacing;
+						}
+					}
+				}
+				
+			}
+
+			@Override
+			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+				int left = x + area.xOffset;
+				int top = y + area.yOffset;
+				return mouseX >= left && mouseX < left + area.width && mouseY >= top && mouseY < top + area.height;
 			}
 			
 		}

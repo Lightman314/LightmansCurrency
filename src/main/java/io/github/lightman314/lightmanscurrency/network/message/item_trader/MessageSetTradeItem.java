@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetTradeItem {
@@ -57,27 +55,8 @@ public class MessageSetTradeItem {
 							Settings.PermissionWarning(player, "change trade item", Permissions.EDIT_TRADES);
 							return;
 						}
-						ItemStack oldItem = ItemStack.EMPTY;
-						if(message.slot == 1)
-						{
-							oldItem = traderEntity.getTrade(message.tradeIndex).getBarterItem();
-							traderEntity.getTrade(message.tradeIndex).setBarterItem(message.newItem);
-						}
-						else
-						{
-							oldItem = traderEntity.getTrade(message.tradeIndex).getSellItem();
-							traderEntity.getTrade(message.tradeIndex).setSellItem(message.newItem);
-						}
 						
-						//Post ItemTradeEditEvent
-						ItemTradeItemEditEvent e = new ItemTradeItemEditEvent(() -> {
-							//Create safe supplier, just in case the event saves it for later
-							BlockEntity te = player.level.getBlockEntity(message.pos);
-							if(te instanceof ItemTraderBlockEntity)
-								return (ItemTraderBlockEntity)te;
-							return null;
-						}, message.tradeIndex, oldItem, message.slot);
-						MinecraftForge.EVENT_BUS.post(e);
+						traderEntity.getTrade(message.tradeIndex).setItem(message.newItem, message.slot);
 						
 						traderEntity.markTradesDirty();
 						

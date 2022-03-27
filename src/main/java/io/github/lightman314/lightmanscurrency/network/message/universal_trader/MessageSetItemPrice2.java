@@ -6,12 +6,10 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.events.TradeEditEvent.TradePriceEditEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetItemPrice2 {
@@ -52,23 +50,9 @@ public class MessageSetItemPrice2 {
 			if(data1 != null && data1 instanceof UniversalItemTraderData)
 			{
 				UniversalItemTraderData data2 = (UniversalItemTraderData)data1;
-				CoinValue oldPrice = data2.getTrade(message.tradeIndex).getCost();
 				data2.getTrade(message.tradeIndex).setCost(message.newPrice);
-				data2.getTrade(message.tradeIndex).setCustomName(message.customName);
+				data2.getTrade(message.tradeIndex).setCustomName(0, message.customName);
 				data2.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
-				
-				if(oldPrice.getRawValue() != message.newPrice.getRawValue() || oldPrice.isFree() != message.newPrice.isFree())
-				{
-					//Throw price change event
-					TradePriceEditEvent e = new TradePriceEditEvent(() -> {
-						//Create safe supplier, just in case the event saves it for later
-						UniversalTraderData d = TradingOffice.getData(message.traderID);
-						if(d instanceof UniversalItemTraderData)
-							return (UniversalItemTraderData)d;
-						return null;
-					}, message.tradeIndex, oldPrice);
-					MinecraftForge.EVENT_BUS.post(e);
-				}
 				
 				//Mark the trader as dirty
 				TradingOffice.MarkDirty(message.traderID);

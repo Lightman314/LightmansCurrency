@@ -122,7 +122,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
 			//Merge items from storage back into the players inventory
-			if(index < this.getTrader().getStorage().getContainerSize())
+			/*if(index < this.getTrader().getStorage().getContainerSize())
 			{
 				if(!this.moveItemStackTo(slotStack,  this.getTrader().getStorage().getContainerSize() + this.coinSlots.getContainerSize(), this.slots.size(), true))
 				{
@@ -161,7 +161,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 			else
 			{
 				slot.setChanged();
-			}
+			}*/
 		}
 		
 		return clickedStack;
@@ -216,7 +216,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		else
 		{
 			//LightmansCurrency.LogInfo("Attempting to open item edit container for tradeIndex " + tradeIndex);
-			this.getTrader().openItemEditMenu(this.player, tradeIndex);
+			//this.getTrader().openItemEditMenu(this.player, tradeIndex);
 		}
 	}
 	
@@ -314,14 +314,14 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 		SafeStorageSupplier(Supplier<IItemTrader> traderSource)
 		{
 			this.traderSource = traderSource;
-			this.storageSize = this.getTrader().getStorage().getContainerSize();
+			this.storageSize = this.getTrader().getTradeCount() * 9;
 		}
 		
 		@Override
 		public Container get() {
-			IItemTrader trader = this.getTrader();
-			if(trader != null)
-				return trader.getStorage();
+			//IItemTrader trader = this.getTrader();
+			//if(trader != null)
+			//	return trader.getStorage();
 			return new SimpleContainer(this.storageSize);
 		}
 		

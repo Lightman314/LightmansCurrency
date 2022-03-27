@@ -5,11 +5,11 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,10 +26,10 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	}
 	
 	@Override
-	public ItemStack modifySellItem(ItemStack sellItem, ItemTradeData trade)
+	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)
 	{
-		if(sellItem.getItem() instanceof TicketItem && trade.hasCustomName())
-			sellItem.setHoverName(new TextComponent(trade.getCustomName()));
+		if(sellItem.getItem() instanceof TicketItem && !customName.isBlank())
+			sellItem.setHoverName(new TextComponent(customName));
 		return sellItem;
 	}
 	
@@ -60,21 +60,23 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	}
 	
 	@Override
-	public int getSaleStock(ItemStack sellItem, Container traderStorage)
+	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.getItem() == ModItems.TICKET)
-			return InventoryUtil.GetItemTagCount(traderStorage, TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER) / sellItem.getCount();
+			return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER) / sellItem.getCount();
 		return super.getSaleStock(sellItem, traderStorage);
 	}
 	
 	@Override
-	public void removeItemsFromStorage(ItemStack sellItem, Container traderStorage)
+	public void removeItemsFromStorage(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.getItem() == ModItems.TICKET)
 		{
-			if(!InventoryUtil.RemoveItemCount(traderStorage, sellItem))
+			int amountToRemove = sellItem.getCount();
+			amountToRemove -= traderStorage.removeItem(sellItem).getCount();
+			if(amountToRemove > 0)
 			{
-				InventoryUtil.RemoveItemTagCount(traderStorage, TicketItem.TICKET_MATERIAL_TAG, sellItem.getCount(), ModItems.TICKET_MASTER);
+				traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, amountToRemove, ModItems.TICKET_MASTER);
 			}
 		}
 		else

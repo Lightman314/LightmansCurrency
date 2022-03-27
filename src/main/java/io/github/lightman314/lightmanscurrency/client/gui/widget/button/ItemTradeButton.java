@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.client.Minecraft;
@@ -105,8 +106,8 @@ public class ItemTradeButton extends Button{
 			
 			//Render the barter item
 			int xPos = x + SLOT_OFFSET2_X;
-			if(!trade.getBarterItem().isEmpty())
-				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y);
+			if(!trade.getBarterItem(0).isEmpty())
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(0), xPos, y + SLOT_OFFSET_Y);
 			
 			//Render barter item text
 			String text = getTradeText(CoinValue.EMPTY, true, true, true, true);
@@ -126,8 +127,8 @@ public class ItemTradeButton extends Button{
 		}
 		int xPos = x + SLOT_OFFSET1_X;
 		//Render the sell item
-		if(!trade.getSellItem().isEmpty())
-			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y);
+		if(!trade.getSellItem(0).isEmpty())
+			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(0), xPos, y + SLOT_OFFSET_Y);
 		
 	}
 	
@@ -164,11 +165,11 @@ public class ItemTradeButton extends Button{
 		if(!forceActive)
 		{
 			//Discount check
-			TradeCostEvent event = trader.runTradeCostEvent(player, tradeIndex);
+			TradeCostEvent event = trader.runTradeCostEvent(PlayerReference.of(player), trade);
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
 			//Permission
-			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
+			hasPermission = !trader.runPreTradeEvent(PlayerReference.of(player), trade).isCanceled();
 			//CanAfford
 			canAfford = canAfford(trade, availableCoins, itemSlots);
 		}
@@ -178,14 +179,14 @@ public class ItemTradeButton extends Button{
 			
 			//Render the barter item
 			int xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
-			if(trade.getBarterItem().isEmpty() && forceActive)
+			if(trade.getBarterItem(0).isEmpty() && forceActive)
 			{
 				//Render empty slot background for empty barter slot
 				xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
 				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
 			}
-			else if(!trade.getBarterItem().isEmpty())
-				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(), xPos, y + SLOT_OFFSET_Y);
+			else if(!trade.getBarterItem(0).isEmpty())
+				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(0), xPos, y + SLOT_OFFSET_Y);
 			
 			//Render barter item text
 			String text = getTradeText(CoinValue.EMPTY, false, isValid, hasStock, hasSpace, hasPermission);
@@ -218,7 +219,7 @@ public class ItemTradeButton extends Button{
 		}
 		int xPos = x + (inverted ? SLOT_OFFSET2_X : SLOT_OFFSET1_X);
 		//Render the sell item
-		ItemStack sellItem = trade.getSellItem();
+		ItemStack sellItem = trade.getSellItem(0);
 		if(sellItem.isEmpty() && forceActive)
 		{
 			//Render empty slot backgrounds for special trade types
@@ -230,8 +231,8 @@ public class ItemTradeButton extends Button{
 				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, background);
 			}
 		}
-		else if(!trade.getSellItem().isEmpty())
-			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(), xPos, y + SLOT_OFFSET_Y);
+		else if(!trade.getSellItem(0).isEmpty())
+			ItemRenderUtil.drawItemStack(screen, font, trade.getSellItem(0), xPos, y + SLOT_OFFSET_Y);
 		
 		
 	}
@@ -316,16 +317,16 @@ public class ItemTradeButton extends Button{
 	
 	public static List<Component> getTooltipForItem(Screen screen, ItemTradeData trade, int slot)
 	{
-		ItemStack itemStack = slot == 1 ? trade.getBarterItem() : trade.getSellItem();
+		ItemStack itemStack = slot == 1 ? trade.getBarterItem(0) : trade.getSellItem(0);
 		if(itemStack.isEmpty())
 			return null;
 		
 		List<Component> tooltips = screen.getTooltipFromItem(itemStack);
 		Component originalName = null;
-		if(!trade.getCustomName().isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
+		if(!trade.getCustomName(0).isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
 		{
 			originalName = tooltips.get(0);
-			tooltips.set(0, new TextComponent("§6" + trade.getCustomName()));
+			tooltips.set(0, new TextComponent("§6" + trade.getCustomName(0)));
 			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
 		}
 		return tooltips;
@@ -337,16 +338,16 @@ public class ItemTradeButton extends Button{
 		Player player = minecraft.player;
 		
 		ItemTradeData trade = trader.getTrade(tradeIndex);
-		ItemStack itemStack = slot == 1 ? trade.getBarterItem() : trade.getSellItem();
+		ItemStack itemStack = slot == 1 ? trade.getBarterItem(0) : trade.getSellItem(0);
 		if(itemStack.isEmpty())
 			return null;
 		
 		List<Component> tooltips = screen.getTooltipFromItem(itemStack);
 		Component originalName = null;
-		if(!trade.getCustomName().isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
+		if(!trade.getCustomName(0).isEmpty() && (trade.isSale() || (trade.isBarter() && slot != 1)))
 		{
 			originalName = tooltips.get(0);
-			tooltips.set(0, new TextComponent("§6" + trade.getCustomName()));
+			tooltips.set(0, new TextComponent("§6" + trade.getCustomName(0)));
 		}
 		//If this is the sell item, give tooltips otherwise do nothing
 		if(slot == 0)
@@ -359,7 +360,7 @@ public class ItemTradeButton extends Button{
 			//Stock
 			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.stockCount(trader))));
 			//If denied, give denial reason
-			PreTradeEvent pte = trader.runPreTradeEvent(player, tradeIndex);
+			PreTradeEvent pte = trader.runPreTradeEvent(PlayerReference.of(player), trade);
 			if(pte.isCanceled())
 				pte.getDenialReasons().forEach(reason -> tooltips.add(reason));
 			
@@ -418,11 +419,11 @@ public class ItemTradeButton extends Button{
 		}
 		else if(trade.isPurchase())
 		{
-			return InventoryUtil.GetItemCount(itemSlots, trade.getSellItem()) >= trade.getSellItem().getCount();
+			return InventoryUtil.GetItemCount(itemSlots, trade.getSellItem(0)) >= trade.getSellItem(0).getCount();
 		}
 		else if(trade.isBarter())
 		{
-			return InventoryUtil.GetItemCount(itemSlots, trade.getBarterItem()) >= trade.getBarterItem().getCount();
+			return InventoryUtil.GetItemCount(itemSlots, trade.getBarterItem(0)) >= trade.getBarterItem(0).getCount();
 		}
 		return true;
 	}

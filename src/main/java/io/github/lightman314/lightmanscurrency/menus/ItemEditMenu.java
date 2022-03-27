@@ -344,19 +344,13 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		if(isClient())
 		{
 			//Send message to server
-			if(this.editSlot == 1)
-				this.getTrade().setBarterItem(stack);
-			else
-				this.getTrade().setSellItem(stack);
+			this.getTrade().setItem(stack, this.editSlot);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageItemEditSet(stack, this.editSlot));
 		}
 		else
 		{
 			//Set the trade
-			if(slot == 1)
-				this.traderSource.get().getTrade(this.tradeIndex).setBarterItem(stack);
-			else
-				this.traderSource.get().getTrade(this.tradeIndex).setSellItem(stack);
+			this.traderSource.get().getTrade(this.tradeIndex).setItem(stack, slot);
 			this.traderSource.get().markTradesDirty();
 		}
 	}

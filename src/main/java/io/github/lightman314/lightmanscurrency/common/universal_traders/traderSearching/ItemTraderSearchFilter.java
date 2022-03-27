@@ -22,16 +22,25 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 			{
 				if(trades.get(i).isValid())
 				{
-					ItemStack sellItem = trades.get(i).getSellItem();
+					ItemStack sellItem = trades.get(i).getSellItem(0);
+					ItemStack sellItem2 = trades.get(i).getSellItem(1);
 					//Search item name
 					if(sellItem.getHoverName().getString().toLowerCase().contains(searchText))
 						return true;
+					if(sellItem2.getHoverName().getString().toLowerCase().contains(searchText))
+						return true;
 					//Search custom name
-					if(trades.get(i).getCustomName().toLowerCase().contains(searchText))
+					if(trades.get(i).getCustomName(0).toLowerCase().contains(searchText))
+						return true;
+					if(trades.get(i).getCustomName(1).toLowerCase().contains(searchText))
 						return true;
 					//Search enchantments
 					AtomicBoolean foundEnchantment = new AtomicBoolean(false);
 					EnchantmentHelper.getEnchantments(sellItem).forEach((enchantment, level) ->{
+						if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
+							foundEnchantment.set(true);
+					});
+					EnchantmentHelper.getEnchantments(sellItem2).forEach((enchantment, level) ->{
 						if(enchantment.getFullname(level).getString().toLowerCase().contains(searchText))
 							foundEnchantment.set(true);
 					});
@@ -41,9 +50,12 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 					//Check the barter item if applicable
 					if(trades.get(i).isBarter())
 					{
-						ItemStack barterItem = trades.get(i).getBarterItem();
+						ItemStack barterItem = trades.get(i).getBarterItem(0);
+						ItemStack barterItem2 = trades.get(i).getBarterItem(1);
 						//Search item name
 						if(barterItem.getHoverName().getString().toLowerCase().contains(searchText))
+							return true;
+						if(barterItem2.getHoverName().getString().toLowerCase().contains(searchText))
 							return true;
 						//Search enchantments
 						foundEnchantment.set(false);

@@ -2,13 +2,12 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-
-import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -20,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpe
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -29,16 +29,18 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -91,9 +93,9 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			return this.users.size();
 	}
 	
-	public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
+	//public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
 	
-	protected abstract void forceReopen(List<Player> users);
+	//protected abstract void forceReopen(List<Player> users);
 	
 	protected List<Player> getUsers() { return this.users; }
 	
@@ -196,10 +198,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			return;
 		}
 		storedMoney.addValue(addedAmount);
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-		}
+		this.markMoneyDirty();
 	}
 	
 	/**
@@ -217,10 +216,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
 		this.storedMoney.readFromOldValue(newValue);
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-		}
+		this.markMoneyDirty();
 	}
 	
 	/**
@@ -229,10 +225,13 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	public void clearStoredMoney()
 	{
 		this.storedMoney = new CoinValue();
-		if(!this.level.isClientSide)
-		{
+		this.markMoneyDirty();
+	}
+	
+	public void markMoneyDirty() {
+		this.setChanged();
+		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-		}
 	}
 	
 	@Override
@@ -264,7 +263,14 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
-	public abstract MenuProvider getTradeMenuProvider();
+	public MenuProvider getTradeMenuProvider() { return new TradeMenuProvider<>(this); }
+	
+	public static class TradeMenuProvider<T extends BlockEntity & ITraderSource> implements MenuProvider {
+		T trader;
+		public TradeMenuProvider(T trader) { this.trader = trader; }
+		public Component getDisplayName() { return new TextComponent(""); }
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderMenu(id, inventory, this.trader.getBlockPos()); }
+	}
 	
 	public void openTradeMenu(Player player)
 	{
@@ -282,7 +288,14 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	public abstract MenuProvider getStorageMenuProvider(); 
+	public MenuProvider getStorageMenuProvider() { return new TradeStorageMenuProvider<>(this); }
+	
+	public static class TradeStorageMenuProvider<T extends BlockEntity & ITrader> implements MenuProvider {
+		T trader;
+		public TradeStorageMenuProvider(T trader) { this.trader = trader; }
+		public Component getDisplayName() { return new TextComponent(""); }
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderStorageMenu(id, inventory, this.trader.getBlockPos()); }
+	}
 	
 	public void openStorageMenu(Player player)
 	{
@@ -305,7 +318,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	public abstract MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity cashRegister);
+	/*public abstract MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity cashRegister);
 	
 	public void openCashRegisterTradeMenu(Player player, CashRegisterBlockEntity cashRegister)
 	{
@@ -321,7 +334,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			return;
 		}
 		NetworkHooks.openGui((ServerPlayer)player, provider, new CRDataWriter(this.worldPosition, cashRegister.getBlockPos()));
-	}
+	}*/
 	
 	@Override
 	public void saveAdditional(CompoundTag compound)
@@ -404,7 +417,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	@Override
 	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
-	private class CRDataWriter implements Consumer<FriendlyByteBuf>
+	/*private class CRDataWriter implements Consumer<FriendlyByteBuf>
 	{
 		
 		BlockPos traderPos;
@@ -422,9 +435,9 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			buffer.writeBlockPos(registerPos);
 			
 		}
-	}
+	}*/
 	
-	protected class TradeIndexDataWriter implements Consumer<FriendlyByteBuf>
+	/*protected class TradeIndexDataWriter implements Consumer<FriendlyByteBuf>
 	{
 		BlockPos traderPos;
 		int tradeIndex;
@@ -442,7 +455,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			buffer.writeInt(tradeIndex);
 		}
 		
-	}
+	}*/
 	
 	public boolean isClient()
 	{

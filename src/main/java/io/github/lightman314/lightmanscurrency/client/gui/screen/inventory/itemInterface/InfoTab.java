@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageSetInteractionType;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -62,7 +62,7 @@ public class InfoTab extends ItemInterfaceTab{
 		//Display the last fail message (if applicable)
 		if(this.screen.getMenu().blockEntity.getInteractionType().trades)
 		{
-			RemoteTradeResult lastResult = this.screen.getMenu().blockEntity.mostRecentTradeResult();
+			TradeResult lastResult = this.screen.getMenu().blockEntity.mostRecentTradeResult();
 			if(lastResult.hasMessage())
 			{
 				int messageWidth = this.screen.getFont().width(lastResult.failMessage);

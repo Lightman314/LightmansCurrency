@@ -7,6 +7,8 @@ import io.github.lightman314.lightmanscurrency.menus.*;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu.UniversalItemEditMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.*;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu.ItemTraderStorageMenuUniversal;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuAllUniversal;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuUniversal;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
 import net.minecraft.core.BlockPos;
@@ -30,6 +32,20 @@ public class ModMenus {
 		return new MintMenu(id, playerInventory, tileEntity);
 
 	});
+	
+	//Any Trader
+	public static final MenuType<TraderMenu> TRADER = register("trader", (IContainerFactory<TraderMenu>)(id, playerInventory,data) ->{
+		return new TraderMenu(id, playerInventory, data.readBlockPos());
+	});
+	public static final MenuType<TraderMenuUniversal> TRADER_UNIVERSAL = register("trader_universal", (IContainerFactory<TraderMenuUniversal>)(id, playerInventory,data) ->{
+		return new TraderMenuUniversal(id, playerInventory, data.readUUID());
+	});
+	public static final MenuType<TraderMenuAllUniversal> TRADER_UNIVERSAL_ALL = register("trader_universal_all", (IContainerFactory<TraderMenuAllUniversal>)(id, playerInventory,data) ->{
+		return new TraderMenuAllUniversal(id, playerInventory);
+	});
+	
+	//Trader Storage
+	
 	
 	//Item Trader
 	public static final MenuType<ItemTraderMenu> ITEM_TRADER = register("item_trader", (IContainerFactory<ItemTraderMenu>)(id, playerInventory, data)->{

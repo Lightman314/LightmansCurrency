@@ -27,8 +27,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTradeItem2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
@@ -41,14 +40,13 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.ItemTraderMenuUniversal;
 import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -58,7 +56,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -88,7 +85,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	int tradeCount = 1;
 	List<ItemTradeData> trades = null;
 	
-	SimpleContainer inventory;
+	TraderItemStorage storage = new TraderItemStorage(this);
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -101,11 +98,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		super(owner, pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
-		this.inventory = new SimpleContainer(this.inventorySize());
-		this.inventory.addListener(this::markStorageDirty);
 	}
-	
-	private void markStorageDirty(Container container) { this.markStorageDirty(); }
 
 	@Override
 	public void read(CompoundTag compound)
@@ -118,8 +111,17 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		
 		if(compound.contains("Storage", Tag.TAG_LIST))
 		{
-			this.inventory = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
-			this.inventory.addListener(this::markStorageDirty);
+			this.storage.load(compound, "Storage");
+			ListTag list = compound.getList("Storage", Tag.TAG_COMPOUND);
+			if(list.size() <= 0 || !list.getCompound(0).contains("Slot"))
+			{
+				this.storage.load(compound, "Storage");
+			}
+			else
+			{
+				Container container = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+				this.storage.loadFromContainer(container);
+			}
 		}
 		
 		this.logger.read(compound);
@@ -156,7 +158,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	protected final CompoundTag writeStorage(CompoundTag compound)
 	{
-		InventoryUtil.saveAllItems("Storage", compound, this.inventory);
+		this.storage.save(compound, "Storage");
 		return compound;
 	}
 	
@@ -200,7 +202,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		if(this.getTradeCount() >= TRADE_LIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
-		this.forceReopen();
+		//this.forceReopen();
 		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
 		this.markCoreSettingsDirty();
 	}
@@ -215,7 +217,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		if(this.getTradeCount() <= 1)
 			return;
 		this.overrideTradeCount(this.tradeCount - 1);
-		this.forceReopen();
+		//this.forceReopen();
 		this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
 		this.markCoreSettingsDirty();
 	}
@@ -232,22 +234,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
-		//Set the new inventory list
-		Container oldInventory = this.inventory;
-		this.inventory = new SimpleContainer(this.inventorySize());
-		for(int i = 0; i < this.inventory.getContainerSize() && i < oldInventory.getContainerSize(); i++)
-		{
-			this.inventory.setItem(i, oldInventory.getItem(i));
-		}
-		//Attempt to place lost items into the available slots
-		if(oldInventory.getContainerSize() > this.inventorySize())
-		{
-			for(int i = this.inventorySize(); i < oldInventory.getContainerSize(); i++)
-			{
-				InventoryUtil.TryPutItemStack(this.inventory, oldInventory.getItem(i));
-			}
-		}
-		this.inventory.addListener(this::markStorageDirty);
 		//Mark as dirty (both trades & storage)
 		CompoundTag compound = this.writeTrades(new CompoundTag());
 		this.writeStorage(compound);
@@ -306,10 +292,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return this.tradeCount * 9;
 	}
 	
-	public Container getStorage()
+	public TraderItemStorage getStorage()
 	{
-		return this.inventory;
+		return this.storage;
 	}
+	
+	public int getStorageStackLimit() { return IItemTrader.DEFAULT_STACK_LIMIT; }
 	
 	public void markStorageDirty()
 	{
@@ -327,10 +315,22 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.item");
 	}
 
-	@Override
+	/*@Override
 	protected MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this.traderID);
 	}
+	
+	private static class TraderProvider implements MenuProvider
+	{
+		final UUID traderID;
+		private TraderProvider(UUID traderID) { this.traderID = traderID; }
+		@Override
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
+			return new ItemTraderMenu.ItemTraderMenuUniversal(menuID, inventory, this.traderID);
+		}
+		@Override
+		public Component getDisplayName() { return new TextComponent(""); }
+	}*/
 
 	@Override
 	protected MenuProvider getStorageMenuProvider() {
@@ -351,18 +351,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
-	}
-	
-	private static class TraderProvider implements MenuProvider
-	{
-		final UUID traderID;
-		private TraderProvider(UUID traderID) { this.traderID = traderID; }
-		@Override
-		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new ItemTraderMenu.ItemTraderMenuUniversal(menuID, inventory, this.traderID);
-		}
-		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
 	private static class StorageProvider implements MenuProvider
@@ -405,11 +393,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		{
 			for(ItemTradeData trade : trades)
 			{
-				ItemStack tradeStack = trade.getSellItem();
-				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this.inventory, tradeStack);
-				if(!tradeStack.isEmpty())
-					LightmansCurrency.LogWarning(tradeStack.getCount() + " items lost during Universal Item Trader version update for trader " + this.traderID + ".");
+				this.storage.forceAddItem(trade.getSellItem(0));
 			}
 		}
 	}
@@ -492,152 +476,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		public boolean stillValid() { return ClientTradingOffice.getData(this.trader.traderID) != null; }
 		
 	}
-	
-	@Override
-	public RemoteTradeResult handleRemotePurchase(int tradeIndex, TradeContext data) {
-		
-		if(tradeIndex < 0 || tradeIndex >= this.trades.size())
-			return RemoteTradeResult.FAIL_INVALID_TRADE;
-		
-		ItemTradeData trade = this.getTrade(tradeIndex);
-		//Abort if the trade is null
-		if(trade == null)
-			return RemoteTradeResult.FAIL_INVALID_TRADE;
-		//Abort if the trade is not valid
-		if(!trade.isValid())
-			return RemoteTradeResult.FAIL_INVALID_TRADE;
-		//Check if the player is allowed to do the trade
-		if(this.runPreTradeEvent(data.getPlayerSource(), tradeIndex).isCanceled())
-			return RemoteTradeResult.FAIL_TRADE_RULE_DENIAL;
-		
-		CoinValue price = this.runTradeCostEvent(data.getPlayerSource(), tradeIndex).getCostResult();
-		
-		//Execute a sale
-		if(trade.isSale())
-		{
-			//Abort if not enough items in inventory
-			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
-				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
-			//Abort if not enough room to put the sold item
-			if(!data.canFitItem(trade.getSellItem()))
-				return RemoteTradeResult.FAIL_NO_OUTPUT_SPACE;
-			//Abort if not enough 
-			if(!data.getPayment(price))
-				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
-			
-			//We have enough money, and the trade is valid. Execute the trade
-			//Get the trade item stack
-			ItemStack giveStack = trade.getSellItem();
-			//Give the trade item
-			data.putItem(giveStack);
-			
-			//Log the successful trade
-			this.getLogger().AddLog(data.getPlayerSource(), trade, price, this.getCoreSettings().isCreative());
-			this.markLoggerDirty();
-			
-			//Push the post-trade event
-			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
-			
-			//Ignore editing internal storage if this is flagged as creative
-			if(!this.getCoreSettings().isCreative())
-			{
-				//Remove the sold items from storage
-				trade.RemoveItemsFromStorage(this.getStorage());
-				//Give the paid cost to storage
-				this.addStoredMoney(price);
-				this.markStorageDirty();
-			}
-			
-			return RemoteTradeResult.SUCCESS;
-			
-		}
-		//Process a purchase
-		else if(trade.isPurchase())
-		{
-			//Abort if not enough items in the item slots
-			if(!data.hasItem(trade.getSellItem()))
-				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
-			//Abort if not enough room to store the purchased items (unless we're in creative)
-			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
-				return RemoteTradeResult.FAIL_NO_INPUT_SPACE;
-			//Abort if not enough money to pay them back
-			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
-				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
-			
-			//Passed the checks. Take the item(s) from the input
-			data.collectItem(trade.getSellItem());
-			//Give the payment to the purchaser
-			data.givePayment(price);
-			
-			//Log the successful trade
-			this.getLogger().AddLog(data.getPlayerSource(), trade, price, this.getCoreSettings().isCreative());
-			this.markLoggerDirty();
-			
-			//Push the post-trade event
-			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getCoreSettings().isCreative())
-			{
-				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.getStorage(), trade.getSellItem());
-				//Remove the coins from storage
-				this.removeStoredMoney(price);
-				this.markStorageDirty();
-			}
-			
-			return RemoteTradeResult.SUCCESS;
-			
-		}
-		//Process a barter
-		else if(trade.isBarter())
-		{
-			//Abort if not enough items in the item slots
-			if(!data.hasItem(trade.getBarterItem()))
-				return RemoteTradeResult.FAIL_CANNOT_AFFORD;
-			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
-				return RemoteTradeResult.FAIL_NO_INPUT_SPACE;
-			//Abort if not enough items in inventory
-			if(!trade.hasStock(this) && !this.getCoreSettings().isCreative())
-				return RemoteTradeResult.FAIL_OUT_OF_STOCK;
-			
-			//Passed the checks. Take the item(s) from the input slot
-			data.collectItem(trade.getBarterItem());
-			//Check if there's room for the new items
-			if(!data.putItem(trade.getSellItem()))
-			{
-				//Abort if no room for the sold item
-				//Put the barter item back
-				data.putItem(trade.getBarterItem());
-				return RemoteTradeResult.FAIL_NO_OUTPUT_SPACE;
-			}
-			
-			//Log the successful trade
-			this.getLogger().AddLog(data.getPlayerSource(), trade, CoinValue.EMPTY, this.getCoreSettings().isCreative());
-			this.markLoggerDirty();
-			
-			//Push the post-trade event
-			this.runPostTradeEvent(data.getPlayerSource(), tradeIndex, price);
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getCoreSettings().isCreative())
-			{
-				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.getStorage(), trade.getBarterItem());
-				//Remove the item from storage
-				trade.RemoveItemsFromStorage(this.getStorage());
-				this.markStorageDirty();
-			}
-			
-			return RemoteTradeResult.SUCCESS;
-			
-		}
-		
-		return RemoteTradeResult.FAIL_INVALID_TRADE;
-	}
 
-	@Override
+	/*@Override
 	protected void forceReopen(List<Player> users) {
 		for(Player player : users)
 		{
@@ -647,7 +487,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				this.openTradeMenu(player);
 		}
 		
-	}
+	}*/
 	
 	@Override
 	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {
@@ -697,7 +537,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				ItemTradeData newTrade = new ItemTradeData();
 				//Sell Item
 				JsonObject sellItem = tradeData.get("SellItem").getAsJsonObject();
-				newTrade.setSellItem(FileUtil.parseItemStack(sellItem));
+				newTrade.setItem(FileUtil.parseItemStack(sellItem), 0);
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeType(ItemTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
@@ -719,7 +559,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 					if(newTrade.isBarter())
 					{
 						JsonObject barterItem = tradeData.get("BarterItem").getAsJsonObject();
-						newTrade.setBarterItem(FileUtil.parseItemStack(barterItem));
+						newTrade.setItem(FileUtil.parseItemStack(barterItem), 2);
 					}
 					else
 					{
@@ -728,7 +568,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				}
 				if(tradeData.has("DisplayName"))
 				{
-					newTrade.setCustomName(tradeData.get("DisplayName").getAsString());
+					newTrade.setCustomName(0, tradeData.get("DisplayName").getAsString());
 				}
 				if(tradeData.has("TradeRules"))
 				{
@@ -742,7 +582,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				throw new Exception("Trader has no valid trades!");
 			
 			this.tradeCount = this.trades.size();
-			this.inventory = new SimpleContainer(this.inventorySize());
+			//Lock the storage for json loaded traders
+			this.storage = new TraderItemStorage.LockedTraderStorage(this);
 			
 		}
 		
@@ -763,13 +604,13 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			{
 				JsonObject tradeData = new JsonObject();
 				tradeData.addProperty("TradeType", trade.getTradeType().name());
-				tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem()));
+				tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0)));
 				if(trade.isSale() || trade.isPurchase())
 					tradeData.add("Price", trade.getCost().toJson());
 				if(trade.isBarter())
-					tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem()));
-				if(trade.hasCustomName())
-					tradeData.addProperty("DisplayName", trade.getCustomName());
+					tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0)));
+				if(trade.hasCustomName(0))
+					tradeData.addProperty("DisplayName", trade.getCustomName(0));
 				if(trade.getRules().size() > 0)
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 				

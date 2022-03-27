@@ -278,7 +278,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 			ItemTradeData trade = this.menu.getTrader().getTrade(i);
 			if(ItemTradeButton.isMouseOverSlot(0, this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), (int)mouseX, (int)mouseY, ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i)))
 			{
-				ItemStack currentSellItem = trade.getSellItem();
+				ItemStack currentSellItem = trade.getSellItem(0);
 				//LightmansCurrency.LogInfo("Clicked on sell item. Click Type: " + button + "; Sell Item: " + currentSellItem.getCount() + "x" + currentSellItem.getItem().getRegistryName() + "; Held Item: " + heldItem.getCount() + "x" + heldItem.getItem().getRegistryName());
 				if(heldItem.isEmpty() && currentSellItem.isEmpty())
 				{
@@ -292,7 +292,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					currentSellItem.shrink(button == 0 ? currentSellItem.getCount() : 1);
 					if(currentSellItem.getCount() <= 0)
 						currentSellItem = ItemStack.EMPTY;
-					trade.setSellItem(currentSellItem);
+					trade.setItem(currentSellItem, 0);
 					this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
 					return true;
 				}
@@ -314,14 +314,14 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					}
 					else
 						currentSellItem = heldItem.copy();
-					trade.setSellItem(currentSellItem);
+					trade.setItem(currentSellItem, 0);
 					this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
 					return true;
 				}
 			}
 			else if(this.menu.getTrader().getTrade(i).isBarter() && ItemTradeButton.isMouseOverSlot(1, this.leftPos + ItemTraderStorageUtil.getFakeTradeButtonPosX(tradeCount, i), this.topPos + ItemTraderStorageUtil.getFakeTradeButtonPosY(tradeCount, i), (int)mouseX, (int)mouseY, ItemTraderStorageUtil.isFakeTradeButtonInverted(tradeCount, i)))
 			{
-				ItemStack currentBarterItem = trade.getBarterItem();
+				ItemStack currentBarterItem = trade.getBarterItem(0);
 				if(heldItem.isEmpty() && currentBarterItem.isEmpty())
 				{
 					//Open the item edit screen if both the sell item and held items are empty
@@ -334,7 +334,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					currentBarterItem.shrink(button == 0 ? currentBarterItem.getCount() : 1);
 					if(currentBarterItem.getCount() <= 0)
 						currentBarterItem = ItemStack.EMPTY;
-					trade.setBarterItem(currentBarterItem);
+					trade.setItem(currentBarterItem, 2);
 					this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
 					return true;
 				}
@@ -356,7 +356,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					}
 					else
 						currentBarterItem = heldItem.copy();
-					trade.setBarterItem(currentBarterItem);
+					trade.setItem(currentBarterItem, 2);
 					this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
 					return true;
 				}

@@ -2,34 +2,35 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
 public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
+	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
+	
 	public List<ItemTradeData> getAllTrades();
-	public Container getStorage();
+	public int getStorageStackLimit();
+	public TraderItemStorage getStorage();
 	public void markTradesDirty();
 	public void markStorageDirty();
-	public void openTradeMenu(Player player);
-	public void openStorageMenu(Player player);
-	public void openItemEditMenu(Player player, int tradeIndex);
+	//public void openItemEditMenu(Player player, int tradeIndex);
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
 	//Open menu functions
@@ -38,54 +39,216 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
 	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
 	
+	default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
 	
-	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
-	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)
+	public default TradeResult ExecuteTrade(TradeContext context, int tradeIndex)
 	{
+
 		ItemTradeData trade = this.getTrade(tradeIndex);
-		PreTradeEvent event = new PreTradeEvent(player, trade, () -> this);
-		trade.beforeTrade(event);
-		if(this instanceof ITradeRuleHandler)
-			((ITradeRuleHandler)this).beforeTrade(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	default TradeCostEvent runTradeCostEvent(Player player, int tradeIndex) { return this.runTradeCostEvent(PlayerReference.of(player), tradeIndex); }
-	default TradeCostEvent runTradeCostEvent(PlayerReference player, int tradeIndex)
-	{
-		ItemTradeData trade = this.getTrade(tradeIndex);
-		TradeCostEvent event = new TradeCostEvent(player, trade, () -> this);
-		trade.tradeCost(event);
-		if(this instanceof ITradeRuleHandler)
-			((ITradeRuleHandler)this).tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-	
-	default void runPostTradeEvent(Player player, int tradeIndex, CoinValue pricePaid) { this.runPostTradeEvent(PlayerReference.of(player), tradeIndex, pricePaid); }
-	default void runPostTradeEvent(PlayerReference player, int tradeIndex, CoinValue pricePaid)
-	{
-		ItemTradeData trade = this.getTrade(tradeIndex);
-		PostTradeEvent event = new PostTradeEvent(player, trade, () -> this, pricePaid);
-		trade.afterTrade(event);
-		if(event.isDirty())
+		//Abort if the trade is null
+		if(trade == null)
 		{
-			this.markTradesDirty();
-			event.clean();
+			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
+			return TradeResult.FAIL_INVALID_TRADE;
 		}
-		if(this instanceof ITradeRuleHandler)
+		
+		//Abort if the trade is not valid
+		if(!trade.isValid())
 		{
-			((ITradeRuleHandler)this).afterTrade(event);
-			if(event.isDirty())
+			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			return TradeResult.FAIL_INVALID_TRADE;
+		}
+		
+		if(!context.hasPlayerReference())
+			return TradeResult.FAIL_NULL;
+		
+		//Check if the player is allowed to do the trade
+		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+			return TradeResult.FAIL_TRADE_RULE_DENIAL;
+		
+		//Get the cost of the trade
+		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		
+		//Process a sale
+		if(trade.isSale())
+		{
+			//Abort if not enough items in inventory
+			if(!trade.hasStock(context) && !this.getCoreSettings().isCreative())
 			{
-				((ITradeRuleHandler)this).markRulesDirty();
-				event.clean();
+				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
+			
+			//Abort if not enough room to put the sold item
+			if(!context.canFitItems(trade.getSellItem(0), trade.getSellItem(1)))
+			{
+				LightmansCurrency.LogInfo("Not enough room for the output item. Aborting trade!");
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			
+			if(!context.getPayment(price))
+			{
+				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//We have enough money, and the trade is valid. Execute the trade
+			//Get the trade itemStack
+			//Give the trade item
+			if(!context.putItem(trade.getSellItem(0)))//If there's not enough room to give the item to the output item, abort the trade
+			{
+				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
+				//Give a refund
+				context.givePayment(price);
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			if(!context.putItem(trade.getSellItem(1)))
+			{
+				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
+				//Give a refund
+				context.collectItem(trade.getSellItem(0));
+				context.givePayment(price);
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Ignore editing internal storage if this is flagged as creative.
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Remove the sold items from storage
+				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
+				trade.RemoveItemsFromStorage(this.getStorage());
+				this.markStorageDirty();
+				//Give the paid cost to storage
+				this.addStoredMoney(price);
+				
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			
+			return TradeResult.SUCCESS;
+			
 		}
-		MinecraftForge.EVENT_BUS.post(event);
+		//Process a purchase
+		else if(trade.isPurchase())
+		{
+			//Abort if not enough items in the item slots
+			if(!context.hasItems(trade.getSellItem(0), trade.getSellItem(1)))
+			{
+				LightmansCurrency.LogDebug("Not enough items in the item slots to make the purchase.");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//Abort if not enough room to store the purchased items (unless we're creative)
+			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
+				return TradeResult.FAIL_NO_INPUT_SPACE;
+			}
+			//Abort if not enough money to pay them back
+			if(!trade.hasStock(context) && !this.getCoreSettings().isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
+				return TradeResult.FAIL_OUT_OF_STOCK;
+			}
+			//Passed the checks. Take the item(s) from the input slot
+			context.collectItem(trade.getSellItem(0));
+			context.collectItem(trade.getSellItem(1));
+			//Put the payment in the purchasers wallet, coin slot, etc.
+			context.givePayment(price);
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Ignore editing internal storage if this is flagged as creative.
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Put the item in storage
+				this.getStorage().forceAddItem(trade.getSellItem(0));
+				this.getStorage().forceAddItem(trade.getSellItem(1));
+				this.markStorageDirty();
+				//Remove the coins from storage
+				this.removeStoredMoney(price);
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+		//Process a barter
+		else if(trade.isBarter())
+		{
+			//Abort if not enough items in the item slots
+			if(!context.hasItems(trade.getBarterItem(0), trade.getBarterItem(1)))
+			{
+				LightmansCurrency.LogDebug("Not enough items in the item slots to make the barter.");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			//Abort if not enough room to store the purchased items (unless we're creative)
+			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
+				return TradeResult.FAIL_NO_INPUT_SPACE;
+			}
+			//Abort if not enough items in inventory
+			if(!trade.hasStock(context) && !this.getCoreSettings().isCreative())
+			{
+				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_OUT_OF_STOCK;
+			}
+			
+			//Passed the checks. Take the item(s) from the input slot
+			context.collectItem(trade.getBarterItem(0));
+			context.collectItem(trade.getBarterItem(1));
+			//Check if there's room for the new items
+			if(!context.putItem(trade.getSellItem(0)))
+			{
+				//Abort if no room for the sold item
+				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
+				context.putItem(trade.getBarterItem(0));
+				context.putItem(trade.getBarterItem(1));
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			if(!context.putItem(trade.getSellItem(1)))
+			{
+				//Abort if no room for the sold item
+				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
+				context.collectItem(trade.getSellItem(0));
+				context.putItem(trade.getBarterItem(0));
+				context.putItem(trade.getBarterItem(1));
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, CoinValue.EMPTY, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Ignore editing internal storage if this is flagged as creative.
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Put the item in storage
+				this.getStorage().forceAddItem(trade.getBarterItem(0));
+				this.getStorage().forceAddItem(trade.getBarterItem(1));
+				//Remove the item from storage
+				trade.RemoveItemsFromStorage(this.getStorage());
+				this.markStorageDirty();
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+		
+		return TradeResult.FAIL_INVALID_TRADE;
 	}
-	
-	//default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
 	
 }

@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.network.message.item_trader.Messa
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
@@ -33,10 +34,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.ItemTraderMenuCR;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
@@ -48,15 +45,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -69,7 +60,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.network.NetworkHooks;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader {
 	
@@ -89,7 +79,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	@Override
 	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
-	protected SimpleContainer storage;
+	protected TraderItemStorage storage = new TraderItemStorage(this);
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -105,8 +95,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getStorageSize());
-		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
@@ -114,16 +102,12 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getStorageSize());
-		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getStorageSize());
-		this.storage.addListener(this::markStorageDirty);
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
@@ -131,20 +115,16 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-		this.storage = new SimpleContainer(this.getStorageSize());
-		this.storage.addListener(this::markStorageDirty);
 	}
-	
-	private void markStorageDirty(Container storage) { this.markStorageDirty(); }
 	
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
 		getTrade(index).setRestriction(restriction);
 	}
 	
-	private int getStorageSize()
+	public int getStorageStackLimit()
 	{
-		return getTradeCount() * 9;
+		return IItemTrader.DEFAULT_STACK_LIMIT;
 	}
 	
 	public int getTradeCount()
@@ -175,7 +155,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			overrideTradeCount(tradeCount + 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
 			this.markCoreSettingsDirty();
-			this.forceReopen();
+			//this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
@@ -192,13 +172,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			overrideTradeCount(tradeCount - 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
 			this.markCoreSettingsDirty();
-			this.forceReopen();
+			//this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	protected void forceReopen(List<Player> users)
+	/*protected void forceReopen(List<Player> users)
 	{
 		for(Player player : users)
 		{
@@ -209,7 +189,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			else if(player.containerMenu instanceof ItemTraderMenu)
 				this.openTradeMenu(player);
 		}
-	}
+	}*/
 	
 	public void overrideTradeCount(int newTradeCount)
 	{
@@ -223,22 +203,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			trades.set(i, oldTrades.get(i));
 		}
-		//Set the new inventory list
-		Container oldStorage = this.storage;
-		this.storage = new SimpleContainer(this.getStorageSize());
-		for(int i = 0; i < this.storage.getContainerSize() && i < oldStorage.getContainerSize(); i++)
-		{
-			this.storage.setItem(i, oldStorage.getItem(i));
-		}
-		//Attempt to place lost items into the available slots
-		if(oldStorage.getContainerSize() > this.getStorageSize())
-		{
-			for(int i = this.getStorageSize(); i < oldStorage.getContainerSize(); i++)
-			{
-				InventoryUtil.TryPutItemStack(this.storage, oldStorage.getItem(i));
-			}
-		}
-		this.storage.addListener(this::markStorageDirty);
 		//Send an update to the client
 		if(!this.level.isClientSide)
 		{
@@ -323,14 +287,12 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public int getTradeStock(int tradeSlot)
 	{
 		ItemTradeData trade = getTrade(tradeSlot);
-		if(!trade.getSellItem().isEmpty())
+		if(trade.sellItemsDefined())
 		{
 			if(this.coreSettings.isCreative())
 				return Integer.MAX_VALUE;
 			else
-			{
-				return (int)trade.stockCount(this);
-			}
+				return trade.stockCount(this);
 		}
 		return 0;
 	}
@@ -407,19 +369,19 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public void saveAdditional(CompoundTag compound)
 	{
 		
+		super.saveAdditional(compound);
+		
 		this.writeStorage(compound);
 		this.writeTrades(compound);
 		this.writeItemSettings(compound);
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
-		super.saveAdditional(compound);
-		
 	}
 	
 	protected CompoundTag writeStorage(CompoundTag compound)
 	{
-		InventoryUtil.saveAllItems("Items", compound, this.storage);
+		this.storage.save(compound, "Storage");
 		return compound;
 	}
 	
@@ -462,10 +424,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		}
 		
 		//Load the inventory
-		if(compound.contains("Items"))
+		if(compound.contains("Storage"))
 		{
-			this.storage = InventoryUtil.loadAllItems("Items", compound, this.getStorageSize());
-			this.storage.addListener(this::markStorageDirty);
+			this.storage.load(compound, "Storage");
+		}
+		else if(compound.contains("Items"))
+		{
+			Container container = InventoryUtil.loadAllItems("Items", compound, this.getTradeCount() * 9);
+			this.storage.loadFromContainer(container);
 		}
 		
 		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
@@ -487,7 +453,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		super.dumpContents(world, pos);
 		//Dump the storage
-		InventoryUtil.dumpContents(world, pos, this.storage);
+		InventoryUtil.dumpContents(world, pos, this.storage.getContents());
 	}
 	
 	@Override
@@ -503,33 +469,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.rotationTime++;
 	}
 	
-	@Override
+	/*@Override
 	public MenuProvider getTradeMenuProvider() { return new TradeContainerProvider(this); }
 
-	@Override
-	public MenuProvider getStorageMenuProvider() { return new StorageContainerProvider(this); }
-
-	@Override
-	public MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity cashRegister) { return new TradeCRContainerProvider(this, cashRegister); }
-	
-	protected MenuProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditContainerProvider(this, tradeIndex); }
-	
-	public void openItemEditMenu(Player player, int tradeIndex)
-	{
-		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
-		if(provider == null)
-		{
-			LightmansCurrency.LogError("No item edit container provider was given for the trader of type " + this.getType().getRegistryName().toString());
-			return;
-		}
-		if(!(player instanceof ServerPlayer))
-		{
-			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
-			return;
-		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.worldPosition, tradeIndex));
-	}
-	
 	private class TradeContainerProvider implements MenuProvider{
 
 		ItemTraderBlockEntity trader;
@@ -549,8 +491,11 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			return new ItemTraderMenu(id, inventory, this.trader.worldPosition);
 		}
 		
-	}
+	}*/
 	
+	/*@Override
+	public MenuProvider getStorageMenuProvider() { return new StorageContainerProvider(this); }
+
 	private class StorageContainerProvider implements MenuProvider{
 
 		ItemTraderBlockEntity tileEntity;
@@ -570,9 +515,32 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			return new ItemTraderStorageMenu(id, inventory, tileEntity.worldPosition);
 		}
 		
-	}
+	}*/
 	
-	private class TradeCRContainerProvider implements MenuProvider{
+	//@Override
+	//public MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity cashRegister) { return new TradeCRContainerProvider(this, cashRegister); }
+	
+	/*protected MenuProvider getItemEditMenuProvider(int tradeIndex) { return new ItemEditContainerProvider(this, tradeIndex); }
+	
+	public void openItemEditMenu(Player player, int tradeIndex)
+	{
+		MenuProvider provider = getItemEditMenuProvider(tradeIndex);
+		if(provider == null)
+		{
+			LightmansCurrency.LogError("No item edit container provider was given for the trader of type " + this.getType().getRegistryName().toString());
+			return;
+		}
+		if(!(player instanceof ServerPlayer))
+		{
+			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
+			return;
+		}
+		NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.worldPosition, tradeIndex));
+	}*/
+	
+	
+	
+	/*private class TradeCRContainerProvider implements MenuProvider{
 
 		ItemTraderBlockEntity tileEntity;
 		CashRegisterBlockEntity registerEntity;
@@ -616,10 +584,10 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			return new ItemEditMenu(id, inventory, tileEntity.worldPosition, tradeIndex);
 		}
 		
-	}
+	}*/
 
 	@Override
-	public Container getStorage() {
+	public TraderItemStorage getStorage() {
 		return this.storage;
 	}
 
@@ -633,11 +601,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			for(ItemTradeData trade : trades)
 			{
-				ItemStack tradeStack = trade.getSellItem();
+				ItemStack tradeStack = trade.getSellItem(0);
 				if(!tradeStack.isEmpty())
-					tradeStack = InventoryUtil.TryPutItemStack(this.storage, tradeStack);
-				if(!tradeStack.isEmpty())
-					InventoryUtil.dumpContents(this.level, this.worldPosition, InventoryUtil.buildInventory(tradeStack));
+					this.storage.forceAddItem(tradeStack);
 			}
 		}
 		

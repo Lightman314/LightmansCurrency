@@ -3,18 +3,22 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraftforge.network.NetworkHooks;
 
-public class CashRegisterBlockEntity extends BlockEntity{
+public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
 	
 	List<BlockPos> positions = new ArrayList<>();
 	
@@ -32,10 +36,21 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	
 	public void OpenContainer(Player player)
 	{
-		OpenContainer(-1,0,1, player);
+		MenuProvider provider = new TraderBlockEntity.TradeMenuProvider<CashRegisterBlockEntity>(this);
+		/*if(provider == null)
+		{
+			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + this.getType().getRegistryName().toString());
+			return;
+		}*/
+		if(!(player instanceof ServerPlayer))
+		{
+			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
+			return;
+		}
+		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
+	/*public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
 	{
 		//Validate the direction
 		if(direction == 0)
@@ -107,6 +122,21 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	public int getPairedTraderSize()
 	{
 		return positions.size();
+	}*/
+	
+	@Override
+	public boolean isSingleTrader() { return false; }
+	
+	@Override
+	public List<ITrader> getTraders() { 
+		List<ITrader> traders = new ArrayList<>();
+		for(int i = 0; i < this.positions.size(); ++i)
+		{
+			BlockEntity be = this.level.getBlockEntity(this.positions.get(i));
+			if(be instanceof ITrader)
+				traders.add((ITrader)be);
+		}
+		return traders;
 	}
 	
 	@Override
@@ -161,6 +191,6 @@ public class CashRegisterBlockEntity extends BlockEntity{
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
+	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 }

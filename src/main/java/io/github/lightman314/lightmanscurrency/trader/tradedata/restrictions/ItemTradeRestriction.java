@@ -8,10 +8,9 @@ import java.util.function.Supplier;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,7 +44,7 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	
 	public ItemTradeRestriction(String classicType) { this.classicType = classicType; }
 	
-	public ItemStack modifySellItem(ItemStack sellItem, ItemTradeData trade) { return sellItem; }
+	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade) { return sellItem; }
 	
 	public boolean allowSellItem(ItemStack itemStack) { return true; }
 	
@@ -53,14 +52,18 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	
 	public boolean allowItemSelectItem(ItemStack itemStack) { return true; }
 	
-	public int getSaleStock(ItemStack sellItem, Container traderStorage)
+	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
-		return InventoryUtil.GetItemCount(traderStorage, sellItem) / sellItem.getCount();
+		if(sellItem.isEmpty())
+			return Integer.MAX_VALUE;
+		return traderStorage.getItemCount(sellItem) / sellItem.getCount();
 	}
 	
-	public void removeItemsFromStorage(ItemStack sellItem, Container traderStorage)
+	public void removeItemsFromStorage(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
-		InventoryUtil.RemoveItemCount(traderStorage, sellItem);
+		if(sellItem.isEmpty())
+			return;
+		traderStorage.removeItem(sellItem);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

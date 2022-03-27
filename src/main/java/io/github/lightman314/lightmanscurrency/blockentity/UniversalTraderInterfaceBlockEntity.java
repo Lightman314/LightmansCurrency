@@ -17,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.UniversalTradeReference;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.SidedHandler;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -122,8 +122,8 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	}
 	public void setTradeIndex(int tradeIndex) { this.reference.setTrade(tradeIndex); this.setTradeReferenceDirty(); }
 	
-	private RemoteTradeResult lastResult = RemoteTradeResult.SUCCESS;
-	public RemoteTradeResult mostRecentTradeResult() { return this.lastResult; }
+	private TradeResult lastResult = TradeResult.SUCCESS;
+	public TradeResult mostRecentTradeResult() { return this.lastResult; }
 	
 	protected abstract T deserializeTrade(CompoundTag compound);
 	
@@ -286,13 +286,13 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 			BlockEntityUtil.sendUpdatePacket(this, this.saveReference(new CompoundTag()));
 	}
 	
-	public RemoteTradeResult interactWithTrader() {
+	public TradeResult interactWithTrader() {
 		TradeContext remoteTradeData = this.getRemoteTradeData();
 		UniversalTraderData trader = this.getTrader();
 		if(trader != null)
 			this.lastResult = trader.handleRemotePurchase(this.reference.getTradeIndex(), remoteTradeData);
 		else
-			this.lastResult = RemoteTradeResult.FAIL_NULL;
+			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
 	}

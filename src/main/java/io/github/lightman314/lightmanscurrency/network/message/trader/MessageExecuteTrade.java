@@ -9,19 +9,22 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageExecuteTrade {
 
+	private int trader;
 	private int tradeIndex;
 	
-	public MessageExecuteTrade(int tradeIndex)
+	public MessageExecuteTrade(int trader, int tradeIndex)
 	{
+		this.trader = trader;
 		this.tradeIndex = tradeIndex;
 	}
 	
 	public static void encode(MessageExecuteTrade message, FriendlyByteBuf buffer) {
+		buffer.writeInt(message.trader);
 		buffer.writeInt(message.tradeIndex);
 	}
 
 	public static MessageExecuteTrade decode(FriendlyByteBuf buffer) {
-		return new MessageExecuteTrade(buffer.readInt());
+		return new MessageExecuteTrade(buffer.readInt(), buffer.readInt());
 	}
 
 	public static void handle(MessageExecuteTrade message, Supplier<Context> supplier) {
@@ -33,7 +36,7 @@ public class MessageExecuteTrade {
 				if(player.containerMenu instanceof ITraderMenu)
 				{
 					ITraderMenu menu = (ITraderMenu) player.containerMenu;
-					menu.ExecuteTrade(message.tradeIndex);
+					menu.ExecuteTrade(message.trader, message.tradeIndex);
 				}
 			}
 		});

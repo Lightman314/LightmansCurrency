@@ -394,6 +394,21 @@ public class InventoryUtil {
 		return amountToMerge <= 0;
     }
     
+    public static boolean CanPutItemStacks(Container inventory, ItemStack... stacks) { return CanPutItemStacks(inventory, Lists.newArrayList(stacks)); }
+    
+    public static boolean CanPutItemStacks(Container inventory, List<ItemStack> stacks)
+    {
+    	Container copyInventory = new SimpleContainer(inventory.getContainerSize());
+    	for(int i = 0; i < inventory.getContainerSize(); ++i)
+    		copyInventory.setItem(i, inventory.getItem(i).copy());
+    	for(int i = 0; i < stacks.size(); ++i)
+    	{
+    		if(!InventoryUtil.PutItemStack(copyInventory, stacks.get(i)))
+    			return false;
+    	}
+    	return true;
+    }
+    
     /**
      * Merges item stacks of the same type together (e.g. 2 stacks of 32 cobblestone will become 1 stack of 64 cobblestone and an extra empty slot)
      * @param inventory
@@ -464,6 +479,23 @@ public class InventoryUtil {
 			ItemEntity entity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack);
 			level.addFreshEntity(entity);
 		}
+    }
+    
+    public static List<ItemStack> combineQueryItems(ItemStack... items)
+    {
+    	List<ItemStack> itemList = new ArrayList<>();
+    	for(ItemStack item : items)
+    	{
+    		boolean addNew = true;
+    		for(int i = 0; i < itemList.size() && addNew; ++i)
+    		{
+    			if(ItemMatches(item, itemList.get(i)))
+    				itemList.get(i).grow(item.getCount());
+    		}
+    		if(addNew && !item.isEmpty())
+    			itemList.add(item.copy());
+    	}
+    	return itemList;
     }
     
     /**

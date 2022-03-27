@@ -8,21 +8,19 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.ItemTraderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
@@ -68,8 +66,6 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		this.player = inventory.player;
 		
 		this.getTrader().userOpen(this.player);
-		
-		//int tradeCount = this.getTradeCount();
 		
 		//Coin Slots
 		for(int x = 0; x < coinSlots.getContainerSize(); x++)
@@ -211,7 +207,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		return this.getTrader().getTrade(tradeIndex);
 	}
 	
-	public void ExecuteTrade(int tradeIndex)
+	public void ExecuteTrade(int trader, int tradeIndex)
 	{
 		
 		//LightmansCurrency.LOGGER.info("Executing trade at index " + tradeIndex);
@@ -221,206 +217,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			return;
 		}
 		
-		ItemTradeData trade = this.getTrader().getTrade(tradeIndex);
-		//Abort if the trade is null
-		if(trade == null)
-		{
-			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
-			return;
-		}
-		
-		//Abort if the trade is not valid
-		if(!trade.isValid())
-		{
-			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
-			return;
-		}
-		
-		//Check if the player is allowed to do the trade
-		if(this.getTrader().runPreTradeEvent(this.player, tradeIndex).isCanceled())
-			return;
-		
-		//Get the cost of the trade
-		CoinValue price = this.getTrader().runTradeCostEvent(player, tradeIndex).getCostResult();
-		
-		//Process a sale
-		if(trade.isSale())
-		{
-			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.getTrader()) && !this.getTrader().getCoreSettings().isCreative())
-			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
-				return;
-			}
-			
-			//Abort if not enough room to put the sold item
-			if(!InventoryUtil.CanPutItemStack(this.itemSlots, trade.getSellItem()))
-			{
-				LightmansCurrency.LogInfo("Not enough room for the output item. Aborting trade!");
-				return;
-			}
-			
-			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, price))
-			{
-				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
-				return;
-			}
-			
-			//We have enough money, and the trade is valid. Execute the trade
-			//Get the trade itemStack
-			ItemStack giveStack = trade.getSellItem();
-			//Give the trade item
-			if(!InventoryUtil.PutItemStack(this.itemSlots, giveStack))//If there's not enough room to give the item to the output item, abort the trade
-			{
-				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
-				//Give a refund
-				List<ItemStack> refundCoins = MoneyUtil.getCoinsOfValue(price);
-				ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
-				
-				for(int i = 0; i < refundCoins.size(); i++)
-				{
-					ItemStack coins = refundCoins.get(i);
-					if(!wallet.isEmpty())
-					{
-						coins = WalletItem.PickupCoin(wallet, coins);
-					}
-					if(!coins.isEmpty())
-					{
-						coins = InventoryUtil.TryPutItemStack(this.coinSlots, coins);
-						if(!coins.isEmpty())
-						{
-							Container temp = new SimpleContainer(1);
-							temp.setItem(0, coins);
-							this.clearContainer(this.player, temp);
-						}
-					}
-				}
-				return;
-			}
-			
-			//Log the successful trade
-			this.getTrader().getLogger().AddLog(player, trade, price, this.getTrader().getCoreSettings().isCreative());
-			this.getTrader().markLoggerDirty();
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getTrader().getCoreSettings().isCreative())
-			{
-				//Remove the sold items from storage
-				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
-				trade.RemoveItemsFromStorage(this.getTrader().getStorage());
-				//Give the paid cost to storage
-				this.getTrader().addStoredMoney(price);
-				
-				this.getTrader().markStorageDirty();
-				
-			}
-			
-			//Push the post-trade event
-			this.getTrader().runPostTradeEvent(this.player, tradeIndex, price);
-			
-		}
-		//Process a purchase
-		else if(trade.isPurchase())
-		{
-			//Abort if not enough items in the item slots
-			if(InventoryUtil.GetItemCount(this.itemSlots, trade.getSellItem()) < trade.getSellItem().getCount())
-			{
-				LightmansCurrency.LogDebug("Not enough items in the item slots to make the purchase.");
-				return;
-			}
-			
-			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this.getTrader()) && !this.getTrader().getCoreSettings().isCreative())
-			{
-				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
-				return;
-			}
-			//Abort if not enough money to pay them back
-			if(!trade.hasStock(this.getTrader()) && !this.getTrader().getCoreSettings().isCreative())
-			{
-				LightmansCurrency.LogDebug("Not enough money in storage to pay for the purchased items.");
-				return;
-			}
-			//Passed the checks. Take the item(s) from the input slot
-			InventoryUtil.RemoveItemCount(this.itemSlots, trade.getSellItem());
-			//Put the payment in the purchasers wallet, coin slot, etc.
-			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
-			
-			//Log the successful trade
-			this.getTrader().getLogger().AddLog(player, trade, price, this.getTrader().getCoreSettings().isCreative());
-			this.getTrader().markLoggerDirty();
-			
-			//Push the post-trade event
-			this.getTrader().runPostTradeEvent(this.player, tradeIndex, price);
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getTrader().getCoreSettings().isCreative())
-			{
-				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.getTrader().getStorage(), trade.getSellItem());
-				//Remove the coins from storage
-				this.getTrader().removeStoredMoney(price);
-				
-				this.getTrader().markStorageDirty();
-				
-			}
-			
-		}
-		//Process a barter
-		else if(trade.isBarter())
-		{
-			//Abort if not enough items in the item slots
-			if(InventoryUtil.GetItemCount(this.itemSlots, trade.getBarterItem()) < trade.getBarterItem().getCount())
-			{
-				LightmansCurrency.LogDebug("Not enough items in the item slots to make the barter.");
-				return;
-			}
-			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this.getTrader()) && !this.getTrader().getCoreSettings().isCreative())
-			{
-				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
-				return;
-			}
-			//Abort if not enough items in inventory
-			if(!trade.hasStock(this.getTrader()) && !this.getTrader().getCoreSettings().isCreative())
-			{
-				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
-				return;
-			}
-			
-			//Passed the checks. Take the item(s) from the input slot
-			InventoryUtil.RemoveItemCount(this.itemSlots, trade.getBarterItem());
-			//Check if there's room for the new items
-			if(!InventoryUtil.CanPutItemStack(this.itemSlots, trade.getSellItem()))
-			{
-				//Abort if no room for the sold item
-				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
-				InventoryUtil.PutItemStack(this.itemSlots, trade.getBarterItem());
-				return;
-			}
-			//Add the new item into the the item slots
-			InventoryUtil.PutItemStack(this.itemSlots, trade.getSellItem());
-			
-			//Log the successful trade
-			this.getTrader().getLogger().AddLog(player, trade, CoinValue.EMPTY, this.getTrader().getCoreSettings().isCreative());
-			this.getTrader().markLoggerDirty();
-			
-			//Push the post-trade event
-			this.getTrader().runPostTradeEvent(this.player, tradeIndex, price);
-			
-			//Ignore editing internal storage if this is flagged as creative.
-			if(!this.getTrader().getCoreSettings().isCreative())
-			{
-				//Put the item in storage
-				InventoryUtil.TryPutItemStack(this.getTrader().getStorage(), trade.getBarterItem());
-				//Remove the item from storage
-				trade.RemoveItemsFromStorage(this.getTrader().getStorage());
-				
-				this.getTrader().markStorageDirty();
-				
-			}
-			
-		}
+		this.getTrader().ExecuteTrade(TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coinSlots).build(), tradeIndex);
 		
 	}
 	
@@ -502,7 +299,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	
 	public boolean isUniversal() { return false; }
 	
-	public static class ItemTraderMenuCR extends ItemTraderMenu implements ITraderCashRegisterMenu
+	public static class ItemTraderMenuCR extends ItemTraderMenu
 	{
 		
 		private CashRegisterBlockEntity cashRegister;
@@ -519,7 +316,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		@Override
 		public CashRegisterBlockEntity getCashRegister() { return this.cashRegister; }
 		
-		private TraderBlockEntity getTraderBE()
+		/*private TraderBlockEntity getTraderBE()
 		{
 			IItemTrader trader = super.getTrader();
 			if(trader instanceof TraderBlockEntity)
@@ -545,7 +342,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 			if(previousIndex < 0)
 				previousIndex = this.cashRegister.getPairedTraderSize() - 1;
 			this.cashRegister.OpenContainer(previousIndex, index, 1, this.player);
-		}
+		}*/
 		
 	}
 	

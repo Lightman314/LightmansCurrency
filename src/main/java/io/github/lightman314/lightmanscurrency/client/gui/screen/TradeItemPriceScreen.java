@@ -75,7 +75,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 		this.priceInput.init();
 		
 		this.nameField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 8, guiTop + CoinValueInput.HEIGHT + 38, 160, 18, new TextComponent("")));
-		this.nameField.setValue(this.trade.getCustomName());
+		this.nameField.setValue(this.trade.getCustomName(0));
 		this.nameField.setMaxLength(ItemTradeData.MAX_CUSTOMNAME_LENGTH);
 		
 		this.buttonSetSell = this.addRenderableWidget(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 6, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.tradedirection.sale"), this::SetTradeDirection));

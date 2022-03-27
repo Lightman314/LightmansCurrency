@@ -266,7 +266,7 @@ public class ItemTraderScreen extends AbstractContainerScreen<ItemTraderMenu>{
 		if(tradeButtons.contains(button))
 			tradeIndex = tradeButtons.indexOf(button);
 		
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(tradeIndex));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(0, tradeIndex));
 		
 	}
 	

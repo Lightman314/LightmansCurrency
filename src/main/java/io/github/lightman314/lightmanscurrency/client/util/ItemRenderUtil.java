@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
+import java.util.List;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -13,10 +15,12 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 
 public class ItemRenderUtil {
 
@@ -87,6 +91,14 @@ public class ItemRenderUtil {
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
 		RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
         Screen.blit(matrixStack, x, y, 100, 16, 16, textureatlassprite);
+	}
+	
+	/**
+	 * Gets the tooltip for an item stack
+	 */
+	public static List<Component> getTooltipFromItem(ItemStack stack) {
+		Minecraft minecraft = Minecraft.getInstance();
+		return stack.getTooltipLines(minecraft.player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
 	}
 	
 }

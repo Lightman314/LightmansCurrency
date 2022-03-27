@@ -22,6 +22,9 @@ public class IconButton extends Button{
 	
 	private NonNullSupplier<IconData> iconSource;
 	
+	private NonNullSupplier<Boolean> activeCheck = () -> this.active;
+	private NonNullSupplier<Boolean> visibilityCheck = () -> this.visible;
+	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon)
 	{
 		super(x,y,20,20,new TextComponent(""), pressable);
@@ -55,6 +58,20 @@ public class IconButton extends Button{
 		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
 	}
 	
+	public void setVisiblityCheck(NonNullSupplier<Boolean> visibilityCheck) {
+		if(visibilityCheck == null)
+			this.visibilityCheck = () -> this.visible;
+		else
+			this.visibilityCheck = visibilityCheck;
+	}
+	
+	public void setActiveCheck(NonNullSupplier<Boolean> activeCheck) {
+		if(activeCheck == null)
+			this.activeCheck = () -> this.active;
+		else
+			this.activeCheck = activeCheck;
+	}
+	
 	@Deprecated
 	public void setResource(ResourceLocation iconResource, int resourceX, int resourceY)
 	{
@@ -71,9 +88,17 @@ public class IconButton extends Button{
 	}
 	
 	@Override
+	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		this.visible = this.visibilityCheck.get();
+		this.active = this.activeCheck.get();
+		super.render(pose, mouseX, mouseY, partialTicks);
+	}
+	
+	@Override
 	@SuppressWarnings("resource")
 	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
 		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);

@@ -68,6 +68,11 @@ public class WalletItem extends Item{
 	}
 	
 	/**
+	 * Determines if the given ItemStack is a WalletItem
+	 */
+	public static boolean isWallet(ItemStack item) { return isWallet(item.getItem()); }
+	
+	/**
 	 * Determines if the given Item is a WalletItem
 	 */
 	public static boolean isWallet(Item item)

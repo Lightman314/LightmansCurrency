@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
@@ -42,7 +45,7 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 
 	@Override
 	public TradeContext getRemoteTradeData() {
-		return TradeContext.create(this.owner).withBankAccount(this.getBankAccount()).withItemHandler(this.itemBuffer).build();
+		return TradeContext.create(this.getTrader(), this.owner).withBankAccount(this.getBankAccount()).withItemHandler(this.itemBuffer).build();
 	}
 	
 	/**
@@ -82,9 +85,9 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 			if(trade != null)
 			{
 				if(trade.isPurchase())
-					return InventoryUtil.ItemMatches(item, trade.getSellItem());
+					return InventoryUtil.ItemMatches(item, trade.getSellItem(0)) || InventoryUtil.ItemMatches(item, trade.getSellItem(1));
 				if(trade.isBarter())
-					return InventoryUtil.ItemMatches(item, trade.getBarterItem());
+					return InventoryUtil.ItemMatches(item, trade.getBarterItem(0)) || InventoryUtil.ItemMatches(item, trade.getBarterItem(1));
 			}
 		}
 		else if(this.getInteractionType().restocks)
@@ -96,7 +99,7 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 				for(int i = 0; i < trader.getTradeCount(); ++i)
 				{
 					ItemTradeData trade = trader.getTrade(i);
-					if(trade.isValid() && (trade.isSale() || trade.isBarter()) && InventoryUtil.ItemMatches(item, trade.getSellItem()))
+					if(trade.isValid() && (trade.isSale() || trade.isBarter()) && InventoryUtil.ItemMatches(item, trade.getSellItem(0)) || InventoryUtil.ItemMatches(item, trade.getSellItem(1)))
 						return true;
 				}
 			}
@@ -180,32 +183,40 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 				ItemTradeData trade = trader.getTrade(i);
 				if(trade.isValid())
 				{
-					ItemStack drainItem = ItemStack.EMPTY;
+					List<ItemStack> drainItems = new ArrayList<>();
 					if(trade.isPurchase())
-						drainItem = trade.getSellItem();
-					if(trade.isBarter())
-						drainItem = trade.getBarterItem();
-					if(!drainItem.isEmpty())
 					{
-						//Drain the item from the trader
-						int drainableAmount = InventoryUtil.GetItemCount(trader.getStorage(), drainItem);
-						if(drainableAmount > 0)
+						drainItems.add(trade.getSellItem(0));
+						drainItems.add(trade.getSellItem(1));
+					}
+					
+					if(trade.isBarter())
+					{
+						drainItems.add(trade.getBarterItem(0));
+						drainItems.add(trade.getBarterItem(1));
+					}
+					for(ItemStack drainItem : drainItems)
+					{
+						if(!drainItem.isEmpty())
 						{
-							ItemStack movingStack = drainItem.copy();
-							movingStack.setCount(Math.min(movingStack.getMaxStackSize(), drainableAmount));
-							//Remove the stack from storage
-							InventoryUtil.RemoveItemCount(trader.getStorage(), movingStack);
-							//Put the stack in the item buffer (if possible)
-							ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, movingStack, false);
-							//If some items couldn't be put in the item buffer, put them back in storage
-							if(!leftovers.isEmpty())
+							//Drain the item from the trader
+							int drainableAmount = trader.getStorage().getItemCount(drainItem);
+							if(drainableAmount > 0)
 							{
-								leftovers = InventoryUtil.TryPutItemStack(trader.getStorage(), movingStack);
-								//Failed to put them all back in storage, so pop them out into the worl
+								ItemStack movingStack = drainItem.copy();
+								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), drainableAmount));
+								//Remove the stack from storage
+								ItemStack removed = trader.getStorage().removeItem(movingStack);
+								//InventoryUtil.RemoveItemCount(trader.getStorage(), movingStack);
+								//Put the stack in the item buffer (if possible)
+								ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, removed, false);
+								//If some items couldn't be put in the item buffer, put them back in storage
 								if(!leftovers.isEmpty())
-									InventoryUtil.dumpContents(this.level, this.worldPosition, leftovers);
+								{
+									trader.getStorage().forceAddItem(leftovers);
+								}
+								trader.markStorageDirty();
 							}
-							trader.markStorageDirty();
 						}
 					}
 				}
@@ -223,7 +234,7 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 				ItemTradeData trade = trader.getTrade(i);
 				if(trade.isValid() && (trade.isBarter() || trade.isSale()))
 				{
-					ItemStack stockItem = trade.getSellItem();
+					ItemStack stockItem = trade.getSellItem(0);
 					if(!stockItem.isEmpty())
 					{
 						int stockableAmount = InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), stockItem);
@@ -270,7 +281,7 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 			if(trade.isSale())
 			{
 				//Confirm that we have enough space to store the purchased item(s)
-				if(ItemHandlerHelper.insertItemStacked(this.itemBuffer, trade.getSellItem(), true).isEmpty())
+				if(ItemHandlerHelper.insertItemStacked(this.itemBuffer, trade.getSellItem(0), true).isEmpty())
 				{
 					this.interactWithTrader();
 					this.setItemBufferDirty();
@@ -279,7 +290,7 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 			else if(trade.isPurchase())
 			{
 				//Confirm that we have enough of the item in storage to sell the item(s)
-				if(InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), trade.getSellItem()) >= trade.getSellItem().getCount())
+				if(InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), trade.getSellItem(0)) >= trade.getSellItem(0).getCount())
 				{
 					this.interactWithTrader();
 					this.setItemBufferDirty();
@@ -289,8 +300,8 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 			{
 				//Confirm that we have enough space to store the purchased item AND
 				//That we have enough of the item in storage to barter away.
-				if(InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), trade.getBarterItem()) > trade.getBarterItem().getCount() &&
-				   ItemHandlerHelper.insertItemStacked(this.itemBuffer, trade.getSellItem(), true).isEmpty())
+				if(InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), trade.getBarterItem(0)) > trade.getBarterItem(0).getCount() &&
+				   ItemHandlerHelper.insertItemStacked(this.itemBuffer, trade.getSellItem(0), true).isEmpty())
 				{
 					this.interactWithTrader();
 					this.setItemBufferDirty();

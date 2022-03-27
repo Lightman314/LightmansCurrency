@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.events;
 
 import java.util.List;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -22,14 +21,14 @@ public abstract class TradeEvent extends Event{
 	public final Player getPlayer() { return this.player.getPlayer(); }
 	private final TradeData trade;
 	public final TradeData getTrade() { return this.trade; }
-	private final Supplier<ITrader> traderSource;
-	public final ITrader getTrader() { return this.traderSource.get(); }
+	private final ITrader trader;
+	public final ITrader getTrader() { return this.trader; }
 	
-	protected TradeEvent(PlayerReference player, TradeData trade, Supplier<ITrader> trader)
+	protected TradeEvent(PlayerReference player, TradeData trade, ITrader trader)
 	{
 		this.player = player;
 		this.trade = trade;
-		this.traderSource = trader;
+		this.trader = trader;
 	}
 	
 	public static class PreTradeEvent extends TradeEvent
@@ -37,7 +36,7 @@ public abstract class TradeEvent extends Event{
 		
 		private final List<Component> denialText = Lists.newArrayList();
 		
-		public PreTradeEvent(PlayerReference player, TradeData trade, Supplier<ITrader> trader)
+		public PreTradeEvent(PlayerReference player, TradeData trade, ITrader trader)
 		{
 			super(player, trade, trader);
 		}
@@ -68,7 +67,7 @@ public abstract class TradeEvent extends Event{
 		public CoinValue getBaseCost() { return this.currentCost; }
 		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
 		
-		public TradeCostEvent(PlayerReference player, TradeData trade, Supplier<ITrader> trader)
+		public TradeCostEvent(PlayerReference player, TradeData trade, ITrader trader)
 		{
 			super(player, trade, trader);
 			this.costMultiplier = 1f;
@@ -83,7 +82,7 @@ public abstract class TradeEvent extends Event{
 		private final CoinValue pricePaid;
 		public CoinValue getPricePaid() { return this.pricePaid; }
 		
-		public PostTradeEvent(PlayerReference player, TradeData trade, Supplier<ITrader> trader, CoinValue pricePaid)
+		public PostTradeEvent(PlayerReference player, TradeData trade, ITrader trader, CoinValue pricePaid)
 		{
 			super(player, trade, trader);
 			this.pricePaid = pricePaid;

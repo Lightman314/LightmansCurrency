@@ -125,6 +125,7 @@
     "gui.lightmanscurrency.paygate.title": "%1$s (%2$s)",
     "gui.lightmanscurrency.trading": "Trading (%s)",
     "gui.lightmanscurrency.trading.title" : "%1$s (%2$s)",
+    "gui.lightmanscurrency.trading.listseperator" : ", ",
     "gui.lightmanscurrency.trading.list": "%1$s of %2$s",
     "gui.lightmanscurrency.changeprice": "Change Price",
     
@@ -152,6 +153,7 @@
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",
+    "tooltip.lightmanscurrency.cannotafford": "Cannot Afford",
     "tooltip.lightmanscurrency.denied": "DENIED",
     "tooltip.lightmanscurrency.paygate.price": "Price: %s",
     "tooltip.lightmanscurrency.paygate.duration": "%s ticks",

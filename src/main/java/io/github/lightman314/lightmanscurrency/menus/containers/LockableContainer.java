@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.menus.containers;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +14,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public class LockableContainer implements IItemHandler{
+public class LockableContainer implements IItemHandler, ICanCopy<LockableContainer>{
 
 	private final SimpleContainer container;
 	public SimpleContainer getContainer() { return this.container; }
@@ -285,6 +286,13 @@ public class LockableContainer implements IItemHandler{
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack) {
 		return this.getLockData(slot).allow(stack, this.honorFullLocks) && (this.extraRules == null || this.extraRules.allowInput(slot, this.getLockData(slot), stack));
+	}
+	@Override
+	public LockableContainer copy() {
+		 CompoundTag save = this.save(new CompoundTag());
+		 LockableContainer copy = new LockableContainer(this.getSlots());
+		 copy.load(save);
+		return copy;
 	}
 
 }

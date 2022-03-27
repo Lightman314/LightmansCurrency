@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-public abstract class TradeData implements ITradeRuleHandler {
+public abstract class TradeData implements ITradeRuleHandler, ITradeData {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
@@ -38,6 +41,13 @@ public abstract class TradeData implements ITradeRuleHandler {
 	
 	public CoinValue getCost()
 	{
+		return this.cost;
+	}
+	
+	public CoinValue getCost(TradeContext context)
+	{
+		if(context.hasTrader() && context.hasPlayerReference())
+			return context.getTrader().runTradeCostEvent(context.getPlayerReference(), this).getCostResult();
 		return this.cost;
 	}
 	
@@ -101,6 +111,15 @@ public abstract class TradeData implements ITradeRuleHandler {
 	public void clearRules()
 	{
 		this.rules.clear();
+	}
+	
+	public void addTradeRuleAlerts(List<Component> alerts, TradeContext context) {
+		if(context.hasTrader() && context.hasPlayerReference())
+		{
+			PreTradeEvent pte = context.getTrader().runPreTradeEvent(context.getPlayerReference(), this);
+			if(pte.isCanceled())
+				alerts.addAll(pte.getDenialReasons());
+		}
 	}
 	
 	public void markRulesDirty() { }

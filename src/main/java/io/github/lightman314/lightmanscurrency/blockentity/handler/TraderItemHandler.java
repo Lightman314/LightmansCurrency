@@ -54,7 +54,7 @@ public class TraderItemHandler{
 				{
 					if(trade.isSale() || trade.isBarter())
 					{
-						if(InventoryUtil.ItemMatches(trade.getSellItem(), stack))
+						if(InventoryUtil.ItemMatches(trade.getSellItem(0), stack) || InventoryUtil.ItemMatches(trade.getSellItem(1), stack))
 							return true;
 					}
 				}
@@ -70,12 +70,12 @@ public class TraderItemHandler{
 				{
 					if(trade.isPurchase())
 					{
-						if(InventoryUtil.ItemMatches(trade.getSellItem(), stack))
+						if(InventoryUtil.ItemMatches(trade.getSellItem(0), stack) || InventoryUtil.ItemMatches(trade.getSellItem(1), stack))
 							return true;
 					}
 					else if(trade.isBarter())
 					{
-						if(InventoryUtil.ItemMatches(trade.getBarterItem(), stack))
+						if(InventoryUtil.ItemMatches(trade.getBarterItem(0), stack) || InventoryUtil.ItemMatches(trade.getBarterItem(1), stack))
 							return true;
 					}
 				}

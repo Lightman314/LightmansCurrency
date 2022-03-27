@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.network.message.item_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.events.TradeEditEvent.TradePriceEditEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetItemPrice {
@@ -56,23 +54,9 @@ public class MessageSetItemPrice {
 					if(blockEntity instanceof ItemTraderBlockEntity)
 					{
 						ItemTraderBlockEntity traderEntity = (ItemTraderBlockEntity)blockEntity;
-						CoinValue oldPrice = traderEntity.getTrade(message.tradeIndex).getCost();
 						traderEntity.getTrade(message.tradeIndex).setCost(message.newPrice);
-						traderEntity.getTrade(message.tradeIndex).setCustomName(message.customName);
+						traderEntity.getTrade(message.tradeIndex).setCustomName(0, message.customName);
 						traderEntity.getTrade(message.tradeIndex).setTradeType(ItemTradeData.loadTradeType(message.newDirection));
-						
-						if(oldPrice.getRawValue() != message.newPrice.getRawValue() || oldPrice.isFree() != message.newPrice.isFree())
-						{
-							//Throw price change event
-							TradePriceEditEvent e = new TradePriceEditEvent(() -> {
-								//Create safe supplier, just in case the event saves it for later
-								BlockEntity be = player.level.getBlockEntity(message.pos);
-								if(be instanceof ItemTraderBlockEntity)
-									return (ItemTraderBlockEntity)be;
-								return null;
-							}, message.tradeIndex, oldPrice);
-							MinecraftForge.EVENT_BUS.post(e);
-						}
 						
 						traderEntity.markTradesDirty();
 					}

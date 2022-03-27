@@ -73,7 +73,8 @@ public abstract class TextLogger {
 			this.logText.remove(0);
 	}
 	
-	@Deprecated //Use getCostText(CoinValue cost)
+	/** @deprecated Use getCostText(CoinValue cost) */
+	@Deprecated 
 	public static Component getCostText(boolean isFree, CoinValue cost)  { return getCostText(cost); }
 	
 	public static Component getCostText(CoinValue cost)

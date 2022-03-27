@@ -1,18 +1,29 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeComparisonResult.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemTradeData extends TradeData {
@@ -34,13 +45,14 @@ public class ItemTradeData extends TradeData {
 	public static final int MAX_CUSTOMNAME_LENGTH = 30;
 	
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
-	//SimpleContainer items = new SimpleContainer(4);
-	ItemStack sellItem = ItemStack.EMPTY;
-	ItemStack barterItem = ItemStack.EMPTY;
+	SimpleContainer items = new SimpleContainer(4);
+	//ItemStack sellItem = ItemStack.EMPTY;
+	//ItemStack barterItem = ItemStack.EMPTY;
 	ItemTradeType tradeType = ItemTradeType.SALE;
-	String customName = "";
+	String customName1 = "";
+	String customName2 = "";
 	
-	public ItemStack getSellItem()
+	/*public ItemStack getSellItem()
 	{
 		return this.restriction.modifySellItem(this.sellItem.copy(), this);
 	}
@@ -59,12 +71,12 @@ public class ItemTradeData extends TradeData {
 	public void setBarterItem(ItemStack itemStack)
 	{
 		this.barterItem = itemStack.copy();
-	}
+	}*/
 	
-	/*public ItemStack getSellItem(int index)
+	public ItemStack getSellItem(int index)
 	{
 		if(index >= 0 && index < 2)
-			return this.restriction.modifySellItem(this.items.getItem(index).copy(), this);
+			return this.restriction.modifySellItem(this.items.getItem(index).copy(), this.getCustomName(index), this);
 		return ItemStack.EMPTY;
 	}
 	
@@ -72,6 +84,15 @@ public class ItemTradeData extends TradeData {
 	{
 		if(index >= 0 && index < 2)
 			return this.items.getItem(index + 2).copy();
+		return ItemStack.EMPTY;
+	}
+	
+	public ItemStack getItem(int index)
+	{
+		if(index >= 0 && index < 2)
+			return this.getSellItem(index);
+		else if(index >= 2 && index < 4)
+			return this.getBarterItem(index - 2);
 		return ItemStack.EMPTY;
 	}
 	
@@ -89,18 +110,32 @@ public class ItemTradeData extends TradeData {
 		}
 		else
 			LightmansCurrency.LogError("Cannot define the item trades item at index " + index + ". Must be between 0-3!");
-	}*/
-	
-	public boolean hasCustomName() { return !this.customName.isEmpty(); }
-	
-	public String getCustomName()
-	{
-		return this.customName;
 	}
 	
-	public void setCustomName(String customName)
+	public boolean hasCustomName(int index) { return !this.getCustomName(index).isEmpty(); }
+	
+	public String getCustomName(int index)
 	{
-		this.customName = customName;
+		switch(index) {
+		case 0:
+			return this.customName1;
+		case 1:
+			return this.customName2;
+			default:
+				return "";
+		}
+	}
+	
+	public void setCustomName(int index, String customName)
+	{
+		switch(index) {
+		case 0:
+			this.customName1 = customName;
+			return;
+		case 1:
+			this.customName2 = customName;
+			return;
+		}
 	}
 	
 	@Override
@@ -143,15 +178,15 @@ public class ItemTradeData extends TradeData {
 		this.restriction = restriction;
 	}
 	
-	@Override
+	/*@Override
 	public boolean isValid()
 	{
 		if(this.tradeType == ItemTradeType.BARTER)
 			return !this.sellItem.isEmpty() && !this.barterItem.isEmpty();
 		return super.isValid() && !this.sellItem.isEmpty();
-	}
+	}*/
 	
-	/*@Override
+	@Override
 	public boolean isValid()
 	{
 		if(this.tradeType == ItemTradeType.BARTER)
@@ -159,19 +194,26 @@ public class ItemTradeData extends TradeData {
 		return super.isValid() && this.sellItemsDefined();
 	}
 	
-	private boolean sellItemsDefined() {
+	public boolean sellItemsDefined() {
 		return !this.getSellItem(0).isEmpty() || !this.getSellItem(1).isEmpty();
 	}
 	
-	private boolean barterItemsDefined() {
+	public boolean barterItemsDefined() {
 		return !this.getBarterItem(0).isEmpty() || !this.getBarterItem(1).isEmpty();
-	}*/
+	}
 	
 	public boolean hasStock(IItemTrader trader)
 	{
-		if(this.sellItem.isEmpty())
+		if(!this.sellItemsDefined())
 			return false;
 		return stockCount(trader) > 0;
+	}
+	
+	public boolean hasStock(TradeContext context)
+	{
+		if(!this.sellItemsDefined())
+			return false;
+		return stockCount(context) > 0;
 	}
 	
 	public boolean hasSpace(IItemTrader trader)
@@ -179,9 +221,9 @@ public class ItemTradeData extends TradeData {
 		switch(this.tradeType)
 		{
 		case PURCHASE:
-			return InventoryUtil.CanPutItemStack(trader.getStorage(), this.getSellItem());
+			return trader.getStorage().canFitItems(this.getSellItem(0), this.getSellItem(1));
 		case BARTER:
-			return InventoryUtil.CanPutItemStack(trader.getStorage(), this.getBarterItem());
+			return trader.getStorage().canFitItems(this.getBarterItem(0), this.getBarterItem(1));
 			default:
 				return true;
 		}
@@ -189,7 +231,7 @@ public class ItemTradeData extends TradeData {
 	
 	public int stockCount(IItemTrader trader)
 	{
-		if(this.sellItem.isEmpty())
+		if(!this.sellItemsDefined())
 			return 0;
 		
 		if(this.tradeType == ItemTradeType.PURCHASE)
@@ -204,30 +246,71 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
-			return this.restriction.getSaleStock(this.getSellItem(), trader.getStorage());
+			return Math.min(this.restriction.getSaleStock(this.getSellItem(0), trader.getStorage()), this.restriction.getSaleStock(this.getSellItem(1), trader.getStorage()));
 		}
 		else //Other types are not handled yet.
 			return 0;
 	}
 	
-	public void RemoveItemsFromStorage(Container storage)
+	public int stockCount(TradeContext context)
 	{
-		this.restriction.removeItemsFromStorage(this.getSellItem(), storage);
-		//this.restriction.removeItemsFromStorage(this.getSellItem(1), storage);
+		if(!this.sellItemsDefined())
+			return 0;
+		
+		if(!context.hasTrader() || !(context.getTrader() instanceof IItemTrader))
+			return 0;
+		
+		IItemTrader trader = (IItemTrader)context.getTrader();
+		
+		if(this.tradeType == ItemTradeType.PURCHASE)
+		{
+			if(this.cost.isFree())
+				return 1;
+			if(this.cost.getRawValue() == 0)
+				return 0;
+			long coinValue = trader.getStoredMoney().getRawValue();
+			long price = this.getCost(context).getRawValue();
+			return (int)(coinValue / price);
+		}
+		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
+		{
+			return Math.min(this.restriction.getSaleStock(this.getSellItem(0), trader.getStorage()), this.restriction.getSaleStock(this.getSellItem(1), trader.getStorage()));
+		}
+		else //Other types are not handled yet.
+			return 0;
+	}
+	
+	public boolean canAfford(TradeContext context) {
+		if(this.isSale())
+			return context.hasFunds(this.getCost(context));
+		if(this.isPurchase())
+			return context.hasItems(this.getSellItem(0), this.getSellItem(1));
+		if(this.isBarter())
+			return context.hasItems(this.getBarterItem(0), this.getBarterItem(1));
+		return false;
+	}
+	
+	public void RemoveItemsFromStorage(TraderItemStorage storage)
+	{
+		if(!this.getSellItem(0).isEmpty())
+			this.restriction.removeItemsFromStorage(this.getSellItem(0), storage);
+		if(!this.getSellItem(1).isEmpty())
+			this.restriction.removeItemsFromStorage(this.getSellItem(1), storage);
 	}
 	
 	@Override
 	public CompoundTag getAsNBT() {
 		CompoundTag tradeNBT = super.getAsNBT();
-		//InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
-		CompoundTag sellItemCompound = new CompoundTag();
+		InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
+		/*CompoundTag sellItemCompound = new CompoundTag();
 		sellItem.save(sellItemCompound);
 		tradeNBT.put("SellItem", sellItemCompound);
 		CompoundTag barterItemCompound = new CompoundTag();
-		barterItem.save(barterItemCompound);
+		barterItem.save(barterItemCompound);*/
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("Restrictions", this.restriction.getRegistryName().toString());
-		tradeNBT.putString("CustomName", this.customName);
+		tradeNBT.putString("CustomName1", this.customName1);
+		tradeNBT.putString("CustomName2", this.customName2);
 		return tradeNBT;
 	}
 	
@@ -284,7 +367,7 @@ public class ItemTradeData extends TradeData {
 		super.loadFromNBT(nbt);
 		
 		//Load the Sell Item
-		if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
+		/*if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
 			sellItem = ItemStack.of(nbt.getCompound("SellItem"));
 		else //Load old format from before the bartering system was made
 			sellItem = ItemStack.of(nbt);
@@ -293,9 +376,9 @@ public class ItemTradeData extends TradeData {
 		if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
 			barterItem = ItemStack.of(nbt.getCompound("BarterItem"));
 		else
-			barterItem = ItemStack.EMPTY;
+			barterItem = ItemStack.EMPTY;*/
 		
-		/*if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
+		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
 		{
 			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
 		}
@@ -313,7 +396,7 @@ public class ItemTradeData extends TradeData {
 				this.items.setItem(2, ItemStack.of(nbt.getCompound("BarterItem")));
 			else
 				this.items.setItem(2, ItemStack.EMPTY);
-		}*/
+		}
 		
 		
 		//Set the Trade Direction
@@ -328,10 +411,17 @@ public class ItemTradeData extends TradeData {
 		else
 			this.restriction = ItemTradeRestriction.NONE;
 		
+		if(nbt.contains("CustomName1"))
+			this.customName1 = nbt.getString("CustomName1");
 		if(nbt.contains("CustomName"))
-			this.customName = nbt.getString("CustomName");
+			this.customName1 = nbt.getString("CustomName");
 		else
-			this.customName = "";
+			this.customName1 = "";
+		
+		if(nbt.contains("CustomName2"))
+			this.customName2 = nbt.getString("CustomName2");
+		else
+			this.customName2 = "";
 	}
 	
 	public static ItemTradeType loadTradeType(String name)
@@ -432,15 +522,24 @@ public class ItemTradeData extends TradeData {
 		return true;
 	}
 
-	/*@Override
+	@Override
 	public List<DisplayEntry> getInputDisplays(TradeContext context) {
 		//If this is a sale, this is the price
 		if(this.isSale())
-			return DisplayEntry.of(this.cost);
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context)));
 		if(this.isPurchase())
 			return this.getSaleItemEntries(context);
 		if(this.isBarter())
 			return this.getBarterItemEntries(context);
+		return new ArrayList<>();
+	}
+	
+	@Override
+	public List<DisplayEntry> getOutputDisplays(TradeContext context) {
+		if(this.isSale() || this.isBarter())
+			return this.getSaleItemEntries(context);
+		if(this.isPurchase())
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context)));
 		return new ArrayList<>();
 	}
 	
@@ -450,18 +549,145 @@ public class ItemTradeData extends TradeData {
 		{
 			ItemStack item = this.getSellItem(i);
 			if(!item.isEmpty())
-				entries.add(DisplayEntry.of(item, item.getCount()));
+				entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.getCustomName(i), context)));
 		}
 		return entries;
 	}
 	
-	private List<DisplayEntry> getBarterItemEntries(TradeContext context) {
+	private List<Component> getSaleItemTooltip(ItemStack stack, String customName, TradeContext context)
+	{
+		if(stack.isEmpty())
+		{
+			if(context.isStorageMode)
+				return Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"));
+			return null;			
+		}
 		
+		List<Component> tooltips = ItemRenderUtil.getTooltipFromItem(stack);
+		Component originalName = null;
+		if(!customName.isEmpty() && (this.isSale() || this.isBarter()))
+		{
+			originalName = tooltips.get(0);
+			tooltips.set(0, new TextComponent("§6" + customName));
+		}
+		//If this is the sell item, give tooltips otherwise do nothing
+		//Info
+		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.info"));
+		//Custom Name
+		if(originalName != null)
+			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
+		
+		if(context.hasTrader() && context.hasPlayerReference())
+		{
+			//Stock
+			if(context.getTrader() instanceof IItemTrader)
+			{
+				IItemTrader trader = (IItemTrader)context.getTrader();
+				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + this.stockCount(context))));
+			}
+			//If denied, give denial reason
+			//Moved to Alerts
+			//PreTradeEvent pte = context.getTrader().runPreTradeEvent(context.getPlayerReference(), this);
+			//if(pte.isCanceled())
+			//	pte.getDenialReasons().forEach(reason -> tooltips.add(reason));
+		}
+		
+		return tooltips;
+		
+	}
+	
+	private List<DisplayEntry> getBarterItemEntries(TradeContext context) {
+		List<DisplayEntry> entries = new ArrayList<>();
+		for(int i = 0; i < 2; ++i)
+		{
+			ItemStack item = this.getBarterItem(i);
+			if(!item.isEmpty())
+				entries.add(DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
+		}
+		return entries;
 	}
 
 	@Override
-	public List<DisplayEntry> getOutputDisplays() {
-		return null;
-	}*/
+	public int tradeButtonWidth(TradeContext context) { return 94; }
+
+	@Override
+	public int tradeButtonHeight(TradeContext context) { return 18; }
+
+	@Override
+	public DisplayData inputDisplayArea(TradeContext context) {
+		return new DisplayData(1, 1, 34, 16);
+	}
+
+	@Override
+	public DisplayData outputDisplayArea(TradeContext context) {
+		return new DisplayData(58, 1, 34, 16);
+	}
+	
+	@Override
+	public Pair<Integer,Integer> arrowPosition(TradeContext context) {
+		return Pair.of(36, 1);
+	}
+
+	@Override
+	public Pair<Integer,Integer> alertPosition(TradeContext context) {
+		return Pair.of(36, 1);
+	}
+	
+	@Override
+	public List<Component> getAlerts(TradeContext context) {
+		if(context.isStorageMode)
+			return null;
+		List<Component> alerts = new ArrayList<>();
+		if(context.hasTrader() && context.getTrader() instanceof IItemTrader)
+		{
+			
+			IItemTrader trader = (IItemTrader)context.getTrader();
+			//Check Stock
+			if(this.stockCount(context) <= 0)
+				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+			//Check Space
+			if(!this.hasSpace(trader))
+				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+			//Check whether they can afford the cost
+			if(!this.canAfford(context))
+				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+			
+		}
+		this.addTradeRuleAlerts(alerts, context);
+		return alerts;
+	}
+
+	@Override
+	public void onInputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem) {
+		if(trader instanceof IItemTrader)
+		{
+			IItemTrader it = (IItemTrader)trader;
+			if(this.isSale())
+			{
+				//TODO Open Price Screen
+			}
+			if(this.isPurchase())
+			{
+				//Set the item to the held item
+				ItemStack sellItem = this.getSellItem(index);
+				if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+				{
+					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
+					this.setItem(sellItem, index);
+					it.sendSetTradeItemMessage(it.getAllTrades().indexOf(this), sellItem, index);
+				}
+				else
+				{
+					
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onOutputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

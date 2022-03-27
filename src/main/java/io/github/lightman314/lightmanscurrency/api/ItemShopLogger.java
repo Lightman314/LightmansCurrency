@@ -19,6 +19,10 @@ public class ItemShopLogger extends TextLogger{
 		super("ItemShopHistory");
 	}
 	
+	/**
+	 * @deprecated Use AddLog(PlayerReference,ItemTradeData,CoinValue,boolean) instead
+	 */
+	@Deprecated
 	public void AddLog(Player player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative) {
 		this.AddLog(PlayerReference.of(player), trade, pricePaid, isCreative);
 	}
@@ -31,27 +35,29 @@ public class ItemShopLogger extends TextLogger{
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		//Copy/pasted from the getTooltip function that is client-side only
-		MutableComponent itemName = (new TextComponent("")).append(trade.getSellItem().getHoverName()).withStyle(trade.getSellItem().getRarity().color);
-		if (trade.getSellItem().hasCustomHoverName()) {
+		MutableComponent itemName = (new TextComponent("")).append(trade.getSellItem(0).getHoverName()).withStyle(trade.getSellItem(0).getRarity().color);
+		if (trade.getSellItem(0).hasCustomHoverName()) {
 			itemName.withStyle(ChatFormatting.ITALIC);
 		}
 		
-		Component itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem().getCount(), itemName);
+		Component itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getSellItem(0).getCount(), itemName);
 		Component cost = getCostText(pricePaid);
 		if(trade.isBarter())
 		{
 			//Flip the sell item to the cost position
 			cost = itemText;
-			MutableComponent barterItemName = (new TextComponent("")).append(trade.getBarterItem().getHoverName()).withStyle(trade.getSellItem().getRarity().color);
-			if (trade.getBarterItem().hasCustomHoverName()) {
+			MutableComponent barterItemName = (new TextComponent("")).append(trade.getBarterItem(0).getHoverName()).withStyle(trade.getSellItem(0).getRarity().color);
+			if (trade.getBarterItem(0).hasCustomHoverName()) {
 				itemName.withStyle(ChatFormatting.ITALIC);
 			}
 			//Put the barter item in the front so that it comes out as "Player bartered BarterItem for SellItem"
-			itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getBarterItem().getCount(), barterItemName);
+			itemText = new TranslatableComponent("log.shoplog.item.itemformat", trade.getBarterItem(0).getCount(), barterItemName);
 		}
 		
 		AddLog(new TranslatableComponent("log.shoplog.item.format", creativeText, playerName, boughtText, itemText, cost));
 		
 	}
+	
+	
 	
 }

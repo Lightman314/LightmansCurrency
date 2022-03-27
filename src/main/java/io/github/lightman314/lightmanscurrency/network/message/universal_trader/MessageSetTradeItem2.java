@@ -6,13 +6,10 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.events.ItemTradeEditEvent.ItemTradeItemEditEvent;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetTradeItem2 {
@@ -54,28 +51,7 @@ public class MessageSetTradeItem2 {
 					Settings.PermissionWarning(supplier.get().getSender(), "change trade item", Permissions.EDIT_TRADES);
 					return;
 				}
-				ItemStack oldItem = ItemStack.EMPTY;
-				ItemTradeData trade = data2.getTrade(message.tradeIndex);
-				if(message.slot == 1)
-				{
-					oldItem = trade.getBarterItem();
-					trade.setBarterItem(message.newItem);
-				}
-				else
-				{
-					oldItem = trade.getSellItem();
-					trade.setSellItem(message.newItem);
-				}
-				
-				//Post ItemTradeEditEvent
-				ItemTradeItemEditEvent e = new ItemTradeItemEditEvent(() -> {
-					//Create safe supplier, just in case the event saves it for later
-					UniversalTraderData d = TradingOffice.getData(message.traderID);
-					if(d instanceof UniversalItemTraderData)
-						return (UniversalItemTraderData)d;
-					return null;
-				}, message.tradeIndex, oldItem, message.slot);
-				MinecraftForge.EVENT_BUS.post(e);
+				data2.getTrade(message.tradeIndex).setItem(message.newItem, message.slot);
 					
 				//Mark the trader as dirty
 				TradingOffice.MarkDirty(message.traderID);

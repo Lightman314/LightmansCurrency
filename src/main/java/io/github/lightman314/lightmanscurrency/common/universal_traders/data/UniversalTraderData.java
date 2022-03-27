@@ -6,13 +6,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.RemoteTradeResult;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -38,7 +38,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -175,6 +177,10 @@ public abstract class UniversalTraderData implements ITrader{
 		this.markDirty(this::writeStoredMoney);
 	}
 	
+	public void markMoneyDirty() {
+		this.markDirty(this::writeStoredMoney);
+	}
+	
 	public UniversalTraderData() {};
 	
 	public UniversalTraderData(PlayerReference owner, BlockPos pos, ResourceKey<Level> world, UUID traderID)
@@ -276,7 +282,7 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public RemoteTradeResult handleRemotePurchase(int tradeIndex, TradeContext data) { return RemoteTradeResult.FAIL_NOT_SUPPORTED; }
+	public TradeResult handleRemotePurchase(int tradeIndex, TradeContext data) { return TradeResult.FAIL_NOT_SUPPORTED; }
 	
 	protected abstract void onVersionUpdate(int oldVersion);
 	
@@ -284,7 +290,7 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public abstract ResourceLocation getTraderType();
 	
-	protected abstract MenuProvider getTradeMenuProvider();
+	protected MenuProvider getTradeMenuProvider() { return new TradeMenuProvider(this.traderID); }
 	
 	public void openTradeMenu(Player playerEntity)
 	{
@@ -298,6 +304,16 @@ public abstract class UniversalTraderData implements ITrader{
 			NetworkHooks.openGui((ServerPlayer)playerEntity, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
+	}
+	
+	public static class TradeMenuProvider implements MenuProvider
+	{
+		private final UUID traderID;
+		public TradeMenuProvider(UUID traderID) { this.traderID = traderID; }
+		@Override
+		public Component getDisplayName() { return new TextComponent(""); }
+		@Override
+		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu.TraderMenuUniversal(windowID, inventory, this.traderID); }
 	}
 	
 	protected abstract MenuProvider getStorageMenuProvider();
@@ -379,9 +395,9 @@ public abstract class UniversalTraderData implements ITrader{
 			this.users.remove(player);
 	}
 	
-	public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
+	//public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
 	
-	protected abstract void forceReopen(List<Player> users);
+	//protected abstract void forceReopen(List<Player> users);
 	
 	@Override
 	public void sendOpenTraderMessage() {
