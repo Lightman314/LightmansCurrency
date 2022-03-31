@@ -26,16 +26,8 @@ public class ItemTraderSettings extends Settings {
 	
 	private static final String UPDATE_INPUT_SIDE = "updateInputSide";
 	private static final String UPDATE_OUTPUT_SIDE = "updateOutputSide";
-	private static final String UPDATE_INPUT_LIMIT = "updateInputLimit";
-	private static final String UPDATE_OUTPUT_LIMIT = "updateOutputLimit";
-	
-	public enum ItemHandlerSettings
-	{
-		DISABLED,
-		INPUT_ONLY,
-		OUTPUT_ONLY,
-		INPUT_AND_OUTPUT
-	}
+	//private static final String UPDATE_INPUT_LIMIT = "updateInputLimit";
+	//private static final String UPDATE_OUTPUT_LIMIT = "updateOutputLimit";
 	
 	public ItemTraderSettings(ITrader trader, IMarkDirty marker, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(trader, marker, sendToServer, TYPE); }
 	
@@ -43,26 +35,6 @@ public class ItemTraderSettings extends Settings {
 	public DirectionalSettings getInputSides() { return this.enabledInputSides; }
 	DirectionalSettings enabledOutputSides = new DirectionalSettings();
 	public DirectionalSettings getOutputSides() { return this.enabledOutputSides; }
-	boolean limitInputs = true;
-	public boolean limitInputsToSales() { return this.limitInputs; }
-	boolean limitOutputs = true;
-	public boolean limitOutputsToPurchases() { return this.limitOutputs; }
-	
-	public ItemHandlerSettings getHandlerSetting(Direction side)
-	{
-		if(side == null)
-			return ItemHandlerSettings.DISABLED;
-		if(this.enabledInputSides.get(side))
-		{
-			if(this.enabledOutputSides.get(side))
-				return ItemHandlerSettings.INPUT_AND_OUTPUT;
-			else
-				return ItemHandlerSettings.INPUT_ONLY;
-		}
-		else if(this.enabledOutputSides.get(side))
-			return ItemHandlerSettings.OUTPUT_ONLY;
-		return ItemHandlerSettings.DISABLED;
-	}
 	
 	public CompoundTag toggleInputSide(Player requestor, Direction side)
 	{
@@ -96,34 +68,6 @@ public class ItemTraderSettings extends Settings {
 		return updateInfo;
 	}
 	
-	public CompoundTag toggleInputLimit(Player requestor)
-	{
-		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
-		{
-			PermissionWarning(requestor, "toggle external output side", Permissions.ItemTrader.EXTERNAL_INPUTS);
-			return null;
-		}
-		this.limitInputs = !this.limitInputs;
-		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "inputLimit", this.limitInputs);
-		CompoundTag updateInfo = initUpdateInfo(UPDATE_INPUT_LIMIT);
-		updateInfo.putBoolean("limited", this.limitInputs);
-		return updateInfo;
-	}
-	
-	public CompoundTag toggleOutputLimit(Player requestor)
-	{
-		if(!this.trader.hasPermission(requestor, Permissions.ItemTrader.EXTERNAL_INPUTS))
-		{
-			PermissionWarning(requestor, "toggle external output side", Permissions.ItemTrader.EXTERNAL_INPUTS);
-			return null;
-		}
-		this.limitOutputs = !this.limitOutputs;
-		this.trader.getCoreSettings().logger.LogSettingsChange(requestor, "outputLimit", this.limitOutputs);
-		CompoundTag updateInfo = initUpdateInfo(UPDATE_OUTPUT_LIMIT);
-		updateInfo.putBoolean("limited", this.limitOutputs);
-		return updateInfo;
-	}
-	
 	@Override
 	public void changeSetting(Player requestor, CompoundTag updateInfo) {
 		if(this.isUpdateType(updateInfo, UPDATE_INPUT_SIDE))
@@ -148,7 +92,7 @@ public class ItemTraderSettings extends Settings {
 					this.markDirty();
 			}
 		}
-		else if(this.isUpdateType(updateInfo, UPDATE_INPUT_LIMIT))
+		/*else if(this.isUpdateType(updateInfo, UPDATE_INPUT_LIMIT))
 		{
 			boolean newValue = updateInfo.getBoolean("limited");
 			if(newValue != this.limitInputs)
@@ -167,7 +111,7 @@ public class ItemTraderSettings extends Settings {
 				if(result != null)
 					this.markDirty();
 			}
-		}
+		}*/
 	}
 	
 	public CompoundTag save(CompoundTag compound)
@@ -175,8 +119,8 @@ public class ItemTraderSettings extends Settings {
 		
 		compound.put("InputSides", this.enabledInputSides.save(new CompoundTag()));
 		compound.put("OutputSides", this.enabledOutputSides.save(new CompoundTag()));
-		compound.putBoolean("LimitInputs", this.limitInputs);
-		compound.putBoolean("LimitOutputs", this.limitOutputs);
+		//compound.putBoolean("LimitInputs", this.limitInputs);
+		//compound.putBoolean("LimitOutputs", this.limitOutputs);
 		
 		return compound;
 		
@@ -186,8 +130,8 @@ public class ItemTraderSettings extends Settings {
 	{
 		this.enabledInputSides.load(compound.getCompound("InputSides"));
 		this.enabledOutputSides.load(compound.getCompound("OutputSides"));
-		this.limitInputs = compound.getBoolean("LimitInputs");
-		this.limitOutputs = compound.getBoolean("LimitOutputs");
+		//this.limitInputs = compound.getBoolean("LimitInputs");
+		//this.limitOutputs = compound.getBoolean("LimitOutputs");
 	}
 	
 	@Override

@@ -67,11 +67,13 @@ repositories {
 dependencies {
 
     minecraft 'net.minecraftforge:forge:1.18.2-40.0.18'
+   	
     compileOnly fg.deobf('curse.maven:jei-238222:3566128')
     //runtimeOnly fg.deobf('curse.maven:jei-238222:3566128')
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     //runtimeOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3708402')
+    
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

@@ -6,20 +6,21 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemStorageTab;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
@@ -34,10 +35,10 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
 	//Open menu functions
-	public ITradeRuleScreenHandler getRuleScreenHandler();
+	//public ITradeRuleScreenHandler getRuleScreenHandler();
 	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
-	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
-	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
+	//public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
+	//public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
 	
 	default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
 	
@@ -119,7 +120,6 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 			if(!this.getCoreSettings().isCreative())
 			{
 				//Remove the sold items from storage
-				//InventoryUtil.RemoveItemCount(this.tileEntity, trade.getSellItem());
 				trade.RemoveItemsFromStorage(this.getStorage());
 				this.markStorageDirty();
 				//Give the paid cost to storage
@@ -249,6 +249,13 @@ public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRul
 		}
 		
 		return TradeResult.FAIL_INVALID_TRADE;
+	}
+	
+	public default void initStorageTabs(TraderStorageMenu menu) {
+		//Storage tab
+		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new ItemStorageTab(menu));
+		//Item Trade interaction tab
+		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new ItemTradeEditTab(menu));
 	}
 	
 }

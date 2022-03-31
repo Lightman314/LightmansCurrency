@@ -7,11 +7,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,8 +22,8 @@ public class ItemInputTab extends SettingsTab{
 	
 	private ItemInputTab() { }
 	
-	PlainButton buttonToggleInputLimit;
-	PlainButton buttonToggleOuputLimit;
+	//PlainButton buttonToggleInputLimit;
+	//PlainButton buttonToggleOuputLimit;
 	
 	DirectionalSettingsWidget inputWidget;
 	DirectionalSettingsWidget outputWidget;
@@ -52,8 +50,8 @@ public class ItemInputTab extends SettingsTab{
 		this.inputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 20, screen.guiTop() + 25, () -> this.getSetting(ItemTraderSettings.class).getInputSides(), this::ToggleInputSide, screen::addRenderableTabWidget);
 		this.outputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 110, screen.guiTop() + 25, () -> this.getSetting(ItemTraderSettings.class).getOutputSides(), this::ToggleOutputSide, screen::addRenderableTabWidget);
 		
-		this.buttonToggleInputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 5, screen.guiTop() + 100, 10, 10, this::ToggleInputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
-		this.buttonToggleOuputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 95, screen.guiTop() + 100, 10, 10, this::ToggleOutputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		//this.buttonToggleInputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 5, screen.guiTop() + 100, 10, 10, this::ToggleInputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		//this.buttonToggleOuputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 95, screen.guiTop() + 100, 10, 10, this::ToggleOutputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
 	}
 
@@ -62,7 +60,7 @@ public class ItemInputTab extends SettingsTab{
 		
 		
 		TraderSettingsScreen screen = this.getScreen();
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
+		//ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		
 		//Side Widget Labels
 		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
@@ -70,12 +68,12 @@ public class ItemInputTab extends SettingsTab{
 		
 		//Limit Toggle Labels
 		//Input
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit"), screen.guiLeft() + 15, screen.guiTop() + 100, textColor);
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit." + (settings.limitInputsToSales() ? "limited" : "any")), screen.guiLeft() + 15, screen.guiTop() + 110, textColor);
+		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit"), screen.guiLeft() + 15, screen.guiTop() + 100, textColor);
+		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit." + (settings.limitInputsToSales() ? "limited" : "any")), screen.guiLeft() + 15, screen.guiTop() + 110, textColor);
 		
 		//Output
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit"), screen.guiLeft() + 105, screen.guiTop() + 100, textColor);
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit." + (settings.limitOutputsToPurchases() ? "limited" : "any")), screen.guiLeft() + 105, screen.guiTop() + 110, textColor);
+		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit"), screen.guiLeft() + 105, screen.guiTop() + 100, textColor);
+		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit." + (settings.limitOutputsToPurchases() ? "limited" : "any")), screen.guiLeft() + 105, screen.guiTop() + 110, textColor);
 		
 		
 	}
@@ -92,10 +90,10 @@ public class ItemInputTab extends SettingsTab{
 	@Override
 	public void tick() {
 		
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
+		//ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		
-		this.buttonToggleInputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitInputsToSales() ? 200 : 220);
-		this.buttonToggleOuputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitOutputsToPurchases() ? 200 : 220);
+		//this.buttonToggleInputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitInputsToSales() ? 200 : 220);
+		//this.buttonToggleOuputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitOutputsToPurchases() ? 200 : 220);
 		this.inputWidget.tick();
 		this.outputWidget.tick();
 		
@@ -122,7 +120,7 @@ public class ItemInputTab extends SettingsTab{
 		settings.sendToServer(updateInfo);
 	}
 	
-	private void ToggleInputLimit(Button button)
+	/*private void ToggleInputLimit(Button button)
 	{
 		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		CompoundTag updateInfo = settings.toggleInputLimit(this.getPlayer());
@@ -134,6 +132,6 @@ public class ItemInputTab extends SettingsTab{
 		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		CompoundTag updateInfo = settings.toggleOutputLimit(this.getPlayer());
 		settings.sendToServer(updateInfo);
-	}
+	}*/
 
 }

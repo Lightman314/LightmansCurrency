@@ -12,6 +12,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetTradeItem2 {
 
 	private UUID traderID;

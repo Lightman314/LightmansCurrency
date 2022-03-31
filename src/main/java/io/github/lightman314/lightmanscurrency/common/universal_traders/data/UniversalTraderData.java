@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
@@ -316,7 +317,7 @@ public abstract class UniversalTraderData implements ITrader{
 		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu.TraderMenuUniversal(windowID, inventory, this.traderID); }
 	}
 	
-	protected abstract MenuProvider getStorageMenuProvider();
+	protected MenuProvider getStorageMenuProvider() { return new StorageMenuProvider(this.traderID); }
 	
 	public void openStorageMenu(Player player)
 	{
@@ -335,6 +336,16 @@ public abstract class UniversalTraderData implements ITrader{
 			NetworkHooks.openGui((ServerPlayer)player, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
+	}
+	
+	public static class StorageMenuProvider implements MenuProvider
+	{
+		private final UUID traderID;
+		public StorageMenuProvider(UUID traderID) { this.traderID = traderID; }
+		@Override
+		public Component getDisplayName() { return new TextComponent(""); }
+		@Override
+		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderStorageMenu.TraderStorageMenuUniversal(windowID, inventory, this.traderID); }
 	}
 	
 	protected Component getDefaultName()

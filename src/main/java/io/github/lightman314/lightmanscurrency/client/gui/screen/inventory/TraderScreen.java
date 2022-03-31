@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import java.util.List;
 
+import org.anti_ad.mc.ipn.api.IPNIgnore;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -22,7 +24,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 
+@IPNIgnore
 public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
@@ -56,7 +60,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		
 		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + 20, this.topPos - 20, this::CollectCoins, this.menu::getSingleTrader));
 		
-		this.buttonOpenTerminal = this.addRenderableOnly(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.height - 20, this::OpenTerminal, () -> this.menu.isUniversalTrader()));
+		this.buttonOpenTerminal = this.addRenderableOnly(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, () -> this.menu.isUniversalTrader()));
 		
 	}
 
@@ -69,6 +73,12 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		//Main BG
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
+		//Coin Slots
+		for(Slot slot : this.menu.getCoinSlots())
+		{
+			this.blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
+		}
+		
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
 			this.blit(pose, this.leftPos + this.menu.getInteractionSlot().x - 1, this.topPos + this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
@@ -78,7 +88,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 	@Override
 	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
 		
-		this.tradeDisplay.renderTraderName(pose, 8, 6, this.imageWidth - 16);
+		this.tradeDisplay.renderTraderName(pose, 8, 6, this.imageWidth - 16, false);
 		
 		this.font.draw(pose, this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
@@ -92,12 +102,11 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
-		
 		super.render(pose, mouseX, mouseY, partialTicks);
-		
 		this.renderTooltip(pose, mouseX, mouseY);
 		
-		this.tradeDisplay.renderTooltips(this, pose, this.leftPos + 8, this.topPos + 6, this.imageWidth - 16, mouseX, mouseY);
+		if(this.menu.getCarried().isEmpty())
+			this.tradeDisplay.renderTooltips(this, pose, this.leftPos + 8, this.topPos + 6, this.imageWidth - 16, mouseX, mouseY);
 		
 		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
 		

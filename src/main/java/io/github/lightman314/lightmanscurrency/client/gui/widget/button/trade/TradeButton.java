@@ -4,16 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -79,7 +83,7 @@ public class TradeButton extends Button{
 		this.renderBackground(pose, context.isStorageMode ? false : this.isHovered);
 		
 		if(trade.hasArrow(context))
-			this.renderArrow(pose, trade.arrowPosition(context));
+			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode ? false : this.isHovered);
 		
 		if(trade.hasAlert(context))
 			this.renderAlert(pose, trade.alertPosition(context));
@@ -158,7 +162,7 @@ public class TradeButton extends Button{
 		
 	}
 	
-	private void renderArrow(PoseStack pose, Pair<Integer,Integer> position)
+	private void renderArrow(PoseStack pose, Pair<Integer,Integer> position, boolean isHovered)
 	{
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -167,7 +171,7 @@ public class TradeButton extends Button{
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		
-		int vOffset = this.isHovered ? ARROW_HEIGHT : 0;
+		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 		
 		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
 		
@@ -227,6 +231,44 @@ public class TradeButton extends Button{
 		}
 		
 		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(mouseX - this.x, mouseY - this.y));
+		
+	}
+	
+	public void onInteractionClick(int mouseX, int mouseY, int button, InteractionConsumer consumer)
+	{
+		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
+			return;
+		
+		ITradeData trade = tradeSource.get();
+		if(trade == null)
+			return;
+		
+		TradeContext context = this.getContext();
+		
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, context);
+		for(int i = 0; i < inputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
+			{
+				consumer.onTradeButtonInputInteraction(context.getTrader(), trade, i, button);
+				return;
+			}
+		}
+		
+		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(trade, context);
+		for(int i = 0; i < outputDisplays.size(); ++i)
+		{
+			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
+			{
+				consumer.onTradeButtonOutputInteraction(context.getTrader(), trade, i, button);
+				return;
+			}
+		}
+		
+		//Only run the default interaction code if you didn't hit an input or output display
+		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.x, mouseY - this.y, button);
 		
 	}
 	
@@ -419,34 +461,44 @@ public class TradeButton extends Button{
 		default List<Component> getAdditionalTooltips(int mouseX, int mouseY) { return null; }
 		
 		/**
+		 * 
 		 * Called when an input display is clicked on in display mode.
+		 * Runs on the client, but can be called on the server by running tab.sendInputInteractionMessage for consistent execution
 		 * 
-		 * @param trader The trader this trade belongs to.
-		 * @param index The index of the input display that was interacted with.
+		 * @param tab The Trade Edit tab that is being used to display this tab.
+		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
+		 * @param index The index of the input display that was clicked.
 		 * @param button The mouse button that was clicked.
-		 * @param heldItem The item currently being held by the player.
+		 * @param heldItem The item being held by the player.
 		 */
-		public void onInputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem);
+		public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
 		
 		/**
+		 * 
 		 * Called when an output display is clicked on in display mode.
+		 * Runs on the client, but can be called on the server by running tab.sendOutputInteractionMessage for consistent execution
 		 * 
-		 * @param trader The trader this trade belongs to.
-		 * @param index The index of the input display that was interacted with.
+		 * @param tab The Trade Edit tab that is being used to display this tab.
+		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
+		 * @param index The index of the input display that was clicked.
 		 * @param button The mouse button that was clicked.
-		 * @param heldItem The item currently being held by the player.
+		 * @param heldItem The item being held by the player.
 		 */
-		public void onOutputDisplayInteraction(ITrader trader, int index, int button, ItemStack heldItem);
+		public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
 		
 		/**
-		 * Called when the trade is clicked on in display mode.
+		 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
+		 * Runs on the client, but can be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.
 		 * 
-		 * @param trader The trader this trade belongs to.
-		 * @param index The index of the input display that was interacted with.
+		 * @param tab The Trade Edit tab that is being used to display this tab.
+		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
+		 * @param mouseX The local X position of the mouse button when it was clicked. [0,tradeButtonWidth)
+		 * @param mouseY The local Y position of the mouse button when it was clicked. [0,tradeButtonHeight)
 		 * @param button The mouse button that was clicked.
 		 * @param heldItem The item currently being held by the player.
 		 */
-		default void onInteraction(ITrader trader, int mouseX, int mouseY, int button, ItemStack heldItem) { }
+		public void onInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem);
+		
 	}
 	
 	public static class DisplayData
@@ -507,11 +559,14 @@ public class TradeButton extends Button{
 		
 		public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null); }
 		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip) { return new ItemEntry(item, count, tooltip); }
+		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background) { return new EmptySlotEntry(background, null); }
+		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background, List<Component> tooltip) { return new EmptySlotEntry(background, tooltip); }
 		
 		public static DisplayEntry of(Component text, TextFormatting format) { return new TextEntry(text, format, null); }
 		public static DisplayEntry of(Component text, TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip); }
 		
-		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price); }
+		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price, null); }
+		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips) { return new PriceEntry(price, additionalTooltips); }
 		
 		private static class ItemEntry extends DisplayEntry
 		{
@@ -538,6 +593,30 @@ public class TradeButton extends Button{
 				int top = getTopLeft(y + area.yOffset, area.height);
 				return mouseX >= left && mouseX < left + 16 && mouseY >= top && mouseY < top + 16;
 			}
+		}
+		
+		private static class EmptySlotEntry extends DisplayEntry
+		{
+			private final Pair<ResourceLocation,ResourceLocation> background;
+			
+			private EmptySlotEntry(Pair<ResourceLocation,ResourceLocation> background, List<Component> tooltip) { super(tooltip); this.background = background; }
+			
+			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
+			
+			@Override
+			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
+				ItemRenderUtil.drawSlotBackground(pose, left, top, this.background);
+			}
+			
+			@Override
+			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
+				return mouseX >= left && mouseX < left + 16 && mouseY >= top && mouseY < top + 16;
+			}
+			
 		}
 		
 		public static class TextFormatting
@@ -649,14 +728,21 @@ public class TradeButton extends Button{
 		private static class PriceEntry extends DisplayEntry {
 			private final CoinValue price;
 			
-			public PriceEntry(CoinValue price) {
-				super(getTooltip(price));
+			public PriceEntry(CoinValue price, List<Component> additionalTooltips) {
+				super(getTooltip(price, additionalTooltips));
 				this.price = price;
 			}
 			
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 			
-			private static List<Component> getTooltip(CoinValue price) { if(price.isFree() || !price.isValid()) return null; return Lists.newArrayList(new TextComponent(price.getString())); }
+			private static List<Component> getTooltip(CoinValue price, List<Component> additionalTooltips) {
+				List<Component> tooltips = new ArrayList<>();
+				if(!price.isFree() && price.isValid())
+					tooltips.add(new TextComponent(price.getString()));
+				if(additionalTooltips != null)
+					tooltips.addAll(additionalTooltips);
+				return tooltips;
+			}
 			
 			@Override
 			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {

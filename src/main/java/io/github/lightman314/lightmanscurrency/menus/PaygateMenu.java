@@ -23,7 +23,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -31,8 +30,6 @@ import net.minecraft.world.item.ItemStack;
 public class PaygateMenu extends AbstractContainerMenu implements ITraderMenuPrimitive{
 	
 	public final Player player;
-	
-	protected static final MenuType<?> type = ModMenus.ITEM_TRADER;
 	
 	protected final Container coinInput = new SimpleContainer(5);
 	protected final Container ticketInput = new TicketInventory(1);

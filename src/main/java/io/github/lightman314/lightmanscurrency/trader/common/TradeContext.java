@@ -558,7 +558,7 @@ public class TradeContext {
 		return false;
 	}
 	
-	public static Builder createStorageMode(ITrader trader) { return new Builder(trader); }
+	public static TradeContext createStorageMode(ITrader trader) { return new Builder(trader).build(); }
 	public static Builder create(ITrader trader, Player player) { return new Builder(trader, player); }
 	public static Builder create(ITrader trader, PlayerReference player) { return new Builder(trader, player); }
 	

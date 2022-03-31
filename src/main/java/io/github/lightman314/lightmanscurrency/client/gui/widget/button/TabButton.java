@@ -68,6 +68,7 @@ public class TabButton extends Button{
 		public IconData getIcon();
 		public int getColor();
 		public Component getTooltip();
+		
 	}
 
 }

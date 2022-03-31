@@ -32,6 +32,7 @@ public class TraderItemStorage {
 			{
 				CompoundTag itemTag = new CompoundTag();
 				item.save(itemTag);
+				itemTag.putInt("Count", item.getCount());
 				list.add(itemTag);
 			}
 		}
@@ -48,6 +49,7 @@ public class TraderItemStorage {
 			{
 				CompoundTag itemTag = list.getCompound(i);
 				ItemStack item = ItemStack.of(itemTag);
+				item.setCount(itemTag.getInt("Count"));
 				if(!item.isEmpty())
 					this.storage.add(item);
 			}
@@ -61,6 +63,8 @@ public class TraderItemStorage {
 	}
 	
 	public List<ItemStack> getContents() { return this.storage; }
+	
+	public int getSlotCount() { return this.storage.size(); }
 	
 	/**
 	 * Returns whether the item storage has the given item.
@@ -97,19 +101,8 @@ public class TraderItemStorage {
 			return false;
 		for(ItemTradeData trade : this.trader.getAllTrades())
 		{
-			for(int i = 0; i < 2; ++i)
-			{
-				if(InventoryUtil.ItemMatches(trade.getSellItem(i), item))
-					return true;
-			}
-			if(trade.isBarter())
-			{
-				for(int i = 0; i < 2; ++i)
-				{
-					if(InventoryUtil.ItemMatches(trade.getBarterItem(i), item))
-						return true;
-				}
-			}
+			if(trade.allowItemInStorage(item))
+				return true;
 		}
 		return false;
 	}
@@ -151,13 +144,17 @@ public class TraderItemStorage {
 		return count;
 	}
 	
+	public int getFittableAmount(ItemStack item) {
+		if(!this.allowItem(item))
+			return 0;
+		return this.getMaxAmount() - this.getItemCount(item);
+	}
+	
 	/**
 	 * Returns the amount of the given item that this storage can fit.
 	 */
 	public boolean canFitItem(ItemStack item) {
-		if(!this.allowItem(item))
-			return false;
-		return this.getMaxAmount() - this.getItemCount(item) >= item.getCount();
+		return this.getFittableAmount(item) >= item.getCount();
 	}
 	
 	/**
@@ -191,7 +188,7 @@ public class TraderItemStorage {
 	public void tryAddItem(ItemStack item) {
 		if(!this.allowItem(item))
 			return;
-		int amountToAdd = Math.min(item.getCount(), this.getMaxAmount() - this.getItemCount(item));
+		int amountToAdd = Math.min(item.getCount(), this.getFittableAmount(item));
 		if(amountToAdd > 0)
 		{
 			ItemStack addStack = item.split(amountToAdd);

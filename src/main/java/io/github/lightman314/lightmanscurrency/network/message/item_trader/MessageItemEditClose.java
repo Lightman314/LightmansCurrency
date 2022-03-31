@@ -7,6 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageItemEditClose {
 	
 	public static void encode(MessageItemEditClose message, FriendlyByteBuf buffer) { }

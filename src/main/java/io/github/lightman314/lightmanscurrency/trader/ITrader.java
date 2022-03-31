@@ -2,16 +2,17 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -23,8 +24,6 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
 public interface ITrader extends IPermissions, ITraderSource {
@@ -76,6 +75,8 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public default int getPermissionLevel(PlayerReference player, String permission) {
 		return this.getCoreSettings().getPermissionLevel(player, permission);
 	}
+	//Trade Rule stuff
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex);
 	
 	//Trade Events
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, TradeData trade)
@@ -133,14 +134,17 @@ public interface ITrader extends IPermissions, ITraderSource {
 	 * No need to filter out invalid trades, as trade.isValid() will be run before displaying a trade (unless the trader is in storage mode).
 	 */
 	public List<? extends ITradeData> getTradeInfo();
+	
 	/**
 	 * Adds interaction slots to the menu.
 	 * Make sure to confirm that another trader of the same type hasn't already added the interaction slot you wish to add.
 	 */
 	public default void addInteractionSlots(List<InteractionSlotData> interactionSlots) { }
 	
-	public default void addStorageSlots(Consumer<? extends Slot> addSlot) { }
-	
-	public default boolean quickMoveStackToStorage(ItemStack stack) { return false; }
+	/**
+	 * Used to create the default storage tabs for the traders storage menu.
+	 * If not changed, the default BasicTradeEditTab will be the only available tab.
+	 */
+	public default void initStorageTabs(TraderStorageMenu menu) { }
 	
 }

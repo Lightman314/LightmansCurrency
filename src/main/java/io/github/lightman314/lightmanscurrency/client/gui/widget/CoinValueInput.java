@@ -40,6 +40,10 @@ public class CoinValueInput extends AbstractWidget{
 	public static final int HEIGHT = 69;
 	public static final int DISPLAY_WIDTH = 176;
 	
+	private static final int SEGMENT_WIDTH = 20;
+	private static final int SEGMENT_SPACING = 5;
+	private static final int SEGMENT_TOTAL = SEGMENT_WIDTH + SEGMENT_SPACING;
+	
 	private final int leftOffset;
 	private final ICoinValueInput parent;
 	
@@ -121,10 +125,10 @@ public class CoinValueInput extends AbstractWidget{
 			int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
 			for(int x = 0; x < buttonCount; x++)
 			{
-				Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
+				Button newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * SEGMENT_TOTAL), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT));
 				newButton.active = true;
 				increaseButtons.add(newButton);
-				newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * 30), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
+				newButton = this.parent.addCustomWidget(new PlainButton(this.leftOffset + 10 + (x * SEGMENT_TOTAL), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT));
 				newButton.active = false;
 				decreaseButtons.add(newButton);
 			}
@@ -138,7 +142,7 @@ public class CoinValueInput extends AbstractWidget{
 			int postfixWidth = this.parent.getFont().width(this.postfix);
 			if(postfixWidth > 0)
 				postfixWidth += 2;
-			this.valueInput = this.parent.addCustomWidget(new EditBox(this.parent.getFont(), this.leftOffset + 10 + prefixWidth, this.y + 20, 156 - prefixWidth - postfixWidth, 20, new TextComponent("")));
+			this.valueInput = this.parent.addCustomWidget(new EditBox(this.parent.getFont(), this.leftOffset + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, new TextComponent("")));
 		}
 		this.tick();
 	}
@@ -172,26 +176,24 @@ public class CoinValueInput extends AbstractWidget{
 				for(int x = 0; x < buttonCount; x++)
 				{
 					//Render the button column;
-					this.blit(poseStack, startX + 10 + (x * 30), startY, 10, 0, 20, HEIGHT);
+					this.blit(poseStack, startX + 10 + (x * SEGMENT_TOTAL), startY, 10, 0, SEGMENT_WIDTH, HEIGHT);
 					//Render the in-between button spacer
 					if(x < (buttonCount - 1)) //Don't render the last spacer
-						this.blit(poseStack, startX + 30 + (x * 30), startY, 30, 0, 10, HEIGHT);
+						this.blit(poseStack, startX + 30 + (x * SEGMENT_TOTAL), startY, 30, 0, SEGMENT_SPACING, HEIGHT);
 				}
+				//Render the right edge
+				this.blit(poseStack, startX + 30 + ((buttonCount - 1) * SEGMENT_TOTAL), startY, 40, 0, 10, HEIGHT);
 			}
-			
-			
-			//Render the right edge
-			this.blit(poseStack, startX + 30 + ((buttonCount - 1) * 30), startY, 40, 0, 10, HEIGHT);
 			
 			//Draw the coins initial & sprite
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * 30) + 12, startY + 26);
+				ItemRenderUtil.drawItemStack(this, this.parent.getFont(), new ItemStack(coinData.get(x).coinItem), startX + (x * SEGMENT_TOTAL) + 12, startY + 26);
 				//Draw string
 				String countString = String.valueOf(this.coinValue.getEntry(coinData.get(x).coinItem));// + coinData.get(x).getInitial().getString();
 				int width = this.parent.getFont().width(countString);
-				this.parent.getFont().draw(poseStack, countString, startX + (x * 30) + 20 - (width / 2), startY + 43, 0x404040);
+				this.parent.getFont().draw(poseStack, countString, startX + (x * SEGMENT_TOTAL) + 20 - (width / 2), startY + 43, 0x404040);
 				
 			}
 		}
@@ -274,7 +276,7 @@ public class CoinValueInput extends AbstractWidget{
 			return DISPLAY_WIDTH;
 		//Default width based on coin count
 		int buttonCount = MoneyUtil.getAllData(MoneyUtil.MAIN_CHAIN).size();
-		return 20 + (20 * buttonCount) + (10 * (buttonCount - 1));
+		return 20 + (SEGMENT_WIDTH * buttonCount) + (SEGMENT_SPACING * (buttonCount - 1));
 	}
 	
 	public void IncreaseButtonHit(Button button)

@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.util;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -49,9 +51,14 @@ public class ItemRenderUtil {
 	}
 	
 	/**
+	 * Draws an ItemStack.
+	 */
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) { drawItemStack(gui, font, stack, x, y, null); }
+	
+	/**
     * Draws an ItemStack.
     */
-	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) {
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, @Nullable String customCount) {
 		
 		Minecraft minecraft = Minecraft.getInstance();
 		
@@ -75,7 +82,7 @@ public class ItemRenderUtil {
 		RenderSystem.enableDepthTest();
 		
         itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
-        itemRenderer.renderGuiItemDecorations(font, stack, x, y, null);
+        itemRenderer.renderGuiItemDecorations(font, stack, x, y, customCount);
         
         itemRenderer.blitOffset = 0.0F;
         gui.setBlitOffset(0);
@@ -87,6 +94,8 @@ public class ItemRenderUtil {
 	 */
 	public static void drawSlotBackground(PoseStack matrixStack, int x, int y, Pair<ResourceLocation,ResourceLocation> background)
 	{
+		if(background == null)
+			return;
 		Minecraft minecraft = Minecraft.getInstance();
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
 		RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());

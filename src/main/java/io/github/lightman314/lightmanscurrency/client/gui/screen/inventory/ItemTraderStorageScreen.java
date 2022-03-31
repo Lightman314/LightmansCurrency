@@ -36,6 +36,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 @IPNIgnore
+@Deprecated
 public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderstorage.png");
@@ -293,7 +294,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					if(currentSellItem.getCount() <= 0)
 						currentSellItem = ItemStack.EMPTY;
 					trade.setItem(currentSellItem, 0);
-					this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
+					//this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
 					return true;
 				}
 				else
@@ -315,7 +316,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					else
 						currentSellItem = heldItem.copy();
 					trade.setItem(currentSellItem, 0);
-					this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
+					//this.menu.getTrader().sendSetTradeItemMessage(i, currentSellItem, 0);
 					return true;
 				}
 			}
@@ -335,7 +336,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					if(currentBarterItem.getCount() <= 0)
 						currentBarterItem = ItemStack.EMPTY;
 					trade.setItem(currentBarterItem, 2);
-					this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
+					//this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
 					return true;
 				}
 				else
@@ -357,7 +358,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 					else
 						currentBarterItem = heldItem.copy();
 					trade.setItem(currentBarterItem, 2);
-					this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
+					//this.menu.getTrader().sendSetTradeItemMessage(i, currentBarterItem, 1);
 					return true;
 				}
 			}
@@ -420,7 +421,7 @@ public class ItemTraderStorageScreen extends AbstractContainerScreen<ItemTraderS
 	private void PressTradeRulesButton(Button button)
 	{
 		this.menu.player.closeContainer();
-		Minecraft.getInstance().setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler()));
+		Minecraft.getInstance().setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler(-1)));
 	}
 	
 	private void PressSettingsButton(Button button)

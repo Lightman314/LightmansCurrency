@@ -60,6 +60,11 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	}
 	
 	@Override
+	public boolean allowExtraItemInStorage(ItemStack itemStack) {
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG);
+	}
+	
+	@Override
 	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.getItem() == ModItems.TICKET)

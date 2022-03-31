@@ -21,7 +21,20 @@ public abstract class TradeData implements ITradeRuleHandler, ITradeData {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
-	public enum TradeDirection { SALE, PURCHASE, NONE }
+	public enum TradeDirection { SALE(0,1), PURCHASE(1,0), NONE(-1,0);
+		public final int index;
+		private final int nextIndex;
+		public final TradeDirection next() { return fromIndex(this.nextIndex); }
+		TradeDirection(int index, int nextIndex) { this.index = index; this.nextIndex = nextIndex; }
+		public static TradeDirection fromIndex(int index) {
+			for(TradeDirection d : TradeDirection.values())
+			{
+				if(d.index == index)
+					return d;
+			}
+			return TradeDirection.SALE;
+		}
+	}
 	
 	protected CoinValue cost = new CoinValue();
 	

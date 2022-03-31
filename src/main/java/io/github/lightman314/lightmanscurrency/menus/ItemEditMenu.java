@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageItemEditClose;
@@ -45,6 +44,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
 
+/**
+ * @deprecated Built into the ItemTradeEditTab as of v1.1.0.0
+ */
+@Deprecated
 public class ItemEditMenu extends AbstractContainerMenu{
 	
 	
@@ -79,7 +82,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 	
 	public ItemEditMenu(int windowId, Inventory inventory, BlockPos traderPos, int tradeIndex)
 	{
-		this(ModMenus.ITEM_EDIT, windowId, inventory, tradeIndex, () ->{
+		this(/*ModMenus.ITEM_EDIT*/ null, windowId, inventory, tradeIndex, () ->{
 			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
 			if(be instanceof IItemTrader)
 				return (IItemTrader)be;
@@ -371,7 +374,7 @@ public class ItemEditMenu extends AbstractContainerMenu{
 		
 		public UniversalItemEditMenu(int windowId, Inventory inventory, UUID traderID, int tradeIndex)
 		{
-			super(ModMenus.UNIVERSAL_ITEM_EDIT, windowId, inventory, tradeIndex, () ->{
+			super(/*ModMenus.UNIVERSAL_ITEM_EDIT*/ null, windowId, inventory, tradeIndex, () ->{
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);

@@ -2,11 +2,9 @@ package io.github.lightman314.lightmanscurrency.network;
 
 import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
-import io.github.lightman314.lightmanscurrency.network.message.cashregister.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.misc.MessageLockableSlotInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
@@ -74,17 +72,18 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageRequestSyncUsers.class, MessageRequestSyncUsers::encode, MessageRequestSyncUsers::decode, MessageRequestSyncUsers::handle);
 		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
 		register(MessageChangeSettings.class, MessageChangeSettings::encode, MessageChangeSettings::decode, MessageChangeSettings::handle);
+		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
 		
 		//Item Trader
-		register(MessageSetItemPrice.class, MessageSetItemPrice::encode, MessageSetItemPrice::decode, MessageSetItemPrice::handle);
-		register(MessageItemEditSet.class, MessageItemEditSet::encode, MessageItemEditSet::decode, MessageItemEditSet::handle);
-		register(MessageItemEditClose.class, MessageItemEditClose::encode, MessageItemEditClose::decode, MessageItemEditClose::handle);
-		register(MessageOpenItemEdit.class, MessageOpenItemEdit::encode, MessageOpenItemEdit::decode, MessageOpenItemEdit::handle);
-		register(MessageSetTradeItem.class, MessageSetTradeItem::encode, MessageSetTradeItem::decode, MessageSetTradeItem::handle);
+		//register(MessageSetItemPrice.class, MessageSetItemPrice::encode, MessageSetItemPrice::decode, MessageSetItemPrice::handle);
+		//register(MessageItemEditSet.class, MessageItemEditSet::encode, MessageItemEditSet::decode, MessageItemEditSet::handle);
+		//register(MessageItemEditClose.class, MessageItemEditClose::encode, MessageItemEditClose::decode, MessageItemEditClose::handle);
+		//register(MessageOpenItemEdit.class, MessageOpenItemEdit::encode, MessageOpenItemEdit::decode, MessageOpenItemEdit::handle);
+		//register(MessageSetTradeItem.class, MessageSetTradeItem::encode, MessageSetTradeItem::decode, MessageSetTradeItem::handle);
 		
 		//Cash Register
-		register(MessageCRNextTrader.class, MessageCRNextTrader::encode, MessageCRNextTrader::decode, MessageCRNextTrader::handle);
-		register(MessageCRSkipTo.class, MessageCRSkipTo::encode, MessageCRSkipTo::decode, MessageCRSkipTo::handle);
+		//register(MessageCRNextTrader.class, MessageCRNextTrader::encode, MessageCRNextTrader::decode, MessageCRNextTrader::handle);
+		//register(MessageCRSkipTo.class, MessageCRSkipTo::encode, MessageCRSkipTo::decode, MessageCRSkipTo::handle);
 		
 		//Wallet
 		register(MessagePlayPickupSound.class, new MessagePlayPickupSound());
@@ -109,8 +108,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSyncStorage.class, MessageSyncStorage::encode, MessageSyncStorage::decode, MessageSyncStorage::handle);
 		register(MessageClearClientTraders.class, MessageClearClientTraders::encode, MessageClearClientTraders::decode, MessageClearClientTraders::handle);
 		register(MessageUpdateClientData.class, MessageUpdateClientData::encode, MessageUpdateClientData::decode, MessageUpdateClientData::handle);
-		register(MessageSetItemPrice2.class, MessageSetItemPrice2::encode, MessageSetItemPrice2::decode, MessageSetItemPrice2::handle);
-		register(MessageSetTradeItem2.class, MessageSetTradeItem2::encode, MessageSetTradeItem2::decode, MessageSetTradeItem2::handle);
+		//register(MessageSetItemPrice2.class, MessageSetItemPrice2::encode, MessageSetItemPrice2::decode, MessageSetItemPrice2::handle);
+		//register(MessageSetTradeItem2.class, MessageSetTradeItem2::encode, MessageSetTradeItem2::decode, MessageSetTradeItem2::handle);
 		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
 		register(MessageAddOrRemoveTrade2.class, MessageAddOrRemoveTrade2::encode, MessageAddOrRemoveTrade2::decode, MessageAddOrRemoveTrade2::handle);
 		register(MessageChangeSettings2.class, MessageChangeSettings2::encode, MessageChangeSettings2::decode, MessageChangeSettings2::handle);

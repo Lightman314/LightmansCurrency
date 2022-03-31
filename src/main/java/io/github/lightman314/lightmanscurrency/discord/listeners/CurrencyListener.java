@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.Unive
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -187,25 +186,17 @@ public class CurrencyListener extends SingleChannelListener{
 										}
 										if(trade.isSale())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String itemName = getItemName(sellItem, trade.getCustomName(0));
 											String priceText = trade.getCost().getString();
-											output.add("Selling " + sellItem.getCount() + "x " + itemName + " for " + priceText);
+											output.add("Selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " for " + priceText);
 										}
 										else if(trade.isPurchase())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String itemName = getItemName(sellItem, "");
 											String priceText = trade.getCost().getString();
-											output.add("Purchasing " + sellItem.getCount() + "x " + itemName + " for " + priceText);
+											output.add("Purchasing " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " for " + priceText);
 										}
 										else if(trade.isBarter())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String sellItemName = getItemName(sellItem, trade.getCustomName(0));
-											ItemStack barterItem = trade.getBarterItem(0);
-											String barterItemName = getItemName(barterItem, "");
-											output.add("Bartering " + barterItem.getCount() + "x " + barterItemName + " for " + sellItem.getCount() + "x " + sellItemName);
+											output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
 										}
 									}
 								}
@@ -219,41 +210,40 @@ public class CurrencyListener extends SingleChannelListener{
 									{
 										if(trade.isSale() && findSales.get())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String itemName = getItemName(sellItem, trade.getCustomName(0));
+											String itemName1 = getItemName(trade.getSellItem(0), trade.getCustomName(0));
+											String itemName2 = getItemName(trade.getSellItem(1), trade.getCustomName(0));
 											
 											//LightmansConsole.LOGGER.info("Item Name: " + itemName.toString());
-											if(searchText.get().isEmpty() || itemName.toLowerCase().contains(searchText.get()))
+											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()))
 											{
 												//Passed the search
 												String priceText = trade.getCost().getString();
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is selling " + sellItem.getCount() + "x " + itemName + " at " + itemTrader.getName().getString() + " for " + priceText);
+												output.add(itemTrader.getCoreSettings().getOwnerName() + " is selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " at " + itemTrader.getName().getString() + " for " + priceText);
 											}
 										}
 										else if(trade.isPurchase() && findPurchases.get())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String itemName = getItemName(sellItem, "");
+											String itemName1 = getItemName(trade.getSellItem(0), "");
+											String itemName2 = getItemName(trade.getSellItem(1), "");
 											
 											//LightmansConsole.LOGGER.info("Item Name: " + itemName.toString());
-											if(searchText.get().isEmpty() || itemName.toLowerCase().contains(searchText.get()))
+											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()))
 											{
 												//Passed the search
 												String priceText = trade.getCost().getString();
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is buying " + sellItem.getCount() + "x " + itemName + " at " + itemTrader.getName().getString() + " for " + priceText);
+												output.add(itemTrader.getCoreSettings().getOwnerName() + " is buying " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " at " + itemTrader.getName().getString() + " for " + priceText);
 											}
 										}
 										else if(trade.isBarter() && findBarters.get())
 										{
-											ItemStack sellItem = trade.getSellItem(0);
-											String sellItemName = getItemName(sellItem, trade.getCustomName(0));
+											String itemName1 = getItemName(trade.getSellItem(0), trade.getCustomName(0));
+											String itemName2 = getItemName(trade.getSellItem(1), trade.getCustomName(1));
+											String itemName3 = getItemName(trade.getBarterItem(0), "");
+											String itemName4 = getItemName(trade.getBarterItem(1), "");
 											
-											ItemStack barterItem = trade.getBarterItem(0);
-											String barterItemName = getItemName(barterItem,"");
-											
-											if(searchText.get().isEmpty() || sellItemName.toLowerCase().contains(searchText.get()) || barterItemName.toLowerCase().contains(searchText.get()))
+											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()) || itemName3.toLowerCase().contains(searchText.get()) || itemName4.toLowerCase().contains(searchText.get()))
 											{
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is bartering " + barterItem.getCount() + "x " + barterItemName + " for " + sellItem.getCount() + "x " + sellItemName + " at " + itemTrader.getName().getString());
+												output.add(itemTrader.getCoreSettings().getOwnerName() + " is bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " at " + itemTrader.getName().getString());
 											}
 											
 										}
@@ -276,6 +266,8 @@ public class CurrencyListener extends SingleChannelListener{
 	
 	private static String getItemName(ItemStack item, String customName)
 	{
+		if(item.isEmpty())
+			return "";
 		//Ignore custom names on purchases
 		StringBuffer itemName = new StringBuffer();
 		if(customName.isEmpty())
@@ -297,6 +289,15 @@ public class CurrencyListener extends SingleChannelListener{
 			itemName.append("]");
 		
 		return itemName.toString();
+	}
+	
+	private static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
+	{
+		if(item1.isEmpty() && !item2.isEmpty())
+			return item2.getCount() + "x " + getItemName(item2, customName2);
+		if(item2.isEmpty() && !item1.isEmpty())
+			return item1.getCount() + "x " + getItemName(item1, customName1);
+		return item1.getCount() + "x " + getItemName(item1, customName1) + " and " + item2.getCount() + "x " + getItemName(item2, customName2);
 	}
 	
 	@SubscribeEvent
@@ -331,19 +332,17 @@ public class CurrencyListener extends SingleChannelListener{
 						if(itemTrade.isBarter())
 						{
 							//Item given
-							ItemStack barteredItem = itemTrade.getBarterItem(0);
-							message.append(barteredItem.getCount()).append(" ").append(barteredItem.getHoverName().getString());
+							message.append(getItemNamesAndCount(itemTrade.getBarterItem(0), "", itemTrade.getBarterItem(1), "")).append(" for ");
 							//Item bought
-							ItemStack boughtItem = itemTrade.getSellItem(0);
-							String boughtItemName = itemTrade.getCustomName(0).isEmpty() ? boughtItem.getHoverName().getString() : itemTrade.getCustomName(0);
-							message.append(boughtItem.getCount()).append(" ").append(boughtItemName);
+							message.append(getItemNamesAndCount(itemTrade.getSellItem(0), itemTrade.getCustomName(0), itemTrade.getSellItem(1), itemTrade.getCustomName(1)));
 						}
 						else
 						{
 							//Item bought/sold
-							ItemStack boughtItem = itemTrade.getSellItem(0);
-							String boughtItemName = itemTrade.getCustomName(0).isEmpty() || itemTrade.getTradeType() != ItemTradeType.SALE ? boughtItem.getHoverName().getString() : itemTrade.getCustomName(0);
-							message.append(boughtItem.getCount()).append(" ").append(boughtItemName);
+							if(itemTrade.isSale())
+								message.append(getItemNamesAndCount(itemTrade.getSellItem(0), itemTrade.getCustomName(0), itemTrade.getSellItem(1), itemTrade.getCustomName(1)));
+							else
+								message.append(getItemNamesAndCount(itemTrade.getSellItem(0), "", itemTrade.getSellItem(1), ""));
 							//Price
 							message.append(" for ");
 							if(event.getPricePaid().isFree() || event.getPricePaid().getRawValue() <= 0)

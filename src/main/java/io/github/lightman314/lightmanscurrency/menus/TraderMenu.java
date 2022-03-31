@@ -40,7 +40,10 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
-	Container coinSlots = new SimpleContainer(5);
+	Container coins = new SimpleContainer(5);
+	
+	List<Slot> coinSlots = new ArrayList<>();
+	public List<Slot> getCoinSlots() { return this.coinSlots; }
 	
 	public TraderMenu(int windowID, Inventory inventory, BlockPos sourcePosition) {
 		this(ModMenus.TRADER, windowID, inventory, () -> {
@@ -61,7 +64,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	}
 	
 	public TradeContext getContext(ITrader trader) { 
-		return TradeContext.create(trader, this.player).withCoinSlots(this.coinSlots).withInteractionSlot(this.interactionSlot).build();
+		return TradeContext.create(trader, this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).build();
 	}
 
 	protected void init(Player player, Inventory inventory) {
@@ -81,9 +84,9 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		}
 		
 		//Coin Slots
-		for(int x = 0; x < coinSlots.getContainerSize(); x++)
+		for(int x = 0; x < coins.getContainerSize(); x++)
 		{
-			this.addSlot(new CoinSlot(this.coinSlots, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122));
+			this.coinSlots.add(this.addSlot(new CoinSlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122)));
 		}
 		
 		//Interaction Slots
@@ -101,7 +104,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
-		this.clearContainer(player, this.coinSlots);
+		this.clearContainer(player, this.coins);
 		this.clearContainer(player, this.interactionSlot.container);
 		if(this.isSingleTrader())
 			this.getSingleTrader().userClose(this.player);

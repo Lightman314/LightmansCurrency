@@ -1,270 +1,131 @@
 package io.github.lightman314.lightmanscurrency.blockentity.handler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.world.Container;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 public class TraderItemHandler{
 
-	private final IItemHandler inputOnly;
-	private final IItemHandler outputOnly;
-	private final IItemHandler inputAndOutput;
+	private final IItemTrader trader;
+	private final Map<Direction,IItemHandler> handlers = new HashMap<>();
 	
 	public TraderItemHandler(IItemTrader trader)
 	{
-		this.inputOnly = new InputOnly(trader);
-		this.outputOnly = new OutputOnly(trader);
-		this.inputAndOutput = new InputAndOutput(trader);
+		this.trader = trader;
 	}
 	
-	public IItemHandler getHandler(ItemHandlerSettings settings) {
-		switch(settings)
-		{
-		case INPUT_ONLY:
-			return this.inputOnly;
-		case OUTPUT_ONLY:
-			return this.outputOnly;
-		case INPUT_AND_OUTPUT:
-			return this.inputAndOutput;
-			default:
-				return null;
-		}
+	public IItemHandler getHandler(Direction side) {
+		if(!this.handlers.containsKey(side))
+			this.handlers.put(side, new TraderHandler(this.trader, side));
+		return this.handlers.get(side);
 	}
 	
-	private static abstract class TraderHandlerTemplate implements IItemHandler
+	private static class TraderHandler implements IItemHandler
 	{
 		private final IItemTrader trader;
+		private final Direction side;
 		
-		protected TraderHandlerTemplate(IItemTrader trader) { this.trader = trader; }
+		protected TraderHandler(IItemTrader trader, Direction side) { this.trader = trader; this.side = side; }
 		
-		protected final Container getStorage() { return this.trader.getStorage(); }
-		protected final boolean limitInputs() { return this.trader.getItemSettings().limitInputsToSales(); }
-		protected final boolean limitOutputs() { return this.trader.getItemSettings().limitOutputsToPurchases(); }
+		protected final TraderItemStorage getStorage() { return this.trader.getStorage(); }
 		
-		protected final boolean traderSells(ItemStack stack)
-		{
-			for(ItemTradeData trade : this.trader.getAllTrades())
-			{
-				if(trade.isValid())
-				{
-					if(trade.isSale() || trade.isBarter())
-					{
-						if(InventoryUtil.ItemMatches(trade.getSellItem(0), stack) || InventoryUtil.ItemMatches(trade.getSellItem(1), stack))
-							return true;
-					}
-				}
-			}
-			return false;
-		}
+		protected final boolean allowsInputs() { return this.trader.getItemSettings().getInputSides().allows(this.side); }
+		protected final boolean allowsOutputs() { return this.trader.getItemSettings().getOutputSides().allows(this.side); }
 		
-		protected final boolean traderPurchases(ItemStack stack)
-		{
-			for(ItemTradeData trade : this.trader.getAllTrades())
-			{
-				if(trade.isValid())
-				{
-					if(trade.isPurchase())
-					{
-						if(InventoryUtil.ItemMatches(trade.getSellItem(0), stack) || InventoryUtil.ItemMatches(trade.getSellItem(1), stack))
-							return true;
-					}
-					else if(trade.isBarter())
-					{
-						if(InventoryUtil.ItemMatches(trade.getBarterItem(0), stack) || InventoryUtil.ItemMatches(trade.getBarterItem(1), stack))
-							return true;
-					}
-				}
-			}
-			return false;
-		}
-		
-		//Constant functions that never change (unless disabled, upon which no item handler is given)
 		@Override
 		public int getSlots() {
-			return this.getStorage().getContainerSize();
+			//Return 1 more slot than we have so that we always have an empty slot that can accept new items.
+			return this.getStorage().getContents().size() + 1;
 		}
 		
 		@Override
 		public ItemStack getStackInSlot(int slot) {
-			return this.getStorage().getItem(slot);
+			//If within the slot count of the storage, return the contents
+			if(slot >= 0 && slot < this.getStorage().getContents().size())
+				return this.getStorage().getContents().get(slot);
+			//Extra empty slot
+			return ItemStack.EMPTY;
 		}
 
 		@Override
 		public int getSlotLimit(int slot) {
-			return this.getStorage().getItem(slot).getMaxStackSize();
+			return this.getStorage().getMaxAmount();
 		}
 		
-	}
-	
-	private static class InputOnly extends TraderHandlerTemplate
-	{
-
-		private InputOnly(IItemTrader trader) { super(trader); }
-		
-		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			ItemStack copyStack = stack.copy();
-			ItemStack currentStack = this.getStorage().getItem(slot);
-			if(this.limitInputs() && !this.traderSells(copyStack))
-				return copyStack;
-			if(currentStack.isEmpty() || InventoryUtil.ItemMatches(copyStack, currentStack))
-			{
-				//Get the possible fill amount
-				int space = currentStack.isEmpty() ? copyStack.getMaxStackSize() : currentStack.getMaxStackSize() - currentStack.getCount();
-				int fillAmount = MathUtil.clamp(copyStack.getCount(), 0, space);
-				if(fillAmount > 0)
-				{
-					copyStack.shrink(fillAmount);
-					if(!simulate)
-					{
-						//Place the item into the inventory
-						if(currentStack.isEmpty())
-						{
-							ItemStack placeStack = stack.copy();
-							placeStack.setCount(fillAmount);
-							this.getStorage().setItem(slot, placeStack);
-						}
-						else
-							currentStack.grow(fillAmount);
-					}
-				}
-			}
-			return copyStack;
-		}
-
-		@Override
-		//Disabled in input only
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			return ItemStack.EMPTY;
-		}
-
 		@Override
 		public boolean isItemValid(int slot, ItemStack stack) {
-			if(this.limitInputs()) //Only allow inputs if the item is being sold
-				return this.traderSells(stack);
-			return true;
-		}
-		
-	}
-	
-	private static class OutputOnly extends TraderHandlerTemplate
-	{
-
-		protected OutputOnly(IItemTrader trader) { super(trader); }
-
-		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			return stack.copy();
-		}
-
-		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			ItemStack stack = this.getStorage().getItem(slot);
-			if(stack.isEmpty())
-				return ItemStack.EMPTY;
-			//Check if the settings limit our ability to remove this item
-			if(this.limitOutputs())
-			{
-				if(!this.traderPurchases(stack))
-					return ItemStack.EMPTY;
-			}
-			int emptyAmount = MathUtil.clamp(amount, 0, Math.min(stack.getCount(), stack.getMaxStackSize()));
-			if(emptyAmount > 0)
-			{
-				ItemStack emptyStack = stack.copy();
-				emptyStack.setCount(emptyAmount);
-				if(!simulate)
-				{
-					//Remove the item from storage
-					stack.shrink(emptyAmount);
-					if(stack.isEmpty())
-						this.getStorage().setItem(slot, ItemStack.EMPTY);
-				}
-				return emptyStack;
-			}
-			return ItemStack.EMPTY;
-		}
-
-		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
+			if(this.allowsInputs() && this.getStorage().allowItem(stack))
+				return true;
 			return false;
 		}
-	}
-	
-	private static class InputAndOutput extends TraderHandlerTemplate
-	{
-
-		protected InputAndOutput(IItemTrader trader) { super(trader); }
 		
-		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			ItemStack copyStack = stack.copy();
-			ItemStack currentStack = this.getStorage().getItem(slot);
-			if(this.limitInputs() && !this.traderSells(copyStack))
-				return copyStack;
-			if(currentStack.isEmpty() || InventoryUtil.ItemMatches(copyStack, currentStack))
+		public boolean allowExtraction(ItemStack stack) {
+			for(ItemTradeData trade : this.trader.getAllTrades())
 			{
-				//Get the possible fill amount
-				int space = currentStack.isEmpty() ? copyStack.getMaxStackSize() : currentStack.getMaxStackSize() - currentStack.getCount();
-				int fillAmount = MathUtil.clamp(copyStack.getCount(), 0, space);
-				if(fillAmount > 0)
+				if(trade.isSale() || trade.isBarter())
 				{
-					copyStack.shrink(fillAmount);
-					if(!simulate)
+					for(int i = 0; i < 2; ++i)
 					{
-						//Place the item into the inventory
-						if(currentStack.isEmpty())
-						{
-							ItemStack placeStack = stack.copy();
-							placeStack.setCount(fillAmount);
-							this.getStorage().setItem(slot, placeStack);
-						}
-						else
-							currentStack.grow(fillAmount);
+						if(InventoryUtil.ItemMatches(trade.getSellItem(0),stack))
+							return false;
 					}
 				}
 			}
-			return copyStack;
+			return true;
+		}
+
+		@Override
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+			ItemStack copyStack = stack.copy();
+			if(this.allowsInputs() && this.getStorage().allowItem(stack))
+			{
+				if(simulate)
+				{
+					int inputAmount = Math.min(this.getStorage().getFittableAmount(copyStack), copyStack.getCount());
+					copyStack.shrink(inputAmount);
+				}
+				else
+				{
+					this.getStorage().tryAddItem(copyStack);
+					this.trader.markStorageDirty();
+				}
+				return copyStack;
+			}
+			else
+				return copyStack;
 		}
 		
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			ItemStack stack = this.getStorage().getItem(slot);
-			if(stack.isEmpty())
-				return ItemStack.EMPTY;
-			//Check if the settings limit our ability to remove this item
-			if(this.limitOutputs())
+			if(this.allowsOutputs())
 			{
-				if(!this.traderPurchases(stack))
+				ItemStack stackInSlot = this.getStackInSlot(slot).copy();
+				if(stackInSlot.isEmpty() || !this.allowExtraction(stackInSlot))
 					return ItemStack.EMPTY;
-			}
-			int emptyAmount = MathUtil.clamp(amount, 0, Math.min(stack.getCount(), stack.getMaxStackSize()));
-			if(emptyAmount > 0)
-			{
-				ItemStack emptyStack = stack.copy();
-				emptyStack.setCount(emptyAmount);
-				if(!simulate)
+				int amountToRemove = Math.min(amount, Math.min(stackInSlot.getCount(), stackInSlot.getMaxStackSize()));
+				if(amountToRemove > 0)
 				{
-					//Remove the item from storage
-					stack.shrink(emptyAmount);
-					if(stack.isEmpty())
-						this.getStorage().setItem(slot, ItemStack.EMPTY);
+					ItemStack result = stackInSlot.copy();
+					result.setCount(amountToRemove);
+					if(!simulate)
+					{
+						stackInSlot.setCount(amountToRemove);
+						result = this.getStorage().removeItem(stackInSlot);
+					}
+					this.trader.markStorageDirty();
+					return result;
 				}
-				return emptyStack;
+				return ItemStack.EMPTY;
 			}
-			return ItemStack.EMPTY;
-		}
-		
-		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
-			if(this.limitInputs()) //Only allow inputs if the item is being sold
-				return this.traderSells(stack);
-			return true;
+			else
+				return ItemStack.EMPTY;
 		}
 		
 	}

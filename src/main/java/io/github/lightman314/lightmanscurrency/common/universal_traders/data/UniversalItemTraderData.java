@@ -23,25 +23,19 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetItemPrice2;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageSetTradeItem2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
-import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -49,20 +43,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader {
 	
@@ -76,8 +63,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public IItemHandler getItemHandler(Direction relativeSide)
 	{
-		ItemHandlerSettings handlerSetting = this.itemSettings.getHandlerSetting(relativeSide);
-		return this.itemHandler.getHandler(handlerSetting);
+		return this.itemHandler.getHandler(relativeSide);
 	}
 	
 	private ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
@@ -332,7 +318,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		public Component getDisplayName() { return new TextComponent(""); }
 	}*/
 
-	@Override
+	/*@Override
 	protected MenuProvider getStorageMenuProvider() {
 		return new StorageProvider(this.traderID);
 	}
@@ -378,7 +364,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
-	}
+	}*/
 	
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER; }
@@ -446,20 +432,26 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		this.markDirty(this::writeRules);
 	}
 	
-	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this, tradeIndex); }
 	
 	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
 	{
 		
 		private final UniversalItemTraderData trader;
+		private final int tradeIndex;
 		
-		public TradeRuleScreenHandler(UniversalItemTraderData trader)
+		public TradeRuleScreenHandler(UniversalItemTraderData trader, int tradeIndex)
 		{
 			this.trader = trader;
+			this.tradeIndex = tradeIndex;
 		}
 		
 		@Override
-		public ITradeRuleHandler ruleHandler() { return this.trader; }
+		public ITradeRuleHandler ruleHandler() {
+			if(this.tradeIndex < 0)
+				return this.trader;
+			return this.trader.getTrade(this.tradeIndex);
+		}
 		
 		@Override
 		public void reopenLastScreen()
@@ -469,7 +461,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.trader.traderID, type, updateInfo));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.trader.traderID, this.tradeIndex, type, updateInfo));
 		}
 		
 		@Override
@@ -495,7 +487,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.traderID, tradeIndex, type, updateInfo));
 	}
 
-	@Override
+	/*@Override
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem2(this.traderID, tradeIndex, sellItem, slot));
@@ -505,7 +497,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice2(this.traderID, tradeIndex, newPrice, newCustomName, newTradeType.name()));
-	}
+	}*/
 
 	@Override
 	public CompoundTag getPersistentData() {

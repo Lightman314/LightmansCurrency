@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -33,6 +32,10 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+/**
+ * @deprecated Use TraderMenu as of v1.1.0.0
+ */
+@Deprecated
 public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu {
 	
 	public final Player player;
@@ -45,7 +48,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	
 	public ItemTraderMenu(int windowId, Inventory inventory, BlockPos traderPos)
 	{
-		this(ModMenus.ITEM_TRADER, windowId, inventory, traderPos);
+		this(/*ModMenus.ITEM_TRADER*/ null, windowId, inventory, traderPos);
 	}
 	
 	protected ItemTraderMenu(MenuType<?> type, int windowId, Inventory inventory, BlockPos traderPos)
@@ -280,7 +283,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 	public static class ItemTraderMenuUniversal extends ItemTraderMenu
 	{
 		public ItemTraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.ITEM_TRADER_UNIVERSAL, windowID, inventory, () ->{
+			super(/*ModMenus.ITEM_TRADER_UNIVERSAL*/ null, windowID, inventory, () ->{
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);
@@ -306,7 +309,7 @@ public class ItemTraderMenu extends AbstractContainerMenu implements ITraderMenu
 		
 		public ItemTraderMenuCR(int windowID, Inventory inventory, BlockPos traderPos, CashRegisterBlockEntity cashRegister)
 		{
-			super(ModMenus.ITEM_TRADER_CR, windowID, inventory, traderPos);
+			super(/*ModMenus.ITEM_TRADER_CR*/ null, windowID, inventory, traderPos);
 			this.cashRegister = cashRegister;
 		}
 		

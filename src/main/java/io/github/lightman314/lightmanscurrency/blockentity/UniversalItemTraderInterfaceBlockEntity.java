@@ -234,36 +234,39 @@ public class UniversalItemTraderInterfaceBlockEntity extends UniversalTraderInte
 				ItemTradeData trade = trader.getTrade(i);
 				if(trade.isValid() && (trade.isBarter() || trade.isSale()))
 				{
-					ItemStack stockItem = trade.getSellItem(0);
-					if(!stockItem.isEmpty())
+					for(int s = 0; s < 2; ++s)
 					{
-						int stockableAmount = InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), stockItem);
-						if(stockableAmount > 0)
+						ItemStack stockItem = trade.getSellItem(s);
+						if(!stockItem.isEmpty())
 						{
-							ItemStack movingStack = stockItem.copy();
-							movingStack.setCount(Math.min(movingStack.getMaxStackSize(), stockableAmount));
-							//Remove the item from the item buffer
-							if(InventoryUtil.RemoveItemCount(this.itemBuffer.getContainer(), movingStack))
+							int stockableAmount = InventoryUtil.GetItemCount(this.itemBuffer.getContainer(), stockItem);
+							if(stockableAmount > 0)
 							{
-								ItemStack leftovers = InventoryUtil.TryPutItemStack(trader.getStorage(), movingStack);
-								if(!leftovers.isEmpty())
+								ItemStack movingStack = stockItem.copy();
+								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), stockableAmount));
+								//Remove the item from the item buffer
+								if(InventoryUtil.RemoveItemCount(this.itemBuffer.getContainer(), movingStack))
 								{
-									//Attempt to place the items back in the item buffer while obeying the rules (use the IItemHandler version of the item buffer)
-									leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, leftovers, false);
-									if(!leftovers.isEmpty())
+									trader.getStorage().tryAddItem(movingStack);
+									if(!movingStack.isEmpty())
 									{
-										//Attempt to place the items back in the item buffer while ignoring the rules (use the container directly)
-										leftovers = InventoryUtil.TryPutItemStack(this.itemBuffer.getContainer(), leftovers);
+										//Attempt to place the items back in the item buffer while obeying the rules (use the IItemHandler version of the item buffer)
+										ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, movingStack, false);
 										if(!leftovers.isEmpty())
 										{
-											//Could not place them back in the item buffer, so dump them in the world.
+											//Attempt to place the items back in the item buffer while ignoring the rules (use the container directly)
+											leftovers = InventoryUtil.TryPutItemStack(this.itemBuffer.getContainer(), leftovers);
 											if(!leftovers.isEmpty())
-												InventoryUtil.dumpContents(this.level, this.worldPosition, leftovers);
+											{
+												//Could not place them back in the item buffer, so dump them in the world.
+												if(!leftovers.isEmpty())
+													InventoryUtil.dumpContents(this.level, this.worldPosition, leftovers);
+											}
 										}
 									}
 								}
+								trader.markStorageDirty();
 							}
-							trader.markStorageDirty();
 						}
 					}
 				}

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,6 +27,9 @@ import net.minecraftforge.registries.RegistryBuilder;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestriction>{
 
+	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, DEFAULT_BACKGROUND);
+	
 	static Supplier<IForgeRegistry<ItemTradeRestriction>> ITEM_TRADE_RESTRICTIONS;
 	
 	private static final List<ItemTradeRestriction> RESTRICTIONS = new ArrayList<>();
@@ -52,6 +56,8 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	
 	public boolean allowItemSelectItem(ItemStack itemStack) { return true; }
 	
+	public boolean allowExtraItemInStorage(ItemStack itemStack) { return false; }
+	
 	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.isEmpty())
@@ -67,7 +73,7 @@ public class ItemTradeRestriction extends ForgeRegistryEntry<ItemTradeRestrictio
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return null; }
+	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return BACKGROUND; }
 	
 	//Registry functions
 	private static ItemTradeRestriction register(String key, ItemTradeRestriction restriction)

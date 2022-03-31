@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMe
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageOpenItemEdit;
@@ -34,6 +33,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 
+/**
+ * @deprecated Use TraderStorageMenu as of v1.1.0.0
+ */
+@Deprecated
 public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu, IItemEditCapable{
 
 	public static final int SCREEN_EXTENSION = ItemTraderStorageUtil.SCREEN_EXTENSION;
@@ -47,7 +50,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 	final Container coinSlots;
 	
 	public ItemTraderStorageMenu(int windowId, Inventory inventory, BlockPos traderPos) {
-		this(ModMenus.ITEM_TRADER_STORAGE, windowId, inventory, () -> {
+		this(/*ModMenus.ITEM_TRADER_STORAGE*/ null, windowId, inventory, () -> {
 			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
 			if(be instanceof IItemTrader)
 				return (IItemTrader)be;
@@ -286,7 +289,7 @@ public class ItemTraderStorageMenu extends AbstractContainerMenu implements ITra
 	public static class ItemTraderStorageMenuUniversal extends ItemTraderStorageMenu
 	{
 		public ItemTraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.ITEM_TRADER_STORAGE_UNIVERSAL, windowID, inventory, () ->{
+			super(/*ModMenus.ITEM_TRADER_STORAGE_UNIVERSAL*/ null, windowID, inventory, () ->{
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);

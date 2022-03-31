@@ -145,7 +145,7 @@ public class TradeItemPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges()
 	{
-		this.getTrader().sendSetTradePriceMessage(this.tradeIndex, this.priceInput.getCoinValue(), this.nameField.getValue(), this.localDirection);
+		//this.getTrader().sendSetTradePriceMessage(this.tradeIndex, this.priceInput.getCoinValue(), this.nameField.getValue(), this.localDirection);
 	}
 	
 	protected void PressBackButton(Button button)

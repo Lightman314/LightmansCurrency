@@ -16,25 +16,20 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetItemPrice;
-import io.github.lightman314.lightmanscurrency.network.message.item_trader.MessageSetTradeItem;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
-import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings.ItemHandlerSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
@@ -70,8 +65,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	public IItemHandler getItemHandler(Direction relativeSide)
 	{
-		ItemHandlerSettings handlerSettings = this.itemSettings.getHandlerSetting(relativeSide);
-		return this.itemHandler.getHandler(handlerSettings);
+		return this.itemHandler.getHandler(relativeSide);
 	}
 	
 	ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
@@ -672,20 +666,26 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.openStorageMenu(player);
 	}
 	
-	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TraderScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TraderScreenHandler(this, tradeIndex); }
 	
 	private static class TraderScreenHandler implements ITradeRuleScreenHandler
 	{
 		
 		private final ItemTraderBlockEntity tileEntity;
+		private final int tradeIndex;
 		
-		public TraderScreenHandler(ItemTraderBlockEntity tileEntity)
+		public TraderScreenHandler(ItemTraderBlockEntity tileEntity, int tradeIndex)
 		{
 			this.tileEntity = tileEntity;
+			this.tradeIndex = tradeIndex;
 		}
 		
 		@Override
-		public ITradeRuleHandler ruleHandler() { return this.tileEntity; }
+		public ITradeRuleHandler ruleHandler() { 
+			if(this.tradeIndex < 0)
+				return this.tileEntity;
+			return this.tileEntity.getTrade(this.tradeIndex);
+		}
 		
 		@Override
 		public void reopenLastScreen()
@@ -696,7 +696,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		@Override
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.tileEntity.worldPosition, type, updateInfo));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.tileEntity.worldPosition, this.tradeIndex, type, updateInfo));
 		}
 		
 		@Override
@@ -734,7 +734,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.worldPosition, tradeIndex, type, updateInfo));
 	}
 	
-	@Override
+	/*@Override
 	public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTradeItem(this.worldPosition, tradeIndex, sellItem, slot));
@@ -744,7 +744,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType) {
 		if(this.isClient())
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetItemPrice(this.worldPosition, tradeIndex, newPrice, newCustomName, newTradeType.name()));
-	}
+	}*/
 
 	@Override
 	public void receiveTradeRuleMessage(Player player, int index, ResourceLocation ruleType, CompoundTag updateInfo) {

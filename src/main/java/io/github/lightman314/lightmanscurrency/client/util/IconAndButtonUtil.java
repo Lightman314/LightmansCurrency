@@ -52,7 +52,6 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	
 	public static final NonNullSupplier<IconData> ICON_CREATIVE(Supplier<Boolean> isCreative) {
 		return () -> isCreative.get() ? ICON_CREATIVE_OFF : ICON_CREATIVE_ON;
 	}
@@ -79,6 +78,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_COUNT_PLAYER = IconData.of(ICON_TEXTURE, 80, 32);
 	public static final IconData ICON_TIMED_SALE = IconData.of(Items.CLOCK);
 	public static final IconData ICON_DISCOUNT_LIST = IconData.of(ICON_TEXTURE, 96, 32);
+	
+	public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
 	
 	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.opentrades"));
 	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"));

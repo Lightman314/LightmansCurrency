@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.menus.slots;
 
+import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.Container;
@@ -41,6 +42,15 @@ public class SimpleSlot extends Slot{
 					simpleSlot.active = false;
 			}
 		});
+	}
+	
+	public static void SetActive(List<? extends SimpleSlot> slots) { SetActive(slots, true); }
+	public static void SetInactive(List<? extends SimpleSlot> slots) { SetActive(slots, false); }
+	
+	public static void SetActive(List<? extends SimpleSlot> slots, boolean active) {
+		for(SimpleSlot slot: slots) {
+			slot.active = active;
+		}
 	}
 	
 }

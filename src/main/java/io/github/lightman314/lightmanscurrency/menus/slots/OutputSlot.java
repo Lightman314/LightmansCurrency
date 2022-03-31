@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.menus.slots;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class OutputSlot extends Slot{
+public class OutputSlot extends SimpleSlot{
 	
 	public OutputSlot(Container inventory, int index, int x, int y)
 	{

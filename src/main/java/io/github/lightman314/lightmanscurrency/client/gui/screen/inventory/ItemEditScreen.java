@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 @IPNIgnore
+@Deprecated
 public class ItemEditScreen extends AbstractContainerScreen<ItemEditMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/item_edit.png");

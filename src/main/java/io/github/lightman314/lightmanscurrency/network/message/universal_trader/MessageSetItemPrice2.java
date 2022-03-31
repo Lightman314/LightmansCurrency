@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetItemPrice2 {
 
 	private UUID traderID;

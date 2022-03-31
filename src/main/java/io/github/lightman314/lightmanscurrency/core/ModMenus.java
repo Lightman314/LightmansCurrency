@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.menus.*;
-import io.github.lightman314.lightmanscurrency.menus.ItemEditMenu.UniversalItemEditMenu;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderMenu.*;
-import io.github.lightman314.lightmanscurrency.menus.ItemTraderStorageMenu.ItemTraderStorageMenuUniversal;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuAllUniversal;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuUniversal;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.TraderStorageMenuUniversal;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.event.RegistryEvent;
@@ -44,11 +41,16 @@ public class ModMenus {
 		return new TraderMenuAllUniversal(id, playerInventory);
 	});
 	
-	//Trader Storage
+	//Any Trader Storage
+	public static final MenuType<TraderStorageMenu> TRADER_STORAGE = register("trader_storage", (IContainerFactory<TraderStorageMenu>)(id, playerInventory,data) ->{
+		return new TraderStorageMenu(id, playerInventory, data.readBlockPos());
+	});
+	public static final MenuType<TraderStorageMenuUniversal> TRADER_STORAGE_UNIVERSAL = register("trader_storage_universal", (IContainerFactory<TraderStorageMenuUniversal>)(id, playerInventory,data) ->{
+		return new TraderStorageMenuUniversal(id, playerInventory, data.readUUID());
+	});
 	
-	
-	//Item Trader
-	public static final MenuType<ItemTraderMenu> ITEM_TRADER = register("item_trader", (IContainerFactory<ItemTraderMenu>)(id, playerInventory, data)->{
+	//Item Trader (Deprecated as of v1.1.0.0)
+	/*public static final MenuType<ItemTraderMenu> ITEM_TRADER = register("item_trader", (IContainerFactory<ItemTraderMenu>)(id, playerInventory, data)->{
 		return new ItemTraderMenu(id, playerInventory, data.readBlockPos());
 	});
 	public static final MenuType<ItemTraderMenuCR> ITEM_TRADER_CR = register("item_trader_cr", (IContainerFactory<ItemTraderMenuCR>)(id, playerInventory, data)->{
@@ -65,7 +67,7 @@ public class ModMenus {
 	});
 	public static final MenuType<ItemTraderStorageMenuUniversal> ITEM_TRADER_STORAGE_UNIVERSAL = register("universal_item_trader_storage", (IContainerFactory<ItemTraderStorageMenuUniversal>)(id, playerInventory, data)->{
 		return new ItemTraderStorageMenuUniversal(id, playerInventory, data.readUUID());
-	});
+	});*/
 	
 	public static final MenuType<WalletMenu> WALLET = register("wallet", (IContainerFactory<WalletMenu>)(id, playerInventory, data) ->{
 		return new WalletMenu(id, playerInventory, data.readInt());
@@ -81,13 +83,13 @@ public class ModMenus {
 		return new TicketMachineMenu(id, playerInventory, tileEntity);
 	});
 	
-	public static final MenuType<ItemEditMenu> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditMenu>)(id, playerInventory, data)->{
+	/*public static final MenuType<ItemEditMenu> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditMenu>)(id, playerInventory, data)->{
 		return new ItemEditMenu(id, playerInventory, data.readBlockPos(), data.readInt());
 	});
 	
 	public static final MenuType<UniversalItemEditMenu> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditMenu>)(id, playerInventory, data)->{
 		return new UniversalItemEditMenu(id, playerInventory, data.readUUID(), data.readInt());
-	});
+	});*/
 	
 	public static final MenuType<ItemInterfaceMenu> ITEM_INTERFACE = register("item_interface", (IContainerFactory<ItemInterfaceMenu>)(id, playerInventory, data) ->{
 		UniversalItemTraderInterfaceBlockEntity blockEntity = (UniversalItemTraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
