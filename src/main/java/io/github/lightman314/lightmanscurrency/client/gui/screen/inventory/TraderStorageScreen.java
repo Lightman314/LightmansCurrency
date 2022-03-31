@@ -279,7 +279,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	@Override
 	public void selfMessage(CompoundTag message) {
-		LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
+		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
 		if(message.contains("ChangeTab",Tag.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"), false, message);
 		else
