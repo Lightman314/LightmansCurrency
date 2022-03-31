@@ -8,10 +8,7 @@ import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class TraderStorageClientTab<T extends TraderStorageTab> implements ITab{
 
 	protected final TraderStorageScreen screen;
