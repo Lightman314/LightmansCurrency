@@ -16,12 +16,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemStorageTab extends TraderStorageTab{
 
 	public ItemStorageTab(TraderStorageMenu menu) { super(menu); }
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
