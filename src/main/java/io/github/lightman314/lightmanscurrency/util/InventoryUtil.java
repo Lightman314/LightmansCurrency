@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -11,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -509,12 +507,7 @@ public class InventoryUtil {
     }
     
     public static boolean ItemHasTag(ItemStack item, ResourceLocation tag) {
-    	for(TagKey<Item> itemTag : item.getTags().collect(Collectors.toList()))
-    	{
-    		if(itemTag.location().equals(tag))
-    			return true;
-    	}
-    	return false;
+    	return item.getItem().getTags().contains(tag);
     }
     
 }

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -17,8 +18,6 @@ import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ConfiguredStructureTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +34,7 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraftforge.common.BasicItemListing;
@@ -212,7 +211,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(5),
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Blocks.LANTERN), 12, 5, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 3), ConfiguredStructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 3), StructureFeature.OCEAN_MONUMENT, MapDecoration.Type.MONUMENT, 12, 5),
 						//Cleric
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Items.LAPIS_LAZULI), 12, 5, 0.05f),
 						//Armorer
@@ -241,7 +240,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(10),
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON, 3), new ItemStack(Blocks.GLASS,4), 12, 10, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 4), ConfiguredStructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD, 4), StructureFeature.WOODLAND_MANSION, MapDecoration.Type.MANSION, 12, 10),
 						//Cleric
 						new BasicItemListing(new ItemStack(ModItems.COIN_GOLD), new ItemStack(Blocks.GLOWSTONE), 12, 10, 0.05f),
 						//Armorer
@@ -625,23 +624,21 @@ public class VillagerTradeManager {
 		
 		private final ItemStack price1;
 		private final ItemStack price2;
-		private final TagKey<ConfiguredStructureFeature<?, ?>> destination;
-		private final String displayName;
+		private final StructureFeature<?> structureName;
 		private final MapDecoration.Type mapDecorationType;
 		private final int maxUses;
 		private final int xpValue;
 		
-		public ItemsForMapTrade(ItemStack price, TagKey<ConfiguredStructureFeature<?, ?>> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+		public ItemsForMapTrade(ItemStack price, StructureFeature<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
 		{
-			this(price, ItemStack.EMPTY, destination, displayName, mapDecorationType, maxUses, xpValue);
+			this(price, ItemStack.EMPTY, structureName, mapDecorationType, maxUses, xpValue);
 		}
 		
-		public ItemsForMapTrade(ItemStack price1, ItemStack price2, TagKey<ConfiguredStructureFeature<?, ?>> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+		public ItemsForMapTrade(ItemStack price1, ItemStack price2, StructureFeature<?> structureName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
 		{
 			this.price1 = price1;
 			this.price2 = price2;
-			this.destination = destination;
-			this.displayName = displayName;
+			this.structureName = structureName;
 			this.mapDecorationType = mapDecorationType;
 			this.maxUses = maxUses;
 			this.xpValue = xpValue;
@@ -655,13 +652,13 @@ public class VillagerTradeManager {
 			else
 			{
 				ServerLevel serverworld = (ServerLevel)trader.level;
-				BlockPos blockPos = serverworld.findNearestMapFeature(this.destination, trader.blockPosition(), 100, true);
+				BlockPos blockPos = serverworld.findNearestMapFeature(this.structureName, trader.blockPosition(), 100, true);
 				if(blockPos != null)
 				{
 					ItemStack itemstack = MapItem.create(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
 					MapItem.lockMap(serverworld, itemstack);
 					MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
-					itemstack.setHoverName(new TranslatableComponent(this.displayName));
+					itemstack.setHoverName(new TranslatableComponent("filled_map." + this.structureName.getFeatureName().toLowerCase(Locale.ROOT)));
 					return new MerchantOffer(this.price1, this.price2, itemstack, this.maxUses, this.xpValue, 0.05f);
 				}
 				else
