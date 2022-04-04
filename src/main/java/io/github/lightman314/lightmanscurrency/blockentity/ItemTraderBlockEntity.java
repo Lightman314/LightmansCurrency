@@ -42,6 +42,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -74,6 +75,15 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public Map<String,Integer> getAllyDefaultPermissions() { return ImmutableMap.of(Permissions.ItemTrader.EXTERNAL_INPUTS, 1); }
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
+	
+	Container upgradeInventory = new SimpleContainer(5);
+	public Container getUpgradeInventory() { return this.upgradeInventory; }
+
+	public void markUpgradesDirty() {
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this, this.writeUpgradeInventory(new CompoundTag()));
+	}
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -114,11 +124,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public void restrictTrade(int index, ItemTradeRestriction restriction)
 	{
 		getTrade(index).setRestriction(restriction);
-	}
-	
-	public int getStorageStackLimit()
-	{
-		return IItemTrader.DEFAULT_STACK_LIMIT;
 	}
 	
 	public int getTradeCount()
@@ -368,6 +373,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		this.writeStorage(compound);
 		this.writeTrades(compound);
 		this.writeItemSettings(compound);
+		this.writeUpgradeInventory(compound);
 		this.writeLogger(compound);
 		this.writeTradeRules(compound);
 		
@@ -389,6 +395,12 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public CompoundTag writeItemSettings(CompoundTag compound)
 	{
 		compound.put("ItemSettings", this.itemSettings.save(new CompoundTag()));
+		return compound;
+	}
+	
+	public CompoundTag writeUpgradeInventory(CompoundTag compound)
+	{
+		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
 		return compound;
 	}
 	
@@ -427,6 +439,9 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			Container container = InventoryUtil.loadAllItems("Items", compound, this.getTradeCount() * 9);
 			this.storage.loadFromContainer(container);
 		}
+		
+		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
+			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 		
 		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
 			this.itemSettings.load(compound.getCompound("ItemSettings"));

@@ -2,11 +2,14 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemStorageTab;
@@ -19,17 +22,48 @@ import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSetting
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
+import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
-public interface IItemTrader extends ITrader, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
+public interface IItemTrader extends ITrader, IUpgradeable, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
+	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ITEM_CAPACITY);
+
+	public default boolean allowUpgrade(UpgradeType type) {
+		return ALLOWED_UPGRADES.contains(type);
+	}
+	
 	public List<ItemTradeData> getAllTrades();
-	public int getStorageStackLimit();
+	public default int getStorageStackLimit() {
+		int limit = DEFAULT_STACK_LIMIT;
+		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
+		{
+			ItemStack stack = this.getUpgradeInventory().getItem(i);
+			if(stack.getItem() instanceof UpgradeItem)
+			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
+				if(this.allowUpgrade(upgradeItem))
+				{
+					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					{
+						limit += upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+					}
+				}
+			}
+		}
+		return limit;
+	}
 	public TraderItemStorage getStorage();
 	public void markTradesDirty();
+	public Container getUpgradeInventory();
+	public void markUpgradesDirty();
 	public void markStorageDirty();
 	//public void openItemEditMenu(Player player, int tradeIndex);
 	public ItemTraderSettings getItemSettings();

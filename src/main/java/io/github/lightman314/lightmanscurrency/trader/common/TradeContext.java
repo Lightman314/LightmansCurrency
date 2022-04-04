@@ -427,25 +427,27 @@ public class TradeContext {
 		return false;
 	}
 	
-	public FluidStack drainFluid(FluidStack fluid)
+	public boolean drainFluid(FluidStack fluid)
 	{
-		if(this.hasFluid(fluid) && this.hasFluidTank())
+		if(this.hasFluid(fluid))
 		{
 			if(this.hasFluidTank())
 			{
-				return this.getFluidTank().drain(fluid, FluidAction.EXECUTE);
+				this.getFluidTank().drain(fluid, FluidAction.EXECUTE);
+				return true;
 			}
 			if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
 			{
-				ItemStack bucketStack = this.getInteractionSlot(InteractionSlotData.FLUID_TYPE).getItem();
-				AtomicReference<FluidStack> result = new AtomicReference<>();
+				InteractionSlot slot = this.getInteractionSlot(InteractionSlotData.FLUID_TYPE);
+				ItemStack bucketStack = slot.getItem();
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-					result.set(fluidHandler.drain(fluid, FluidAction.EXECUTE));
+					fluidHandler.drain(fluid, FluidAction.EXECUTE);
+					slot.set(fluidHandler.getContainer());
 				});
-				return result.get();
+				return true;
 			}
 		}
-		return FluidStack.EMPTY;
+		return false;
 	}
 	
 	public boolean canFitFluid(FluidStack fluid)
@@ -475,10 +477,13 @@ public class TradeContext {
 			}
 			if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
 			{
-				ItemStack bucketStack = this.getInteractionSlot(InteractionSlotData.FLUID_TYPE).getItem();
+				InteractionSlot slot = this.getInteractionSlot(InteractionSlotData.FLUID_TYPE);
+				ItemStack bucketStack = slot.getItem();
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
 					fluidHandler.fill(fluid, FluidAction.EXECUTE);
+					slot.set(fluidHandler.getContainer());
 				});
+				return true;
 			}
 		}
 		return false;

@@ -39,6 +39,8 @@ public abstract class TraderStorageTab {
 	 */
 	public abstract void onTabClose();
 	
+	public void onMenuClose() { }
+	
 	/**
 	 * Called when the menu is loaded to add any tab-specific slots.
 	 */

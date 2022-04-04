@@ -37,6 +37,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhit
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeLimit;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -137,6 +138,9 @@ public class LightmansCurrency {
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
+    	
+    	//Register Upgrade Types
+    	MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());
     	
     	//Initialized the sorting lists
 		COIN_GROUP.initSortingList(Lists.newArrayList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,

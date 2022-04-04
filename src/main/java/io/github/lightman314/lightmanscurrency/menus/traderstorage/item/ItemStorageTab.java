@@ -7,6 +7,8 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
@@ -31,16 +33,35 @@ public class ItemStorageTab extends TraderStorageTab{
 	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof IItemTrader; }
 	
 	//Eventually will add upgrade slots
-		List<Slot> slots = new ArrayList<>();
+	List<SimpleSlot> slots = new ArrayList<>();
+	public List<? extends Slot> getSlots() { return this.slots; }
 	
-	@Override
-	public void onTabOpen() { }
+	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
+		//Upgrade Slots
+		if(this.menu.getTrader() instanceof IItemTrader)
+		{
+			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+			for(int i = 0; i < trader.getUpgradeInventory().getContainerSize(); ++i)
+			{
+				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgradeInventory(), i, 176, 18 + 18 * i, trader, this::onUpgradeModified);
+				upgradeSlot.active = false;
+				addSlot.apply(upgradeSlot);
+				this.slots.add(upgradeSlot);
+			}
+		}
+	}
+
+	private void onUpgradeModified() {
+		if(this.menu.getTrader() instanceof IItemTrader) {
+			((IItemTrader)this.menu.getTrader()).markUpgradesDirty();
+		}
+	}
 
 	@Override
-	public void onTabClose() { }
+	public void onTabOpen() { SimpleSlot.SetActive(this.slots); }
 	
 	@Override
-	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
+	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {

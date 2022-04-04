@@ -27,6 +27,9 @@
     "item.lightmanscurrency.ticket_stub": "Ticket Stub",
     "item.lightmanscurrency.portable_terminal": "Trading Terminal",
     "item.lightmanscurrency.portable_atm": "ATM",
+    "item.lightmanscurrency.item_capacity_upgrade_1": "Item Capacity Upgrade (Iron)",
+    "item.lightmanscurrency.item_capacity_upgrade_2": "Item Capacity Upgrade (Gold)",
+    "item.lightmanscurrency.item_capacity_upgrade_3": "Item Capacity Upgrade (Diamond)",
     "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
     
     "block.lightmanscurrency.coinpile_copper" : "Copper Coinpile",
@@ -152,6 +155,7 @@
     "tooltip.lightmanscurrency.wallet.autoConvert.on": "§aON§r",
     "tooltip.lightmanscurrency.wallet.autoConvert.off": "§4OFF§r",
     "tooltip.lightmanscurrency.wallet.bankaccount": "§eCan deposit or withdraw coins to/from your bank account in the UI.§r",
+    "tooltip.lightmanscurrency.upgrade.item_capacity":"Increases item trader storage capacity by %s.",
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",

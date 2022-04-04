@@ -48,6 +48,11 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	public abstract void onOpen();
 	
 	/**
+	 * Called every container tick
+	 */
+	public void tick() { }
+	
+	/**
 	 * Renders background data before the rendering of buttons/widgets and item slots
 	 */
 	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
