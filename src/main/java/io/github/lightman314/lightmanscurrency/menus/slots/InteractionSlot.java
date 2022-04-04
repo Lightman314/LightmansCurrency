@@ -38,6 +38,9 @@ public class InteractionSlot extends Slot{
 	public boolean isActive() { return this.slotData.size() > 0; }
 	
 	@Override
+	public int getMaxStackSize() { return 1; }
+	
+	@Override
 	public boolean mayPlace(ItemStack stack) {
 		return InteractionSlotData.allowItemInSlot(this.slotData, stack);
 	}

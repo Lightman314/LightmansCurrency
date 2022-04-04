@@ -3,10 +3,31 @@
   "group": "coinpile_from_coin",
   "ingredients": [
     {
-      "tag": "forge:chests/wooden"
+      "item": "lightmanscurrency:coin_emerald"
     },
     {
-      "item": "minecraft:iron_ingot"
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
+    },
+    {
+      "item": "lightmanscurrency:coin_emerald"
     }
   ],
   "result": {
