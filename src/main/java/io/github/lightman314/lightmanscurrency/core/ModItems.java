@@ -5,6 +5,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.items.*;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -38,6 +40,10 @@ public class ModItems {
 	
 	public static final Item PORTABLE_TERMINAL = register("portable_terminal", new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).stacksTo(1)));
 	public static final Item PORTABLE_ATM = register("portable_atm", new PortableATMItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).stacksTo(1)));
+	
+	public static final Item ITEM_CAPACITY_UPGRADE_1 = register("item_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item ITEM_CAPACITY_UPGRADE_2 = register("item_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item ITEM_CAPACITY_UPGRADE_3 = register("item_capacity_upgrade_3", new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 	
 	//Hidden item(s)
 	public static final Item FREEZER_DOOR = register("freezer_door", new Item(new Item.Properties()));

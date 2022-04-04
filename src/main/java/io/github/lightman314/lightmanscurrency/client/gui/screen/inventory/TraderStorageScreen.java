@@ -220,6 +220,8 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.buttonClearLog.visible = ((ILoggerSupport<?>)this.menu.getTrader()).getLogger().logText.size() > 0 && this.menu.hasPermission(Permissions.CLEAR_LOGS);
 		}
 		
+		this.currentTab().tick();
+		
 	}
 	
 	@Override

@@ -368,6 +368,11 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> valueBaseCoin;
 		public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 		
+		//Capacity Upgrade Options
+		public final ForgeConfigSpec.IntValue itemUpgradeCapacity1;
+		public final ForgeConfigSpec.IntValue itemUpgradeCapacity2;
+		public final ForgeConfigSpec.IntValue itemUpgradeCapacity3;
+		
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
@@ -467,6 +472,17 @@ public class Config {
 							"{value} will be replaced with the coins numerical value. Only 1 should be present at any given time.")
 					.define("valueFormat", "${value}");
 					
+			
+			builder.pop();
+			
+			builder.comment("Item Capacity Upgrade Settings").push("upgrades");
+			
+			this.itemUpgradeCapacity1 = builder.comment("The amount of item storage added by the first Item Capacity upgrade (Iron).")
+					.defineInRange("upgradeCapacity1", 3 * 64, 1, 1728);
+			this.itemUpgradeCapacity2 = builder.comment("The amount of item storage added by the second Item Capacity upgrade (Gold).")
+					.defineInRange("upgradeCapacity2", 6 * 64, 1, 1728);
+			this.itemUpgradeCapacity3 = builder.comment("The amount of item storage added by the third Item Capacity upgrade (Diamond).")
+					.defineInRange("upgradeCapacity3", 9 * 64, 1, 1728);
 			
 			builder.pop();
 			

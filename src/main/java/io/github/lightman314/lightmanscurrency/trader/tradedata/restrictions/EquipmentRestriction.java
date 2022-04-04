@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,13 +30,18 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	@Override
 	public boolean allowSellItem(ItemStack itemStack)
 	{
-		return itemStack.canEquip(this.equipmentType, null);
+		return this.equippable(itemStack);
 	}
 	
 	@Override
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
-		return itemStack.canEquip(this.equipmentType, null);
+		return this.equippable(itemStack);
+	}
+	
+	private boolean equippable(ItemStack item) {
+		try { return item.canEquip(this.equipmentType, new ArmorStand(null, 0, 0, 0)); }
+		catch(Exception e) { return false; }
 	}
 	
 	@Override

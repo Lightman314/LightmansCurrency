@@ -47,6 +47,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
@@ -72,6 +73,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	List<ItemTradeData> trades = null;
 	
 	TraderItemStorage storage = new TraderItemStorage(this);
+	
+	Container upgradeInventory = new SimpleContainer(5);
+	public Container getUpgradeInventory() { return this.upgradeInventory; }
+	public void markUpgradesDirty() { this.markDirty(this::writeUpgrades); }
 	
 	private final ItemShopLogger logger = new ItemShopLogger();
 	
@@ -110,6 +115,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			}
 		}
 		
+		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
+			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
+		
 		this.logger.read(compound);
 		
 		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
@@ -127,6 +135,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 
 		this.writeTrades(compound);
 		this.writeStorage(compound);
+		this.writeUpgrades(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
 		this.writeItemSettings(compound);
@@ -145,6 +154,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	protected final CompoundTag writeStorage(CompoundTag compound)
 	{
 		this.storage.save(compound, "Storage");
+		return compound;
+	}
+	
+	protected final CompoundTag writeUpgrades(CompoundTag compound)
+	{
+		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
 		return compound;
 	}
 	
@@ -282,8 +297,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		return this.storage;
 	}
-	
-	public int getStorageStackLimit() { return IItemTrader.DEFAULT_STACK_LIMIT; }
 	
 	public void markStorageDirty()
 	{

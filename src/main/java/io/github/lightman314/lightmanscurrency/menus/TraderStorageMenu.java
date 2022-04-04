@@ -120,8 +120,16 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	public void removed(Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coinSlotContainer);
+		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 		ITrader trader = this.getTrader();
 		if(trader != null) trader.userClose(player);
+	}
+	
+	/**
+	 * Public access to the AbstractContainerMenu.clearContainer(Player,Container) function.
+	 */
+	public void clearContainer(Container container) {
+		this.clearContainer(this.player, container);
 	}
 
 	@Override

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "item_capacity_upgrades",
+  "pattern":[
+    " g ",
+    "gcg",
+    " g "
+  ],
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:item_capacity_upgrade_1"
+  }
+}

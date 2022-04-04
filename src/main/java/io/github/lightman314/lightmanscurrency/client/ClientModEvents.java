@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.LockableSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -34,12 +35,13 @@ public class ClientModEvents {
 	public static void stitchTextures(TextureStitchEvent.Pre event) {
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add coin/wallet slot backgrounds
-			LightmansCurrency.LogInfo("Adding empty coin/ticket/wallet slot sprites to the texture atlas.");
+			//LightmansCurrency.LogInfo("Adding empty slot sprites to the texture atlas.");
 			event.addSprite(CoinSlot.EMPTY_COIN_SLOT);
 			event.addSprite(TicketSlot.EMPTY_TICKET_SLOT);
 			event.addSprite(WalletSlot.EMPTY_WALLET_SLOT);
 			event.addSprite(ItemTradeButton.DEFAULT_BACKGROUND);
 			event.addSprite(LockableSlot.EMPTY_LOCKED_SLOT);
+			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 		}
 	}
 	

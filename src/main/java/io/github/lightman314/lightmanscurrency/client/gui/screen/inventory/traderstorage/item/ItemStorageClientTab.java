@@ -19,13 +19,14 @@ import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollListener{
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
-	private static final int COLUMNS = 10;
+	private static final int COLUMNS = 8;
 	private static final int ROWS = 5;
 	
 	public ItemStorageClientTab(TraderStorageScreen screen, ItemStorageTab commonTab) { super(screen, commonTab); }
@@ -78,6 +79,14 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 					ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					index++;
 				}
+			}
+			
+			//Render the slot bg for the upgrade slots
+			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			for(Slot slot : this.commonTab.getSlots())
+			{
+				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			}
 		}
 		
