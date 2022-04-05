@@ -8,13 +8,11 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
@@ -213,14 +211,10 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	{
 		public TraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
 			super(ModMenus.TRADER_UNIVERSAL, windowID, inventory, () ->{
-				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
-					data = ClientTradingOffice.getData(traderID);
+					return ClientTradingOffice.getData(traderID);
 				else
-					data = TradingOffice.getData(traderID);
-				if(data instanceof IItemTrader)
-					return (IItemTrader)data;
-				return null;
+					return TradingOffice.getData(traderID);
 			});
 		}
 		

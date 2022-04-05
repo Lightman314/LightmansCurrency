@@ -255,7 +255,8 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			super(ModMenus.TRADER_STORAGE_UNIVERSAL, windowID, inventory, () ->{
 				if(inventory.player.level.isClientSide)
 					return ClientTradingOffice.getData(traderID);
-				return TradingOffice.getData(traderID);
+				else
+					return TradingOffice.getData(traderID);
 			});
 		}
 		

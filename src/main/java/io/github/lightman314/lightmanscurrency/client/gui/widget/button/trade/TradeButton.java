@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -230,7 +231,7 @@ public class TradeButton extends Button{
 			DrawTooltip(pose, mouseX, mouseY, trade.getAlerts(context));
 		}
 		
-		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(mouseX - this.x, mouseY - this.y));
+		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
 		
 	}
 	
@@ -447,18 +448,21 @@ public class TradeButton extends Button{
 		public List<Component> getAlerts(TradeContext context);
 		/**
 		 * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.
-		 * @param x The x position of the button.
-		 * @param y The y position of the button.
-		 * @param displayMode Whether the button is in display mode (storage screen).
+		 * @param button The button that is rendering the trade
+		 * @param pose The pose stack
+		 * @param mouseX The x position of the mouse.
+		 * @param mouseY The y position of the mouse.
+		 * @param context The context of the trade.
 		 */
-		default void renderAdditional(GuiComponent gui, PoseStack pose, int x, int y, TradeContext context) { }
+		default void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) { }
 		/**
 		 * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.
+		 * @param context The context of the trade.
 		 * @param mouseX The mouses X position relative to the left edge of the button.
 		 * @param mouseY The mouses Y position relative to the top edge of the button.
 		 * @return The list of tooltip text. Return null to display no tooltip.
 		 */
-		default List<Component> getAdditionalTooltips(int mouseX, int mouseY) { return null; }
+		default List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
 		
 		/**
 		 * 
