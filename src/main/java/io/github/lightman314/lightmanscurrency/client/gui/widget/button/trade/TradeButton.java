@@ -86,14 +86,14 @@ public class TradeButton extends Button{
 		if(trade.hasArrow(context))
 			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode ? false : this.isHovered);
 		
+		try {
+			trade.renderAdditional(this, pose, mouseX, mouseY, context);
+		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
+		
 		if(trade.hasAlert(context))
 			this.renderAlert(pose, trade.alertPosition(context));
 		
 		this.renderDisplays(pose, trade, context);
-		
-		try {
-			trade.renderAdditional(this, pose, mouseX, mouseY, context);
-		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 		
 	}
 	
