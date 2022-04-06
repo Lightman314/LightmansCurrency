@@ -724,7 +724,7 @@ public class TradeButton extends Button{
 			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
 				int left = this.getTextLeft(x + area.xOffset, area.width);
 				int top = this.getTextTop(y + area.yOffset, area.height);
-				return x >= left && x < left + this.getTextWidth() && y >= top && y < top + this.getFont().lineHeight;
+				return mouseX >= left && mouseX < left + this.getTextWidth() && mouseY >= top && mouseY < top + this.getFont().lineHeight;
 			}
 			
 		}
