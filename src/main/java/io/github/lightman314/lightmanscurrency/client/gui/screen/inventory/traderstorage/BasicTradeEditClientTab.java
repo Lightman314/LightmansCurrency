@@ -14,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEditTab> implements InteractionConsumer{
+public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer{
 
-	public BasicTradeEditClientTab(TraderStorageScreen screen, BasicTradeEditTab commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen);}
+	public BasicTradeEditClientTab(TraderStorageScreen screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen);}
 
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
@@ -72,23 +72,5 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
 	}
-	
-	/*@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
-		return false;
-	}
-	
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
-	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		this.tradeDisplay.getScrollBar().onMouseDragged(mouseX, mouseY, button);
-		return false;
-	}*/
 
 }

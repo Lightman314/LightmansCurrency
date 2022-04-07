@@ -158,6 +158,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void tick() {
 		if(this.customNameInput.visible)
 			this.customNameInput.tick();
+		if(this.itemEdit.visible)
+			this.itemEdit.tick();
 	}
 
 	@Override

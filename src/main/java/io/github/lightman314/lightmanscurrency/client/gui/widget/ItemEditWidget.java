@@ -252,7 +252,6 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		if(!this.visible)
 			return;
 		
-		this.searchInput.tick();
 		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
 			this.modifySearch(this.searchInput.getValue());
 		
@@ -283,6 +282,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		this.blit(pose, this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 108, 0, 18, 18);
 		
 	}
+	
+	public void tick() { this.searchInput.tick(); }
 	
 	private ItemStack getQuantityFixedStack(ItemStack stack) {
 		ItemStack copy = stack.copy();
