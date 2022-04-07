@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
@@ -63,6 +64,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	EditBox customNameInput;
 	
 	ItemEditWidget itemEdit;
+	ScrollBarWidget itemEditScroll;
 	
 	Button buttonToggleTradeType;
 	
@@ -81,8 +83,11 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.itemEdit = this.screen.addRenderableTabWidget(new ItemEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
 		this.itemEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
-		
-		this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 38, this.screen.getXSize() - 26, 18, new TextComponent("")));
+		this.itemEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.itemEdit));
+		this.itemEditScroll.smallKnob = true;
+
+		int labelWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.customname"));
+		this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 28 - labelWidth, 18, new TextComponent("")));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 		
@@ -106,6 +111,9 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
+		
+		if(this.customNameInput.visible)
+			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.customname"), this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 42, 0x404040);
 		
 	}
 	
@@ -138,11 +146,19 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.priceSelection.visible = this.selection < 0 && !this.getTrade().isBarter();
 		if(this.priceSelection.visible)
 			this.priceSelection.tick();
-		this.itemEdit.visible = this.selection >= 0 && (this.getTrade().isBarter() ? this.selection < 4 : this.selection < 2);
+		this.itemEditScroll.visible = this.itemEdit.visible = this.selection >= 0 && (this.getTrade().isBarter() ? this.selection < 4 : this.selection < 2);
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
 		this.buttonToggleTradeType.setMessage(new TranslatableComponent("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeType().name().toLowerCase()));
+	}
+	
+	@Override
+	public void tick() {
+		if(this.customNameInput.visible)
+			this.customNameInput.tick();
+		if(this.itemEdit.visible)
+			this.itemEdit.tick();
 	}
 
 	@Override

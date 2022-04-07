@@ -7,6 +7,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -22,7 +24,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollListener{
+public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
@@ -47,6 +49,9 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Override
 	public void onOpen() {
+		
+		this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
+		
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 		
@@ -135,15 +140,10 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 	
 	private void validateScroll() {
-		if(this.canScrollDown())
-			return;
-		if(this.scroll > 0)
-		{
-			while(this.scroll > 0 && this.totalStorageSlots() - this.scroll * COLUMNS < ROWS * COLUMNS - COLUMNS)
-			{
-				this.scroll--;
-			}
-		}
+		if(this.scroll < 0)
+			this.scroll = 0;
+		if(this.scroll > this.getMaxScroll())
+			this.scroll = this.getMaxScroll();
 	}
 	
 	private int isMouseOverSlot(double mouseX, double mouseY) {
@@ -213,6 +213,20 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		this.scroll = newScroll;
+		this.validateScroll();
+	}
+
+	@Override
+	public int getMaxScroll() {
+		return Math.max(((this.totalStorageSlots() - 1) / COLUMNS) - ROWS + 1, 0);
 	}
 	
 }

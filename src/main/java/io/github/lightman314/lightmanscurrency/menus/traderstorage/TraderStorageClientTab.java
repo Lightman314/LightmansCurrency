@@ -69,6 +69,18 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
 	
 	/**
+	 * Called when the mouse is clicked before any other click interactions are processed.
+	 * Return true an action was taken and other click interactions should be ignored.
+	 */
+	public boolean mouseReleased(double mouseX, double mouseY, int button) { return false; }
+
+	/**
+	 * Called when the mouse is clicked before any other click interactions are processed.
+	 * Return true an action was taken and other click interactions should be ignored.
+	 */
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) { return false; }
+	
+	/**
 	 * Processes a client -> client message from another tab immediately after the tab was changed.
 	 */
 	public void receiveSelfMessage(CompoundTag message) { }

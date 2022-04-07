@@ -13,6 +13,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
@@ -34,13 +35,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-public class ItemEditWidget extends AbstractWidget{
+public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 	
 	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
 	
-	private int page = 0;
+	private int scroll = 0;
 	private int stackCount = 1;
 	
 	private int columns;
@@ -155,28 +156,28 @@ public class ItemEditWidget extends AbstractWidget{
 		return results;
 	}
 	
-	public int maxPage()
+	public int getMaxScroll()
 	{
-		return (this.searchResultItems.size() - 1) / (this.rows * this.columns);
+		return Math.max(((this.searchResultItems.size() - 1) / this.columns) - this.rows + 1, 0);
 	}
 	
 	public void modifyPage(int deltaPage)
 	{
-		this.page += deltaPage;
+		this.scroll += deltaPage;
 		refreshPage();
 	}
 	
 	public void refreshPage()
 	{
 		
-		if(this.page < 0)
-			this.page = 0;
-		if(this.page > maxPage())
-			this.page = maxPage();
+		if(this.scroll < 0)
+			this.scroll = 0;
+		if(this.scroll > this.getMaxScroll())
+			this.scroll = this.getMaxScroll();
 		
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 		
-		int startIndex = this.page * this.columns;
+		int startIndex = this.scroll * this.columns;
 		//Define the display inventories contents
 		for(int i = 0; i < this.rows * this.columns; i++)
 		{
@@ -257,11 +258,10 @@ public class ItemEditWidget extends AbstractWidget{
 		if(!this.visible)
 			return;
 		
-		this.searchInput.tick();
 		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
 			this.modifySearch(this.searchInput.getValue());
 		
-		int index = this.page * this.columns;
+		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
 		{
 			int yPos = this.y + y * 18;
@@ -289,6 +289,8 @@ public class ItemEditWidget extends AbstractWidget{
 		
 	}
 	
+	public void tick() { this.searchInput.tick(); }
+	
 	private ItemStack getQuantityFixedStack(ItemStack stack) {
 		ItemStack copy = stack.copy();
 		copy.setCount(Math.min(stack.getMaxStackSize(), this.stackCount));
@@ -301,7 +303,7 @@ public class ItemEditWidget extends AbstractWidget{
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
 		{
-			hoveredSlot += this.page * this.columns;
+			hoveredSlot += this.scroll * this.columns;
 			if(hoveredSlot < this.searchResultItems.size())
 			{
 				screen.renderComponentTooltip(pose, ItemRenderUtil.getTooltipFromItem(this.searchResultItems.get(hoveredSlot)), mouseX, mouseY);
@@ -350,7 +352,7 @@ public class ItemEditWidget extends AbstractWidget{
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
 		{
-			hoveredSlot += this.page * this.columns;
+			hoveredSlot += this.scroll * this.columns;
 			if(hoveredSlot < this.searchResultItems.size())
 			{
 				ItemStack stack = this.getQuantityFixedStack(this.searchResultItems.get(hoveredSlot));
@@ -379,19 +381,28 @@ public class ItemEditWidget extends AbstractWidget{
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		if(delta < 0)
 		{			
-			if(this.page < this.maxPage())
-				this.page++;
+			if(this.scroll < this.getMaxScroll())
+				this.scroll++;
 			else
 				return false;
 		}
 		else if(delta > 0)
 		{
-			if(this.page > 0)
-				this.page--;
+			if(this.scroll > 0)
+				this.scroll--;
 			else
 				return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		this.scroll = newScroll;
+		this.refreshPage();
 	}
 	
 }

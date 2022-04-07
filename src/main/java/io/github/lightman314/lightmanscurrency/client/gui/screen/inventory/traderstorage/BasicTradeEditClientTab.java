@@ -14,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEditTab> implements InteractionConsumer{
+public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer{
 
-	public BasicTradeEditClientTab(TraderStorageScreen screen, BasicTradeEditTab commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen);}
+	public BasicTradeEditClientTab(TraderStorageScreen screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen);}
 
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
@@ -35,7 +35,7 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 	@Override
 	public void onOpen() {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft(), this.screen.getGuiTop() + 17, this.screen.getXSize(), 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
+		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
 		this.tradeDisplay.init();
 		this.tradeDisplay.setInteractionConsumer(this);
 		
@@ -43,6 +43,8 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		
+		this.tradeDisplay.tick();
 		
 		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, true);
 		
