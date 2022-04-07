@@ -268,7 +268,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 				queryIndex++;
 			}
 			//Position the buttons in this row
-			int spacing = (this.width - totalWidth)/(visibleButtons + 1);
+			int spacing = (this.getAvailableWidth() - totalWidth)/(visibleButtons + 1);
 			int xOffset = spacing;
 			for(int c = 0; c < this.columns; ++c)
 			{
