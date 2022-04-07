@@ -134,7 +134,7 @@
     "gui.lightmanscurrency.storage": "Trader Storage",
     "gui.lightmanscurrency.notrades": "No Available Trades",
     
-    "gui.lightmanscurrency.customname": "Display Name:",
+    "gui.lightmanscurrency.customname": "Name:",
     "gui.lightmanscurrency.ticket_machine.title" : "Ticket Machine",
     "gui.lightmanscurrency.item_edit.title" : "Item Selection",
     "gui.lightmanscurrency.item_edit.search": "Search Items",

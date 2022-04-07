@@ -507,7 +507,7 @@ public class TradeContext {
 	
 	public boolean drainEnergy(int amount)
 	{
-		if(this.hasEnergy(amount) && this.hasEnergyTank())
+		if(this.hasEnergy(amount))
 		{
 			if(this.hasEnergyTank())
 			{
@@ -544,7 +544,7 @@ public class TradeContext {
 	
 	public boolean fillEnergy(int amount)
 	{
-		if(this.canFitEnergy(amount) && this.hasEnergyTank())
+		if(this.canFitEnergy(amount))
 		{
 			if(this.hasEnergyTank())
 			{

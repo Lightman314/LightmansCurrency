@@ -35,7 +35,7 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 	@Override
 	public void onOpen() {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft(), this.screen.getGuiTop() + 17, this.screen.getXSize(), 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
+		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
 		this.tradeDisplay.init();
 		this.tradeDisplay.setInteractionConsumer(this);
 		
@@ -43,6 +43,8 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		
+		this.tradeDisplay.tick();
 		
 		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, true);
 		
@@ -70,5 +72,23 @@ public class BasicTradeEditClientTab extends TraderStorageClientTab<BasicTradeEd
 	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
 	}
+	
+	/*@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
+		this.tradeDisplay.getScrollBar().onMouseDragged(mouseX, mouseY, button);
+		return false;
+	}*/
 
 }

@@ -7,11 +7,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -26,8 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class TradeButtonArea extends AbstractWidget {
-	
+public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	public static final Function<ITradeData,Boolean> FILTER_VALID = trade -> trade.isValid();
 	public static final Function<ITradeData,Boolean> FILTER_ANY = trade -> true;
@@ -42,7 +40,7 @@ public class TradeButtonArea extends AbstractWidget {
 	
 	private final Font font;
 	
-	private final Consumer<TradeButton> addButton;
+	private final Consumer<AbstractWidget> addWidget;
 	private final Consumer<TradeButton> removeButton;
 	private final BiConsumer<ITrader,ITradeData> onPress;
 	private final Function<ITradeData,Boolean> tradeFilter;
@@ -51,13 +49,20 @@ public class TradeButtonArea extends AbstractWidget {
 	private int scroll = 0;
 	private int lastFittableLines = 0;
 	
-	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<ITrader, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<TradeButton> addButton, Consumer<TradeButton> removeButton, BiConsumer<ITrader,ITradeData> onPress, Function<ITradeData,Boolean> tradeFilter)
+	ScrollBarWidget scrollBar;
+	public ScrollBarWidget getScrollBar() { return this.scrollBar; }
+	
+	private int scrollBarXOffset = 0;
+	
+	public int getAvailableWidth() { return this.scrollBar.visible() && this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width; }
+	
+	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<ITrader, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<ITrader,ITradeData> onPress, Function<ITradeData,Boolean> tradeFilter)
 	{
 		super(x, y, width, height, new TextComponent(""));
 		this.columns = columns;
 		this.traderSource = traderSource;
 		this.getContext = getContext;
-		this.addButton = addButton;
+		this.addWidget = addWidget;
 		this.removeButton = removeButton;
 		this.onPress = onPress;
 		this.tradeFilter = tradeFilter;
@@ -67,7 +72,12 @@ public class TradeButtonArea extends AbstractWidget {
 		
 	}
 	
-	public void init() {
+	public void init() { this.init(-9, 0, this.height - 5); }
+	
+	public void init(int scrollBarXOffset, int scrollBarYOffset, int scrollBarHeight) {
+		this.scrollBarXOffset = scrollBarXOffset;
+		this.scrollBar = new ScrollBarWidget(this.x + this.width + scrollBarXOffset, this.y + scrollBarYOffset, scrollBarHeight, this);
+		this.addWidget.accept(scrollBar);
 		this.resetButtons();
 		this.tick();
 	}
@@ -82,8 +92,10 @@ public class TradeButtonArea extends AbstractWidget {
 		return traders.get(traderIndex);
 	}
 	
-	public Pair<ITrader,ITradeData> getTradeAndTrader(int displayIndex) {
-		int ignoreCount = this.scroll * this.columns;
+	public Pair<ITrader,ITradeData> getTradeAndTrader(int displayIndex) { return getTradeAndTrader(this.scroll, displayIndex); }
+	
+	public Pair<ITrader,ITradeData> getTradeAndTrader(int assumedScroll, int displayIndex) {
+		int ignoreCount = assumedScroll * this.columns;
 		ITraderSource source = this.traderSource.get();
 		if(source == null)
 			return Pair.of(null, null);
@@ -111,7 +123,7 @@ public class TradeButtonArea extends AbstractWidget {
 	
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		if(this.scroll > 0 || this.canScrollDown())
+		/*if(this.scroll > 0 || this.canScrollDown())
 		{
 			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 			int xPos = this.x + (this.width / 2) - 4;
@@ -125,7 +137,7 @@ public class TradeButtonArea extends AbstractWidget {
 				int yPos = this.y + this.height - 3;
 				this.blit(pose, xPos, yPos, TraderScreen.WIDTH + 8, 18, 8, 6);
 			}
-		}
+		}*/
 		if(this.validTrades() <= 0)
 		{
 			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.notrades"));
@@ -135,6 +147,7 @@ public class TradeButtonArea extends AbstractWidget {
 	
 	//Confirms each trades validity
 	public void tick() {
+		this.validateScroll();
 		if(this.lastFittableLines < this.fittableLines())
 		{
 			//If we need to add more lines, recreate the buttons
@@ -142,7 +155,6 @@ public class TradeButtonArea extends AbstractWidget {
 		}
 		else
 			this.repositionButtons();
-		this.validateScroll();
 	}
 	
 	private void validateScroll() {
@@ -171,7 +183,7 @@ public class TradeButtonArea extends AbstractWidget {
 				final int di = displayIndex;
 				//Create the trade button
 				TradeButton newButton = new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di));
-				this.addButton.accept(newButton);
+				this.addWidget.accept(newButton);
 				this.allButtons.add(newButton);
 				displayIndex++;
 			}
@@ -199,7 +211,12 @@ public class TradeButtonArea extends AbstractWidget {
 		return count;
 	}
 	
-	private int fittableLines() {
+	private int fittableLines()
+	{
+		return fittableLines(this.scroll);
+	}
+	
+	private int fittableLines(int assumedScroll) {
 		int lineCount = 0;
 		int displayIndex = 0;
 		int yOffset = 0;
@@ -209,7 +226,7 @@ public class TradeButtonArea extends AbstractWidget {
 			//Get relevant info for the buttons in this row
 			for(int c = 0; c < this.columns; ++c)
 			{
-				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(displayIndex);
+				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(assumedScroll, displayIndex);
 				if(trade.getFirst() != null && trade.getSecond() != null)
 				{
 					TradeContext context = this.getContext.apply(trade.getFirst());
@@ -230,6 +247,7 @@ public class TradeButtonArea extends AbstractWidget {
 	private void repositionButtons() {
 		
 		int displayIndex = 0;
+		int queryIndex = 0;
 		int yOffset = 0;
 		int fittableLines = this.fittableLines();
 		for(int line = 0; line < fittableLines; ++line)
@@ -237,7 +255,6 @@ public class TradeButtonArea extends AbstractWidget {
 			int lineHeight = 0;
 			int visibleButtons = 0;
 			int totalWidth = 0;
-			int queryIndex = displayIndex;
 			//Get relevant info for the buttons in this row
 			for(int c = 0; c < this.columns; ++c)
 			{
@@ -249,21 +266,24 @@ public class TradeButtonArea extends AbstractWidget {
 					totalWidth += trade.getSecond().tradeButtonWidth(context);
 					lineHeight = Math.max(trade.getSecond().tradeButtonHeight(context), lineHeight);
 				}
-				queryIndex ++;
+				queryIndex++;
 			}
 			//Position the buttons in this row
-			int spacing = (this.width - totalWidth)/(visibleButtons + 1);
+			int spacing = (this.getAvailableWidth() - totalWidth)/(visibleButtons + 1);
 			int xOffset = spacing;
 			for(int c = 0; c < this.columns; ++c)
 			{
 				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(displayIndex);
+				TradeButton button = this.allButtons.get(displayIndex);
 				if(trade.getFirst() != null && trade.getSecond() != null)
 				{
-					TradeButton button = this.allButtons.get(displayIndex);
+					TradeContext context = this.getContext.apply(trade.getFirst());
 					button.move(this.x + xOffset, this.y + yOffset);
 					button.visible = true;
-					xOffset += trade.getSecond().tradeButtonWidth(this.getContext.apply(trade.getFirst())) + spacing;
+					xOffset += trade.getSecond().tradeButtonWidth(context) + spacing;
 				}
+				else
+					button.visible = false;
 				displayIndex ++;
 			}
 			yOffset += lineHeight + 4;
@@ -342,8 +362,10 @@ public class TradeButtonArea extends AbstractWidget {
 		}
 	}
 	
-	private boolean canScrollDown() {
-		return this.validTrades() - (this.scroll * this.columns) > this.fittableLines() * this.columns;
+	private boolean canScrollDown() { return this.canScrollDown(this.scroll); }
+	
+	private boolean canScrollDown(int assumedScroll) {
+		return this.validTrades() - (assumedScroll * this.columns) > this.fittableLines(assumedScroll) * this.columns;
 	}
 	
 	@Override
@@ -351,14 +373,20 @@ public class TradeButtonArea extends AbstractWidget {
 		if(delta < 0)
 		{			
 			if(this.canScrollDown())
+			{
 				this.scroll++;
+				this.resetButtons();
+			}
 			else
 				return false;
 		}
 		else if(delta > 0)
 		{
 			if(this.scroll > 0)
+			{
 				scroll--;
+				this.resetButtons();
+			}	
 			else
 				return false;
 		}
@@ -402,6 +430,25 @@ public class TradeButtonArea extends AbstractWidget {
 		public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton);
 		public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton);
 		public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton);
+	}
+
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		this.scroll = newScroll;
+		this.validateScroll();
+		this.resetButtons();
+	}
+
+	@Override
+	public int getMaxScroll() {
+		for(int s = 0; true; s++)
+		{
+			if(!this.canScrollDown(s))
+				return s;
+		}
 	}
 	
 }

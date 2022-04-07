@@ -53,7 +53,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		super.init();
 		
 		//Trade Button Display
-		this.tradeDisplay = this.addRenderableWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.leftPos, this.topPos + 17, this.imageWidth, 100, 2, this::addRenderableWidget, this::removeWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
+		this.tradeDisplay = this.addRenderableWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.leftPos + 3, this.topPos + 17, this.imageWidth - 6, 100, 2, this::addRenderableWidget, this::removeWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
 		this.tradeDisplay.init();
 		
 		this.buttonOpenStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos, this.topPos - 20, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
@@ -61,6 +61,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + 20, this.topPos - 20, this::CollectCoins, this.menu::getSingleTrader));
 		
 		this.buttonOpenTerminal = this.addRenderableOnly(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, () -> this.menu.isUniversalTrader()));
+		
+		this.containerTick();
 		
 	}
 
@@ -112,6 +114,11 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		
 	}
 	
+	@Override
+	public void containerTick() {
+		this.tradeDisplay.tick();
+	}
+	
 	private void OnButtonPress(ITrader trader, ITradeData trade) {
 		
 		if(trader == null || trade == null)
@@ -158,5 +165,23 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 			LightmansCurrency.PROXY.openTerminalScreen();
 		}
 	}
+	
+	/*@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
+		this.tradeDisplay.getScrollBar().onMouseDragged(mouseX, mouseY, button);
+		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
+	}*/
 	
 }
