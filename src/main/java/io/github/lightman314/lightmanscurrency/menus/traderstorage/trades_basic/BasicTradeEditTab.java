@@ -32,7 +32,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new BasicTradeEditClientTab(screen, this); }
+	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new BasicTradeEditClientTab<BasicTradeEditTab>(screen, this); }
 	
 	public void setClientHandler(IClientMessage clientHandler) { this.clientHandler = clientHandler; }
 	
