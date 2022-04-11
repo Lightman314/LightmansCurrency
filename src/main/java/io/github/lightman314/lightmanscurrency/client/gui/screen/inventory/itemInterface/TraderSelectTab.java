@@ -220,7 +220,7 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList(), true);
+		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
 		this.updateTraderButtons();
 		//Limit the page
 		if(page > pageLimit())

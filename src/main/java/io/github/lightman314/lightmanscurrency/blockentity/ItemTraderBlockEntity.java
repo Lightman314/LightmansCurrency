@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -99,6 +98,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
+		this.validateTradeRestrictions();
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
@@ -106,12 +106,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(ModBlockEntities.ITEM_TRADER, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
+		this.validateTradeRestrictions();
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
+		this.validateTradeRestrictions();
 	}
 	
 	protected ItemTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
@@ -119,11 +121,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super(type, pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
-	}
-	
-	public void restrictTrade(int index, ItemTradeRestriction restriction)
-	{
-		getTrade(index).setRestriction(restriction);
+		this.validateTradeRestrictions();
 	}
 	
 	public int getTradeCount()
@@ -177,7 +175,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	protected void validateTradeRestrictions() { }
+	public final void validateTradeRestrictions() {
+		for(int i = 0; i < this.trades.size(); ++i)
+		{
+			ItemTradeData trade = this.trades.get(i);
+			trade.setRestriction(this.getRestriction(i));
+		}
+	}
 	
 	public void overrideTradeCount(int newTradeCount)
 	{

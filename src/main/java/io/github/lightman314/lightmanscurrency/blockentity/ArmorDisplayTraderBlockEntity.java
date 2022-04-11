@@ -39,7 +39,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
-		this.validateTradeRestrictions();
 	}
 	
 	private void spawnArmorStand()
@@ -65,24 +64,27 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		
 	}
 	
-	protected void validateTradeRestrictions()
-	{
-		if(this.tradeCount > 0)
-			this.restrictTrade(0, new EquipmentRestriction(EquipmentSlot.HEAD, this::getArmorStand));
-		if(this.tradeCount > 1)
-			this.restrictTrade(1, new EquipmentRestriction(EquipmentSlot.CHEST, this::getArmorStand));
-		if(this.tradeCount > 2)
-			this.restrictTrade(2, new EquipmentRestriction(EquipmentSlot.LEGS, this::getArmorStand));
-		if(this.tradeCount > 3)
-			this.restrictTrade(3, new EquipmentRestriction(EquipmentSlot.FEET, this::getArmorStand));
+	@Override
+	public ItemTradeRestriction getRestriction(int tradeIndex) {
+		switch(tradeIndex % 4)
+		{
+		case 0:
+			return new EquipmentRestriction(EquipmentSlot.HEAD, this::getArmorStand);
+		case 1:
+			return new EquipmentRestriction(EquipmentSlot.CHEST, this::getArmorStand);
+		case 2:
+			return new EquipmentRestriction(EquipmentSlot.LEGS, this::getArmorStand);
+		case 3:
+			return new EquipmentRestriction(EquipmentSlot.FEET, this::getArmorStand);
+			default:
+				return ItemTradeRestriction.NONE;
+		}
 	}
 	
 	@Override
 	public void clientTick() {
 		
 		super.clientTick();
-		
-		this.validateTradeRestrictions();
 		
 		if(this.getArmorStand() == null)
 		{
@@ -101,8 +103,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	{
 		
 		super.serverTick();
-		
-		this.validateTradeRestrictions();
 		
 		if(this.armorStandID != null)
 		{
@@ -174,7 +174,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 				{
 					destroyArmorStand();
 					this.armorStand = newArmorStand;
-					this.validateTradeRestrictions();
 				}
 			}
 		}

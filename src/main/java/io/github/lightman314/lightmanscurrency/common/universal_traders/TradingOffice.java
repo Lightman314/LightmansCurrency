@@ -378,7 +378,7 @@ public class TradingOffice extends SavedData{
 		return traders;
 	}
 	
-	public static List<UniversalTraderData> filterTraders(String searchFilter, List<UniversalTraderData> traders, boolean isTerminal)
+	public static List<UniversalTraderData> filterTraders(String searchFilter, List<UniversalTraderData> traders)
 	{
 		if(searchFilter.isEmpty())
 			return traders;
@@ -396,9 +396,9 @@ public class TradingOffice extends SavedData{
 		return stream.collect(Collectors.toList());
 	}
 	
-	public static List<UniversalTraderData> getTraders(String searchFilter, boolean isTerminal)
+	public static List<UniversalTraderData> getTraders(String searchFilter)
 	{
-		return filterTraders(searchFilter, getTraders(), isTerminal);
+		return filterTraders(searchFilter, getTraders());
 	}
 	
 	public static void MarkDirty(UUID traderID)
