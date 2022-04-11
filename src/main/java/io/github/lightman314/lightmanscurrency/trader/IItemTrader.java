@@ -18,8 +18,10 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
@@ -30,7 +32,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
-public interface IItemTrader extends ITrader, IUpgradeable, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
+public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, IItemHandlerBlockEntity, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<ItemShopLogger>, ITradeSource<ItemTradeData> {
 
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
@@ -61,18 +63,23 @@ public interface IItemTrader extends ITrader, IUpgradeable, IItemHandlerBlockEnt
 		return limit;
 	}
 	public TraderItemStorage getStorage();
+	public default boolean isItemRelevant(ItemStack item) {
+		for(ItemTradeData trade : this.getAllTrades())
+		{
+			if(trade.allowItemInStorage(item))
+				return true;
+		}
+		return false;
+	}
 	public void markTradesDirty();
 	public Container getUpgradeInventory();
 	public void markUpgradesDirty();
 	public void markStorageDirty();
-	//public void openItemEditMenu(Player player, int tradeIndex);
+	public default ItemTradeRestriction getRestriction(int tradeIndex) { return ItemTradeRestriction.NONE; }
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
 	//Open menu functions
-	//public ITradeRuleScreenHandler getRuleScreenHandler();
 	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
-	//public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
-	//public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
 	
 	default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
 	

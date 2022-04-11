@@ -93,10 +93,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			return this.users.size();
 	}
 	
-	//public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
-	
-	//protected abstract void forceReopen(List<Player> users);
-	
 	protected List<Player> getUsers() { return this.users; }
 	
 	private void sendUserUpdate()
@@ -119,8 +115,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	{
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeCoreSettings(new CompoundTag());
-			BlockEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeCoreSettings(new CompoundTag()));
 		}
 		this.setChanged();
 	}
@@ -318,24 +313,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
-	/*public abstract MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity cashRegister);
-	
-	public void openCashRegisterTradeMenu(Player player, CashRegisterBlockEntity cashRegister)
-	{
-		MenuProvider provider = getCashRegisterTradeMenuProvider(cashRegister);
-		if(provider == null)
-		{
-			LightmansCurrency.LogError("No cash register container provider was given for the trader of type " + this.getType().getRegistryName().toString());
-			return;
-		}
-		if(!(player instanceof ServerPlayer))
-		{
-			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the cash register menu.");
-			return;
-		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, new CRDataWriter(this.worldPosition, cashRegister.getBlockPos()));
-	}*/
-	
 	@Override
 	public void saveAdditional(CompoundTag compound)
 	{
@@ -345,12 +322,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		
 		super.saveAdditional(compound);
 		
-	}
-	
-	@Deprecated //Unecessary. Metadata is written directly into the update packet.
-	public CompoundTag superWrite(CompoundTag compound)
-	{
-		return compound;
 	}
 	
 	protected CompoundTag writeStoredMoney(CompoundTag compound)

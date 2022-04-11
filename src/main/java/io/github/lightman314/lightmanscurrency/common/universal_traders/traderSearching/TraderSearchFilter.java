@@ -17,9 +17,9 @@ public abstract class TraderSearchFilter {
 	
 	public static boolean checkFilters(UniversalTraderData data, String searchText)
 	{
-		for(int i = 0; i < REGISTERED_FILTERS.size(); i++)
+		for(TraderSearchFilter filter : REGISTERED_FILTERS)
 		{
-			if(REGISTERED_FILTERS.get(i).filter(data, searchText))
+			if(filter.filter(data, searchText))
 				return true;
 		}
 		return false;

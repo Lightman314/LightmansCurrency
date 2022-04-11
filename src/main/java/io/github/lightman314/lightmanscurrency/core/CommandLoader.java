@@ -14,6 +14,7 @@ public class CommandLoader {
 		CommandLCAdmin.register(event.getDispatcher());
 		CommandTeamManager.register(event.getDispatcher());
 		CommandReloadData.register(event.getDispatcher());
+		CommandBalTop.register(event.getDispatcher());
 	}
 	
 }

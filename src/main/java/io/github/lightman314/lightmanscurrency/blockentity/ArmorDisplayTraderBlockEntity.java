@@ -3,9 +3,12 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +18,11 @@ import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 
@@ -25,11 +32,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	ArmorStand armorStand;
 	UUID armorStandID = null;
+	private int armorStandEntityId = -1;
+	int requestTimer = 0;
 	
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
-		this.validateTradeLimitations();
 	}
 	
 	private void spawnArmorStand()
@@ -55,16 +63,38 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		
 	}
 	
-	private void validateTradeLimitations()
-	{
-		if(this.tradeCount > 0)
-			this.restrictTrade(0, ItemTradeRestriction.ARMOR_HEAD);
-		if(this.tradeCount > 1)
-			this.restrictTrade(1, ItemTradeRestriction.ARMOR_CHEST);
-		if(this.tradeCount > 2)
-			this.restrictTrade(2, ItemTradeRestriction.ARMOR_LEGS);
-		if(this.tradeCount > 3)
-			this.restrictTrade(3, ItemTradeRestriction.ARMOR_FEET);
+	@Override
+	public ItemTradeRestriction getRestriction(int tradeIndex) {
+		switch(tradeIndex % 4)
+		{
+		case 0:
+			return new EquipmentRestriction(EquipmentSlot.HEAD, this::getArmorStand);
+		case 1:
+			return new EquipmentRestriction(EquipmentSlot.CHEST, this::getArmorStand);
+		case 2:
+			return new EquipmentRestriction(EquipmentSlot.LEGS, this::getArmorStand);
+		case 3:
+			return new EquipmentRestriction(EquipmentSlot.FEET, this::getArmorStand);
+			default:
+				return ItemTradeRestriction.NONE;
+		}
+	}
+	
+	@Override
+	public void clientTick() {
+
+		super.clientTick();
+
+		if(this.getArmorStand() == null)
+		{
+			if(this.requestTimer <= 0)
+			{
+				this.requestTimer = 20;
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestArmorStandID(this.worldPosition));
+			}
+			else
+				this.requestTimer--;
+		}
 	}
 	
 	@Override
@@ -72,8 +102,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	{
 		
 		super.serverTick();
-		
-		this.validateTradeLimitations();
 		
 		if(this.armorStandID != null)
 		{
@@ -111,6 +139,25 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 			}
 		}
 		
+	}
+	
+	public void sendArmorStandSyncMessageToClient(PacketTarget target) {
+		this.validateArmorStand();
+		if(this.armorStand != null)
+		{
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageSendArmorStandID(this.worldPosition, this.armorStand.getId()));
+		}
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public static void receiveArmorStandID(BlockPos pos, int entityId) {
+		Minecraft mc = Minecraft.getInstance();
+		BlockEntity be = mc.level.getBlockEntity(pos);
+		if(be instanceof ArmorDisplayTraderBlockEntity)
+		{
+			//LightmansCurrency.LogInfo("Received Armor Stand id " + entityId + " from the server.");
+			((ArmorDisplayTraderBlockEntity)be).armorStandEntityId = entityId;
+		}
 	}
 	
 	protected void validateArmorStand()
@@ -180,14 +227,24 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	@Override
 	public void load(CompoundTag compound)
 	{
-		super.load(compound);
 		if(compound.contains("ArmorStand"))
 		{
 			this.armorStandID = compound.getUUID("ArmorStand");
 		}
-		
+		super.load(compound);
 	}
 	
+	protected ArmorStand getArmorStand() {
+		if(this.isServer())
+			return this.getArmorStand(this.armorStandID);
+		else
+		{
+			Entity entity = this.level.getEntity(this.armorStandEntityId);
+			if(entity != null && entity instanceof ArmorStand)
+				return (ArmorStand)entity;
+			return null;
+		}
+	}
 	
 	protected ArmorStand getArmorStand(UUID id)
 	{

@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,10 +16,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class TraderItemStorage {
 
-	private final IItemTrader trader;
+	private final ITraderItemFilter filter;
 	private List<ItemStack> storage = new ArrayList<>();
 	
-	public TraderItemStorage(IItemTrader trader) { this.trader = trader; }
+	public TraderItemStorage(ITraderItemFilter filter) { this.filter = filter; }
 	
 	public CompoundTag save(CompoundTag compound, String tag) {
 		ListTag list = new ListTag();
@@ -99,19 +97,14 @@ public class TraderItemStorage {
 	public boolean allowItem(ItemStack item) {
 		if(item.isEmpty())
 			return false;
-		for(ItemTradeData trade : this.trader.getAllTrades())
-		{
-			if(trade.allowItemInStorage(item))
-				return true;
-		}
-		return false;
+		return this.filter.isItemRelevant(item);
 	}
 	
 	/**
 	 * Returns the maximum count of the given item that is allowed to be placed in storage.
 	 */
 	public int getMaxAmount() {
-		return this.trader.getStorageStackLimit();
+		return this.filter.getStorageStackLimit();
 	}
 	
 	/**
@@ -264,11 +257,17 @@ public class TraderItemStorage {
 	
 	public static class LockedTraderStorage extends TraderItemStorage {
 
-		public LockedTraderStorage(IItemTrader trader) { super(trader); }
+		public LockedTraderStorage(ITraderItemFilter  filter) { super(filter); }
 		
 		@Override
 		public boolean allowItem(ItemStack item) { return false; }
 		
+	}
+	
+	public interface ITraderItemFilter
+	{
+		public boolean isItemRelevant(ItemStack item);
+		public int getStorageStackLimit();
 	}
 	
 }

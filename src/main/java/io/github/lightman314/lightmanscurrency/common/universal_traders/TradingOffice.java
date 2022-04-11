@@ -20,6 +20,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
@@ -386,7 +388,7 @@ public class TradingOffice extends SavedData{
 			if(entry.getName().getString().toLowerCase().contains(searchText))
 				return true;
 			//Search the owner name of the traders
-			if(entry.getCoreSettings().getOwner().lastKnownName().toLowerCase().contains(searchText))
+			if(entry.getCoreSettings().getOwnerName().toLowerCase().contains(searchText))
 				return true;
 			//Search any custom filters
 			return TraderSearchFilter.checkFilters(entry, searchText);
@@ -550,6 +552,19 @@ public class TradingOffice extends SavedData{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTeam(teamID));
 			}
 		}
+	}
+	
+	public static List<AccountReference> getPlayerBankAccounts() {
+		List<AccountReference> list = new ArrayList<>();
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		TradingOffice office = get(server);
+		if(office != null)
+		{
+			office.playerBankAccounts.forEach((playerID, bankAccount) ->{
+				list.add(BankAccount.GenerateReference(false, AccountType.Player, playerID));
+			});
+		}
+		return list;
 	}
 	
 	/**

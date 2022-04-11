@@ -235,6 +235,8 @@
     "gui.button.lightmanscurrency.timed_sale.stop.tooltip": "Stop the Sale early",
     "gui.button.lightmanscurrency.timed_sale.info.active": "%s until the sale ends.",
     "gui.button.lightmanscurrency.timed_sale.info.inactive": "Pending Duration: %s",
+    "gui.button.lightmanscurrency.free_sample.reset": "Reset Free Samples",
+    "gui.button.lightmanscurrency.free_sample.reset.tooltip": "Forgets who has received their free sample so that they may receive it again.",
     
     "gui.button.lightmanscurrency.time_widget.settime": "Set Duration",
     "gui.widget.lightmanscurrency.time_widget.info": "%1$sh %2$sm %3$ss",
@@ -359,7 +361,10 @@
     "gui.bank.transfer.error.amount": "Cannot transfer %s.",
     "gui.bank.transfer.success": "Transferred %1$s to %2$s",
     
+    "gui.bank.select.player.success": "Selected %s's Bank Account",
+    
     "gui.button.bank.playeraccount": "My Account",
+    "gui.button.bank.admin.playeraccount": "Select Players Account",
     
     "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
     "tooltip.lightmanscurrency.atm.selection": "Select Account",
@@ -443,6 +448,7 @@
     "traderule.lightmanscurrency.tradelimit2.denial": "§4This trade has been done %s §4times already.",
     "traderule.lightmanscurrency.discount_list": "Discount",
     "traderule.lightmanscurrency.timed_sale": "Sale",
+    "traderule.lightmanscurrency.free_sample": "Free Sample",
     
     "command.lightmanscurrency.lcadmin.help.help": "%sDisplay sub-command info",
     "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mode: %s",
@@ -465,8 +471,11 @@
     "command.lightmanscurrency.lcadmin.universaldata.delete.notfound": "No trader found with id %s",
     "command.lightmanscurrency.lcadmin.universaldata.delete.success": "Successfully deleted the universal trader of id %s",
     "command.lightmanscurrency.lcadmin.universaldata.delete.help": "%sDeletes a universal trader from the server. Use only if the trader was broken in-world without removing it from the universal data registration.",
-    "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data."
+    "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
     
-
+    "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",
+    "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",
+    "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
+    "command.lightmanscurrency.lcbaltop.error.page": "Page is too large"
     
 }

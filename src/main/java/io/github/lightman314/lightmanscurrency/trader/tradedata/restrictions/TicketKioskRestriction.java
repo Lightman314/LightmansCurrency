@@ -18,12 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TicketKioskRestriction extends ItemTradeRestriction{
 
-	public TicketKioskRestriction() {} 
+	public static TicketKioskRestriction INSTANCE = new TicketKioskRestriction();
 	
-	public TicketKioskRestriction(String classicType)
-	{
-		super(classicType);
-	}
+	private TicketKioskRestriction() {}
 	
 	@Override
 	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)

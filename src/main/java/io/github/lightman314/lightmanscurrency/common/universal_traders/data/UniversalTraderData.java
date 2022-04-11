@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
@@ -80,6 +81,15 @@ public abstract class UniversalTraderData implements ITrader{
 	public final boolean isServer() { return this.isServer; }
 	public final boolean isClient() { return !this.isServer; }
 	public final UniversalTraderData flagAsClient() { this.isServer = false; return this; }
+	
+	public boolean hasNoValidTrades() {
+		for(ITradeData trade : this.getTradeInfo())
+		{
+			if(trade.isValid())
+				return false;
+		}
+		return true;
+	}
 	
 	/**
 	 * Sends an update for this traders data with a fresh data write of this traders data. Should be used sparingly.

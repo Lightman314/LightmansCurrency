@@ -55,6 +55,7 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public List<Settings> getAdditionalSettings();
 	public default Map<String,Integer> getAllyDefaultPermissions() { return Maps.newHashMap(); }
 	//Creative stuff
+	public default boolean isCreative() { return this.getCoreSettings().isCreative(); }
 	public void requestAddOrRemoveTrade(boolean isAdd);
 	public void addTrade(Player requestor);
 	public void removeTrade(Player requestor);

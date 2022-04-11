@@ -359,7 +359,7 @@ public class CurrencyListener extends SingleChannelListener{
 						//MessageUtil.sendPrivateMessage(linkedUser, message.toString());
 						
 						//Check if out of stock
-						if(event.getTrader() instanceof IItemTrader)
+						if(event.getTrader() instanceof IItemTrader && !event.getTrader().isCreative())
 						{
 							if(itemTrade.stockCount((IItemTrader)event.getTrader()) < 1)
 							{

@@ -62,32 +62,9 @@ public class ItemTradeData extends TradeData {
 	
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
 	SimpleContainer items = new SimpleContainer(4);
-	//ItemStack sellItem = ItemStack.EMPTY;
-	//ItemStack barterItem = ItemStack.EMPTY;
 	ItemTradeType tradeType = ItemTradeType.SALE;
 	String customName1 = "";
 	String customName2 = "";
-	
-	/*public ItemStack getSellItem()
-	{
-		return this.restriction.modifySellItem(this.sellItem.copy(), this);
-	}
-	
-	public ItemStack getBarterItem()
-	{
-		return this.barterItem.copy();
-	}
-	
-	public void setSellItem(ItemStack itemStack)
-	{
-		if(this.restriction.allowSellItem(itemStack) || itemStack.isEmpty())
-			this.sellItem = this.restriction.filterSellItem(itemStack).copy();
-	}
-	
-	public void setBarterItem(ItemStack itemStack)
-	{
-		this.barterItem = itemStack.copy();
-	}*/
 	
 	public ItemStack getSellItem(int index)
 	{
@@ -329,13 +306,7 @@ public class ItemTradeData extends TradeData {
 	public CompoundTag getAsNBT() {
 		CompoundTag tradeNBT = super.getAsNBT();
 		InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
-		/*CompoundTag sellItemCompound = new CompoundTag();
-		sellItem.save(sellItemCompound);
-		tradeNBT.put("SellItem", sellItemCompound);
-		CompoundTag barterItemCompound = new CompoundTag();
-		barterItem.save(barterItemCompound);*/
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
-		tradeNBT.putString("Restrictions", this.restriction.getRegistryName().toString());
 		tradeNBT.putString("CustomName1", this.customName1);
 		tradeNBT.putString("CustomName2", this.customName2);
 		return tradeNBT;
@@ -393,18 +364,6 @@ public class ItemTradeData extends TradeData {
 		
 		super.loadFromNBT(nbt);
 		
-		//Load the Sell Item
-		/*if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
-			sellItem = ItemStack.of(nbt.getCompound("SellItem"));
-		else //Load old format from before the bartering system was made
-			sellItem = ItemStack.of(nbt);
-		
-		//Load the Barter Item
-		if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
-			barterItem = ItemStack.of(nbt.getCompound("BarterItem"));
-		else
-			barterItem = ItemStack.EMPTY;*/
-		
 		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
 		{
 			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
@@ -431,12 +390,6 @@ public class ItemTradeData extends TradeData {
 			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
 			this.tradeType = ItemTradeType.SALE;
-		
-		//Set the restrictions
-		if(nbt.contains("Restrictions"))
-			this.restriction = ItemTradeRestriction.get(nbt.getString("Restrictions"));
-		else
-			this.restriction = ItemTradeRestriction.NONE;
 		
 		if(nbt.contains("CustomName1"))
 			this.customName1 = nbt.getString("CustomName1");

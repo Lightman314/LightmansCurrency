@@ -44,7 +44,7 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	
 	private List<UniversalTraderData> traderList() {
 		List<UniversalTraderData> traderList = this.filterItemTraders(ClientTradingOffice.getTraderList());
-		traderList.sort(TradingTerminalScreen.TRADER_SORTER);
+		traderList.sort(TradingTerminalScreen.TERMINAL_SORTER);
 		return traderList;
 	}
 	

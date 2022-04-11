@@ -4,10 +4,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -68,8 +71,9 @@ public class UniversalTraderButton extends Button{
 		this.data.getIcon().render(poseStack, this, this.font, this.x + 4, this.y + 7);
 		
 		//Draw the name & owner of the trader
-		this.font.draw(poseStack, this.data.getName().getString(), this.x + 24f, this.y + 6f, 0x404040);
-		this.font.draw(poseStack, this.data.getCoreSettings().getOwnerName(), this.x + 24f, this.y + 16f, 0x404040);
+		Style style = this.data.isCreative() ? Style.EMPTY.applyFormat(ChatFormatting.GREEN) : Style.EMPTY;
+		this.font.draw(poseStack, TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), this.x + 24f, this.y + 6f, 0x404040);
+		this.font.draw(poseStack, TextRenderUtil.fitString(this.data.getCoreSettings().getOwnerName(), this.width - 26), this.x + 24f, this.y + 16f, 0x404040);
 		
 	}
 

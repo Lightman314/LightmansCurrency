@@ -102,6 +102,7 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
     	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
     	TradeRuleScreen.RegisterTradeRule(() -> new TradeLimit());
+    	TradeRuleScreen.RegisterTradeRule(() -> new FreeSample());
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
