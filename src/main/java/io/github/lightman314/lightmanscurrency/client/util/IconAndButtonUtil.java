@@ -78,6 +78,7 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_COUNT_PLAYER = IconData.of(ICON_TEXTURE, 80, 32);
 	public static final IconData ICON_TIMED_SALE = IconData.of(Items.CLOCK);
 	public static final IconData ICON_DISCOUNT_LIST = IconData.of(ICON_TEXTURE, 96, 32);
+	public static final IconData ICON_FREE_SAMPLE = IconData.of(ICON_TEXTURE, 112, 32);
 	
 	public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
 	

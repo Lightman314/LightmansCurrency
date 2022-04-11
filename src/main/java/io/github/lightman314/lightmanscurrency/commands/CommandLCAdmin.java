@@ -109,7 +109,7 @@ public class CommandLCAdmin {
 		
 		String searchText = MessageArgument.getMessage(commandContext, "searchText").getString();
 		
-		List<UniversalTraderData> allTraders = TradingOffice.getTraders(searchText);
+		List<UniversalTraderData> allTraders = TradingOffice.getTraders(searchText, false);
 		if(allTraders.size() > 0)
 		{
 			

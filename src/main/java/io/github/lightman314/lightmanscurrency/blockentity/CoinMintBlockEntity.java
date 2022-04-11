@@ -199,6 +199,15 @@ public class CoinMintBlockEntity extends BlockEntity{
 
 		@Override
 		public ItemStack getStackInSlot(int slot) {
+			if(slot == 1)
+			{
+				if(this.tileEntity.getStorage().getItem(1).isEmpty() && !this.tileEntity.getMintOutput().isEmpty())
+				{
+					ItemStack mintableCoin = this.tileEntity.getMintOutput();
+					mintableCoin.setCount(Math.max(this.tileEntity.getStorage().getItem(0).getCount() * mintableCoin.getCount(), mintableCoin.getMaxStackSize()));
+					return mintableCoin;
+				}
+			}
 			return this.tileEntity.getStorage().getItem(slot);
 		}
 		

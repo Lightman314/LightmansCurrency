@@ -71,6 +71,7 @@ public class ItemStorageTab extends TraderStorageTab{
 			if(storage.getFittableAmount(stack) > 0)
 			{
 				storage.tryAddItem(stack);
+				trader.markStorageDirty();
 				return true;
 			}	
 		}

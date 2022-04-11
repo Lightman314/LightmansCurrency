@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.FreeSample;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerBlacklist;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerDiscounts;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerTradeLimit;
@@ -111,7 +112,6 @@ public class LightmansCurrency {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
         	MinecraftForge.EVENT_BUS.register(CurrencyMessages.class);
         }
-        	
         
     }
     
@@ -135,6 +135,7 @@ public class LightmansCurrency {
     	TradeRule.RegisterDeserializer(TimedSale.TYPE, () -> new TimedSale());
     	TradeRule.RegisterDeserializer(TradeLimit.TYPE, () -> new TradeLimit());
     	TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, () -> new TradeLimit(), true);
+    	TradeRule.RegisterDeserializer(FreeSample.TYPE, () -> new FreeSample());
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());

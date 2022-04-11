@@ -30,7 +30,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class TradingTerminalScreen extends Screen{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
-	public static final Comparator<UniversalTraderData> TRADER_SORTER = new TraderSorter();
+	public static final Comparator<UniversalTraderData> TERMINAL_SORTER = new TraderSorter(true, true);
+	public static final Comparator<UniversalTraderData> NAME_ONLY_SORTER = new TraderSorter(false, false);
 	
 	private int xSize = 176;
 	private int ySize = 187;
@@ -44,7 +45,7 @@ public class TradingTerminalScreen extends Screen{
 	
 	private List<UniversalTraderData> traderList(){
 		List<UniversalTraderData> traderList = ClientTradingOffice.getTraderList();
-		traderList.sort(TRADER_SORTER);
+		traderList.sort(TERMINAL_SORTER);
 		return traderList;
 	}
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
@@ -206,7 +207,7 @@ public class TradingTerminalScreen extends Screen{
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
+		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList(), true);
 		this.updateTraderButtons();
 		//Limit the page
 		if(page > pageLimit())
@@ -228,18 +229,41 @@ public class TradingTerminalScreen extends Screen{
 	private static class TraderSorter implements Comparator<UniversalTraderData>
 	{
 
+		private final boolean creativeAtTop;
+		private final boolean emptyAtBottom;
+		
+		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; }
+		
 		@Override
 		public int compare(UniversalTraderData a, UniversalTraderData b) {
 			
 			try {
-			//(lowercase since lowercase letters apparently get sorted after uppercase letters)
-			//Sort by trader name
-			int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
-			//Sort by owner name if trader name is equal
-			if(sort == 0)
-				sort = a.getCoreSettings().getOwnerName().compareToIgnoreCase(b.getCoreSettings().getOwnerName());
 			
-			return sort;
+				if(this.emptyAtBottom)
+				{
+					boolean emptyA = a.hasNoValidTrades();
+					boolean emptyB = b.hasNoValidTrades();
+					if(emptyA != emptyB)
+						return emptyA ? 1 : -1;
+				}
+				
+				if(this.creativeAtTop)
+				{
+					//Prioritize creative traders at the top of the list
+					if(a.getCoreSettings().isCreative() && !b.getCoreSettings().isCreative())
+						return -1;
+					else if(b.getCoreSettings().isCreative() && !a.getCoreSettings().isCreative())
+						return 1;
+					//If both or neither are creative, sort by name.
+				}
+				
+				//Sort by trader name
+				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
+				//Sort by owner name if trader name is equal
+				if(sort == 0)
+					sort = a.getCoreSettings().getOwnerName().compareToIgnoreCase(b.getCoreSettings().getOwnerName());
+				
+				return sort;
 			
 			} catch(Throwable t) { return 0; }
 		}

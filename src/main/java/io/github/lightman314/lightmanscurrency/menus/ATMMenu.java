@@ -2,6 +2,9 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 
+import com.mojang.datafixers.util.Pair;
+
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
@@ -9,8 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -191,6 +196,22 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransf
 	public void SetAccount(AccountReference account)
 	{
 		this.accountSource = account;
+	}
+	
+	public Pair<AccountReference,Component> SetPlayerAccount(String playerName) {
+		
+		if(TradingOffice.isAdminPlayer(this.player))
+		{
+			PlayerReference accountPlayer = PlayerReference.of(playerName);
+			if(accountPlayer != null)
+			{
+				this.accountSource = BankAccount.GenerateReference(false, accountPlayer);
+				return Pair.of(this.accountSource, new TranslatableComponent("gui.bank.select.player.success", accountPlayer.lastKnownName()));
+			}
+			else
+				return Pair.of(null, new TranslatableComponent("gui.bank.transfer.error.null.to"));
+		}
+		return Pair.of(null, new TextComponent("ERROR"));
 	}
 
 	@Override

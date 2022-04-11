@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.TicketKioskRestriction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -24,7 +24,7 @@ public class TicketTraderBlockEntity extends ItemTraderBlockEntity{
 	{
 		for(int i = 0; i < this.tradeCount; i++)
 		{
-			this.restrictTrade(i, ItemTradeRestriction.TICKET_KIOSK);
+			this.restrictTrade(i, TicketKioskRestriction.INSTANCE);
 		}
 	}
 	

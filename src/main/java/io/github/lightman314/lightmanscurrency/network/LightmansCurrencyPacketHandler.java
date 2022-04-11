@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network;
 
 import io.github.lightman314.lightmanscurrency.network.message.*;
+import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
@@ -58,6 +59,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageBankTransferTeam.class, MessageBankTransferTeam::encode, MessageBankTransferTeam::decode, MessageBankTransferTeam::handle);
 		register(MessageBankTransferPlayer.class, MessageBankTransferPlayer::encode, MessageBankTransferPlayer::decode, MessageBankTransferPlayer::handle);
 		register(MessageBankTransferResponse.class, MessageBankTransferResponse::encode, MessageBankTransferResponse::decode, MessageBankTransferResponse::handle);
+		register(MessageATMSetPlayerAccount.class, MessageATMSetPlayerAccount::encode, MessageATMSetPlayerAccount::decode, MessageATMSetPlayerAccount::handle);
+		register(MessageATMPlayerAccountResponse.class, MessageATMPlayerAccountResponse::encode, MessageATMPlayerAccountResponse::decode, MessageATMPlayerAccountResponse::handle);
 		
 		//Coinmint
 		register(MessageMintCoin.class, MessageMintCoin::encode, MessageMintCoin::decode, MessageMintCoin::handle);
@@ -74,16 +77,9 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageChangeSettings.class, MessageChangeSettings::encode, MessageChangeSettings::decode, MessageChangeSettings::handle);
 		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
 		
-		//Item Trader
-		//register(MessageSetItemPrice.class, MessageSetItemPrice::encode, MessageSetItemPrice::decode, MessageSetItemPrice::handle);
-		//register(MessageItemEditSet.class, MessageItemEditSet::encode, MessageItemEditSet::decode, MessageItemEditSet::handle);
-		//register(MessageItemEditClose.class, MessageItemEditClose::encode, MessageItemEditClose::decode, MessageItemEditClose::handle);
-		//register(MessageOpenItemEdit.class, MessageOpenItemEdit::encode, MessageOpenItemEdit::decode, MessageOpenItemEdit::handle);
-		//register(MessageSetTradeItem.class, MessageSetTradeItem::encode, MessageSetTradeItem::decode, MessageSetTradeItem::handle);
-		
-		//Cash Register
-		//register(MessageCRNextTrader.class, MessageCRNextTrader::encode, MessageCRNextTrader::decode, MessageCRNextTrader::handle);
-		//register(MessageCRSkipTo.class, MessageCRSkipTo::encode, MessageCRSkipTo::decode, MessageCRSkipTo::handle);
+		//Armor Display Trader
+		register(MessageRequestArmorStandID.class, MessageRequestArmorStandID::encode, MessageRequestArmorStandID::decode, MessageRequestArmorStandID::handle);
+		register(MessageSendArmorStandID.class, MessageSendArmorStandID::encode, MessageSendArmorStandID::decode, MessageSendArmorStandID::handle);
 		
 		//Wallet
 		register(MessagePlayPickupSound.class, new MessagePlayPickupSound());

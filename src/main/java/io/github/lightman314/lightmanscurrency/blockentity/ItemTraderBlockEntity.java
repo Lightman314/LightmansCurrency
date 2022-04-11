@@ -177,18 +177,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 	
-	/*protected void forceReopen(List<Player> users)
-	{
-		for(Player player : users)
-		{
-			if(player.containerMenu instanceof ItemTraderStorageMenu)
-				this.openStorageMenu(player);
-			else if(player.containerMenu instanceof ItemTraderMenuCR)
-				this.openCashRegisterTradeMenu(player, ((ItemTraderMenuCR)player.containerMenu).getCashRegister());
-			else if(player.containerMenu instanceof ItemTraderMenu)
-				this.openTradeMenu(player);
-		}
-	}*/
+	protected void validateTradeRestrictions() { }
 	
 	public void overrideTradeCount(int newTradeCount)
 	{
@@ -202,6 +191,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		{
 			trades.set(i, oldTrades.get(i));
 		}
+		this.validateTradeRestrictions();
 		//Send an update to the client
 		if(!this.level.isClientSide)
 		{
@@ -427,6 +417,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
 		{
 			this.trades = ItemTradeData.loadAllData(compound, this.getTradeCount());
+			this.validateTradeRestrictions();
 		}
 		
 		//Load the inventory

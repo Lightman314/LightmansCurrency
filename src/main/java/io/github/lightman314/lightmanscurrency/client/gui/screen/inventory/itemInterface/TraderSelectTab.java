@@ -44,7 +44,7 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	
 	private List<UniversalTraderData> traderList() {
 		List<UniversalTraderData> traderList = this.filterItemTraders(ClientTradingOffice.getTraderList());
-		traderList.sort(TradingTerminalScreen.TRADER_SORTER);
+		traderList.sort(TradingTerminalScreen.TERMINAL_SORTER);
 		return traderList;
 	}
 	
@@ -220,7 +220,7 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
+		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList(), true);
 		this.updateTraderButtons();
 		//Limit the page
 		if(page > pageLimit())

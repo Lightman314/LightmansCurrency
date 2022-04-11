@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -43,18 +44,8 @@ public class DropdownButton extends Button{
         }
         this.blit(poseStack, this.x + this.width - 2, this.y, 254, offset, 2, DropdownWidget.HEIGHT);
         //Draw the option text
-        this.font.draw(poseStack, this.fitString(this.optionText.getString()), this.x + 2, this.y + 2, 0x404040);
+        this.font.draw(poseStack, TextRenderUtil.fitString(this.optionText, this.width - 4), this.x + 2, this.y + 2, 0x404040);
         
-	}
-	
-	private String fitString(String text) {
-		if(this.font.width(text) <= this.width - 4)
-			return text;
-		while(this.font.width(text + "...") > this.width - 4 && text.length() > 0)
-		{
-			text = text.substring(0, text.length() - 1);
-		}
-		return text + "...";
 	}
 
 }
