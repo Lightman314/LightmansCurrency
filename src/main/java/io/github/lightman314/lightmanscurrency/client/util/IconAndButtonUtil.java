@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -117,13 +119,13 @@ public class IconAndButtonUtil {
 		return button;
 	}
 	
-	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Supplier<ITrader> traderSource) {
+	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<ITrader> traderSource) {
 		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() }));
 		button.setVisiblityCheck(() -> {
 			ITrader trader = traderSource.get();
 			if(trader == null)
 				return false;
-			return !trader.getCoreSettings().hasBankAccount();
+			return trader.hasPermission(player, Permissions.COLLECT_COINS) && !trader.getCoreSettings().hasBankAccount();
 		});
 		button.setActiveCheck(() -> {
 			ITrader trader = traderSource.get();

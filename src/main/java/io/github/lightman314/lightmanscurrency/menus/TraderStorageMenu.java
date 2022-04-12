@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSto
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -274,12 +275,17 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			return;
 		}
 		
-		CoinValue storedMoney = trader.getInternalStoredMoney();
-		if(storedMoney.getRawValue() > 0)
+		if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
 		{
-			TradeContext tempContext = TradeContext.create(trader, this.player).withCoinSlots(this.coinSlotContainer).build();
-			if(tempContext.givePayment(storedMoney))
-				trader.clearStoredMoney();
+			CoinValue storedMoney = trader.getInternalStoredMoney();
+			if(storedMoney.getRawValue() > 0)
+			{
+				TradeContext tempContext = TradeContext.create(trader, this.player).withCoinSlots(this.coinSlotContainer).build();
+				if(tempContext.givePayment(storedMoney))
+					trader.clearStoredMoney();
+			}
+			else
+				Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 		}
 	}
 	
@@ -293,9 +299,14 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			return;
 		}
 		
-		CoinValue addAmount = CoinValue.easyBuild2(this.coinSlotContainer);
-		trader.addStoredMoney(addAmount);
-		this.coinSlotContainer.clearContent();
+		if(trader.hasPermission(this.player, Permissions.STORE_COINS))
+		{
+			CoinValue addAmount = CoinValue.easyBuild2(this.coinSlotContainer);
+			trader.addStoredMoney(addAmount);
+			this.coinSlotContainer.clearContent();
+		}
+		else
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
 		
 	}
 	

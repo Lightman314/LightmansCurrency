@@ -49,26 +49,6 @@ public class ModMenus {
 		return new TraderStorageMenuUniversal(id, playerInventory, data.readUUID());
 	});
 	
-	//Item Trader (Deprecated as of v1.1.0.0)
-	/*public static final MenuType<ItemTraderMenu> ITEM_TRADER = register("item_trader", (IContainerFactory<ItemTraderMenu>)(id, playerInventory, data)->{
-		return new ItemTraderMenu(id, playerInventory, data.readBlockPos());
-	});
-	public static final MenuType<ItemTraderMenuCR> ITEM_TRADER_CR = register("item_trader_cr", (IContainerFactory<ItemTraderMenuCR>)(id, playerInventory, data)->{
-		BlockPos traderPos = data.readBlockPos();
-		CashRegisterBlockEntity registerEntity = (CashRegisterBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemTraderMenuCR(id, playerInventory, traderPos, registerEntity);
-	});
-	public static final MenuType<ItemTraderMenuUniversal> ITEM_TRADER_UNIVERSAL = register("universal_item_trader", (IContainerFactory<ItemTraderMenuUniversal>)(id, playerInventory, data)->{
-		return new ItemTraderMenuUniversal(id, playerInventory, data.readUUID());
-	});
-	
-	public static final MenuType<ItemTraderStorageMenu> ITEM_TRADER_STORAGE = register("item_trader_storage", (IContainerFactory<ItemTraderStorageMenu>)(id, playerInventory, data)->{
-		return new ItemTraderStorageMenu(id, playerInventory, data.readBlockPos());
-	});
-	public static final MenuType<ItemTraderStorageMenuUniversal> ITEM_TRADER_STORAGE_UNIVERSAL = register("universal_item_trader_storage", (IContainerFactory<ItemTraderStorageMenuUniversal>)(id, playerInventory, data)->{
-		return new ItemTraderStorageMenuUniversal(id, playerInventory, data.readUUID());
-	});*/
-	
 	public static final MenuType<WalletMenu> WALLET = register("wallet", (IContainerFactory<WalletMenu>)(id, playerInventory, data) ->{
 		return new WalletMenu(id, playerInventory, data.readInt());
 	});
@@ -82,14 +62,6 @@ public class ModMenus {
 		TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
 		return new TicketMachineMenu(id, playerInventory, tileEntity);
 	});
-	
-	/*public static final MenuType<ItemEditMenu> ITEM_EDIT = register("item_edit", (IContainerFactory<ItemEditMenu>)(id, playerInventory, data)->{
-		return new ItemEditMenu(id, playerInventory, data.readBlockPos(), data.readInt());
-	});
-	
-	public static final MenuType<UniversalItemEditMenu> UNIVERSAL_ITEM_EDIT = register("universal_item_edit", (IContainerFactory<UniversalItemEditMenu>)(id, playerInventory, data)->{
-		return new UniversalItemEditMenu(id, playerInventory, data.readUUID(), data.readInt());
-	});*/
 	
 	public static final MenuType<ItemInterfaceMenu> ITEM_INTERFACE = register("item_interface", (IContainerFactory<ItemInterfaceMenu>)(id, playerInventory, data) ->{
 		UniversalItemTraderInterfaceBlockEntity blockEntity = (UniversalItemTraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
