@@ -74,17 +74,6 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_STORAGE, TraderStorageScreen::new);
     	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL, TraderStorageScreen::new);
     	
-    	//Removed as of v1.1.0.0
-    	/*MenuScreens.register(ModMenus.ITEM_TRADER, ItemTraderScreen::new);
-    	MenuScreens.register(ModMenus.ITEM_TRADER_CR, ItemTraderScreen::new);
-    	MenuScreens.register(ModMenus.ITEM_TRADER_UNIVERSAL, ItemTraderScreen::new);
-    	
-    	MenuScreens.register(ModMenus.ITEM_TRADER_STORAGE, ItemTraderStorageScreen::new);
-    	MenuScreens.register(ModMenus.ITEM_TRADER_STORAGE_UNIVERSAL, ItemTraderStorageScreen::new);
-    	
-    	MenuScreens.register(ModMenus.ITEM_EDIT, ItemEditScreen::new);
-    	MenuScreens.register(ModMenus.UNIVERSAL_ITEM_EDIT, ItemEditScreen::new);*/
-    	
     	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
     	MenuScreens.register(ModMenus.PAYGATE, PaygateScreen::new);
     	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);

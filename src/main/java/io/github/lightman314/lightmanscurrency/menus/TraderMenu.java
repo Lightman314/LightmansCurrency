@@ -18,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -201,9 +203,14 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		{
 			LightmansCurrency.LogInfo("Attempting to collect coins from trader.");
 			ITrader trader = this.getSingleTrader();
-			CoinValue payment = trader.getInternalStoredMoney();
-			if(this.getContext(trader).givePayment(payment))
-				trader.clearStoredMoney();
+			if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
+			{
+				CoinValue payment = trader.getInternalStoredMoney();
+				if(this.getContext(trader).givePayment(payment))
+					trader.clearStoredMoney();
+			}
+			else
+				Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 		}
 	}
 	

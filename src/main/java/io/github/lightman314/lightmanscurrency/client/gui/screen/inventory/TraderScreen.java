@@ -53,8 +53,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		super.init();
 		
 		this.buttonOpenStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos, this.topPos - 20, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
-		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + 20, this.topPos - 20, this::CollectCoins, this.menu::getSingleTrader));
-		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, () -> this.menu.isUniversalTrader()));
+		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + 20, this.topPos - 20, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
+		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this.menu::isUniversalTrader));
 		
 		//Trade Button Display
 		this.tradeDisplay = this.addRenderableWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.leftPos + 3, this.topPos + 17, this.imageWidth - 6, 100, 2, this::addRenderableWidget, this::removeWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
