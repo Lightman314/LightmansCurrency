@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -20,13 +21,17 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 
 public class ItemRenderUtil {
 
-	public static final int ITEM_BLIT_OFFSET = 200;
+	public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
+	
+	public static final int ITEM_BLIT_OFFSET = 100;
 	
 	private static ItemStack alexHead = null;
 	
@@ -76,8 +81,8 @@ public class ItemRenderUtil {
 		if(font == null)
 			font = minecraft.font;
 		
-		gui.setBlitOffset(100);
-		itemRenderer.blitOffset = 100.0F;
+		gui.setBlitOffset(ITEM_BLIT_OFFSET);
+		itemRenderer.blitOffset = ITEM_BLIT_OFFSET;
 		
 		RenderSystem.enableDepthTest();
 		
@@ -99,7 +104,7 @@ public class ItemRenderUtil {
 		Minecraft minecraft = Minecraft.getInstance();
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
 		RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
-        Screen.blit(matrixStack, x, y, 100, 16, 16, textureatlassprite);
+        Screen.blit(matrixStack, x, y, ITEM_BLIT_OFFSET, 16, 16, textureatlassprite);
 	}
 	
 	/**

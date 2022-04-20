@@ -164,7 +164,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 		}
 	}
 	
-	/*@Override
+	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
 		return super.mouseClicked(mouseX, mouseY, button);
@@ -180,6 +180,6 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
 		this.tradeDisplay.getScrollBar().onMouseDragged(mouseX, mouseY, button);
 		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
-	}*/
+	}
 	
 }

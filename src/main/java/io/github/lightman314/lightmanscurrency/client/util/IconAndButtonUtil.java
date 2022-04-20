@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -83,6 +83,12 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_FREE_SAMPLE = IconData.of(ICON_TEXTURE, 112, 32);
 	
 	public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
+	
+	public static final IconData ICON_MODE_DISABLED = IconData.of(Items.BARRIER);
+	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE);
+	public static final IconData ICON_MODE_ALWAYS_ON = IconData.of(Items.REDSTONE_BLOCK);
+	
+	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
 	
 	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.opentrades"));
 	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"));
@@ -200,6 +206,14 @@ public class IconAndButtonUtil {
 		protected Component getTooltip() { return this.tooltip; }
 	}
 	
+	public static class SuppliedTooltip extends BaseTooltip
+	{
+		private final NonNullSupplier<Component> tooltipSource;
+		public SuppliedTooltip(NonNullSupplier<Component> tooltipSource) { this.tooltipSource = tooltipSource; }
+		@Override
+		protected Component getTooltip() { return this.tooltipSource.get(); }
+	}
+	
 	public static class AdditiveTooltip extends BaseTooltip
 	{
 		private final String translationKey;
@@ -227,7 +241,7 @@ public class IconAndButtonUtil {
 	{
 		private final Supplier<Integer> indicator;
 		private final List<Component> tooltips;
-		private ChangingTooltip(Supplier<Integer> indicator, Component... tooltips)
+		public ChangingTooltip(Supplier<Integer> indicator, Component... tooltips)
 		{
 			this.indicator = indicator;
 			this.tooltips = Lists.newArrayList(tooltips);

@@ -543,6 +543,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				//Sell Item
 				JsonObject sellItem = tradeData.get("SellItem").getAsJsonObject();
 				newTrade.setItem(FileUtil.parseItemStack(sellItem), 0);
+				if(tradeData.has("SellItem2"))
+					newTrade.setItem(FileUtil.parseItemStack(tradeData.get("SellItem2").getAsJsonObject()), 1);
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeType(ItemTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
@@ -565,6 +567,8 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 					{
 						JsonObject barterItem = tradeData.get("BarterItem").getAsJsonObject();
 						newTrade.setItem(FileUtil.parseItemStack(barterItem), 2);
+						if(tradeData.has("BarterItem2"))
+							newTrade.setItem(FileUtil.parseItemStack(tradeData.get("BarterItem2").getAsJsonObject()), 3);
 					}
 					else
 					{
@@ -574,6 +578,10 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 				if(tradeData.has("DisplayName"))
 				{
 					newTrade.setCustomName(0, tradeData.get("DisplayName").getAsString());
+				}
+				if(tradeData.has("DisplayName2"))
+				{
+					newTrade.setCustomName(1, tradeData.get("DisplayName2").getAsString());
 				}
 				if(tradeData.has("TradeRules"))
 				{
@@ -609,13 +617,40 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			{
 				JsonObject tradeData = new JsonObject();
 				tradeData.addProperty("TradeType", trade.getTradeType().name());
-				tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0)));
+				if(trade.getSellItem(0).isEmpty())
+				{
+					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(1)));
+					if(trade.hasCustomName(0))
+						tradeData.addProperty("DisplayName", trade.getCustomName(0));
+				}
+				else
+				{
+					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0)));
+					if(trade.hasCustomName(0))
+						tradeData.addProperty("DisplayName", trade.getCustomName(0));
+					if(!trade.getSellItem(1).isEmpty())
+					{
+						tradeData.add("SellItem2", FileUtil.convertItemStack(trade.getSellItem(1)));
+						if(trade.hasCustomName(1))
+							tradeData.addProperty("DisplayName2", trade.getCustomName(1));
+					}
+						
+				}
 				if(trade.isSale() || trade.isPurchase())
 					tradeData.add("Price", trade.getCost().toJson());
 				if(trade.isBarter())
-					tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0)));
-				if(trade.hasCustomName(0))
-					tradeData.addProperty("DisplayName", trade.getCustomName(0));
+				{
+					if(trade.getBarterItem(0).isEmpty())
+					{
+						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(1)));
+					}
+					else
+					{
+						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0)));
+						if(!trade.getBarterItem(1).isEmpty())
+							tradeData.add("BarterItem2", FileUtil.convertItemStack(trade.getBarterItem(1)));
+					}
+				}
 				if(trade.getRules().size() > 0)
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 				

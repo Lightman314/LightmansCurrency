@@ -680,8 +680,8 @@ public class CoreTraderSettings extends Settings{
 				BooleanPermission.of(Permissions.BREAK_TRADER),
 				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)
 			);
-		//if(this.trader.canInteractRemotely())
-		//	options.add(BooleanPermission.of(Permissions.INTERACTION_LINK));
+		if(this.trader.canInteractRemotely())
+			options.add(BooleanPermission.of(Permissions.INTERACTION_LINK));
 		return options;
 	}
 	

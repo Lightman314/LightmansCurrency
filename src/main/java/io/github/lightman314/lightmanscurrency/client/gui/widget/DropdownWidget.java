@@ -131,6 +131,8 @@ public class DropdownWidget extends AbstractWidget {
 			return;
 		this.currentlySelected = index;
 		this.onSelect.accept(index);
+		this.open = false;
+		this.optionButtons.forEach(b -> b.visible = false);
 	}
 
 	@Override

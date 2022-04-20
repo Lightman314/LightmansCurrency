@@ -7,19 +7,20 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeComparisonResult.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -106,7 +107,7 @@ public class ItemTradeData extends TradeData {
 	}
 	
 	public boolean allowItemInStorage(ItemStack item) {
-		for(int i = 0; i < 4; ++i)
+		for(int i = 0; i < (this.isBarter() ? 4 : 2); ++i)
 		{
 			if(InventoryUtil.ItemMatches(item, this.getItem(i)))
 				return true;
@@ -436,10 +437,10 @@ public class ItemTradeData extends TradeData {
 			//Flag as compatible
 			result.setCompatible();
 			//Compare sell items
-			//result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getSellItem(0), this.getSellItem(1), otherItemTrade.getSellItem(0), otherItemTrade.getSellItem(1)));
+			result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getSellItem(0), this.getSellItem(1), otherItemTrade.getSellItem(0), otherItemTrade.getSellItem(1)));
 			//Compare barter items
-			//if(this.isBarter())
-			//	result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getBarterItem(0), this.getBarterItem(1), otherItemTrade.getBarterItem(0), otherItemTrade.getBarterItem(1)));
+			if(this.isBarter())
+				result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getBarterItem(0), this.getBarterItem(1), otherItemTrade.getBarterItem(0), otherItemTrade.getBarterItem(1)));
 			//Compare prices
 			if(!this.isBarter())
 				result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
@@ -457,40 +458,46 @@ public class ItemTradeData extends TradeData {
 			return false;
 		
 		//Confirm the sell item is acceptable
-		if(result.getProductResultCount() < 1)
+		if(result.getProductResultCount() < 2)
 			return false;
-		ProductComparisonResult sellResult = result.getProductResult(0);
-		if(sellResult.SameProductType() && sellResult.SameProductNBT())
+		for(int i = 0; i < 2; ++i)
 		{
-			if(this.isSale() || this.isBarter())
+			ProductComparisonResult sellResult = result.getProductResult(i);
+			if(sellResult.SameProductType() && sellResult.SameProductNBT())
 			{
-				//Sell product should be greater than or equal to pass
-				if(sellResult.ProductQuantityDifference() > 0)
-					return false;
+				if(this.isSale() || this.isBarter())
+				{
+					//Sell product should be greater than or equal to pass
+					if(sellResult.ProductQuantityDifference() > 0)
+						return false;
+				}
+				else if(this.isPurchase())
+				{
+					//Purchase product should be less than or equal to pass
+					if(sellResult.ProductQuantityDifference() < 0)
+						return false;
+				}
 			}
-			else if(this.isPurchase())
-			{
-				//Purchase product should be less than or equal to pass
-				if(sellResult.ProductQuantityDifference() < 0)
-					return false;
-			}
+			else //Item & tag don't match. Failure.
+				return false;
 		}
-		else //Item & tag don't match. Failure.
-			return false;
 		//Confirm the barter item is acceptable
 		if(this.isBarter())
 		{
 			if(result.getProductResultCount() < 4)
 				return false;
-			ProductComparisonResult barterResult = result.getProductResult(1);
-			if(barterResult.SameProductType() && barterResult.SameProductNBT())
+			for(int i = 0; i < 2; ++i)
 			{
-				//Barter product should be less than or equal to pass
-				if(barterResult.ProductQuantityDifference() < 0)
+				ProductComparisonResult barterResult = result.getProductResult(i + 2);
+				if(barterResult.SameProductType() && barterResult.SameProductNBT())
+				{
+					//Barter product should be less than or equal to pass
+					if(barterResult.ProductQuantityDifference() < 0)
+						return false;
+				}
+				else //Item & tag don't match. Failure.
 					return false;
 			}
-			else //Item & tag don't match. Failure.
-				return false;
 		}
 		//Product is acceptable, now check the price
 		if(this.isSale() && result.isPriceExpensive())
@@ -500,6 +507,42 @@ public class ItemTradeData extends TradeData {
 		
 		//Products, price, and types are all acceptable.
 		return true;
+	}
+	
+	@Override
+	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
+		List<Component> list = new ArrayList<>();
+		//Price check
+		if(!differences.PriceMatches())
+		{
+			//Price difference (intended - actual = difference)
+			long difference = differences.priceDifference();
+			if(difference < 0) //More expensive
+				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+			else //Cheaper
+				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+		}
+		for(int i = 0; i < differences.getProductResultCount(); ++i)
+		{
+			Component slotName = new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.product." + i);
+			ProductComparisonResult productCheck = differences.getProductResult(i);
+			if(!productCheck.SameProductType())
+				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
+			else
+			{
+				if(!productCheck.SameProductNBT()) //Don't announce changes in NBT if the item is also different
+					list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
+				else if(!productCheck.SameProductQuantity()) //Don't announce changes in quantity if the item or nbt is also different
+				{
+					int quantityDifference = productCheck.ProductQuantityDifference();
+					if(quantityDifference < 0) //More items
+						list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
+					else //Less items
+						list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));	
+				}
+			}
+		}
+		return list;
 	}
 
 	@Override
@@ -585,7 +628,7 @@ public class ItemTradeData extends TradeData {
 			if(!item.isEmpty())
 				entries.add(DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
 			else if(context.isStorageMode)
-				entries.add(DisplayEntry.of(ItemTradeButton.BACKGROUND, Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"))));
+				entries.add(DisplayEntry.of(ItemRenderUtil.BACKGROUND, Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"))));
 		}
 		return entries;
 	}

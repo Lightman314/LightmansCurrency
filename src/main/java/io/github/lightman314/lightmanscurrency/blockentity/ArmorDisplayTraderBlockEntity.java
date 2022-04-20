@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
@@ -35,32 +34,11 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	private int armorStandEntityId = -1;
 	int requestTimer = 0;
 	
+	int updateTimer = 20;
+	
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
-	}
-	
-	private void spawnArmorStand()
-	{
-		if(this.level == null)
-			return;
-		
-		if(this.level.isClientSide)
-			return;
-		
-		this.armorStand = new ArmorStand(level, this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d);
-		this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d, this.getStandRotation(), 0.0F);
-		
-		this.armorStand.setInvulnerable(true);
-		this.armorStand.setNoGravity(true);
-		this.armorStand.setSilent(true);
-		CompoundTag compound = this.armorStand.saveWithoutId(new CompoundTag());
-		compound.putBoolean("Marker", true);
-		compound.putBoolean("NoBasePlate", true);
-		this.armorStand.load(compound);
-		
-		this.level.addFreshEntity(this.armorStand);
-		
 	}
 	
 	@Override
@@ -78,6 +56,13 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 			default:
 				return ItemTradeRestriction.NONE;
 		}
+	}
+	
+	@Override
+	public void markTradesDirty() {
+		super.markTradesDirty();
+		if(this.isServer())
+			this.updateArmorStandArmor();
 	}
 	
 	@Override
@@ -103,21 +88,77 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		
 		super.serverTick();
 		
-		if(this.armorStandID != null)
+		if(this.updateTimer <= 0)
 		{
-			validateArmorStand();
-			this.armorStandID = null;
+			this.updateTimer = 20;
+			this.validateArmorStand();
+			this.updateArmorStandArmor();
 		}
-		//Validate armor stand values
-		if(this.armorStand == null || !this.armorStand.isAlive())
+		else
+			this.updateTimer--;
+	}
+	
+	/**
+	 * Validates the armor stands existence, the local ArmorStandID, and gets the local reference to the armor stand.
+	 * Logical Server only.
+	 */
+	public void validateArmorStand() {
+		if(this.isClient())
+			return;
+		if(this.armorStand == null || this.armorStand.isRemoved())
 		{
-			//Armor stand has been deleted. Spawn a new one.
-			spawnArmorStand();
+			//Get the armor stand from the world
+			if(this.armorStandID != null)
+			{
+				this.armorStand = this.getArmorStand(this.armorStandID);
+				if(this.armorStand == null)
+				{
+					//Spawn a new armor stand
+					this.spawnArmorStand();
+				}
+			}
+			else
+			{
+				//Armor stand id is null, create a new armor stand from scratch
+				this.spawnArmorStand();
+			}
 		}
+		else
+		{
+			if(!this.armorStand.getUUID().equals(this.armorStandID))
+			{
+				this.destroyArmorStand();
+				this.spawnArmorStand();
+			}
+		}
+	}
+	
+	private void spawnArmorStand()
+	{
+		if(this.level == null || this.isClient())
+			return;
+		
+		this.armorStand = new ArmorStand(this.level, this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d);
+		this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d, this.getStandRotation(), 0.0F);
+		
+		this.armorStand.setInvulnerable(true);
+		this.armorStand.setNoGravity(true);
+		this.armorStand.setSilent(true);
+		CompoundTag compound = this.armorStand.saveWithoutId(new CompoundTag());
+		compound.putBoolean("Marker", true);
+		compound.putBoolean("NoBasePlate", true);
+		this.armorStand.load(compound);
+		
+		this.level.addFreshEntity(this.armorStand);
+		
+		this.armorStandID = this.armorStand.getUUID();
+		this.setChanged();
+		
+	}
+	
+	protected void updateArmorStandArmor() {
 		if(this.armorStand != null)
 		{
-			validateArmorStandValues();
-			this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
 			for(int i = 0; i < 4 && i < this.tradeCount; i++)
 			{
 				ItemTradeData thisTrade = this.getTrade(i);
@@ -138,11 +179,11 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 				}
 			}
 		}
-		
 	}
 	
+	
+	
 	public void sendArmorStandSyncMessageToClient(PacketTarget target) {
-		this.validateArmorStand();
 		if(this.armorStand != null)
 		{
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageSendArmorStandID(this.worldPosition, this.armorStand.getId()));
@@ -160,30 +201,11 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		}
 	}
 	
-	protected void validateArmorStand()
-	{
-		if(this.armorStandID == null)
-			return;
-		if(this.armorStand != null)
-		{
-			if(!this.armorStand.getUUID().equals(this.armorStandID))
-			{
-				ArmorStand newArmorStand = getArmorStand(this.armorStandID);
-				if(newArmorStand != null)
-				{
-					destroyArmorStand();
-					this.armorStand = newArmorStand;
-				}
-			}
-		}
-		else
-		{
-			this.armorStand = getArmorStand(this.armorStandID);
-		}
-	}
-	
 	protected void validateArmorStandValues()
 	{
+		if(this.armorStand == null)
+			return;
+		this.armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
 		if(!this.armorStand.isInvulnerable())
 			this.armorStand.setInvulnerable(true);
 		if(this.armorStand.isInvisible())
@@ -257,7 +279,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		if(entity != null && entity instanceof ArmorStand)
 			return (ArmorStand)entity;
 		
-		LightmansCurrency.LogError("Could not find an armor stand with UUID " + id);
+		//LightmansCurrency.LogError("Could not find an armor stand with UUID " + id);
 		return null;
 	}
 	

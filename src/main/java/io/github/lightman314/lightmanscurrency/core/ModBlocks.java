@@ -233,7 +233,7 @@ public class ModBlocks {
 	);
 	
 	//Trader Interface
-	public static final BlockItemPair ITEM_TRADER_INTERFACE = register("item_trader_interface", null, new ItemTraderInterfaceBlock(
+	public static final BlockItemPair ITEM_TRADER_INTERFACE = register("item_trader_interface", LightmansCurrency.MACHINE_GROUP, new ItemTraderInterfaceBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(5.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)

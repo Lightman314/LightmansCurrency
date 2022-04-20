@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
@@ -133,7 +134,7 @@ public class BankAccount {
 	
 	public static Component TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
 	{
-		return TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName(), destination.get());
+		return TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName().withStyle(ChatFormatting.GOLD), destination.get());
 	}
 	
 	public static Component TransferCoins(Player player, Component fromAccountName, BankAccount fromAccount, CoinValue amount, Component toAccountName, BankAccount destinationAccount)
@@ -248,18 +249,18 @@ public class BankAccount {
 			}
 		}
 		
-		public Component getName() {
+		public MutableComponent getName() {
 			if(this.accountType == AccountType.Player)
 			{
 				PlayerReference player = PlayerReference.of(this.id, "Unknown");
 				if(player != null)
-					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(player.lastKnownName()).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(player.lastKnownName()));
 			}
 			else if(this.accountType == AccountType.Team)
 			{
 				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
 				if(team != null)
-					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(team.getName()).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(team.getName()));
 			}
 			return new TranslatableComponent("lightmanscurrency.bankaccount.unknown");
 		}

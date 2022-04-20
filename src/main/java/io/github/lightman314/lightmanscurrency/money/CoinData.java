@@ -27,6 +27,8 @@ public class CoinData
 	public final int worthOtherCoinCount;
 	//Coin's display initial 'c','d', etc.
 	private final String initialTranslation;
+	//Coin's plural form
+	private final String pluralTranslation;
 	//Is this hidden or not
 	public final boolean isHidden;
 	
@@ -37,6 +39,7 @@ public class CoinData
 		this.worthOtherCoin = builder.worthOtherCoin;
 		this.worthOtherCoinCount = builder.worthOtherCoinCount;
 		this.initialTranslation = builder.initialTranslation;
+		this.pluralTranslation = builder.pluralTranslation;
 		this.isHidden = builder.isHidden;
 	}
 	
@@ -96,6 +99,13 @@ public class CoinData
 		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
 	}
 	
+	public Component getPlural() {
+		//Get plural form
+		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
+			return new TranslatableComponent(this.pluralTranslation);
+		return MoneyUtil.getDefaultPlural(this.coinItem);
+	}
+	
 	public JsonObject toJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("coinitem", this.coinItem.getRegistryName().toString());
@@ -109,6 +119,8 @@ public class CoinData
 		}
 		if(this.initialTranslation != null && !this.initialTranslation.isBlank())
 			json.addProperty("initial", this.initialTranslation);
+		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
+			json.addProperty("plural", this.pluralTranslation);
 		if(this.isHidden)
 			json.addProperty("hidden", true);
 		
@@ -137,6 +149,9 @@ public class CoinData
 		//Initial
 		if(json.has("initial"))
 			builder.defineInitial(json.get("initial").getAsString());
+		//Plural
+		if(json.has("plural"))
+			builder.definePluralForm(json.get("plural").getAsString());
 		//Hidden
 		if(json.has("hidden") && json.get("hidden").getAsBoolean())
 			builder.setHidden();
@@ -155,6 +170,9 @@ public class CoinData
 		int worthOtherCoinCount = 0;
 		//The shortened name of the coin
 		String initialTranslation = "";
+		//The plural name of the coin
+		String pluralTranslation = "";
+		
 		//Whether it's publicly visible
 		boolean isHidden = false;
 		
@@ -181,6 +199,15 @@ public class CoinData
 		public Builder defineInitial(String translationString)
 		{
 			this.initialTranslation = translationString;
+			return this;
+		}
+		
+		/**
+		 * Defines the coins plural name, used in displaying the tooltip.
+		 * Required as some languages have significant name changes when making an items name plural.
+		 */
+		public Builder definePluralForm(String translationString) {
+			this.pluralTranslation = translationString;
 			return this;
 		}
 		

@@ -30,6 +30,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	public void toggleInputSide(@Nonnull Direction side) {
 		
 		this.inputSides.set(side, !this.inputSides.get(side));
+		this.markDirty();
 		if(this.isClient())
 		{
 			CompoundTag message = Settings.initUpdateInfo(UPDATE_INPUT_SIDE);
@@ -42,7 +43,8 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	
 	public void toggleOutputSide(Direction side) {
 		
-		this.outputSides.set(side, !this.inputSides.get(side));
+		this.outputSides.set(side, !this.outputSides.get(side));
+		this.markDirty();
 		if(this.isClient())
 		{
 			CompoundTag message = Settings.initUpdateInfo(UPDATE_OUTPUT_SIDE);

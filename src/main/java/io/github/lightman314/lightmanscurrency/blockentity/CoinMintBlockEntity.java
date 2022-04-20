@@ -29,8 +29,8 @@ import net.minecraftforge.items.IItemHandler;
 @Mod.EventBusSubscriber
 public class CoinMintBlockEntity extends BlockEntity{
 
-	Container storage = new SimpleContainer(2);
-	public Container getStorage() { return this.storage; }
+	SimpleContainer storage = new SimpleContainer(2);
+	public SimpleContainer getStorage() { return this.storage; }
 	
 	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> new MintItemCapability(this));
 	
@@ -41,13 +41,12 @@ public class CoinMintBlockEntity extends BlockEntity{
 		return Lists.newArrayList();
 	}
 	
-	public CoinMintBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.COIN_MINT, pos, state);
-	}
+	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT, pos, state); }
 	
 	protected CoinMintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
+		this.storage.addListener(container -> this.setChanged());
 	}
 	
 	@Override
@@ -63,6 +62,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 		super.load(compound);
 		
 		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
+		this.storage.addListener(container -> this.setChanged());
 		
 	}
 	

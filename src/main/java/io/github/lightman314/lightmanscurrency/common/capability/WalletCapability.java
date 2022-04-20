@@ -62,7 +62,7 @@ public class WalletCapability {
 		@Override
 		public void setWallet(ItemStack walletStack) {
 			this.walletInventory.setItem(0, walletStack);
-			if(!(walletStack.getItem() instanceof WalletItem))
+			if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
 				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
 		}
 

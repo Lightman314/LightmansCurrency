@@ -27,17 +27,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
+@Deprecated
 public class ItemTradeButton extends Button{
 	
 	public static final ResourceLocation TRADE_TEXTURES = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/traderbuttons.png");
-	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
-	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, DEFAULT_BACKGROUND);
 	
 	public static final int WIDTH = 79;
 	public static final int HEIGHT = 18;
@@ -183,7 +181,7 @@ public class ItemTradeButton extends Button{
 			{
 				//Render empty slot background for empty barter slot
 				xPos = x + (inverted ? SLOT_OFFSET1_X : SLOT_OFFSET2_X);
-				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, BACKGROUND);
+				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, ItemRenderUtil.BACKGROUND);
 			}
 			else if(!trade.getBarterItem(0).isEmpty())
 				ItemRenderUtil.drawItemStack(screen, font, trade.getBarterItem(0), xPos, y + SLOT_OFFSET_Y);
@@ -225,7 +223,7 @@ public class ItemTradeButton extends Button{
 			//Render empty slot backgrounds for special trade types
 			Pair<ResourceLocation,ResourceLocation> background = trade.getRestriction().getEmptySlotBG();
 			if(background == null)
-				background = BACKGROUND;
+				background = ItemRenderUtil.BACKGROUND;
 			if(background != null)
 			{
 				ItemRenderUtil.drawSlotBackground(poseStack, xPos, y + SLOT_OFFSET_Y, background);
