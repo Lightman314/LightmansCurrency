@@ -5,7 +5,7 @@
 
 2- Download the CopperCoins_{modname}.zip file corresponding to your desired mod.
 
-3- Place that zip file into your worlds datapack folder (i.e. .minecraft\saves\\{world}\datapack)
+3- Place that zip file into your worlds datapack folder (".minecraft\saves\\{world}\datapack" for singleplayer, or "_SERVER_FOLDER_\\{world}\datapack" for servers)
 
 4- Check if the datapack is activated by running the '/datapack list' command in minecraft.
 
