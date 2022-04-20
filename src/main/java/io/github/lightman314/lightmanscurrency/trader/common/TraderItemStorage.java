@@ -3,8 +3,11 @@ package io.github.lightman314.lightmanscurrency.trader.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -13,13 +16,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 
-public class TraderItemStorage {
+public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
 
 	private final ITraderItemFilter filter;
 	private List<ItemStack> storage = new ArrayList<>();
 	
-	public TraderItemStorage(ITraderItemFilter filter) { this.filter = filter; }
+	public TraderItemStorage(@Nonnull ITraderItemFilter filter) { this.filter = filter; }
 	
 	public CompoundTag save(CompoundTag compound, String tag) {
 		ListTag list = new ListTag();
@@ -257,7 +261,7 @@ public class TraderItemStorage {
 	
 	public static class LockedTraderStorage extends TraderItemStorage {
 
-		public LockedTraderStorage(ITraderItemFilter filter) { super(filter); }
+		public LockedTraderStorage(ITraderItemFilter  filter) { super(filter); }
 		
 		@Override
 		public boolean allowItem(ItemStack item) { return false; }
@@ -268,6 +272,71 @@ public class TraderItemStorage {
 	{
 		public boolean isItemRelevant(ItemStack item);
 		public int getStorageStackLimit();
+	}
+
+	
+	@Override
+	public TraderItemStorage copy() {
+		CompoundTag tag = this.save(new CompoundTag(), "copy");
+		TraderItemStorage copy = new TraderItemStorage(this.filter);
+		copy.load(tag, "copy");
+		return copy;
+	}
+
+	@Override
+	public int getSlots() {
+		return this.storage.size() + 1;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int slot) {
+		if(slot >= 0 && slot < this.storage.size())
+			return this.storage.get(slot);
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		int amountToAdd = Math.min(stack.getCount(), this.getFittableAmount(stack));
+		ItemStack remainder = stack.copy();
+		if(amountToAdd >= stack.getCount())
+			remainder = ItemStack.EMPTY;
+		else
+			remainder.shrink(amountToAdd);
+		if(!simulate && amountToAdd > 0)
+		{
+			ItemStack addedStack = stack.copy();
+			addedStack.setCount(amountToAdd);
+			//Place the item in storage
+			this.forceAddItem(addedStack);
+		}
+		return remainder;
+	}
+
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+		ItemStack stackInSlot = this.getStackInSlot(slot);
+		int amountToRemove = Math.min(amount, stackInSlot.getCount());
+		ItemStack removedStack = stackInSlot.copy();
+		if(amountToRemove > 0)
+			removedStack.setCount(amountToRemove);
+		else
+			removedStack = ItemStack.EMPTY;
+		if(!simulate && amountToRemove > 0)
+		{
+			this.removeItem(removedStack);
+		}
+		return removedStack;
+	}
+
+	@Override
+	public int getSlotLimit(int slot) {
+		return this.getMaxAmount();
+	}
+
+	@Override
+	public boolean isItemValid(int slot, ItemStack stack) {
+		return this.allowItem(stack);
 	}
 	
 }

@@ -32,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 public class TradeButton extends Button{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
+	public static final OnPress NULL_PRESS = button -> {};
 	
 	public static  final int ARROW_WIDTH = 22;
 	public static  final int ARROW_HEIGHT = 18;
@@ -45,7 +46,7 @@ public class TradeButton extends Button{
 	public ITradeData getTrade() { return this.tradeSource.get(); }
 	private Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
-	public boolean horizontalFlip = false;
+	public boolean displayOnly = false;
 	
 	public TradeButton(Supplier<TradeContext> contextSource, Supplier<ITradeData> tradeSource, OnPress onPress) {
 		super(0, 0, 0, 0, new TextComponent(""), onPress);
@@ -81,10 +82,10 @@ public class TradeButton extends Button{
 		
 		this.recalculateSize();
 		
-		this.renderBackground(pose, context.isStorageMode ? false : this.isHovered);
+		this.renderBackground(pose, context.isStorageMode || this.displayOnly? false : this.isHovered);
 		
 		if(trade.hasArrow(context))
-			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode ? false : this.isHovered);
+			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode || this.displayOnly ? false : this.isHovered);
 		
 		try {
 			trade.renderAdditional(this, pose, mouseX, mouseY, context);
@@ -387,7 +388,7 @@ public class TradeButton extends Button{
 	
 	@Override
 	protected boolean isValidClickButton(int button) {
-		if(this.getContext().isStorageMode)
+		if(this.getContext().isStorageMode || this.displayOnly)
 			return false;
 		return super.isValidClickButton(button);
 	}

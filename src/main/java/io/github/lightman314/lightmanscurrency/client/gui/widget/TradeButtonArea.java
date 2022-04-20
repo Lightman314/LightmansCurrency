@@ -3,9 +3,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import javax.annotation.Nonnull;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -13,6 +16,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -33,6 +37,9 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	private final Supplier<? extends ITraderSource> traderSource;
 	private final Function<ITrader, TradeContext> getContext;
+	
+	private BiFunction<ITrader,ITradeData,Boolean> isSelected = (trader,trade) -> false;
+	public void setSelectionDefinition(@Nonnull BiFunction<ITrader,ITradeData,Boolean> isSelected) { this.isSelected = isSelected; }
 	
 	private InteractionConsumer interactionConsumer = null;
 	public void setInteractionConsumer(InteractionConsumer consumer) { this.interactionConsumer = consumer; }
@@ -196,10 +203,10 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 	
 	private int validTrades() { 
-		int count = 0;
 		ITraderSource ts = this.traderSource.get();
 		if(ts == null)
 			return 0;
+		int count = 0;
 		List<ITrader> traders = ts.getTraders();
 		for(ITrader trader : traders)
 		{
@@ -279,6 +286,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					button.move(this.x + xOffset, this.y + yOffset);
 					button.visible = true;
+					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
 					xOffset += trade.getSecond().tradeButtonWidth(context) + spacing;
 				}
 				else
@@ -319,19 +327,8 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 				text += new TranslatableComponent("gui.lightmanscurrency.trading.listseperator").getString() + (renderTitle ? trader.getTitle().getString() : trader.getName().getString());
 		}
 		
-		this.font.draw(pose, this.fitText(text, maxWidth), x, y, 0x404040);
+		this.font.draw(pose, TextRenderUtil.fitString(text, maxWidth), x, y, 0x404040);
 		
-	}
-	
-	private String fitText(String text, int width)
-	{
-		if(this.font.width(text) <= width)
-			return text;
-		while(this.font.width(text + "...") > width)
-		{
-			text = text.substring(0,text.length() - 1);
-		}
-		return text + "...";
 	}
 	
 	public void renderTooltips(Screen screen, PoseStack pose, int nameX, int nameY, int nameWidth, int mouseX, int mouseY)

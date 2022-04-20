@@ -87,7 +87,7 @@ public class TradingOffice extends SavedData{
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
-	//Store persistend data locally, so that it doesn't get lost if the persistent trader file is malformed
+	//Store persistent data locally, so that it doesn't get lost if the persistent trader file is malformed
 	ListTag persistentData = new ListTag();
 	
 	public static UniversalTraderData Deserialize(CompoundTag compound)
@@ -229,6 +229,7 @@ public class TradingOffice extends SavedData{
 			CompoundTag idData = new CompoundTag();
 			idData.putUUID("UUID", uuid);
 			idData.putString("TraderID", traderID);
+			persistentTraderIDs.add(idData);
 		});
 		compound.put("PersistentTraderIDs", persistentTraderIDs);
 		
@@ -288,7 +289,7 @@ public class TradingOffice extends SavedData{
 					if(id == null) //If no ID has ever been generated for this persistent trader ID, generate one and add it to the list
 					{
 						id = this.getValidTraderID();
-						this.persistentTraderIDs.put(id, traderID);	
+						this.persistentTraderIDs.put(id, traderID);
 						this.setDirty();
 					}
 					data.initTraderID(id);

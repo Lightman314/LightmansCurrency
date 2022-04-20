@@ -9,56 +9,50 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
-public class UniversalTradeReference<T extends TradeData> extends UniversalTraderReference{
+public class UniversalTradeReference extends UniversalTraderReference{
 
-	private Function<CompoundTag,T> tradeDeserializer;
+	private Function<CompoundTag,TradeData> tradeDeserializer;
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
-	private T tradeData = null;
-	private Class<?> tradeClass = null;
+	private TradeData tradeData = null;
 	public boolean hasTrade() { return this.tradeIndex >= 0 && this.tradeData != null; }
-	public T getLocalTrade() { return this.tradeData; }
+	public TradeData getLocalTrade() { return this.tradeData; }
 	
 	public void setTrade(int tradeIndex) {
 		this.tradeIndex = tradeIndex;
-		T trade = this.getTrueTrade();
-		if(trade != null)
-		{
-			this.tradeData = trade;
-			this.tradeClass = trade.getClass();
-		}
-		else
+		this.tradeData = copyTrade(this.getTrueTrade());
+		if(this.tradeData == null)
 			this.tradeIndex = -1;
 	}
 	
 	public void refreshTrade() {
 		if(!this.hasTrade())
 			return;
-		T newTrade = this.getTrueTrade();
+		TradeData newTrade = copyTrade(this.getTrueTrade());
 		if(newTrade != null)
-		{
 			this.tradeData = newTrade;
-			this.tradeClass = newTrade.getClass();
-		}
 	}
 	
-	public UniversalTradeReference(Supplier<Boolean> clientCheck, Function<CompoundTag,T> tradeDeserializer) {
+	public TradeData copyTrade(TradeData trade) {
+		if(trade == null)
+			return null;
+		return this.tradeDeserializer.apply(trade.getAsNBT());
+	}
+	
+	public UniversalTradeReference(Supplier<Boolean> clientCheck, Function<CompoundTag,TradeData> tradeDeserializer) {
 		super(clientCheck);
 		this.tradeDeserializer = tradeDeserializer;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public T getTrueTrade() {
+	public TradeData getTrueTrade() {
 		if(this.tradeIndex < 0)
 			return null;
 		UniversalTraderData trader = this.getTrader();
 		if(trader instanceof ITradeSource<?>)
 		{
 			ITradeSource<?> tradeSource = (ITradeSource<?>)trader;
-			Object trade = tradeSource.getTrade(this.tradeIndex);
-			if(trade != null && trade.getClass() == this.tradeClass)
-				return (T)trade;
+			return tradeSource.getTrade(this.tradeIndex);
 		}
 		return null;
 	}
@@ -75,14 +69,10 @@ public class UniversalTradeReference<T extends TradeData> extends UniversalTrade
 	
 	public void load(CompoundTag compound) {
 		super.load(compound);
-		if(compound.hasUUID("tradeIndex"))
+		if(compound.contains("tradeIndex", Tag.TAG_INT))
 			this.tradeIndex = compound.getInt("tradeIndex");
 		if(compound.contains("trade", Tag.TAG_COMPOUND))
-		{
 			this.tradeData = this.tradeDeserializer.apply(compound.getCompound("trade"));
-			if(this.tradeData != null)
-				this.tradeClass = this.tradeData.getClass();
-		}
 	}
 	
 	

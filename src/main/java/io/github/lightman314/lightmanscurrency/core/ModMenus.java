@@ -63,9 +63,9 @@ public class ModMenus {
 		return new TicketMachineMenu(id, playerInventory, tileEntity);
 	});
 	
-	public static final MenuType<ItemInterfaceMenu> ITEM_INTERFACE = register("item_interface", (IContainerFactory<ItemInterfaceMenu>)(id, playerInventory, data) ->{
-		UniversalItemTraderInterfaceBlockEntity blockEntity = (UniversalItemTraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new ItemInterfaceMenu(id, playerInventory, blockEntity);
+	public static final MenuType<TraderInterfaceMenu> TRADER_INTERFACE = register("trader_interface", (IContainerFactory<TraderInterfaceMenu>)(id, playerInventory, data) ->{
+		TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		return new TraderInterfaceMenu(id, playerInventory, blockEntity);
 	});
 	
 	//Code

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
@@ -40,7 +40,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	{
 		if(!level.isClientSide)
 		{
-			UniversalTraderInterfaceBlockEntity<?> blockEntity = this.getBlockEntity(level, pos, state);
+			TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 			if(blockEntity != null)
 			{
 				//Send update packet for safety, and open the menu
@@ -56,7 +56,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	{
 		if(!level.isClientSide)
 		{
-			UniversalTraderInterfaceBlockEntity<?> blockEntity = this.getBlockEntity(level, pos, state);
+			TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 			if(blockEntity != null)
 			{
 				blockEntity.initOwner(player);
@@ -67,7 +67,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		UniversalTraderInterfaceBlockEntity<?> blockEntity = this.getBlockEntity(level, pos, state);
+		TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 		if(blockEntity != null)
 		{
 			if(!blockEntity.isOwner(player))
@@ -79,7 +79,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 
 	@Override
 	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
-		UniversalTraderInterfaceBlockEntity<?> be = this.getBlockEntity(level, pos, state);
+		TraderInterfaceBlockEntity be = this.getBlockEntity(level, pos, state);
 		if(be == null)
 			return true;
 		return be.isOwner(player);
@@ -93,10 +93,10 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	protected abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 	protected abstract BlockEntityType<?> interfaceType();
 	
-	protected final UniversalTraderInterfaceBlockEntity<?> getBlockEntity(LevelAccessor level, BlockPos pos, BlockState state) {
+	protected final TraderInterfaceBlockEntity getBlockEntity(LevelAccessor level, BlockPos pos, BlockState state) {
 		BlockEntity be = level.getBlockEntity(pos);
-		if(be instanceof UniversalTraderInterfaceBlockEntity<?>)
-			return (UniversalTraderInterfaceBlockEntity<?>)be;
+		if(be instanceof TraderInterfaceBlockEntity)
+			return (TraderInterfaceBlockEntity)be;
 		return null;
 	}
 	

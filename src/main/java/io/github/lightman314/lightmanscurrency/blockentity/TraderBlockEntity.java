@@ -69,7 +69,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	{
 		if(!users.contains(player))
 		{
-			//LightmansCurrency.LOGGER.info("Player with ID " + player.getUniqueID() + " has opened the trader.");
 			this.users.add(player);
 			this.sendUserUpdate();
 		}
@@ -79,7 +78,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	{
 		if(users.contains(player))
 		{
-			//LightmansCurrency.LOGGER.info("Player with ID " + player.getUniqueID() + " has closed the trader.");
 			this.users.remove(player);
 			this.sendUserUpdate();
 		}
@@ -253,8 +251,6 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public Component getTitle()
 	{
-		if(this.coreSettings.isCreative() || this.coreSettings.getOwnerName().isEmpty())
-			return this.getName();
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	

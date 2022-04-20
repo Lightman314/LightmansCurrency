@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.blocks.tradeinterface;
 
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalItemTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -16,7 +16,7 @@ public class ItemTraderInterfaceBlock extends TraderInterfaceBlock {
 
 	@Override
 	protected BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-		return new UniversalItemTraderInterfaceBlockEntity(pos, state);
+		return new ItemTraderInterfaceBlockEntity(pos, state);
 	}
 
 	@Override

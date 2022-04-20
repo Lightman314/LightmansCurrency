@@ -3,17 +3,18 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -30,12 +31,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,8 +52,9 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 
-public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> extends TickableBlockEntity {
+public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -81,36 +86,68 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 				if(type.index == index)
 					return type;
 			}
-			return fromIndex(0);
+			return TRADE;
 		}
 		
-		public static int size() {
-			return 4;
-		}
+		public static int size() { return 4; }
 		
+	}
+	
+	public enum ActiveMode {
+		DISABLED(0, IconAndButtonUtil.ICON_MODE_DISABLED),
+		REDSTONE_ONLY(1, IconAndButtonUtil.ICON_MODE_REDSTONE),
+		ALWAYS_ON(2, IconAndButtonUtil.ICON_MODE_ALWAYS_ON);
+		
+		public final int index;
+		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
+		public final IconData icon;
+		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
+		
+		ActiveMode(int index, IconData icon) { this.index = index; this.icon = icon;}
+		
+		public static ActiveMode fromIndex(int index) {
+			for(ActiveMode mode : ActiveMode.values())
+			{
+				if(mode.index == index)
+					return mode;
+			}
+			return DISABLED;
+		}
+		public static int size() { return 3; }
 	}
 	
 	PlayerReference owner = null;
 	public PlayerReference getOwner() { return this.owner; }
 	public void initOwner(Entity owner) { if(this.owner == null) this.owner = PlayerReference.of(owner); }
-	boolean linkToAccount = false;
-	public void setLinkToAccount(boolean linkToAccount) { this.linkToAccount = true; }
+	
+	public BankAccount getBankAccount() { 
+		AccountReference reference = this.getAccountReference();
+		if(reference != null)
+			return reference.get();
+		return null;
+	}
+	public AccountReference getAccountReference() {
+		if(this.owner != null)
+			return BankAccount.GenerateReference(this.isClient(), this.owner);
+		return null;
+	}
 	
 	List<SidedHandler<?>> handlers = new ArrayList<>();
 	
-	private boolean isActive = false;
-	public boolean interactionActive() { return this.isActive; }
-	public void toggleActive() { this.isActive = !this.isActive; this.setActiveDirty(); }
+	private ActiveMode mode = ActiveMode.DISABLED;
+	public ActiveMode getMode() { return this.mode; }
+	public void setMode(ActiveMode mode) { this.mode = mode; this.setModeDirty(); }
 	
 	private InteractionType interaction = InteractionType.TRADE;
 	public InteractionType getInteractionType() { return this.interaction; }
 	public void setInteractionType(InteractionType type) { this.interaction = type; this.setInteractionDirty(); }
 	
-	UniversalTradeReference<T> reference = new UniversalTradeReference<T>(this::isClient, this::deserializeTrade);
+	UniversalTradeReference reference = new UniversalTradeReference(this::isClient, this::deserializeTrade);
+	public boolean hasTrader() { return this.reference.hasTrader(); }
 	public UniversalTraderData getTrader() { return this.reference.getTrader(); }
 	public int getTradeIndex() { return this.reference.getTradeIndex(); }
-	public T getReferencedTrade() { return this.reference.getLocalTrade(); }
-	public T getTrueTrade() { return this.reference.getTrueTrade(); }
+	public TradeData getReferencedTrade() { return this.reference.getLocalTrade(); }
+	public TradeData getTrueTrade() { return this.reference.getTrueTrade(); }
 	
 	public void setTrader(UUID traderID) {
 		//Trader is the same id. Ignore the change.
@@ -120,20 +157,23 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 		this.reference.setTrade(-1);
 		this.setTradeReferenceDirty();
 	}
-	public void setTradeIndex(int tradeIndex) { this.reference.setTrade(tradeIndex); this.setTradeReferenceDirty(); }
+	
+	public void setTradeIndex(int tradeIndex) {
+		this.reference.setTrade(tradeIndex);
+		this.setTradeReferenceDirty();
+	}
+	
+	public void acceptTradeChanges() {
+		this.reference.refreshTrade();
+		this.setTradeReferenceDirty();
+	}
 	
 	private TradeResult lastResult = TradeResult.SUCCESS;
 	public TradeResult mostRecentTradeResult() { return this.lastResult; }
 	
-	protected abstract T deserializeTrade(CompoundTag compound);
+	protected abstract TradeData deserializeTrade(CompoundTag compound);
 	
 	private int waitTimer = INTERACTION_DELAY;
-	
-	public AccountReference getBankAccount() {
-		if(this.owner != null && this.linkToAccount)
-			return BankAccount.GenerateReference(this.isClient(), this.owner);
-		return null;
-	}
 	
 	public boolean isOwner(Entity player) {
 		if(this.owner != null && this.owner.is(player))
@@ -143,17 +183,14 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 		return false;
 	}
 	
-	public final Function<CompoundTag,T> tradeDeserializer;
-	
-	protected UniversalTraderInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, Function<CompoundTag,T> tradeDeserializer) {
+	protected TraderInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		this.tradeDeserializer = tradeDeserializer;
 	}
 	
-	public void setActiveDirty() {
+	public void setModeDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveActivated(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveMode(new CompoundTag()));
 	}
 	
 	public void setLastResultDirty() {
@@ -162,7 +199,7 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 			BlockEntityUtil.sendUpdatePacket(this, this.saveLastResult(new CompoundTag()));
 	}
 	
-	public abstract TradeContext getRemoteTradeData();
+	public abstract TradeContext getTradeContext();
 	
 	public boolean isClient() { return this.level != null ? this.level.isClientSide : true; }
 	
@@ -178,7 +215,7 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		this.saveOwner(compound);
-		this.saveActivated(compound);
+		this.saveMode(compound);
 		this.saveInteraction(compound);
 		this.saveLastResult(compound);
 		this.saveReference(compound);
@@ -191,8 +228,8 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 		return compound;
 	}
 	
-	protected final CompoundTag saveActivated(CompoundTag compound) {
-		compound.putBoolean("Activated", this.isActive);
+	protected final CompoundTag saveMode(CompoundTag compound) {
+		compound.putString("Mode", this.mode.name());
 		return compound;
 	}
 	
@@ -226,8 +263,8 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	public void load(CompoundTag compound) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
-		if(compound.contains("Activated"))
-			this.isActive = compound.getBoolean("Activated");
+		if(compound.contains("Mode"))
+			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("InteractionType", Tag.TAG_STRING))
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
@@ -287,19 +324,35 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	}
 	
 	public TradeResult interactWithTrader() {
-		TradeContext remoteTradeData = this.getRemoteTradeData();
+		TradeContext tradeContext = this.getTradeContext();
 		UniversalTraderData trader = this.getTrader();
 		if(trader != null)
-			this.lastResult = trader.handleRemotePurchase(this.reference.getTradeIndex(), remoteTradeData);
+			this.lastResult = trader.ExecuteTrade(tradeContext, this.reference.getTradeIndex());
 		else
 			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
 	}
 	
+	public boolean isActive() {
+		switch(this.mode)
+		{
+		case DISABLED:
+			return false;
+		case ALWAYS_ON:
+			return true;
+		case REDSTONE_ONLY:
+			if(this.level == null)
+				return false;
+			return this.level.hasNeighborSignal(this.getBlockPos());
+			default:
+				return false;
+		}
+	}
+	
 	@Override
 	public void serverTick() {
-		if(this.isActive)
+		if(this.isActive())
 		{
 			this.waitTimer -= 1;
 			if(this.waitTimer <= 0)
@@ -307,12 +360,8 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 				this.waitTimer = INTERACTION_DELAY;
 				if(this.interaction.requiresPermissions)
 				{
-					if(!this.validTrader())
-					{
-						this.isActive = false;
-						this.setActiveDirty();
+					if(!this.validTrader() || !this.getTrader().hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
 						return;
-					}
 					if(this.interaction.drains)
 						this.drainTick();
 					if(this.interaction.restocks)
@@ -321,15 +370,12 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 				else if(this.interaction.trades)
 				{
 					if(!this.validTrade())
-					{
-						this.isActive = false;
-						this.setActiveDirty();
 						return;
-					}
 					this.tradeTick();
 				}
 			}
 		}
+			
 	}
 	
 	//Returns whether the trader referenced is valid
@@ -346,14 +392,14 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 	}
 	
 	public boolean validTrade() {
-		T expectedTrade = this.getReferencedTrade();
-		T trueTrade = this.getTrueTrade();
+		TradeData expectedTrade = this.getReferencedTrade();
+		TradeData trueTrade = this.getTrueTrade();
 		if(expectedTrade == null || trueTrade == null)
 			return false;
 		return expectedTrade.AcceptableDifferences(expectedTrade.compare(trueTrade));
 	}
 	
-	protected abstract boolean validTraderType(UniversalTraderData trader);
+	public abstract boolean validTraderType(UniversalTraderData trader);
 	
 	protected abstract void drainTick();
 	
@@ -371,8 +417,21 @@ public abstract class UniversalTraderInterfaceBlockEntity<T extends TradeData> e
 		}
 	}
 	
-	protected abstract MenuProvider getMenuProvider();
+	protected MenuProvider getMenuProvider() { return new InterfaceMenuProvider(this); }
+	
+	public static class InterfaceMenuProvider implements MenuProvider {
+		private final TraderInterfaceBlockEntity blockEntity;
+		public InterfaceMenuProvider(TraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; }
+		@Override
+		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) {
+			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
+		}
+		@Override
+		public Component getDisplayName() { return new TextComponent(""); }
+	}
 	
 	public abstract void dumpContents(Level level, BlockPos pos);
+	
+	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
 }

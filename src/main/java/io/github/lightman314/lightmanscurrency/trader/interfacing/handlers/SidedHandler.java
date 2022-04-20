@@ -1,15 +1,15 @@
 package io.github.lightman314.lightmanscurrency.trader.interfacing.handlers;
 
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class SidedHandler<H>{
 	
-	private UniversalTraderInterfaceBlockEntity<?> parent;
-	public UniversalTraderInterfaceBlockEntity<?> getParent() { return this.parent; }
-	public void setParent(UniversalTraderInterfaceBlockEntity<?> parent) { if(this.parent == null) this.parent = parent; }
+	private TraderInterfaceBlockEntity parent;
+	public TraderInterfaceBlockEntity getParent() { return this.parent; }
+	public void setParent(TraderInterfaceBlockEntity parent) { if(this.parent == null) this.parent = parent; }
 	
 	public abstract H getHandler(Direction side);
 	

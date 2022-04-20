@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTrad
 //import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 
+@Deprecated
 public class ItemTraderUtil {
 	
 	public static final int TRADEBUTTON_VERT_SPACER = 4;

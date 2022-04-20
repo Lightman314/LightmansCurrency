@@ -24,6 +24,8 @@ import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +47,20 @@ public class MoneyUtil {
 	private static MoneyData moneyData = null;
 	public static MoneyData getMoneyData() { return moneyData; }
 	public static void receiveMoneyData(MoneyData data) { moneyData = data; }
+	
+	public static Component getPluralName(Item coin) {
+		if(moneyData != null)
+			return moneyData.getPluralName(coin);
+		return getDefaultPlural(coin);
+	}
+	
+	public static Component getDefaultPlural(Item coin) {
+		//If no plural form defined, attempt to find one.
+		String defaultPlural = coin.getDescriptionId() + ".plural";
+		if(new TranslatableComponent(defaultPlural).getString().equals(defaultPlural))
+			return new TranslatableComponent("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
+		return new TranslatableComponent(defaultPlural);
+	}
 	
 	@SubscribeEvent
 	public static void onServerStart(ServerStartedEvent event) {
@@ -106,26 +122,32 @@ public class MoneyUtil {
     	
     	//Copper Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_COPPER, MAIN_CHAIN)
-    			.defineInitial("item.lightmanscurrency.coin_copper.initial"));
+    			.defineInitial("item.lightmanscurrency.coin_copper.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_copper.plural"));
     	//Iron Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_IRON, MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_iron.plural")
     			.defineConversion(ModItems.COIN_COPPER, 10));
     	//Gold Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_GOLD, MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_gold.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_gold.plural")
     			.defineConversion(ModItems.COIN_IRON, 10));
     	//Emerald Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_EMERALD, MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_emerald.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_emerald.plural")
     			.defineConversion(ModItems.COIN_GOLD, 10));
     	//Diamond Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_DIAMOND, MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_diamond.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_diamond.plural")
     			.defineConversion(ModItems.COIN_EMERALD, 10));
     	//Netherite Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_NETHERITE, MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_netherite.initial")
+    			.definePluralForm("item.lightmanscurrency.coin_netherite.plural")
     			.defineConversion(ModItems.COIN_DIAMOND, 10));
     	
     	//Hidden coins

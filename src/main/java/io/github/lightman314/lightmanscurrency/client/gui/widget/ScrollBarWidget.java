@@ -103,30 +103,30 @@ public class ScrollBarWidget extends AbstractWidget {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
 	
-	/*public void onMouseClicked(double mouseX, double mouseY, int button) {
-		this.isDragging = false;
+	public void onMouseClicked(double mouseX, double mouseY, int button) {
+		/*this.isDragging = false;
 		if(this.isMouseOver(mouseX, mouseY) && this.visible() && button == 0)
 		{
 			LightmansCurrency.LogInfo("Started dragging.");
 			this.isDragging = true;
 			this.onMouseDragged(mouseX, mouseY, button);
-		}
+		}*/
 	}
 	
 	public void onMouseDragged(double mouseX, double mouseY, int button) {
-		if (this.isDragging && button == 0) {
+		/*if (this.isDragging && button == 0) {
 			Pair<Integer,Integer> result = getKnobAndScrollFromMouse(mouseY);
 			this.scrollable.setScroll(result.getFirst());
 			this.knobPosition = result.getSecond();
 			LightmansCurrency.LogInfo("Still dragging at " + (mouseY - this.y) + ".");
-		}
+		}*/
 	}
 	
 	public void onMouseReleased(double mouseX, double mouseY, int button) {
 		//One last drag calculation
-		this.onMouseDragged(mouseX, mouseY, button);
+		/*this.onMouseDragged(mouseX, mouseY, button);
 		this.isDragging = false;
-		LightmansCurrency.LogInfo("Stopped dragging.");
-	}*/
+		LightmansCurrency.LogInfo("Stopped dragging.");*/
+	}
 
 }

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -43,9 +43,9 @@ public class MessageHandlerMessage {
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof UniversalTraderInterfaceBlockEntity<?>)
+				if(blockEntity instanceof TraderInterfaceBlockEntity)
 				{
-					UniversalTraderInterfaceBlockEntity<?> interfaceBE = (UniversalTraderInterfaceBlockEntity<?>)blockEntity;
+					TraderInterfaceBlockEntity interfaceBE = (TraderInterfaceBlockEntity)blockEntity;
 					interfaceBE.receiveHandlerMessage(message.type, player, message.updateInfo);
 				}
 			}

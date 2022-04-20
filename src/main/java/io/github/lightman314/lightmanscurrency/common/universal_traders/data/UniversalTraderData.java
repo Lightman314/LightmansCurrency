@@ -22,8 +22,6 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -34,6 +32,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -82,6 +81,7 @@ public abstract class UniversalTraderData implements ITrader{
 	public final boolean isClient() { return !this.isServer; }
 	public final UniversalTraderData flagAsClient() { this.isServer = false; return this; }
 	
+	public boolean hasValidTrade() { return !this.hasNoValidTrades(); }
 	public boolean hasNoValidTrades() {
 		for(ITradeData trade : this.getTradeInfo())
 		{
@@ -293,8 +293,6 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 	}
 	
-	public TradeResult handleRemotePurchase(int tradeIndex, TradeContext data) { return TradeResult.FAIL_NOT_SUPPORTED; }
-	
 	protected abstract void onVersionUpdate(int oldVersion);
 	
 	public int GetCurrentVersion() { return 0; }
@@ -370,10 +368,8 @@ public abstract class UniversalTraderData implements ITrader{
 		return getDefaultName();
 	}
 	
-	public Component getTitle()
+	public MutableComponent getTitle()
 	{
-		if(this.coreSettings.isCreative() || this.coreSettings.getOwnerName().isEmpty())
-			return this.getName();
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	

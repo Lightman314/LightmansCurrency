@@ -166,7 +166,7 @@ public class TradeContext {
 		}
 		if(this.hasStoredMoney())
 			funds += this.getStoredMoney().getRawValue();
-		if(this.hasCoinSlots())
+		if(this.hasCoinSlots() && this.hasPlayer())
 			funds += MoneyUtil.getValue(this.getCoinSlots());
 		return funds;
 	}

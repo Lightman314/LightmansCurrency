@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
-import io.github.lightman314.lightmanscurrency.network.message.misc.MessageLockableSlotInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
@@ -112,9 +111,7 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Trader Interfaces
 		register(MessageHandlerMessage.class, MessageHandlerMessage::encode, MessageHandlerMessage::decode, MessageHandlerMessage::handle);
-		register(MessageSetInteractionType.class, MessageSetInteractionType::encode, MessageSetInteractionType::decode, MessageSetInteractionType::handle);
-		register(MessageToggleInteractionActive.class, MessageToggleInteractionActive::encode, MessageToggleInteractionActive::decode, MessageToggleInteractionActive::handle);
-		register(MessageSetTrader.class, MessageSetTrader::encode, MessageSetTrader::decode, MessageSetTrader::handle);
+		register(MessageInterfaceInteraction.class, MessageInterfaceInteraction::encode, MessageInterfaceInteraction::decode, MessageInterfaceInteraction::handle);
 		
 		//Teams
 		register(MessageInitializeClientTeams.class, MessageInitializeClientTeams::encode, MessageInitializeClientTeams::decode, MessageInitializeClientTeams::handle);
@@ -146,9 +143,6 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Money Data
 		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
-		
-		//Misc
-		register(MessageLockableSlotInteraction.class, MessageLockableSlotInteraction::encode, MessageLockableSlotInteraction::decode, MessageLockableSlotInteraction::handle);
 		
 	}
 

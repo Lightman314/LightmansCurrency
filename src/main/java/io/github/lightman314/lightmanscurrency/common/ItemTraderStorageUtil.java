@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 
+@Deprecated
 public class ItemTraderStorageUtil {
 
 	public static final int SCREEN_EXTENSION = ItemTradeButton.WIDTH + 20;

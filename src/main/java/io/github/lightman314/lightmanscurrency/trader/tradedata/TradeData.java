@@ -141,6 +141,8 @@ public abstract class TradeData implements ITradeRuleHandler, ITradeData {
 	
 	public abstract boolean AcceptableDifferences(TradeComparisonResult result);
 	
+	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
+	
 	public static class TradeComparisonResult {
 		
 		//Incompatible comparison result
@@ -256,8 +258,8 @@ public abstract class TradeData implements ITradeRuleHandler, ITradeData {
 				}
 				else
 				{
-					results.add(CompareItem(original1, query2));
-					results.add(CompareItem(original2, query1));
+					results.add(CompareItem(original1, query1));
+					results.add(CompareItem(original2, query2));
 				}
 				return results;
 			}

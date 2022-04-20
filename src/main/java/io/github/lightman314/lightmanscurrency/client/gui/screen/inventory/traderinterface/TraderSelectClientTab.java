@@ -1,25 +1,26 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.itemInterface;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemInterfaceScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageSetTrader;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TraderSelectTab;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.Button;
@@ -27,9 +28,18 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class TraderSelectTab extends ItemInterfaceTab {
+public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> {
 
-	public TraderSelectTab(ItemInterfaceScreen screen) { super(screen, true); }
+	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
+
+	@Override
+	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
+
+	@Override
+	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trader"); }
+
+	@Override
+	public boolean blockInventoryClosing() { return true; }
 	
 	EditBox searchField;
 	
@@ -43,42 +53,34 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
 	private List<UniversalTraderData> traderList() {
-		List<UniversalTraderData> traderList = this.filterItemTraders(ClientTradingOffice.getTraderList());
+		List<UniversalTraderData> traderList = this.filterTraders(ClientTradingOffice.getTraderList());
 		traderList.sort(TradingTerminalScreen.TERMINAL_SORTER);
 		return traderList;
 	}
 	
-	private List<UniversalTraderData> filterItemTraders(List<UniversalTraderData> allTraders) {
-		List<UniversalTraderData> itemTraders = new ArrayList<>();
-		for(UniversalTraderData trader : allTraders)
-		{
-			if(trader instanceof IItemTrader)
+	private List<UniversalTraderData> filterTraders(List<UniversalTraderData> allTraders) {
+		List<UniversalTraderData> traders = new ArrayList<>();
+		TraderInterfaceBlockEntity be = this.menu.getBE();
+		if(be == null)
+			return traders;
+		InteractionType interaction = be.getInteractionType();
+		for(UniversalTraderData trader : allTraders) {
+			//Confirm that the trader is the trade type that our interface is compatible with.
+			if(be.validTraderType(trader))
 			{
-				InteractionType interaction = this.screen.getMenu().blockEntity.getInteractionType();
-				if(!interaction.requiresPermissions || (trader.hasPermission(this.screen.getMenu().blockEntity.getOwner(), Permissions.INTERACTION_LINK)))
-					itemTraders.add(trader);
+				//Confirm that the trader either has a valid trade, or we have interaction permissions
+				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && trader.hasPermission(this.menu.getBE().getOwner(), Permissions.INTERACTION_LINK)))
+					traders.add(trader);
 			}
 		}
-		return itemTraders;
+		return traders;
 	}
 	
 	@Override
-	public boolean blockInventoryClosing() { return true; }
-	
-	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
-
-	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trader"); }
-
-	@Override
-	public boolean valid(InteractionType interaction) { return true; }
-	
-	@Override
-	public void init() {
+	public void onOpen() {
 		
-		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 28, this.screen.getGuiTop() + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
-		this.searchField.setBordered(false);;
+		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
@@ -93,34 +95,46 @@ public class TraderSelectTab extends ItemInterfaceTab {
 		
 		this.updateTraderList();
 		
+		//Automatically go to the page with the currently selected trader.
+		UniversalTraderData selectedTrader = this.menu.getBE().getTrader();
+		if(selectedTrader!= null)
+		{
+			this.page = this.pageOf(selectedTrader);
+			this.updateTraderButtons();
+		}
+			
+		
 	}
 	
 	private void initTraderButtons(int guiLeft, int guiTop)
 	{
 		this.traderButtons = new ArrayList<>();
-		for(int y = 0; y < 3; y++)
+		for(int y = 0; y < 4; ++y)
 		{
-			UniversalTraderButton newButton = this.screen.addRenderableTabWidget(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::SelectTrader, this.screen.getFont()));
+			UniversalTraderButton newButton = this.screen.addRenderableTabWidget(new UniversalTraderButton(guiLeft + 30, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::SelectTrader, this.font));
 			this.traderButtons.add(newButton);
 		}
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		
+		RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		this.screen.blit(pose, this.screen.getGuiLeft() + 28, this.screen.getGuiTop() + 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
 		
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) {
-		
-		
+	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
 	}
-
+	
 	@Override
 	public void tick() {
 		
 		this.searchField.tick();
+		
 		this.buttonPreviousPage.visible = this.pageLimit() > 0;
 		this.buttonPreviousPage.active = page > 0;
 		this.buttonNextPage.visible = this.pageLimit() > 0;
@@ -129,12 +143,11 @@ public class TraderSelectTab extends ItemInterfaceTab {
 		for(int i = 0; i < this.traderButtons.size(); ++i)
 		{
 			UniversalTraderButton button = this.traderButtons.get(i);
-			if(button.getData() != null && button.getData() == this.screen.getMenu().blockEntity.getTrader())
+			if(button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader())
 				button.selected = true;
 			else
 				button.selected = false;
 		}
-		
 	}
 	
 	@Override
@@ -166,11 +179,6 @@ public class TraderSelectTab extends ItemInterfaceTab {
 		}
 		return false;
 	}
-
-	@Override
-	public void onClose() {
-		
-	}
 	
 	private void PreviousPage(Button button) {
 		if(this.page > 0)
@@ -193,28 +201,31 @@ public class TraderSelectTab extends ItemInterfaceTab {
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
 			UUID traderID = this.filteredTraderList.get(index).getTraderID();
-			this.screen.getMenu().blockEntity.setTrader(traderID);
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetTrader(this.screen.getMenu().blockEntity.getBlockPos(), traderID));
+			this.commonTab.setTrader(traderID);
 		}
 	}
 	
-	private int getTraderIndex(Button button)
-	{
+	private int getTraderIndex(Button button) {
 		if(!traderButtons.contains(button))
 			return -1;
 		int index = traderButtons.indexOf(button);
-		index += page * this.traderButtons();
+		index += page * this.traderButtons.size();
 		return index;
 	}
 	
-	private int pageLimit()
-	{
-		return (this.filteredTraderList.size() - 1) / this.traderButtons();
+	private int pageLimit() {
+		return (this.filteredTraderList.size() - 1) / this.traderButtons.size();
 	}
 	
-	private int traderButtons()
-	{
-		return this.traderButtons.size();
+	private int pageOf(UniversalTraderData trader) {
+		if(this.filteredTraderList != null)
+		{
+			int index = this.filteredTraderList.indexOf(trader);
+			if(index >= 0)
+				return index / this.traderButtons.size();
+			return this.page;
+		}
+		return this.page;
 	}
 	
 	private void updateTraderList()
@@ -229,8 +240,8 @@ public class TraderSelectTab extends ItemInterfaceTab {
 	
 	private void updateTraderButtons()
 	{
-		int startIndex = page * this.traderButtons();
-		for(int i = 0; i < this.traderButtons.size(); i++)
+		int startIndex = page * this.traderButtons.size();
+		for(int i = 0; i < this.traderButtons.size(); ++i)
 		{
 			if(startIndex + i < this.filteredTraderList.size())
 				this.traderButtons.get(i).SetData(this.filteredTraderList.get(startIndex + i));
@@ -238,5 +249,6 @@ public class TraderSelectTab extends ItemInterfaceTab {
 				this.traderButtons.get(i).SetData(null);
 		}
 	}
-
+	
+	
 }

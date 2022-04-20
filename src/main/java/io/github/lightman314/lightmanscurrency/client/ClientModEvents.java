@@ -2,11 +2,10 @@ package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.LockableSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
@@ -39,8 +38,7 @@ public class ClientModEvents {
 			event.addSprite(CoinSlot.EMPTY_COIN_SLOT);
 			event.addSprite(TicketSlot.EMPTY_TICKET_SLOT);
 			event.addSprite(WalletSlot.EMPTY_WALLET_SLOT);
-			event.addSprite(ItemTradeButton.DEFAULT_BACKGROUND);
-			event.addSprite(LockableSlot.EMPTY_LOCKED_SLOT);
+			event.addSprite(ItemRenderUtil.EMPTY_SLOT_BG);
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 		}
 	}
