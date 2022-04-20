@@ -78,7 +78,7 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.PAYGATE, PaygateScreen::new);
     	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
     	
-    	MenuScreens.register(ModMenus.ITEM_INTERFACE, TraderInterfaceScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_INTERFACE, TraderInterfaceScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);

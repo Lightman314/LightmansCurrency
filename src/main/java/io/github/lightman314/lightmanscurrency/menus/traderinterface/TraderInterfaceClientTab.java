@@ -33,11 +33,6 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> imp
 	public boolean tabButtonVisible() { return true; }
 	
 	/**
-	 * Whether the bank account balance should draw above the players inventory. Set to false if you are using this screen space.
-	 */
-	public boolean drawBankAccount() { return true; }
-	
-	/**
 	 * Whether this tab being open should prevent the inventory button from closing the screen. Use this when typing is used on this tab.
 	 */
 	public abstract boolean blockInventoryClosing();

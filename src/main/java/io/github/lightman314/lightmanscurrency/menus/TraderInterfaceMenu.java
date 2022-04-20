@@ -42,7 +42,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
 	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
-		super(ModMenus.ITEM_INTERFACE, windowID);
+		super(ModMenus.TRADER_INTERFACE, windowID);
 		
 		this.player = inventory.player;
 		this.blockEntity = blockEntity;

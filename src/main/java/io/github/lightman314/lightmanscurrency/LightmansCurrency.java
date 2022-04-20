@@ -149,7 +149,7 @@ public class LightmansCurrency {
 			));
 		
 		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
-				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
+				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE.item, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
 			));
 		
 		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
