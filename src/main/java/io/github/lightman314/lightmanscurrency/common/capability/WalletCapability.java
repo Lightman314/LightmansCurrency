@@ -37,6 +37,7 @@ public class WalletCapability {
 		final LivingEntity entity;
 		ItemStack backupWallet;
 		boolean visible;
+		boolean wasVisible;
 		final Container walletInventory;
 		
 		public WalletHandler() { this(null); }
@@ -73,17 +74,18 @@ public class WalletCapability {
 		public void setVisible(boolean visible) { this.visible = visible; }
 
 		@Override
-		public LivingEntity getEntity() {
-			return this.entity;
-		}
+		public LivingEntity getEntity() { return this.entity; }
 		
 		@Override
 		public boolean isDirty() {
-			return !InventoryUtil.ItemMatches(this.backupWallet, this.getWallet()) || this.backupWallet.getCount() != this.getWallet().getCount();
+			return !InventoryUtil.ItemMatches(this.backupWallet, this.getWallet()) || this.backupWallet.getCount() != this.getWallet().getCount() || this.wasVisible != this.visible;
 		}
 		
 		@Override
-		public void clean() { this.backupWallet = this.getWallet().copy(); }
+		public void clean() {
+			this.backupWallet = this.getWallet().copy();
+			this.wasVisible = this.visible;
+		}
 		
 		@Override
 		public Tag writeTag() {
@@ -104,6 +106,7 @@ public class WalletCapability {
 				this.setWallet(wallet);
 				if(compound.contains("Visible"))
 					this.visible = compound.getBoolean("Visible");
+					
 				this.clean();
 			}
 		}
