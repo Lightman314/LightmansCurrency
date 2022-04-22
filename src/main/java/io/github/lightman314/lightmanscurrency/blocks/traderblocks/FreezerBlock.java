@@ -50,7 +50,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER; }
 	
 	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
 		//Get facing
 		Direction facing = this.getFacing(state);
 		//Define directions for easy positional handling
@@ -66,49 +66,49 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		if(tradeSlot == 0)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 27f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 28f/16f);
 			firstPosition = MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 1)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 11f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 27f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 28f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 2)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 20f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 21f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 3)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 11f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 20f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 21f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 4)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 13f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 14f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 5)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 11f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 13f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 14f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 6)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 5f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 6f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 7f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		else if(tradeSlot == 7)
 		{
 			Vector3f rightOffset = MathUtil.VectorMult(right, 11f/16f);
-			Vector3f vertOffset = MathUtil.VectorMult(up, 6f/16f);
+			Vector3f vertOffset = MathUtil.VectorMult(up, 7f/16f);
 			firstPosition =  MathUtil.VectorAdd(offset, forwardOffset, rightOffset, vertOffset);
 		}
 		
@@ -116,7 +116,8 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		if(firstPosition != null)
 		{
 			posList.add(firstPosition);
-			for(float distance = isBlock ? 3.2f : 0.5f; distance < 7; distance += isBlock ? 3.2f : 0.5f)
+			float deltaDist = isBlock ? (isDoubleTrade ? 1.6f : 3.2f) : 0.5f;
+			for(float distance = deltaDist; distance < 7; distance += deltaDist)
 			{
 				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16F)));
 			}
@@ -140,9 +141,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(0.4f, 0.4f, 0.4f);
-	}
+	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0.4f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

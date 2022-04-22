@@ -47,7 +47,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
 		List<Vector3f> posList = new ArrayList<Vector3f>(1);
 		Direction facing = this.getFacing(state);
 		//Define directions for easy positional handling
@@ -60,7 +60,8 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 		{
 			Vector3f firstPosition = MathUtil.VectorAdd(offset, MathUtil.VectorMult(right, 0.5f), MathUtil.VectorMult(forward, 14.5f/16f), MathUtil.VectorMult(up, 9f/16f));
 			posList.add(firstPosition); 
-			for(float distance = isBlock ? -3.2f : -1f; distance >= -3f; distance -= isBlock ? 3.2f : 1f)
+			float deltaDist = isBlock ? (isDoubleTrade ? -1.6f : -3.2f) : -1f;
+			for(float distance = deltaDist; distance >= -3f; distance += deltaDist)
 			{
 				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16f)));
 			}
@@ -83,9 +84,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(14f/16f, 14f/16f, 14f/16f);
-	}
+	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 14f/16f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

@@ -291,13 +291,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isBlock)
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isBlock, boolean isDoubleTrade)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
 		{
 			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
-			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isBlock);
+			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isBlock, isDoubleTrade);
 		}
 		else
 		{
@@ -333,7 +333,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, boolean isBlock)
+	public float GetStackRenderScale(int tradeSlot, boolean isBlock)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
@@ -342,7 +342,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			return traderBlock.GetStackRenderScale(tradeSlot, this.getBlockState(), isBlock);
 		}
 		else
-			return new Vector3f(0.0f, 0.0f, 0.0f);
+			return 0f;
 	}
 	
 	@OnlyIn(Dist.CLIENT)

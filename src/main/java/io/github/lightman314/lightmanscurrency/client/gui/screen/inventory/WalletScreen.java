@@ -9,11 +9,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidg
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
+import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketSetVisible;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import net.minecraft.client.gui.Font;
@@ -150,6 +154,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		this.buttonToggleAutoConvert = null;
 		this.bankWidget = null;
 		
+		this.addRenderableWidget(new VisibilityToggleButton(this.leftPos - 23, this.topPos + 5 + this.menu.getVerticalOffset(), this::isWalletVisible, this::PressToggleWalletVisibilityButton));
+		
 		if(this.menu.canConvert())
 		{
 			//Create the buttons
@@ -167,6 +173,11 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 			this.bankWidget.allowEmptyDeposits = false;
 		}
 		
+	}
+	
+	private boolean isWalletVisible() {
+		IWalletHandler handler = WalletCapability.getWalletHandler(this.menu.getPlayer()).orElse(null);
+		return handler == null ? true : handler.visible();
 	}
 	
 	private void onContainerReload() {
@@ -225,15 +236,26 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		}
 	}
 	
-	public void PressConvertButton(Button button)
+	private void PressConvertButton(Button button)
 	{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletConvertCoins());
 	}
 	
-	public void PressAutoConvertToggleButton(Button button)
+	private void PressAutoConvertToggleButton(Button button)
 	{
 		this.menu.ToggleAutoConvert();
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletToggleAutoConvert());
+	}
+	
+	private void PressToggleWalletVisibilityButton(Button button)
+	{
+		IWalletHandler handler = WalletCapability.getWalletHandler(this.menu.getPlayer()).orElse(null);
+		if(handler != null)
+		{
+			boolean nowVisible = !handler.visible();
+			handler.setVisible(nowVisible);
+			LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketSetVisible(this.menu.player.getId(), nowVisible));
+		}
 	}
 
 	@Override

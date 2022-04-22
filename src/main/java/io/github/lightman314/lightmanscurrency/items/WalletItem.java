@@ -192,7 +192,7 @@ public class WalletItem extends Item{
 							walletHandler.setWallet(wallet);
 							player.setItemInHand(hand, ItemStack.EMPTY);
 							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
-							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet()));
+							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
 							equippedWallet.set(true);

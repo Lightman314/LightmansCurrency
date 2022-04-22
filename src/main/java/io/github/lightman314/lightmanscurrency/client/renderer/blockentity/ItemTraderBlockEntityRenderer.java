@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -33,66 +34,111 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		}
 	}
 	
-	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher)
-	{
-		//dispatcher.
-		//super(dispatcher);
-	}
+	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher) { }
 	
 	@Override
-	public void render(ItemTraderBlockEntity tileEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int lightLevel, int id)
+	public void render(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
-		
-		for(int tradeSlot = 0; tradeSlot < tileEntity.getTradeCount() && tradeSlot < tileEntity.maxRenderIndex(); tradeSlot++)
+		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
+	}
+	
+	public static List<ItemStack> GetRenderItems(ItemTradeData trade) {
+		List<ItemStack> result = new ArrayList<>();
+		for(int i = 0; i < 2; ++i)
+		{
+			ItemStack item = trade.getSellItem(i);
+			if(!item.isEmpty())
+				result.add(item);
+		}
+		return result;
+	}
+	
+	public static boolean BlockSpacing(List<ItemStack> renderItems) {
+		for(ItemStack stack : renderItems)
+		{
+			boolean isBlock = stack.getItem() instanceof BlockItem;
+			if(isBlock && Config.CLIENT.renderBlocksAsItems.get().contains(stack.getItem().getRegistryName().toString()))
+			{
+				isBlock = false;
+			}
+			if(isBlock)
+				return true;
+		}
+		return false;
+	}
+	
+	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
+	{
+		for(int tradeSlot = 0; tradeSlot < blockEntity.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
 		{
 			
-			ItemTradeData trade = tileEntity.getTrade(tradeSlot);
-			if(!trade.getSellItem(0).isEmpty())
+			ItemTradeData trade = blockEntity.getTrade(tradeSlot);
+			List<ItemStack> renderItems = GetRenderItems(trade);
+			if(renderItems.size() > 0)
 			{
 				
-				ItemStack stack = trade.getSellItem(0);
-				
-				boolean isBlock = stack.getItem() instanceof BlockItem;
-				if(isBlock && Config.CLIENT.renderBlocksAsItems.get().contains(stack.getItem().getRegistryName().toString()))
-				{
-					isBlock = false;
-				}
+				boolean isBlock = BlockSpacing(renderItems);
 				
 				//Get positions
-				List<Vector3f> positions = tileEntity.GetStackRenderPos(tradeSlot, isBlock);
+				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, isBlock, renderItems.size() > 1);
 				
 				//Get rotation
-				List<Quaternion> rotation = tileEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
+				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
 				
 				//Get scale
-				Vector3f scale = tileEntity.GetStackRenderScale(tradeSlot, isBlock);
+				float scale = blockEntity.GetStackRenderScale(tradeSlot, isBlock);
 
-				for(int pos = 0; pos < positions.size() && pos < tileEntity.getTradeStock(tradeSlot) && pos < positionLimit(); pos++)
+				for(int pos = 0; pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot) && pos < positionLimit(); pos++)
 				{
 					
-					matrixStack.pushPose();
+					pose.pushPose();
 					
 					Vector3f position = positions.get(pos);
 					
 					//Translate, rotate, and scale the matrix stack
-					matrixStack.translate(position.x(), position.y(), position.z());
+					pose.translate(position.x(), position.y(), position.z());
 					for(Quaternion rot : rotation)
 					{
-						matrixStack.mulPose(rot);
+						pose.mulPose(rot);
 					}
-					matrixStack.scale(scale.x(), scale.y(), scale.z());
+					pose.scale(scale, scale, scale);
 					
 					//Render the item
-					Minecraft.getInstance().getItemRenderer().renderStatic(stack,  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, matrixStack, renderTypeBuffer, id);
+					if(renderItems.size() > 1)
+					{
+						//Render first item
+						pose.pushPose();
+						
+						//Don't base translation off of scale, as we've already been scaled down.
+						pose.translate(0.25, 0.25, 0d);
+						pose.scale(0.5f, 0.5f, 0.5f);
+						
+						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						
+						pose.popPose();
+						
+						//Render second item
+						pose.pushPose();
+						
+						//Slightly offset in the Z to prevent z-fighting if there's an overlap
+						pose.translate(-0.25, -0.25, 0.001d);
+						pose.scale(0.5f, 0.5f, 0.5f);
+						
+						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						
+						pose.popPose();
+					}
+					else
+						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 				
-					matrixStack.popPose();
+					pose.popPose();
 					
 				}
-				
 				
 			}
 			
 		}
 	}
+
 	
 }

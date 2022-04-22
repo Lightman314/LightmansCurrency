@@ -85,7 +85,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	{
 		//Attempt to place the other three blocks
 		BlockPos rightPos = IRotatableBlock.getRightPos(pos, this.getFacing(state));
-		if(level.getBlockState(rightPos).getBlock() == Blocks.AIR && level.getBlockState(rightPos.above()).getBlock() == Blocks.AIR && level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
+		if(this.getReplacable(level, rightPos, state, player, stack) && this.getReplacable(level, rightPos.above(), state, player, stack) && this.getReplacable(level, pos.above(), state, player, stack))
 		{
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)).setValue(ISLEFT, true));
 			level.setBlockAndUpdate(rightPos, this.defaultBlockState().setValue(ISBOTTOM, true).setValue(FACING, state.getValue(FACING)).setValue(ISLEFT, false));

@@ -75,7 +75,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	
 	boolean autoConvert = false;
 	
-	private final Player player;
+	public final Player player;
 	public Player getPlayer() { return this.player; }
 	
 	AccountReference accountSource;
@@ -90,7 +90,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		this.inventory = inventory;
 		
 		this.walletInventory = new SuppliedContainer(() -> {
-			AtomicReference<Container> container  = new AtomicReference<Container>(null);
+			AtomicReference<Container> container  = new AtomicReference<Container>(new SimpleContainer(1));
 			WalletCapability.getWalletHandler(this.inventory.player).ifPresent(walletHandler -> container.set(walletHandler.getInventory()));
 			return container.get();
 		});

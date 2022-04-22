@@ -240,12 +240,13 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	 * Ignores items within the given blacklist.
 	 * @return Whether the items were removed successfully.
 	 */
-	public void removeItemTagCount(ResourceLocation itemTag, int count, Item... blacklistItems) {
+	public void removeItemTagCount(ResourceLocation itemTag, int count, List<ItemStack> ignoreIfPossible, Item... blacklistItems) {
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
+		//First pass, honoring the "ignoreIfPossible" list
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
+    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
     		{
     			int amountToTake = Math.min(count, stack.getCount());
     			count-= amountToTake;
@@ -257,6 +258,32 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
     			}
     		}
 		}
+		//Second pass, ignoring the "ignoreIfPossible" list
+		for(int i = 0; i < this.storage.size() && count > 0; ++i)
+		{
+			ItemStack stack = this.storage.get(i);
+    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
+    		{
+    			int amountToTake = Math.min(count, stack.getCount());
+    			count-= amountToTake;
+    			stack.shrink(amountToTake);
+    			if(stack.isEmpty())
+    			{
+    				this.storage.remove(i);
+    				i--;
+    			}
+    		}
+		}
+		
+	}
+	
+	private static boolean ListContains(List<ItemStack> list, ItemStack stack) {
+		for(ItemStack item : list) 
+		{
+			if(InventoryUtil.ItemMatches(item, stack))
+				return true;
+		}
+		return false;
 	}
 	
 	public static class LockedTraderStorage extends TraderItemStorage {

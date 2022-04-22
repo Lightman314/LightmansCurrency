@@ -1,21 +1,23 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "group": "wallet_crafting",
-  "ingredients": [{
-      "item": "minecraft:leather"
-  },{
-      "item": "lightmanscurrency:coin_copper"
-  },{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "group": "wallet_upgrades",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_copper"
+    },
+    {
       "item": "lightmanscurrency:coin_iron"
-  },{
+    },
+    {
       "item": "lightmanscurrency:coin_gold"
-  },{
+    },
+    {
       "item": "lightmanscurrency:coin_emerald"
-  },{
+    },
+    {
       "item": "lightmanscurrency:coin_diamond"
-  },{
-      "item": "minecraft:leather"
-  }],
+    }
+  ],
   "result": {
     "item": "lightmanscurrency:wallet_diamond"
   }

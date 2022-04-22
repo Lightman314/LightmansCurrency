@@ -57,6 +57,7 @@
     "lightmanscurrency:cash_register",
     "lightmanscurrency:terminal",
     "lightmanscurrency:paygate",
-    "lightmanscurrency:ticket_machine"
+    "lightmanscurrency:ticket_machine",
+    "lightmanscurrency:item_trader_interface"
   ]
 }

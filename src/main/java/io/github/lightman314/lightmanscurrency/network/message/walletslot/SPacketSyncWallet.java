@@ -14,20 +14,23 @@ public class SPacketSyncWallet {
 	
 	int entityID;
 	ItemStack walletItem;
+	boolean visible;
 	
-	public SPacketSyncWallet(int entityID, ItemStack wallet)
+	public SPacketSyncWallet(int entityID, ItemStack wallet, boolean visible)
 	{
 		this.entityID = entityID;
 		this.walletItem = wallet;
+		this.visible = visible;
 	}
 	
 	public static void encode(SPacketSyncWallet message, FriendlyByteBuf buffer) {
 		buffer.writeInt(message.entityID);
 		buffer.writeItemStack(message.walletItem, false);
+		buffer.writeBoolean(message.visible);
 	}
 
 	public static SPacketSyncWallet decode(FriendlyByteBuf buffer) {
-		return new SPacketSyncWallet(buffer.readInt(), buffer.readItem());
+		return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean());
 	}
 
 	public static void handle(SPacketSyncWallet message, Supplier<Context> supplier) {
@@ -41,6 +44,7 @@ public class SPacketSyncWallet {
 				{
 					WalletCapability.getWalletHandler((LivingEntity)entity).ifPresent(walletHandler ->{
 						walletHandler.setWallet(message.walletItem);
+						walletHandler.setVisible(message.visible);
 					});
 				}
 			}

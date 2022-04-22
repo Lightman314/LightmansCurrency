@@ -23,6 +23,16 @@ public interface IWalletHandler{
 	void setWallet(ItemStack walletStack);
 	
 	/**
+	 * Whether the wallet should be rendered
+	 */
+	boolean visible();
+	
+	/**
+	 * 
+	 */
+	void setVisible(boolean visible);
+	
+	/**
 	 * Gets the entity this wallet handler is attached to.
 	 */
 	LivingEntity getEntity();

@@ -153,7 +153,7 @@ public class EventHandler {
 		if(event.getPlayer().level.isClientSide)
 			return;
 		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet()));
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet(), walletHandler.visible()));
 		});
 	}
 	
@@ -166,7 +166,7 @@ public class EventHandler {
 		if(!player.level.isClientSide)
 		{
 			WalletCapability.getWalletHandler(target).ifPresent(walletHandler ->{
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet()));
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet(), walletHandler.visible()));
 			});
 		}
 	}
@@ -330,7 +330,7 @@ public class EventHandler {
 		WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
 			if(walletHandler.isDirty())
 			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet()));
+				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
 				walletHandler.clean();
 			}
 		});

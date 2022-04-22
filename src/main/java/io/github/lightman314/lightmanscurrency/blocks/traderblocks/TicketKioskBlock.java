@@ -46,29 +46,19 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
 	
 	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
-		return new ArrayList<>();
-	}
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleBlock) { return new ArrayList<>(); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
-	{
-		return new ArrayList<>();
-	}
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock) { return new ArrayList<>(); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(1f,1f,1f);
-	}
+	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex()
-	{
-		return -1;
-	}
+	public int maxRenderIndex() { return -1; }
 	
 	@Override
 	public Direction getRelativeSide(BlockState state, Direction side) {

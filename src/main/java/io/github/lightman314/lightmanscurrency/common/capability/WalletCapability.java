@@ -36,16 +36,16 @@ public class WalletCapability {
 		
 		final LivingEntity entity;
 		ItemStack backupWallet;
+		boolean visible;
 		final Container walletInventory;
 		
-		public WalletHandler() {
-			this(null);
-		}
+		public WalletHandler() { this(null); }
 		
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
 			this.backupWallet = ItemStack.EMPTY;
 			this.walletInventory = new SimpleContainer(1);
+			this.visible = true;
 		}
 		
 		@Override
@@ -65,6 +65,12 @@ public class WalletCapability {
 			if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
 				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
 		}
+		
+		@Override
+		public boolean visible() { return this.visible; }
+		
+		@Override
+		public void setVisible(boolean visible) { this.visible = visible; }
 
 		@Override
 		public LivingEntity getEntity() {
@@ -84,6 +90,7 @@ public class WalletCapability {
 			CompoundTag compound = new CompoundTag();
 			CompoundTag walletItem = this.getWallet().save(new CompoundTag());
 			compound.put("Wallet", walletItem);
+			compound.putBoolean("Visible", this.visible);
 			return compound;
 		}
 		
@@ -95,6 +102,8 @@ public class WalletCapability {
 				CompoundTag compound = (CompoundTag)tag;
 				ItemStack wallet = ItemStack.of(compound.getCompound("Wallet"));
 				this.setWallet(wallet);
+				if(compound.contains("Visible"))
+					this.visible = compound.getBoolean("Visible");
 				this.clean();
 			}
 		}

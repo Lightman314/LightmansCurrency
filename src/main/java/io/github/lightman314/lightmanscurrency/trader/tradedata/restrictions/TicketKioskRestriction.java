@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -62,27 +65,56 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	}
 	
 	@Override
-	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
+	public int getSaleStock(TraderItemStorage traderStorage, ItemStack... sellItemList) {
+		int ticketCount = 0;
+		boolean foundTicket = false;
+		int minStock = Integer.MAX_VALUE;
+		for(ItemStack sellItem : sellItemList) {
+			//Always add item to the ticket count, even if it's not a ticket, as the non-ticket sell item will still subtract from the available printing materials.
+			ticketCount += sellItem.getCount();
+			if(sellItem.getItem() == ModItems.TICKET)
+				foundTicket = true;
+			else
+				minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
+		}
+		if(foundTicket && ticketCount > 0)
+			minStock = Math.min(this.getTicketStock(ticketCount, traderStorage), minStock);
+		return minStock;
+	}
+	
+	protected final int getTicketStock(int ticketCount, TraderItemStorage traderStorage)
 	{
-		if(sellItem.getItem() == ModItems.TICKET)
-			return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER) / sellItem.getCount();
-		return super.getSaleStock(sellItem, traderStorage);
+		return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER) / ticketCount;
 	}
 	
 	@Override
-	public void removeItemsFromStorage(ItemStack sellItem, TraderItemStorage traderStorage)
+	public void removeItemsFromStorage(TraderItemStorage traderStorage, ItemStack... sellItemList)
 	{
-		if(sellItem.getItem() == ModItems.TICKET)
+		//Sort out the tickets, and remove "normal" items from storage.
+		List<ItemStack> tickets = new ArrayList<>();
+		List<ItemStack> ignoreIfPossible = new ArrayList<>();
+		for(ItemStack sellItem : sellItemList)
 		{
-			int amountToRemove = sellItem.getCount();
-			amountToRemove -= traderStorage.removeItem(sellItem).getCount();
-			if(amountToRemove > 0)
+			if(sellItem.getItem() == ModItems.TICKET)
+				tickets.add(sellItem);
+			else
 			{
-				traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, amountToRemove, ModItems.TICKET_MASTER);
+				this.removeFromStorage(sellItem, traderStorage);
+				ignoreIfPossible.add(sellItem);
 			}
 		}
-		else
-			super.removeItemsFromStorage(sellItem, traderStorage);
+		//Attempt to remove the tickets from storage "normally".
+		//Keep track of how many need to be printed.
+		int printCount = 0;
+		for(ItemStack ticketStack : tickets)
+		{
+			printCount += ticketStack.getCount() - traderStorage.removeItem(ticketStack).getCount();
+		}
+		//Remove the printing materials for tickets that needed to be printed
+		if(printCount > 0)
+		{
+			traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, printCount, ignoreIfPossible, ModItems.TICKET_MASTER);
+		}
 	}
 	
 	@Override

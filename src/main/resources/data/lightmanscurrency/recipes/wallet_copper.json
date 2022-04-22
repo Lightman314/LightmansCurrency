@@ -1,17 +1,13 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "group": "wallet_crafting",
-  "pattern":[
-    "lcl"
-  ],
-  "key": {
-    "l": {
+  "ingredients": [{
       "item": "minecraft:leather"
-    },
-    "c": {
+  },{
       "item": "lightmanscurrency:coin_copper"
-    }
-  },
+  },{
+      "item": "minecraft:leather"
+  }],
   "result": {
     "item": "lightmanscurrency:wallet_copper"
   }
