@@ -181,14 +181,6 @@ public class ItemTradeData extends TradeData {
 		this.restriction = restriction;
 	}
 	
-	/*@Override
-	public boolean isValid()
-	{
-		if(this.tradeType == ItemTradeType.BARTER)
-			return !this.sellItem.isEmpty() && !this.barterItem.isEmpty();
-		return super.isValid() && !this.sellItem.isEmpty();
-	}*/
-	
 	@Override
 	public boolean isValid()
 	{
@@ -249,7 +241,7 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
-			return Math.min(this.restriction.getSaleStock(this.getSellItem(0), trader.getStorage()), this.restriction.getSaleStock(this.getSellItem(1), trader.getStorage()));
+			return this.restriction.getSaleStock(trader.getStorage(), this.getSellItem(0), this.getSellItem(1));
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -279,7 +271,7 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
-			return Math.min(this.restriction.getSaleStock(this.getSellItem(0), trader.getStorage()), this.restriction.getSaleStock(this.getSellItem(1), trader.getStorage()));
+			return this.restriction.getSaleStock(trader.getStorage(), this.getSellItem(0), this.getSellItem(1));
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -297,10 +289,7 @@ public class ItemTradeData extends TradeData {
 	
 	public void RemoveItemsFromStorage(TraderItemStorage storage)
 	{
-		if(!this.getSellItem(0).isEmpty())
-			this.restriction.removeItemsFromStorage(this.getSellItem(0), storage);
-		if(!this.getSellItem(1).isEmpty())
-			this.restriction.removeItemsFromStorage(this.getSellItem(1), storage);
+		this.restriction.removeItemsFromStorage(storage, this.getSellItem(0), this.getSellItem(1));
 	}
 	
 	@Override

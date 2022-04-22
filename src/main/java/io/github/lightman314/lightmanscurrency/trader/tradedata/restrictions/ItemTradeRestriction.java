@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -34,14 +35,27 @@ public class ItemTradeRestriction {
 	
 	public boolean allowExtraItemInStorage(ItemStack itemStack) { return false; }
 	
-	public int getSaleStock(ItemStack sellItem, TraderItemStorage traderStorage)
+	public int getSaleStock(TraderItemStorage traderStorage, ItemStack... sellItemList) {
+		int minStock = Integer.MAX_VALUE;
+		for(ItemStack sellItem : InventoryUtil.combineQueryItems(sellItemList))
+			minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
+		return minStock;
+	}
+	
+	protected final int getItemStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.isEmpty())
 			return Integer.MAX_VALUE;
 		return traderStorage.getItemCount(sellItem) / sellItem.getCount();
 	}
 	
-	public void removeItemsFromStorage(ItemStack sellItem, TraderItemStorage traderStorage)
+	public void removeItemsFromStorage(TraderItemStorage traderStorage, ItemStack... sellItemList)
+	{
+		for(ItemStack sellItem : sellItemList)
+			this.removeFromStorage(sellItem, traderStorage);
+	}
+	
+	protected final void removeFromStorage(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
 		if(sellItem.isEmpty())
 			return;

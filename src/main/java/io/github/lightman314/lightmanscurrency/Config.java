@@ -20,6 +20,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class Config {
 	
 	public static final List<String> CLIENT_DEFAULT_RENDER_AS_BLOCK = ImmutableList.of(
+			//1.16 and prior
 			"minecraft:oak_sapling", "minecraft:birch_sapling", "minecraft:spruce_sapling", "minecraft:jungle_sapling",
 			"minecraft:acacia_sapling", "minecraft:dark_oak_sapling", "minecraft:cobweb", "minecraft:grass",
 			"minecraft:dead_bush", "minecraft:fern", "minecraft:seagrass", "minecraft:sea_pickle", "minecraft:dandelion",
@@ -49,7 +50,12 @@ public class Config {
 			"minecraft:spruce_door", "minecraft:birch_door", "minecraft:jungle_door", "minecraft:acacia_door",
 			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
 			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
-			"minecraft:cake", "lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
+			"minecraft:cake", "minecraft:iron_bars",
+			//1.17 & 1.17
+			"minecraft:small_amethyst_bud","minecraft:medium_amethyst_bud","minecraft:large_amethyst_bud","minecraft:amethyst_cluster",
+			"minecraft:lightning_rod", "minecraft:pointed_dripstone", "minecraft:spore_blossom",
+			//Lightmans Currency
+			"lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
 			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
 			);
 	

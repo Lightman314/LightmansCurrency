@@ -20,6 +20,7 @@
     "lightmanscurrency:vending_machine_large_brown","lightmanscurrency:vending_machine_large_green","lightmanscurrency:vending_machine_large_red","lightmanscurrency:vending_machine_large_black",
     "lightmanscurrency:item_trader_server_sml","lightmanscurrency:item_trader_server_med","lightmanscurrency:item_trader_server_lrg","lightmanscurrency:item_trader_server_xlrg",
     "lightmanscurrency:ticket_kiosk",
-    "lightmanscurrency:terminal", "lightmanscurrency:cash_register"
+    "lightmanscurrency:terminal", "lightmanscurrency:cash_register",
+    "lightmanscurrency:item_trader_interface"
   ]
 }

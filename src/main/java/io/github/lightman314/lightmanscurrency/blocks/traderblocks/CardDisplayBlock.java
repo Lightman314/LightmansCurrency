@@ -39,7 +39,7 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
 	
 	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
 		//Get facing
 		Direction facing = this.getFacing(state);
 		//Define directions for easy positional handling
@@ -83,10 +83,9 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 		if(firstPosition != null)
 		{
 			posList.add(firstPosition);
-			for(float distance = isBlock ? 3.2f : 0.5f; distance < 4f; distance += isBlock ? 3.2f : 0.5f)
-			{
+			float deltaDist = isBlock ? (isDoubleTrade ? 1.6f : 3.2f) : 0.5f;
+			for(float distance = deltaDist; distance < 4f; distance += deltaDist)
 				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(up, distance/16F)));
-			}
 		}
 		else
 		{
@@ -108,9 +107,7 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Vector3f GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){
-		return new Vector3f(0.4f, 0.4f, 0.4f);
-	}
+	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0.4f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

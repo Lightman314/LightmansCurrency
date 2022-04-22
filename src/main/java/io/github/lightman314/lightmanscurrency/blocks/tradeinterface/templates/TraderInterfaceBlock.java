@@ -25,9 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class TraderInterfaceBlock extends RotatableBlock implements EntityBlock, IOwnableBlock {
 
-	protected TraderInterfaceBlock(Properties properties) {
-		super(properties);
-	}
+	protected TraderInterfaceBlock(Properties properties) { super(properties); }
 	
 	@Nullable 
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)

@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITall
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +24,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -84,7 +87,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
+		if(this.getReplacable(level, pos.above(), state, player, stack))
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
 		else
 		{
@@ -100,6 +103,18 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		
 		this.setPlacedByBase(level, pos, state, player, stack);
 		
+	}
+	
+	public boolean getReplacable(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack) {
+		if(player instanceof Player)
+		{
+			BlockPlaceContext context = new BlockPlaceContext(level, (Player)player, InteractionHand.MAIN_HAND, stack, new BlockHitResult(Vec3.ZERO, Direction.UP, pos, true));
+			return level.getBlockState(pos).canBeReplaced(context);
+		}
+		else
+		{
+			return level.getBlockState(pos).getBlock() == Blocks.AIR;
+		}
 	}
 	
 	@Override

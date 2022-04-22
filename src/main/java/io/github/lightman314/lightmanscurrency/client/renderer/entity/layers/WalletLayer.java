@@ -2,12 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
 import io.github.lightman314.lightmanscurrency.client.ModLayerDefinitions;
 import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.PartPose;
@@ -42,7 +43,11 @@ public class WalletLayer<T extends Player, M extends HumanoidModel<T>> extends R
 			float netHeadYaw,
 			float headPitch) {
 		
-		ItemStack wallet = LightmansCurrency.getWalletStack(entity);
+		IWalletHandler handler = WalletCapability.getWalletHandler(entity).orElse(null);
+		if(handler == null || !handler.visible())
+			return;
+		
+		ItemStack wallet = handler.getWallet();
 		if(wallet.getItem() instanceof WalletItem)
 		{
 			

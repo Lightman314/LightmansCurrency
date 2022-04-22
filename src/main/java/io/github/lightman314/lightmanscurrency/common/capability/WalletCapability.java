@@ -36,16 +36,17 @@ public class WalletCapability {
 		
 		final LivingEntity entity;
 		ItemStack backupWallet;
+		boolean visible;
+		boolean wasVisible;
 		final Container walletInventory;
 		
-		public WalletHandler() {
-			this(null);
-		}
+		public WalletHandler() { this(null); }
 		
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
 			this.backupWallet = ItemStack.EMPTY;
 			this.walletInventory = new SimpleContainer(1);
+			this.visible = true;
 		}
 		
 		@Override
@@ -65,25 +66,33 @@ public class WalletCapability {
 			if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
 				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
 		}
+		
+		@Override
+		public boolean visible() { return this.visible; }
+		
+		@Override
+		public void setVisible(boolean visible) { this.visible = visible; }
 
 		@Override
-		public LivingEntity getEntity() {
-			return this.entity;
-		}
+		public LivingEntity getEntity() { return this.entity; }
 		
 		@Override
 		public boolean isDirty() {
-			return !InventoryUtil.ItemMatches(this.backupWallet, this.getWallet()) || this.backupWallet.getCount() != this.getWallet().getCount();
+			return !InventoryUtil.ItemMatches(this.backupWallet, this.getWallet()) || this.backupWallet.getCount() != this.getWallet().getCount() || this.wasVisible != this.visible;
 		}
 		
 		@Override
-		public void clean() { this.backupWallet = this.getWallet().copy(); }
+		public void clean() {
+			this.backupWallet = this.getWallet().copy();
+			this.wasVisible = this.visible;
+		}
 		
 		@Override
 		public Tag writeTag() {
 			CompoundTag compound = new CompoundTag();
 			CompoundTag walletItem = this.getWallet().save(new CompoundTag());
 			compound.put("Wallet", walletItem);
+			compound.putBoolean("Visible", this.visible);
 			return compound;
 		}
 		
@@ -95,6 +104,9 @@ public class WalletCapability {
 				CompoundTag compound = (CompoundTag)tag;
 				ItemStack wallet = ItemStack.of(compound.getCompound("Wallet"));
 				this.setWallet(wallet);
+				if(compound.contains("Visible"))
+					this.visible = compound.getBoolean("Visible");
+					
 				this.clean();
 			}
 		}
