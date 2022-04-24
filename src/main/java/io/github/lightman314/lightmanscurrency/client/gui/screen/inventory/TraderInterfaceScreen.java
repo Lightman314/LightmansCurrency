@@ -70,7 +70,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 			this.tabButtons.put(key, newButton);
 		});
 		
-		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> this.getMode().icon, new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
+		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -117,8 +117,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		
 		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
 		
-		
-		
 		this.tabButtons.forEach((key, button) -> {
 			if(button.isMouseOver(mouseX, mouseY))
 				this.renderTooltip(pose, button.tab.getTooltip(), mouseX, mouseY);
@@ -129,8 +127,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	@Override
 	public void containerTick()
 	{
-		
-		this.modeToggle.setIcon(this.menu.getBE().getMode().icon);
 		
 		this.updateTabs();
 		

@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
@@ -52,7 +51,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 
 public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	
@@ -94,16 +92,15 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	}
 	
 	public enum ActiveMode {
-		DISABLED(0, IconAndButtonUtil.ICON_MODE_DISABLED),
-		REDSTONE_ONLY(1, IconAndButtonUtil.ICON_MODE_REDSTONE),
-		ALWAYS_ON(2, IconAndButtonUtil.ICON_MODE_ALWAYS_ON);
+		DISABLED(0),
+		REDSTONE_ONLY(1),
+		ALWAYS_ON(2);
 		
 		public final int index;
 		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
-		public final IconData icon;
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
-		ActiveMode(int index, IconData icon) { this.index = index; this.icon = icon;}
+		ActiveMode(int index) { this.index = index; }
 		
 		public static ActiveMode fromIndex(int index) {
 			for(ActiveMode mode : ActiveMode.values())

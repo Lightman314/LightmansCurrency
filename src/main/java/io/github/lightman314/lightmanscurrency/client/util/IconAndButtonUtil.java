@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
@@ -87,6 +88,19 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_MODE_DISABLED = IconData.of(Items.BARRIER);
 	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE);
 	public static final IconData ICON_MODE_ALWAYS_ON = IconData.of(Items.REDSTONE_BLOCK);
+	
+	public static final IconData GetIcon(ActiveMode mode) { 
+		switch(mode) {
+		case DISABLED:
+			return ICON_MODE_DISABLED;
+		case REDSTONE_ONLY:
+			return ICON_MODE_REDSTONE;
+		case ALWAYS_ON:
+			return ICON_MODE_ALWAYS_ON;
+			default:
+				return IconData.of(Items.ROTTEN_FLESH);
+		}
+	}
 	
 	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
 	
