@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -160,10 +161,14 @@ public class CashRegisterItem extends BlockItem{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);
 		
+		TooltipItem.addTooltipAlways(tooltip, LCTooltips.CASH_REGISTER);
+		
 		tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register", data.size()));
 		
 		if(!Screen.hasShiftDown() || data.size() <= 0)
+		{
 			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.instructions"));
+		}
 		
 		if(Screen.hasShiftDown())
 		{
