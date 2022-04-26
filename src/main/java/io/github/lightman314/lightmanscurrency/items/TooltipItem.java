@@ -70,4 +70,14 @@ public class TooltipItem extends Item{
 		tooltip.addAll(tooltipSource.get());
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static NonNullSupplier<List<Component>> combine(NonNullSupplier<List<Component>>... tooltipSources) {
+		return () -> {
+			List<Component> result = new ArrayList<>();
+			for(NonNullSupplier<List<Component>> source : tooltipSources)
+				result.addAll(source.get());
+			return result;
+		};
+	}
+	
 }
