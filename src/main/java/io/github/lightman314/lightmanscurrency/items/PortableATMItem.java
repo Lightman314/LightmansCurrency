@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.items;
 
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
@@ -7,15 +8,14 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class PortableATMItem extends Item{
+public class PortableATMItem extends TooltipItem{
 
 	public PortableATMItem(Properties properties)
 	{
-		super(properties);
+		super(properties, LCTooltips.ATM);
 	}
 	
 	@Override

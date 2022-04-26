@@ -14,8 +14,10 @@ import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.II
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemTraderBlock{
 	
@@ -72,5 +75,8 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 			return (IItemHandlerBlockEntity)blockEntity;
 		return null;
 	}
+	
+	@Override
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_TICKET; }
 	
 }

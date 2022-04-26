@@ -34,7 +34,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	private int armorStandEntityId = -1;
 	int requestTimer = 0;
 	
-	int updateTimer = 20;
+	int updateTimer = 0;
 	
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -93,6 +93,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 			this.updateTimer = 20;
 			this.validateArmorStand();
 			this.updateArmorStandArmor();
+			this.killIntrudingArmorStands();
 		}
 		else
 			this.updateTimer--;
@@ -181,7 +182,17 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		}
 	}
 	
-	
+	public void killIntrudingArmorStands() {
+		if(this.level != null && this.armorStand != null)
+		{
+			this.level.getEntitiesOfClass(ArmorStand.class, this.getBlockState().getShape(this.level, this.worldPosition).bounds()).forEach(as ->{
+				//Delete any armor stands in the exact coordinates as our armor stand.
+				//Should delete any old duplicates from previously buggy armor stands.
+				if(as.position().equals(this.armorStand.position()))
+					as.remove(Entity.RemovalReason.DISCARDED);
+			});
+		}
+	}
 	
 	public void sendArmorStandSyncMessageToClient(PacketTarget target) {
 		if(this.armorStand != null)

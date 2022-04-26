@@ -37,8 +37,12 @@ public class CoinMintBlockEntity extends BlockEntity{
 	private final List<CoinMintRecipe> getCoinMintRecipes()
 	{
 		if(this.level != null)
-			return RecipeValidator.getValidRecipes(this.level).getCoinMintRecipes();
+			return getCoinMintRecipes(this.level);
 		return Lists.newArrayList();
+	}
+	
+	public static final List<CoinMintRecipe> getCoinMintRecipes(Level level) {
+		return RecipeValidator.getValidRecipes(level).getCoinMintRecipes();
 	}
 	
 	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT, pos, state); }

@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-1.1.1.1a'
+version = '1.18.2-1.1.1.2'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -62,14 +62,26 @@ repositories {
     maven {
         url = "https://www.cursemaven.com"
     }
+    //JEI repository when working on plugin
+    /*maven {
+    	name = "Progwm17 maven"
+    	url = "https://dvs1.progwm16.com/files/maven/"
+    }
+    maven {
+    	name = "ModMaven"
+    	url = "https://modmaven.k-4u.nl"
+    }*/
 }
 
 dependencies {
 
     minecraft 'net.minecraftforge:forge:1.18.2-40.0.18'
    	
-    compileOnly fg.deobf('curse.maven:jei-238222:3566128')
-    //runtimeOnly fg.deobf('curse.maven:jei-238222:3566128')
+   	//JEI when actually working on plugin
+    //compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.5.5.174:api")
+    //JEI when not working on plugin, to save compile/runClient time
+    compileOnly fg.deobf("curse.maven:jei-238222:3723913")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3708402')
     

@@ -101,6 +101,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public ItemStack getResultItem() {
 		return this.getResult();
 	}
+	
 	@Override
 	public ResourceLocation getId() {
 		return this.id;

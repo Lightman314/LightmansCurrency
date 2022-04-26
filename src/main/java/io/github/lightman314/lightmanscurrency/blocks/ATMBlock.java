@@ -1,23 +1,29 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.TallRotatableBlock;
+import io.github.lightman314.lightmanscurrency.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class ATMBlock extends TallRotatableBlock{
-	
-	//private static final Component TITLE = new TranslatableComponent("gui.lightmanscurrency.atm.title");
 	
 	public ATMBlock(Properties properties)
 	{
@@ -36,6 +42,13 @@ public class ATMBlock extends TallRotatableBlock{
 	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
 		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
+	}
+	
+	@Override
+	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	{
+		TooltipItem.addTooltip(tooltip, LCTooltips.ATM);
+		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
 	

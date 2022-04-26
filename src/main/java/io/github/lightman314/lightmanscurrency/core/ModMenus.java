@@ -64,7 +64,7 @@ public class ModMenus {
 	});
 	
 	public static final MenuType<TraderInterfaceMenu> TRADER_INTERFACE = register("trader_interface", (IContainerFactory<TraderInterfaceMenu>)(id, playerInventory, data) ->{
-		ItemTraderInterfaceBlockEntity blockEntity = (ItemTraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
 		return new TraderInterfaceMenu(id, playerInventory, blockEntity);
 	});
 	

@@ -34,7 +34,6 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
-	
 	protected TraderBlockTallRotatable(Properties properties)
 	{
 		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
