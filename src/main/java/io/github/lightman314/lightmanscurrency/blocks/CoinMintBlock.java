@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.menus.MintMenu;
@@ -13,6 +15,9 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +27,8 @@ import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 
 public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 
@@ -68,6 +75,13 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 			mintEntity.dumpContents(level, pos);
 		}
 		super.onRemove(state, level, pos, newState, isMoving);
+	}
+	
+	@Override
+	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	{
+		TooltipItem.addTooltip(tooltip, LCTooltips.COIN_MINT);
+		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
 	private static class CoinMintMenuProvider implements MenuProvider

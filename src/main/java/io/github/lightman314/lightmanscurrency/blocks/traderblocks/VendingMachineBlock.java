@@ -14,15 +14,18 @@ import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRota
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock{
 	
@@ -144,5 +147,8 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 			return (IItemHandlerBlockEntity)blockEntity;
 		return null;
 	}
+	
+	@Override
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
 	
 }

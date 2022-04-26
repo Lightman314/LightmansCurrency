@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.Reference.Colors;
+import io.github.lightman314.lightmanscurrency.Reference.Color;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
@@ -166,23 +166,23 @@ public class LightmansCurrency {
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.getItem(WoodType.SPRUCE),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.JUNGLE), ModBlocks.CARD_DISPLAY.getItem(WoodType.ACACIA),
 				ModBlocks.CARD_DISPLAY.getItem(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.getItem(WoodType.CRIMSON),
-				ModBlocks.CARD_DISPLAY.getItem(WoodType.WARPED), ModBlocks.VENDING_MACHINE1.getItem(Colors.WHITE),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.ORANGE), ModBlocks.VENDING_MACHINE1.getItem(Colors.MAGENTA),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.LIGHTBLUE), ModBlocks.VENDING_MACHINE1.getItem(Colors.YELLOW),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.LIME), ModBlocks.VENDING_MACHINE1.getItem(Colors.PINK), 
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.GRAY), ModBlocks.VENDING_MACHINE1.getItem(Colors.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.CYAN), ModBlocks.VENDING_MACHINE1.getItem(Colors.PURPLE),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLUE), ModBlocks.VENDING_MACHINE1.getItem(Colors.BROWN),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.GREEN), ModBlocks.VENDING_MACHINE1.getItem(Colors.RED),
-				ModBlocks.VENDING_MACHINE1.getItem(Colors.BLACK), ModBlocks.FREEZER,
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.WHITE), ModBlocks.VENDING_MACHINE2.getItem(Colors.ORANGE),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.MAGENTA), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.YELLOW), ModBlocks.VENDING_MACHINE2.getItem(Colors.LIME),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.PINK), ModBlocks.VENDING_MACHINE2.getItem(Colors.GRAY),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.LIGHTGRAY), ModBlocks.VENDING_MACHINE2.getItem(Colors.CYAN),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.PURPLE), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLUE),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.BROWN), ModBlocks.VENDING_MACHINE2.getItem(Colors.GREEN),
-				ModBlocks.VENDING_MACHINE2.getItem(Colors.RED), ModBlocks.VENDING_MACHINE2.getItem(Colors.BLACK),
+				ModBlocks.CARD_DISPLAY.getItem(WoodType.WARPED), ModBlocks.VENDING_MACHINE1.getItem(Color.WHITE),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.ORANGE), ModBlocks.VENDING_MACHINE1.getItem(Color.MAGENTA),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.LIGHTBLUE), ModBlocks.VENDING_MACHINE1.getItem(Color.YELLOW),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.LIME), ModBlocks.VENDING_MACHINE1.getItem(Color.PINK), 
+				ModBlocks.VENDING_MACHINE1.getItem(Color.GRAY), ModBlocks.VENDING_MACHINE1.getItem(Color.LIGHTGRAY),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.CYAN), ModBlocks.VENDING_MACHINE1.getItem(Color.PURPLE),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.BLUE), ModBlocks.VENDING_MACHINE1.getItem(Color.BROWN),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.GREEN), ModBlocks.VENDING_MACHINE1.getItem(Color.RED),
+				ModBlocks.VENDING_MACHINE1.getItem(Color.BLACK), ModBlocks.FREEZER,
+				ModBlocks.VENDING_MACHINE2.getItem(Color.WHITE), ModBlocks.VENDING_MACHINE2.getItem(Color.ORANGE),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.MAGENTA), ModBlocks.VENDING_MACHINE2.getItem(Color.LIGHTBLUE),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.YELLOW), ModBlocks.VENDING_MACHINE2.getItem(Color.LIME),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.PINK), ModBlocks.VENDING_MACHINE2.getItem(Color.GRAY),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.LIGHTGRAY), ModBlocks.VENDING_MACHINE2.getItem(Color.CYAN),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.PURPLE), ModBlocks.VENDING_MACHINE2.getItem(Color.BLUE),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.BROWN), ModBlocks.VENDING_MACHINE2.getItem(Color.GREEN),
+				ModBlocks.VENDING_MACHINE2.getItem(Color.RED), ModBlocks.VENDING_MACHINE2.getItem(Color.BLACK),
 				ModBlocks.TICKET_KIOSK, ModBlocks.ITEM_TRADER_SERVER_SMALL, ModBlocks.ITEM_TRADER_SERVER_MEDIUM,
 				ModBlocks.ITEM_TRADER_SERVER_LARGE, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE
 			));

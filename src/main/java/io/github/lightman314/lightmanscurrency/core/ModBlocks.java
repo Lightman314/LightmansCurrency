@@ -17,9 +17,8 @@ import io.github.lightman314.lightmanscurrency.BlockItemPair;
 import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Reference;
-import io.github.lightman314.lightmanscurrency.Reference.Colors;
+import io.github.lightman314.lightmanscurrency.Reference.Color;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
-//import net.minecraftforge.fml.common.Mod;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -27,9 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
-//import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
 
 	private enum BlockItemType { DEFAULT, COIN, NETHERITE_COIN, CASH_REGISTER, COIN_JAR };
@@ -134,14 +131,14 @@ public class ModBlocks {
 	//Misc Machines
 	public static final BlockItemPair MACHINE_ATM = register("atm", LightmansCurrency.MACHINE_GROUP, new ATMBlock(
 		Block.Properties.of(Material.METAL)
-			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.METAL)
 			)
 	);
 	public static final BlockItemPair MACHINE_MINT = register("coinmint", LightmansCurrency.MACHINE_GROUP, new CoinMintBlock(
 		Block.Properties.of(Material.METAL)
-			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.METAL)
 			)
 	);
 	
@@ -151,35 +148,41 @@ public class ModBlocks {
 			Block.Properties.of(Material.GLASS)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
-				)
+			)
 	);
 	
 	//Vending Machine 1 (Normal Sized)
-	public static final BlockItemSet<Colors> VENDING_MACHINE1 = registerColored("vending_machine", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
-			Block.Properties.of(Material.METAL)
-			.strength(5.0f, Float.POSITIVE_INFINITY)
-			.sound(SoundType.METAL)
-		), Colors.WHITE);
-	
-	//Vending Machine 2 (Large)
-	public static final BlockItemSet<Colors> VENDING_MACHINE2 = registerColored("vending_machine_large", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
+	public static final BlockItemSet<Color> VENDING_MACHINE1 = registerColored("vending_machine", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-			), Colors.WHITE);
+			),
+			Color.WHITE
+	);
+	
+	//Vending Machine 2 (Large)
+	public static final BlockItemSet<Color> VENDING_MACHINE2 = registerColored("vending_machine_large", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
+			Block.Properties.of(Material.METAL)
+				.strength(5.0f, Float.POSITIVE_INFINITY)
+				.sound(SoundType.METAL)
+			),
+			Color.WHITE
+	);
 	
 	//Wooden Shelves
 	public static final BlockItemSet<WoodType> SHELF = registerWooden("shelf", LightmansCurrency.TRADING_GROUP, () -> new ShelfBlock(
 			Block.Properties.of(Material.WOOD)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
-				));
+			)
+	);
 	
 	//Card Shelves
 	public static final BlockItemSet<WoodType> CARD_DISPLAY = registerWooden("card_display", LightmansCurrency.TRADING_GROUP, () -> new CardDisplayBlock(
 			Block.Properties.of(Material.WOOD)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.WOOD)
-				));
+			)
+	);
 	
 	//Armor Display
 	public static final BlockItemPair ARMOR_DISPLAY = register("armor_display", LightmansCurrency.TRADING_GROUP, new ArmorDisplayBlock(
@@ -235,68 +238,68 @@ public class ModBlocks {
 	//Trader Interface
 	public static final BlockItemPair ITEM_TRADER_INTERFACE = register("item_trader_interface", LightmansCurrency.MACHINE_GROUP, new ItemTraderInterfaceBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(5.0f, Float.POSITIVE_INFINITY)
-			.sound(SoundType.METAL)
-		)
+				.strength(5.0f, Float.POSITIVE_INFINITY)
+				.sound(SoundType.METAL)
+			)
 	);
 	
 	//Cash Register
 	public static final BlockItemPair CASH_REGISTER = register("cash_register", LightmansCurrency.MACHINE_GROUP, BlockItemType.CASH_REGISTER, new CashRegisterBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			Block.box(1d,0d,1d,15d,10d,15d)
-		)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.METAL),
+				Block.box(1d,0d,1d,15d,10d,15d)
+			)
 	);
 	
 	//Terminal
 	public static final BlockItemPair TERMINAL = register("terminal", LightmansCurrency.MACHINE_GROUP, new TerminalBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL),
-			Block.box(1d,0d,1d,15d,15d,15d)
-		)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.METAL),
+				Block.box(1d,0d,1d,15d,15d,15d)
+			)
 	);
 	
 	//Paygate
 	public static final BlockItemPair PAYGATE = register("paygate", LightmansCurrency.MACHINE_GROUP, new PaygateBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(3.0f, Float.POSITIVE_INFINITY)
-			.sound(SoundType.METAL)
-		)
+				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.sound(SoundType.METAL)
+			)
 	);
 	
 	//Ticket Kiosk
 	public static final BlockItemPair TICKET_KIOSK = register("ticket_kiosk",LightmansCurrency.TRADING_GROUP, new TicketKioskBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(3.0f, Float.POSITIVE_INFINITY)
-			.sound(SoundType.METAL)
-		)
+				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.sound(SoundType.METAL)
+			)
 	);
 	
 	//Ticket Machine
 	public static final BlockItemPair TICKET_MACHINE = register("ticket_machine", LightmansCurrency.MACHINE_GROUP, new TicketMachineBlock(
 			Block.Properties.of(Material.METAL)
-			.strength(3.0f, 6.0f)
-			.sound(SoundType.METAL)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.METAL)
 			)
 	);
 	
 	//Coin Jars
 	public static final BlockItemPair PIGGY_BANK = register("piggy_bank", CreativeModeTab.TAB_DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
 			Block.Properties.of(Material.STONE)
-			.strength(0.1f, 2.0f)
-			.sound(SoundType.STONE),
-			Block.box(4d, 0d, 4d, 12d, 8d, 12d)
+				.strength(0.1f, 2.0f)
+				.sound(SoundType.STONE),
+				Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 			)
 	);
 	
 	//Jar Blue
 	public static final BlockItemPair COINJAR_BLUE = register("coinjar_blue", CreativeModeTab.TAB_DECORATIONS, BlockItemType.COIN_JAR, new CoinJarBlock(
 			Block.Properties.of(Material.STONE)
-			.strength(0.1f, 2.0f)
-			.sound(SoundType.STONE),
-			Block.box(4d, 0d, 4d, 12d, 8d, 12d)
+				.strength(0.1f, 2.0f)
+				.sound(SoundType.STONE),
+				Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 			)
 	);
 	
@@ -346,15 +349,15 @@ public class ModBlocks {
 	/**
 	 * Colored block registration code
 	 */
-	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, @Nullable Colors dontNameThisColor)
+	private static BlockItemSet<Color> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
 		return registerColored(name, itemGroup, BlockItemType.DEFAULT, block, dontNameThisColor);
 	}
 	
-	private static BlockItemSet<Colors> registerColored(String name, CreativeModeTab itemGroup, BlockItemType type, Supplier<Block> block, @Nullable Colors dontNameThisColor)
+	private static BlockItemSet<Color> registerColored(String name, CreativeModeTab itemGroup, BlockItemType type, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
-		BlockItemSet<Reference.Colors> set = new BlockItemSet<Reference.Colors>();
-		for(Reference.Colors color : Reference.Colors.values())
+		BlockItemSet<Reference.Color> set = new BlockItemSet<Reference.Color>();
+		for(Reference.Color color : Reference.Color.values())
 		{
 			String thisName = name;
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
@@ -392,14 +395,12 @@ public class ModBlocks {
 	}
 	
 	//Registration Events
-	//@SubscribeEvent
 	public static void registerBlocks(final RegistryEvent.Register<Block> event)
 	{
 		BLOCKS.forEach(block -> event.getRegistry().register(block));
 		BLOCKS.clear();
 	}
 	
-	//@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event)
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));
