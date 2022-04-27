@@ -43,10 +43,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	}
 	
 	@Override
-	protected int getCoinCount()
-	{
-		return 9;
-	}
+	protected int getCoinCount() { return 9; }
 	
 	@Nullable
 	public BlockState getStateForPlacement(BlockPlaceContext context) {

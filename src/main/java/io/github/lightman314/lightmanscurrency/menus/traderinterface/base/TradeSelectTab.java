@@ -36,6 +36,7 @@ public class TradeSelectTab extends TraderInterfaceTab{
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 	
 	public void setTradeIndex(int tradeIndex) {
+		//LightmansCurrency.LogInfo("Setting trade index to " + tradeIndex + " on the " + DebugUtil.getSideText(this.menu.player));
 		if(this.menu.getBE().isOwner(this.menu.player))
 		{
 			this.menu.getBE().setTradeIndex(tradeIndex);
