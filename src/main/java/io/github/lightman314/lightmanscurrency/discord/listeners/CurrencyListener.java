@@ -271,7 +271,7 @@ public class CurrencyListener extends SingleChannelListener{
 		//Ignore custom names on purchases
 		StringBuffer itemName = new StringBuffer();
 		if(customName.isEmpty())
-			itemName.append(item.getDisplayName().getString());
+			itemName.append(item.getHoverName().getString());
 		else
 			itemName.append("*").append(customName).append("*");
 		//Get enchantment data (if present)
