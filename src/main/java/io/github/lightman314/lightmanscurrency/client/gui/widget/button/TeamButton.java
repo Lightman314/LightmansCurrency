@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -74,6 +75,13 @@ public class TeamButton extends Button{
 		while(this.font.width(string + "...") > this.width - 4 && string.length() > 0)
 			string = string.substring(0, string.length() - 1);
 		return string + "...";
+	}
+	
+	@Override
+	public void playDownSound(SoundManager soundManager) {
+		if(!this.visible || this.getTeam() == null)
+			return;
+		super.playDownSound(soundManager);
 	}
 	
 }

@@ -1,0 +1,65 @@
+{
+    "parent": "lightmanscurrency:currency/myfirstpenny",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:wallet_copper"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.wallet_crafting.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.wallet_crafting.description"
+        }
+    },
+    "criteria": {
+        "copper_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_copper"
+                }]
+            }
+        },
+        "iron_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_iron"
+                }]
+            }
+        },
+        "gold_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_gold"
+                }]
+            }
+        },
+        "emerald_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_emerald"
+                }]
+            }
+        },
+        "diamond_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_diamond"
+                }]
+            }
+        },
+        "netherite_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:wallet_netherite"
+                }]
+            }
+        }
+    },
+    "requirements":[["copper_wallet","iron_wallet","gold_wallet","emerald_wallet","diamond_wallet","netherite_wallet"]]
+}

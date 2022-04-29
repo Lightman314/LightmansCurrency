@@ -74,9 +74,9 @@ public class CommandBalTop {
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
-				AccountReference account = allAccounts.get(i);
+				BankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
-				String amount = account.get().getCoinStorage().getString("0");
+				String amount = account.getCoinStorage().getString("0");
 				source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
 			} catch(Exception e) { }
 		}
@@ -109,7 +109,7 @@ public class CommandBalTop {
 				return 1;
 			
 			//Sort by name
-			return o1.getName().getString().toLowerCase().compareTo(o2.getName().getString().toLowerCase());
+			return a1.getName().getString().toLowerCase().compareTo(a2.getName().getString().toLowerCase());
 		}
 		
 	}

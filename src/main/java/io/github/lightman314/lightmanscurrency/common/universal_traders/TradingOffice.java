@@ -157,7 +157,11 @@ public class TradingOffice extends SavedData{
 					UUID owner = accountCompound.getUUID("Player");
 					BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(owner), accountCompound);
 					if(owner != null && bankAccount != null)
+					{
 						this.playerBankAccounts.put(owner, bankAccount);
+						//Update owners name if the player has changed their name
+						bankAccount.updateOwnersName(PlayerReference.of(owner, bankAccount.getOwnersName()).lastKnownName());
+					}
 				} catch(Exception e) { e.printStackTrace(); }
 			}
 		}

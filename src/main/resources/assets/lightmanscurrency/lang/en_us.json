@@ -400,6 +400,7 @@
     
     "gui.button.bank.playeraccount": "My Account",
     "gui.button.bank.admin.playeraccount": "Select Players Account",
+    "gui.lightmanscurrency.bank.noteamsavailable": "You don't have access to any teams bank account.",
     
     "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
     "tooltip.lightmanscurrency.atm.selection": "Select Account",
@@ -430,8 +431,6 @@
     "log.bank.transfer.from": "from",
     
     "lightmanscurrency.bankaccount": "%s's Bank Account",
-    "lightmanscurrency.bankaccount.unknown": "Unknown Bank Account",
-    
     
     "tooltip.lightmanscurrency.interface.enable": "Activate",
     "tooltip.lightmanscurrency.interface.disable": "Deactivate",
@@ -522,6 +521,37 @@
     "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",
     "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",
     "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
-    "command.lightmanscurrency.lcbaltop.error.page": "Page is too large"
+    "command.lightmanscurrency.lcbaltop.error.page": "Page is too large",
+    
+    "advancements.lightmanscurrency.root.title": "Lightman's Currency",
+    "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",
+    "advancements.lightmanscurrency.myfirstpenny.title": "My first penny!",
+    "advancements.lightmanscurrency.myfirstpenny.description": "Get your first coin.",
+    "advancements.lightmanscurrency.wallet_crafting.title": "Coin Storage",
+    "advancements.lightmanscurrency.wallet_crafting.description": "Craft your first wallet. You can use these to store your coins!",
+    "advancements.lightmanscurrency.netherite_wallet.title": "Fireproof Wallet",
+    "advancements.lightmanscurrency.netherite_wallet.description": "Craft a netherite wallet, the largest and most resilient wallet around!",
+    "advancements.lightmanscurrency.atm.title": "Now your thinking with Banking",
+    "advancements.lightmanscurrency.atm.description": "Craft an ATM Machine. You can use this to exchange coins and access your bank account.",
+    "advancements.lightmanscurrency.banker_trade.title": "Trading with the establishment.",
+    "advancements.lightmanscurrency.banker_trade.description": "Buy a currency-related item from a banker.",
+    "advancements.lightmanscurrency.coin_mint.title": "Currency Minting",
+    "advancements.lightmanscurrency.coin_mint.description": "Craft a Coin Mint, so that you can mint your own coins.",
+    "advancements.lightmanscurrency.terminal.title": "Wireless Trading",
+    "advancements.lightmanscurrency.terminal.description": "Craft a Trading Terminal. This will let you access network traders from anywhere.",
+    "advancements.lightmanscurrency.cash_register.title": "All in one interaction!",
+    "advancements.lightmanscurrency.cash_register.description": "Craft a cash register, so that players can interact with all of your nearby traders at once!",
+    "advancements.lightmanscurrency.cashier_trade.title": "Hourly work, hourly pay.",
+    "advancements.lightmanscurrency.cashier_trade.description": "Buy something from a cashier.",
+    "advancements.lightmanscurrency.trading_core.title": "Trading Core",
+    "advancements.lightmanscurrency.trading_core.description": "Craft a Trading Core! These are needed to make trading machines to trade from.",
+    "advancements.lightmanscurrency.trader.title": "It's Tradin' Time!",
+    "advancements.lightmanscurrency.trader.description": "Craft any Item Trader so that you can trade with your friends!",
+    "advancements.lightmanscurrency.specialty_trader.title": "Specialty Trading",
+    "advancements.lightmanscurrency.specialty_trader.description": "Craft a specialty item trader. Be careful, as they have special rules limiting how their trades are defined.",
+    "advancements.lightmanscurrency.network_trader.title": "Welcome to Amazon!",
+    "advancements.lightmanscurrency.network_trader.description": "Craft a network trader, so that you can sell your items to anyone, anywhere!",
+    "advancements.lightmanscurrency.trader_interface.title": "Patching in.",
+    "advancements.lightmanscurrency.trader_interface.description": "Craft a trader interface, so that you can automate trading or restocking with a network trader!"
     
 }

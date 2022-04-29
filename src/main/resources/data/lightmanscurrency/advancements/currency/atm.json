@@ -1,0 +1,33 @@
+{
+    "parent": "lightmanscurrency:currency/myfirstpenny",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:atm"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.atm.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.atm.description"
+        }
+    },
+    "criteria": {
+        "atm_block": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:atm"
+                }]
+            }
+        },
+        "atm_item": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:portable_atm"
+                }]
+            }
+        }
+    },
+    "requirements":[["atm_block","atm_item"]]
+}

@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -57,9 +58,9 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	public static final int INTERACTION_DELAY = 20;
 	
 	public enum InteractionType {
-		RESTOCK_AND_DRAIN(true, true, true, false, 1),
-		RESTOCK(true, true, false, false, 2),
-		DRAIN(true, false, true, false, 3),
+		RESTOCK_AND_DRAIN(true, true, true, false, 3),
+		RESTOCK(true, true, false, false, 1),
+		DRAIN(true, false, true, false, 2),
 		TRADE(false, false, false, true, 0);
 		
 		public final boolean requiresPermissions;
@@ -137,7 +138,16 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	
 	private InteractionType interaction = InteractionType.TRADE;
 	public InteractionType getInteractionType() { return this.interaction; }
-	public void setInteractionType(InteractionType type) { this.interaction = type; this.setInteractionDirty(); }
+	public void setInteractionType(InteractionType type) {
+		if(this.getBlacklistedInteractions().contains(type))
+		{
+			LightmansCurrency.LogInfo("Attempted to set interaction type to " + type.name() + ", but that type is blacklisted for this interface type (" + this.getClass().getName() + ").");
+			return;
+		}
+		this.interaction = type;
+		this.setInteractionDirty();
+	}
+	public List<InteractionType> getBlacklistedInteractions() { return new ArrayList<>(); }
 	
 	UniversalTradeReference reference = new UniversalTradeReference(this::isClient, this::deserializeTrade);
 	public boolean hasTrader() { return this.reference.hasTrader(); }

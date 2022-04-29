@@ -1,0 +1,22 @@
+{
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:coinpile_gold"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.root.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.root.description"
+        },
+        "background": "lightmanscurrency:textures/gui/advancements/backgrounds/currency.png",
+        "show_toast": false,
+        "announce_to_chat": false,
+        "hidden": false
+    },
+    "criteria": {
+        "impossible": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

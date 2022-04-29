@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidge
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
@@ -162,7 +163,11 @@ public class SelectionTab extends ATMTab{
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) { }
+	public void postRender(PoseStack pose, int mouseX, int mouseY) {
+		//Render text in front of selection background
+		if(this.getTeamList().size() == 0)
+			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, new TranslatableComponent("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.x + 1, Size.NARROW.width - 2, this.teamSelection.y + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+	}
 	
 	@Override
 	public void tick() {

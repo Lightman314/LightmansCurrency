@@ -17,7 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -47,6 +46,11 @@ public class BankAccount {
 	
 	private BankAccountLogger logger = new BankAccountLogger();
 	public BankAccountLogger getLogs() { return this.logger; }
+	
+	private String ownerName = "Unknown";
+	public String getOwnersName() { return this.ownerName; }
+	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
+	public MutableComponent getName() { return new TranslatableComponent("lightmanscurrency.bankaccount", this.ownerName); }
 	
 	public void depositCoins(CoinValue depositAmount) {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
@@ -134,10 +138,10 @@ public class BankAccount {
 	
 	public static Component TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
 	{
-		return TransferCoins(menu.getPlayer(), menu.getAccountSource().getName(), menu.getAccount(), amount, destination.getName().withStyle(ChatFormatting.GOLD), destination.get());
+		return TransferCoins(menu.getPlayer(), menu.getAccount(), amount, destination.get());
 	}
 	
-	public static Component TransferCoins(Player player, Component fromAccountName, BankAccount fromAccount, CoinValue amount, Component toAccountName, BankAccount destinationAccount)
+	public static Component TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
 	{
 		if(fromAccount == null)
 			return new TranslatableComponent("gui.bank.transfer.error.null.from");
@@ -150,10 +154,10 @@ public class BankAccount {
 		
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
 		destinationAccount.depositCoins(withdrawnAmount);
-		fromAccount.LogTransfer(player, withdrawnAmount, toAccountName, false);
-		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccountName, true);
+		fromAccount.LogTransfer(player, withdrawnAmount, destinationAccount.getName().withStyle(ChatFormatting.GOLD), false);
+		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccount.getName().withStyle(ChatFormatting.GOLD), true);
 		
-		return new TranslatableComponent("gui.bank.transfer.success", amount.getString(), toAccountName);
+		return new TranslatableComponent("gui.bank.transfer.success", amount.getString(), destinationAccount.getName());
 		
 	}
 	
@@ -165,6 +169,8 @@ public class BankAccount {
 		this.markDirty = markDirty;
 		this.coinStorage.readFromNBT(compound, "CoinStorage");
 		this.logger.read(compound);
+		if(compound.contains("OwnerName"))
+			this.ownerName = compound.getString("OwnerName");
 	}
 	
 	public void markDirty()
@@ -177,6 +183,7 @@ public class BankAccount {
 		CompoundTag compound = new CompoundTag();
 		this.coinStorage.writeToNBT(compound, "CoinStorage");
 		this.logger.write(compound);
+		compound.putString("OwnerName", this.ownerName);
 		return compound;
 	}
 	
@@ -247,22 +254,6 @@ public class BankAccount {
 					return null;
 				}
 			}
-		}
-		
-		public MutableComponent getName() {
-			if(this.accountType == AccountType.Player)
-			{
-				PlayerReference player = PlayerReference.of(this.id, "Unknown");
-				if(player != null)
-					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(player.lastKnownName()));
-			}
-			else if(this.accountType == AccountType.Team)
-			{
-				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
-				if(team != null)
-					return new TranslatableComponent("lightmanscurrency.bankaccount", new TextComponent(team.getName()));
-			}
-			return new TranslatableComponent("lightmanscurrency.bankaccount.unknown");
 		}
 		
 	}

@@ -1,0 +1,177 @@
+{
+    "parent": "lightmanscurrency:currency/trading_core",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:card_display_oak"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.trader.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.trader.description"
+        }
+    },
+    "criteria": {
+        "display_case": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:display_case"
+                }]
+            }
+        },
+        "vending_machine": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:vending_machine"
+                }]
+            }
+        },
+        "vending_machine_large": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:vending_machine_large"
+                }]
+            }
+        },
+        "shelf_oak": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_oak"
+                }]
+            }
+        },
+        "shelf_birch": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_birch"
+                }]
+            }
+        },
+        "shelf_spruce": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_spruce"
+                }]
+            }
+        },
+        "shelf_jungle": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_jungle"
+                }]
+            }
+        },
+        "shelf_acacia": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_acacia"
+                }]
+            }
+        },
+        "shelf_dark_oak": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_dark_oak"
+                }]
+            }
+        },
+        "shelf_crimson": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_crimson"
+                }]
+            }
+        },
+        "shelf_warped": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:shelf_warped"
+                }]
+            }
+        },
+        "card_display_oak": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_oak"
+                }]
+            }
+        },
+        "card_display_birch": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_birch"
+                }]
+            }
+        },
+        "card_display_spruce": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_spruce"
+                }]
+            }
+        },
+        "card_display_jungle": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_jungle"
+                }]
+            }
+        },
+        "card_display_acacia": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_acacia"
+                }]
+            }
+        },
+        "card_display_dark_oak": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_dark_oak"
+                }]
+            }
+        },
+        "card_display_crimson": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_crimson"
+                }]
+            }
+        },
+        "card_display_warped": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:card_display_warped"
+                }]
+            }
+        },
+        "freezer": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:freezer"
+                }]
+            }
+        }
+    },
+    "requirements":[["display_case","vending_machine","vending_machine_large","shelf_oak","shelf_birch","shelf_spruce","shelf_jungle","shelf_acacia","shelf_dark_oak","shelf_crimson","shelf_warped","card_display_oak","card_display_birch","card_display_spruce","card_display_jungle","card_display_acacia","card_display_dark_oak","card_display_crimson","card_display_warped","freezer"]]
+}

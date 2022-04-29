@@ -110,7 +110,8 @@ public class ClientTradingOffice {
 		try {
 			UUID owner = compound.getUUID("Player");
 			BankAccount account = new BankAccount(compound);
-			loadedBankAccounts.put(owner, account);
+			if(owner != null && account != null)
+				loadedBankAccounts.put(owner, account);
 		} catch(Exception e) { e.printStackTrace(); }
 	}
 	

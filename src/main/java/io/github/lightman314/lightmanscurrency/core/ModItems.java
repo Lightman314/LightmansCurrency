@@ -11,10 +11,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.event.RegistryEvent;
-//import net.minecraftforge.eventbus.api.SubscribeEvent;
-//import net.minecraftforge.fml.common.Mod;
 
-//@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModItems {
 	
 	private static final List<Item> ITEMS = Lists.newArrayList();

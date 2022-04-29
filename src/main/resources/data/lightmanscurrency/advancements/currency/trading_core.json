@@ -1,0 +1,25 @@
+{
+    "parent": "lightmanscurrency:currency/myfirstpenny",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:trading_core"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.trading_core.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.trading_core.description"
+        }
+    },
+    "criteria": {
+        "trading_core": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:trading_core"
+                }]
+            }
+        }
+    },
+    "requirements":[["trading_core"]]
+}
