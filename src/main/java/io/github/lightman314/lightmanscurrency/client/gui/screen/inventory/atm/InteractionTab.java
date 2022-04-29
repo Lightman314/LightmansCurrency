@@ -43,7 +43,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		Component accountName = new TextComponent("");
 		if(this.screen.getMenu().getAccount() != null)
-			accountName = this.screen.getMenu().getAccountSource().getName();
+			accountName = this.screen.getMenu().getAccount().getName();
 		this.screen.getFont().draw(pose, accountName.getString(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		this.accountWidget.renderInfo(pose);
 	}

@@ -181,13 +181,12 @@ public class IconAndButtonUtil {
 	
 	public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	
-	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Consumer<Integer> onSelect, Function<Button,Button> addButton) {
+	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<InteractionType> blacklist) {
 		List<Component> options = new ArrayList<>();
 		for(int i = 0; i < InteractionType.size(); ++i)
 			options.add(InteractionType.fromIndex(i).getDisplayText());
-		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, addButton, options);
+		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, (index) ->  !blacklist.contains(InteractionType.fromIndex(index)), addButton, options);
 	}
-	
 	
 	public static void renderButtonTooltips(PoseStack pose, int mouseX, int mouseY, List<Widget> widgets)
 	{

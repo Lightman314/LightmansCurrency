@@ -1,0 +1,25 @@
+{
+    "parent": "lightmanscurrency:currency/myfirstpenny",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:cash_register"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.cash_register.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.cash_register.description"
+        }
+    },
+    "criteria": {
+        "cash_register": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:cash_register"
+                }]
+            }
+        }
+    },
+    "requirements":[["cash_register"]]
+}

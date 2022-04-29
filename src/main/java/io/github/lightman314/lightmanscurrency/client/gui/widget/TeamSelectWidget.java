@@ -15,6 +15,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.TextComponent;
 
 public class TeamSelectWidget extends AbstractWidget {
@@ -135,5 +136,8 @@ public class TeamSelectWidget extends AbstractWidget {
 	
 	@Override
 	protected boolean isValidClickButton(int button) { return false; }
+	
+	@Override
+	public void playDownSound(SoundManager soundManager) { }
 	
 }

@@ -1,0 +1,49 @@
+{
+    "parent": "lightmanscurrency:currency/trading_core",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:item_trader_server_lrg"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.network_trader.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.network_trader.description"
+        }
+    },
+    "criteria": {
+        "small_server": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:item_trader_server_sml"
+                }]
+            }
+        },
+        "medium_server": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:item_trader_server_med"
+                }]
+            }
+        },
+        "large_server": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:item_trader_server_lrg"
+                }]
+            }
+        },
+        "extra_large_server": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [{
+                    "item": "lightmanscurrency:item_trader_server_xlrg"
+                }]
+            }
+        }
+    },
+    "requirements":[["small_server","medium_server","large_server","extra_large_server"]]
+}

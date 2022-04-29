@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
@@ -63,7 +62,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		this.newTradeDisplay.visible = false;
 		this.newTradeDisplay.displayOnly = true;
 		
-		this.interactionDropdown = this.screen.addRenderableTabWidget(IconAndButtonUtil.interactionTypeDropdown(this.screen.getGuiLeft() + 104, this.screen.getGuiTop() + 20, 97, this.font, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.screen::addRenderableTabWidget));
+		this.interactionDropdown = this.screen.addRenderableTabWidget(IconAndButtonUtil.interactionTypeDropdown(this.screen.getGuiLeft() + 104, this.screen.getGuiTop() + 20, 97, this.font, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.screen::addRenderableTabWidget, this.menu.getBE().getBlacklistedInteractions()));
 		
 		this.changesDisplay = this.screen.addRenderableTabWidget(new ScrollTextDisplay(this.screen.getGuiLeft() + 104, this.screen.getGuiTop() + 36, 97, 73, this.font, this::getMessages));
 		//Set background color to clear.
@@ -163,17 +162,13 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			
 		}
 		
-		AccountReference account = this.menu.getBE().getAccountReference();
+		BankAccount account = this.menu.getBE().getBankAccount();
 		if(account != null && this.menu.getBE().getInteractionType().trades)
 		{
 			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
 			this.font.draw(pose, accountName, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(accountName) / 2), this.screen.getGuiTop() + 120, 0x404040);
-			BankAccount ba = account.get();
-			if(ba != null)
-			{
-				Component balanceText = new TranslatableComponent("gui.lightmanscurrency.bank.balance", ba.getCoinStorage().getString("0"));
-				this.font.draw(pose, balanceText, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(balanceText) / 2), this.screen.getGuiTop() + 130, 0x404040);
-			}
+			Component balanceText = new TranslatableComponent("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
+			this.font.draw(pose, balanceText, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(balanceText) / 2), this.screen.getGuiTop() + 130, 0x404040);
 		}
 		
 	}

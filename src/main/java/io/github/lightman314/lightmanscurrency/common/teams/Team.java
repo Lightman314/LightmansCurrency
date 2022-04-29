@@ -98,6 +98,7 @@ public class Team {
 		if(this.isAdmin(requestor))
 		{
 			this.teamName = newName;
+			this.bankAccount.updateOwnersName(this.teamName);
 			this.markDirty();
 		}
 	}
@@ -256,6 +257,7 @@ public class Team {
 		if(this.hasBankAccount() || !isOwner(requestor))
 			return;
 		this.bankAccount = new BankAccount(() -> this.markDirty());
+		this.bankAccount.updateOwnersName(this.teamName);
 		this.markDirty();
 	}
 	
@@ -367,6 +369,7 @@ public class Team {
 				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"));
 				if(compound.contains("BankLimit", Tag.TAG_INT))
 					team.bankAccountLimit = compound.getInt("BankLimit");
+				team.bankAccount.updateOwnersName(team.teamName);
 			}
 			
 			return team;

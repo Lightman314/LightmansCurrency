@@ -14,6 +14,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -624,63 +625,6 @@ public class TradeButton extends Button{
 			
 		}
 		
-		public static class TextFormatting
-		{
-			
-			public enum Centering {
-				TOP_LEFT(-1,1), TOP_CENTER(0,1), TOP_RIGHT(1,1),
-				MIDDLE_LEFT(-1,0), MIDDLE_CENTER(0,0), MIDDLE_RIGHT(1,0),
-				BOTTOM_LEFT(-1,-1), BOTTOM_CENTER(0,-1), BOTTOM_RIGHT(1,-1);
-				
-				private final int horiz;
-				private final int vert;
-				
-				private Centering(int horiz, int vert) { this.horiz = horiz; this.vert = vert; }
-				public boolean isTop() { return vert > 0; }
-				public boolean isMiddle() { return vert == 0; }
-				public boolean isBottom() { return vert < 0; }
-				public boolean isLeft() { return horiz < 0; }
-				public boolean isCenter() { return horiz == 0; }
-				public boolean isRight() { return horiz > 1; }
-				
-				public Centering makeTop() { return this.of(this.horiz, 1); }
-				public Centering makeMiddle() { return this.of(this.horiz, 0); }
-				public Centering makeBottom() { return this.of(this.horiz, -1); }
-				
-				public Centering makeLeft() { return this.of(-1, this.vert); }
-				public Centering makeCenter() { return this.of(0, this.vert); }
-				public Centering makeRight() { return this.of(1, this.vert); }
-				
-				private Centering of(int horiz, int vert) {
-					for(Centering c : Centering.values())
-					{
-						if(c.horiz == horiz && c.vert == vert)
-							return c;
-					}
-					return this;
-				}
-				
-			}
-			
-			private Centering centering = Centering.MIDDLE_CENTER;
-			private int color = 0xFFFFFF;
-			
-			private TextFormatting() {}
-			
-			public static TextFormatting create() { return new TextFormatting(); }
-			
-			public TextFormatting topEdge() { this.centering = this.centering.makeTop(); return this; }
-			public TextFormatting middle() { this.centering = this.centering.makeMiddle(); return this; }
-			public TextFormatting bottomEdge() { this.centering = this.centering.makeBottom(); return this; }
-			
-			public TextFormatting leftEdge() { this.centering = this.centering.makeLeft(); return this; }
-			public TextFormatting centered() { this.centering = this.centering.makeCenter(); return this; }
-			public TextFormatting rightEdge() { this.centering = this.centering.makeRight(); return this; }
-			
-			public TextFormatting color(int color) { this.color = color; return this; }
-			
-		}
-		
 		private static class TextEntry extends DisplayEntry
 		{
 			
@@ -691,17 +635,17 @@ public class TradeButton extends Button{
 			private TextEntry(Component text, TextFormatting format, List<Component> tooltip) { super(tooltip); this.text = text; this.format = format; }
 
 			protected int getTextLeft(int x, int availableWidth) { 
-				if(this.format.centering.isCenter())
+				if(this.format.centering().isCenter())
 					return x + (availableWidth / 2) - (this.getTextWidth() / 2);
-				if(this.format.centering.isRight())
+				if(this.format.centering().isRight())
 					return x + availableWidth - this.getTextWidth();
 				return x;
 			}
 			
 			protected int getTextTop(int y, int availableHeight) {
-				if(this.format.centering.isMiddle())
+				if(this.format.centering().isMiddle())
 					return y + (availableHeight / 2) - (this.getFont().lineHeight / 2);
-				if(this.format.centering.isBottom())
+				if(this.format.centering().isBottom())
 					return y + availableHeight - this.getFont().lineHeight;
 				return y;
 			}
@@ -718,7 +662,7 @@ public class TradeButton extends Button{
 				//Define the y position
 				int top = this.getTextTop(y + area.yOffset, area.height);
 				//Draw the text
-				font.drawShadow(pose, this.text, left, top, this.format.color);
+				font.drawShadow(pose, this.text, left, top, this.format.color());
 			}
 
 			@Override

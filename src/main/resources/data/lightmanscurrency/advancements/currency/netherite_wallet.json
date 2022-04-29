@@ -1,0 +1,29 @@
+{
+    "parent": "lightmanscurrency:currency/wallet_crafting",
+    "display": {
+        "icon": {
+            "item": "lightmanscurrency:wallet_netherite",
+            "nbt": "{Enchantments:[{id:\"minecraft:infinity\",lvl:1}]}"
+        },
+        "title": {
+            "translate": "advancements.lightmanscurrency.netherite_wallet.title"
+        },
+        "description": {
+            "translate": "advancements.lightmanscurrency.netherite_wallet.description"
+        },
+        "frame": "goal"
+    },
+    "criteria": {
+        "netherite_wallet": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "item": "lightmanscurrency:wallet_netherite"
+                    }
+                ]
+            }
+        }
+    },
+    "requirements":[["netherite_wallet"]]
+}
