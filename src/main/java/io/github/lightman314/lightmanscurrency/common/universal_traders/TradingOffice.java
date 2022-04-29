@@ -593,6 +593,7 @@ public class TradingOffice extends SavedData{
 				return office.playerBankAccounts.get(playerID);
 			//Create a new bank account for the player;
 			BankAccount newAccount = new BankAccount(() -> MarkBankAccountDirty(playerID));
+			newAccount.updateOwnersName(PlayerReference.of(playerID, "Unknown").lastKnownName());
 			office.playerBankAccounts.put(playerID, newAccount);
 			MarkBankAccountDirty(playerID);
 			return newAccount;
