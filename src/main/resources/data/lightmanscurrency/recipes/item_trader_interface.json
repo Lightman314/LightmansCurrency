@@ -2,22 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "group": "trader_interface",
   "pattern":[
-    "sgs",
-    "scs",
-    "iei"
+    "ici",
+    "iti",
+    "ici"
   ],
   "key": {
-    "e": {
-      "item": "minecraft:ender_eye"
-    },
-    "g": {
-      "item": "minecraft:glass"
-    },
     "i": {
       "item": "minecraft:iron_ingot"
     },
-    "s": {
-      "item": "minecraft:stone"
+    "t": {
+      "tag": "lightmanscurrency:trading_terminal"
     },
     "c": {
       "tag": "forge:chests/wooden"
