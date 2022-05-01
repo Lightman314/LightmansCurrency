@@ -15,11 +15,12 @@
         "trader_interface": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:item_trader_interface"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:trader_interface"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["trader_interface"]]
+    }
 }

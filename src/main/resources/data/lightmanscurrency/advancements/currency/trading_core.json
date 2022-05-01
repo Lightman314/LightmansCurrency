@@ -15,11 +15,12 @@
         "trading_core": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:trading_core"
-                }]
+                "items": [
+                    {
+                        "items":["lightmanscurrency:trading_core"]
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["trading_core"]]
+    }
 }

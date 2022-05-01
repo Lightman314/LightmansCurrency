@@ -12,22 +12,15 @@
         }
     },
     "criteria": {
-        "armor_display": {
+        "specialty_trader": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:armor_display"
-                }]
-            }
-        },
-        "ticket_kiosk": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:ticket_kiosk"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:trader_specialty"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["armor_display","ticket_kiosk"]]
+    }
 }

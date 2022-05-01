@@ -12,54 +12,15 @@
         }
     },
     "criteria": {
-        "copper_wallet": {
+        "wallet": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_copper"
-                }]
-            }
-        },
-        "iron_wallet": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_iron"
-                }]
-            }
-        },
-        "gold_wallet": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_gold"
-                }]
-            }
-        },
-        "emerald_wallet": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_emerald"
-                }]
-            }
-        },
-        "diamond_wallet": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_diamond"
-                }]
-            }
-        },
-        "netherite_wallet": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:wallet_netherite"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:wallet"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["copper_wallet","iron_wallet","gold_wallet","emerald_wallet","diamond_wallet","netherite_wallet"]]
+    }
 }

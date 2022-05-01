@@ -1,0 +1,21 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:vending_machine_large",
+        "lightmanscurrency:vending_machine_large_orange",
+        "lightmanscurrency:vending_machine_large_magenta",
+        "lightmanscurrency:vending_machine_large_lightblue",
+        "lightmanscurrency:vending_machine_large_yellow",
+        "lightmanscurrency:vending_machine_large_lime",
+        "lightmanscurrency:vending_machine_large_pink",
+        "lightmanscurrency:vending_machine_large_gray",
+        "lightmanscurrency:vending_machine_large_lightgray",
+        "lightmanscurrency:vending_machine_large_cyan",
+        "lightmanscurrency:vending_machine_large_purple",
+        "lightmanscurrency:vending_machine_large_blue",
+        "lightmanscurrency:vending_machine_large_brown",
+        "lightmanscurrency:vending_machine_large_green",
+        "lightmanscurrency:vending_machine_large_red",
+        "lightmanscurrency:vending_machine_large_black"
+    ]
+}

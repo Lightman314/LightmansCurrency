@@ -12,22 +12,15 @@
         }
     },
     "criteria": {
-        "terminal_block": {
+        "terminal": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:terminal"
-                }]
-            }
-        },
-        "terminal_item": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:portable_terminal"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:trading_terminal"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["terminal_block","terminal_item"]]
+    }
 }

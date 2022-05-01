@@ -15,56 +15,17 @@
         "hidden": false
     },
     "criteria": {
-        "copper_coin": {
+        "coin": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_copper"
-                }]
-            }
-        },
-        "iron_coin": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_iron"
-                }]
-            }
-        },
-        "gold_coin": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_gold"
-                }]
-            }
-        },
-        "emerald_coin": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_emerald"
-                }]
-            }
-        },
-        "diamond_coin": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_diamond"
-                }]
-            }
-        },
-        "netherite_coin": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coin_netherite"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:coin"
+                    }
+                ]
             }
         }
     },
-    "requirements":[["copper_coin","iron_coin","gold_coin","emerald_coin","diamond_coin","netherite_coin"]],
     "rewards": {
         "recipes": ["lightmanscurrency:wallet_copper","lightmanscurrency:wallet_iron","lightmanscurrency:wallet_gold","lightmanscurrency:wallet_emerald","lightmanscurrency:wallet_diamond","lightmanscurrency:wallet_diamond"]
     }

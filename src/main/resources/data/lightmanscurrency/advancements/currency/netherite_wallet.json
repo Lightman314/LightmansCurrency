@@ -19,11 +19,10 @@
             "conditions": {
                 "items": [
                     {
-                        "item": "lightmanscurrency:wallet_netherite"
+                        "items":["lightmanscurrency:wallet_netherite"]
                     }
                 ]
             }
         }
-    },
-    "requirements":[["netherite_wallet"]]
+    }
 }

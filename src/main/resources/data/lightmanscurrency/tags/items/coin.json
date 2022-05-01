@@ -1,0 +1,11 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:coin_copper",
+        "lightmanscurrency:coin_iron",
+        "lightmanscurrency:coin_gold",
+        "lightmanscurrency:coin_emerald",
+        "lightmanscurrency:coin_diamond",
+        "lightmanscurrency:coin_netherite"
+    ]
+}

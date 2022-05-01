@@ -541,7 +541,7 @@
     "advancements.lightmanscurrency.terminal.description": "Craft a Trading Terminal. This will let you access network traders from anywhere.",
     "advancements.lightmanscurrency.cash_register.title": "All in one interaction!",
     "advancements.lightmanscurrency.cash_register.description": "Craft a cash register, so that players can interact with all of your nearby traders at once!",
-    "advancements.lightmanscurrency.cashier_trade.title": "Hourly work, hourly pay.",
+    "advancements.lightmanscurrency.cashier_trade.title": "Hourly work, hourly pay",
     "advancements.lightmanscurrency.cashier_trade.description": "Buy something from a cashier.",
     "advancements.lightmanscurrency.trading_core.title": "Trading Core",
     "advancements.lightmanscurrency.trading_core.description": "Craft a Trading Core! These are needed to make trading machines to trade from.",
@@ -551,7 +551,7 @@
     "advancements.lightmanscurrency.specialty_trader.description": "Craft a specialty item trader. Be careful, as they have special rules limiting how their trades are defined.",
     "advancements.lightmanscurrency.network_trader.title": "Welcome to Amazon!",
     "advancements.lightmanscurrency.network_trader.description": "Craft a network trader, so that you can sell your items to anyone, anywhere!",
-    "advancements.lightmanscurrency.trader_interface.title": "Patching in.",
+    "advancements.lightmanscurrency.trader_interface.title": "Patching in",
     "advancements.lightmanscurrency.trader_interface.description": "Craft a trader interface, so that you can automate trading or restocking with a network trader!"
     
 }

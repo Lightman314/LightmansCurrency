@@ -15,19 +15,12 @@
         "atm_block": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:atm"
-                }]
-            }
-        },
-        "atm_item": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:portable_atm"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:atm"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["atm_block","atm_item"]]
+    }
 }
