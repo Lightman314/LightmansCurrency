@@ -15,11 +15,12 @@
         "coin_mint": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:coinmint"
-                }]
+                "items": [
+                    {
+                        "items": ["lightmanscurrency:coinmint"]
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["coin_mint"]]
+    }
 }

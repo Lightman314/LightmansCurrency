@@ -15,11 +15,12 @@
         "cash_register": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:cash_register"
-                }]
+                "items": [
+                    {
+                        "items":["lightmanscurrency:cash_register"]
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["cash_register"]]
+    }
 }

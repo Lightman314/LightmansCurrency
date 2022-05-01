@@ -1,0 +1,9 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:item_trader_server_sml",
+        "lightmanscurrency:item_trader_server_med",
+        "lightmanscurrency:item_trader_server_lrg",
+        "lightmanscurrency:item_trader_server_xlrg"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:display_case",
+        "#lightmanscurrency:vending_machine",
+        "#lightmanscurrency:large_vending_machine",
+        "#lightmanscurrency:shelf",
+        "#lightmanscurrency:card_display",
+        "#lightmanscurrency:freezer"
+    ]
+}

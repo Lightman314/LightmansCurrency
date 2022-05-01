@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientTradingOffice {
@@ -113,6 +114,13 @@ public class ClientTradingOffice {
 			if(owner != null && account != null)
 				loadedBankAccounts.put(owner, account);
 		} catch(Exception e) { e.printStackTrace(); }
+	}
+	
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+		//Reset loaded traders, teams, and bank accounts
+		loadedTraders = new HashMap<>();
+		loadedTeams = new HashMap<>();
+		loadedBankAccounts = new HashMap<>();
 	}
 	
 }

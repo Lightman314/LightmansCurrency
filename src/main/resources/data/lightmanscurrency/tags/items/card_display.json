@@ -1,0 +1,13 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:card_display_oak",
+        "lightmanscurrency:card_display_birch",
+        "lightmanscurrency:card_display_spruce",
+        "lightmanscurrency:card_display_jungle",
+        "lightmanscurrency:card_display_acacia",
+        "lightmanscurrency:card_display_dark_oak",
+        "lightmanscurrency:card_display_crimson",
+        "lightmanscurrency:card_display_warped"
+    ]
+}

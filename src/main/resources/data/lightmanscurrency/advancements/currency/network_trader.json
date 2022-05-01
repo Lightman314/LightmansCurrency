@@ -12,38 +12,15 @@
         }
     },
     "criteria": {
-        "small_server": {
+        "network_trader": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:item_trader_server_sml"
-                }]
-            }
-        },
-        "medium_server": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:item_trader_server_med"
-                }]
-            }
-        },
-        "large_server": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:item_trader_server_lrg"
-                }]
-            }
-        },
-        "extra_large_server": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "items": [{
-                    "item": "lightmanscurrency:item_trader_server_xlrg"
-                }]
+                "items": [
+                    {
+                        "tag": "lightmanscurrency:trader_network"
+                    }
+                ]
             }
         }
-    },
-    "requirements":[["small_server","medium_server","large_server","extra_large_server"]]
+    }
 }
