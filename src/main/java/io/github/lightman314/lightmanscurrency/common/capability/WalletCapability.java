@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -13,7 +15,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -138,6 +142,84 @@ public class WalletCapability {
 			handler.readTag(tag);
 		}
 		
+	}
+	
+	public static void WalletSlotInteraction(Player player, int clickedSlot, boolean heldShift, ItemStack heldItem)
+	{
+		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
+		AbstractContainerMenu menu = player.containerMenu;
+		if(menu == null)
+			return;
+		boolean creative = player.isCreative() && !player.level.isClientSide;
+		if(!creative)
+			heldItem = menu.getCarried();
+		IWalletHandler walletHandler = getWalletHandler(player).orElse(null);
+		if(walletHandler == null)
+		{
+			LightmansCurrency.LogWarning("Attempted to do a wallet slot interaction, but the player has no wallet handler.");
+			return;
+		}
+		if(clickedSlot < 0)
+		{
+			//Wallet slot clicked
+			if(heldShift)
+			{
+				//Quick-move the wallet to the players inventory
+				ItemStack wallet = walletHandler.getWallet();
+				if(wallet.isEmpty())
+					return;
+				//If we were able to move the wallet into the players inventory, empty the wallet slot
+				if(player.getInventory().getFreeSlot() >= 0)
+				{
+					if(!creative)
+						player.getInventory().add(wallet);
+					walletHandler.setWallet(ItemStack.EMPTY);
+					//LightmansCurrency.LogInfo("Successfully moved the wallet into the players inventory on the " + DebugUtil.getSideText(player));
+				}
+			}
+			else
+			{
+				//Swap the held item with the wallet item
+				ItemStack wallet = walletHandler.getWallet();
+				if(wallet.isEmpty() && heldItem.isEmpty())
+					return;
+				if(WalletSlot.isValidWallet(heldItem) || heldItem.isEmpty())
+				{
+					walletHandler.setWallet(heldItem);
+					if(!creative)
+						menu.setCarried(wallet);
+				}
+			}
+		}
+		else if(heldShift)
+		{
+			Inventory inventory = player.getInventory();
+			//Try to shift-click the hovered slot into the wallet slot
+			if(clickedSlot >= inventory.getContainerSize())
+			{
+				LightmansCurrency.LogWarning("Clicked on slot " + clickedSlot + " of " + player.getInventory().getContainerSize() + " on the " + DebugUtil.getSideText(player));
+				return;
+			}	
+			ItemStack slotItem = inventory.getItem(clickedSlot);
+			//LightmansCurrency.LogInfo("Clicked on slot " + clickedSlot + " of " + inventory.getContainerSize() + " on the " + DebugUtil.getSideText(player));
+			//LightmansCurrency.LogInfo("Slot had " + slotItem.getCount() + "x " + slotItem.getItem().getRegistryName().toString());
+			if(WalletSlot.isValidWallet(slotItem) && walletHandler.getWallet().isEmpty())
+			{
+				//Remove the item from inventory
+				if(!creative)
+				{
+					if(slotItem.getCount() > 1)
+						inventory.removeItem(clickedSlot, 1);
+					else
+						inventory.setItem(clickedSlot, ItemStack.EMPTY);
+				}
+				//Move the wallet into the wallet slot
+				ItemStack newWallet = slotItem.copy();
+				newWallet.setCount(1);
+				walletHandler.setWallet(newWallet);
+			}
+		}
+			
 	}
 	
 }

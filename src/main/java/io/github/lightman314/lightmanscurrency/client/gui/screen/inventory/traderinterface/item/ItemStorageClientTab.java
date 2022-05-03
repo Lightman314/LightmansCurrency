@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.menus.traderinterface.item.ItemSt
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -87,6 +88,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
 			TraderItemStorage storage = ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemBuffer();
+			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			for(int y = 0; y < ROWS; ++y)
 			{
 				int yPos = this.screen.getGuiTop() + Y_OFFSET + y * 18;
@@ -98,12 +100,12 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 					this.screen.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
+					if(index == hoveredSlot)
+						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					//Render the slots item
 					if(index < storage.getSlotCount())
-					{
 						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
-						index++;
-					}
+					index++;
 				}
 			}
 			
@@ -141,25 +143,28 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
-			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
-			if(hoveredSlot >= 0)
+			if(this.screen.getMenu().getCarried().isEmpty())
 			{
-				hoveredSlot += scroll * COLUMNS;
-				TraderItemStorage storage = ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemBuffer();
-				if(hoveredSlot < storage.getContents().size())
+				int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
+				if(hoveredSlot >= 0)
 				{
-					ItemStack stack = storage.getContents().get(hoveredSlot);
-					List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
-					if(stack.getCount() >= 64)
+					hoveredSlot += scroll * COLUMNS;
+					TraderItemStorage storage = ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemBuffer();
+					if(hoveredSlot < storage.getContents().size())
 					{
-						if(stack.getCount() % 64 == 0)
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
-						else
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
-					}
-					this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
-				}	
+						ItemStack stack = storage.getContents().get(hoveredSlot);
+						List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
+						tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+						if(stack.getCount() >= 64)
+						{
+							if(stack.getCount() % 64 == 0)
+								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+							else
+								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+						}
+						this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
+					}	
+				}
 			}
 			
 			this.inputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);

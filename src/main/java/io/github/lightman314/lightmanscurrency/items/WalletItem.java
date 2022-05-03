@@ -56,6 +56,14 @@ public class WalletItem extends Item{
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
 	
+	@Override
+	public int getEnchantmentValue() {
+		return 10;
+	}
+	
+	@Override
+	public boolean isEnchantable(ItemStack stack) { return true; }
+	
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
 	 * Returns true if the stack is empty, so you will need to check for that separately.

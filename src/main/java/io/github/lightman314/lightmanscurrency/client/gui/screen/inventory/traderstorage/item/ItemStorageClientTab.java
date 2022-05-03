@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemStor
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.inventory.Slot;
@@ -68,6 +69,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
 			TraderItemStorage storage = ((IItemTrader)this.menu.getTrader()).getStorage();
+			int hoverSlot = this.isMouseOverSlot(mouseX, mouseY);
 			for(int y = 0; y < ROWS; ++y)
 			{
 				int yPos = this.screen.getGuiTop() + Y_OFFSET + y * 18;
@@ -79,12 +81,12 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 					RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 					this.screen.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
+					if(index == hoverSlot)
+						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					//Render the slots item
 					if(index < storage.getSlotCount())
-					{
 						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
-						index++;
-					}	
+					index++;
 				}
 			}
 			
@@ -116,7 +118,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof IItemTrader && this.screen.getMenu().getCarried().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)
