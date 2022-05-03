@@ -51,7 +51,7 @@ public class Config {
 			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
 			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
 			"minecraft:cake", "minecraft:iron_bars",
-			//1.17 & 1.17
+			//1.17 & 1.18
 			"minecraft:small_amethyst_bud","minecraft:medium_amethyst_bud","minecraft:large_amethyst_bud","minecraft:amethyst_cluster",
 			"minecraft:lightning_rod", "minecraft:pointed_dripstone", "minecraft:spore_blossom",
 			//Lightmans Currency
@@ -130,6 +130,16 @@ public class Config {
 		return ModItems.COIN_GOLD;
 	}
 	
+	public static Item getMoneyMendingCoinItem() {
+		Item coinItem = null;
+		try {
+			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(SERVER.moneyMendingCoinCost.get()));
+		} catch(Exception e) { e.printStackTrace(); }
+		if(coinItem != null && MoneyUtil.isCoin(coinItem))
+			return coinItem;
+		return ModItems.COIN_COPPER;
+	}
+	
 	public static class Client
 	{
 		
@@ -140,11 +150,12 @@ public class Config {
 		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
 		//Wallet Button options
-		public final ForgeConfigSpec.BooleanValue renderWalletButton;
-		public final ForgeConfigSpec.IntValue walletButtonX;
-		public final ForgeConfigSpec.IntValue walletButtonY;
-		public final ForgeConfigSpec.IntValue walletButtonCreativeX;
-		public final ForgeConfigSpec.IntValue walletButtonCreativeY;
+		public final ForgeConfigSpec.IntValue walletSlotX;
+		public final ForgeConfigSpec.IntValue walletSlotY;
+		public final ForgeConfigSpec.IntValue walletSlotCreativeX;
+		public final ForgeConfigSpec.IntValue walletSlotCreativeY;
+		public final ForgeConfigSpec.IntValue walletButtonOffsetX;
+		public final ForgeConfigSpec.IntValue walletButtonOffsetY;
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -165,23 +176,28 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.comment("Wallet Button Settings").push("wallet_button");
-			
-			this.renderWalletButton = builder
-					.comment("Whether a wallet button should appear on the inventory screen, allowing you to open the wallet screen without use of the keybind.")
-					.define("renderButton", true);
-			this.walletButtonX = builder
-					.comment("The x position that the button should be placed at.")
-					.defineInRange("buttonX", 176, -50, 255);
-			this.walletButtonY = builder
-					.comment("The y position that the button should be placed at.")
-					.defineInRange("buttonY", 0, -50, 255);
-			this.walletButtonCreativeX = builder
-					.comment("The x position that the button should be placed at in the creative screen.")
-					.defineInRange("buttonCreativeX", 195, -50, 255);
-			this.walletButtonCreativeY = builder
-					.comment("The y position that the button should be placed at.")
-					.defineInRange("buttonCreativeY", 0, -50, 255);
+			builder.comment("Wallet Slot Settings").push("wallet_slot");
+
+			this.walletSlotX = builder
+					.comment("The x position that the wallet slot will be placed at in the players inventory.")
+					.defineInRange("slotX", 76, -255, 255);
+			this.walletSlotY = builder
+					.comment("The y position that the wallet slot will be placed at in the players inventory.")
+					.defineInRange("slotY", 43, -255, 255);
+
+			this.walletSlotCreativeX = builder
+					.comment("The x position that the wallet slot will be placed at in the players creative inventory.")
+					.defineInRange("creativeSlotX", 126, -255, 255);
+			this.walletSlotCreativeY = builder
+					.comment("The y position that the wallet slot will be placed at in the players creative inventory.")
+					.defineInRange("creativeSlotY", 19, -255, 255);
+
+			this.walletButtonOffsetX = builder
+					.comment("The x offset that the wallet button should be placed at relative to the wallet slot position.")
+					.defineInRange("buttonX", 8, -255, 255);
+			this.walletButtonOffsetY = builder
+					.comment("The y offset that the wallet button should be placed at relative to the wallet slot position.")
+					.defineInRange("buttonY", -10, -255, 255);
 			
 			builder.pop();
 			
@@ -379,6 +395,11 @@ public class Config {
 		public final ForgeConfigSpec.IntValue itemUpgradeCapacity2;
 		public final ForgeConfigSpec.IntValue itemUpgradeCapacity3;
 		
+		//Enchantment Options
+		public final ForgeConfigSpec.ConfigValue<String> moneyMendingCoinCost;
+		public final ForgeConfigSpec.IntValue coinMagnetRangeBase;
+		public final ForgeConfigSpec.IntValue coinMagnetRangeLevel;
+		
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
@@ -489,6 +510,18 @@ public class Config {
 					.defineInRange("upgradeCapacity2", 6 * 64, 1, 1728);
 			this.itemUpgradeCapacity3 = builder.comment("The amount of item storage added by the third Item Capacity upgrade (Diamond).")
 					.defineInRange("upgradeCapacity3", 9 * 64, 1, 1728);
+
+			builder.pop();
+			
+			builder.comment("Enchantment Settings").push("enchantments");
+
+			this.moneyMendingCoinCost = builder.comment("The coin cost required to repair a single item durability point with the Money Mending enchantment.")
+					.define("moneyMendingCoinCost", "lightmanscurrency:coin_copper");
+
+			this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
+					.defineInRange("coinMagnetRangeBase", 5, 0, 50);
+			this.coinMagnetRangeLevel = builder.comment("The increase in collection radius added by each additional level of the enchantment.")
+					.defineInRange("coinMagnetRangeLevel", 2, 0, 50);
 
 			builder.pop();
 			

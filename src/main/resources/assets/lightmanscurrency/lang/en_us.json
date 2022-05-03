@@ -118,6 +118,11 @@
     "block.lightmanscurrency.ticket_kiosk": "Ticket Kiosk",
     "block.lightmanscurrency.item_trader_interface": "Item Trader Interface Terminal",
     
+    "enchantment.lightmanscurrency.money_mending": "Money Mending",
+    "enchantment.lightmanscurrency.money_mending.desc": "Repairs the item using money from your wallet.",
+    "enchantment.lightmanscurrency.coin_magnet": "Coin Magnet",
+    "enchantment.lightmanscurrency.coin_magnet.desc": "Lets your wallet collect coins from a larger range.",
+    
     "gamerule.keepWallet" : "Keep wallet on death",
     "gamerule.coinDropPercent" : "Coin percentage dropped after death",
     

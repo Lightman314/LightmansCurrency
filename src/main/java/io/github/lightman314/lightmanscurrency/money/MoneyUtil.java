@@ -793,10 +793,13 @@ public class MoneyUtil {
 				while(coinsToGive > 0)
 				{
 					int giveCount = coinsToGive;
+					ItemStack newStack = new ItemStack(coin);
+					if(giveCount > newStack.getMaxStackSize())
+						giveCount = newStack.getMaxStackSize();
 					if(giveCount > 64)
 						giveCount = 64;
 					coinsToGive -= giveCount;
-					ItemStack newStack = new ItemStack(coin, giveCount);
+					newStack.setCount(giveCount);
 					items.add(newStack);
 				}
 			}

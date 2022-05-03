@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 public class WalletSlot extends Slot{
 	
 	public static final ResourceLocation EMPTY_WALLET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_wallet_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_WALLET_SLOT);
 	
 	private final List<IWalletSlotListener> listeners = Lists.newArrayList();
 	
@@ -46,13 +47,11 @@ public class WalletSlot extends Slot{
 	}
 	
 	public static boolean isValidWallet(ItemStack stack) {
-		return stack.getItem() instanceof WalletItem;
+		return stack.getItem() instanceof WalletItem && !stack.isEmpty();
 	}
 	
 	@Override
-	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_WALLET_SLOT);
-	}
+	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() { return BACKGROUND; }
 	
 	public void setChanged() {
 		super.setChanged();

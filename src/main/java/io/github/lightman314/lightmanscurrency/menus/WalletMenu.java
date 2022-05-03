@@ -2,22 +2,18 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
@@ -67,7 +63,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	private final List<IWalletMenuListener> listeners = Lists.newArrayList();
 	private boolean walletSlotChanged = false;
 	
-	private final Container walletInventory;
+	//private final Container walletInventory;
 	private Container coinInput;
 	
 	private WalletItem walletItem;
@@ -89,11 +85,11 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;
 		
-		this.walletInventory = new SuppliedContainer(() -> {
+		/*this.walletInventory = new SuppliedContainer(() -> {
 			AtomicReference<Container> container  = new AtomicReference<Container>(new SimpleContainer(1));
 			WalletCapability.getWalletHandler(this.inventory.player).ifPresent(walletHandler -> container.set(walletHandler.getInventory()));
 			return container.get();
-		});
+		});*/
 		
 		this.player = inventory.player;
 		this.accountSource = BankAccount.GenerateReference(this.player);
@@ -126,10 +122,10 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		}
 		
 		//Wallet Slot
-		WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6 + yOffset).addListener(this::onWalletSlotChanged);
+		/*WalletSlot walletSlot = new WalletSlot(this.walletInventory, 0, -22, 6 + yOffset).addListener(this::onWalletSlotChanged);
 		if(this.walletStackIndex >= 0)
 			walletSlot.setBlacklist(this.inventory, this.walletStackIndex);
-		newSlots.add(walletSlot);
+		newSlots.add(walletSlot);*/
 		
 		//Player Inventory before coin slots for desync safety.
 		//Should make the Player Inventory slot indexes constant regardless of the wallet state.
@@ -183,7 +179,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		newSlots.forEach(newSlot -> this.addSlot(newSlot));
 	}
 	
-	private void onWalletSlotChanged() {
+	public void onWalletSlotChanged() {
 		this.walletSlotChanged = true;
 		//Lock the coin slots when the wallet is changed so that any auto-sorters can't mess up their contents while they can't be saved to the wallet.
 		this.slots.forEach(slot ->{
