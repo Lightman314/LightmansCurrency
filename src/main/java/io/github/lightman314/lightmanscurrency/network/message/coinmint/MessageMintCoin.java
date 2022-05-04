@@ -39,10 +39,7 @@ public class MessageMintCoin {
 				if(blockEntity instanceof CoinMintBlockEntity)
 				{
 					CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;
-					if(mintEntity.validMintOutput() > 0)
-					{
-						mintEntity.mintCoins(message.fullStack ? 64 : 1);
-					}
+					mintEntity.mintCoins(message.fullStack ? 64 : 1);
 				}
 			}
 		});
