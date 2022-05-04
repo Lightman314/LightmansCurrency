@@ -46,16 +46,15 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
-
-	private static boolean generatedWandererTrades = false;
 	
 	private static List<ItemListing> GENERIC_TRADES_WANDERER = null;
 	private static List<ItemListing> RARE_TRADES_WANDERER = null;
 	
 	private static void generateWandererTrades() {
 		
-		if(generatedWandererTrades)
+		if(GENERIC_TRADES_WANDERER != null && RARE_TRADES_WANDERER != null)
 			return;
+		
 		GENERIC_TRADES_WANDERER = ImmutableList.of(
 				//Machines
 				new LazyTrade(ModItems.COIN_GOLD, 1, ModBlocks.MACHINE_ATM.item),
@@ -68,10 +67,7 @@ public class VillagerTradeManager {
 				new LazyTrade(ModItems.COIN_GOLD, 4, ModBlocks.ARMOR_DISPLAY.item)
 				);
 		
-		generatedWandererTrades = true;
 	}
-	
-	private static boolean generatedVillagerTrades = false;
 	
 	//Bankers sell miscellaneous trade-related stuff
 	//Can also trade raw materials for coins to allow bypassing of the coin-mint
@@ -84,7 +80,8 @@ public class VillagerTradeManager {
 	private static Map<Integer,List<ItemListing>> TRADES_CASHIER = null;
 	
 	private static void generateVillagerTrades() {
-		if(generatedVillagerTrades)
+		
+		if(TRADES_BANKER != null && TRADES_CASHIER != null)
 			return;
 		
 		TRADES_BANKER = ImmutableMap.of(
@@ -98,9 +95,6 @@ public class VillagerTradeManager {
 						new LazyTrade(1, ModItems.COIN_IRON, 5, ModBlocks.CASH_REGISTER),
 						//Sell Trading Core
 						new LazyTrade(1, ModItems.COIN_IRON, 4, ModItems.COIN_COPPER, 8, ModItems.TRADING_CORE)
-						//Coin for ingot & ingot for coin trades (copper level)
-						//(TBD 1.17)
-						//(TBD 1.17)
 						),
 				2,
 				ImmutableList.of(
@@ -110,9 +104,6 @@ public class VillagerTradeManager {
 						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF.get(WoodType.ACACIA), ModBlocks.SHELF.get(WoodType.DARK_OAK), ModBlocks.SHELF.get(WoodType.WARPED), ModBlocks.SHELF.get(WoodType.CRIMSON)}, 12, 5, 0.05f),
 						//Sell display case
 						new LazyTrade(5, ModItems.COIN_IRON, 10, ModBlocks.DISPLAY_CASE)
-						//Coin for ingot & ingot for coin trades (iron level)
-						//new SetTrade(5, Items.IRON_INGOT, 10, ModItems.COIN_IRON, 9),
-						//new SetTrade(5, ModItems.COIN_IRON, 10, Items.IRON_INGOT, 9)
 						),
 				3,
 				ImmutableList.of(
@@ -126,9 +117,6 @@ public class VillagerTradeManager {
 						new LazyTrade(10, ModItems.COIN_IRON, 15, ModBlocks.ITEM_TRADER_SERVER_SMALL),
 						//Sell Terminal
 						new LazyTrade(10, ModItems.COIN_IRON, 10, ModBlocks.TERMINAL)
-						//Coin for ingot & ingot for coin trades (gold level)
-						//new SetTrade(10, Items.GOLD_INGOT, 10, ModItems.COIN_GOLD, 9),
-						//new SetTrade(10, ModItems.COIN_GOLD, 10, Items.GOLD_INGOT, 9)
 						),
 				4,
 				ImmutableList.of(
@@ -137,12 +125,9 @@ public class VillagerTradeManager {
 						//Sell medium trader server
 						new LazyTrade(15, ModItems.COIN_IRON, 30, ModBlocks.ITEM_TRADER_SERVER_MEDIUM),
 						//Sell Freezer
-						new LazyTrade(20, ModItems.COIN_IRON, 30, ModBlocks.FREEZER)
-						//Coin for ingot & ingot for coin trades (emerald & diamond level)
-						//new SetTrade(15, Items.EMERALD, 10, ModItems.COIN_EMERALD, 9),
-						//new SetTrade(20, Items.DIAMOND, 10, ModItems.COIN_DIAMOND, 9),
-						//new SetTrade(15, ModItems.COIN_EMERALD, 10, Items.EMERALD, 9),
-						//new SetTrade(20, ModItems.COIN_DIAMOND, 10, Items.DIAMOND, 9)
+						new LazyTrade(20, ModItems.COIN_IRON, 30, ModBlocks.FREEZER),
+						//Sell Money Mending book
+						new LazyTrade(20, ModItems.COIN_DIAMOND, 15, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING,1)))
 						),
 				5,
 				ImmutableList.of(
@@ -151,10 +136,9 @@ public class VillagerTradeManager {
 						//Sell large trader server
 						new LazyTrade(30, ModItems.COIN_GOLD, 6, ModBlocks.ITEM_TRADER_SERVER_LARGE),
 						//Sell extra-large trader server
-						new LazyTrade(30, ModItems.COIN_GOLD, 10, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE)
-						//Coin for ingot & ingot for coin trades (netherite level)
-						//new SetTrade(25, Items.NETHERITE_INGOT, 10, ModItems.COIN_NETHERITE,9),
-						//new SetTrade(25, ModItems.COIN_NETHERITE, 10, Items.NETHERITE_INGOT, 9)
+						new LazyTrade(30, ModItems.COIN_GOLD, 10, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE),
+						//Sell Money Mending book
+						new LazyTrade(30, ModItems.COIN_DIAMOND, 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING,1)))
 						)
 				);
 		
@@ -326,8 +310,6 @@ public class VillagerTradeManager {
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Blocks.QUARTZ_BLOCK), 12, 30, 0.05f)
 						)
 				);
-		
-		generatedVillagerTrades = true;
 	}
 	
 	@SubscribeEvent
@@ -424,6 +406,16 @@ public class VillagerTradeManager {
 		public LazyTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
 		{
 			super(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), new ItemStack(forsaleItem, forsaleCount), MAX_COUNT, xpValue, PRICE_MULT);
+		}
+		
+		public LazyTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemStack forSaleItem)
+		{
+			super(new ItemStack(priceItem1, priceCount1), ItemStack.EMPTY, forSaleItem, MAX_COUNT, xpValue, PRICE_MULT);
+		}
+		
+		public LazyTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemStack forSaleItem)
+		{
+			super(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), forSaleItem, MAX_COUNT, xpValue, PRICE_MULT);
 		}
 		
 	}
