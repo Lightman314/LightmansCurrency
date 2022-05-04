@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
@@ -90,11 +91,14 @@ public class CoinMintBlockEntity extends BlockEntity{
 			if(recipe.matches(tempInv, this.level))
 				return true;
 		}
-		
 		return false;
 	}
 	
-	public int validMintOutput()
+	/**
+	 * Returns the amount of available empty space the output slot has.
+	 * Returns 0 if the mint input does not create the same item currently in the output slot.
+	 */
+	public int validOutputSpace()
 	{
 		//Determine how many more coins can fit in the output slot based on the input item
 		ItemStack mintOutput = getMintOutput();
@@ -106,19 +110,38 @@ public class CoinMintBlockEntity extends BlockEntity{
 		return 64 - currentOutputSlot.getCount();	
 	}
 	
+	/**
+	 * Returns the current item that would result from a single minting of the current input item
+	 */
 	public ItemStack getMintOutput()
 	{
 		ItemStack mintInput = this.getStorage().getItem(0);
 		if(mintInput.isEmpty())
 			return ItemStack.EMPTY;
-		
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
 			if(recipe.matches(this.storage, this.level))
-				return recipe.assemble(this.storage);
+				return recipe.assemble(this.storage).copy();
 		}
 		
 		return ItemStack.EMPTY;
+	}
+	
+	/**
+	 * Returns the maximum result item stack that can fit into the output slots.
+	 */
+	public ItemStack getMintableOutput() {
+		ItemStack output = getMintOutput();
+		int countPerMint = output.getCount();
+		int outputSpace = validOutputSpace();
+		//Shrink by 1, as the first input item is consumed in the starting output item count
+		int inputCount = this.storage.getItem(0).getCount() - 1;
+		while(output.getCount() + countPerMint <= outputSpace && inputCount > 0)
+		{
+			output.grow(countPerMint);
+			inputCount--;
+		}
+		return output;
 	}
 	
 	public void mintCoins(int mintCount)
@@ -134,8 +157,8 @@ public class CoinMintBlockEntity extends BlockEntity{
 		}
 		
 		//Confirm that the output slot has enough room for the expected outputs
-		if(mintCount > validMintOutput())
-			mintCount = validMintOutput();
+		if(mintCount > validOutputSpace())
+			mintCount = validOutputSpace();
 		if(mintCount <= 0)
 			return;
 		
@@ -207,9 +230,8 @@ public class CoinMintBlockEntity extends BlockEntity{
 			{
 				if(this.tileEntity.getStorage().getItem(1).isEmpty() && !this.tileEntity.getMintOutput().isEmpty())
 				{
-					ItemStack mintableCoin = this.tileEntity.getMintOutput();
-					mintableCoin.setCount(Math.max(this.tileEntity.getStorage().getItem(0).getCount() * mintableCoin.getCount(), mintableCoin.getMaxStackSize()));
-					return mintableCoin;
+					//Simulate minted amount if the output slot is not currently empty.
+					return this.tileEntity.getMintableOutput();
 				}
 			}
 			return this.tileEntity.getStorage().getItem(slot);
@@ -270,14 +292,17 @@ public class CoinMintBlockEntity extends BlockEntity{
 			//Can only extract from slot 1
 			if(slot != 1)
 				return ItemStack.EMPTY;
+			
+			LightmansCurrency.LogInfo("Attempting to extract " + amount + " items from the coin mint.");
 			//Limit request amount to 1 stack
 			amount = MathUtil.clamp(amount, 0, 64);
 			//Copy so that the simulation doesn't cause problems
 			ItemStack currentStack = this.tileEntity.getStorage().getItem(1).copy();
+			LightmansCurrency.LogInfo("Starting output items: " + currentStack.getCount());
 			if(currentStack.isEmpty() || currentStack.getCount() < amount)
 			{
 				//Attempt to mint coins to fill the extra pull requests
-				int mintAmount = MathUtil.clamp(amount - currentStack.getCount(), 0, this.tileEntity.validMintOutput());
+				int mintAmount = Math.min(this.tileEntity.getMintableOutput().getCount(), amount - currentStack.getCount());
 				if(!simulate)
 				{
 					if(mintAmount > 0) //Mint the coins
@@ -305,18 +330,20 @@ public class CoinMintBlockEntity extends BlockEntity{
 			if(currentStack.isEmpty())
 				return ItemStack.EMPTY;
 			
-			
 			ItemStack outputStack = currentStack.copy();
 			//Get the output stack
-			outputStack.setCount(MathUtil.clamp(amount, 0, currentStack.getCount()));
+			if(outputStack.getCount() > amount)
+				outputStack.setCount(amount);
 			//Remove the output coins from the current stack
-			currentStack.setCount(currentStack.getCount() - outputStack.getCount());
-			if(currentStack.getCount() <= 0)
-				currentStack = ItemStack.EMPTY;
-			
-			//Set the new current stack count
 			if(!simulate)
+			{
+				currentStack.setCount(currentStack.getCount() - outputStack.getCount());
+				if(currentStack.getCount() <= 0)
+					currentStack = ItemStack.EMPTY;
 				this.tileEntity.getStorage().setItem(1, currentStack);
+				
+			}
+			
 			
 			//Return the output stack
 			return outputStack;
