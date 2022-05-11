@@ -10,13 +10,14 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.blocks.ItemTraderServerBlock;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -25,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
@@ -49,12 +51,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 
 public class UniversalItemTraderData extends UniversalTraderData implements IItemTrader {
-	
-	public static final int TRADE_LIMIT = ItemTraderBlockEntity.TRADELIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	
@@ -87,15 +88,28 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public UniversalItemTraderData(PlayerReference owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount)
 	{
 		super(owner, pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, ItemTraderBlockEntity.TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		this.trades = ItemTradeData.listOfSize(this.tradeCount);
+	}
+	
+	@Override
+	protected ItemLike getCategoryItem() {
+		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
+		if(tradeCount <= ItemTraderServerBlock.SMALL_SERVER_COUNT)
+			return ModBlocks.ITEM_TRADER_SERVER_SMALL;
+		else if(tradeCount <= ItemTraderServerBlock.MEDIUM_SERVER_COUNT)
+			return ModBlocks.ITEM_TRADER_SERVER_MEDIUM;
+		else if(tradeCount <= ItemTraderServerBlock.LARGE_SERVER_COUNT)
+			return ModBlocks.ITEM_TRADER_SERVER_LARGE;
+		return ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE;
+		
 	}
 
 	@Override
 	public void read(CompoundTag compound)
 	{
 		if(compound.contains("TradeLimit", Tag.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ItemTraderBlockEntity.TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ITrader.GLOBAL_TRADE_LIMIT);
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = ItemTradeData.loadAllData(compound, this.tradeCount);
@@ -186,8 +200,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		return this.tradeCount;
 	}
 	
-	public int getTradeCountLimit() { return TRADE_LIMIT; }
-	
 	public void requestAddOrRemoveTrade(boolean isAdd)
 	{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade2(this.traderID, isAdd));
@@ -200,7 +212,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 			Settings.PermissionWarning(requestor, "add trade slot", Permissions.ADMIN_MODE);
 			return;
 		}
-		if(this.getTradeCount() >= TRADE_LIMIT)
+		if(this.getTradeCount() >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
 		//this.forceReopen();
@@ -227,7 +239,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<ItemTradeData> oldTrades = this.trades;
 		this.trades = ItemTradeData.listOfSize(getTradeCount());
 		//Write the old trade data into the array.
@@ -535,7 +547,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		JsonArray tradeList = json.get("Trades").getAsJsonArray();
 		
 		this.trades = new ArrayList<>();
-		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		for(int i = 0; i < tradeList.size() && this.trades.size() < ITrader.GLOBAL_TRADE_LIMIT; ++i)
 		{
 			try {
 				JsonObject tradeData = tradeList.get(i).getAsJsonObject();

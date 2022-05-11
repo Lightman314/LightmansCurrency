@@ -8,8 +8,9 @@ public class CurrencyMessages {
 	
 	//Lightman's Currency !help
 	public static final MessageEntry M_HELP_LC_NOTIFICATIONS = MessageEntry.create("help_lc_notifications", "Help message for lightman's currency !notifications.", "Handle private currency notifications.");
-	public static final MessageEntry M_HELP_LC_SEARCH1 = MessageEntry.create("help_lc_search1", "Help message for lightman's currency !search <sales|purchases|barters|all>.", "List all universal trades selling items containing the searchText. Leave searchText empty to see all sales/purchases/barters.");
+	public static final MessageEntry M_HELP_LC_SEARCH1 = MessageEntry.create("help_lc_search1", "Help message for lightman's currency !search <sales|purchases|barters|trades>.", "List all universal trades selling items containing the searchText.");
 	public static final MessageEntry M_HELP_LC_SEARCH2 = MessageEntry.create("help_lc_search2", "Help message for lightman's currency !search <players|shops>.", "List all trades for universal traders with player/shop names containing the searchText. Leave searchText empty to see all traders trades.");
+	public static final MessageEntry M_HELP_LC_SEARCH3 = MessageEntry.create("help_lc_search3", "Help message for lightman's currency !search <all>.", "List all trades.");
 	
 	//Lightman's Currency Bot
 	//!notifications help
@@ -24,6 +25,7 @@ public class CurrencyMessages {
 	public static final MessageEntry M_NOTIFICATIONS_DISABLE_FAIL = MessageEntry.create("command_notifications_disable_fail", "Message sent when failing to run !messages disable.", "Personal notifications were already disabled.");
 	
 	//!search
+	public static final MessageEntry M_SEARCH_BAD_INPUT = MessageEntry.create("command_search_badinput", "Message sent when !search is run with an invalid sub-command (sales,purchases,players, etc.).", "Invalid search type.");
 	public static final MessageEntry M_SEARCH_NORESULTS = MessageEntry.create("command_search_noresults", "Message sent when !search is run and no search results were found.", "No results found.");
 	
 	//Trade Notification

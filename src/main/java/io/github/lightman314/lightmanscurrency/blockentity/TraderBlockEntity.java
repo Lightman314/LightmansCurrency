@@ -5,7 +5,10 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.IClientUpdateListener;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -26,6 +29,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -63,6 +67,14 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	protected TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		super(type, pos, state);
+	}
+	
+	@Override
+	public TraderCategory getNotificationCategory() {
+		if(this.level != null)
+			return new TraderCategory(this.level.getBlockState(this.worldPosition).getBlock(), this.getName());
+		else
+			return new TraderCategory(ModItems.TRADING_CORE, this.getName());
 	}
 	
 	public void userOpen(Player player)
@@ -358,6 +370,22 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			this.versionUpdate = true; //Flag this to perform a version update later once the world has been defined
 		
 		super.load(compound);
+		
+		//Run client update
+		if(this.isClient())
+		{
+			try {
+				Minecraft mc = Minecraft.getInstance();
+				if(mc.screen instanceof IClientUpdateListener<?>)
+				{
+					@SuppressWarnings("unchecked")
+					IClientUpdateListener<ITrader> screen = (IClientUpdateListener<ITrader>)mc.screen;
+					if(screen.isApplicable(this))
+						screen.onClientUpdated();
+				}
+			} catch(Exception e) {}
+		}
+		
 	}
 	
 	protected abstract void onVersionUpdate(int oldVersion);

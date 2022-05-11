@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
@@ -18,16 +19,18 @@ import io.github.lightman314.lightmansconsole.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansconsole.discord.listeners.types.SingleChannelListener;
 import io.github.lightman314.lightmansconsole.util.MessageUtil;
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
-import io.github.lightman314.lightmanscurrency.discord.events.DiscordPostTradeEvent;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.UniversalTradeCreateEvent;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -82,8 +85,9 @@ public class CurrencyListener extends SingleChannelListener{
 			{
 				List<String> output = new ArrayList<>();
 				output.add(prefix + "notifications <help|enable|disable> - " + CurrencyMessages.M_HELP_LC_NOTIFICATIONS.get());
-				output.add(prefix + "search <sales|purchases|barters|all> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH1.get());
+				output.add(prefix + "search <sales|purchases|barters|trades> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH1.get());
 				output.add(prefix + "search <players|shops> [searchText] - " + CurrencyMessages.M_HELP_LC_SEARCH2.get());
+				output.add(prefix + "search all - " + CurrencyMessages.M_HELP_LC_SEARCH3.get());
 				MessageUtil.sendTextMessage(channel, output);
 			}
 			else if(command.startsWith("notifications "))
@@ -115,64 +119,66 @@ public class CurrencyListener extends SingleChannelListener{
 			else if(command.startsWith("search "))
 			{
 				String subcommand = command.substring(7);
-				AtomicReference<String> searchText = new AtomicReference<>("");
-				AtomicBoolean findSales = new AtomicBoolean(false);
-				AtomicBoolean findPurchases = new AtomicBoolean(false);
-				AtomicBoolean findBarters = new AtomicBoolean(false);
-				AtomicBoolean findOwners = new AtomicBoolean(false);
-				AtomicBoolean findTraders = new AtomicBoolean(false);
+				String text = "";
+				SearchCategory type = null;
 				if(subcommand.startsWith("sales"))
 				{
-					findSales.set(true);
+					type = SearchCategory.TRADE_SALE;
 					if(subcommand.length() > 6)
-						searchText.set(subcommand.substring(6).toLowerCase());
+						text = subcommand.substring(6).toLowerCase();
 				}
 				else if(subcommand.startsWith("purchases"))
 				{
-					findPurchases.set(true);
+					type = SearchCategory.TRADE_PURCHASE;
 					if(subcommand.length() > 10)
-						searchText.set(subcommand.substring(10).toLowerCase());
+						text = subcommand.substring(10).toLowerCase();
 				}
 				else if(subcommand.startsWith("barters"))
 				{
-					findBarters.set(true);
+					type = SearchCategory.TRADE_BARTER;
 					if(subcommand.length() > 10)
-						searchText.set(subcommand.substring(10).toLowerCase());
+						text = subcommand.substring(10).toLowerCase();
+				}
+				else if(subcommand.startsWith("trades"))
+				{
+					type = SearchCategory.TRADE_ANY;
+					if(subcommand.length() > 7)
+						text = subcommand.substring(7).toLowerCase();
 				}
 				else if(subcommand.startsWith("players"))
 				{
-					findOwners.set(true);
+					type = SearchCategory.TRADER_OWNER;
 					if(subcommand.length() > 8)
-						searchText.set(subcommand.substring(8).toLowerCase());
+						text = subcommand.substring(8).toLowerCase();
 				}
 				else if(subcommand.startsWith("shops"))
 				{
-					findTraders.set(true);
+					type = SearchCategory.TRADER_NAME;
 					if(subcommand.length() > 6)
-						searchText.set(subcommand.substring(6).toLowerCase());
+						text = subcommand.substring(6).toLowerCase();
 				}
+				
 				else if(subcommand.startsWith("all"))
 				{
-					//All
-					findSales.set(true);
-					findPurchases.set(true);
-					findBarters.set(true);
-					//findOwners.set(true);
-					//findTraders.set(true);
-					if(subcommand.length() > 4)
-						searchText.set(subcommand.substring(4).toLowerCase());
+					type = SearchCategory.TRADER_ANY;
 				}
+				if(type == null)
+				{
+					MessageUtil.sendTextMessage(channel, CurrencyMessages.M_SEARCH_BAD_INPUT.get());
+					return;
+				}
+				
+				final SearchCategory searchType = type;
+				final String searchText = text;
 				List<String> output = new ArrayList<>();
 				TradingOffice.getTraders().forEach(trader -> {
 					try {
-						boolean listTrader = (findOwners.get() && (searchText.get().isEmpty() || trader.getCoreSettings().getOwnerName().toLowerCase().contains(searchText.get())))
-								|| (findTraders.get() && (searchText.get().isEmpty() || trader.getName().getString().toLowerCase().contains(searchText.get())));
-						
-						if(trader instanceof UniversalItemTraderData) //Can't search for non item traders at this time
+						if(trader instanceof UniversalItemTraderData)
 						{
 							UniversalItemTraderData itemTrader = (UniversalItemTraderData)trader;
-							if(listTrader)
+							if(searchType.acceptTrader(itemTrader, searchText))
 							{
+								boolean showStock = !itemTrader.isCreative();
 								boolean firstTrade = true;
 								for(int i = 0; i < itemTrader.getTradeCount(); ++i)
 								{
@@ -186,80 +192,57 @@ public class CurrencyListener extends SingleChannelListener{
 										}
 										if(trade.isSale())
 										{
-											String priceText = trade.getCost().getString();
-											output.add("Selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " for " + priceText);
-										}
-										else if(trade.isPurchase())
-										{
-											String priceText = trade.getCost().getString();
-											output.add("Purchasing " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " for " + priceText);
-										}
-										else if(trade.isBarter())
-										{
-											output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
-										}
-									}
-								}
-							}
-							else
-							{
-								for(int i = 0; i < itemTrader.getTradeCount(); ++i)
-								{
-									ItemTradeData trade = itemTrader.getTrade(i);
-									if(trade.isValid())
-									{
-										if(trade.isSale() && findSales.get())
-										{
 											String itemName1 = getItemName(trade.getSellItem(0), trade.getCustomName(0));
 											String itemName2 = getItemName(trade.getSellItem(1), trade.getCustomName(0));
 											
-											//LightmansConsole.LOGGER.info("Item Name: " + itemName.toString());
-											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()))
+											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText))
 											{
-												//Passed the search
 												String priceText = trade.getCost().getString();
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " at " + itemTrader.getName().getString() + " for " + priceText);
+												output.add("Selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " for " + priceText);
+												if(showStock)
+													output.add("*" + trade.stockCount(itemTrader) + " trades in stock.*");
 											}
 										}
-										else if(trade.isPurchase() && findPurchases.get())
+										else if(trade.isPurchase())
 										{
 											String itemName1 = getItemName(trade.getSellItem(0), "");
 											String itemName2 = getItemName(trade.getSellItem(1), "");
 											
-											//LightmansConsole.LOGGER.info("Item Name: " + itemName.toString());
-											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()))
+											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText))
 											{
-												//Passed the search
 												String priceText = trade.getCost().getString();
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is buying " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " at " + itemTrader.getName().getString() + " for " + priceText);
+												output.add("Purchasing " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " for " + priceText);
+												if(showStock)
+													output.add("*" + trade.stockCount(itemTrader) + " trades in stock.*");
 											}
 										}
-										else if(trade.isBarter() && findBarters.get())
+										else if(trade.isBarter())
 										{
+											
 											String itemName1 = getItemName(trade.getSellItem(0), trade.getCustomName(0));
 											String itemName2 = getItemName(trade.getSellItem(1), trade.getCustomName(1));
 											String itemName3 = getItemName(trade.getBarterItem(0), "");
 											String itemName4 = getItemName(trade.getBarterItem(1), "");
 											
-											if(searchText.get().isEmpty() || itemName1.toLowerCase().contains(searchText.get()) || itemName2.toLowerCase().contains(searchText.get()) || itemName3.toLowerCase().contains(searchText.get()) || itemName4.toLowerCase().contains(searchText.get()))
+											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText) || itemName3.toLowerCase().contains(searchText) || itemName4.toLowerCase().contains(searchText))
 											{
-												output.add(itemTrader.getCoreSettings().getOwnerName() + " is bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " at " + itemTrader.getName().getString());
+												output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
+												if(showStock)
+													output.add("*" + trade.stockCount(itemTrader) + " trades in stock.*");
 											}
-											
 										}
 									}
 								}
 							}
 						}
-						else
-							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText.get(), findSales.get(), findPurchases.get(), findBarters.get(), findOwners.get(), findTraders.get(), output));
+						else //If not an item trader, post the trader search eventm
+							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
 					} catch(Exception e) { e.printStackTrace(); }
 				});
 				if(output.size() > 0)
 					MessageUtil.sendTextMessage(channel, output);
 				else
 					MessageUtil.sendTextMessage(channel, CurrencyMessages.M_SEARCH_NORESULTS.get());
-				
 			}
 		}
 	}
@@ -301,88 +284,24 @@ public class CurrencyListener extends SingleChannelListener{
 	}
 	
 	@SubscribeEvent
-	public void onTradeCarriedOut(PostTradeEvent event)
-	{
+	public void onNotification(NotificationEvent.NotificationSent.Post event) {
 		try {
-			PlayerReference recipient = event.getTrader().getCoreSettings().getOwner();
-			if(event.getTrader().getCoreSettings().getTeam() != null)
-			{
-				recipient = event.getTrader().getCoreSettings().getTeam().getOwner();
-			}
-			LinkedAccount account = AccountManager.getLinkedAccountFromPlayerID(recipient.id);
+			LinkedAccount account = AccountManager.getLinkedAccountFromPlayerID(event.getPlayerID());
 			if(account != null)
 			{
-				User linkedUser = this.getJDA().getUserById(account.discordID);
-				if(AccountManager.currencyNotificationsEnabled(linkedUser))
+				User user = account.getUser();
+				if(user != null && AccountManager.currencyNotificationsEnabled(user))
 				{
-					if(event.getTrade() instanceof ItemTradeData)
-					{
-						ItemTradeData itemTrade = (ItemTradeData)event.getTrade();
-						StringBuffer message = new StringBuffer();
-						//Customer name
-						message.append(event.getPlayerReference().lastKnownName());
-						//Action (bought, sold, ???)
-						switch(itemTrade.getTradeType())
-						{
-						case SALE: message.append(" bought "); break;
-						case PURCHASE: message.append(" sold "); break;
-						case BARTER: message.append( "bartered "); break;
-							default: message.append(" ??? ");
-						}
-						if(itemTrade.isBarter())
-						{
-							//Item given
-							message.append(getItemNamesAndCount(itemTrade.getBarterItem(0), "", itemTrade.getBarterItem(1), "")).append(" for ");
-							//Item bought
-							message.append(getItemNamesAndCount(itemTrade.getSellItem(0), itemTrade.getCustomName(0), itemTrade.getSellItem(1), itemTrade.getCustomName(1)));
-						}
-						else
-						{
-							//Item bought/sold
-							if(itemTrade.isSale())
-								message.append(getItemNamesAndCount(itemTrade.getSellItem(0), itemTrade.getCustomName(0), itemTrade.getSellItem(1), itemTrade.getCustomName(1)));
-							else
-								message.append(getItemNamesAndCount(itemTrade.getSellItem(0), "", itemTrade.getSellItem(1), ""));
-							//Price
-							message.append(" for ");
-							if(event.getPricePaid().isFree() || event.getPricePaid().getRawValue() <= 0)
-								message.append("free");
-							else
-								message.append(event.getPricePaid().getString());
-						}
-						//From trader name
-						message.append(" from your ").append(event.getTrader().getName().getString());
-						
-						//Send the message directly to the linked user
-						//Create as pending message to avoid message spamming them when a player buys a ton of the same item
-						this.addPendingMessage(linkedUser, message.toString());
-						//MessageUtil.sendPrivateMessage(linkedUser, message.toString());
-						
-						//Check if out of stock
-						if(event.getTrader() instanceof IItemTrader && !event.getTrader().isCreative())
-						{
-							if(itemTrade.stockCount((IItemTrader)event.getTrader()) < 1)
-							{
-								this.addPendingMessage(linkedUser, CurrencyMessages.M_NOTIFICATION_OUTOFSTOCK.get());
-								//MessageUtil.sendPrivateMessage(linkedUser, "**This trade is now out of stock!**");
-							}
-						}
-					}
-					else
-					{
-						MinecraftForge.EVENT_BUS.post(new DiscordPostTradeEvent(event, (message) -> this.addPendingMessage(linkedUser, message)));
-					}
+					LightmansCurrency.LogInfo("Adding pending message for user #" + user.getId() + ":\n" + event.getNotification().getMessage().getString());
+					this.addPendingMessage(user, event.getNotification().getMessage().getString());
 				}
 			}
-		} catch(Exception e) { e.printStackTrace(); }
+		} catch(Exception e) { LightmansCurrency.LogError("Error processing notification to bot:", e); }
 	}
 	
 	public void addPendingMessage(User user, String message)
 	{
-		String userId = user.getId();
-		List<String> pendingMessages = this.pendingMessages.containsKey(userId) ? this.pendingMessages.get(userId) : Lists.newArrayList();
-		pendingMessages.add(message);
-		this.pendingMessages.put(userId, pendingMessages);
+		this.addPendingMessage(user, Lists.newArrayList(message));
 	}
 	
 	public void addPendingMessage(User user, List<String> messages)
@@ -452,6 +371,40 @@ public class CurrencyListener extends SingleChannelListener{
 				else
 					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(this.event.getData().getCoreSettings().getOwnerName()));
 			} catch(Exception e) { e.printStackTrace(); }
+		}
+		
+	}
+	
+	public enum SearchCategory
+	{
+		TRADE_SALE(trade -> trade.getTradeDirection() == TradeDirection.SALE),
+		TRADE_PURCHASE(trade -> trade.getTradeDirection() == TradeDirection.PURCHASE),
+		TRADE_BARTER(trade -> { if(trade instanceof IBarterTrade) return ((IBarterTrade)trade).isBarter(); return false; }),
+		TRADE_ANY(trade -> true),
+		
+		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getCoreSettings().getOwnerName().toLowerCase().contains(search)),
+		TRADER_NAME((trader,search) -> search.isEmpty() || trader.getName().getString().toLowerCase().contains(search)),
+		TRADER_ANY((trader,search) -> true);
+		
+		private final boolean filterByTrade;
+		public boolean filterByTrade() { return this.filterByTrade; }
+		
+		private final Function<TradeData,Boolean> tradeFilter;
+		public boolean acceptTradeType(TradeData trade) { return this.tradeFilter.apply(trade); }
+		
+		private final BiFunction<ITrader,String,Boolean> acceptTrader;
+		public boolean acceptTrader(ITrader trader, String searchText) { return this.acceptTrader.apply(trader, searchText); }
+		
+		SearchCategory(Function<TradeData,Boolean> tradeFilter) {
+			this.filterByTrade = true;
+			this.tradeFilter = tradeFilter;
+			this.acceptTrader = (t,s) -> true;
+		}
+		
+		SearchCategory(BiFunction<ITrader,String,Boolean> acceptTrader) {
+			this.filterByTrade = false;
+			this.tradeFilter = (t) -> true;
+			this.acceptTrader = acceptTrader;
 		}
 		
 	}

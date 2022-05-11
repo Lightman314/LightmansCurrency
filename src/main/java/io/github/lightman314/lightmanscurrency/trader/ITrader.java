@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -28,6 +29,8 @@ import net.minecraftforge.common.MinecraftForge;
 
 public interface ITrader extends IPermissions, ITraderSource {
 
+	public static final int GLOBAL_TRADE_LIMIT = 32;
+	
 	/**
 	 * The name of the trader.
 	 */
@@ -43,7 +46,6 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public void clearStoredMoney();
 	public void markMoneyDirty();
 	public int getTradeCount();
-	public int getTradeCountLimit();
 	public void markTradesDirty();
 	public int getTradeStock(int index);
 	//Menu stuff
@@ -54,6 +56,8 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public void markCoreSettingsDirty();
 	public List<Settings> getAdditionalSettings();
 	public default Map<String,Integer> getAllyDefaultPermissions() { return Maps.newHashMap(); }
+	//Notification stuff
+	public TraderCategory getNotificationCategory();
 	//Creative stuff
 	public default boolean isCreative() { return this.getCoreSettings().isCreative(); }
 	public void requestAddOrRemoveTrade(boolean isAdd);

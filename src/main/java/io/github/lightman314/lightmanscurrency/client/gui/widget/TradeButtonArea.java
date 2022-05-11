@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -161,20 +162,15 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			//If we need to add more lines, recreate the buttons
 			this.resetButtons();
 		}
-		else
-			this.repositionButtons();
 	}
 	
 	private void validateScroll() {
 		if(this.canScrollDown())
 			return;
-		if(this.scroll > 0)
-		{
-			while(this.scroll > 0 && this.validTrades() - (this.scroll * this.columns) <= (this.fittableLines() * this.columns) - this.columns)
-			{
-				this.scroll--;
-			}
-		}
+		int oldScroll = this.scroll;
+		this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
+		if(this.scroll != oldScroll)
+			this.repositionButtons();
 	}
 	
 	private void resetButtons() {
@@ -435,8 +431,9 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 
 	@Override
 	public void setScroll(int newScroll) {
-		this.scroll = newScroll;
-		this.validateScroll();
+		if(newScroll == this.scroll)
+			return;
+		this.scroll = MathUtil.clamp(newScroll, 0, this.getMaxScroll());
 		this.resetButtons();
 	}
 

@@ -9,9 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.IItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.core.BlockPos;
@@ -48,44 +46,26 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
 
-	private static List<ItemListing> GENERIC_TRADES_WANDERER = null;
-	private static List<ItemListing> RARE_TRADES_WANDERER = null;
-	
-	private static void generateWandererTrades() {
-		
-		if(GENERIC_TRADES_WANDERER != null && RARE_TRADES_WANDERER != null)
-			return;
-		
-		GENERIC_TRADES_WANDERER = ImmutableList.of(
+	public static List<ItemListing> getGenericWandererTrades() {
+		return ImmutableList.of(
 				//Machines
-				new LazyTrade(ModItems.COIN_GOLD, 1, ModBlocks.MACHINE_ATM.item),
-				new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.CASH_REGISTER.item),
-				new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.TERMINAL.item)
+				new LazyTrade(ModItems.COIN_GOLD, 1, ModBlocks.MACHINE_ATM),
+				new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.CASH_REGISTER),
+				new LazyTrade(ModItems.COIN_IRON, 5, ModBlocks.TERMINAL)
 				);
-		RARE_TRADES_WANDERER = ImmutableList.of(
+	}
+	public static List<ItemListing> getRareWandererTrades() {
+		return ImmutableList.of(
 				//Traders
 				new LazyTrade(ModItems.COIN_GOLD, 2, ModItems.COIN_IRON, 4, ModBlocks.DISPLAY_CASE),
-				new LazyTrade(ModItems.COIN_GOLD, 4, ModBlocks.ARMOR_DISPLAY.item)
+				new LazyTrade(ModItems.COIN_GOLD, 4, ModBlocks.ARMOR_DISPLAY)
 				);
-		
 	}
 	
 	//Bankers sell miscellaneous trade-related stuff
 	//Can also trade raw materials for coins to allow bypassing of the coin-mint
-	private static Map<Integer,List<ItemListing>> TRADES_BANKER = null;
-	
-	private static final float ENCHANTMENT_PRICE_MODIFIER = 0.25f;
-	
-	//Cashiers are a mashup of every vanilla trade where the player buys items from the trader, however the payment is in coins instead of emeralds.
-	//Will not buy items and give coins, it will only sell items for coins
-	private static Map<Integer,List<ItemListing>> TRADES_CASHIER = null;
-	
-	private static void generateVillagerTrades() {
-		
-		if(TRADES_BANKER != null && TRADES_CASHIER != null)
-			return;
-		
-		TRADES_BANKER = ImmutableMap.of(
+	public static Map<Integer,List<ItemListing>> getBankerTrades() {
+		return ImmutableMap.of(
 				1,
 				ImmutableList.of(
 						//Sell Coin Mint
@@ -100,18 +80,18 @@ public class VillagerTradeManager {
 				2,
 				ImmutableList.of(
 						//Sell first 4 shelves
-						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF.get(WoodType.OAK), ModBlocks.SHELF.get(WoodType.BIRCH), ModBlocks.SHELF.get(WoodType.SPRUCE), ModBlocks.SHELF.get(WoodType.JUNGLE)}, 12, 5, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF_OAK, ModBlocks.SHELF_BIRCH, ModBlocks.SHELF_SPRUCE, ModBlocks.SHELF_JUNGLE}, 12, 5, 0.05f),
 						//Sell 4 "rare" shelves
-						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF.get(WoodType.ACACIA), ModBlocks.SHELF.get(WoodType.DARK_OAK), ModBlocks.SHELF.get(WoodType.WARPED), ModBlocks.SHELF.get(WoodType.CRIMSON)}, 12, 5, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 6), new ItemLike[] {ModBlocks.SHELF_ACACIA, ModBlocks.SHELF_DARK_OAK, ModBlocks.SHELF_WARPED, ModBlocks.SHELF_CRIMSON}, 12, 5, 0.05f),
 						//Sell display case
 						new LazyTrade(5, ModItems.COIN_IRON, 10, ModBlocks.DISPLAY_CASE)
 						),
 				3,
 				ImmutableList.of(
 						//Sell first 4 card displays
-						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY.get(WoodType.OAK), ModBlocks.CARD_DISPLAY.get(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.get(WoodType.SPRUCE), ModBlocks.CARD_DISPLAY.get(WoodType.JUNGLE) }, 12, 10, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY_OAK, ModBlocks.CARD_DISPLAY_BIRCH, ModBlocks.CARD_DISPLAY_SPRUCE, ModBlocks.CARD_DISPLAY_JUNGLE }, 12, 10, 0.05f),
 						//Sell second 4 card displays
-						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY.get(WoodType.ACACIA), ModBlocks.CARD_DISPLAY.get(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.get(WoodType.CRIMSON), ModBlocks.CARD_DISPLAY.get(WoodType.WARPED) }, 12, 10, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 15), new ItemLike[] {ModBlocks.CARD_DISPLAY_ACACIA, ModBlocks.CARD_DISPLAY_DARK_OAK, ModBlocks.CARD_DISPLAY_CRIMSON, ModBlocks.CARD_DISPLAY_WARPED }, 12, 10, 0.05f),
 						//Sell armor display
 						new LazyTrade(10, ModItems.COIN_IRON, 20, ModBlocks.ARMOR_DISPLAY),
 						//Sell small trader server
@@ -122,7 +102,7 @@ public class VillagerTradeManager {
 				4,
 				ImmutableList.of(
 						//Sell Vending Machines
-						new RandomItemSetForItemTrade(new ItemStack(ModItems.COIN_IRON, 25), ModBlocks.VENDING_MACHINE1, 12, 15, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 25), ModBlocks.Groups.getVendingMachineList(), 12, 15, 0.05f),
 						//Sell medium trader server
 						new LazyTrade(15, ModItems.COIN_IRON, 30, ModBlocks.ITEM_TRADER_SERVER_MEDIUM),
 						//Sell Freezer
@@ -133,7 +113,7 @@ public class VillagerTradeManager {
 				5,
 				ImmutableList.of(
 						//Sell Large Vending Machines
-						new RandomItemSetForItemTrade(new ItemStack(ModItems.COIN_IRON, 25), ModBlocks.VENDING_MACHINE2, 12, 30, 0.05f),
+						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON, 25), ModBlocks.Groups.getLargeVendingMachineList(), 12, 30, 0.05f),
 						//Sell large trader server
 						new LazyTrade(30, ModItems.COIN_GOLD, 6, ModBlocks.ITEM_TRADER_SERVER_LARGE),
 						//Sell extra-large trader server
@@ -142,8 +122,14 @@ public class VillagerTradeManager {
 						new LazyTrade(30, ModItems.COIN_DIAMOND, 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING,1)))
 						)
 				);
-		
-		TRADES_CASHIER = ImmutableMap.of(
+	}
+	
+	private static final float ENCHANTMENT_PRICE_MODIFIER = 0.25f;
+	
+	//Cashiers are a mashup of every vanilla trade where the player buys items from the trader, however the payment is in coins instead of emeralds.
+	//Will not buy items and give coins, it will only sell items for coins
+	public static Map<Integer,List<ItemListing>> getCashierTrades() {
+		return ImmutableMap.of(
 				1,
 				ImmutableList.of(
 						//Farmer
@@ -311,24 +297,22 @@ public class VillagerTradeManager {
 						new BasicItemListing(new ItemStack(ModItems.COIN_IRON, 2), new ItemStack(Blocks.QUARTZ_BLOCK), 12, 30, 0.05f)
 						)
 				);
-		
 	}
 	
 	@SubscribeEvent
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
 		
-		generateVillagerTrades();
-		
 		if(event.getType() == CustomProfessions.BANKER && Config.COMMON.addBankerVillager.get())
 		{
 			
 			LightmansCurrency.LogInfo("Registering banker trades.");
 			
+			Map<Integer,List<ItemListing>> bankerTrades = getBankerTrades();
 			for(int i = 1; i <= 5; i++)
 			{
 				List<ItemListing> currentTrades = event.getTrades().get(i);
-				List<ItemListing> newTrades = TRADES_BANKER.get(i);
+				List<ItemListing> newTrades = bankerTrades.get(i);
 				newTrades.forEach(trade -> currentTrades.add(trade));
 			}
 			
@@ -338,10 +322,11 @@ public class VillagerTradeManager {
 			
 			LightmansCurrency.LogInfo("Registering cashier trades.");
 			
+			Map<Integer,List<ItemListing>> cashierTrades = getCashierTrades();
 			for(int i = 1; i <= 5; i++)
 			{
 				List<ItemListing> currentTrades = event.getTrades().get(i);
-				List<ItemListing> newTrades = TRADES_CASHIER.get(i);
+				List<ItemListing> newTrades = cashierTrades.get(i);
 				newTrades.forEach(trade -> currentTrades.add(trade));
 			}
 		}
@@ -354,13 +339,11 @@ public class VillagerTradeManager {
 		if(!Config.COMMON.addCustomWanderingTrades.get())
 			return;
 		
-		generateWandererTrades();
-		
 		List<ItemListing> genericTrades = event.getGenericTrades();
 		List<ItemListing> rareTrades = event.getRareTrades();
 		
-		GENERIC_TRADES_WANDERER.forEach(trade -> genericTrades.add(trade));
-		RARE_TRADES_WANDERER.forEach(trade -> rareTrades.add(trade));
+		getGenericWandererTrades().forEach(trade -> genericTrades.add(trade));
+		getRareWandererTrades().forEach(trade -> rareTrades.add(trade));
 		
 	}
 	
@@ -662,41 +645,6 @@ public class VillagerTradeManager {
 			}
 		}
 		
-	}
-	
-	public static class RandomItemSetForItemTrade implements ItemListing
-	{
-		private final ItemStack price1;
-		private final ItemStack price2;
-		private final IItemSet<?> sellItemOptions;
-		private final int maxTrades;
-		private final int xpValue;
-		private final float priceMult;
-		
-		public RandomItemSetForItemTrade(ItemStack price, IItemSet<?> sellItemOptions, int maxTrades, int xpValue, float priceMult)
-		{
-			this(price, ItemStack.EMPTY, sellItemOptions, maxTrades, xpValue, priceMult);
-		}
-		
-		public RandomItemSetForItemTrade(ItemStack price1, ItemStack price2, IItemSet<?> sellItemOptions, int maxTrades, int xpValue, float priceMult)
-		{
-			this.price1 = price1;
-			this.price2 = price2;
-			this.sellItemOptions = sellItemOptions;
-			this.maxTrades = maxTrades;
-			this.xpValue = xpValue;
-			this.priceMult = priceMult;
-		}
-		
-		@Override
-		public MerchantOffer getOffer(Entity trader, Random rand) {
-			
-			List<Item> items = this.sellItemOptions.getAllItems();
-			int index = rand.nextInt(items.size());
-			ItemStack sellItem = new ItemStack(items.get(index));
-			
-			return new MerchantOffer(this.price1, this.price2, sellItem, this.maxTrades, this.xpValue, this.priceMult);
-		}
 	}
 	
 	public static class RandomItemForItemTrade implements ItemListing

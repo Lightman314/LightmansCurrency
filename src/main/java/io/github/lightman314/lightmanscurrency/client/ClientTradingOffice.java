@@ -7,10 +7,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,6 +26,7 @@ public class ClientTradingOffice {
 	private static Map<UUID, UniversalTraderData> loadedTraders = new HashMap<>();
 	private static Map<UUID,Team> loadedTeams = new HashMap<>();
 	private static Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
+	private static NotificationData myNotifications = new NotificationData();
 	
 	public static List<UniversalTraderData> getTraderList()
 	{
@@ -116,11 +120,21 @@ public class ClientTradingOffice {
 		} catch(Exception e) { e.printStackTrace(); }
 	}
 	
+	public static void updateNotifications(NotificationData data) {
+		myNotifications = data;
+		Minecraft mc = Minecraft.getInstance();
+		if(mc.screen instanceof NotificationScreen)
+			((NotificationScreen)mc.screen).reinit();
+	}
+	
+	public static NotificationData getNotifications() { return myNotifications; }
+	
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
 		//Reset loaded traders, teams, and bank accounts
 		loadedTraders = new HashMap<>();
 		loadedTeams = new HashMap<>();
 		loadedBankAccounts = new HashMap<>();
+		myNotifications = new NotificationData();
 	}
 	
 }

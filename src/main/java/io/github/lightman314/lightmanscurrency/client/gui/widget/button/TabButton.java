@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -47,9 +48,9 @@ public class TabButton extends Button{
 	{
 		//Set the texture & color for the button
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-        float r = (float)(this.tab.getColor() >> 16 & 255) / 255f;
-        float g = (float)(this.tab.getColor() >> 8 & 255) / 255f;
-        float b = (float)(this.tab.getColor()& 255) / 255f;
+        float r = (float)(this.getColor() >> 16 & 255) / 255f;
+        float g = (float)(this.getColor() >> 8 & 255) / 255f;
+        float b = (float)(this.getColor()& 255) / 255f;
         float activeColor = this.active ? 1f : 0.5f;
         RenderSystem.setShaderColor(r * activeColor, g * activeColor, b * activeColor, 1f);
         int xOffset = this.rotation < 2 ? 0 : this.width;
@@ -60,6 +61,16 @@ public class TabButton extends Button{
         RenderSystem.setShaderColor(activeColor, activeColor, activeColor, 1f);
         this.tab.getIcon().render(matrixStack, this, this.font, this.x + 4, this.y + 4);
 		
+	}
+	
+	protected int getColor() { return this.tab.getColor(); }
+	
+	public void renderTooltip(PoseStack pose, int mouseX, int mouseY, Screen screen) {
+		boolean wasActive = this.active;
+		this.active = true;
+		if(this.visible && this.isMouseOver(mouseX, mouseY))
+			screen.renderTooltip(pose, this.tab.getTooltip(), mouseX, mouseY);
+		this.active = wasActive;
 	}
 	
 	public interface ITab

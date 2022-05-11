@@ -41,8 +41,16 @@ public class Team {
 	public void flagAsClient() { this.isClient = true; }
 	
 	List<PlayerReference> admins = Lists.newArrayList();
+	/**
+	 * List of the teams admins.
+	 * Does not included the owner.
+	 */
 	public List<PlayerReference> getAdmins() { return this.admins; }
 	List<PlayerReference> members = Lists.newArrayList();
+	/**
+	 * List of the teams members.
+	 * Does not include admins or the owner.
+	 */
 	public List<PlayerReference> getMembers() { return this.members; }
 	
 	//0 for members, 1 for admins, 2 for owners only

@@ -18,17 +18,21 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageUpdateClientNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageUpdateClientTeam;
@@ -44,6 +48,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -87,6 +92,7 @@ public class TradingOffice extends SavedData{
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
+	private Map<UUID, NotificationData> playerNotifications = new HashMap<>();
 	//Store persistent data locally, so that it doesn't get lost if the persistent trader file is malformed
 	ListTag persistentData = new ListTag();
 	
@@ -185,6 +191,23 @@ public class TradingOffice extends SavedData{
 			}
 		}
 		
+		if(compound.contains("PlayerNotifications", Tag.TAG_LIST))
+		{
+			this.playerNotifications.clear();
+			ListTag notificationData = compound.getList("PlayerNotifications", Tag.TAG_COMPOUND);
+			for(int i = 0; i < notificationData.size(); ++i)
+			{
+				CompoundTag notData = notificationData.getCompound(i);
+				if(notData.contains("Player"))
+				{
+					UUID playerID = notData.getUUID("Player");
+					NotificationData data = NotificationData.loadFrom(notData);
+					if(playerID != null && data != null)
+						this.playerNotifications.put(playerID, data);
+				}
+			}
+		}
+		
 	}
 
 	@Override
@@ -236,6 +259,14 @@ public class TradingOffice extends SavedData{
 			persistentTraderIDs.add(idData);
 		});
 		compound.put("PersistentTraderIDs", persistentTraderIDs);
+		
+		ListTag notficationData = new ListTag();
+		this.playerNotifications.forEach((uuid, notificationData) ->{
+			CompoundTag notData = notificationData.save();
+			notData.putUUID("Player", uuid);
+			notficationData.add(notData);
+		});
+		compound.put("PlayerNotifications", notficationData);
 		
 		return compound;
 	}
@@ -617,6 +648,56 @@ public class TradingOffice extends SavedData{
 		}
 	}
 	
+	public static NotificationData getNotifications(Player player) { return getNotifications(player.getUUID()); }
+	
+	public static NotificationData getNotifications(UUID playerID) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		TradingOffice office = get(server);
+		if(office != null)
+		{
+			if(office.playerNotifications.containsKey(playerID))
+			{
+				return office.playerNotifications.get(playerID);
+			}
+			//Create a new notification data set for the player;
+			NotificationData newData = new NotificationData();
+			office.playerNotifications.put(playerID, newData);
+			MarkNotificationsDirty(playerID);
+			return newData;
+		}
+		return null;
+	}
+	
+	public static boolean pushNotification(UUID playerID, Notification notification) {
+		NotificationData data = getNotifications(playerID);
+		if(data != null)
+		{
+			//Post event to see if we should sent the notification
+			NotificationEvent.NotificationSent.Pre event = new NotificationEvent.NotificationSent.Pre(playerID, data, notification);
+			if(MinecraftForge.EVENT_BUS.post(event))
+				return false;
+			//Passed the pre event, add the notification to the notification data
+			data.addNotification(event.getNotification());
+			//Mark the data as dirty
+			MarkNotificationsDirty(playerID);
+			//Run the post event to notify anyone who cares that the notification was created.
+			MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationSent.Post(playerID, data, event.getNotification()));
+		}
+		return false;
+	}
+	
+	public static void MarkNotificationsDirty(UUID playerID) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			get(server).setDirty();
+			//Send update packet to the relevant player
+			ServerPlayer player = server.getPlayerList().getPlayer(playerID);
+			if(player != null)
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageUpdateClientNotifications(getNotifications(playerID)));
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerLevel world = server.getLevel(Level.OVERWORLD);
@@ -660,6 +741,11 @@ public class TradingOffice extends SavedData{
 			});
 			compound3.put("BankAccounts", bankList);
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound3));
+			
+			//Only send their personal notifications
+			NotificationData notifications = getNotifications(event.getPlayer());
+			LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientNotifications(notifications));
+			
 		}
 	}
 	

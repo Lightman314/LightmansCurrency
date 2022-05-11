@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
@@ -131,6 +132,10 @@ public class LightmansCurrencyPacketHandler {
 		//Logger
 		register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
 		register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
+		
+		//Notifications
+		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
+		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
 		
 		//Trade Rules
 		register(MessageUpdateTradeRule.class, MessageUpdateTradeRule::encode, MessageUpdateTradeRule::decode, MessageUpdateTradeRule::handle);

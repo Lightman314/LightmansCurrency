@@ -15,7 +15,7 @@ public class PortableATMItem extends TooltipItem{
 
 	public PortableATMItem(Properties properties)
 	{
-		super(properties, LCTooltips.ATM);
+		super(properties.stacksTo(1), LCTooltips.ATM);
 	}
 	
 	@Override

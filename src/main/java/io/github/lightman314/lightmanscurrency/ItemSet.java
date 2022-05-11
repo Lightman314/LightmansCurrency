@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.minecraft.world.item.Item;
 
+@Deprecated
 public class ItemSet<T> implements IItemSet<T>{
 
 	Map<T, Item> set;

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.upgrades;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 
-	private static final Map<ResourceLocation,UpgradeType> UPGRADE_TYPE_REGISTRY = Maps.newHashMap();
+	private static final Map<ResourceLocation,UpgradeType> UPGRADE_TYPE_REGISTRY = new HashMap<>();
 	
 	public static final ItemCapacityUpgrade ITEM_CAPACITY = register(new ResourceLocation(LightmansCurrency.MODID, "item_capacity"), new ItemCapacityUpgrade());
 	

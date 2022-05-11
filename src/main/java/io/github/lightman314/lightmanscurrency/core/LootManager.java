@@ -437,7 +437,7 @@ public class LootManager {
 			}
 			if(value.contains("entities\\"))
 			{
-				value = value.replace("entities/", "");
+				value = value.replace("entities\\", "");
 				list.set(i, value);
 				modified = true;
 			}
@@ -463,96 +463,100 @@ public class LootManager {
 		
 		LootContext context = contextBuilder.create(new LootContextParamSet.Builder().optional(LootContextParams.LAST_DAMAGE_PLAYER).optional(LootContextParams.KILLER_ENTITY).build());
 		
-		//Boss loot done separately due to loops and exclusiveness.
-		if(coinPool == PoolLevel.BOSS_COPPER)
-		{
-			//Drop copper boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_COPPER)
+		try {
+			
+			//Boss loot done separately due to loops and exclusiveness.
+			if(coinPool == PoolLevel.BOSS_COPPER)
 			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_IRON)
-		{
-			//Drop iron boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_IRON)
-			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_GOLD)
-		{
-			//Drop gold boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_GOLD)
-			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_EMERALD)
-		{
-			//Drop emerald boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_EMERALD)
-			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_DIAMOND)
-		{
-			//Drop diamond boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_DIAMOND)
-			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_NETHERITE)
-		{
-			//Drop netherite boss loot
-			for(Builder builder : ENTITY_LOOT_BOSS_NETHERITE)
-			{
-				table.addPool(builder.build());
-			}
-			//Generate the loot 
-			SpawnLootDrops(entity, table.getRandomItems(context));
-			return;
-		}
-		
-		//LightmansCurrency.LOGGER.debug("Added " + coinPool + " level entity loot to the " + name + " loot entry.");
-		table.addPool(ENTITY_LOOT_COPPER.build());
-		if(coinPool != PoolLevel.COPPER)
-		{
-			table.addPool(ENTITY_LOOT_IRON.build());
-			if(coinPool != PoolLevel.IRON)
-			{
-				table.addPool(ENTITY_LOOT_GOLD.build());
-				if(coinPool != PoolLevel.GOLD)
+				//Drop copper boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_COPPER)
 				{
-					table.addPool(ENTITY_LOOT_EMERALD.build());
-					if(coinPool != PoolLevel.EMERALD)
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			else if(coinPool == PoolLevel.BOSS_IRON)
+			{
+				//Drop iron boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_IRON)
+				{
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			else if(coinPool == PoolLevel.BOSS_GOLD)
+			{
+				//Drop gold boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_GOLD)
+				{
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			else if(coinPool == PoolLevel.BOSS_EMERALD)
+			{
+				//Drop emerald boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_EMERALD)
+				{
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			else if(coinPool == PoolLevel.BOSS_DIAMOND)
+			{
+				//Drop diamond boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_DIAMOND)
+				{
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			else if(coinPool == PoolLevel.BOSS_NETHERITE)
+			{
+				//Drop netherite boss loot
+				for(Builder builder : ENTITY_LOOT_BOSS_NETHERITE)
+				{
+					table.addPool(builder.build());
+				}
+				//Generate the loot 
+				SpawnLootDrops(entity, table.getRandomItems(context));
+				return;
+			}
+			
+			//LightmansCurrency.LOGGER.debug("Added " + coinPool + " level entity loot to the " + name + " loot entry.");
+			table.addPool(ENTITY_LOOT_COPPER.build());
+			if(coinPool != PoolLevel.COPPER)
+			{
+				table.addPool(ENTITY_LOOT_IRON.build());
+				if(coinPool != PoolLevel.IRON)
+				{
+					table.addPool(ENTITY_LOOT_GOLD.build());
+					if(coinPool != PoolLevel.GOLD)
 					{
-						table.addPool(ENTITY_LOOT_DIAMOND.build());
-						if(coinPool != PoolLevel.DIAMOND)
-							table.addPool(ENTITY_LOOT_NETHERITE.build());
+						table.addPool(ENTITY_LOOT_EMERALD.build());
+						if(coinPool != PoolLevel.EMERALD)
+						{
+							table.addPool(ENTITY_LOOT_DIAMOND.build());
+							if(coinPool != PoolLevel.DIAMOND)
+								table.addPool(ENTITY_LOOT_NETHERITE.build());
+						}
 					}
 				}
 			}
-		}
+			
+			SpawnLootDrops(entity, table.getRandomItems(context));
 		
-		SpawnLootDrops(entity, table.getRandomItems(context));
+		} catch(Exception e) { LightmansCurrency.LogError("Error spawning coin drops!", e); }
 		
 	}
 	

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -92,8 +93,8 @@ public class TradeContext {
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;
-	public boolean hasPlayerReference() { return this.hasPlayer() || this.playerReference != null; }
-	public final PlayerReference getPlayerReference() { if(this.hasPlayer()) return PlayerReference.of(player); return this.playerReference; }
+	public boolean hasPlayerReference() { return this.playerReference != null; }
+	public final PlayerReference getPlayerReference() { return this.playerReference; }
 	
 	//Money/Payment related data
 	private final AccountReference bankAccount;
@@ -107,6 +108,8 @@ public class TradeContext {
 	private final CoinValue storedMoney;
 	private boolean hasStoredMoney() { return this.storedMoney != null; }
 	private CoinValue getStoredMoney() { return this.storedMoney; }
+	
+	private final BiConsumer<CoinValue,Boolean> moneyListener;
 	
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
@@ -136,6 +139,7 @@ public class TradeContext {
 		this.bankAccount = builder.bankAccount;
 		this.coinSlots = builder.coinSlots;
 		this.storedMoney = builder.storedCoins;
+		this.moneyListener = builder.moneyListener;
 		this.interactionSlot = builder.interactionSlot;
 		this.itemHandler = builder.itemHandler;
 		this.fluidTank = builder.fluidHandler;
@@ -175,6 +179,8 @@ public class TradeContext {
 	{
 		if(this.hasFunds(price))
 		{
+			if(this.moneyListener != null)
+				this.moneyListener.accept(price, false);
 			long amountToWithdraw = price.getRawValue();
 			if(this.hasCoinSlots() && this.hasPlayer())
 			{
@@ -202,7 +208,9 @@ public class TradeContext {
 				CoinValue withdrawAmount = this.getBankAccount().withdrawCoins(new CoinValue(amountToWithdraw));
 				amountToWithdraw -= withdrawAmount.getRawValue();
 				if(this.hasTrader() && withdrawAmount.getRawValue() > 0)
+				{
 					this.getBankAccount().LogInteraction(this.getTrader(), withdrawAmount, false);
+				}
 			}
 			if(this.hasPlayer() && amountToWithdraw > 0)
 			{
@@ -236,6 +244,8 @@ public class TradeContext {
 	
 	public boolean givePayment(CoinValue price)
 	{
+		if(this.moneyListener != null)
+			this.moneyListener.accept(price, true);
 		if(this.hasBankAccount())
 		{
 			this.getBankAccount().depositCoins(price);
@@ -580,6 +590,7 @@ public class TradeContext {
 		private AccountReference bankAccount;
 		private Container coinSlots;
 		private CoinValue storedCoins;
+		private BiConsumer<CoinValue,Boolean> moneyListener;
 		
 		//Interaction Slots
 		private InteractionSlot interactionSlot;
@@ -592,12 +603,14 @@ public class TradeContext {
 		private IEnergyStorage energyHandler;
 		
 		private Builder(ITrader trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(ITrader trader, Player player) { this.trader = trader; this.player = player; this.playerReference = null; this.storageMode = false; }
+		private Builder(ITrader trader, Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; }
 		private Builder(ITrader trader, PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 		
 		public Builder withBankAccount(AccountReference bankAccount) { this.bankAccount = bankAccount; return this; }
 		public Builder withCoinSlots(Container coinSlots) { this.coinSlots = coinSlots; return this; }
 		public Builder withStoredCoins(CoinValue storedCoins) { this.storedCoins = storedCoins; return this; }
+		
+		public Builder withMoneyListener(BiConsumer<CoinValue,Boolean> moneyListener) { this.moneyListener = moneyListener; return this; }
 		
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }
 		
