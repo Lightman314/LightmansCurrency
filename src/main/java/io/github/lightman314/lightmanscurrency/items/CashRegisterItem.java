@@ -33,7 +33,7 @@ public class CashRegisterItem extends BlockItem{
 	
 	public CashRegisterItem(Block block, Properties properties)
 	{
-		super(block, properties);
+		super(block, properties.stacksTo(1));
 	}
 	
 	@Override

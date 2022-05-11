@@ -69,9 +69,9 @@ public class MainTab extends SettingsTab{
 		this.buttonResetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50, 74, 20, new TranslatableComponent("gui.lightmanscurrency.resetname"), this::ResetName));
 		
 		//Creative Toggle
-		this.buttonToggleCreative = screen.addRenderableTabWidget(IconAndButtonUtil.creativeToggleButton(screen.guiLeft() + 176, screen.guiTop() + 4, this::ToggleCreative, () -> this.getScreen().getSetting(CoreTraderSettings.class).isCreative()));
-		this.buttonAddTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 4, 10, 10, this::AddTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 200));
-		this.buttonRemoveTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + 14, 10, 10, this::RemoveTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 220));
+		this.buttonToggleCreative = screen.addRenderableTabWidget(IconAndButtonUtil.creativeToggleButton(screen.guiLeft() + 176, screen.guiTop() + screen.ySize - 30, this::ToggleCreative, () -> this.getScreen().getSetting(CoreTraderSettings.class).isCreative()));
+		this.buttonAddTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + screen.ySize - 30, 10, 10, this::AddTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 200));
+		this.buttonRemoveTrade = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 166, screen.guiTop() + screen.ySize - 20, 10, 10, this::RemoveTrade, TraderSettingsScreen.GUI_TEXTURE, 0, 220));
 		
 		this.buttonToggleBankLink = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 100, 10, 10, this::ToggleBankLink, TraderSettingsScreen.GUI_TEXTURE, 10, coreSettings.isBankAccountLinked() ? 200 : 220));
 		this.buttonToggleBankLink.visible = screen.hasPermission(Permissions.BANK_LINK);
@@ -96,6 +96,14 @@ public class MainTab extends SettingsTab{
 		
 		if(screen.hasPermission(Permissions.BANK_LINK))
 			this.getFont().draw(matrix, new TranslatableComponent("gui.lightmanscurrency.settings.banklink"), screen.guiLeft() + 32, screen.guiTop() + 101, 0x404040);
+		
+		//Draw current trade count
+		if(TradingOffice.isAdminPlayer(this.getScreen().getPlayer()))
+		{
+			String count = String.valueOf(screen.getTrader().getTradeCount());
+			int width = this.getFont().width(count);
+			this.getFont().draw(matrix, count, screen.guiLeft() + 164 - width, screen.guiTop() + screen.ySize - 25, 0x404040);
+		}
 		
 	}
 	
@@ -134,20 +142,11 @@ public class MainTab extends SettingsTab{
 		this.buttonToggleCreative.visible = TradingOffice.isAdminPlayer(this.getScreen().getPlayer());
 		if(this.buttonToggleCreative.visible)
 		{
-			//IconAndButtonUtil.updateCreativeToggleButton(this.buttonToggleCreative, coreSettings.isCreative());
-			if(coreSettings.isCreative())
-			{
-				ITrader trader = this.getScreen().getTrader();
-				this.buttonAddTrade.visible = true;
-				this.buttonAddTrade.active = trader.getTradeCount() < trader.getTradeCountLimit();
-				this.buttonRemoveTrade.visible = true;
-				this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
-			}
-			else
-			{
-				this.buttonAddTrade.visible = false;
-				this.buttonRemoveTrade.visible = false;
-			}
+			ITrader trader = this.getScreen().getTrader();
+			this.buttonAddTrade.visible = true;
+			this.buttonAddTrade.active = trader.getTradeCount() < ITrader.GLOBAL_TRADE_LIMIT;
+			this.buttonRemoveTrade.visible = true;
+			this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
 		}
 		else
 		{

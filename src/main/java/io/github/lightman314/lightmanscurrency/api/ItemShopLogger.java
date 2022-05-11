@@ -35,7 +35,7 @@ public class ItemShopLogger extends TextLogger{
 		Component playerName = new TextComponent("§a" + player.lastKnownName());
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
-		Component itemText = trade.isPurchase() ? this.getItemInputComponent(trade.getSellItem(0), trade.getSellItem(1)) : this.getItemOutputComponent(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1));
+		Component itemText = trade.isPurchase() ? getItemInputComponent(trade.getSellItem(0), trade.getSellItem(1)) : getItemOutputComponent(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1));
 		Component cost = getCostText(pricePaid);
 		if(trade.isBarter())
 		{
@@ -49,11 +49,11 @@ public class ItemShopLogger extends TextLogger{
 		
 	}
 	
-	private Component getItemInputComponent(ItemStack item1, ItemStack item2) {
+	public static Component getItemInputComponent(ItemStack item1, ItemStack item2) {
 		return getItemOutputComponent(item1, "", item2, "");
 	}
 	
-	private Component getItemOutputComponent(ItemStack item1, String customName1, ItemStack item2, String customName2) {
+	public static Component getItemOutputComponent(ItemStack item1, String customName1, ItemStack item2, String customName2) {
 		if(item1.isEmpty() && item2.isEmpty())
 			return new TextComponent("");
 		if(item1.isEmpty() && !item2.isEmpty())
@@ -70,7 +70,7 @@ public class ItemShopLogger extends TextLogger{
 		}
 	}
 	
-	private Component getItemComponent(ItemStack item, String customName) {
+	public static Component getItemComponent(ItemStack item, String customName) {
 		//Copy/pasted from the getTooltip function that is client-side only
 		MutableComponent itemName = (new TextComponent("")).append(customName.isBlank() ? item.getHoverName() : new TextComponent(customName)).withStyle(item.getRarity().color);
 		if (item.hasCustomHoverName() && customName.isBlank()) {

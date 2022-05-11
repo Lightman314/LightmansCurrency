@@ -7,11 +7,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.Reference.Color;
-import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.ItemTraderSearchFilter;
@@ -20,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
@@ -31,22 +35,11 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.FreeSample;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerBlacklist;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerDiscounts;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerTradeLimit;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.PlayerWhitelist;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TimedSale;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeLimit;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -80,20 +73,16 @@ public class LightmansCurrency {
     private static boolean discordIntegrationLoaded = false;
     public static boolean isDiscordIntegrationLoaded() { return discordIntegrationLoaded; }
     
-    public LightmansCurrency() {
+	public LightmansCurrency() {
     	
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onDataSetup);
-        //Register Blocks & Items
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModItems::registerItems);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModBlocks::registerItems);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModBlocks::registerBlocks);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModBlockEntities::registerTypes);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(PoiType.class, CustomPointsOfInterest::registerInterestTypes);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(VillagerProfession.class, CustomProfessions::registerVillagerProfessions);
+        
+        //Setup Deferred Registries
+        ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
         
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
@@ -102,6 +91,13 @@ public class LightmansCurrency {
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModBlockEntities::registerTypes);
+        
+        //Pre-register items/blocks
+        ModItems.init();
+        ModBlocks.init();
+        CustomProfessions.init();
+        CustomPointsOfInterest.init();
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
@@ -128,15 +124,23 @@ public class LightmansCurrency {
     	ModGameRules.registerRules();
     	
     	//Initialize the Trade Rule deserializers
-    	TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, () -> new PlayerWhitelist());
-    	TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, () -> new PlayerBlacklist());
-    	TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, () -> new PlayerTradeLimit());
-    	TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, () -> new PlayerTradeLimit(), true);
-    	TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, () -> new PlayerDiscounts());
-    	TradeRule.RegisterDeserializer(TimedSale.TYPE, () -> new TimedSale());
-    	TradeRule.RegisterDeserializer(TradeLimit.TYPE, () -> new TradeLimit());
-    	TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, () -> new TradeLimit(), true);
-    	TradeRule.RegisterDeserializer(FreeSample.TYPE, () -> new FreeSample());
+    	TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist::new);
+    	TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist::new);
+    	TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit::new);
+    	TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, PlayerTradeLimit::new, true);
+    	TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, PlayerDiscounts::new);
+    	TradeRule.RegisterDeserializer(TimedSale.TYPE, TimedSale::new);
+    	TradeRule.RegisterDeserializer(TradeLimit.TYPE, TradeLimit::new);
+    	TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, TradeLimit::new, true);
+    	TradeRule.RegisterDeserializer(FreeSample.TYPE, FreeSample::new);
+    	
+    	//Initialize the Notification deserializers
+    	Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
+    	Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
+    	
+    	//Initialize the Notification Category deserializers
+    	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
+    	Category.register(TraderCategory.TYPE, TraderCategory::new);
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
@@ -147,44 +151,38 @@ public class LightmansCurrency {
     	//Initialized the sorting lists
     	COIN_GROUP.setEnchantmentCategories(LCEnchantmentCategories.WALLET_CATEGORY, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY);
 		COIN_GROUP.initSortingList(Lists.newArrayList(ModItems.COIN_COPPER, ModItems.COIN_IRON, ModItems.COIN_GOLD,
-				ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_COPPER.item,
-				ModBlocks.COINPILE_IRON.item, ModBlocks.COINPILE_GOLD.item, ModBlocks.COINPILE_EMERALD.item,
-				ModBlocks.COINPILE_DIAMOND.item, ModBlocks.COINPILE_NETHERITE.item, ModBlocks.COINBLOCK_COPPER.item,
-				ModBlocks.COINBLOCK_IRON.item, ModBlocks.COINBLOCK_GOLD.item, ModBlocks.COINBLOCK_EMERALD.item,
-				ModBlocks.COINBLOCK_DIAMOND.item, ModBlocks.COINBLOCK_NETHERITE.item, ModItems.TRADING_CORE, ModItems.TICKET,
+				ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, ModBlocks.COINPILE_COPPER,
+				ModBlocks.COINPILE_IRON, ModBlocks.COINPILE_GOLD, ModBlocks.COINPILE_EMERALD,
+				ModBlocks.COINPILE_DIAMOND, ModBlocks.COINPILE_NETHERITE, ModBlocks.COINBLOCK_COPPER,
+				ModBlocks.COINBLOCK_IRON, ModBlocks.COINBLOCK_GOLD, ModBlocks.COINBLOCK_EMERALD,
+				ModBlocks.COINBLOCK_DIAMOND, ModBlocks.COINBLOCK_NETHERITE, ModItems.TRADING_CORE, ModItems.TICKET,
 				ModItems.TICKET_MASTER, ModItems.TICKET_STUB, ModItems.WALLET_COPPER, ModItems.WALLET_IRON, ModItems.WALLET_GOLD,
 				ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE
 			));
 		
-		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM.item, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT.item, ModBlocks.CASH_REGISTER.item,
-				ModBlocks.TERMINAL.item, ModItems.PORTABLE_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE.item, ModBlocks.PAYGATE.item, ModBlocks.TICKET_MACHINE.item
+		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
+				ModBlocks.TERMINAL, ModItems.PORTABLE_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
 			));
 		
-		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF.getItem(WoodType.OAK), ModBlocks.SHELF.getItem(WoodType.BIRCH),
-				ModBlocks.SHELF.getItem(WoodType.SPRUCE), ModBlocks.SHELF.getItem(WoodType.JUNGLE),
-				ModBlocks.SHELF.getItem(WoodType.ACACIA), ModBlocks.SHELF.getItem(WoodType.DARK_OAK),
-				ModBlocks.SHELF.getItem(WoodType.CRIMSON), ModBlocks.SHELF.getItem(WoodType.WARPED),
-				ModBlocks.DISPLAY_CASE, ModBlocks.ARMOR_DISPLAY, ModBlocks.CARD_DISPLAY.getItem(WoodType.OAK),
-				ModBlocks.CARD_DISPLAY.getItem(WoodType.BIRCH), ModBlocks.CARD_DISPLAY.getItem(WoodType.SPRUCE),
-				ModBlocks.CARD_DISPLAY.getItem(WoodType.JUNGLE), ModBlocks.CARD_DISPLAY.getItem(WoodType.ACACIA),
-				ModBlocks.CARD_DISPLAY.getItem(WoodType.DARK_OAK), ModBlocks.CARD_DISPLAY.getItem(WoodType.CRIMSON),
-				ModBlocks.CARD_DISPLAY.getItem(WoodType.WARPED), ModBlocks.VENDING_MACHINE1.getItem(Color.WHITE),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.ORANGE), ModBlocks.VENDING_MACHINE1.getItem(Color.MAGENTA),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.LIGHTBLUE), ModBlocks.VENDING_MACHINE1.getItem(Color.YELLOW),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.LIME), ModBlocks.VENDING_MACHINE1.getItem(Color.PINK), 
-				ModBlocks.VENDING_MACHINE1.getItem(Color.GRAY), ModBlocks.VENDING_MACHINE1.getItem(Color.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.CYAN), ModBlocks.VENDING_MACHINE1.getItem(Color.PURPLE),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.BLUE), ModBlocks.VENDING_MACHINE1.getItem(Color.BROWN),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.GREEN), ModBlocks.VENDING_MACHINE1.getItem(Color.RED),
-				ModBlocks.VENDING_MACHINE1.getItem(Color.BLACK), ModBlocks.FREEZER,
-				ModBlocks.VENDING_MACHINE2.getItem(Color.WHITE), ModBlocks.VENDING_MACHINE2.getItem(Color.ORANGE),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.MAGENTA), ModBlocks.VENDING_MACHINE2.getItem(Color.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.YELLOW), ModBlocks.VENDING_MACHINE2.getItem(Color.LIME),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.PINK), ModBlocks.VENDING_MACHINE2.getItem(Color.GRAY),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.LIGHTGRAY), ModBlocks.VENDING_MACHINE2.getItem(Color.CYAN),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.PURPLE), ModBlocks.VENDING_MACHINE2.getItem(Color.BLUE),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.BROWN), ModBlocks.VENDING_MACHINE2.getItem(Color.GREEN),
-				ModBlocks.VENDING_MACHINE2.getItem(Color.RED), ModBlocks.VENDING_MACHINE2.getItem(Color.BLACK),
+		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF_OAK, ModBlocks.SHELF_BIRCH, ModBlocks.SHELF_SPRUCE,
+				ModBlocks.SHELF_JUNGLE, ModBlocks.SHELF_ACACIA, ModBlocks.SHELF_DARK_OAK, ModBlocks.SHELF_CRIMSON,
+				ModBlocks.SHELF_WARPED, ModBlocks.DISPLAY_CASE, ModBlocks.ARMOR_DISPLAY, ModBlocks.CARD_DISPLAY_OAK,
+				ModBlocks.CARD_DISPLAY_BIRCH, ModBlocks.CARD_DISPLAY_SPRUCE, ModBlocks.CARD_DISPLAY_JUNGLE,
+				ModBlocks.CARD_DISPLAY_ACACIA, ModBlocks.CARD_DISPLAY_DARK_OAK, ModBlocks.CARD_DISPLAY_CRIMSON,
+				ModBlocks.CARD_DISPLAY_WARPED, ModBlocks.VENDING_MACHINE, ModBlocks.VENDING_MACHINE_ORANGE,
+				ModBlocks.VENDING_MACHINE_MAGENTA, ModBlocks.VENDING_MACHINE_LIGHTBLUE, ModBlocks.VENDING_MACHINE_YELLOW,
+				ModBlocks.VENDING_MACHINE_LIME, ModBlocks.VENDING_MACHINE_PINK, ModBlocks.VENDING_MACHINE_GRAY,
+				ModBlocks.VENDING_MACHINE_LIGHTGRAY, ModBlocks.VENDING_MACHINE_CYAN, ModBlocks.VENDING_MACHINE_PURPLE,
+				ModBlocks.VENDING_MACHINE_BLUE, ModBlocks.VENDING_MACHINE_BROWN, ModBlocks.VENDING_MACHINE_GREEN,
+				ModBlocks.VENDING_MACHINE_RED, ModBlocks.VENDING_MACHINE_BLACK, ModBlocks.FREEZER,
+				ModBlocks.VENDING_MACHINE_LARGE, ModBlocks.VENDING_MACHINE_LARGE_ORANGE,
+				ModBlocks.VENDING_MACHINE_LARGE_MAGENTA, ModBlocks.VENDING_MACHINE_LARGE_LIGHTBLUE,
+				ModBlocks.VENDING_MACHINE_LARGE_YELLOW, ModBlocks.VENDING_MACHINE_LARGE_LIME,
+				ModBlocks.VENDING_MACHINE_LARGE_PINK, ModBlocks.VENDING_MACHINE_LARGE_GRAY,
+				ModBlocks.VENDING_MACHINE_LARGE_LIGHTGRAY, ModBlocks.VENDING_MACHINE_LARGE_CYAN,
+				ModBlocks.VENDING_MACHINE_LARGE_PURPLE, ModBlocks.VENDING_MACHINE_LARGE_BLUE,
+				ModBlocks.VENDING_MACHINE_LARGE_BROWN, ModBlocks.VENDING_MACHINE_LARGE_GREEN,
+				ModBlocks.VENDING_MACHINE_LARGE_RED, ModBlocks.VENDING_MACHINE_LARGE_BLACK,
 				ModBlocks.TICKET_KIOSK, ModBlocks.ITEM_TRADER_SERVER_SMALL, ModBlocks.ITEM_TRADER_SERVER_MEDIUM,
 				ModBlocks.ITEM_TRADER_SERVER_LARGE, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE
 			));

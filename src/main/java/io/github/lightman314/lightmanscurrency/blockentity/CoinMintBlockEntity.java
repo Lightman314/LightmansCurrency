@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
@@ -293,12 +292,12 @@ public class CoinMintBlockEntity extends BlockEntity{
 			if(slot != 1)
 				return ItemStack.EMPTY;
 			
-			LightmansCurrency.LogInfo("Attempting to extract " + amount + " items from the coin mint.");
+			//LightmansCurrency.LogInfo("Attempting to extract " + amount + " items from the coin mint.");
 			//Limit request amount to 1 stack
 			amount = MathUtil.clamp(amount, 0, 64);
 			//Copy so that the simulation doesn't cause problems
 			ItemStack currentStack = this.tileEntity.getStorage().getItem(1).copy();
-			LightmansCurrency.LogInfo("Starting output items: " + currentStack.getCount());
+			//LightmansCurrency.LogInfo("Starting output items: " + currentStack.getCount());
 			if(currentStack.isEmpty() || currentStack.getCount() < amount)
 			{
 				//Attempt to mint coins to fill the extra pull requests

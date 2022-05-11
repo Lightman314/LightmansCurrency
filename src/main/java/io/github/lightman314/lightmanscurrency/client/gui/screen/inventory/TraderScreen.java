@@ -102,6 +102,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
+		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
 		super.render(pose, mouseX, mouseY, partialTicks);
 		this.renderTooltip(pose, mouseX, mouseY);
 		
@@ -174,12 +175,6 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu>{
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
 		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		this.tradeDisplay.getScrollBar().onMouseDragged(mouseX, mouseY, button);
-		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
 	}
 	
 }

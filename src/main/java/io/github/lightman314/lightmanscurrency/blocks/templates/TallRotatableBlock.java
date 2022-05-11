@@ -25,7 +25,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 
-	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
+	public static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
 	protected TallRotatableBlock(Properties properties)

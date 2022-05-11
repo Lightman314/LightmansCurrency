@@ -12,7 +12,7 @@ public class PortableTerminalItem extends TooltipItem{
 
 	public PortableTerminalItem(Properties properties)
 	{
-		super(properties, LCTooltips.TERMINAL);
+		super(properties.stacksTo(1), LCTooltips.TERMINAL);
 	}
 	
 	@Override

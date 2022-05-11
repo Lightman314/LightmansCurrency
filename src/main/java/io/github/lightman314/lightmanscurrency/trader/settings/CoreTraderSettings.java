@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.SettingsLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.core.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -34,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class CoreTraderSettings extends Settings{
 
@@ -47,6 +50,7 @@ public class CoreTraderSettings extends Settings{
 	private static final String UPDATE_OWNERSHIP = "transferOwnership";
 	private static final String UPDATE_TEAM = "changeTeam";
 	private static final String UPDATE_BANK_LINK = "bankLink";
+	private static final String UPDATE_NOTIFICATION = "notificationSettings";
 	
 	public static PermissionsList getAllyDefaultPermissions(@Nonnull ITrader trader)
 	{
@@ -56,6 +60,7 @@ public class CoreTraderSettings extends Settings{
 		defaultPermissions.put(Permissions.EDIT_TRADE_RULES, 1);
 		defaultPermissions.put(Permissions.EDIT_SETTINGS, 1);
 		defaultPermissions.put(Permissions.CHANGE_NAME, 1);
+		defaultPermissions.put(Permissions.NOTIFICATION, 1);
 		
 		try {
 			trader.getAllyDefaultPermissions().forEach((key,value) -> defaultPermissions.put(key, value));
@@ -132,6 +137,41 @@ public class CoreTraderSettings extends Settings{
 			return BankAccount.GenerateReference(this.trader.isClient(), AccountType.Player, this.owner.id).get();
 		return null;
 		
+	}
+	
+	//Notifications
+	private boolean notificationsEnabled = true;
+	public boolean notificationsEnabled() { return this.notificationsEnabled; }
+	//0 for members, 1 for admins, 2 for owners only
+	private int teamNotificationLevel = 2;
+	public int getTeamNotificationLevel() { return this.teamNotificationLevel; }
+	
+	public void pushNotification(NonNullSupplier<Notification> notificationSource) {
+		//Notifications are disabled
+		if(!this.notificationsEnabled || this.trader.isClient())
+			return;
+		Team team = this.getTeam();
+		if(team != null)
+		{
+			List<PlayerReference> sendTo = new ArrayList<>();
+			if(this.teamNotificationLevel < 1)
+				sendTo.addAll(team.getMembers());
+			if(this.teamNotificationLevel < 2)
+				sendTo.addAll(team.getAdmins());
+			sendTo.add(team.getOwner());
+			for(PlayerReference player : sendTo)
+			{
+				if(player != null && player.id != null)
+				{
+					TradingOffice.pushNotification(player.id, notificationSource.get());
+				}
+			}
+		}
+		else if(this.owner != null)
+		{
+			//Push to owner
+			TradingOffice.pushNotification(this.owner.id, notificationSource.get());
+		}
 	}
 	
 	SettingsLogger logger = new SettingsLogger();
@@ -298,6 +338,37 @@ public class CoreTraderSettings extends Settings{
 		return null;
 	}
 	
+	public CompoundTag toggleNotifications(Player requestor)
+	{
+		if(!this.hasPermission(requestor, Permissions.NOTIFICATION))
+		{
+			PermissionWarning(requestor, "toggle notifications", Permissions.ADD_REMOVE_ALLIES);
+			return null;
+		}
+		this.notificationsEnabled = !this.notificationsEnabled;
+		this.logger.LogSettingsChange(requestor, "traderNotifications", this.notificationsEnabled);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_NOTIFICATION);
+		updateInfo.putBoolean("nowEnabled", this.notificationsEnabled);
+		return updateInfo;
+	}
+	
+	public CompoundTag setTeamNotificationLevel(Player requestor, int newLevel) {
+		
+		if(!this.hasPermission(requestor, Permissions.NOTIFICATION))
+		{
+			PermissionWarning(requestor, "set team notification level", Permissions.ADD_REMOVE_ALLIES);
+			return null;
+		}
+		if(this.teamNotificationLevel != newLevel)
+		{
+			this.teamNotificationLevel = newLevel;
+			this.logger.LogSettingsChange(requestor, "teamNotifications", this.teamNotificationLevel);
+		}
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_NOTIFICATION);
+		updateInfo.putInt("newLevel", newLevel);
+		return updateInfo;
+	}
+	
 	/**
 	 * Updates the last known name of all matching player references in the owner/ally/custom permissions list.
 	 * @param player
@@ -390,6 +461,7 @@ public class CoreTraderSettings extends Settings{
 				this.getBankAccount().LogInteraction(this.trader, money, true);
 				this.trader.clearStoredMoney();
 			}
+			this.logger.LogSettingsChange(requestor, "bankAccountLink", this.bankAccountLinked);
 		}	
 		
 		CompoundTag result = initUpdateInfo(UPDATE_BANK_LINK);
@@ -468,6 +540,25 @@ public class CoreTraderSettings extends Settings{
 					this.markDirty();
 			}
 		}
+		else if(this.isUpdateType(updateInfo, UPDATE_NOTIFICATION))
+		{
+			if(updateInfo.contains("nowEnabled"))
+			{
+				boolean newValue = updateInfo.getBoolean("nowEnabled");
+				if(this.notificationsEnabled != newValue)
+				{
+					CompoundTag result = this.toggleNotifications(requestor);
+					if(result != null)
+						this.markDirty();
+				}
+			}
+			if(updateInfo.contains("newLevel"))
+			{
+				CompoundTag result = this.setTeamNotificationLevel(requestor, updateInfo.getInt("newLevel"));
+				if(result != null)
+					this.markDirty();
+			}
+		}
 	}
 	
 	public CompoundTag save(CompoundTag compound)
@@ -480,6 +571,7 @@ public class CoreTraderSettings extends Settings{
 		this.saveCustomName(compound);
 		this.saveCreative(compound);
 		this.saveBankAccountLink(compound);
+		this.saveNotificationSettings(compound);
 		this.saveLogger(compound);
 		
 		return compound;
@@ -530,6 +622,13 @@ public class CoreTraderSettings extends Settings{
 	public CompoundTag saveBankAccountLink(CompoundTag compound)
 	{
 		compound.putBoolean("BankLink", this.bankAccountLinked);
+		return compound;
+	}
+	
+	public CompoundTag saveNotificationSettings(CompoundTag compound)
+	{
+		compound.putBoolean("Notifications", this.notificationsEnabled);
+		compound.putInt("TeamNotifications", this.teamNotificationLevel);
 		return compound;
 	}
 	
@@ -645,6 +744,12 @@ public class CoreTraderSettings extends Settings{
 		if(compound.contains("BankLink"))
 			this.bankAccountLinked = compound.getBoolean("BankLink");
 		
+		//Notification settings
+		if(compound.contains("Notifications"))
+			this.notificationsEnabled = compound.getBoolean("Notifications");
+		if(compound.contains("TeamNotifications"))
+			this.teamNotificationLevel = compound.getInt("TeamNotifications");
+		
 		//Logger
 		this.logger.read(compound);
 		
@@ -653,7 +758,7 @@ public class CoreTraderSettings extends Settings{
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<SettingsTab> getSettingsTabs() {
-		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE);
+		return Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, AllyPermissionsTab.INSTANCE, NotificationTab.INSTANCE);
 	}
 	
 	@Override
@@ -676,6 +781,7 @@ public class CoreTraderSettings extends Settings{
 				BooleanPermission.of(Permissions.ADD_REMOVE_ALLIES),
 				BooleanPermission.of(Permissions.EDIT_PERMISSIONS),
 				BooleanPermission.of(Permissions.CLEAR_LOGS),
+				BooleanPermission.of(Permissions.NOTIFICATION),
 				BooleanPermission.of(Permissions.BANK_LINK),
 				BooleanPermission.of(Permissions.BREAK_TRADER),
 				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)

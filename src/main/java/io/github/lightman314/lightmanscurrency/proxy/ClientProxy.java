@@ -7,20 +7,20 @@ import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.BlockItemSet;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -50,6 +51,7 @@ public class ClientProxy extends CommonProxy{
 	
 	boolean openTerminal = false;
 	boolean openTeamManager = false;
+	boolean openNotifications = false;
 	
 	private long timeOffset = 0;
 	
@@ -57,12 +59,43 @@ public class ClientProxy extends CommonProxy{
 	public void setupClient() {
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.block, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE, RenderType.cutout());
+		
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_ORANGE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_MAGENTA, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIGHTBLUE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_YELLOW, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIME, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_PINK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_GRAY, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIGHTGRAY, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_CYAN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_PURPLE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BLUE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BROWN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_GREEN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_RED, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BLACK, RenderType.cutout());
+		
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_ORANGE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_MAGENTA, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIGHTBLUE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_YELLOW, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIME, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_PINK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_GRAY, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIGHTGRAY, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_CYAN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_PURPLE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BLUE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BROWN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_GREEN, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_RED, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BLACK, RenderType.cutout());
     	
-    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE1, RenderType.cutout());
-    	setRenderLayerForSet(ModBlocks.VENDING_MACHINE2, RenderType.cutout());
-    	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.block, RenderType.cutout());
+    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY, RenderType.cutout());
     	
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM, ATMScreen::new);
@@ -99,11 +132,6 @@ public class ClientProxy extends CommonProxy{
     	
     	//Wallet layer is now registered in ClientModEvents
     	
-	}
-	
-	private static void setRenderLayerForSet(BlockItemSet<?> blockItemSet, RenderType type)
-	{
-		blockItemSet.getAll().forEach(blockItemPair -> ItemBlockRenderTypes.setRenderLayer(blockItemPair.block, type));
 	}
 	
 	@Override
@@ -170,16 +198,19 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void openTerminalScreen()
+	public void updateNotifications(NotificationData data)
 	{
-		this.openTerminal = true;
+		ClientTradingOffice.updateNotifications(data);
 	}
 	
 	@Override
-	public void openTeamManager()
-	{
-		this.openTeamManager = true;
-	}
+	public void openTerminalScreen() { this.openTerminal = true; }
+	
+	@Override
+	public void openNotificationScreen() { this.openNotifications = true; }
+	
+	@Override
+	public void openTeamManager() { this.openTeamManager = true; }
 	
 	@Override
 	public void createTeamResponse(UUID teamID)
@@ -235,6 +266,11 @@ public class ClientProxy extends CommonProxy{
 			{
 				this.openTeamManager = false;
 				Minecraft.getInstance().setScreen(new TeamManagerScreen());
+			}
+			else if(this.openNotifications)
+			{
+				this.openNotifications = false;
+				Minecraft.getInstance().setScreen(new NotificationScreen());
 			}
 		}
 	}

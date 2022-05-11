@@ -93,9 +93,9 @@ public class MoneyUtil {
 		{
 			try {
 				
-				mcl.createNewFile();
-				
 				MoneyData defaultData = MoneyData.generateDefault();
+				
+				mcl.createNewFile();
 				
 				FileUtil.writeStringToFile(mcl, new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(defaultData.toJson()));
 				
@@ -118,7 +118,7 @@ public class MoneyUtil {
     public static void initializeDefaultCoins(GetDefaultMoneyDataEvent event)
     {
     	
-    	LightmansCurrency.LogInfo("Initializing the Money Utilities.");
+    	LightmansCurrency.LogInfo("Generating default coin values.");
     	
     	//Copper Coin
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_COPPER, MAIN_CHAIN)
@@ -154,55 +154,67 @@ public class MoneyUtil {
     	//Copper Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_COPPER, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_COPPER, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_copper.plural")
     			.setHidden());
     	//Copper Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_COPPER, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_COPPER, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_copper.plural")
     			.setHidden());
     	
     	//Iron Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_IRON, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_IRON, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_iron.plural")
     			.setHidden());
     	//Iron Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_IRON, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_IRON, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_iron.plural")
     			.setHidden());
     	
     	//Gold Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_GOLD, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_GOLD, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_gold.plural")
     			.setHidden());
     	//Gold Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_GOLD, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_GOLD, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_gold.plural")
     			.setHidden());
     	
     	//Emerald Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_EMERALD, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_EMERALD, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_emerald.plural")
     			.setHidden());
     	//Emerald Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_EMERALD, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_EMERALD, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_emerald.plural")
     			.setHidden());
     	
     	//Diamond Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_DIAMOND, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_DIAMOND, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_diamond.plural")
     			.setHidden());
     	//Diamond Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_DIAMOND, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_DIAMOND, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_diamond.plural")
     			.setHidden());
     	
     	//Netherite Coinpile
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_NETHERITE, MAIN_CHAIN)
     			.defineConversion(ModItems.COIN_NETHERITE, 9)
+    			.definePluralForm("block.lightmanscurrency.coinpile_netherite.plural")
     			.setHidden());
     	//Netherite Coin Block
     	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_NETHERITE, MAIN_CHAIN)
     			.defineConversion(ModBlocks.COINPILE_NETHERITE, 4)
+    			.definePluralForm("block.lightmanscurrency.coinblock_netherite.plural")
     			.setHidden());
 		
     }
@@ -405,7 +417,7 @@ public class MoneyUtil {
     {
     	if(moneyData == null)
     		return;
-    	List<CoinData> coinList = moneyData.getCoinList();
+    	List<CoinData> coinList = moneyData.getSortedCoinList();
     	for(int x = 0; x < iterations; x++)
     	{
     		for(int i = 0; i < (coinList.size() - 1); i++)
@@ -628,7 +640,7 @@ public class MoneyUtil {
 			return value;
 		else
 		{
-			List<CoinData> coinList = moneyData.getCoinList();
+			List<CoinData> coinList = moneyData.getSortedCoinList();
 			//Remove objects from the inventory.
 			for(CoinData coinData : coinList)
 			{
@@ -708,7 +720,7 @@ public class MoneyUtil {
 		else
 		{
 			//Remove objects from the inventory.
-			List<CoinData> coinList = moneyData.getCoinList();
+			List<CoinData> coinList = moneyData.getSortedCoinList();
 			for(CoinData coinData : coinList)
 			{
 				long coinValue = coinData.getValue();
@@ -796,8 +808,6 @@ public class MoneyUtil {
 					ItemStack newStack = new ItemStack(coin);
 					if(giveCount > newStack.getMaxStackSize())
 						giveCount = newStack.getMaxStackSize();
-					if(giveCount > 64)
-						giveCount = 64;
 					coinsToGive -= giveCount;
 					newStack.setCount(giveCount);
 					items.add(newStack);
@@ -868,7 +878,7 @@ public class MoneyUtil {
     	if(moneyData == null)
     		return new ArrayList<>();
     	List<Item> coinItems = new ArrayList<>();
-    	List<CoinData> coinList = moneyData.getCoinList();
+    	List<CoinData> coinList = moneyData.getSortedCoinList();
     	for(int i = 0; i < coinList.size(); i++)
     	{
     		if(!coinList.get(i).isHidden || includeHidden)
@@ -897,7 +907,7 @@ public class MoneyUtil {
     	if(moneyData == null)
     		return new ArrayList<>();
     	List<Item> coinItems = new ArrayList<>();
-    	List<CoinData> coinList = moneyData.getCoinList();
+    	List<CoinData> coinList = moneyData.getSortedCoinList();
     	for(int i = 0; i < coinList.size(); i++)
     	{
     		if(coinList.get(i).chain.contentEquals(chain) && (!coinList.get(i).isHidden || includeHidden))
@@ -923,7 +933,7 @@ public class MoneyUtil {
     {
     	if(moneyData == null)
     		return new ArrayList<>();
-    	List<CoinData> coinList = moneyData.getCoinList();
+    	List<CoinData> coinList = moneyData.getSortedCoinList();
     	if(includeHidden)
     		return coinList;
     	List<CoinData> publicCoinList = new ArrayList<>();
@@ -954,7 +964,7 @@ public class MoneyUtil {
     {
     	if(moneyData == null)
     		return new ArrayList<>();
-    	List<CoinData> coinList = moneyData.getCoinList(chain);
+    	List<CoinData> coinList = moneyData.getSortedCoinList(chain);
     	if(includeHidden)
     		return coinList;
     	List<CoinData> publicCoinList = new ArrayList<>();
@@ -972,7 +982,7 @@ public class MoneyUtil {
     		return null;
     	Item largeCoin = null;
     	int amount = Integer.MAX_VALUE;
-    	List<CoinData> coinList = moneyData.getCoinList();
+    	List<CoinData> coinList = moneyData.getSortedCoinList();
     	CoinData smallCoinData = moneyData.getData(coinItem);
     	if(smallCoinData == null)
     		return null;

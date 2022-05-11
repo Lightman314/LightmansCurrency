@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -206,7 +207,14 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 			BlockEntityUtil.sendUpdatePacket(this, this.saveLastResult(new CompoundTag()));
 	}
 	
-	public abstract TradeContext getTradeContext();
+	protected abstract TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext);
+	
+	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
+	public TradeContext getTradeContext() {
+		if(this.interaction.trades)
+			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.owner).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
+		return TradeContext.createStorageMode(this.getTrader());
+	}
 	
 	public boolean isClient() { return this.level != null ? this.level.isClientSide : true; }
 	
@@ -339,6 +347,10 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
+	}
+	
+	protected void trackMoneyInteraction(CoinValue price, boolean isDeposit) {
+
 	}
 	
 	public boolean isActive() {

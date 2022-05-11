@@ -11,8 +11,10 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -42,6 +44,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -90,6 +93,17 @@ public abstract class UniversalTraderData implements ITrader{
 		}
 		return true;
 	}
+	
+	@Override
+	public TraderCategory getNotificationCategory() {
+		ItemLike icon = ModItems.TRADING_CORE;
+		try {
+			icon = getCategoryItem();
+		} catch(Exception e) {}
+		return new TraderCategory(icon, this.getName());
+	}
+	
+	protected abstract ItemLike getCategoryItem();
 	
 	/**
 	 * Sends an update for this traders data with a fresh data write of this traders data. Should be used sparingly.

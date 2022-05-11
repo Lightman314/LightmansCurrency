@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
@@ -57,6 +58,7 @@ public class Config {
 			//Lightmans Currency
 			"lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
 			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
+			
 			);
 	
 	public static boolean canMint(Item item)
@@ -157,6 +159,13 @@ public class Config {
 		public final ForgeConfigSpec.IntValue walletButtonOffsetX;
 		public final ForgeConfigSpec.IntValue walletButtonOffsetY;
 		
+		//Notification Button options
+		public final ForgeConfigSpec.EnumValue<ClientEvents.NotifcationOffsetCorner> notificationButtonCorner;
+		public final ForgeConfigSpec.IntValue notificationButtonX;
+		public final ForgeConfigSpec.IntValue notificationButtonY;
+		public final ForgeConfigSpec.IntValue notificationButtonCreativeX;
+		public final ForgeConfigSpec.IntValue notificationButtonCreativeY;
+		
 		Client(ForgeConfigSpec.Builder builder)
 		{
 			builder.comment("Client configuration settings").push("client");
@@ -177,27 +186,49 @@ public class Config {
 			builder.pop();
 			
 			builder.comment("Wallet Slot Settings").push("wallet_slot");
-
+			
 			this.walletSlotX = builder
 					.comment("The x position that the wallet slot will be placed at in the players inventory.")
 					.defineInRange("slotX", 76, -255, 255);
 			this.walletSlotY = builder
 					.comment("The y position that the wallet slot will be placed at in the players inventory.")
 					.defineInRange("slotY", 43, -255, 255);
-
+			
 			this.walletSlotCreativeX = builder
 					.comment("The x position that the wallet slot will be placed at in the players creative inventory.")
 					.defineInRange("creativeSlotX", 126, -255, 255);
 			this.walletSlotCreativeY = builder
 					.comment("The y position that the wallet slot will be placed at in the players creative inventory.")
 					.defineInRange("creativeSlotY", 19, -255, 255);
-
+			
 			this.walletButtonOffsetX = builder
 					.comment("The x offset that the wallet button should be placed at relative to the wallet slot position.")
 					.defineInRange("buttonX", 8, -255, 255);
 			this.walletButtonOffsetY = builder
 					.comment("The y offset that the wallet button should be placed at relative to the wallet slot position.")
 					.defineInRange("buttonY", -10, -255, 255);
+			
+			builder.pop();
+			
+			builder.comment("Notification Button Settings").push("notification_button");
+			
+			this.notificationButtonCorner = builder
+					.comment("Where the notification button should be offset from.")
+					.defineEnum("notificationButtonCorner", ClientEvents.NotifcationOffsetCorner.MENU_TOP_RIGHT);
+			
+			this.notificationButtonX = builder
+					.comment("The x offset from the offset corner that the notification button will be placed at in the players inventory.")
+					.defineInRange("notificationButtonX", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationButtonY = builder
+					.comment("The y offset from the offset corner that the notification button will be placed at in the players inventory.")
+					.defineInRange("notificationButtonY", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			
+			this.notificationButtonCreativeX = builder
+					.comment("The x offset from the offset corner that the notification button will be placed at in the players creative inventory.")
+					.defineInRange("notificationButtonCreativeX", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationButtonCreativeY = builder
+					.comment("The y offset from the offset corner that the notification button will be placed at in the players creative inventory.")
+					.defineInRange("notificationButtonCreativeY", -70, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			
 			builder.pop();
 			
@@ -358,6 +389,7 @@ public class Config {
 		
 		//Log Limit Option
 		public final ForgeConfigSpec.IntValue logLimit;
+		public final ForgeConfigSpec.IntValue notificationLimit;
 		
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
@@ -413,6 +445,11 @@ public class Config {
 					.comment("The maximum number of text log entries allowed before old entries are deleted.",
 							"Lower if you encounter packet size problems.")
 					.defineInRange("logLimit", 100, 0, Integer.MAX_VALUE);
+			
+			this.notificationLimit = builder
+					.comment("The maximum number of notifications each player can have before old entries are deleted.",
+							"Lower if you encounter packet size problems.")
+					.defineInRange("notificationLimit", 500, 0, Integer.MAX_VALUE);
 			
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")
@@ -503,26 +540,26 @@ public class Config {
 			builder.pop();
 			
 			builder.comment("Item Capacity Upgrade Settings").push("upgrades");
-
+			
 			this.itemUpgradeCapacity1 = builder.comment("The amount of item storage added by the first Item Capacity upgrade (Iron).")
 					.defineInRange("upgradeCapacity1", 3 * 64, 1, 1728);
 			this.itemUpgradeCapacity2 = builder.comment("The amount of item storage added by the second Item Capacity upgrade (Gold).")
 					.defineInRange("upgradeCapacity2", 6 * 64, 1, 1728);
 			this.itemUpgradeCapacity3 = builder.comment("The amount of item storage added by the third Item Capacity upgrade (Diamond).")
 					.defineInRange("upgradeCapacity3", 9 * 64, 1, 1728);
-
+			
 			builder.pop();
 			
 			builder.comment("Enchantment Settings").push("enchantments");
-
+			
 			this.moneyMendingCoinCost = builder.comment("The coin cost required to repair a single item durability point with the Money Mending enchantment.")
 					.define("moneyMendingCoinCost", "lightmanscurrency:coin_copper");
-
+			
 			this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
 					.defineInRange("coinMagnetRangeBase", 5, 0, 50);
 			this.coinMagnetRangeLevel = builder.comment("The increase in collection radius added by each additional level of the enchantment.")
 					.defineInRange("coinMagnetRangeLevel", 2, 0, 50);
-
+			
 			builder.pop();
 			
 			builder.comment("Discord bot settings. Requires lightmansdiscord v0.0.3.0+ to use.").push("discord");

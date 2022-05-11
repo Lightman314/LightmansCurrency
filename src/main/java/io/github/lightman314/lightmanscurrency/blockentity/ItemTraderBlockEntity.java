@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSettings;
@@ -58,7 +59,6 @@ import net.minecraftforge.items.IItemHandler;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader {
 	
-	public static final int TRADELIMIT = 16;
 	public static final int VERSION = 1;
 	
 	TraderItemHandler itemHandler = new TraderItemHandler(this);
@@ -77,7 +77,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	Container upgradeInventory = new SimpleContainer(5);
 	public Container getUpgradeInventory() { return this.upgradeInventory; }
-
+	
 	public void markUpgradesDirty() {
 		this.setChanged();
 		if(!this.isClient())
@@ -126,14 +126,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	public int getTradeCount()
 	{
-		//Limit trade count to 16 due to screen size limitations
-		return MathUtil.clamp(tradeCount, 1, TRADELIMIT);
-	}
-	
-	@Override
-	public int getTradeCountLimit()
-	{
-		return TRADELIMIT;
+		return MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 	}
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
@@ -145,14 +138,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		if(this.level.isClientSide)
 			return;
-		if(tradeCount >= TRADELIMIT)
+		if(tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
 		if(TradingOffice.isAdminPlayer(requestor))
 		{
 			overrideTradeCount(tradeCount + 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, true, this.tradeCount);
 			this.markCoreSettingsDirty();
-			//this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
@@ -169,7 +161,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 			overrideTradeCount(tradeCount - 1);
 			this.coreSettings.getLogger().LogAddRemoveTrade(requestor, false, this.tradeCount);
 			this.markCoreSettingsDirty();
-			//this.forceReopen();
 		}
 		else
 			Settings.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
@@ -187,7 +178,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	{
 		if(tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<ItemTradeData> oldTrades = trades;
 		trades = ItemTradeData.listOfSize(getTradeCount());
 		//Write the old trade data into the array.
@@ -416,7 +407,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		
 		//Load the trade limit
 		if(compound.contains("TradeLimit", Tag.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ITrader.GLOBAL_TRADE_LIMIT);
 		//Load trades
 		if(compound.contains(ItemTradeData.DEFAULT_KEY))
 		{

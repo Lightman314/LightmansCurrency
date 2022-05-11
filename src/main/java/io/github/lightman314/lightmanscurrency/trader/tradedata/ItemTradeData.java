@@ -30,7 +30,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
-public class ItemTradeData extends TradeData {
+public class ItemTradeData extends TradeData implements IBarterTrade {
 	
 	public enum ItemTradeType { SALE(0,1), PURCHASE(1,2), BARTER(2,0);
 		public final int index;

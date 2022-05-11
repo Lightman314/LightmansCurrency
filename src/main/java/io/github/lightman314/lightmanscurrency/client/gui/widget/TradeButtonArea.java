@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -30,7 +31,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class TradeButtonArea extends AbstractWidget implements IScrollable{
-	
 	
 	public static final Function<ITradeData,Boolean> FILTER_VALID = trade -> trade.isValid();
 	public static final Function<ITradeData,Boolean> FILTER_ANY = trade -> true;
@@ -53,15 +53,16 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	private final BiConsumer<ITrader,ITradeData> onPress;
 	private final Function<ITradeData,Boolean> tradeFilter;
 	
+	
 	private final int columns;
 	private int scroll = 0;
 	private int lastFittableLines = 0;
 	
 	ScrollBarWidget scrollBar;
 	public ScrollBarWidget getScrollBar() { return this.scrollBar; }
-
+	
 	private int scrollBarXOffset = 0;
-
+	
 	public int getAvailableWidth() { return this.scrollBar.visible() && this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width; }
 	
 	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<ITrader, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<ITrader,ITradeData> onPress, Function<ITradeData,Boolean> tradeFilter)
@@ -80,7 +81,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	public void  init() { this.init(-9, 0, this.height - 5); }
+	public void init() { this.init(-9, 0, this.height - 5); }
 	
 	public void init(int scrollBarXOffset, int scrollBarYOffset, int scrollBarHeight) {
 		this.scrollBarXOffset = scrollBarXOffset;
@@ -101,7 +102,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 	
 	public Pair<ITrader,ITradeData> getTradeAndTrader(int displayIndex) { return getTradeAndTrader(this.scroll, displayIndex); }
-
+	
 	public Pair<ITrader,ITradeData> getTradeAndTrader(int assumedScroll, int displayIndex) {
 		int ignoreCount = assumedScroll * this.columns;
 		ITraderSource source = this.traderSource.get();
@@ -161,21 +162,15 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			//If we need to add more lines, recreate the buttons
 			this.resetButtons();
 		}
-		else
-			this.repositionButtons();
-		this.validateScroll();
 	}
 	
 	private void validateScroll() {
 		if(this.canScrollDown())
 			return;
-		if(this.scroll > 0)
-		{
-			while(this.scroll > 0 && this.validTrades() - (this.scroll * this.columns) <= (this.fittableLines() * this.columns) - this.columns)
-			{
-				this.scroll--;
-			}
-		}
+		int oldScroll = this.scroll;
+		this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
+		if(this.scroll != oldScroll)
+			this.repositionButtons();
 	}
 	
 	private void resetButtons() {
@@ -220,8 +215,11 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		return count;
 	}
 	
-	private int fittableLines() { return fittableLines(this.scroll); }
-
+	private int fittableLines()
+	{
+		return fittableLines(this.scroll);
+	}
+	
 	private int fittableLines(int assumedScroll) {
 		int lineCount = 0;
 		int displayIndex = 0;
@@ -359,7 +357,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 	
 	private boolean canScrollDown() { return this.canScrollDown(this.scroll); }
-
+	
 	private boolean canScrollDown(int assumedScroll) {
 		return this.validTrades() - (assumedScroll * this.columns) > this.fittableLines(assumedScroll) * this.columns;
 	}
@@ -372,7 +370,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			{
 				this.scroll++;
 				this.resetButtons();
-			}	
+			}
 			else
 				return false;
 		}
@@ -382,7 +380,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			{
 				scroll--;
 				this.resetButtons();
-			}
+			}	
 			else
 				return false;
 		}
@@ -427,14 +425,15 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton);
 		public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton);
 	}
-	
+
 	@Override
 	public int currentScroll() { return this.scroll; }
 
 	@Override
 	public void setScroll(int newScroll) {
-		this.scroll = newScroll;
-		this.validateScroll();
+		if(newScroll == this.scroll)
+			return;
+		this.scroll = MathUtil.clamp(newScroll, 0, this.getMaxScroll());
 		this.resetButtons();
 	}
 

@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
@@ -37,7 +39,7 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 	public static final int DEFAULT_STACK_LIMIT = 64 * 9;
 	
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ITEM_CAPACITY);
-
+	
 	public default boolean allowUpgrade(UpgradeType type) {
 		return ALLOWED_UPGRADES.contains(type);
 	}
@@ -76,14 +78,10 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 	public void markUpgradesDirty();
 	public void markStorageDirty();
 	public default ItemTradeRestriction getRestriction(int tradeIndex) { return ItemTradeRestriction.NONE; }
-	//public void openItemEditMenu(Player player, int tradeIndex);
 	public ItemTraderSettings getItemSettings();
 	public void markItemSettingsDirty();
 	//Open menu functions
-	//public ITradeRuleScreenHandler getRuleScreenHandler();
 	public void sendTradeRuleUpdateMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
-	//public void sendSetTradeItemMessage(int tradeIndex, ItemStack sellItem, int slot);
-	//public void sendSetTradePriceMessage(int tradeIndex, CoinValue newPrice, String newCustomName, ItemTradeType newTradeType);
 	
 	default List<? extends ITradeData> getTradeInfo() { return this.getAllTrades(); }
 	
@@ -161,6 +159,9 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
 			this.markLoggerDirty();
 			
+			//Push Notification
+			this.getCoreSettings().pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getCoreSettings().isCreative())
 			{
@@ -169,6 +170,10 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 				this.markStorageDirty();
 				//Give the paid cost to storage
 				this.addStoredMoney(price);
+				
+				//Push out of stock notification
+				if(!trade.hasStock(this))
+					this.getCoreSettings().pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
 				
 			}
 			
@@ -210,6 +215,9 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
 			this.markLoggerDirty();
 			
+			//Push Notification
+			this.getCoreSettings().pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getCoreSettings().isCreative())
 			{
@@ -219,6 +227,11 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 				this.markStorageDirty();
 				//Remove the coins from storage
 				this.removeStoredMoney(price);
+				
+				//Push out of stock notification
+				if(!trade.hasStock(this))
+					this.getCoreSettings().pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
+				
 			}
 			
 			//Push the post-trade event
@@ -275,6 +288,9 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 			this.getLogger().AddLog(context.getPlayerReference(), trade, CoinValue.EMPTY, this.getCoreSettings().isCreative());
 			this.markLoggerDirty();
 			
+			//Push Notification
+			this.getCoreSettings().pushNotification(() -> new ItemTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.getCoreSettings().isCreative())
 			{
@@ -284,6 +300,11 @@ public interface IItemTrader extends ITrader, ITraderItemFilter, IUpgradeable, I
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.getStorage());
 				this.markStorageDirty();
+				
+				//Push out of stock notification
+				if(!trade.hasStock(this))
+					this.getCoreSettings().pushNotification(() -> new OutOfStockNotification(this.getNotificationCategory(), tradeIndex));
+				
 			}
 			
 			//Push the post-trade event

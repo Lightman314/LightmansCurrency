@@ -1,10 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client;
+import java.util.function.Function;
+
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NotificationButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
@@ -83,15 +86,13 @@ public class ClientEvents {
 				LightmansCurrency.PROXY.openTeamManager();
 			}
 		}
+		
 	}
 	
 	//Add the wallet button to the gui
 	@SubscribeEvent
 	public static void onInventoryGuiInit(ScreenEvent.InitScreenEvent.Post event)
 	{
-		
-		//if(!Config.CLIENT.renderWalletButton.get())
-		//	return;
 		
 		Screen screen = event.getScreen();
 		
@@ -105,6 +106,9 @@ public class ClientEvents {
 			event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet())));
 			
 			event.addListener(new VisibilityToggleButton(gui, slotPosition.getFirst(), slotPosition.getSecond(), ClientEvents::toggleVisibility));
+			
+			//Add notification button
+			event.addListener(new NotificationButton(gui));
 			
 		}
 	}
@@ -142,15 +146,15 @@ public class ClientEvents {
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			//Render slot background
 			screen.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst(), screen.getGuiTop() + slotPosition.getSecond(), 0, 0, 18, 18);
-			//Render slot highlight
-			if(isMouseOverWalletSlot(screen, event.getMouseX(), event.getMouseY(), slotPosition))
-				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1, screen.getBlitOffset());
 			//Render slot item
 			ItemStack wallet = walletHandler.getWallet();
 			if(wallet.isEmpty())
 				ItemRenderUtil.drawSlotBackground(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1, WalletSlot.BACKGROUND);
 			else
 				ItemRenderUtil.drawItemStack(screen, null, wallet, screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1);
+			//Render slot highlight
+			if(isMouseOverWalletSlot(screen, event.getMouseX(), event.getMouseY(), slotPosition))
+				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1, screen.getBlitOffset());
 		}
 	}
 	
@@ -257,6 +261,23 @@ public class ClientEvents {
 	
 	private static Pair<Integer,Integer> getSlotPosition(boolean isCreative) {
 		return isCreative ? Pair.of(Config.CLIENT.walletSlotCreativeX.get(), Config.CLIENT.walletSlotCreativeY.get()) : Pair.of(Config.CLIENT.walletSlotX.get(), Config.CLIENT.walletSlotY.get());
+	}
+	
+	public enum NotifcationOffsetCorner {
+		SCREEN_TOP_LEFT(screen -> Pair.of(0,0)),
+		SCREEN_TOP_RIGHT(screen -> Pair.of(screen.width,0)),
+		SCREEN_BOTTOM_LEFT(screen -> Pair.of(0, screen.height)),
+		SCREEN_BOTTOM_RIGHT(screen -> Pair.of(screen.width, screen.height)),
+		MENU_TOP_LEFT(screen -> Pair.of(screen.getGuiLeft(), screen.getGuiTop())),
+		MENU_TOP_RIGHT(screen -> Pair.of(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop())),
+		MENU_BOTTOM_LEFT(screen -> Pair.of(screen.getGuiLeft(), screen.getGuiTop() + screen.getYSize())),
+		MENU_BOTTOM_RIGHT(screen -> Pair.of(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop() + screen.getYSize()));
+		
+		private final Function<AbstractContainerScreen<?>,Pair<Integer,Integer>> offsetGetter;
+		public Pair<Integer,Integer> getOffset(AbstractContainerScreen<?> screen) { return this.offsetGetter.apply(screen); }
+		
+		NotifcationOffsetCorner(Function<AbstractContainerScreen<?>,Pair<Integer,Integer>> offsetGetter) { this.offsetGetter = offsetGetter; }
+		
 	}
 	
 }

@@ -5,6 +5,11 @@ import java.util.function.Consumer;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import net.minecraftforge.eventbus.api.Event;
 
+/**
+ * @deprecated Notifications are now automatically sent from any LC Notification sent to a player.
+ * This event will no longer be posted.
+ */
+@Deprecated
 public class DiscordPostTradeEvent extends Event{
 	
 	public final PostTradeEvent event;

@@ -49,7 +49,7 @@ public class WalletItem extends Item{
 	
 	public WalletItem(int level, int storageSize, String modelName, Properties properties)
 	{
-		super(properties);
+		super(properties.stacksTo(1));
 		this.level = level;
 		this.storageSize = storageSize;
 		WalletMenu.updateMaxWalletSlots(this.storageSize);

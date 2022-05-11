@@ -48,6 +48,8 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		
 		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, true);
 		
+		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
+		
 	}
 
 	@Override

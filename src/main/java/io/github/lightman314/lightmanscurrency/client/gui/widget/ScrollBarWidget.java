@@ -21,6 +21,8 @@ public class ScrollBarWidget extends AbstractWidget {
 	
 	public boolean smallKnob = false;
 	
+	public boolean isDragging = false;
+	
 	private int getKnobHeight() { return this.smallKnob ? SMALL_KNOB_HEIGHT : KNOB_HEIGHT; }
 	
 	public ScrollBarWidget(int x, int y, int height, IScrollable scrollable) {
@@ -29,6 +31,13 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 
 	public boolean visible() { return this.visible && this.scrollable.getMaxScroll() > this.scrollable.getMinScroll(); }
+	
+	@Override
+	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		if(!this.visible() && this.isDragging)
+			this.isDragging = false;
+		super.render(pose, mouseX, mouseY, partialTicks);
+	}
 	
 	@Override
 	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
@@ -51,9 +60,22 @@ public class ScrollBarWidget extends AbstractWidget {
 		//Render the bottom
 		this.blit(pose, this.x, this.y + this.height - 8, 0, 248, WIDTH, 8);
 		
-		//Render the knob
-		this.blit(pose, this.x, this.y + this.getNaturalKnobPosition(), this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
+		int knobPosition;
+		//if(this.isDragging)
+		//	knobPosition = this.getKnobAndScrollFromMouse(mouseY).getSecond();
+		//else
+		knobPosition = this.getNaturalKnobPosition();
 		
+		//Render the knob
+		this.blit(pose, this.x, this.y + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
+		
+	}
+	
+	public void beforeWidgetRender(double mouseY) {
+		if(this.isDragging)
+		{
+			this.dragKnob(mouseY);
+		}
 	}
 	
 	private int getNaturalKnobPosition() {
@@ -67,18 +89,18 @@ public class ScrollBarWidget extends AbstractWidget {
 	
 	/*private Pair<Integer,Integer> getKnobAndScrollFromMouse(double mouseY) {
 		//Offset the mouse to emulate it being at the bottom of the knob.
-		mouseY -= ((double)KNOB_HEIGHT / 2d) + this.y;
+		mouseY -= ((double)this.getKnobHeight() / 2d) + this.y;
 		if(mouseY < 0)
 			return Pair.of(this.scrollable.getMinScroll(), 0);
-		else if(mouseY >= this.height - KNOB_HEIGHT)
-			return Pair.of(this.scrollable.getMaxScroll(), this.height - KNOB_HEIGHT);
+		else if(mouseY >= this.height - this.getKnobHeight())
+			return Pair.of(this.scrollable.getMaxScroll(), this.height - this.getKnobHeight());
 		int notches = this.scrollable.getMaxScroll() - this.scrollable.getMinScroll() + 1;
 		if(notches <= 1)
 			return Pair.of(this.scrollable.getMinScroll(), 0);
 		int scroll = this.scrollable.getMinScroll();
-		double spacing = (double)(this.height - KNOB_HEIGHT) / (double)notches;
+		double spacing = (double)(this.height - this.getKnobHeight()) / (double)notches;
 		double yOffset = this.y;
-		while(yOffset <= this.y + this.height - KNOB_HEIGHT)
+		while(yOffset <= this.y + this.height - this.getKnobHeight())
 		{
 			if(mouseY >= yOffset && mouseY < yOffset + spacing)
 			{
@@ -87,7 +109,7 @@ public class ScrollBarWidget extends AbstractWidget {
 			yOffset += spacing;
 			scroll++;
 		}
-		return Pair.of(this.scrollable.getMaxScroll(), this.height - KNOB_HEIGHT);
+		return Pair.of(this.scrollable.getMaxScroll(), this.height - this.getKnobHeight());
 	}*/
 	
 	public interface IScrollable {
@@ -100,8 +122,26 @@ public class ScrollBarWidget extends AbstractWidget {
 	@Override
 	public void updateNarration(NarrationElementOutput narrator) { }
 	
-	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
+	protected void dragKnob(double mouseY) {
+		//Cannot do anything if the scrollable cannot be scrolled
+		/*if(!this.visible())
+		{
+			this.isDragging = false;
+			return;
+		}
+		
+		Pair<Integer,Integer> positions = this.getKnobAndScrollFromMouse(mouseY);
+		
+		if(this.scrollable.currentScroll() != positions.getFirst())
+			this.scrollable.setScroll(positions.getFirst());
+		*/
+	}
+	
+	/**
+	 * Not required for new scroll bar drag system.
+	 */
+	@Deprecated
+	public void onMouseDragged(double mouseX, double mouseY, int button) { }
 	
 	public void onMouseClicked(double mouseX, double mouseY, int button) {
 		/*this.isDragging = false;
@@ -109,24 +149,18 @@ public class ScrollBarWidget extends AbstractWidget {
 		{
 			LightmansCurrency.LogInfo("Started dragging.");
 			this.isDragging = true;
-			this.onMouseDragged(mouseX, mouseY, button);
-		}*/
-	}
-	
-	public void onMouseDragged(double mouseX, double mouseY, int button) {
-		/*if (this.isDragging && button == 0) {
-			Pair<Integer,Integer> result = getKnobAndScrollFromMouse(mouseY);
-			this.scrollable.setScroll(result.getFirst());
-			this.knobPosition = result.getSecond();
-			LightmansCurrency.LogInfo("Still dragging at " + (mouseY - this.y) + ".");
+			this.dragKnob(mouseY);
 		}*/
 	}
 	
 	public void onMouseReleased(double mouseX, double mouseY, int button) {
-		//One last drag calculation
-		/*this.onMouseDragged(mouseX, mouseY, button);
-		this.isDragging = false;
-		LightmansCurrency.LogInfo("Stopped dragging.");*/
+		/*if(this.isDragging && this.visible() && button == 0)
+		{
+			//One last drag calculation
+			this.dragKnob(mouseY);
+			this.isDragging = false;
+			LightmansCurrency.LogInfo("Stopped dragging.");
+		}*/
 	}
 
 }

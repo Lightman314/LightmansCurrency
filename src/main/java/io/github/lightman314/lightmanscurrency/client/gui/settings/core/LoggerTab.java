@@ -27,7 +27,7 @@ public class LoggerTab extends SettingsTab{
 	public int getColor() { return 0xFFFFFF; }
 
 	@Override
-	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+	public IconData getIcon() { return IconData.of(Items.PAPER); }
 	
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.log"); }

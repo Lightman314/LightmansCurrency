@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -20,6 +21,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class MoneyData {
 
 	private List<CoinData> coinList = new ArrayList<>();
+	private List<CoinData> sortedCoinList = new ArrayList<>();
 	
 	public MoneyData(CoinDataCollector collector)
 	{
@@ -116,23 +118,23 @@ public class MoneyData {
 	
 	private void sortCoinList()
     {
-    	List<CoinData> newList = new ArrayList<>();
-    	while(coinList.size() > 0)
+    	this.sortedCoinList = new ArrayList<>();
+    	List<CoinData> copyList = Lists.newArrayList(this.coinList);
+    	while(copyList.size() > 0)
     	{
     		int highestValueIndex = 0;
-    		long highestValue = coinList.get(0).getValue(this);
-    		for(int i = 1; i < coinList.size(); i++)
+    		long highestValue = copyList.get(0).getValue(this);
+    		for(int i = 1; i < copyList.size(); i++)
     		{
-    			if(coinList.get(i).getValue(this) > highestValue)
+    			if(copyList.get(i).getValue(this) > highestValue)
     			{
     				highestValueIndex = i;
-    				highestValue = coinList.get(i).getValue(this);
+    				highestValue = copyList.get(i).getValue(this);
     			}
     		}
-    		newList.add(coinList.get(highestValueIndex));
-    		coinList.remove(highestValueIndex);
+    		sortedCoinList.add(copyList.get(highestValueIndex));
+    		copyList.remove(highestValueIndex);
     	}
-    	coinList = newList;
     }
 	
 	public Component getPluralName(Item coinItem) {
@@ -151,8 +153,15 @@ public class MoneyData {
 		return null;
 	}
 	
+	/**
+	 * An unsorted copy of the coin list. Used for display/debugging purposes.
+	 */
 	public List<CoinData> getCoinList() {
 		return this.coinList;
+	}
+	
+	public List<CoinData> getSortedCoinList() {
+		return this.sortedCoinList;
 	}
 	
 	public List<CoinData> getCoinList(String chain) {
@@ -160,6 +169,17 @@ public class MoneyData {
 		for(int i = 0; i < this.coinList.size(); ++i)
 		{
 			CoinData data = this.coinList.get(i);
+			if(data.chain.contentEquals(chain))
+				results.add(data);
+		}
+		return results;
+	}
+	
+	public List<CoinData> getSortedCoinList(String chain) {
+		List<CoinData> results = new ArrayList<>();
+		for(int i = 0; i < this.sortedCoinList.size(); ++i)
+		{
+			CoinData data = this.sortedCoinList.get(i);
 			if(data.chain.contentEquals(chain))
 				results.add(data);
 		}

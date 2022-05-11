@@ -41,10 +41,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	public TradeContext getTradeContext() {
-		if(this.getInteractionType().trades)
-			return TradeContext.create(this.getTrader(), this.owner).withBankAccount(this.getAccountReference()).withItemHandler(this.itemBuffer).build();
-		return TradeContext.createStorageMode(this.getTrader());
+	public TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext) {
+		return baseContext.withItemHandler(this.itemBuffer);
 	}
 	
 	public boolean allowInput(ItemStack item) {

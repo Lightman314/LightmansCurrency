@@ -88,7 +88,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
 			TraderItemStorage storage = ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemBuffer();
-			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
+			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY) + (this.scroll * COLUMNS);
 			for(int y = 0; y < ROWS; ++y)
 			{
 				int yPos = this.screen.getGuiTop() + Y_OFFSET + y * 18;
@@ -100,11 +100,11 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 					this.screen.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
-					if(index == hoveredSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					//Render the slots item
 					if(index < storage.getSlotCount())
 						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
+					if(index == hoveredSlot)
+						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					index++;
 				}
 			}

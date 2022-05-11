@@ -29,6 +29,11 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class ItemTraderServerBlock extends RotatableBlock implements ITraderBlock, EntityBlock{
 
+	public static final int SMALL_SERVER_COUNT = 3;
+	public static final int MEDIUM_SERVER_COUNT = 6;
+	public static final int LARGE_SERVER_COUNT = 12;
+	public static final int EXTRA_LARGE_SERVER_COUNT = 16;
+	
 	final int tradeCount;
 	
 	public ItemTraderServerBlock(Properties properties, int tradeCount)

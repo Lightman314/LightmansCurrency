@@ -4,6 +4,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
+/**
+ * @deprecated No longer used as @ObjectHolder is being used to store block/items
+ */
+@Deprecated
 public class BlockItemPair implements ItemLike{
 	public final Block block;
 	public final Item item;
