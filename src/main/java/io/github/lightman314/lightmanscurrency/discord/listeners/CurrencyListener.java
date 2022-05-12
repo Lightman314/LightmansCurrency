@@ -185,11 +185,6 @@ public class CurrencyListener extends SingleChannelListener{
 									ItemTradeData trade = itemTrader.getTrade(i);
 									if(trade.isValid())
 									{
-										if(firstTrade)
-										{
-											output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
-											firstTrade = false;
-										}
 										if(trade.isSale())
 										{
 											String itemName1 = getItemName(trade.getSellItem(0), trade.getCustomName(0));
@@ -197,6 +192,11 @@ public class CurrencyListener extends SingleChannelListener{
 											
 											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText))
 											{
+												if(firstTrade)
+												{
+													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													firstTrade = false;
+												}
 												String priceText = trade.getCost().getString();
 												output.add("Selling " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)) + " for " + priceText);
 												if(showStock)
@@ -210,6 +210,11 @@ public class CurrencyListener extends SingleChannelListener{
 											
 											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText))
 											{
+												if(firstTrade)
+												{
+													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													firstTrade = false;
+												}
 												String priceText = trade.getCost().getString();
 												output.add("Purchasing " + getItemNamesAndCount(trade.getSellItem(0), "", trade.getSellItem(1), "") + " for " + priceText);
 												if(showStock)
@@ -226,6 +231,11 @@ public class CurrencyListener extends SingleChannelListener{
 											
 											if(!searchType.filterByTrade() || searchText.isEmpty() || itemName1.toLowerCase().contains(searchText) || itemName2.toLowerCase().contains(searchText) || itemName3.toLowerCase().contains(searchText) || itemName4.toLowerCase().contains(searchText))
 											{
+												if(firstTrade)
+												{
+													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													firstTrade = false;
+												}
 												output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
 												if(showStock)
 													output.add("*" + trade.stockCount(itemTrader) + " trades in stock.*");
