@@ -1,5 +1,4 @@
 package io.github.lightman314.lightmanscurrency.client;
-import java.util.function.Function;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -263,21 +262,7 @@ public class ClientEvents {
 		return isCreative ? Pair.of(Config.CLIENT.walletSlotCreativeX.get(), Config.CLIENT.walletSlotCreativeY.get()) : Pair.of(Config.CLIENT.walletSlotX.get(), Config.CLIENT.walletSlotY.get());
 	}
 	
-	public enum NotifcationOffsetCorner {
-		SCREEN_TOP_LEFT(screen -> Pair.of(0,0)),
-		SCREEN_TOP_RIGHT(screen -> Pair.of(screen.width,0)),
-		SCREEN_BOTTOM_LEFT(screen -> Pair.of(0, screen.height)),
-		SCREEN_BOTTOM_RIGHT(screen -> Pair.of(screen.width, screen.height)),
-		MENU_TOP_LEFT(screen -> Pair.of(screen.getGuiLeft(), screen.getGuiTop())),
-		MENU_TOP_RIGHT(screen -> Pair.of(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop())),
-		MENU_BOTTOM_LEFT(screen -> Pair.of(screen.getGuiLeft(), screen.getGuiTop() + screen.getYSize())),
-		MENU_BOTTOM_RIGHT(screen -> Pair.of(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop() + screen.getYSize()));
-		
-		private final Function<AbstractContainerScreen<?>,Pair<Integer,Integer>> offsetGetter;
-		public Pair<Integer,Integer> getOffset(AbstractContainerScreen<?> screen) { return this.offsetGetter.apply(screen); }
-		
-		NotifcationOffsetCorner(Function<AbstractContainerScreen<?>,Pair<Integer,Integer>> offsetGetter) { this.offsetGetter = offsetGetter; }
-		
-	}
+	public enum NotifcationOffsetCorner { SCREEN_TOP_LEFT, SCREEN_TOP_RIGHT, SCREEN_BOTTOM_LEFT, SCREEN_BOTTOM_RIGHT,
+		MENU_TOP_LEFT, MENU_TOP_RIGHT, MENU_BOTTOM_LEFT, MENU_BOTTOM_RIGHT }
 	
 }
