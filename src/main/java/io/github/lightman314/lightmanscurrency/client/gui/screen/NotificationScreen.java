@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -149,6 +150,8 @@ public class NotificationScreen extends Screen implements IScrollable{
 		int screenLeft = this.guiLeft() + TabButton.SIZE;
 		this.blit(pose, screenLeft, this.guiTop(), 0, 0, this.xSize, this.ySize);
 		
+		this.notificationScroller.beforeWidgetRender(mouseY);
+		
 		//Render the current notifications
 		this.notificationScroll = Math.min(this.notificationScroll, this.getMaxNotificationScroll());
 		List<Notification> notifications = this.getNotifications().getNotifications(this.selectedCategory);
@@ -286,5 +289,28 @@ public class NotificationScreen extends Screen implements IScrollable{
 	public void setScroll(int newScroll) { this.notificationScroll = newScroll; }
 	@Override
 	public int getMaxScroll() { return this.getMaxNotificationScroll(); }
+	
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		this.notificationScroller.onMouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.notificationScroller.onMouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean keyPressed(int key, int scanCode, int mods) {
+		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
+		//Manually close the screen when hitting the inventory key
+		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey)) {
+			this.minecraft.setScreen(null);
+			return true;
+		}
+		return super.keyPressed(key, scanCode, mods);
+	}
 	
 }

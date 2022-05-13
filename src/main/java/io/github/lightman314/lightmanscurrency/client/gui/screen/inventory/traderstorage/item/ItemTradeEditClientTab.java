@@ -83,9 +83,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.itemEdit = this.screen.addRenderableTabWidget(new ItemEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
 		this.itemEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
+		
 		this.itemEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.itemEdit));
 		this.itemEditScroll.smallKnob = true;
-
+		
 		int labelWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.customname"));
 		this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 28 - labelWidth, 18, new TextComponent("")));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
@@ -105,6 +106,9 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			return;
 		
 		this.validateRenderables();
+		
+		if(this.itemEditScroll.visible)
+			this.itemEditScroll.beforeWidgetRender(mouseY);
 		
 		//Render a down arrow over the selected position
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
@@ -221,6 +225,13 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
+		this.itemEditScroll.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.itemEditScroll.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 

@@ -50,6 +50,8 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 		
 		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, true);
 		
+		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
+		
 	}
 
 	@Override
@@ -83,6 +85,18 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 		
 		this.commonTab.setTradeIndex(this.getTradeIndex(trader, trade));
 		
+	}
+	
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.tradeDisplay.getScrollBar().onMouseReleased(mouseX, mouseY, button);
+		return false;
 	}
 
 }

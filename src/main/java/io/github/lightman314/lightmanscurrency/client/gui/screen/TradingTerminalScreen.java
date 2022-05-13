@@ -10,13 +10,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -27,7 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-public class TradingTerminalScreen extends Screen{
+public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	public static final Comparator<UniversalTraderData> TERMINAL_SORTER = new TraderSorter(true, true);
@@ -37,10 +37,10 @@ public class TradingTerminalScreen extends Screen{
 	private int ySize = 187;
 	
 	private EditBox searchField;
-	private static int page = 0;
+	private static int scroll = 0;
 	
-	Button buttonNextPage;
-	Button buttonPreviousPage;
+	ScrollBarWidget scrollBar;
+	
 	List<UniversalTraderButton> traderButtons;
 	
 	private List<UniversalTraderData> traderList(){
@@ -69,16 +69,15 @@ public class TradingTerminalScreen extends Screen{
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		this.buttonPreviousPage = this.addRenderableWidget(IconAndButtonUtil.leftButton(guiLeft - 6, guiTop + 18, this::PreviousPage));
-		this.buttonNextPage = this.addRenderableWidget(IconAndButtonUtil.rightButton(guiLeft + this.xSize - 14, guiTop + 18, this::NextPage));
+		this.scrollBar = this.addRenderableWidget(new ScrollBarWidget(guiLeft + 16 + UniversalTraderButton.WIDTH, guiTop + 17, UniversalTraderButton.HEIGHT * 5 + 2, this));
 		
 		this.initTraderButtons(guiLeft, guiTop);
-		
-		page = MathUtil.clamp(page, 0, this.pageLimit());
 		
 		this.tick();
 		
 		this.updateTraderList();
+		
+		this.validateScroll();
 		
 	}
 	
@@ -100,10 +99,6 @@ public class TradingTerminalScreen extends Screen{
 	{
 		super.tick();
 		this.searchField.tick();
-		this.buttonPreviousPage.visible = this.pageLimit() > 0;
-		this.buttonPreviousPage.active = page > 0;
-		this.buttonNextPage.visible = this.pageLimit() > 0;
-		this.buttonNextPage.active = page < this.pageLimit();
 	}
 	
 	@Override
@@ -122,6 +117,8 @@ public class TradingTerminalScreen extends Screen{
 		int startY = (this.height - this.ySize) / 2;
 		//Render the background
 		this.blit(poseStack, startX, startY, 0, 0, this.xSize, this.ySize);
+		
+		this.scrollBar.beforeWidgetRender(mouseY);
 		
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		
@@ -157,22 +154,31 @@ public class TradingTerminalScreen extends Screen{
 		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
 	}
 	
-	private void PreviousPage(Button button)
-	{
-		if(page > 0)
-		{
-			page--;
-			this.updateTraderButtons();
-		}
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
-	private void NextPage(Button button)
-	{
-		if(page < this.pageLimit())
-		{
-			page++;
-			this.updateTraderButtons();
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		if(delta < 0)
+		{			
+			if(scroll < this.getMaxScroll())
+				this.setScroll(scroll + 1);
 		}
+		else if(delta > 0)
+		{
+			if(scroll > 0)
+				this.setScroll(scroll - 1);
+		}
+		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 	
 	private void OpenTrader(Button button)
@@ -189,34 +195,23 @@ public class TradingTerminalScreen extends Screen{
 		if(!traderButtons.contains(button))
 			return -1;
 		int index = traderButtons.indexOf(button);
-		index += page * this.traderButtons();
+		index += scroll;
 		return index;
 	}
-	
-	private int pageLimit()
-	{
-		return (this.filteredTraderList.size() - 1) / this.traderButtons();
-	}
-	
-	private int traderButtons()
-	{
-		return this.traderButtons.size();
-	}
-	
 	
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
 		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
+		//Validate the scroll
+		this.validateScroll();
+		//Update the trader buttons
 		this.updateTraderButtons();
-		//Limit the page
-		if(page > pageLimit())
-			page = pageLimit();
 	}
 	
 	private void updateTraderButtons()
 	{
-		int startIndex = page * this.traderButtons();
+		int startIndex = scroll;
 		for(int i = 0; i < this.traderButtons.size(); i++)
 		{
 			if(startIndex + i < this.filteredTraderList.size())
@@ -228,17 +223,16 @@ public class TradingTerminalScreen extends Screen{
 	
 	private static class TraderSorter implements Comparator<UniversalTraderData>
 	{
-
+		
 		private final boolean creativeAtTop;
 		private final boolean emptyAtBottom;
-		
+
 		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; }
-		
+
 		@Override
 		public int compare(UniversalTraderData a, UniversalTraderData b) {
 			
 			try {
-			
 				if(this.emptyAtBottom)
 				{
 					boolean emptyA = a.hasNoValidTrades();
@@ -246,7 +240,7 @@ public class TradingTerminalScreen extends Screen{
 					if(emptyA != emptyB)
 						return emptyA ? 1 : -1;
 				}
-				
+
 				if(this.creativeAtTop)
 				{
 					//Prioritize creative traders at the top of the list
@@ -256,18 +250,34 @@ public class TradingTerminalScreen extends Screen{
 						return 1;
 					//If both or neither are creative, sort by name.
 				}
-				
+
 				//Sort by trader name
 				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
 				//Sort by owner name if trader name is equal
 				if(sort == 0)
 					sort = a.getCoreSettings().getOwnerName().compareToIgnoreCase(b.getCoreSettings().getOwnerName());
-				
+
 				return sort;
 			
 			} catch(Throwable t) { return 0; }
 		}
 		
+	}
+
+	private void validateScroll() { scroll = Math.min(scroll, this.getMaxScroll()); }
+	
+	@Override
+	public int currentScroll() { return scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		scroll = newScroll;
+		this.updateTraderButtons();
+	}
+
+	@Override
+	public int getMaxScroll() {
+		return Math.max(0, this.filteredTraderList.size() - this.traderButtons.size());
 	}
 
 }

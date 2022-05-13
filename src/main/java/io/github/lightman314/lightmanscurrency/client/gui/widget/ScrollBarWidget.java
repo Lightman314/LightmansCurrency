@@ -4,8 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -61,10 +63,10 @@ public class ScrollBarWidget extends AbstractWidget {
 		this.blit(pose, this.x, this.y + this.height - 8, 0, 248, WIDTH, 8);
 		
 		int knobPosition;
-		//if(this.isDragging)
-		//	knobPosition = this.getKnobAndScrollFromMouse(mouseY).getSecond();
-		//else
-		knobPosition = this.getNaturalKnobPosition();
+		if(this.isDragging)
+			knobPosition = MathUtil.clamp(mouseY - this.y - (this.getKnobHeight() / 2), 0, this.height - this.getKnobHeight());
+		else
+			knobPosition = this.getNaturalKnobPosition();
 		
 		//Render the knob
 		this.blit(pose, this.x, this.y + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
@@ -87,31 +89,6 @@ public class ScrollBarWidget extends AbstractWidget {
 		return (int)Math.round(scroll * spacing);
 	}
 	
-	/*private Pair<Integer,Integer> getKnobAndScrollFromMouse(double mouseY) {
-		//Offset the mouse to emulate it being at the bottom of the knob.
-		mouseY -= ((double)this.getKnobHeight() / 2d) + this.y;
-		if(mouseY < 0)
-			return Pair.of(this.scrollable.getMinScroll(), 0);
-		else if(mouseY >= this.height - this.getKnobHeight())
-			return Pair.of(this.scrollable.getMaxScroll(), this.height - this.getKnobHeight());
-		int notches = this.scrollable.getMaxScroll() - this.scrollable.getMinScroll() + 1;
-		if(notches <= 1)
-			return Pair.of(this.scrollable.getMinScroll(), 0);
-		int scroll = this.scrollable.getMinScroll();
-		double spacing = (double)(this.height - this.getKnobHeight()) / (double)notches;
-		double yOffset = this.y;
-		while(yOffset <= this.y + this.height - this.getKnobHeight())
-		{
-			if(mouseY >= yOffset && mouseY < yOffset + spacing)
-			{
-				return Pair.of(scroll, (int)mouseY);
-			}
-			yOffset += spacing;
-			scroll++;
-		}
-		return Pair.of(this.scrollable.getMaxScroll(), this.height - this.getKnobHeight());
-	}*/
-	
 	public interface IScrollable {
 		public int currentScroll();
 		public void setScroll(int newScroll);
@@ -124,17 +101,46 @@ public class ScrollBarWidget extends AbstractWidget {
 	
 	protected void dragKnob(double mouseY) {
 		//Cannot do anything if the scrollable cannot be scrolled
-		/*if(!this.visible())
+		if(!this.visible())
 		{
 			this.isDragging = false;
 			return;
 		}
 		
-		Pair<Integer,Integer> positions = this.getKnobAndScrollFromMouse(mouseY);
+		//Calculate the y offset
+		int scroll = this.getScrollFromMouse(mouseY);
 		
-		if(this.scrollable.currentScroll() != positions.getFirst())
-			this.scrollable.setScroll(positions.getFirst());
-		*/
+		if(this.scrollable.currentScroll() != scroll)
+			this.scrollable.setScroll(scroll);
+		
+	}
+	
+	private int getScrollFromMouse(double mouseY) {
+		
+		mouseY -= (double)this.getKnobHeight() / 2d;
+		//Check if the mouse is out of bounds, upon which return the max/min scroll respectively
+		if(mouseY <= this.y)
+			return this.scrollable.getMinScroll();
+		if(mouseY >= this.y + this.height - this.getKnobHeight())
+			return this.scrollable.getMaxScroll();
+		
+		//Calculate the scroll based on the mouse position
+		int deltaScroll = this.scrollable.getMaxScroll() - this.scrollable.getMinScroll();
+		if(deltaScroll <= 0)
+			return Integer.MIN_VALUE;
+		
+		double sectionHeight = (double)(this.height - this.getKnobHeight()) / (double)deltaScroll;
+		double yPos = (double)this.y - (sectionHeight / 2d);
+		
+		for(int i = this.scrollable.getMinScroll(); i <= this.scrollable.getMaxScroll(); ++i)
+		{
+			if(mouseY >= yPos && mouseY < yPos + sectionHeight)
+				return i;
+			yPos += sectionHeight;
+		}
+		//Somehow didn't find the scroll from the scroll bar.
+		LightmansCurrency.LogWarning("Error getting scroll from mouse position.");
+		return this.scrollable.getMinScroll();
 	}
 	
 	/**
@@ -144,23 +150,25 @@ public class ScrollBarWidget extends AbstractWidget {
 	public void onMouseDragged(double mouseX, double mouseY, int button) { }
 	
 	public void onMouseClicked(double mouseX, double mouseY, int button) {
-		/*this.isDragging = false;
+		this.isDragging = false;
 		if(this.isMouseOver(mouseX, mouseY) && this.visible() && button == 0)
 		{
 			LightmansCurrency.LogInfo("Started dragging.");
 			this.isDragging = true;
 			this.dragKnob(mouseY);
-		}*/
+		}
 	}
 	
 	public void onMouseReleased(double mouseX, double mouseY, int button) {
-		/*if(this.isDragging && this.visible() && button == 0)
+		if(this.isDragging && this.visible() && button == 0)
 		{
 			//One last drag calculation
 			this.dragKnob(mouseY);
 			this.isDragging = false;
 			LightmansCurrency.LogInfo("Stopped dragging.");
-		}*/
+		}
 	}
+	
+	public void playDownSound(SoundManager soundManager) { }
 
 }
