@@ -107,6 +107,9 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.validateRenderables();
 		
+		if(this.itemEditScroll.visible)
+			this.itemEditScroll.beforeWidgetRender(mouseY);
+		
 		//Render a down arrow over the selected position
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -222,6 +225,13 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
+		this.itemEditScroll.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.itemEditScroll.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 

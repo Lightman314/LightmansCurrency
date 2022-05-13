@@ -156,14 +156,12 @@ public class MoneyData {
 	/**
 	 * An unsorted copy of the coin list. Used for display/debugging purposes.
 	 */
+	@Deprecated
 	public List<CoinData> getCoinList() {
 		return this.coinList;
 	}
 	
-	public List<CoinData> getSortedCoinList() {
-		return this.sortedCoinList;
-	}
-	
+	@Deprecated
 	public List<CoinData> getCoinList(String chain) {
 		List<CoinData> results = new ArrayList<>();
 		for(int i = 0; i < this.coinList.size(); ++i)
@@ -173,6 +171,10 @@ public class MoneyData {
 				results.add(data);
 		}
 		return results;
+	}
+	
+	public List<CoinData> getSortedCoinList() {
+		return this.sortedCoinList;
 	}
 	
 	public List<CoinData> getSortedCoinList(String chain) {

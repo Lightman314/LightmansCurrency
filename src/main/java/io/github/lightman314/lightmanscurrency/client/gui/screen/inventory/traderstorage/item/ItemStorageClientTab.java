@@ -36,6 +36,8 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	int scroll = 0;
 	
+	ScrollBarWidget scrollBar;
+	
 	@Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
@@ -51,7 +53,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void onOpen() {
 		
-		this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
+		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 		
@@ -61,6 +63,8 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		
+		this.scrollBar.beforeWidgetRender(mouseY);
 		
 		if(this.menu.getTrader() instanceof IItemTrader)
 		{
@@ -216,6 +220,13 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 				return true;
 			}
 		}
+		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 

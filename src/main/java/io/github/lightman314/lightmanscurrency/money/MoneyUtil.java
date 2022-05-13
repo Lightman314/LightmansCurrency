@@ -789,7 +789,7 @@ public class MoneyUtil {
 			return items;
 		
 		//Search through each coin in the coinList
-		List<CoinData> coinList = moneyData.getCoinList(MAIN_CHAIN);
+		List<CoinData> coinList = moneyData.getSortedCoinList(MAIN_CHAIN);
 		for(int i = 0; i < coinList.size(); i++)
 		{
 			if(!coinList.get(i).isHidden)
