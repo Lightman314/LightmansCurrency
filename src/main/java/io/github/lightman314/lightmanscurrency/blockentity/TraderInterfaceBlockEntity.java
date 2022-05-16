@@ -489,7 +489,12 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		return delay;
 	}
 	
-	public abstract void dumpContents(Level level, BlockPos pos);
+	public final void dumpContents(Level level, BlockPos pos) {
+		InventoryUtil.dumpContents(level, pos, this.upgradeSlots);
+		this.dumpAdditionalContents(level, pos);
+	}
+	
+	protected abstract void dumpAdditionalContents(Level level, BlockPos pos);
 	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
