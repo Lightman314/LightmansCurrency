@@ -322,7 +322,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	public void dumpContents(Level level, BlockPos pos) {
+	public void dumpAdditionalContents(Level level, BlockPos pos) {
 		InventoryUtil.dumpContents(level, pos, this.itemBuffer.getContents());
 	}
 	
