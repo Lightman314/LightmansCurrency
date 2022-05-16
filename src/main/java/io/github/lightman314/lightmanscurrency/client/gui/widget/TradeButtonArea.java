@@ -132,21 +132,6 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		/*if(this.scroll > 0 || this.canScrollDown())
-		{
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			int xPos = this.x + (this.width / 2) - 4;
-			if(this.scroll > 0)
-			{
-				int yPos = this.y - 6;
-				this.blit(pose, xPos, yPos, TraderScreen.WIDTH, 18, 8, 6);
-			}
-			if(this.canScrollDown())
-			{
-				int yPos = this.y + this.height - 3;
-				this.blit(pose, xPos, yPos, TraderScreen.WIDTH + 8, 18, 8, 6);
-			}
-		}*/
 		if(this.validTrades() <= 0)
 		{
 			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.notrades"));
@@ -162,6 +147,8 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			//If we need to add more lines, recreate the buttons
 			this.resetButtons();
 		}
+		else
+			this.repositionButtons();
 	}
 	
 	private void validateScroll() {

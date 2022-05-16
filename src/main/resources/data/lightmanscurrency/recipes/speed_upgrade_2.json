@@ -1,12 +1,12 @@
 {
   "type": "minecraft:smithing",
   "base": {
-    "item": "lightmanscurrency:item_capacity_upgrade_1"
+    "item": "lightmanscurrency:speed_upgrade_1"
   },
   "addition": {
     "item": "minecraft:gold_ingot"
   },
   "result": {
-    "item": "lightmanscurrency:item_capacity_upgrade_2"
+    "item": "lightmanscurrency:speed_upgrade_2"
   }
 }

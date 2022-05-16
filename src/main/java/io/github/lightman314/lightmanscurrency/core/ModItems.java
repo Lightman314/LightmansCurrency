@@ -43,9 +43,16 @@ public class ModItems {
 		ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		
 		//Item Capacity Upgrades
-		ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		
+		//Speed Upgrades
+		ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("speed_upgrade_2", () -> new SpeedUpgradeItem(8, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("speed_upgrade_3", () -> new SpeedUpgradeItem(12, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 		
 		//Freezer Door(s)
 		ModRegistries.ITEMS.register("freezer_door", () -> new Item(new Item.Properties()));
@@ -79,6 +86,12 @@ public class ModItems {
 	public static final Item ITEM_CAPACITY_UPGRADE_1 = null;
 	public static final Item ITEM_CAPACITY_UPGRADE_2 = null;
 	public static final Item ITEM_CAPACITY_UPGRADE_3 = null;
+	
+	public static final Item SPEED_UPGRADE_1 = null;
+	public static final Item SPEED_UPGRADE_2 = null;
+	public static final Item SPEED_UPGRADE_3 = null;
+	public static final Item SPEED_UPGRADE_4 = null;
+	public static final Item SPEED_UPGRADE_5 = null;
 	
 	//Hidden item(s)
 	public static final Item FREEZER_DOOR = null;

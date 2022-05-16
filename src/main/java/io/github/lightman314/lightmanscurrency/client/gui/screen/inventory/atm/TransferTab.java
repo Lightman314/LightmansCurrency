@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
@@ -25,13 +24,8 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -39,7 +33,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
-public class TransferTab extends ATMTab implements ICoinValueInput {
+public class TransferTab extends ATMTab {
 
 	public TransferTab(ATMScreen screen) { super(screen); }
 
@@ -68,7 +62,7 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 		
 		this.screen.getMenu().setMessage(new TextComponent(""));
 		
-		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiTop() - CoinValueInput.HEIGHT, new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this));
+		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop() - CoinValueInput.HEIGHT, new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
 		this.amountWidget.init();
 		this.amountWidget.allowFreeToggle = false;
 		
@@ -180,26 +174,6 @@ public class TransferTab extends ATMTab implements ICoinValueInput {
 	public void onClose() {
 		SimpleSlot.SetActive(this.screen.getMenu());
 	}
-
-	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
-		if(button instanceof AbstractWidget)
-			this.screen.addRenderableTabWidget((AbstractWidget)button);
-		return button;
-	}
-
-	@Override
-	public int getWidth() {
-		return this.screen.width;
-	}
-
-	@Override
-	public Font getFont() {
-		return this.screen.getFont();
-	}
-
-	@Override
-	public void OnCoinValueChanged(CoinValueInput input) { }
 
 	@Override
 	public boolean blockInventoryClosing() { return this.playerMode; }

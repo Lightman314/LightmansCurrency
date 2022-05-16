@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "lightmanscurrency:speed_upgrade_4"
+  },
+  "addition": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "item": "lightmanscurrency:speed_upgrade_5"
+  }
+}

@@ -8,9 +8,10 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountTransferMenu;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransferMenu{
+public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvancedMenu{
 	
 	private Player player;
 	public Player getPlayer() { return this.player; }
@@ -224,5 +225,13 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountTransf
 	
 	@Override
 	public void setMessage(Component message) { this.transferMessage = message; }
+	
+	@Override
+	public void setNotificationLevel(CoinValue amount) {
+		if(this.getAccount() != null)
+		{
+			this.getAccount().setNotificationValue(amount);
+		}
+	}
 	
 }

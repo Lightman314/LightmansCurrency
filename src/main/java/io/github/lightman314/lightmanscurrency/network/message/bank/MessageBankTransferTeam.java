@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountTransferMenu;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import net.minecraft.nbt.CompoundTag;
@@ -40,9 +40,9 @@ public class MessageBankTransferTeam {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof IBankAccountTransferMenu)
+				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
 				{
-					IBankAccountTransferMenu menu = (IBankAccountTransferMenu) player.containerMenu;
+					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu) player.containerMenu;
 					AccountReference destination = BankAccount.GenerateReference(false, AccountType.Team, message.teamID);
 					Component response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.teams;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -11,12 +12,15 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -266,7 +270,24 @@ public class Team {
 			return;
 		this.bankAccount = new BankAccount(() -> this.markDirty());
 		this.bankAccount.updateOwnersName(this.teamName);
+		this.bankAccount.setNotificationConsumer(this::notificationGenerator);
 		this.markDirty();
+	}
+	
+	private void notificationGenerator(Component accountName, CoinValue value) {
+		List<PlayerReference> sendTo = new ArrayList<>();
+		if(this.bankAccountLimit < 1)
+			sendTo.addAll(this.members);
+		if(this.bankAccountLimit < 2)
+			sendTo.addAll(this.admins);
+		sendTo.add(this.owner);
+		for(PlayerReference player : sendTo)
+		{
+			if(player != null && player.id != null)
+			{
+				TradingOffice.pushNotification(player.id, new LowBalanceNotification(accountName, value));
+			}
+		}
 	}
 	
 	public void changeBankLimit(Player requestor, int newLimit)
@@ -378,6 +399,7 @@ public class Team {
 				if(compound.contains("BankLimit", Tag.TAG_INT))
 					team.bankAccountLimit = compound.getInt("BankLimit");
 				team.bankAccount.updateOwnersName(team.teamName);
+				team.bankAccount.setNotificationConsumer(team::notificationGenerator);
 			}
 			
 			return team;

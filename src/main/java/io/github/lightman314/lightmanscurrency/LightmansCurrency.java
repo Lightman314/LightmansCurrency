@@ -12,8 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -68,6 +70,7 @@ public class LightmansCurrency {
     
     public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD);
     public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", () -> ModBlocks.MACHINE_ATM);
+    public static final CustomCreativeTab UPGRADE_GROUP = new CustomCreativeTab(MODID + ".upgrades", () -> ModItems.ITEM_CAPACITY_UPGRADE_1);
     public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE);
     
     private static boolean discordIntegrationLoaded = false;
@@ -137,10 +140,12 @@ public class LightmansCurrency {
     	//Initialize the Notification deserializers
     	Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
     	Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
+    	Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
     	
     	//Initialize the Notification Category deserializers
     	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
     	Category.register(TraderCategory.TYPE, TraderCategory::new);
+    	Category.register(BankCategory.TYPE, BankCategory::new);
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
@@ -162,6 +167,11 @@ public class LightmansCurrency {
 		
 		MACHINE_GROUP.initSortingList(Lists.newArrayList(ModBlocks.MACHINE_ATM, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
 				ModBlocks.TERMINAL, ModItems.PORTABLE_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
+			));
+		
+		UPGRADE_GROUP.initSortingList(Lists.newArrayList(ModItems.ITEM_CAPACITY_UPGRADE_1, ModItems.ITEM_CAPACITY_UPGRADE_2,
+				ModItems.ITEM_CAPACITY_UPGRADE_3, ModItems.SPEED_UPGRADE_1, ModItems.SPEED_UPGRADE_2, ModItems.SPEED_UPGRADE_3,
+				ModItems.SPEED_UPGRADE_4, ModItems.SPEED_UPGRADE_5
 			));
 		
 		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF_OAK, ModBlocks.SHELF_BIRCH, ModBlocks.SHELF_SPRUCE,

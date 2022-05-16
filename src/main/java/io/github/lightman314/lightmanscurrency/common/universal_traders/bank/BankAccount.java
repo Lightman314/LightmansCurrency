@@ -2,9 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.universal_traders.bank;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import io.github.lightman314.lightmanscurrency.api.BankAccountLogger;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -44,6 +46,24 @@ public class BankAccount {
 	private CoinValue coinStorage = new CoinValue();
 	public CoinValue getCoinStorage() { return this.coinStorage; }
 	
+	private CoinValue notificationLevel = new CoinValue();
+	public CoinValue getNotificationValue() { return this.notificationLevel; }
+	public long getNotificationLevel() { return this.notificationLevel.getRawValue(); }
+	public void setNotificationValue(CoinValue value) { this.notificationLevel = value.copy(); this.markDirty(); }
+	
+	private BiConsumer<Component,CoinValue> notificationSender;
+	public void setNotificationConsumer(BiConsumer<Component,CoinValue> notificationSender) { this.notificationSender = notificationSender; }
+	public void pushNotification() {
+		if(this.notificationSender != null)
+			this.notificationSender.accept(this.getName(), this.getNotificationValue());
+	}
+	
+	public static BiConsumer<Component,CoinValue> generateNotificationAcceptor(UUID playerID) {
+		return (accountName,value) -> {
+			TradingOffice.pushNotification(playerID, new LowBalanceNotification(accountName, value));
+		};
+	}
+	
 	private BankAccountLogger logger = new BankAccountLogger();
 	public BankAccountLogger getLogs() { return this.logger; }
 	
@@ -58,10 +78,14 @@ public class BankAccount {
 	}
 	
 	public CoinValue withdrawCoins(CoinValue withdrawAmount) {
+		long oldValue = this.coinStorage.getRawValue();
 		if(withdrawAmount.getRawValue() > this.coinStorage.getRawValue())
 			withdrawAmount = this.coinStorage.copy();
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
 		this.markDirty();
+		//Check if we should push the notification
+		if(oldValue >= this.getNotificationLevel() && this.coinStorage.getRawValue() < this.getNotificationLevel())
+			this.pushNotification();
 		return withdrawAmount;
 	}
 	
@@ -136,7 +160,7 @@ public class BankAccount {
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 	
-	public static Component TransferCoins(IBankAccountTransferMenu menu, CoinValue amount, AccountReference destination)
+	public static Component TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
 	{
 		return TransferCoins(menu.getPlayer(), menu.getAccount(), amount, destination.get());
 	}
@@ -171,6 +195,8 @@ public class BankAccount {
 		this.logger.read(compound);
 		if(compound.contains("OwnerName"))
 			this.ownerName = compound.getString("OwnerName");
+		if(compound.contains("NotificationLevel"))
+			this.notificationLevel.readFromNBT(compound, "NotificationLevel");
 	}
 	
 	public void markDirty()
@@ -184,6 +210,7 @@ public class BankAccount {
 		this.coinStorage.writeToNBT(compound, "CoinStorage");
 		this.logger.write(compound);
 		compound.putString("OwnerName", this.ownerName);
+		this.notificationLevel.writeToNBT(compound, "NotificationLevel");
 		return compound;
 	}
 	
@@ -268,11 +295,12 @@ public class BankAccount {
 		public default void onDepositOrWithdraw() {}
 	}
 	
-	public interface IBankAccountTransferMenu extends IBankAccountMenu
+	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
 		public AccountReference getAccountSource();
 		public Component getLastMessage();
 		public void setMessage(Component component);
+		public void setNotificationLevel(CoinValue amount);
 	}
 	
 }

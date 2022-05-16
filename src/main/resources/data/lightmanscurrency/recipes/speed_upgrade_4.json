@@ -1,12 +1,12 @@
 {
   "type": "minecraft:smithing",
   "base": {
-    "item": "lightmanscurrency:item_capacity_upgrade_2"
+    "item": "lightmanscurrency:speed_upgrade_3"
   },
   "addition": {
     "item": "minecraft:diamond"
   },
   "result": {
-    "item": "lightmanscurrency:item_capacity_upgrade_3"
+    "item": "lightmanscurrency:speed_upgrade_4"
   }
 }

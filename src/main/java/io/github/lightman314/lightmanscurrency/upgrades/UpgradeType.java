@@ -26,6 +26,8 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	
 	public static final ItemCapacityUpgrade ITEM_CAPACITY = register(new ResourceLocation(LightmansCurrency.MODID, "item_capacity"), new ItemCapacityUpgrade());
 	
+	public static final SpeedUpgrade SPEED = register(new ResourceLocation(LightmansCurrency.MODID, "speed"), new SpeedUpgrade());
+	
 	private ResourceLocation type;
 	
 	protected abstract List<String> getDataTags();

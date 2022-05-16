@@ -84,9 +84,4 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 		return this.screen.getMenu().getCoinInput();
 	}
 
-	@Override
-	public int getWidth() {
-		return this.screen.width;
-	}
-
 }

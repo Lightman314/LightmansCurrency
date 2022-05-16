@@ -31,7 +31,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
-	private static final int COLUMNS = 10;
+	private static final int COLUMNS = 8;
 	private static final int ROWS = 2;
 	
 	private static final int WIDGET_OFFSET = Y_OFFSET + 18 * ROWS + 4;
@@ -123,7 +123,8 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			
 			//Render the input/output labels
 			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 116, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"));
+			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 		}
 		
 	}

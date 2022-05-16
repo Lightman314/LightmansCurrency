@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
@@ -43,7 +44,19 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
 	
 	@Override
-	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) { }
+	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
+		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
+		{
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			upgradeSlot.active = false;
+			addSlot.apply(upgradeSlot);
+			this.slots.add(upgradeSlot);
+		}
+	}
+	
+	private void onUpgradeModified() {
+		this.menu.getBE().setUpgradeSlotsDirty();
+	}
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
@@ -151,6 +164,13 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
+			/*if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putInt("ToggleInput", side.get3DDataValue());
+				message.putBoolean("NewValue", be.getItemHandler().getInputSides().get(side));
+				this.menu.sendMessage(message);
+			}*/
 		}
 	}
 	
@@ -159,6 +179,13 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
+			/*if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putInt("ToggleOutput", side.get3DDataValue());
+				message.putBoolean("NewValue", be.getItemHandler().getOutputSides().get(side));
+				this.menu.sendMessage(message);
+			}*/
 		}
 	}
 	
@@ -171,6 +198,30 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			boolean leftClick = message.getBoolean("LeftClick");
 			this.clickedOnSlot(storageSlot, isShiftHeld, leftClick);
 		}
+		/*else if(message.contains("ToggleInput"))
+		{
+			Direction side = Direction.from3DDataValue(message.getInt("ToggleInput"));
+			boolean newValue = message.getBoolean("NewValue");
+			if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+			{
+				ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
+				if(be.getItemHandler().getInputSides().get(side) == newValue)
+					return;
+				this.toggleInputSlot(side);
+			}
+		}
+		else if(message.contains("ToggleOutput"))
+		{
+			Direction side = Direction.from3DDataValue(message.getInt("ToggleInput"));
+			boolean newValue = message.getBoolean("NewValue");
+			if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+			{
+				ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
+				if(be.getItemHandler().getOutputSides().get(side) == newValue)
+					return;
+				this.toggleOutputSlot(side);
+			}
+		}*/
 	}
 
 }

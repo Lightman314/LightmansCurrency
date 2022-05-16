@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -25,8 +26,12 @@ import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.Sided
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.upgrades.SpeedUpgrade;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -36,11 +41,14 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -54,7 +62,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
+public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -157,6 +165,15 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	public TradeData getReferencedTrade() { return this.reference.getLocalTrade(); }
 	public TradeData getTrueTrade() { return this.reference.getTrueTrade(); }
 	
+	private SimpleContainer upgradeSlots = new SimpleContainer(5);
+	public Container getUpgradeInventory() { return this.upgradeSlots; }
+	
+	public void setUpgradeSlotsDirty() {
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
+	}
+	
 	public void setTrader(UUID traderID) {
 		//Trader is the same id. Ignore the change.
 		if(this.reference.getTraderID() != null && this.reference.getTraderID().equals(traderID))
@@ -234,6 +251,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 		this.saveInteraction(compound);
 		this.saveLastResult(compound);
 		this.saveReference(compound);
+		this.saveUpgradeSlots(compound);
 		for(SidedHandler<?> handler : this.handlers) this.saveHandler(compound, handler);
 	}
 	
@@ -263,6 +281,11 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 		return compound;
 	}
 	
+	protected final CompoundTag saveUpgradeSlots(CompoundTag compound) {
+		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeSlots);
+		return compound;
+	}
+	
 	protected final CompoundTag saveHandler(CompoundTag compound, SidedHandler<?> handler) {
 		compound.put(handler.getTag(), handler.save());
 		return compound;
@@ -284,6 +307,8 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
 			this.reference.load(compound.getCompound("Trade"));
+		if(compound.contains("Upgrades"))
+			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5);
 		for(SidedHandler<?> handler : this.handlers) {
 			if(compound.contains(handler.getTag(), Tag.TAG_COMPOUND))
 				handler.load(compound.getCompound(handler.getTag()));
@@ -350,7 +375,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 	}
 	
 	protected void trackMoneyInteraction(CoinValue price, boolean isDeposit) {
-
+		
 	}
 	
 	public boolean isActive() {
@@ -376,7 +401,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 			this.waitTimer -= 1;
 			if(this.waitTimer <= 0)
 			{
-				this.waitTimer = INTERACTION_DELAY;
+				this.waitTimer = this.getInteractionDelay();
 				if(this.interaction.requiresPermissions)
 				{
 					if(!this.validTrader() || !this.getTrader().hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
@@ -449,8 +474,29 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity {
 		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
+	protected int getInteractionDelay() {
+		int delay = INTERACTION_DELAY;
+		for(int i = 0; i < this.upgradeSlots.getContainerSize() && delay > 1; ++i)
+		{
+			ItemStack stack = this.upgradeSlots.getItem(i);
+			if(stack.getItem() instanceof UpgradeItem)
+			{
+				UpgradeItem upgrade = (UpgradeItem)stack.getItem();
+				if(upgrade.getUpgradeType() instanceof SpeedUpgrade)
+					delay -= UpgradeItem.getUpgradeData(stack).getIntValue(SpeedUpgrade.DELAY_AMOUNT);
+			}
+		}
+		return delay;
+	}
+	
 	public abstract void dumpContents(Level level, BlockPos pos);
 	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
+	
+	public boolean allowUpgrade(UpgradeType type) {
+		return type == UpgradeType.SPEED || this.allowAdditionalUpgrade(type);
+	}
+	
+	protected boolean allowAdditionalUpgrade(UpgradeType type) { return false; }
 	
 }
