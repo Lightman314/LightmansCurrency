@@ -6,7 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
@@ -16,13 +15,10 @@ import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageSe
 import io.github.lightman314.lightmanscurrency.network.message.paygate.MessageUpdatePaygateData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -35,7 +31,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 
 @IPNIgnore
-public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implements ICoinValueInput{
+public class PaygateScreen extends AbstractContainerScreen<PaygateMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/paygate.png");
 	
@@ -91,7 +87,7 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implemen
 		if(this.menu.isOwner())
 		{
 			
-			this.priceInput = this.addRenderableWidget(new CoinValueInput(this.topPos, new TranslatableComponent("gui.lightmanscurrency.changeprice"), this.menu.tileEntity.getPrice(), this));
+			this.priceInput = this.addRenderableWidget(new CoinValueInput(this.leftPos, this.topPos, new TranslatableComponent("gui.lightmanscurrency.changeprice"), this.menu.tileEntity.getPrice(), this.font, this::onValueChanged, this::addRenderableWidget));
 			this.priceInput.init();
 			
 			this.durationInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 8, this.topPos + 35 + this.menu.priceInputOffset, 30, 18, new TextComponent("")));
@@ -193,30 +189,14 @@ public class PaygateScreen extends AbstractContainerScreen<PaygateMenu> implemen
 		return MathUtil.clamp(TextInputUtil.getIntegerValue(this.durationInput), PaygateBlockEntity.DURATION_MIN, PaygateBlockEntity.DURATION_MAX);
 	}
 
-	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget) {
-		return this.addRenderableWidget(widget);
-	}
-
-	@Override
-	public int getWidth() {
-		return this.width;
-	}
-
-	@Override
-	public void OnCoinValueChanged(CoinValueInput input) {
+	public void onValueChanged(CoinValue value) {
 		
-		this.menu.tileEntity.setPrice(input.getCoinValue());
+		this.menu.tileEntity.setPrice(value);
 		
 		int duration = this.getDuration();
 		
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdatePaygateData(this.menu.tileEntity.getBlockPos(), this.priceInput.getCoinValue().copy(), duration));
 		
-	}
-
-	@Override
-	public Font getFont() {
-		return this.font;
 	}
 	
 }

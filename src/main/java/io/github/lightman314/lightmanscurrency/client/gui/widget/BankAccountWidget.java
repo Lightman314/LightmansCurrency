@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
@@ -18,7 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 
-public class BankAccountWidget implements ICoinValueInput{
+public class BankAccountWidget {
 
 	public static final int MIN_WIDTH = 100;
 	public static final int HEIGHT = CoinValueInput.HEIGHT + 40;
@@ -27,6 +26,7 @@ public class BankAccountWidget implements ICoinValueInput{
 	private final IBankAccountWidget parent;
 	
 	private CoinValueInput amountSelection;
+	public CoinValueInput getAmountSelection() { return this.amountSelection; }
 	Button buttonDeposit;
 	Button buttonWithdraw;
 	
@@ -43,15 +43,16 @@ public class BankAccountWidget implements ICoinValueInput{
 		this.y = y;
 		this.spacing = spacing;
 		
-		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(this.y, new TranslatableComponent("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this));
+		int screenMiddle = this.parent.getScreen().width / 2;
+		
+		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(screenMiddle - CoinValueInput.DISPLAY_WIDTH / 2, this.y, new TranslatableComponent("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this.parent.getFont(), value -> {}, this.parent::addCustomWidget));
 		this.amountSelection.allowFreeToggle = false;
 		this.amountSelection.init();
-		
-		int screenMiddle = this.parent.getScreen().width / 2;
 		
 		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.deposit"), this::OnDeposit));
 		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.withdraw"), this::OnWithdraw));
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
+		
 	}
 	
 	public void renderInfo(PoseStack pose) { this.renderInfo(pose, 0); }
@@ -100,25 +101,8 @@ public class BankAccountWidget implements ICoinValueInput{
 		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget);
 		public Font getFont();
 		public Screen getScreen();
-		public int getWidth();
 		public BankAccount getAccount();
 		public Container getCoinAccess();
 	}
-
-	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
-		return this.parent.addCustomWidget(button);
-	}
-
-	@Override
-	public Font getFont() {
-		return this.parent.getFont();
-	}
-
-	@Override
-	public void OnCoinValueChanged(CoinValueInput input) { }
-
-	@Override
-	public int getWidth() { return this.parent.getWidth(); }
 	
 }

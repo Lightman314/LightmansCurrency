@@ -36,6 +36,11 @@
     "item.lightmanscurrency.item_capacity_upgrade_1": "Item Capacity Upgrade (Iron)",
     "item.lightmanscurrency.item_capacity_upgrade_2": "Item Capacity Upgrade (Gold)",
     "item.lightmanscurrency.item_capacity_upgrade_3": "Item Capacity Upgrade (Diamond)",
+    "item.lightmanscurrency.speed_upgrade_1": "Speed Upgrade (Iron)",
+    "item.lightmanscurrency.speed_upgrade_2": "Speed Upgrade (Gold)",
+    "item.lightmanscurrency.speed_upgrade_3": "Speed Upgrade (Emerald)",
+    "item.lightmanscurrency.speed_upgrade_4": "Speed Upgrade (Diamond)",
+    "item.lightmanscurrency.speed_upgrade_5": "Speed Upgrade (Netherite)",
     "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
     
     "item.lightmanscurrency.generic.plural": "%ss",
@@ -208,6 +213,7 @@
     "tooltip.lightmanscurrency.wallet.autoConvert.off": "§4OFF§r",
     "tooltip.lightmanscurrency.wallet.bankaccount": "§eCan deposit or withdraw coins to/from your bank account in the UI.§r",
     "tooltip.lightmanscurrency.upgrade.item_capacity":"Increases item trader storage capacity by %s.",
+    "tooltip.lightmanscurrency.upgrade.speed":"Decreases the delay between interactions by %s ticks.",
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",
@@ -316,6 +322,7 @@
     "gui.button.notifications.mark_read" : "Mark As Read",
     "notifications.message.out_of_stock" : "%1$s: Trade #%2$s is out of stock.",
     "notifications.message.item_trade": "%1$s: %2$s %3$s %4$s for %5$s",
+    "notifications.message.bank_low_balance": "%1$s: Bank Account is below %2$s.",
     
     "tooltip.lightmanscurrency.trader.creative.enable": "Enable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.disable": "Disable Creative Trader",
@@ -427,6 +434,9 @@
     "gui.button.bank.admin.playeraccount": "Select Players Account",
     "gui.lightmanscurrency.bank.noteamsavailable": "You don't have access to any teams bank account.",
     
+    "gui.lightmanscurrency.notification.details": "You will receive a notification if your account balance goes below %s.",
+    "gui.lightmanscurrency.notification.disabled": "You will not receive any account balance notifications.",
+    
     "tooltip.lightmanscurrency.atm.conversion": "Convert Coins",
     "tooltip.lightmanscurrency.atm.selection": "Select Account",
     "tooltip.lightmanscurrency.atm.interact": "Manage Account",
@@ -434,6 +444,7 @@
     "tooltip.lightmanscurrency.atm.transfer": "Transfer Money",
     "tooltip.lightmanscurrency.atm.transfer.mode.player": "Select From Players",
     "tooltip.lightmanscurrency.atm.transfer.mode.team": "Select From Teams",
+    "tooltip.lightmanscurrency.atm.notification": "Account Balance Notification",
     
     "gui.button.lightmanscurrency.team.owner": "Owner: %s",
     "gui.button.lightmanscurrency.team.create": "Create",

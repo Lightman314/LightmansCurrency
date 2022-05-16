@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
@@ -43,7 +44,19 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
 	
 	@Override
-	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) { }
+	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
+		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
+		{
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			upgradeSlot.active = false;
+			addSlot.apply(upgradeSlot);
+			this.slots.add(upgradeSlot);
+		}
+	}
+	
+	private void onUpgradeModified() {
+		this.menu.getBE().setUpgradeSlotsDirty();
+	}
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {

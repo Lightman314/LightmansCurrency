@@ -164,6 +164,8 @@ public class TradingOffice extends SavedData{
 					BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(owner), accountCompound);
 					if(owner != null && bankAccount != null)
 					{
+						//Generate notification consumer
+						bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(owner));
 						this.playerBankAccounts.put(owner, bankAccount);
 						//Update owners name if the player has changed their name
 						bankAccount.updateOwnersName(PlayerReference.of(owner, bankAccount.getOwnersName()).lastKnownName());

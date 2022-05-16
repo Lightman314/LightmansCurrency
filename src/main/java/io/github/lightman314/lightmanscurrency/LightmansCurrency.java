@@ -12,8 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
@@ -137,10 +139,12 @@ public class LightmansCurrency {
     	//Initialize the Notification deserializers
     	Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
     	Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
+    	Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
     	
     	//Initialize the Notification Category deserializers
     	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
     	Category.register(TraderCategory.TYPE, TraderCategory::new);
+    	Category.register(BankCategory.TYPE, BankCategory::new);
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());

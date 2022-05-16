@@ -657,12 +657,15 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		{
 			
 			IItemTrader trader = (IItemTrader)context.getTrader();
-			//Check Stock
-			if(this.stockCount(context) <= 0)
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
-			//Check Space
-			if(!this.hasSpace(trader))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+			if(!trader.isCreative())
+			{
+				//Check Stock
+				if(this.stockCount(context) <= 0)
+					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+				//Check Space
+				if(!this.hasSpace(trader))
+					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+			}
 			//Check whether they can afford the cost
 			if(!this.canAfford(context))
 				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));

@@ -242,17 +242,6 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		this.menu.ToggleAutoConvert();
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletToggleAutoConvert());
 	}
-	
-	/*private void PressToggleWalletVisibilityButton(Button button)
-	{
-		IWalletHandler handler = WalletCapability.getWalletHandler(this.menu.getPlayer()).orElse(null);
-		if(handler != null)
-		{
-			boolean nowVisible = !handler.visible();
-			handler.setVisible(nowVisible);
-			LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketSetVisible(this.menu.player.getId(), nowVisible));
-		}
-	}*/
 
 	@Override
 	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget) {
@@ -267,11 +256,6 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 	@Override
 	public Screen getScreen() {
 		return this;
-	}
-
-	@Override
-	public int getWidth() {
-		return this.width;
 	}
 
 	@Override

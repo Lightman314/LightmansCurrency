@@ -6,6 +6,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.item.ItemStorageTab;
@@ -16,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage.I
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
@@ -127,7 +130,25 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public int getStorageStackLimit() { return 9 * 64; }
+	public int getStorageStackLimit() { 
+		int limit = IItemTrader.DEFAULT_STACK_LIMIT;
+		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
+		{
+			ItemStack stack = this.getUpgradeInventory().getItem(i);
+			if(stack.getItem() instanceof UpgradeItem)
+			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
+				if(this.allowUpgrade(upgradeItem))
+				{
+					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					{
+						limit += upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+					}
+				}
+			}
+		}
+		return limit;
+	}
 	
 	@Override
 	protected ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound); } 
@@ -309,4 +330,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new ItemStorageTab(menu));
 	}
+	
+	@Override
+	public boolean allowAdditionalUpgrade(UpgradeType type) { return type == UpgradeType.ITEM_CAPACITY; }
+	
 }
