@@ -583,7 +583,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!customName.isEmpty() && (this.isSale() || this.isBarter()))
 		{
 			originalName = tooltips.get(0);
-			tooltips.set(0, new TextComponent("§6" + customName));
+			tooltips.set(0, new TextComponent(customName).withStyle(ChatFormatting.GOLD));
 		}
 		//Stop here if this is in storage mode, and there's no custom name
 		if(context.isStorageMode && originalName == null)
@@ -601,7 +601,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(context.getTrader() instanceof IItemTrader)
 			{
 				IItemTrader trader = (IItemTrader)context.getTrader();
-				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + this.stockCount(context))));
+				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent(String.valueOf(this.stockCount(context))).withStyle(ChatFormatting.GOLD)));
 			}
 		}
 		

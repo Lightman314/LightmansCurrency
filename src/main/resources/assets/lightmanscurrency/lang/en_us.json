@@ -2,6 +2,7 @@
     "itemGroup.lightmanscurrency.coins" : "Coins & Items",
     "itemGroup.lightmanscurrency.machines" : "Misc Machines",
     "itemGroup.lightmanscurrency.trading" : "Trading Machines",
+    "itemGroup.lightmanscurrency.upgrades" : "Machine Upgrades",
     
     "item.lightmanscurrency.coin_copper" : "Copper Coin",
     "item.lightmanscurrency.coin_copper.plural": "Copper Coins",

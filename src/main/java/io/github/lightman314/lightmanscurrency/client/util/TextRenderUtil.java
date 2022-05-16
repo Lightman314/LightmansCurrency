@@ -79,9 +79,7 @@ public class TextRenderUtil {
 	
 	public static Component fitString(String text, int width) { return fitString(text, width, "..."); }
 	
-	public static Component fitString(String text, int width, Style style) {
-		return fitString(text, width, "...", style);
-	}
+	public static Component fitString(String text, int width, Style style) { return fitString(text, width, "...", style); }
 	
 	public static Component fitString(String text, int width, String edge) { return fitString(new TextComponent(text), width, edge); }
 	
@@ -95,7 +93,7 @@ public class TextRenderUtil {
 	
 	public static Component fitString(String text, int width, String edge, Style style) {
 		Font font = getFont();
-		if(font.width(new TextComponent(text).withStyle(style)) < width)
+		if(font.width(new TextComponent(text).withStyle(style)) <= width)
 			return new TextComponent(text).withStyle(style);
 		while(font.width(new TextComponent(text + edge).withStyle(style)) > width && text.length() > 0)
 			text = text.substring(0, text.length() - 1);

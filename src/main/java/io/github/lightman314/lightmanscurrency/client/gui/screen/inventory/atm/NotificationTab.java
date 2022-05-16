@@ -38,6 +38,7 @@ public class NotificationTab extends ATMTab {
 			accountName = this.screen.getMenu().getAccount() .getName();
 		this.notificationSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), accountName, this.screen.getMenu().getAccount().getNotificationValue(), this.screen.getFont(), this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.notificationSelection.drawBG = false;
+		this.notificationSelection.allowFreeToggle = false;
 		this.notificationSelection.init();
 		
 	}

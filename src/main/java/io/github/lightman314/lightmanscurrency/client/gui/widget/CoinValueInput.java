@@ -251,7 +251,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		this.font.draw(poseStack, this.coinValue.getString(), this.x + this.width - freeButtonOffset - priceWidth, this.y + 5F, 0x404040);
 		
 		//Render the title
-		int titleWidth = this.width - 3 - freeButtonOffset - priceWidth;
+		int titleWidth = this.width - 7 - freeButtonOffset - priceWidth;
 		this.font.draw(poseStack, TextRenderUtil.fitString(this.title, titleWidth), this.x + 8F, this.y + 5F, 0x404040);
 		
 	}
