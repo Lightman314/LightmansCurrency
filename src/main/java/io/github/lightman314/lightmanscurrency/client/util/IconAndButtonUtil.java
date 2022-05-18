@@ -13,9 +13,11 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -86,13 +88,16 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_TRADELIST = IconData.of(ICON_TEXTURE, 48, 0);
 	
 	public static final IconData ICON_MODE_DISABLED = IconData.of(Items.BARRIER);
-	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE);
+	public static final IconData ICON_MODE_REDSTONE_OFF = IconData.of(ICON_TEXTURE, 64, 0);
+	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE_TORCH);
 	public static final IconData ICON_MODE_ALWAYS_ON = IconData.of(Items.REDSTONE_BLOCK);
 	
 	public static final IconData GetIcon(ActiveMode mode) { 
 		switch(mode) {
 		case DISABLED:
 			return ICON_MODE_DISABLED;
+		case REDSTONE_OFF:
+			return ICON_MODE_REDSTONE_OFF;
 		case REDSTONE_ONLY:
 			return ICON_MODE_REDSTONE;
 		case ALWAYS_ON:
@@ -103,6 +108,9 @@ public class IconAndButtonUtil {
 	}
 	
 	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
+	
+	public static final IconData ICON_ONLINEMODE_TRUE = IconData.of(Items.PLAYER_HEAD);
+	public static final IconData ICON_ONLINEMODE_FALSE = ICON_CHECKMARK;
 	
 	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.opentrades"));
 	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"));
@@ -178,6 +186,8 @@ public class IconAndButtonUtil {
 	
 	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
 	
+	public static PlainButton quickInsertButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0); }
+	public static PlainButton quickExtractButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0); }
 	
 	public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	

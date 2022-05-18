@@ -27,6 +27,21 @@ public class TraderItemHandler{
 		return this.handlers.get(side);
 	}
 	
+	public boolean allowExtraction(ItemStack stack) {
+		for(ItemTradeData trade : this.trader.getAllTrades())
+		{
+			if(trade.isSale() || trade.isBarter())
+			{
+				for(int i = 0; i < 2; ++i)
+				{
+					if(InventoryUtil.ItemMatches(trade.getSellItem(0),stack))
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	private static class TraderHandler implements IItemHandler
 	{
 		private final IItemTrader trader;

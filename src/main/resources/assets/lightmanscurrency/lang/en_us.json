@@ -516,8 +516,12 @@
     "gui.lightmanscurrency.interface.type.trade": "Trade",
     
     "gui.lightmanscurrency.interface.mode.disabled": "Disabled",
+    "gui.lightmanscurrency.interface.mode.redstone_off": "No Redstone Signal",
     "gui.lightmanscurrency.interface.mode.redstone_only": "Redstone Signal",
     "gui.lightmanscurrency.interface.mode.always_on": "Always Active",
+    
+    "gui.lightmanscurrency.interface.onlinemode.true": "Requires Owner to be Online",
+    "gui.lightmanscurrency.interface.onlinemode.false": "Always On",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "§4You are not whitelisted.",

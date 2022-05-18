@@ -13,8 +13,10 @@ import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorage
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -168,6 +170,69 @@ public class ItemStorageTab extends TraderStorageTab{
 		this.menu.sendMessage(message);
 	}
 	
+	public void quickTransfer(int type) {
+		if(this.menu.getTrader() instanceof IItemTrader) {
+			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+			TraderItemStorage storage = trader.getStorage();
+			Inventory inv = this.menu.player.getInventory();
+			boolean changed = false;
+			if(type == 0)
+			{
+				//Quick Deposit
+				for(int i = 0; i < 36; ++i)
+				{
+					ItemStack stack = inv.getItem(i);
+					int fillAmount = storage.getFittableAmount(stack);
+					if(fillAmount > 0)
+					{
+						//Remove the item from the players inventory
+						ItemStack fillStack = inv.removeItem(i, fillAmount);
+						//Put the item into storage
+						storage.forceAddItem(fillStack);
+					}
+				}
+			}
+			else if(type == 1)
+			{
+				//Quick Extract
+				List<ItemStack> itemList = InventoryUtil.copyList(storage.getContents());
+				for(ItemStack stack : itemList)
+				{
+					boolean keepTrying = true;
+					while(storage.getItemCount(stack) > 0 && keepTrying)
+					{
+						ItemStack transferStack = stack.copy();
+						int transferCount = Math.min(storage.getItemCount(stack), stack.getMaxStackSize());
+						transferStack.setCount(transferCount);
+						//Attempt to move the stack into the players inventory
+						int removedCount = InventoryUtil.safeGiveToPlayer(inv, transferStack);
+						if(removedCount > 0)
+						{
+							changed = true;
+							//Remove the transferred amount from storage
+							ItemStack removeStack = stack.copy();
+							removeStack.setCount(removedCount);
+							storage.removeItem(removeStack);
+						}
+						else
+							keepTrying = false;
+					}
+				}
+			}
+			
+			if(changed)
+				trader.markStorageDirty();
+			
+			if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putInt("QuickTransfer", type);
+				this.menu.sendMessage(message);
+			}
+			
+		}
+	}
+	
 	@Override
 	public void receiveMessage(CompoundTag message) { 
 		if(message.contains("ClickedSlot", Tag.TAG_INT))
@@ -176,6 +241,10 @@ public class ItemStorageTab extends TraderStorageTab{
 			boolean isShiftHeld = message.getBoolean("HeldShift");
 			boolean leftClick = message.getBoolean("LeftClick");
 			this.clickedOnSlot(storageSlot, isShiftHeld, leftClick);
+		}
+		if(message.contains("QuickTransfer"))
+		{
+			this.quickTransfer(message.getInt("QuickTransfer"));
 		}
 	}
 

@@ -46,6 +46,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
 @Mod.EventBusSubscriber
 public class EventHandler {
@@ -152,9 +153,7 @@ public class EventHandler {
 	{
 		if(event.getPlayer().level.isClientSide)
 			return;
-		WalletCapability.getWalletHandler(event.getPlayer()).ifPresent(walletHandler ->{
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), new SPacketSyncWallet(event.getPlayer().getId(), walletHandler.getWallet(), walletHandler.visible()));
-		});
+		sendWalletUpdatePacket(event.getPlayer(), LightmansCurrencyPacketHandler.getTarget(event.getPlayer()));
 	}
 	
 	//Sync wallet contents for newly loaded entities
@@ -163,12 +162,7 @@ public class EventHandler {
 	{
 		Entity target = event.getTarget();
 		Player player = event.getPlayer();
-		if(!player.level.isClientSide)
-		{
-			WalletCapability.getWalletHandler(target).ifPresent(walletHandler ->{
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(target.getId(), walletHandler.getWallet(), walletHandler.visible()));
-			});
-		}
+		sendWalletUpdatePacket(target, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 	
 	//Copy the wallet over to the new player
@@ -186,7 +180,29 @@ public class EventHandler {
 		
 		oldHandler.ifPresent(oldWallet -> newHandler.ifPresent(newWallet ->{
 			newWallet.setWallet(oldWallet.getWallet());
+			newWallet.setVisible(oldWallet.visible());
 		}));
+		
+		//Invalidate the capabilities now that the reason is no longer needed
+		oldPlayer.invalidateCaps();
+		
+	}
+	
+	@SubscribeEvent
+	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
+		Player player = event.getPlayer();
+		if(player.level.isClientSide)
+			return;
+		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
+	}
+	
+	private static void sendWalletUpdatePacket(Entity entity, PacketTarget target) {
+		if(entity.level.isClientSide)
+			return;
+		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler -> {
+			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()));
+		});
+		
 	}
 	
 	//Drop the wallet if keep inventory isn't on.
@@ -218,7 +234,7 @@ public class EventHandler {
 					
 					if(keepWallet && coinDropPercent <= 0)
 						return;
-					if(keepWallet) //Drop the wallet
+					if(keepWallet) //Keep the wallet, but drop the wallets contents
 					{
 						
 						Collection<ItemEntity> d = getWalletDrops(livingEntity, walletStack, coinDropPercent);
@@ -233,7 +249,7 @@ public class EventHandler {
 						walletDrops = e.getDrops();
 						
 					}
-					else
+					else //Drop the wallet
 					{
 						
 						walletDrops.add(getDrop(livingEntity,walletStack));
@@ -335,4 +351,5 @@ public class EventHandler {
 			}
 		});
 	}
+	
 }

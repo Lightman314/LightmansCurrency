@@ -78,7 +78,11 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		
 		super.init();
 		
+		this.tabRenderables.clear();
+		this.tabListeners.clear();
+		
 		//Create the tab buttons
+		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
 			if(tab.tabButtonVisible()) {
 				TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
