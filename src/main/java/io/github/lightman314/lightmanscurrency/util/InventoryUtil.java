@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -56,6 +57,13 @@ public class InventoryUtil {
 			list.set(i, inventory.getItem(i).copy());
 		}
 		return list;
+	}
+	
+	public static List<ItemStack> copyList(List<ItemStack> list) {
+		List<ItemStack> result = new ArrayList<>();
+		for(ItemStack stack : list)
+			result.add(stack.copy());
+		return result;
 	}
 	
 	/**
@@ -507,7 +515,41 @@ public class InventoryUtil {
     }
     
     public static boolean ItemHasTag(ItemStack item, ResourceLocation tag) {
-    	return item.getItem().getTags().contains(tag);
+    	for(ResourceLocation itemTag : item.getItem().getTags())
+    	{
+    		if(itemTag.equals(tag))
+    			return true;
+    	}
+    	return false;
+    }
+    
+    public static int safeGiveToPlayer(Inventory inv, ItemStack stack) {
+    	
+    	int i = inv.getSlotWithRemainingSpace(stack);
+      	if (i == -1)
+      		i = inv.getFreeSlot();
+
+     	if(i >= 0)
+     	{
+     		ItemStack stackInSlot = inv.getItem(i);
+     		int putCount = Math.min(stack.getCount(), stackInSlot.isEmpty() ? stack.getMaxStackSize() : stackInSlot.getMaxStackSize() - stackInSlot.getCount());
+     		if(putCount > 0)
+     		{
+     			if(stackInSlot.isEmpty())
+     			{
+     				stackInSlot = stack.copy();
+     				stackInSlot.setCount(putCount);
+     			}
+     			else
+     				stackInSlot.grow(putCount);
+     			stack.shrink(putCount);
+     			inv.setItem(i, stackInSlot);
+     			inv.setChanged();
+     		}
+     		return putCount;
+     	}
+     	else
+     		return 0;
     }
     
 }

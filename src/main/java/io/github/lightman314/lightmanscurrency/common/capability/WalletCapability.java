@@ -51,6 +51,7 @@ public class WalletCapability {
 			this.backupWallet = ItemStack.EMPTY;
 			this.walletInventory = new SimpleContainer(1);
 			this.visible = true;
+			this.wasVisible = true;
 		}
 		
 		@Override

@@ -115,4 +115,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
+	@Override
+	public boolean isSignalSource(BlockState state) { return true; }
+	
 }

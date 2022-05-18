@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -66,10 +69,22 @@ public abstract class IconData {
 		}
 	}
 	
+	private static class MultiIcon extends IconData
+	{
+		private final List<IconData> icons;
+		private MultiIcon(List<IconData> icons) { this.icons = icons; }
+		@Override
+		public void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y) {
+			for(IconData icon : this.icons)
+				icon.render(pose, widget, font, x, y);
+		}
+	}
+	
 	public static IconData of(ItemLike item) { return of(new ItemStack(item)); }
 	public static IconData of(ItemStack iconStack) { return new ItemIcon(iconStack); }
 	public static IconData of(ResourceLocation iconImage, int u, int v) { return new ImageIcon(iconImage, u,v); }
 	public static IconData of(Component iconText) { return new TextIcon(iconText, 0xFFFFFF); }
 	public static IconData of(Component iconText, int textColor) { return new TextIcon(iconText, textColor); }
+	public static IconData of(IconData... icons) { return new MultiIcon(Lists.newArrayList(icons)); }
 	
 }

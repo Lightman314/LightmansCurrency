@@ -63,6 +63,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	Button buttonToggleTradeType;
 	
 	private int selection = -1;
+	private int itemEditScrollValue = -1;
 	
 	@Override
 	public void onOpen() {
@@ -77,6 +78,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.itemEdit = this.screen.addRenderableTabWidget(new ItemEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
 		this.itemEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
+		if(this.itemEditScrollValue >= 0)
+			this.itemEdit.setScroll(itemEditScrollValue);
 		
 		this.itemEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.itemEdit));
 		this.itemEditScroll.smallKnob = true;
@@ -88,10 +91,12 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, new TextComponent(""), this::ToggleTradeType));
 		
+		
+		
 	}
 	
 	@Override
-	public void onClose() { this.selection = -1; }
+	public void onClose() { this.selection = -1; this.itemEditScrollValue = -1; }
 
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
@@ -156,7 +161,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(this.customNameInput.visible)
 			this.customNameInput.tick();
 		if(this.itemEdit.visible)
+		{
 			this.itemEdit.tick();
+			this.itemEditScrollValue = this.itemEdit.currentScroll();
+		}
 	}
 
 	@Override

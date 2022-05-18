@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -10,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -29,10 +31,10 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	List<AbstractWidget> tabWidgets = Lists.newArrayList();
-	List<GuiEventListener> tabListeners = Lists.newArrayList();
+	List<AbstractWidget> tabWidgets = new ArrayList<>();
+	List<GuiEventListener> tabListeners = new ArrayList<>();
 	
-	List<TabButton> tabButtons = Lists.newArrayList();
+	List<TabButton> tabButtons = new ArrayList<>();
 	
 	boolean logError = true;
 	
@@ -69,6 +71,10 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	{
 		super.init();
 		
+		this.tabWidgets.clear();
+		this.tabListeners.clear();
+		
+		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
 			TabButton button = this.addRenderableWidget(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
@@ -113,7 +119,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		//Close the old tab
 		this.currentTab().onClose();
 		this.tabButtons.get(this.currentTabIndex).active = true;
-		this.currentTabIndex = tabIndex;
+		this.currentTabIndex = MathUtil.clamp(tabIndex, 0, this.tabs.size() - 1);
 		this.tabButtons.get(this.currentTabIndex).active = false;
 		
 		//Clear the previous tabs widgets

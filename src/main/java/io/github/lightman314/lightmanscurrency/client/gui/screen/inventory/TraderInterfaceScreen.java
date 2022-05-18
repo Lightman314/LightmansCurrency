@@ -29,6 +29,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -50,6 +51,8 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	
 	IconButton modeToggle;
 	
+	IconButton onlineModeToggle;
+	
 	public TraderInterfaceScreen(TraderInterfaceMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		this.menu.getAllTabs().forEach((key,tab) -> this.availableTabs.put(key, tab.createClientTab(this)));
@@ -62,7 +65,11 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		
 		super.init();
 		
+		this.tabRenderables.clear();
+		this.tabListeners.clear();
+		
 		//Create the tab buttons
+		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
 			TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
 			if(key == this.menu.getCurrentTabIndex())
@@ -71,6 +78,8 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		});
 		
 		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
+		
+		this.onlineModeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> new TranslatableComponent("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -141,6 +150,8 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	private void ToggleMode(Button button) { this.menu.changeMode(this.getMode().getNext()); }
+	
+	private void ToggleOnlineMode(Button button) { this.menu.setOnlineMode(!this.menu.getBE().isOnlineMode()); }
 	
 	private void updateTabs() {
 		//Position the tab buttons

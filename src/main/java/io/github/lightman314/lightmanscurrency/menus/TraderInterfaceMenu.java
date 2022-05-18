@@ -167,6 +167,16 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		}
 	}
 	
+	public void setOnlineMode(boolean newMode) {
+		this.blockEntity.setOnlineMode(newMode);
+		if(this.isClient())
+		{
+			CompoundTag message = new CompoundTag();
+			message.putBoolean("OnlineModeChange", newMode);
+			this.sendMessage(message);
+		}
+	}
+	
 	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putInt("ChangeTab", newTab);
@@ -187,6 +197,8 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 			this.changeTab(message.getInt("ChangeTab"));
 		if(message.contains("ModeChange"))
 			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
+		if(message.contains("OnlineModeChange"))
+			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable t) { }
 	}

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,6 +41,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -61,6 +63,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable {
 	
@@ -102,15 +105,27 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	
 	public enum ActiveMode {
-		DISABLED(0),
-		REDSTONE_ONLY(1),
-		ALWAYS_ON(2);
+		DISABLED(0, be -> false),
+		REDSTONE_OFF(1, be -> {
+			if(be.level != null)
+				return !be.level.hasNeighborSignal(be.getBlockPos());
+			return false;
+		}),
+		REDSTONE_ONLY(2, be ->{
+			if(be.level != null)
+				return be.level.hasNeighborSignal(be.getBlockPos());
+			return false;
+		}),
+		ALWAYS_ON(3, be -> true);
 		
 		public final int index;
 		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
-		ActiveMode(int index) { this.index = index; }
+		private final Function<TraderInterfaceBlockEntity,Boolean> active;
+		public boolean isActive(TraderInterfaceBlockEntity blockEntity) { return this.active.apply(blockEntity); }
+		
+		ActiveMode(int index, Function<TraderInterfaceBlockEntity,Boolean> active) { this.index = index; this.active = active;}
 		
 		public static ActiveMode fromIndex(int index) {
 			for(ActiveMode mode : ActiveMode.values())
@@ -120,7 +135,6 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			}
 			return DISABLED;
 		}
-		public static int size() { return 3; }
 	}
 	
 	PlayerReference owner = null;
@@ -144,6 +158,10 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	private ActiveMode mode = ActiveMode.DISABLED;
 	public ActiveMode getMode() { return this.mode; }
 	public void setMode(ActiveMode mode) { this.mode = mode; this.setModeDirty(); }
+	
+	private boolean onlineMode = false;
+	public boolean isOnlineMode() { return this.onlineMode; }
+	public void setOnlineMode(boolean onlineMode) { this.onlineMode = onlineMode; this.setOnlineModeDirty(); }
 	
 	private InteractionType interaction = InteractionType.TRADE;
 	public InteractionType getInteractionType() { return this.interaction; }
@@ -218,6 +236,12 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			BlockEntityUtil.sendUpdatePacket(this, this.saveMode(new CompoundTag()));
 	}
 	
+	public void setOnlineModeDirty() {
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this, this.saveOnlineMode(new CompoundTag()));
+	}
+	
 	public void setLastResultDirty() {
 		this.setChanged();
 		if(!this.isClient())
@@ -248,6 +272,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	protected void saveAdditional(CompoundTag compound) {
 		this.saveOwner(compound);
 		this.saveMode(compound);
+		this.saveOnlineMode(compound);
 		this.saveInteraction(compound);
 		this.saveLastResult(compound);
 		this.saveReference(compound);
@@ -263,6 +288,11 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	
 	protected final CompoundTag saveMode(CompoundTag compound) {
 		compound.putString("Mode", this.mode.name());
+		return compound;
+	}
+	
+	protected final CompoundTag saveOnlineMode(CompoundTag compound) {
+		compound.putBoolean("OnlineMode", this.onlineMode);
 		return compound;
 	}
 	
@@ -303,6 +333,8 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			this.owner = PlayerReference.load(compound.getCompound("Owner"));
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
+		if(compound.contains("OnlineMode"))
+			this.onlineMode = compound.getBoolean("OnlineMode");
 		if(compound.contains("InteractionType", Tag.TAG_STRING))
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
@@ -379,19 +411,22 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	
 	public boolean isActive() {
-		switch(this.mode)
-		{
-		case DISABLED:
+		return this.mode.isActive(this) && this.onlineCheck();
+	}
+	
+	public boolean onlineCheck() {
+		//Always return false on the client
+		if(this.isClient())
 			return false;
-		case ALWAYS_ON:
+		if(!this.onlineMode)
 			return true;
-		case REDSTONE_ONLY:
-			if(this.level == null)
-				return false;
-			return this.level.hasNeighborSignal(this.getBlockPos());
-			default:
-				return false;
-		}
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server == null)
+			return false;
+		//Put team ownership check here.
+		if(this.owner != null)
+			return server.getPlayerList().getPlayer(this.owner.id) != null;
+		return false;
 	}
 	
 	@Override
@@ -493,7 +528,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		InventoryUtil.dumpContents(level, pos, this.upgradeSlots);
 		this.dumpAdditionalContents(level, pos);
 	}
-
+	
 	protected abstract void dumpAdditionalContents(Level level, BlockPos pos);
 	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
