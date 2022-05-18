@@ -62,7 +62,6 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	public static final int VERSION = 1;
 	
 	TraderItemHandler itemHandler = new TraderItemHandler(this);
-	public TraderItemHandler getItemHandler() { return this.itemHandler; }
 	
 	public IItemHandler getItemHandler(Direction relativeSide)
 	{
