@@ -107,8 +107,6 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSyncStorage.class, MessageSyncStorage::encode, MessageSyncStorage::decode, MessageSyncStorage::handle);
 		register(MessageClearClientTraders.class, MessageClearClientTraders::encode, MessageClearClientTraders::decode, MessageClearClientTraders::handle);
 		register(MessageUpdateClientData.class, MessageUpdateClientData::encode, MessageUpdateClientData::decode, MessageUpdateClientData::handle);
-		//register(MessageSetItemPrice2.class, MessageSetItemPrice2::encode, MessageSetItemPrice2::decode, MessageSetItemPrice2::handle);
-		//register(MessageSetTradeItem2.class, MessageSetTradeItem2::encode, MessageSetTradeItem2::decode, MessageSetTradeItem2::handle);
 		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
 		register(MessageAddOrRemoveTrade2.class, MessageAddOrRemoveTrade2::encode, MessageAddOrRemoveTrade2::decode, MessageAddOrRemoveTrade2::handle);
 		register(MessageChangeSettings2.class, MessageChangeSettings2::encode, MessageChangeSettings2::decode, MessageChangeSettings2::handle);
@@ -137,6 +135,7 @@ public class LightmansCurrencyPacketHandler {
 		//Notifications
 		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
 		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
+		register(MessageClientNotification.class, MessageClientNotification::encode, MessageClientNotification::decode, MessageClientNotification::handle);
 		
 		//Trade Rules
 		register(MessageUpdateTradeRule.class, MessageUpdateTradeRule::encode, MessageUpdateTradeRule::decode, MessageUpdateTradeRule::handle);

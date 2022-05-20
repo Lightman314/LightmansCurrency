@@ -17,6 +17,7 @@ import io.github.lightman314.lightmansconsole.LightmansDiscordIntegration;
 import io.github.lightman314.lightmansconsole.discord.links.AccountManager;
 import io.github.lightman314.lightmansconsole.discord.links.LinkedAccount;
 import io.github.lightman314.lightmansconsole.discord.listeners.types.SingleChannelListener;
+import io.github.lightman314.lightmansconsole.message.MessageManager;
 import io.github.lightman314.lightmansconsole.util.MessageUtil;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -96,21 +97,30 @@ public class CurrencyListener extends SingleChannelListener{
 				if(subcommand.startsWith("help"))
 				{
 					List<String> output = new ArrayList<>();
-					output.add(AccountManager.currencyNotificationsEnabled(author) ? CurrencyMessages.M_NOTIFICATIONS_ENABLED.get() : CurrencyMessages.M_NOTIFICATIONS_DISABLED.get());
+					if(AccountManager.getLinkedAccountFromUser(author) == null)
+						output.add(CurrencyMessages.M_NOTIFICATIONS_NOTLINKED.get());
+					else if(AccountManager.currencyNotificationsEnabled(author))
+						output.add(CurrencyMessages.M_NOTIFICATIONS_ENABLED.get());
+					else
+						output.add(CurrencyMessages.M_NOTIFICATIONS_DISABLED.get());
 					output.addAll(Lists.newArrayList(CurrencyMessages.M_NOTIFICATIONS_HELP.get().split("\n")));
 					
 					MessageUtil.sendTextMessage(channel, output);
 				}
 				else if(subcommand.startsWith("enable"))
 				{
-					if(AccountManager.enableCurrencyNotifications(author))
+					if(AccountManager.getLinkedAccountFromUser(author) == null)
+						MessageUtil.sendTextMessage(channel, MessageManager.M_ERROR_NOTLINKEDSELF.get());
+					else if(AccountManager.enableCurrencyNotifications(author))
 						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_SUCCESS.get());
 					else
 						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_ENABLE_FAIL.get());
 				}
 				else if(subcommand.startsWith("disable"))
 				{
-					if(AccountManager.disableCurrencyNotifications(author))
+					if(AccountManager.getLinkedAccountFromUser(author) == null)
+						MessageUtil.sendTextMessage(channel, MessageManager.M_ERROR_NOTLINKEDSELF.get());
+					else if(AccountManager.disableCurrencyNotifications(author))
 						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_SUCCESS.get());
 					else
 						MessageUtil.sendTextMessage(channel, CurrencyMessages.M_NOTIFICATIONS_DISABLE_FAIL.get());
@@ -302,8 +312,7 @@ public class CurrencyListener extends SingleChannelListener{
 				User user = account.getUser();
 				if(user != null && AccountManager.currencyNotificationsEnabled(user))
 				{
-					LightmansCurrency.LogInfo("Adding pending message for user #" + user.getId() + ":\n" + event.getNotification().getMessage().getString());
-					this.addPendingMessage(user, event.getNotification().getMessage().getString());
+					this.addPendingMessage(user, event.getNotification().getGeneralMessage().getString());
 				}
 			}
 		} catch(Exception e) { LightmansCurrency.LogError("Error processing notification to bot:", e); }

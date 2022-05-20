@@ -60,4 +60,17 @@ public class NotificationEvent extends Event {
 		
 	}
 	
+	/**
+	 * Sent when a notification is received on the client.
+	 * Cancel to prevent the notification from being posted in chat.
+	 */
+	public static class NotificationReceivedOnClient extends NotificationEvent {
+
+		public NotificationReceivedOnClient(UUID playerID, NotificationData data, Notification notification) { super(playerID, data, notification); }
+
+		@Override
+		public boolean isCancelable() { return true; }
+
+	}
+	
 }

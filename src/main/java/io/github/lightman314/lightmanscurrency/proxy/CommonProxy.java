@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.proxy;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import net.minecraft.nbt.CompoundTag;
 
@@ -27,6 +28,8 @@ public class CommonProxy {
 	public void updateBankAccount(CompoundTag compound) {}
 	
 	public void updateNotifications(NotificationData data) {}
+	
+	public void receiveNotification(Notification notification) {}
 	
 	public void openTerminalScreen() {}
 	

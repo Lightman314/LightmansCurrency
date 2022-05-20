@@ -10,8 +10,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class TraderCategory extends Category {
@@ -42,7 +40,6 @@ public class TraderCategory extends Category {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override

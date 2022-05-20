@@ -320,10 +320,13 @@
     "log.shoplog.creative": "§e[C] ",
     
     "notifications.source.general" : "General",
+    "notifications.source.general.format": "%1$s: %2$s",
+    "notifications.chat.format": "%1$s %2$s",
+    "notifications.chat.format.title": "[%s]",
     "gui.button.notifications.mark_read" : "Mark As Read",
-    "notifications.message.out_of_stock" : "%1$s: Trade #%2$s is out of stock.",
-    "notifications.message.item_trade": "%1$s: %2$s %3$s %4$s for %5$s",
-    "notifications.message.bank_low_balance": "%1$s: Bank Account is below %2$s.",
+    "notifications.message.out_of_stock" : "Trade #%2$s is out of stock.",
+    "notifications.message.item_trade": "%1$s %2$s %3$s for %4$s",
+    "notifications.message.bank_low_balance": "Bank Account is below %s.",
     
     "tooltip.lightmanscurrency.trader.creative.enable": "Enable Creative Trader",
     "tooltip.lightmanscurrency.trader.creative.disable": "Disable Creative Trader",

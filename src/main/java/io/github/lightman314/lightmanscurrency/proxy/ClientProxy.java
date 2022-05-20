@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
@@ -17,11 +18,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
@@ -42,6 +45,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -201,6 +205,17 @@ public class ClientProxy extends CommonProxy{
 	public void updateNotifications(NotificationData data)
 	{
 		ClientTradingOffice.updateNotifications(data);
+	}
+	
+	@Override
+	public void receiveNotification(Notification notification)
+	{
+		
+		Minecraft mc = Minecraft.getInstance();
+		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientTradingOffice.getNotifications(), notification)))
+			return;
+		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
+			mc.gui.getChat().addMessage(notification.getChatMessage());
 	}
 	
 	@Override

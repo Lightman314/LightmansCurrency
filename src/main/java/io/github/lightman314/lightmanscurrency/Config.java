@@ -165,6 +165,7 @@ public class Config {
 		public final ForgeConfigSpec.IntValue notificationButtonY;
 		public final ForgeConfigSpec.IntValue notificationButtonCreativeX;
 		public final ForgeConfigSpec.IntValue notificationButtonCreativeY;
+		public final ForgeConfigSpec.BooleanValue pushNotificationsToChat;
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -229,6 +230,14 @@ public class Config {
 			this.notificationButtonCreativeY = builder
 					.comment("The y offset from the offset corner that the notification button will be placed at in the players creative inventory.")
 					.defineInRange("notificationButtonCreativeY", -70, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			
+			builder.pop();
+			
+			builder.comment("Notification Settings").push("notification");
+			
+			this.pushNotificationsToChat = builder
+					.comment("Whether notifications should be posted in your chat when you receive them.")
+					.define("notificationsInChat", true);
 			
 			builder.pop();
 			
