@@ -32,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageClientNotification;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageUpdateClientNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRemoveClientTeam;
@@ -671,6 +672,11 @@ public class TradingOffice extends SavedData{
 	}
 	
 	public static boolean pushNotification(UUID playerID, Notification notification) {
+		if(notification == null)
+		{
+			LightmansCurrency.LogError("Cannot push a null notification!");
+			return false;
+		}
 		NotificationData data = getNotifications(playerID);
 		if(data != null)
 		{
@@ -684,6 +690,16 @@ public class TradingOffice extends SavedData{
 			MarkNotificationsDirty(playerID);
 			//Run the post event to notify anyone who cares that the notification was created.
 			MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationSent.Post(playerID, data, event.getNotification()));
+			
+			//Send the notification message to the client so that it will be posted in chat
+			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+			if(server != null)
+			{
+				ServerPlayer player = server.getPlayerList().getPlayer(playerID);
+				if(player != null)
+					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageClientNotification(notification));
+			}
+			return true;
 		}
 		return false;
 	}

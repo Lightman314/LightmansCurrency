@@ -16,7 +16,8 @@ public class CurrencyMessages {
 	//!notifications help
 	public static final MessageEntry M_NOTIFICATIONS_ENABLED = MessageEntry.create("command_notifications_enabled", "Message sent when running !messages help while notifications are enabled.", "Personal notifications are enabled.");
 	public static final MessageEntry M_NOTIFICATIONS_DISABLED = MessageEntry.create("command_notifications_disabled", "Message sent when running !messages help while notifications are disabled.", "Personal notifications are disabled.");
-	public static final MessageEntry M_NOTIFICATIONS_HELP = MessageEntry.create("command_notifications_help", "Remaining message sent when running !messages help.", "If personal notifications are enabled you will receive notifications for the following:\\n-Purchases made on traders you own.\\n-When your trader is out of stock.");
+	public static final MessageEntry M_NOTIFICATIONS_NOTLINKED = MessageEntry.create("command_notifications_not_linked", "Message sent when running !messages help when their account is not linked.", "Your account must be linked in order to set your notification preferences.");
+	public static final MessageEntry M_NOTIFICATIONS_HELP = MessageEntry.create("command_notifications_help", "Remaining message sent when running !messages help.", "If personal notifications are enabled you will receive copies of your in-game notifications via Discord PM.");
 	//!notifications enable
 	public static final MessageEntry M_NOTIFICATIONS_ENABLE_SUCCESS = MessageEntry.create("command_notifications_enable_successs", "Message sent when running !messages enable successfully.", "Personal notifications are now enabled.");
 	public static final MessageEntry M_NOTIFICATIONS_ENABLE_FAIL = MessageEntry.create("command_notifications_enable_fail", "Message sent when failing to run !messages enable.", "Personal notifications were already enabled.");

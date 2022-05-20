@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.FormattedCharSequence;
@@ -139,6 +141,14 @@ public class TextRenderUtil {
 			int lineWidth = font.width(line);
 			font.draw(pose, line, centerPos - ((float)lineWidth/2f), startHeight + font.lineHeight * i, color);
 		}
+	}
+	
+	public static MutableComponent changeStyle(Component component, UnaryOperator<Style> styleChanges) {
+		if(component instanceof MutableComponent) {
+			MutableComponent mc = (MutableComponent)component;
+			return mc.withStyle(styleChanges);
+		}
+		return new TextComponent("").append(component).withStyle(component.getStyle()).withStyle(styleChanges);
 	}
 	
 }

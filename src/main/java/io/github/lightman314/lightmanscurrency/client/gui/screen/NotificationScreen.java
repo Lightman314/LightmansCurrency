@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
@@ -88,11 +87,6 @@ public class NotificationScreen extends Screen implements IScrollable{
 		this.notificationScroller = this.addRenderableOnly(new ScrollBarWidget(this.guiLeft() + TabButton.SIZE + this.xSize - 15, this.guiTop() + 15, this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
 		this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, new TranslatableComponent("gui.button.notifications.mark_read"), this::markAsRead));
-		
-		//Add scroll listeners
-		this.addWidget(new ScrollListener(this.guiLeft() + TabButton.SIZE, this.guiTop(), this.xSize, this.ySize, this::notificationScrolled));
-		//Tab scroll listener to cover the entire screen
-		this.addWidget(new ScrollListener(0, 0, this.width, this.height, this::tabScrolled));
 		
 		this.tick();
 		
@@ -182,7 +176,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 				textXPos += quantityWidth + 2;
 				textWidth -= quantityWidth + 2;
 			}
-			Component message = not.getMessage();
+			Component message = this.selectedCategory == Category.GENERAL ? not.getGeneralMessage() : not.getMessage();
 			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
@@ -233,7 +227,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		return Math.max(0, this.tabButtons.size() - TABS_PER_PAGE);
 	}
 	
-	public boolean tabScrolled(double mouseX, double mouseY, double delta) {
+	public boolean tabScrolled(double delta) {
 		if(delta < 0)
 		{			
 			if(this.tabScroll < this.getMaxTabScroll())
@@ -261,7 +255,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		return Math.max(0, this.getNotifications().getNotifications(this.selectedCategory).size() - NOTIFICATIONS_PER_PAGE);
 	}
 	
-	public boolean notificationScrolled(double mouseX, double mouseY, double delta) {
+	public boolean notificationScrolled(double delta) {
 		if(delta < 0)
 		{			
 			if(this.notificationScroll < this.getMaxNotificationScroll())
@@ -289,6 +283,19 @@ public class NotificationScreen extends Screen implements IScrollable{
 	public void setScroll(int newScroll) { this.notificationScroll = newScroll; }
 	@Override
 	public int getMaxScroll() { return this.getMaxNotificationScroll(); }
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		//If mouse is over the screen, scroll the notifications
+		if(mouseX >= this.guiLeft() && mouseX < this.guiLeft() + this.xSize && mouseY  >= this.guiTop() && mouseY < this.guiTop() + this.ySize && this.notificationScrolled(delta))
+		{
+			if(this.notificationScrolled(delta))
+				return true;
+		}
+		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
+			return true;
+		return super.mouseScrolled(mouseX, mouseY, delta);
+	}
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

@@ -31,7 +31,7 @@ public class LowBalanceNotification extends Notification{
 
 	@Override
 	public Component getMessage() {
-		return new TranslatableComponent("notifications.message.bank_low_balance", this.accountName, this.value.getString());
+		return new TranslatableComponent("notifications.message.bank_low_balance", this.value.getString());
 	}
 
 	@Override

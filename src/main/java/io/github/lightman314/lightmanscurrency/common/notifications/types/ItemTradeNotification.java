@@ -78,7 +78,7 @@ public class ItemTradeNotification extends Notification{
 			cost = new TextComponent(this.cost.getString("0"));
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.item_trade", this.traderData.getTraderName(), this.customer, boughtText, itemText, cost);
+		return new TranslatableComponent("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		
 	}
 	

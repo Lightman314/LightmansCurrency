@@ -7,8 +7,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BankCategory extends Category {
 
@@ -23,7 +21,6 @@ public class BankCategory extends Category {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override

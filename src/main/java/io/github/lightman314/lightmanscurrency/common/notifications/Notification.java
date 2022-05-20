@@ -7,14 +7,14 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class Notification {
 
@@ -69,6 +69,16 @@ public abstract class Notification {
 	
 	public abstract Component getMessage();
 	
+	public Component getGeneralMessage() {
+		return new TranslatableComponent("notifications.source.general.format", this.getCategory().getTooltip(), this.getMessage());
+	}
+	
+	public Component getChatMessage() {
+		return new TranslatableComponent("notifications.chat.format",
+				new TranslatableComponent("notifications.chat.format.title", this.getCategory().getTooltip()).withStyle(ChatFormatting.GOLD),
+				new TextComponent("").append(this.getMessage()));
+	}
+	
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
 		if(this.seen)
@@ -97,7 +107,7 @@ public abstract class Notification {
 	 * @return True if the notification was stacked.
 	 */
 	public boolean onNewNotification(Notification other) {
-		if(canMerge(other))
+		if(this.canMerge(other))
 		{
 			this.count++;
 			this.seen = false;
@@ -155,7 +165,6 @@ public abstract class Notification {
 			}
 		}
 		
-		@OnlyIn(Dist.CLIENT)
 		public abstract IconData getIcon();
 		public abstract Component getTooltip();
 		public final int getColor() { return 0xFFFFFF; }

@@ -13,9 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class IconData {
-
+	
+	@OnlyIn(Dist.CLIENT)
 	public abstract void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y);
 	
 	private static class ItemIcon extends IconData
