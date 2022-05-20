@@ -287,10 +287,12 @@ public class NotificationScreen extends Screen implements IScrollable{
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		//If mouse is over the screen, scroll the notifications
-		if(mouseX >= this.guiLeft() && mouseX < this.guiLeft() + this.xSize && mouseY  >= this.guiTop() && mouseY < this.guiTop() + this.ySize && this.notificationScrolled(delta))
+		if(mouseX >= this.guiLeft() + TabButton.SIZE && mouseX < this.guiLeft() + this.xSize && mouseY >= this.guiTop() && mouseY < this.guiTop() + this.ySize)
 		{
 			if(this.notificationScrolled(delta))
 				return true;
+			//Don't scroll the tabs while the mouse is over the center of the screen.
+			return super.mouseScrolled(mouseX, mouseY, delta);
 		}
 		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
 			return true;
