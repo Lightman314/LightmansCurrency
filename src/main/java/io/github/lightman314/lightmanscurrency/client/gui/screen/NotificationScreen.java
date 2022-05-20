@@ -117,8 +117,8 @@ public class NotificationScreen extends Screen implements IScrollable{
 			{
 				tab.visible = true;
 				tab.reposition(xPos, yPos, 3);
-				if(i < categories.size())
-					tab.active = categories.get(i) != this.selectedCategory;
+				if(i < categories.size()) //Use match code, as some categories are generated on get, and a new instance may have been generated due to reloading, etc.
+					tab.active = !categories.get(i).matches(this.selectedCategory);
 				else
 					tab.active = true;
 				yPos += TabButton.SIZE;
@@ -287,10 +287,12 @@ public class NotificationScreen extends Screen implements IScrollable{
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		//If mouse is over the screen, scroll the notifications
-		if(mouseX >= this.guiLeft() && mouseX < this.guiLeft() + this.xSize && mouseY  >= this.guiTop() && mouseY < this.guiTop() + this.ySize && this.notificationScrolled(delta))
+		if(mouseX >= this.guiLeft() + TabButton.SIZE && mouseX < this.guiLeft() + this.xSize && mouseY >= this.guiTop() && mouseY < this.guiTop() + this.ySize)
 		{
 			if(this.notificationScrolled(delta))
 				return true;
+			//Don't scroll the tabs while the mouse is over the center of the screen.
+			return super.mouseScrolled(mouseX, mouseY, delta);
 		}
 		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
 			return true;
