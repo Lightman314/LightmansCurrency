@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
@@ -136,6 +137,9 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	@Override
 	public void containerTick()
 	{
+		
+		if(!this.currentTab().commonTab.canOpen(this.menu.player))
+			this.changeTab(TraderInterfaceTab.TAB_INFO);
 		
 		this.updateTabs();
 		

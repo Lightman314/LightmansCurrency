@@ -68,7 +68,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		//Set background color to clear.
 		this.changesDisplay.backgroundColor = 0x00000000;
 		
-		this.acceptChangesButton = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop() + 20, this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK, new IconAndButtonUtil.SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
+		this.acceptChangesButton = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop() + 40, this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK, new IconAndButtonUtil.SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
 		this.acceptChangesButton.visible = false;
 		
 	}

@@ -35,6 +35,13 @@ public class PlayerReference {
 			this.name = player.getGameProfile().getName();
 	}
 	
+	/**
+	 * Used to run an action/interaction under a team's name.
+	 */
+	public PlayerReference copyWithName(String name) {
+		return new PlayerReference(this.id, name);
+	}
+	
 	public boolean is(PlayerReference player)
 	{
 		if(player == null)

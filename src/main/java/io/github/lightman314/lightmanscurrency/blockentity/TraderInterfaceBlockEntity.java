@@ -177,7 +177,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		{
 			Team team = this.getTeam();
 			if(team.getOwner() != null)
-				return team.getOwner();
+				return team.getOwner().copyWithName(team.getName());
 		}
 		if(this.owner != null)
 			return this.owner;
@@ -325,7 +325,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
 	public TradeContext getTradeContext() {
 		if(this.interaction.trades)
-			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.owner).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
+			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
 		return TradeContext.createStorageMode(this.getTrader());
 	}
 	
