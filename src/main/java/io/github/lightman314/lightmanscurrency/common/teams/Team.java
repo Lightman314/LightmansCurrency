@@ -57,6 +57,17 @@ public class Team {
 	 */
 	public List<PlayerReference> getMembers() { return this.members; }
 	
+	/**
+	 * List of the teams members, admins, and the owner.
+	 */
+	public List<PlayerReference> getAllMembers() {
+		List<PlayerReference> result = new ArrayList<>();
+		result.addAll(this.members);
+		result.addAll(this.admins);
+		result.add(this.owner);
+		return result;
+	}
+	
 	//0 for members, 1 for admins, 2 for owners only
 	int bankAccountLimit = 2;
 	public int getBankLimit() { return this.bankAccountLimit; }

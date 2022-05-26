@@ -57,7 +57,7 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	public static final NonNullSupplier<IconData> ICON_CREATIVE(Supplier<Boolean> isCreative) {
+	public static final NonNullSupplier<IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
 		return () -> isCreative.get() ? ICON_CREATIVE_OFF : ICON_CREATIVE_ON;
 	}
 	private static final IconData ICON_CREATIVE_ON = IconData.of(ICON_TEXTURE, 48, 16);
@@ -68,7 +68,7 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
-	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(Supplier<Boolean> isActive) {
+	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
 		return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
 	}
 	private static final IconData ICON_INTERFACE_ON = IconData.of(Items.REDSTONE_TORCH);
@@ -125,6 +125,8 @@ public class IconAndButtonUtil {
 	public static final SimpleTooltip TOOLTIP_CLEAR_LOGGER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.log.clear"));
 	
 	public static final SimpleTooltip TOOLTIP_TRADE_RULES = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules"));
+	public static final Component TOOLTIP_TRADE_RULES_TRADER = new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules.trader");
+	public static final Component TOOLTIP_TRADE_RULES_TRADE = new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules.trade");
 	public static final SimpleTooltip TOOLTIP_OPEN_SETTINGS = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.settings"));
 	
 	public static final Component TOOLTIP_CREATIVE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.enable");
@@ -176,15 +178,16 @@ public class IconAndButtonUtil {
 		return button;
 	}
 	
-	public static IconButton showLoggerButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isLoggerVisible) { return new IconButton(x,y,pressable, ICON_SHOW_LOGGER, new ToggleTooltip(isLoggerVisible, TOOLTIP_HIDE_LOGGER, TOOLTIP_SHOW_LOGGER)); }
+	public static IconButton showLoggerButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isLoggerVisible) { return new IconButton(x,y,pressable, ICON_SHOW_LOGGER, new ToggleTooltip(isLoggerVisible, TOOLTIP_HIDE_LOGGER, TOOLTIP_SHOW_LOGGER)); }
 	public static IconButton clearLoggerButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_CLEAR_LOGGER, TOOLTIP_CLEAR_LOGGER); }
 	
 	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, TOOLTIP_TRADE_RULES); }
+	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isTradeSelected) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new ToggleTooltip(isTradeSelected, TOOLTIP_TRADE_RULES_TRADE, TOOLTIP_TRADE_RULES_TRADER)); }
 	public static IconButton openSettingsButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_SETTINGS, TOOLTIP_OPEN_SETTINGS); }
 	
-	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
+	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
 	
-	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, Supplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
+	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
 	
 	public static PlainButton quickInsertButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0); }
 	public static PlainButton quickExtractButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0); }
@@ -249,10 +252,10 @@ public class IconAndButtonUtil {
 	
 	public static class ToggleTooltip extends BaseTooltip
 	{
-		private final Supplier<Boolean> toggleSource;
+		private final NonNullSupplier<Boolean> toggleSource;
 		private final Component trueTooltip;
 		private final Component falseTooltip;
-		public ToggleTooltip(Supplier<Boolean> toggleSource, Component trueTooltip, Component falseTooltip) {
+		public ToggleTooltip(NonNullSupplier<Boolean> toggleSource, Component trueTooltip, Component falseTooltip) {
 			this.toggleSource = toggleSource;
 			this.trueTooltip = trueTooltip;
 			this.falseTooltip = falseTooltip;

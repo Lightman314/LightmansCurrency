@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.T
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.ItemTraderSearchFilter;
@@ -42,7 +43,6 @@ import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -94,11 +94,11 @@ public class LightmansCurrency {
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModBlockEntities::registerTypes);
         
         //Pre-register items/blocks
         ModItems.init();
         ModBlocks.init();
+        ModBlockEntities.init();
         CustomProfessions.init();
         CustomPointsOfInterest.init();
         
@@ -139,6 +139,7 @@ public class LightmansCurrency {
     	
     	//Initialize the Notification deserializers
     	Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
+    	Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
     	Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
     	Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
     	

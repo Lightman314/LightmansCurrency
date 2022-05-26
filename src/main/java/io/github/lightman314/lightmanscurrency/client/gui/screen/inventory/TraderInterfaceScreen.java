@@ -155,15 +155,15 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	
 	private void updateTabs() {
 		//Position the tab buttons
-		int xPos = this.leftPos - TabButton.SIZE;
+		int yPos = this.topPos - TabButton.SIZE;
 		AtomicInteger index = new AtomicInteger(0);
 		this.tabButtons.forEach((key,button) -> {
 			TraderInterfaceClientTab<?> tab = this.availableTabs.get(key);
 			button.visible = tab.tabButtonVisible();
 			if(button.visible)
 			{
-				int yPos = this.topPos + TabButton.SIZE * index.get();
-				button.reposition(xPos, yPos, 3);
+				int xPos = this.leftPos + TabButton.SIZE * index.get();
+				button.reposition(xPos, yPos, 0);
 				index.set(index.get() + 1);
 			}
 		});

@@ -112,7 +112,6 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL, TraderStorageScreen::new);
     	
     	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
-    	MenuScreens.register(ModMenus.PAYGATE, PaygateScreen::new);
     	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE, TraderInterfaceScreen::new);

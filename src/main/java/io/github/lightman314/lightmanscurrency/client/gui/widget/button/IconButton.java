@@ -20,6 +20,8 @@ import net.minecraftforge.common.util.NonNullSupplier;
 @OnlyIn(Dist.CLIENT)
 public class IconButton extends Button{
 	
+	public static final int SIZE = 20;
+	
 	private NonNullSupplier<IconData> iconSource;
 	
 	private NonNullSupplier<Boolean> activeCheck = () -> this.active;
@@ -27,25 +29,25 @@ public class IconButton extends Button{
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon)
 	{
-		super(x,y,20,20,new TextComponent(""), pressable);
+		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
 		this.setIcon(icon);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource)
 	{
-		super(x,y,20,20,new TextComponent(""), pressable);
+		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
 		this.setIcon(iconSource);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon, OnTooltip tooltip)
 	{
-		super(x,y,20,20, new TextComponent(""), pressable, tooltip);
+		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
 		this.setIcon(icon);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource, OnTooltip tooltip)
 	{
-		super(x,y,20,20, new TextComponent(""), pressable, tooltip);
+		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
 		this.setIcon(iconSource);
 	}
 	
@@ -54,7 +56,7 @@ public class IconButton extends Button{
 	@Deprecated
 	public IconButton(int x, int y, OnPress pressable, ResourceLocation iconResource, int resourceX, int resourceY)
 	{
-		super(x,y,20,20, new TextComponent(""), pressable);
+		super(x,y,SIZE,SIZE, new TextComponent(""), pressable);
 		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
 	}
 	

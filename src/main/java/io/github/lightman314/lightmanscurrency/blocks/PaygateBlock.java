@@ -5,43 +5,31 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
-public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnableBlock{
+public class PaygateBlock extends TraderBlockRotatable {
 	
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	
@@ -54,96 +42,26 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 		);
 	}
 	
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new PaygateBlockEntity(pos, state);
-	}
-	
-	@Nullable 
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
-	{
-		return TickerUtil.createTickerHelper(type, ModBlockEntities.PAYGATE, TickableBlockEntity::tickHandler);
-	}
-	
-	@Override
-	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
-	{
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof PaygateBlockEntity)
-		{
-			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
-			return paygate.canBreak(player);
-		}
-		return true;
-	}
-	
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
-			
 			//Get the item in the players hand
 			BlockEntity tileEntity = level.getBlockEntity(pos);
 			if(tileEntity instanceof PaygateBlockEntity)
 			{
 				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
-				//Update the owner
-				if(paygate.isOwner(player))
+				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
+				if(tradeIndex >= 0)
 				{
-					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					paygate.setOwner(player);
-				}
-				if(!paygate.isActive() && paygate.validTicket(player.getItemInHand(hand)))
-				{
-					paygate.activate();
-					player.getItemInHand(hand).shrink(1);
-					//Attempt to give the player a ticket stub
-					ItemStack ticketStub = new ItemStack(ModItems.TICKET_STUB);
-					player.getInventory().placeItemBackInInventory(ticketStub);
+					//Emulate the trade execution
+					paygate.ExecuteTrade(TradeContext.create(paygate, player).build(), tradeIndex);
 					return InteractionResult.SUCCESS;
 				}
-				BlockEntityUtil.sendUpdatePacket(tileEntity);
-				NetworkHooks.openGui((ServerPlayer)player, paygate, pos);
 			}
 		}
-		return InteractionResult.SUCCESS;
-	}
-	
-	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
-	{
-		if(!level.isClientSide)
-		{
-			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof PaygateBlockEntity)
-			{
-				PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
-				paygate.setOwner(player);
-				if(stack.hasCustomHoverName())
-					paygate.setCustomName(stack.getHoverName());
-			}
-		}
-	}
-	
-	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
-	{
-		
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof PaygateBlockEntity)
-		{
-			PaygateBlockEntity paygate = (PaygateBlockEntity)blockEntity;
-			if(!paygate.canBreak(player))
-				return;
-			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(paygate.getStoredMoney());
-			InventoryUtil.dumpContents(level, pos, coins);
-		}
-		
-		super.playerWillDestroy(level, pos, state, player);
-		
+		return super.use(state, level, pos, player, hand, result);
 	}
 	
 	@Override
@@ -174,5 +92,11 @@ public class PaygateBlock extends RotatableBlock implements EntityBlock, IOwnabl
 		TooltipItem.addTooltip(tooltip, LCTooltips.PAYGATE);
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
+
+	@Override
+	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new PaygateBlockEntity(pos, state); }
+
+	@Override
+	protected BlockEntityType<?> traderType() { return ModBlockEntities.PAYGATE; }
 	
 }

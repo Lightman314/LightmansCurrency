@@ -16,6 +16,8 @@ public class ModRegistries {
 		ITEMS.register(bus);
 		BLOCKS.register(bus);
 		
+		BLOCK_ENTITIES.register(bus);
+		
 		PROFESSIONS.register(bus);
 		POI_TYPES.register(bus);
 	}

@@ -31,8 +31,8 @@ public class ItemShopLogger extends TextLogger{
 	public void AddLog(PlayerReference player, ItemTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
 		
-		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
-		Component playerName = new TextComponent("§a" + player.lastKnownName());
+		Component creativeText = getCreativeText(isCreative);
+		Component playerName = getPlayerText(player);
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
 		
 		Component itemText = trade.isPurchase() ? getItemInputComponent(trade.getSellItem(0), trade.getSellItem(1)) : getItemOutputComponent(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1));

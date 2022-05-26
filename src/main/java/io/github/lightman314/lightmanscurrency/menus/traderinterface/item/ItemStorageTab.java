@@ -76,7 +76,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
@@ -162,7 +162,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
@@ -226,7 +226,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
@@ -234,7 +234,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
 			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getItemHandler());

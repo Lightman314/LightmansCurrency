@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.menus.traderinterface.base;
 
+import java.util.UUID;
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.InfoClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.OwnershipClientTab;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
@@ -14,16 +14,18 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class InfoTab extends TraderInterfaceTab {
+public class OwnershipTab extends TraderInterfaceTab {
 
-	public InfoTab(TraderInterfaceMenu menu) { super(menu); }
+	public OwnershipTab(TraderInterfaceMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new InfoClientTab(screen, this); }
+	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new OwnershipClientTab(screen, this); }
 
+	private boolean isAdmin() { return this.menu.getBE().isOwner(this.menu.player); }
+	
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(Player player) { return this.isAdmin(); }
 
 	@Override
 	public void onTabOpen() { }
@@ -34,27 +36,28 @@ public class InfoTab extends TraderInterfaceTab {
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 	
-	public void acceptTradeChanges() {
-		if(this.menu.getBE().canAccess(this.menu.player))
+	public void setNewOwner(String newOwner) {
+		if(this.isAdmin())
 		{
-			this.menu.getBE().acceptTradeChanges();
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				message.putBoolean("AcceptTradeChanges", true);
+				message.putString("NewOwner", newOwner);
 				this.menu.sendMessage(message);
 			}
+			else
+				this.menu.getBE().setOwner(newOwner);
 		}
 	}
 	
-	public void changeInteractionType(InteractionType newType) {
-		if(this.menu.getBE().canAccess(this.menu.player))
+	public void setNewTeam(UUID team) {
+		if(this.isAdmin() && team != null)
 		{
-			this.menu.getBE().setInteractionType(newType);
+			this.menu.getBE().setTeam(team);
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				message.putInt("NewInteractionType", newType.index);
+				message.putUUID("NewTeam", team);
 				this.menu.sendMessage(message);
 			}
 		}
@@ -62,14 +65,13 @@ public class InfoTab extends TraderInterfaceTab {
 
 	@Override
 	public void receiveMessage(CompoundTag message) {
-		if(message.contains("NewInteractionType"))
+		if(message.contains("NewOwner"))
 		{
-			InteractionType newType = InteractionType.fromIndex(message.getInt("NewInteractionType"));
-			this.changeInteractionType(newType);
+			this.setNewOwner(message.getString("NewOwner"));
 		}
-		if(message.contains("AcceptTradeChanges"))
+		if(message.contains("NewTeam"))
 		{
-			this.acceptTradeChanges();
+			this.setNewTeam(message.getUUID("NewTeam"));
 		}
 	}
 

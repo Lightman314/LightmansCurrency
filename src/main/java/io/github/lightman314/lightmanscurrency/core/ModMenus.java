@@ -53,11 +53,6 @@ public class ModMenus {
 		return new WalletMenu(id, playerInventory, data.readInt());
 	});
 	
-	public static final MenuType<PaygateMenu> PAYGATE = register("paygate", (IContainerFactory<PaygateMenu>)(id, playerInventory, data)->{
-		PaygateBlockEntity tileEntity = (PaygateBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
-		return new PaygateMenu(id, playerInventory, tileEntity);
-	});
-	
 	public static final MenuType<TicketMachineMenu> TICKET_MACHINE = register("ticket_machine", (IContainerFactory<TicketMachineMenu>)(id, playerInventory, data)->{
 		TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
 		return new TicketMachineMenu(id, playerInventory, tileEntity);

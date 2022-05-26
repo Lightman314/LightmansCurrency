@@ -108,7 +108,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		else if(this.menu.getBE().getInteractionType().requiresPermissions)
 		{
 			UniversalTraderData trader = this.menu.getBE().getTrader();
-			if(trader != null && !trader.hasPermission(this.menu.getBE().getOwner(), Permissions.INTERACTION_LINK))
+			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
 			{
 				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
 			}

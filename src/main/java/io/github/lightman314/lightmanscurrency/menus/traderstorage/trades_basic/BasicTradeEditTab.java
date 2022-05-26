@@ -95,6 +95,36 @@ public class BasicTradeEditTab extends TraderStorageTab {
 		this.menu.sendMessage(message);
 	}
 	
+	public void addTrade() {
+		
+		if(this.menu.getTrader() != null)
+		{
+			this.menu.getTrader().addTrade(this.menu.player);
+			if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putBoolean("AddTrade", true);
+				this.menu.sendMessage(message);
+			}
+		}
+		
+	}
+	
+	public void removeTrade() {
+		
+		if(this.menu.getTrader() != null)
+		{
+			this.menu.getTrader().removeTrade(this.menu.player);
+			if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putBoolean("RemoveTrade", true);
+				this.menu.sendMessage(message);
+			}
+		}
+		
+	}
+	
 	@Override
 	public void receiveMessage(CompoundTag message) {
 		if(message.contains("TradeIndex",Tag.TAG_INT))
@@ -125,6 +155,10 @@ public class BasicTradeEditTab extends TraderStorageTab {
 			}
 			this.menu.getTrader().markTradesDirty();
 		}
+		if(message.contains("AddTrade"))
+			this.addTrade();
+		if(message.contains("RemoveTrade"))
+			this.removeTrade();
 	}
 	
 }

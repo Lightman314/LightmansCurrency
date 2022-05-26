@@ -13,7 +13,7 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> imp
 
 	protected final TraderInterfaceScreen screen;
 	protected final TraderInterfaceMenu menu;
-	protected final T commonTab;
+	public final T commonTab;
 	protected final Font font;
 	
 	protected TraderInterfaceClientTab(TraderInterfaceScreen screen, T commonTab) {
@@ -30,17 +30,12 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> imp
 	/**
 	 * Whether the tab button for this tab should be visible. Used to hide the advanced trade tab from the screen, to only be opened when needed.
 	 */
-	public boolean tabButtonVisible() { return true; }
+	public boolean tabButtonVisible() { return this.commonTab.canOpen(this.menu.player); }
 	
 	/**
 	 * Whether this tab being open should prevent the inventory button from closing the screen. Use this when typing is used on this tab.
 	 */
 	public abstract boolean blockInventoryClosing();
-	
-	/**
-	 * The trade index of the trade that the trade rule button should open.
-	 */
-	public int getTradeRuleTradeIndex() { return -1; }
 	
 	/**
 	 * Called when the tab is opened. Use this to initialize buttons/widgets and reset variables

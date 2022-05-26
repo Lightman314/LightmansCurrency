@@ -45,9 +45,12 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public void removeStoredMoney(CoinValue amount);
 	public void clearStoredMoney();
 	public void markMoneyDirty();
+	//Trade Stuff
 	public int getTradeCount();
 	public void markTradesDirty();
 	public int getTradeStock(int index);
+	public default boolean canEditTradeCount() { return false; }
+	public default int getMaxTradeCount() { return 4; }
 	//Menu stuff
 	public void openTradeMenu(Player player);
 	public void openStorageMenu(Player player);

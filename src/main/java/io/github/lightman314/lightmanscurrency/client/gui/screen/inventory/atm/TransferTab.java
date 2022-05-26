@@ -73,7 +73,7 @@ public class TransferTab extends ATMTab {
 		
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 30, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
-		this.teamSelection.setVisible(!this.playerMode);
+		this.teamSelection.visible = !this.playerMode;
 		
 		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 72, this.screen.getXSize() - 20, 20, new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
@@ -130,7 +130,7 @@ public class TransferTab extends ATMTab {
 	private void ToggleMode(Button button) {
 		this.playerMode = !this.playerMode;
 		this.buttonTransfer.setMessage(new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
-		this.teamSelection.setVisible(!this.playerMode);
+		this.teamSelection.visible = !this.playerMode;
 		this.playerInput.visible = this.playerMode;
 		this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
 	}

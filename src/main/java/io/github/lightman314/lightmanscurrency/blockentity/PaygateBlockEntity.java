@@ -1,284 +1,436 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.api.PaygateLogger;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.menus.PaygateMenu;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
+import io.github.lightman314.lightmanscurrency.trader.ITradeSource;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.Nameable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvider, Nameable {
+public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<PaygateLogger>, ITradeSource<PaygateTradeData>{
 	
-	public static final int PRICE_MIN = 0;
-	public static final int PRICE_MAX = Integer.MAX_VALUE;
+	public static final int VERSION = 0;
 	
 	public static final int DURATION_MIN = 1;
-	public static final int DURATION_MAX = 200;
+	public static final int DURATION_MAX = 1200;
 	
-	private Component customName;
-	private UUID ownerID = null;
-	private UUID ticketID = null;
-	private String ownerName = "";
-	private CoinValue storedMoney = new CoinValue();
-	private CoinValue price = new CoinValue();
-	private int duration = 40;
-	private int timer = 0;
+	private int timer;
 	
-	public PaygateBlockEntity(BlockPos pos, BlockState state)
-	{
-		super(ModBlockEntities.PAYGATE, pos, state);
+	PaygateLogger logger = new PaygateLogger();
+	
+	protected int tradeCount = 1;
+	
+	protected List<PaygateTradeData> trades;
+	
+	List<TradeRule> tradeRules = new ArrayList<>();
+	
+	public PaygateBlockEntity(BlockPos pos, BlockState state) {
+		this(ModBlockEntities.PAYGATE, pos, state);
 	}
 	
-	public void setOwner(Entity player)
+	public PaygateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
-		this.ownerID = player.getUUID();
-		this.ownerName = player.getName().getString();
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeOwner(new CompoundTag()));
-		}
+		super(type, pos, state);
+		this.trades = PaygateTradeData.listOfSize(1);
 	}
 	
-	public boolean isOwner(Entity player)
+	public int getTradeCount()
 	{
-		if(this.ownerID == null)
-			return true;
-		return player.getUUID().equals(this.ownerID);
-	}
-	
-	public boolean canBreak(Player player)
-	{
-		if(this.isOwner(player))
-			return true;
-		return TradingOffice.isAdminPlayer(player);
-	}
-	
-	public boolean isActive()
-	{
-		return timer > 0;
-	}
-	
-	public CoinValue getStoredMoney()
-	{
-		return this.storedMoney;
-	}
-	
-	public void addStoredMoney(CoinValue amount)
-	{
-		this.storedMoney.addValue(amount);;
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-		}
-	}
-	
-	public void clearStoredMoney()
-	{
-		this.storedMoney = new CoinValue();
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-		}
-	}
-	
-	public CoinValue getPrice()
-	{
-		return this.price;
-	}
-	
-	public void setPrice(CoinValue value)
-	{
-		this.price = value;
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writePrice(new CompoundTag()));
-		}
-	}
-	
-	public int getDuration()
-	{
-		return this.duration;
-	}
-	
-	public void setDuration(int value)
-	{
-		this.duration = MathUtil.clamp(value, 1, 200);
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeDuration(new CompoundTag()));
-		}
-	}
-	
-	public void SetTicketID(UUID ticketID)
-	{
-		this.ticketID = ticketID;
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeTicket(new CompoundTag()));
-		}
-	}
-	
-	public boolean HasPairedTicket()
-	{
-		return this.ticketID != null;
-	}
-	
-	public boolean validTicket(ItemStack ticket)
-	{
-		if(ticket.isEmpty())
-			return false;
-		if(ticket.getItem() instanceof TicketItem)
-			return !TicketItem.isMasterTicket(ticket) && validTicket(TicketItem.GetTicketID(ticket));
-		else
-			return false;
-	}
-	
-	public boolean validTicket(UUID ticketID)
-	{
-		if(this.ticketID == null || ticketID == null)
-			return false;
-		else
-		{
-			if(this.ticketID.equals(ticketID))
-				return true;
-		}
-		return false;
-	}
-	
-	public void activate()
-	{
-		this.timer = this.duration;
-		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, true));
-		//this.getBlockState().updateNeighbours(this.world, this.pos, 35);
+		return MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 	}
 	
 	@Override
-	public void onLoad()
+	public boolean canEditTradeCount() { return true; }
+	
+	@Override
+	public int getMaxTradeCount() { return 4; }
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
+	}
+	
+	public void addTrade(Player requestor)
 	{
 		if(this.level.isClientSide)
+			return;
+		if(tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
+			return;
+		
+		if(this.tradeCount >= this.getMaxTradeCount() && !TradingOffice.isAdminPlayer(requestor))
 		{
-			//CurrencyMod.LOGGER.info("Loaded client-side PaygateTileEntity. Requesting update packet.");
-			BlockEntityUtil.requestUpdatePacket(this);
+			Settings.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
+		if(!this.hasPermission(requestor, Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(requestor, "add trade slot", Permissions.EDIT_TRADES);
+			return;
+		}
+		this.overrideTradeCount(this.tradeCount + 1);
+	}
+	
+	public void removeTrade(Player requestor)
+	{
+		if(this.level.isClientSide)
+			return;
+		if(this.tradeCount <= 1)
+			return;
+		
+		if(!this.hasPermission(requestor, Permissions.EDIT_TRADES))
+		{
+			Settings.PermissionWarning(requestor, "remove trade slot", Permissions.EDIT_TRADES);
+			return;
+		}
+		this.overrideTradeCount(this.tradeCount - 1);
+	}
+	
+	public void overrideTradeCount(int newTradeCount)
+	{
+		if(this.tradeCount == newTradeCount)
+			return;
+		
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
+		List<PaygateTradeData> oldTrades = this.trades;
+		this.trades = PaygateTradeData.listOfSize(this.tradeCount);
+		//Write the old trade data into the array
+		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); ++i)
+		{
+			this.trades.set(i, oldTrades.get(i));
+		}
+		
+		//Mark trades dirty
+		this.markTradesDirty();
+		
+	}
+	
+	public PaygateTradeData getTrade(int tradeSlot) {
+		if(tradeSlot < 0 || tradeSlot >= this.trades.size())
+		{
+			LightmansCurrency.LogError("Cannot get trade in index " + tradeSlot + " from a trader with only " + this.trades.size() + " trades.");
+			return new PaygateTradeData();
+		}
+		return this.trades.get(tradeSlot);
+	}
+	
+	public List<PaygateTradeData> getAllTrades() { return this.trades; }
+	
+	public List<? extends ITradeData> getTradeInfo() { return this.trades; }
+	
+	public void markTradesDirty()
+	{
+		this.setChanged();
+		//Send an update to the client
+		if(this.isServer())
+		{
+			//Send update packet
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTrades(new CompoundTag()));
 		}
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
+	
+	public PaygateLogger getLogger() { return this.logger; }
+	
+	public void clearLogger()
 	{
-		
-		writeOwner(compound);
-		writeStoredMoney(compound);
-		writePrice(compound);
-		writeDuration(compound);
-		writeTimer(compound);
-		writeTicket(compound);
-		
-		if(this.customName != null)
-			compound.putString("CustomName", Component.Serializer.toJson(this.customName));
+		this.logger.clear();
+		this.markLoggerDirty();
+	}
+	
+	public void markLoggerDirty()
+	{
+		this.setChanged();
+		//Send an update to the client
+		if(this.isServer())
+		{
+			//Send update packet
+			BlockEntityUtil.sendUpdatePacket(this, this.writeLogger(new CompoundTag()));
+		}
+	}
+	
+	public int getTradeStock(int tradeIndex) { return 1; }
+	
+	@Override
+	public void saveAdditional(CompoundTag compound) {
 		
 		super.saveAdditional(compound);
 		
+		this.writeTimer(compound);
+		this.writeTrades(compound);
+		this.writeLogger(compound);
+		this.writeTradeRules(compound);
+		
 	}
 	
-	private CompoundTag writeOwner(CompoundTag compound)
-	{
-		if(this.ownerID != null)
-			compound.putUUID("OwnerID", this.ownerID);
-		compound.putString("OwnerName", this.ownerName);
+	public final CompoundTag writeTimer(CompoundTag compound) {
+		compound.putInt("Timer", Math.max(this.timer, 0));
 		return compound;
 	}
 	
-	private CompoundTag writeStoredMoney(CompoundTag compound)
+	public final CompoundTag writeTrades(CompoundTag compound)
 	{
-		//compound.putInt("StoredMoney", this.storedMoney);
-		this.storedMoney.writeToNBT(compound, "StoredMoney");
+		compound.putInt("TradeLimit", this.tradeCount);
+		PaygateTradeData.saveAllData(compound, this.trades);
 		return compound;
 	}
 	
-	private CompoundTag writePrice(CompoundTag compound)
-	{
-		//compound.putInt("Price", this.price);
-		this.price.writeToNBT(compound, "Price");
+	public final CompoundTag writeLogger(CompoundTag compound) {
+		this.logger.write(compound);
 		return compound;
 	}
 	
-	private CompoundTag writeDuration(CompoundTag compound)
-	{
-		compound.putInt("Duration", this.duration);
-		return compound;
-	}
-	
-	private CompoundTag writeTimer(CompoundTag compound)
-	{
-		compound.putInt("Timer", this.timer);
-		return compound;
-	}
-	
-	private CompoundTag writeTicket(CompoundTag compound)
-	{
-		if(this.ticketID != null)
-			compound.putUUID("TicketID", this.ticketID);
+	public final CompoundTag writeTradeRules(CompoundTag compound) {
+		TradeRule.writeRules(compound, this.tradeRules);
 		return compound;
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
-	{
+	public void load(CompoundTag compound) {
 		
-		//Read owner
-		if(compound.contains("OwnerID"))
-			this.ownerID = compound.getUUID("OwnerID");
-		if(compound.contains("OwnerName", Tag.TAG_STRING))
-			this.ownerName = compound.getString("OwnerName");
-		//Read stored money & current price
-		this.storedMoney.readFromNBT(compound, "StoredMoney");
+		//Load the trade limit
+		if(compound.contains("TradeLimit", Tag.TAG_INT))
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ITrader.GLOBAL_TRADE_LIMIT);
+		//Load trades
+		if(compound.contains(TradeData.DEFAULT_KEY))
+			this.trades = PaygateTradeData.loadAllData(compound, this.getTradeCount());
+		//Generate trades from old data
+		else if(compound.contains("Duration", Tag.TAG_INT) && this.trades.size() == 1 && !this.trades.get(0).isValid())
+		{
+			int duration = compound.getInt("Duration");
+			List<PaygateTradeData> generatedTrades = new ArrayList<>();
+			if(compound.contains("TicketID"))
+			{
+				UUID ticketID = compound.getUUID("TicketID");
+				if(ticketID != null)
+				{
+					PaygateTradeData trade = new PaygateTradeData();
+					trade.setDuration(duration);
+					trade.setTicketID(ticketID);
+					generatedTrades.add(trade);
+				}
+			}
+			if(compound.contains("Price"))
+			{
+				CoinValue price = new CoinValue();
+				price.readFromNBT(compound, "Price");
+				if(price.getRawValue() > 0 || price.isFree())
+				{
+					PaygateTradeData trade = new PaygateTradeData();
+					trade.setDuration(duration);
+					trade.setCost(price);
+					generatedTrades.add(trade);
+				}
+			}
+			if(generatedTrades.size() > 0)
+			{
+				this.trades = generatedTrades;
+				this.tradeCount = this.trades.size();
+			}
+		}
 		
-		this.price.readFromNBT(compound, "Price");
+		//Load the shop logger
+		this.logger.read(compound);
 		
-		//Read the output customization
-		if(compound.contains("Duration", Tag.TAG_INT))
-			this.duration = compound.getInt("Duration");
-		//Read the timer
+		//Load the timer
 		if(compound.contains("Timer", Tag.TAG_INT))
-			this.timer = compound.getInt("Timer");
-		//Read the ticket ID
-		if(compound.contains("TicketID"))
-			this.ticketID = compound.getUUID("TicketID");
-		//Read the custom name
-		if (compound.contains("CustomName", Tag.TAG_STRING))
-			this.customName = Component.Serializer.fromJson(compound.getString("CustomName"));
+			this.timer = Math.max(compound.getInt("Timer"), 0);
+		
+		//Load the trade rules
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
 		super.load(compound);
 		
 	}
 	
 	@Override
-	public void tick()
+	public int GetCurrentVersion() { return VERSION; }
+	
+	@Override
+	protected void onVersionUpdate(int oldVersion) {
+		
+	}
+	
+	@Override
+	public void beforeTrade(PreTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.beforeTrade(event));
+	}
+	
+	@Override
+	public void tradeCost(TradeCostEvent event)
+	{
+		this.tradeRules.forEach(rule -> rule.tradeCost(event));
+	}
+	
+	@Override
+	public void afterTrade(PostTradeEvent event) {
+		this.tradeRules.forEach(rule -> rule.afterTrade(event));
+	}
+	
+	public void addRule(TradeRule newRule)
+	{
+		if(newRule == null)
+			return;
+		//Confirm a lack of duplicate rules
+		for(int i = 0; i < this.tradeRules.size(); i++)
+		{
+			if(newRule.type == this.tradeRules.get(i).type)
+			{
+				LightmansCurrency.LogInfo("Blocked rule addition due to rule of same type already present.");
+				return;
+			}
+		}
+		this.tradeRules.add(newRule);
+	}
+	
+	public List<TradeRule> getRules() { return this.tradeRules; }
+	
+	public void setRules(List<TradeRule> rules) { this.tradeRules = rules; }
+	
+	public void removeRule(TradeRule rule)
+	{
+		if(this.tradeRules.contains(rule))
+			this.tradeRules.remove(rule);
+	}
+	
+	public void clearRules()
+	{
+		this.tradeRules.clear();
+	}
+	
+	public void markRulesDirty()
+	{
+		this.setChanged();
+		//Send an update to the client
+		if(this.isServer())
+		{
+			//Send update packet
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTradeRules(new CompoundTag()));
+		}
+	}
+	
+	public void closeRuleScreen(Player player)
+	{
+		this.openStorageMenu(player);
+	}
+	
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TraderScreenHandler(this, tradeIndex); }
+	
+	private static class TraderScreenHandler implements ITradeRuleScreenHandler
+	{
+		
+		private final PaygateBlockEntity tileEntity;
+		private final int tradeIndex;
+		
+		public TraderScreenHandler(PaygateBlockEntity tileEntity, int tradeIndex)
+		{
+			this.tileEntity = tileEntity;
+			this.tradeIndex = tradeIndex;
+		}
+		
+		@Override
+		public ITradeRuleHandler ruleHandler() { 
+			if(this.tradeIndex < 0)
+				return this.tileEntity;
+			return this.tileEntity.getTrade(this.tradeIndex);
+		}
+		
+		@Override
+		public void reopenLastScreen()
+		{
+			this.tileEntity.sendOpenStorageMessage();
+		}
+		
+		@Override
+		public void updateServer(ResourceLocation type, CompoundTag updateInfo)
+		{
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.tileEntity.worldPosition, this.tradeIndex, type, updateInfo));
+		}
+		
+		@Override
+		public boolean stillValid() { return !this.tileEntity.isRemoved(); }
+		
+	}
+	
+	@Override
+	public void receiveTradeRuleMessage(Player player, int index, ResourceLocation ruleType, CompoundTag updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
+	}
+	
+	public boolean isActive() { return this.timer > 0; }
+	
+	public void activate(int duration) {
+		this.timer = duration;
+		this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, true));
+		this.markTimerDirty();
+	}
+	
+	@Override
+	public void serverTick()
 	{
 		if(this.timer > 0)
 		{
 			this.timer--;
-			if(!this.level.isClientSide)
-			{
-				BlockEntityUtil.sendUpdatePacket(this, this.writeTimer(new CompoundTag()));
-			}
+			this.markTimerDirty();
 			if(timer <= 0)
 			{
 				this.level.setBlockAndUpdate(this.worldPosition, this.level.getBlockState(this.worldPosition).setValue(PaygateBlock.POWERED, false));
@@ -286,34 +438,152 @@ public class PaygateBlockEntity extends TickableBlockEntity implements MenuProvi
 		}
 	}
 	
-	@Override
-	public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-		return new PaygateMenu(windowId, inventory, this);
-	}
-
-	@Override
-	public Component getDisplayName() {
-		return getTitle();
+	public void markTimerDirty() {
+		this.setChanged();
+		if(this.isServer())
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTimer(new CompoundTag()));
 	}
 	
-	public Component getTitle()
-	{
-		return new TranslatableComponent("gui.lightmanscurrency.paygate.title", getName(), this.ownerName);
-	}
-
-	@Override
-	public Component getName() {
-		if(this.customName == null)
-			return new TranslatableComponent("block.lightmanscurrency.paygate");
-		return this.customName;
+	public int getValidTicketTrade(Player player, ItemStack heldItem) {
+		if(heldItem.getItem() == ModItems.TICKET)
+		{
+			UUID ticketID = TicketItem.GetTicketID(heldItem);
+			if(ticketID != null)
+			{
+				for(int i = 0; i < this.trades.size(); ++i)
+				{
+					PaygateTradeData trade = this.trades.get(i);
+					if(trade.isTicketTrade() && trade.getTicketID().equals(ticketID))
+					{
+						//Confirm that the player is allowed to access the trade
+						if(!this.runPreTradeEvent(PlayerReference.of(player), trade).isCanceled())
+							return i;
+					}
+				}
+			}
+		}
+		return -1;
 	}
 	
-	public void setCustomName(Component customName)
-	{
-		this.customName = customName;
+	@Override
+	public void initStorageTabs(TraderStorageMenu menu) {
+		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new PaygateTradeEditTab(menu));
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithFullMetadata(); }
+	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
+		
+		PaygateTradeData trade = this.getTrade(tradeIndex);
+		//Abort if the trade is null
+		if(trade == null)
+		{
+			LightmansCurrency.LogError("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
+			return TradeResult.FAIL_INVALID_TRADE;
+		}
+		
+		//Abort if the trade is not valid
+		if(!trade.isValid())
+		{
+			LightmansCurrency.LogWarning("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			return TradeResult.FAIL_INVALID_TRADE;
+		}
+		
+		//Abort if the paygate is already activated
+		if(this.isActive())
+		{
+			LightmansCurrency.LogWarning("Paygate is already activated. It cannot be activated until the previous timer is completed.");
+			return TradeResult.FAIL_OUT_OF_STOCK;
+		}
+		
+		//Abort if no player context is given
+		if(!context.hasPlayerReference())
+			return TradeResult.FAIL_NULL;
+		
+		//Check if the player is allowed to do the trade
+		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+			return TradeResult.FAIL_TRADE_RULE_DENIAL;
+		
+		//Get the cost of the trade
+		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		
+		//Process a ticket trade
+		if(trade.isTicketTrade())
+		{
+			//Abort if we don't have a valid ticket to extract
+			if(!trade.canAfford(context))
+			{
+				LightmansCurrency.LogDebug("Ticket ID " + trade.getTicketID() + " could not be found in the players inventory to pay for trade " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//Abort if not enough room to put the ticket stub
+			if(!context.canFitItem(new ItemStack(ModItems.TICKET_STUB)))
+			{
+				LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			}
+			
+			//Trade is valid, collect the ticket
+			if(!context.collectTicket(trade.getTicketID()))
+			{
+				LightmansCurrency.LogError("Unable to collect the ticket. Aborting Trade!");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//Give the ticket stub
+			context.putItem(new ItemStack(ModItems.TICKET_STUB));
+			
+			//Activate the paygate
+			this.activate(trade.getDuration());
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Push Notification
+			this.getCoreSettings().pushNotification(() -> new PaygateNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
+			//We would normally change the internal inventory here, but for ticket trades that's not needed.
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+		//Process a coin trade
+		else
+		{
+			//Abort if we don't have enough money
+			if(!context.getPayment(price))
+			{
+				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//We have collected the payment, activate the paygate
+			this.activate(trade.getDuration());
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
+			//Push Notification
+			this.getCoreSettings().pushNotification(() -> new PaygateNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
+			//Don't store money if the trader is creative
+			if(!this.isCreative())
+			{
+				//Give the paid cost to storage
+				this.addStoredMoney(price);
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+	}
 	
 }

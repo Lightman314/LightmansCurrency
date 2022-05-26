@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
@@ -92,11 +91,6 @@ public class LightmansCurrencyPacketHandler {
 		register(SPacketSyncWallet.class, SPacketSyncWallet::encode, SPacketSyncWallet::decode, SPacketSyncWallet::handle);
 		register(CPacketSetVisible.class, CPacketSetVisible::encode, CPacketSetVisible::decode, CPacketSetVisible::handle);
 		register(CPacketWalletInteraction.class, CPacketWalletInteraction::encode, CPacketWalletInteraction::decode, CPacketWalletInteraction::handle);
-		
-		//Paygate
-		register(MessageActivatePaygate.class, MessageActivatePaygate::encode, MessageActivatePaygate::decode, MessageActivatePaygate::handle);
-		register(MessageUpdatePaygateData.class, MessageUpdatePaygateData::encode, MessageUpdatePaygateData::decode, MessageUpdatePaygateData::handle);
-		register(MessageSetPaygateTicket.class, MessageSetPaygateTicket::encode, MessageSetPaygateTicket::decode, MessageSetPaygateTicket::handle);
 		
 		//Ticket Machine
 		register(MessageCraftTicket.class, MessageCraftTicket::encode, MessageCraftTicket::decode, MessageCraftTicket::handle);

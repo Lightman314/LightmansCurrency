@@ -50,6 +50,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
+		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
 		if(this.blockEntity != null)
 			this.blockEntity.initMenuTabs(this);
 		this.canEditTabs = false;
@@ -78,7 +79,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.isOwner(player); }
+	public boolean stillValid(Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
 	
 	@Override
 	public void removed(Player player) {

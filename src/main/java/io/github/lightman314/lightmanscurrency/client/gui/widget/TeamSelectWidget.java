@@ -27,11 +27,6 @@ public class TeamSelectWidget extends AbstractWidget {
 	private final Consumer<Integer> onPress;
 	private List<TeamButton> teamButtons = Lists.newArrayList();
 	
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-		this.teamButtons.forEach(button -> button.visible = visible);
-	}
-	
 	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
 		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
 	}
@@ -59,6 +54,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
+		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
 			return;
 		fill(pose, x, y, x + this.width, y + this.height, 0xFF000000);

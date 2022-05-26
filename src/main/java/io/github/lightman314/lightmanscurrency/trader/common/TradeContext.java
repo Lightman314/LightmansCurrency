@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.trader.common;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -9,8 +10,9 @@ import java.util.function.BiConsumer;
 
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -22,6 +24,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -89,7 +92,6 @@ public class TradeContext {
 	//Player Data
 	private final Player player;
 	private boolean hasPlayer() { return this.player != null; }
-	private Player getPlayer() { return this.player; }
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;
@@ -99,15 +101,12 @@ public class TradeContext {
 	//Money/Payment related data
 	private final AccountReference bankAccount;
 	private boolean hasBankAccount() { return this.bankAccount != null && this.bankAccount.get() != null; }
-	private BankAccount getBankAccount() { return this.bankAccount.get(); }
 	
 	private final Container coinSlots;
 	private boolean hasCoinSlots() { return this.hasPlayer() && this.coinSlots != null; }
-	private final Container getCoinSlots() { return this.coinSlots; }
 	
 	private final CoinValue storedMoney;
 	private boolean hasStoredMoney() { return this.storedMoney != null; }
-	private CoinValue getStoredMoney() { return this.storedMoney; }
 	
 	private final BiConsumer<CoinValue,Boolean> moneyListener;
 	
@@ -119,17 +118,14 @@ public class TradeContext {
 	//Item related data
 	private final IItemHandler itemHandler;
 	private boolean hasItemHandler() { return this.itemHandler != null; }
-	private IItemHandler getItemHandler() { return this.itemHandler; }
 	
 	//Fluid related data
 	private final IFluidHandler fluidTank;
 	private boolean hasFluidTank() { return this.fluidTank != null; }
-	private IFluidHandler getFluidTank() { return this.fluidTank; }
 	
 	//Energy related data
 	private final IEnergyStorage energyTank;
 	private boolean hasEnergyTank() { return this.energyTank != null; }
-	private IEnergyStorage getEnergyTank() { return this.energyTank; }
 	
 	private TradeContext(Builder builder) {
 		this.isStorageMode = builder.storageMode;
@@ -156,12 +152,12 @@ public class TradeContext {
 	public long getAvailableFunds() {
 		long funds = 0;
 		if(this.hasBankAccount())
-			funds += this.getBankAccount().getCoinStorage().getRawValue();
+			funds += this.bankAccount.get().getCoinStorage().getRawValue();
 		if(this.hasPlayer())
 		{
 			
 			AtomicLong walletFunds = new AtomicLong(0);
-			WalletCapability.getWalletHandler(this.getPlayer()).ifPresent(walletHandler ->{
+			WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
 				ItemStack wallet = walletHandler.getWallet();
 				if(WalletItem.isWallet(wallet.getItem()))
 					walletFunds.set(MoneyUtil.getValue(WalletItem.getWalletInventory(wallet)));
@@ -169,9 +165,9 @@ public class TradeContext {
 			funds += walletFunds.get();
 		}
 		if(this.hasStoredMoney())
-			funds += this.getStoredMoney().getRawValue();
+			funds += this.storedMoney.getRawValue();
 		if(this.hasCoinSlots() && this.hasPlayer())
-			funds += MoneyUtil.getValue(this.getCoinSlots());
+			funds += MoneyUtil.getValue(this.coinSlots);
 		return funds;
 	}
 	
@@ -184,38 +180,37 @@ public class TradeContext {
 			long amountToWithdraw = price.getRawValue();
 			if(this.hasCoinSlots() && this.hasPlayer())
 			{
-				amountToWithdraw = MoneyUtil.takeObjectsOfValue(amountToWithdraw, this.getCoinSlots(), true);
+				amountToWithdraw = MoneyUtil.takeObjectsOfValue(amountToWithdraw, this.coinSlots, true);
 				if(amountToWithdraw < 0)
 				{
 					List<ItemStack> change = MoneyUtil.getCoinsOfValue(-amountToWithdraw);
 					for(ItemStack stack : change)
 					{
-						ItemStack c = InventoryUtil.TryPutItemStack(this.getCoinSlots(), stack);
+						ItemStack c = InventoryUtil.TryPutItemStack(this.coinSlots, stack);
 						if(!c.isEmpty())
-							ItemHandlerHelper.giveItemToPlayer(this.getPlayer(), c);
+							ItemHandlerHelper.giveItemToPlayer(this.player, c);
 					}
 				}
 			}
 			if(this.hasStoredMoney() && amountToWithdraw > 0)
 			{
-				CoinValue storedMoney = this.getStoredMoney();
-				long removeAmount = Math.min(amountToWithdraw, storedMoney.getRawValue());
+				long removeAmount = Math.min(amountToWithdraw, this.storedMoney.getRawValue());
 				amountToWithdraw -= removeAmount;
 				storedMoney.readFromOldValue(storedMoney.getRawValue() - removeAmount);
 			}
 			if(this.hasBankAccount() && amountToWithdraw > 0)
 			{
-				CoinValue withdrawAmount = this.getBankAccount().withdrawCoins(new CoinValue(amountToWithdraw));
+				CoinValue withdrawAmount = this.bankAccount.get().withdrawCoins(new CoinValue(amountToWithdraw));
 				amountToWithdraw -= withdrawAmount.getRawValue();
 				if(this.hasTrader() && withdrawAmount.getRawValue() > 0)
 				{
-					this.getBankAccount().LogInteraction(this.getTrader(), withdrawAmount, false);
+					this.bankAccount.get().LogInteraction(this.getTrader(), withdrawAmount, false);
 				}
 			}
 			if(this.hasPlayer() && amountToWithdraw > 0)
 			{
 				AtomicLong withdrawAmount = new AtomicLong(amountToWithdraw);
-				WalletCapability.getWalletHandler(this.getPlayer()).ifPresent(walletHandler ->{
+				WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
 					ItemStack wallet = walletHandler.getWallet();
 					if(WalletItem.isWallet(wallet.getItem()))
 					{
@@ -228,7 +223,7 @@ public class TradeContext {
 							{
 								ItemStack c = WalletItem.PickupCoin(wallet, stack);
 								if(!c.isEmpty())
-									ItemHandlerHelper.giveItemToPlayer(this.getPlayer(), c);
+									ItemHandlerHelper.giveItemToPlayer(this.player, c);
 							}
 							change = 0;
 						}
@@ -248,23 +243,21 @@ public class TradeContext {
 			this.moneyListener.accept(price, true);
 		if(this.hasBankAccount())
 		{
-			this.getBankAccount().depositCoins(price);
+			this.bankAccount.get().depositCoins(price);
 			if(this.hasTrader())
-				this.getBankAccount().LogInteraction(this.getTrader(), price, true);
+				this.bankAccount.get().LogInteraction(this.getTrader(), price, true);
 			return true;
 		}
 		else if(this.hasStoredMoney())
 		{
-			CoinValue storedMoney = this.getStoredMoney();
-			storedMoney.addValue(price);
+			this.storedMoney.addValue(price);
 			return true;
 		}
 		else if(this.hasPlayer())
 		{
-			Player player = this.getPlayer();
 			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(price);
 			AtomicReference<List<ItemStack>> change = new AtomicReference<>(coins);
-			WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+			WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
 				ItemStack wallet = walletHandler.getWallet();
 				if(WalletItem.isWallet(wallet.getItem()))
 				{
@@ -281,16 +274,16 @@ public class TradeContext {
 			{
 				for(int i = 0; i < change.get().size(); ++i)
 				{
-					ItemStack remainder = InventoryUtil.TryPutItemStack(this.getCoinSlots(), change.get().get(i));
+					ItemStack remainder = InventoryUtil.TryPutItemStack(this.coinSlots, change.get().get(i));
 					if(!remainder.isEmpty())
-						ItemHandlerHelper.giveItemToPlayer(this.getPlayer(), remainder);
+						ItemHandlerHelper.giveItemToPlayer(this.player, remainder);
 				}
 			}
 			else if(change.get().size() > 0)
 			{
 				for(int i = 0; i < change.get().size(); ++i)
 				{
-					ItemHandlerHelper.giveItemToPlayer(this.getPlayer(), change.get().get(i));
+					ItemHandlerHelper.giveItemToPlayer(this.player, change.get().get(i));
 				}
 			}
 			return true;
@@ -304,9 +297,9 @@ public class TradeContext {
 	public boolean hasItem(ItemStack item)
 	{
 		if(this.hasItemHandler())
-			return InventoryUtil.CanExtractItem(this.getItemHandler(), item);
-		if(this.hasPlayer())
-			return InventoryUtil.GetItemCount(this.getPlayer().getInventory(), item) >= item.getCount();
+			return InventoryUtil.CanExtractItem(this.itemHandler, item);
+		else if(this.hasPlayer())
+			return InventoryUtil.GetItemCount(this.player.getInventory(), item) >= item.getCount();
 		return false;
 	}
 	
@@ -324,8 +317,47 @@ public class TradeContext {
 	}
 	
 	/**
+	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
+	 */
+	public boolean hasTicket(UUID ticketID) {
+		if(this.hasItemHandler())
+		{
+			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
+			{
+				ItemStack stack = this.itemHandler.getStackInSlot(i);
+				if(stack.getItem() == ModItems.TICKET)
+				{
+					UUID id = TicketItem.GetTicketID(stack);
+					if(id != null && id.equals(ticketID))
+					{
+						ItemStack copyStack = stack.copy();
+						copyStack.setCount(1);
+						if(InventoryUtil.CanExtractItem(this.itemHandler, copyStack))
+							return true;
+					}
+				}
+			}
+		}
+		else if(this.hasPlayer())
+		{
+			Inventory inventory = this.player.getInventory();
+			for(int i = 0; i < inventory.getContainerSize(); ++i)
+			{
+				ItemStack stack = inventory.getItem(i);
+				if(stack.getItem() == ModItems.TICKET)
+				{
+					UUID id = TicketItem.GetTicketID(stack);
+					if(id != null && id.equals(ticketID))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Removes the given item stack from the item handler.
-	 * @return Whether the extraction was successfully. Will return false if it could not be extracted correctly.
+	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
 	 */
 	public boolean collectItem(ItemStack item)
 	{
@@ -333,13 +365,61 @@ public class TradeContext {
 		{
 			if(this.hasItemHandler())
 			{
-				InventoryUtil.RemoveItemCount(this.getItemHandler(), item);
+				InventoryUtil.RemoveItemCount(this.itemHandler, item);
 				return true;
 			}
 			else if(this.hasPlayer())
 			{
-				InventoryUtil.RemoveItemCount(this.getPlayer().getInventory(), item);
+				InventoryUtil.RemoveItemCount(this.player.getInventory(), item);
 				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Removes the given ticket from the item handler.
+	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
+	 * 
+	 */
+	public boolean collectTicket(UUID ticketID) {
+		if(this.hasTicket(ticketID))
+		{
+			if(this.hasItemHandler())
+			{
+				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
+					ItemStack stack = this.itemHandler.getStackInSlot(i);
+					if(stack.getItem() == ModItems.TICKET)
+					{
+						UUID id = TicketItem.GetTicketID(stack);
+						if(id != null && id.equals(ticketID))
+						{
+							ItemStack extractStack = stack.copy();
+							extractStack.setCount(1);
+							if(InventoryUtil.RemoveItemCount(this.itemHandler, extractStack))
+								return true;
+						}
+					}
+				}
+			}
+			else if(this.hasPlayer())
+			{
+				Inventory inventory = this.player.getInventory();
+				for(int i = 0; i < inventory.getContainerSize(); ++i)
+				{
+					ItemStack stack = inventory.getItem(i);
+					if(stack.getItem() == ModItems.TICKET)
+					{
+						UUID id = TicketItem.GetTicketID(stack);
+						if(id != null && id.equals(ticketID))
+						{
+							inventory.removeItem(i, 1);
+							inventory.setChanged();
+							return true;
+						}
+					}
+				}
 			}
 		}
 		return false;
@@ -350,7 +430,7 @@ public class TradeContext {
 		if(item.isEmpty())
 			return true;
 		if(this.hasItemHandler())
-			return ItemHandlerHelper.insertItemStacked(this.getItemHandler(), item, true).isEmpty();
+			return ItemHandlerHelper.insertItemStacked(this.itemHandler, item, true).isEmpty();
 		if(this.hasPlayer())
 			return true;
 		return false;
@@ -361,7 +441,7 @@ public class TradeContext {
 	{
 		if(this.hasItemHandler())
 		{
-			IItemHandler original = this.getItemHandler();
+			IItemHandler original = this.itemHandler;
 			IItemHandler copy = null;
 			if(original instanceof ICanCopy<?>)
 			{
@@ -393,7 +473,7 @@ public class TradeContext {
 		{
 			if(this.hasItemHandler())
 			{
-				ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.getItemHandler(), item, false);
+				ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemHandler, item, false);
 				if(leftovers.isEmpty())
 					return true;
 				else
@@ -408,7 +488,7 @@ public class TradeContext {
 			}
 			if(this.hasPlayer())
 			{
-				ItemHandlerHelper.giveItemToPlayer(this.getPlayer(), item);
+				ItemHandlerHelper.giveItemToPlayer(this.player, item);
 				return true;
 			}
 		}
@@ -419,7 +499,7 @@ public class TradeContext {
 	{
 		if(this.hasFluidTank())
 		{
-			FluidStack result = this.getFluidTank().drain(fluid, FluidAction.SIMULATE);
+			FluidStack result = this.fluidTank.drain(fluid, FluidAction.SIMULATE);
 			if(result.isEmpty() || result.getAmount() < fluid.getAmount())
 				return false;
 			return true;
@@ -443,7 +523,7 @@ public class TradeContext {
 		{
 			if(this.hasFluidTank())
 			{
-				this.getFluidTank().drain(fluid, FluidAction.EXECUTE);
+				this.fluidTank.drain(fluid, FluidAction.EXECUTE);
 				return true;
 			}
 			if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
@@ -463,7 +543,7 @@ public class TradeContext {
 	public boolean canFitFluid(FluidStack fluid)
 	{
 		if(this.hasFluidTank())
-			return this.getFluidTank().fill(fluid, FluidAction.SIMULATE) == fluid.getAmount();
+			return this.fluidTank.fill(fluid, FluidAction.SIMULATE) == fluid.getAmount();
 		if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
 		{
 			ItemStack bucketStack = this.getInteractionSlot(InteractionSlotData.FLUID_TYPE).getItem();
@@ -482,7 +562,7 @@ public class TradeContext {
 		{
 			if(this.hasFluidTank())
 			{
-				this.getFluidTank().fill(fluid, FluidAction.EXECUTE);
+				this.fluidTank.fill(fluid, FluidAction.EXECUTE);
 				return true;
 			}
 			if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
@@ -502,7 +582,7 @@ public class TradeContext {
 	public boolean hasEnergy(int amount)
 	{
 		if(this.hasEnergyTank())
-			return this.getEnergyTank().extractEnergy(amount, true) == amount;
+			return this.energyTank.extractEnergy(amount, true) == amount;
 		else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
@@ -521,7 +601,7 @@ public class TradeContext {
 		{
 			if(this.hasEnergyTank())
 			{
-				this.getEnergyTank().extractEnergy(amount, false);
+				this.energyTank.extractEnergy(amount, false);
 				return true;
 			}
 			if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
@@ -539,7 +619,7 @@ public class TradeContext {
 	public boolean canFitEnergy(int amount)
 	{
 		if(this.hasEnergyTank())
-			return this.getEnergyTank().receiveEnergy(amount, true) == amount;
+			return this.energyTank.receiveEnergy(amount, true) == amount;
 		else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
@@ -558,7 +638,7 @@ public class TradeContext {
 		{
 			if(this.hasEnergyTank())
 			{
-				this.getEnergyTank().receiveEnergy(amount, false);
+				this.energyTank.receiveEnergy(amount, false);
 				return true;
 			}
 			else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))

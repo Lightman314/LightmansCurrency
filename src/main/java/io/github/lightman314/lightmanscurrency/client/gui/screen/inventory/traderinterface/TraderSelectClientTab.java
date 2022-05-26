@@ -13,22 +13,23 @@ import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockE
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TraderSelectTab;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
-public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> {
+public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
 
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
@@ -43,12 +44,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	EditBox searchField;
 	
-	Button buttonPreviousPage;
-	Button buttonNextPage;
+	ScrollBarWidget scrollBar;
 	
 	List<UniversalTraderButton> traderButtons;
 	
-	private int page = 0;
+	private int scroll;
 	
 	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
 	
@@ -69,7 +69,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			if(be.validTraderType(trader))
 			{
 				//Confirm that the trader either has a valid trade, or we have interaction permissions
-				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && trader.hasPermission(this.menu.getBE().getOwner(), Permissions.INTERACTION_LINK)))
+				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK)))
 					traders.add(trader);
 			}
 		}
@@ -84,12 +84,9 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		this.buttonPreviousPage = this.screen.addRenderableTabWidget(IconAndButtonUtil.leftButton(this.screen.getGuiLeft(), this.screen.getGuiTop() - 20, this::PreviousPage));
-		this.buttonNextPage = this.screen.addRenderableTabWidget(IconAndButtonUtil.rightButton(this.screen.getGuiLeft() + this.screen.getXSize() - 20, this.screen.getGuiTop() - 20, this::NextPage));
-		
 		this.initTraderButtons(this.screen.getGuiLeft(), this.screen.getGuiTop());
 		
-		this.page = MathUtil.clamp(page, 0, this.pageLimit());
+		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + 30 + UniversalTraderButton.WIDTH, this.screen.getGuiTop() + 18, UniversalTraderButton.HEIGHT * 4, this));
 		
 		this.tick();
 		
@@ -99,9 +96,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		UniversalTraderData selectedTrader = this.menu.getBE().getTrader();
 		if(selectedTrader!= null)
 		{
-			this.page = this.pageOf(selectedTrader);
+			this.scroll = this.scrollOf(selectedTrader);
 			this.updateTraderButtons();
 		}
+		
+		this.screen.addTabListener(new ScrollListener(0,0, this.screen.width, this.screen.height, this::onMouseScrolled));
 			
 		
 	}
@@ -123,6 +122,8 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		this.screen.blit(pose, this.screen.getGuiLeft() + 28, this.screen.getGuiTop() + 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
 		
+		this.scrollBar.beforeWidgetRender(mouseY);
+		
 	}
 
 	@Override
@@ -134,11 +135,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public void tick() {
 		
 		this.searchField.tick();
-		
-		this.buttonPreviousPage.visible = this.pageLimit() > 0;
-		this.buttonPreviousPage.active = page > 0;
-		this.buttonNextPage.visible = this.pageLimit() > 0;
-		this.buttonNextPage.active = page < this.pageLimit();
 		
 		for(int i = 0; i < this.traderButtons.size(); ++i)
 		{
@@ -180,22 +176,6 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		return false;
 	}
 	
-	private void PreviousPage(Button button) {
-		if(this.page > 0)
-		{
-			this.page--;
-			this.updateTraderButtons();
-		}
-	}
-	
-	private void NextPage(Button button) {
-		if(this.page < this.pageLimit())
-		{
-			this.page++;
-			this.updateTraderButtons();
-		}
-	}
-	
 	private void SelectTrader(Button button) {
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
@@ -209,23 +189,21 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		if(!traderButtons.contains(button))
 			return -1;
 		int index = traderButtons.indexOf(button);
-		index += page * this.traderButtons.size();
+		index += this.scroll;
 		return index;
 	}
 	
-	private int pageLimit() {
-		return (this.filteredTraderList.size() - 1) / this.traderButtons.size();
-	}
+	public int getMaxScroll() { return Math.max(this.filteredTraderList.size() - this.traderButtons.size(), 0); }
 	
-	private int pageOf(UniversalTraderData trader) {
+	private int scrollOf(UniversalTraderData trader) {
 		if(this.filteredTraderList != null)
 		{
 			int index = this.filteredTraderList.indexOf(trader);
 			if(index >= 0)
-				return index / this.traderButtons.size();
-			return this.page;
+				return Math.min(index, this.getMaxScroll());
+			return this.scroll;
 		}
-		return this.page;
+		return this.scroll;
 	}
 	
 	private void updateTraderList()
@@ -234,13 +212,13 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
 		this.updateTraderButtons();
 		//Limit the page
-		if(page > pageLimit())
-			page = pageLimit();
+		if(this.scroll > this.getMaxScroll())
+			this.scroll = this.getMaxScroll();
 	}
 	
 	private void updateTraderButtons()
 	{
-		int startIndex = page * this.traderButtons.size();
+		int startIndex = this.scroll;
 		for(int i = 0; i < this.traderButtons.size(); ++i)
 		{
 			if(startIndex + i < this.filteredTraderList.size())
@@ -249,6 +227,28 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 				this.traderButtons.get(i).SetData(null);
 		}
 	}
+
+	@Override
+	public int currentScroll() { return this.scroll; }
+
+	@Override
+	public void setScroll(int newScroll) {
+		this.scroll = Math.min(newScroll, this.getMaxScroll());
+		this.updateTraderButtons();
+	}
 	
+	private boolean onMouseScrolled(double mouseX, double mouseY, double delta) {
+		if(delta < 0)
+		{			
+			if(this.scroll < this.getMaxScroll())
+				this.setScroll(this.scroll + 1);
+		}
+		else if(delta > 0)
+		{
+			if(this.scroll > 0)
+				this.setScroll(this.scroll - 1);
+		}
+		return false;
+	}
 	
 }

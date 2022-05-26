@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
@@ -60,7 +59,8 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new DummyBlockEntity(pos, state); }
+	@Deprecated /** @deprecated Just put return null */
+	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return null; }
 	protected abstract BlockEntityType<?> traderType();
 	
 	@Nullable 

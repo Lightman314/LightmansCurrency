@@ -2,15 +2,18 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -32,12 +35,18 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	TradeButtonArea tradeDisplay;
 	
+	Button buttonAddTrade;
+	Button buttonRemoveTrade;
+	
 	@Override
 	public void onOpen() {
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
 		this.tradeDisplay.init();
 		this.tradeDisplay.setInteractionConsumer(this);
+		
+		this.buttonAddTrade = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + this.screen.getXSize() - 25, this.screen.getGuiTop() + 4, 10, 10, this::AddTrade, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20));
+		this.buttonRemoveTrade = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + this.screen.getXSize() - 14, this.screen.getGuiTop() + 4, 10, 10, this::RemoveTrade, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20));
 		
 	}
 
@@ -46,17 +55,38 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		
 		this.tradeDisplay.tick();
 		
-		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, true);
+		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 27 : 16), true);
 		
 		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
 		
 	}
 
+	private boolean renderAddRemoveButtons() {
+		if(this.menu.getTrader() != null)
+			return this.menu.getTrader().canEditTradeCount();
+		return false;
+	}
+	
+	@Override
+	public void tick() {
+		super.tick();
+		
+		ITrader trader = this.menu.getTrader();
+		if(trader != null)
+		{
+			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = trader.canEditTradeCount();
+			this.buttonAddTrade.active = trader.getTradeCount() < trader.getMaxTradeCount();
+			this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
+		}
+		else
+			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = false;
+	}
+	
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getCarried().isEmpty())
-			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, mouseX, mouseY);
+			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 27 : 16), mouseX, mouseY);
 		
 	}
 
@@ -74,6 +104,10 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
 	}
+	
+	private void AddTrade(Button button) { this.commonTab.addTrade(); }
+	
+	private void RemoveTrade(Button button) { this.commonTab.removeTrade(); }
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

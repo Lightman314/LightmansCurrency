@@ -449,12 +449,16 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 		super.dumpContents(world, pos);
 		//Dump the storage
 		InventoryUtil.dumpContents(world, pos, this.storage.getContents());
+		//Dump the upgrades
+		InventoryUtil.dumpContents(world, pos, this.upgradeInventory);
 	}
 	
 	@Override
 	public AABB getRenderBoundingBox()
 	{
-		return new AABB(this.worldPosition.offset(-1, 0, -1), this.worldPosition.offset(2,2,2));
+		if(this.getBlockState() != null)
+			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
+		return super.getRenderBoundingBox();
 	}
 
 	@Override

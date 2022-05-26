@@ -123,7 +123,7 @@ public class SelectionTab extends ATMTab{
 	private void ToggleAdminMode(Button button) {
 		this.adminMode = !this.adminMode;
 		this.buttonPersonalAccount.visible = !this.adminMode;
-		this.teamSelection.setVisible(!this.adminMode);
+		this.teamSelection.visible = !this.adminMode;
 		
 		this.buttonSelectPlayerAccount.visible = this.adminMode;
 		this.playerAccountSelect.visible = this.adminMode;
