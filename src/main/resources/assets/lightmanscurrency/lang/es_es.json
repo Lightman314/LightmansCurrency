@@ -2,6 +2,7 @@
   "itemGroup.lightmanscurrency.coins": "Monedas & objetos",
   "itemGroup.lightmanscurrency.machines": "Máquinas Miscelaneas",
   "itemGroup.lightmanscurrency.trading": "Máquinas de Intercambio",
+      "itemGroup.lightmanscurrency.upgrades" : "Machine Upgrades",
 
   "item.lightmanscurrency.coin_copper": "Moneda de Cobre",
   "item.lightmanscurrency.coin_copper.plural": "Monedas de Cobre",
@@ -36,8 +37,12 @@
   "item.lightmanscurrency.item_capacity_upgrade_1": "Actualizacion de inventario de (Hierro)",
   "item.lightmanscurrency.item_capacity_upgrade_2": "Actualizacion de inventario de (Oro)",
   "item.lightmanscurrency.item_capacity_upgrade_3": "Actualizacion de inventario de (Diamante)",
+    "item.lightmanscurrency.speed_upgrade_1": "Actualizacion de velocidad (Hierro)",
+    "item.lightmanscurrency.speed_upgrade_2": "Actualizacion de velocidad (Oro)",
+    "item.lightmanscurrency.speed_upgrade_3": "Actualizacion de velocidad (Esneralda)",
+    "item.lightmanscurrency.speed_upgrade_4": "Actualizacion de velocidad (Diamante)",
+    "item.lightmanscurrency.speed_upgrade_5": "Actualizacion de velocidad (Netherita)",
   "item.lightmanscurrency.freezer_door": "Puerta de Refrigerador (USO INTERNO SOLAMENTE)",
-  "tooltip.lightmanscurrency.itemstorage": "%s en inventario",
 
   "item.lightmanscurrency.generic.plural": "%ss",
 
@@ -59,6 +64,12 @@
   "block.lightmanscurrency.coinblock_emerald": "Bloque de monedas de Esmeralda",
   "block.lightmanscurrency.coinblock_diamond": "Bloque de monedas de Diamante",
   "block.lightmanscurrency.coinblock_netherite": "Bloque de monedas de Netherita",
+    "block.lightmanscurrency.coinblock_copper.plural" : "Bloques de monedas de Cobre",
+    "block.lightmanscurrency.coinblock_iron.plural" : "Bloques de monedas de Hierro",
+    "block.lightmanscurrency.coinblock_gold.plural" : "Bloques de monedas de Oro",
+    "block.lightmanscurrency.coinblock_emerald.plural" : "Bloques de monedas de Esmeralda",
+    "block.lightmanscurrency.coinblock_diamond.plural" : "Bloques de monedas de Diamante",
+    "block.lightmanscurrency.coinblock_netherite.plural" : "Bloques de monedas de Netherita",
   "block.lightmanscurrency.atm": "Cajero Automático",
   "block.lightmanscurrency.cash_register": "Caja Registradora",
   "block.lightmanscurrency.display_case": "Mostrador",
@@ -125,15 +136,47 @@
   "block.lightmanscurrency.ticket_kiosk": "Caseta de boletos",
   "block.lightmanscurrency.item_trader_interface": "Comerciante de Objetos",
 
+    "enchantment.lightmanscurrency.money_mending": "Reparación con dinero",
+    "enchantment.lightmanscurrency.money_mending.desc": "Repara el artículo usando dinero de tu cartera.",
+    "enchantment.lightmanscurrency.coin_magnet": "Iman de la monedas",
+    "enchantment.lightmanscurrency.coin_magnet.desc": "Permite que su cartera recolecte monedas de un rango más amplio.",
+	
   "gamerule.keepWallet": "Mantener la billetera despues de morir",
   "gamerule.coinDropPercent": "Bajar el porcentaje de monedas despues de morir",
 
   "entity.minecraft.villager.lightmanscurrency.banker": "Banquero",
   "entity.minecraft.villager.lightmanscurrency.cashier": "Cajero",
 
+    "tooltip.lightmanscurrency.trader.item.1": "Comerciante de artículos:",
+    "tooltip.lightmanscurrency.trader.item.2": "Se puede usar para vender, comprar o intercambiar artículos con otros jugadores.",
+    "tooltip.lightmanscurrency.trader.item.armor.1": "Comerciante de armaduras:",
+    "tooltip.lightmanscurrency.trader.item.armor.2": "Se puede usar para vender, comprar o intercambiar piezas de armadura con otros jugadores.",
+    "tooltip.lightmanscurrency.trader.item.ticket.1": "Comerciante de boletos:",
+    "tooltip.lightmanscurrency.trader.item.ticket.2": "Se puede usar para vender, comprar o intercambiar boletos y materiales de boletos con otros jugadores.",
+    "tooltip.lightmanscurrency.trader.item.ticket.3": "Se requiere un boleto maestro para vender boletos.",
+    "tooltip.lightmanscurrency.trader.network.item.1": "Comerciante de la red de artículos:",
+    "tooltip.lightmanscurrency.trader.network.item.2": "Se puede usar para vender, comprar o intercambiar artículos con otros jugadores desde cualquier lugar.",
+    "tooltip.lightmanscurrency.trader.network.item.3": "Solo se puede acceder a través de una terminal de intercambios.",
+    "tooltip.lightmanscurrency.terminal.1": "Puede acceder a los servidores de intercambio de forma remota.",
+    "tooltip.lightmanscurrency.atm.1": "Puede cambiar monedas por otras monedas de mayor o menor valor.",
+    "tooltip.lightmanscurrency.atm.2": "Puede depositar o retirar monedas de su cuenta bancaria.",
+    "tooltip.lightmanscurrency.atm.3": "Puede acceder a cualquier cuenta bancaria del equipo a la que tenga acceso.",
+    "tooltip.lightmanscurrency.atm.4": "Puede transferir dinero desde su cuenta a la cuenta de otro jugador o equipo.",
+    "tooltip.lightmanscurrency.coinmint.mintable": "Puede acuñar monedas a partir de sus materiales base.",
+    "tooltip.lightmanscurrency.coinmint.meltable": "Puede derretir monedas en sus materiales base.",
+    "tooltip.lightmanscurrency.interface.item.1": "Terminal de interfaz de comerciante de artículos:",
+    "tooltip.lightmanscurrency.interface.item.2": "Se puede usar para comprar o vender artículos automáticamente de cualquier comerciante de artículos de la red.",
+    "tooltip.lightmanscurrency.interface.item.3": "Se puede usar para drenar o reabastecer automáticamente de un comerciante de artículos de la red para el que tenga permiso.",
+    "tooltip.lightmanscurrency.paygate.1": "Peaje:",
+    "tooltip.lightmanscurrency.paygate.2": "Se puede usar para activar una señal de redstone por un precio.",
+    "tooltip.lightmanscurrency.paygate.3": "Se puede vincular a un ticket para facilitar las interacciones con los clientes.",
+    "tooltip.lightmanscurrency.ticketmachine.1": "Se puede usar para imprimir boletos Maestro y normales únicos.",
+    "tooltip.lightmanscurrency.ticketmachine.2": "Los boletos se pueden usar en el Peaje o como cupones para intercambios.",
+    "tooltip.lightmanscurrency.cashregister.1": "Se puede utilizar para vincular e interactuar con varios comerciantes locales al mismo tiempo.",
+
   "tooltip.lightmanscurrency.beta": "Característica en etapa beta. ¡Puede tener problemas!",
   "tooltip.lightmanscurrency.disabled": "DESACTIVADO",
-
+    "tooltip.lightmanscurrency.tooltip": "Mantén SHIFT para más información",
   "gui.lightmanscurrency.atm.title": "Cajero Automático",
   "gui.lightmanscurrency.universaltrader.default": "Intercambio",
   "gui.lightmanscurrency.universaltrader.item": "Servidor de Intercambios",
@@ -170,6 +213,7 @@
   "tooltip.lightmanscurrency.wallet.autoConvert.off": "§4DESACTIVADA§r",
   "tooltip.lightmanscurrency.wallet.bankaccount": "§ePuede depositar o retirar monedas desde su cuenta bancaria en la interfaz de usuario.§r",
   "tooltip.lightmanscurrency.upgrade.item_capacity": "Aumenta la capacidad de almacenamiento de objetos a %s.",
+     "tooltip.lightmanscurrency.upgrade.speed":"Disminuye el retraso entre interacciones en %s ticks.",
   "tooltip.lightmanscurrency.credit": "%s",
   "tooltip.lightmanscurrency.outofstock": "Sin Stock",
   "tooltip.lightmanscurrency.outofspace": "Lleno",
@@ -214,7 +258,7 @@
   "gui.button.lightmanscurrency.item_edit.toggle.sell": "Vender tragamonedas",
   "gui.button.lightmanscurrency.tradedirection.sale": "Venta",
   "gui.button.lightmanscurrency.tradedirection.purchase": "Compra",
-  "gui.button.lightmanscurrency.tradedirection.barter": "Permuta",
+  "gui.button.lightmanscurrency.tradedirection.barter": "Intercambio",
   "gui.button.lightmanscurrency.mananger": "Administrador de Reglas",
   "gui.button.lightmanscurrency.addrule": "Añadir %s regla",
   "gui.button.lightmanscurrency.removerule": "Remover %s regla",
@@ -262,7 +306,7 @@
   "key.wallet": "Abrir Cartera",
   "key.team_settings": "Gerente de equipo abierto",
 
-  "lightmanscurrency.subtitle.coins_clinking": "tintineo de monedas",
+  "lightmanscurrency.subtitle.coins_clinking": "Tintineo de monedas",
 
   "log.shoplog.item.format": "%1$s%2$s %3$s %4$s por %5$s",
   "log.shoplog.item.itemformat": "%1$sx %2$s",
@@ -299,6 +343,7 @@
   "gui.lightmanscurrency.settings.side.south": "Delante",
   "gui.lightmanscurrency.settings.side.west": "Izquierda",
   "gui.lightmanscurrency.settings.side.east": "Derecha",
+   "gui.lightmanscurrency.notifications.enabled": "Notificaciones habilitadas",
   "tooltip.lightmanscurrency.persistenttrader.copy": "Copie el comerciante al portapapeles como texto Json de comerciante persistente.",
   "lightmanscurrency.chat.persistenttrader": "Datos persistentes del comerciante copiados!",
   "tooltip.lightmanscurrency.persistenttrader.copyagain": "Haga clic para volver a copiar %s al portapapeles.",
@@ -373,6 +418,11 @@
   "gui.bank.transfer.success": "Transferido %1$s a %2$s",
 
   "gui.button.bank.playeraccount": "Mi Cuenta",
+    "gui.button.bank.admin.playeraccount": "Seleccionar cuenta de jugadores",
+    "gui.lightmanscurrency.bank.noteamsavailable": "No tienes acceso a ninguna cuenta bancaria de los equipos.",
+	
+	    "gui.lightmanscurrency.notification.details": "Recibirá una notificación si el saldo de su cuenta cae por debajo de %s.",
+    "gui.lightmanscurrency.notification.disabled": "No recibirá ninguna notificación de saldo de cuenta.",
 
   "tooltip.lightmanscurrency.atm.conversion": "Convertir monedas",
   "tooltip.lightmanscurrency.atm.selection": "Seleccionar cuenta",
@@ -381,6 +431,7 @@
   "tooltip.lightmanscurrency.atm.transfer": "Transferir dinero",
   "tooltip.lightmanscurrency.atm.transfer.mode.player": "Transferir a un jugador",
   "tooltip.lightmanscurrency.atm.transfer.mode.team": "Transferir a un equipo",
+    "tooltip.lightmanscurrency.atm.notification": "Notificación de saldo de cuenta",
 
   "gui.button.lightmanscurrency.team.owner": "Propietario: %s",
   "gui.button.lightmanscurrency.team.create": "Crear",
@@ -402,7 +453,7 @@
   "log.bank.transfer.to": "para",
   "log.bank.transfer.from": "de",
 
-  "lightmanscurrency.bankaccount": "%s cuenta bancaria de",
+  "lightmanscurrency.bankaccount": "Cuenta de %s",
   "lightmanscurrency.bankaccount.unknown": "Cuenta bancaria desconocida",
 
 
@@ -428,9 +479,6 @@
   "tooltip.lightmanscurrency.interface.trader": "Seleccionar intercambio",
   "tooltip.lightmanscurrency.interface.trade": "Seleccionar comercio",
 
-  "gui.lightmanscurrency.interface.mode.disabled": "Desactivar",
-  "gui.lightmanscurrency.interface.mode.redstone_only": "Señal de Redstone",
-  "gui.lightmanscurrency.interface.mode.always_on": "Siempre Activo",
 
   "gui.lightmanscurrency.interface.info.trader": "Intercambiando con %s",
   "gui.lightmanscurrency.interface.info.trader.null": "No esta vinculado a ningun comercio",
@@ -459,6 +507,15 @@
   "gui.lightmanscurrency.interface.type.restock": "Restock",
   "gui.lightmanscurrency.interface.type.drain": "Drenar",
   "gui.lightmanscurrency.interface.type.trade": "Intercambio",
+  
+      
+    "gui.lightmanscurrency.interface.mode.disabled": "Desactivado",
+    "gui.lightmanscurrency.interface.mode.redstone_off": "No señal de redstone",
+    "gui.lightmanscurrency.interface.mode.redstone_only": "Señal de redstone",
+    "gui.lightmanscurrency.interface.mode.always_on": "Siempre activo",
+  
+    "gui.lightmanscurrency.interface.onlinemode.true": "Requiere que el propietario esté en línea",
+    "gui.lightmanscurrency.interface.onlinemode.false": "Siempre encendido",
 
   "traderule.lightmanscurrency.whitelist": "Lista blanca",
   "traderule.lightmanscurrency.whitelist.denial": "§4Tu no estas en la lista blanca.",
@@ -472,6 +529,7 @@
   "traderule.lightmanscurrency.tradelimit2.denial": "§4Esta operación ya se ha realizado %s §4veces.",
   "traderule.lightmanscurrency.discount_list": "Descuento",
   "traderule.lightmanscurrency.timed_sale": "Rebaja",
+      "traderule.lightmanscurrency.free_sample": "Muestra gratis",
 
   "command.lightmanscurrency.lcadmin.help.help": "%sMostrar información de subcomando",
   "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mode: %s",
@@ -499,6 +557,37 @@
   "command.lightmanscurrency.lcbaltop.title": "Principales saldos de cuentas bancarias",
   "command.lightmanscurrency.lcbaltop.page": "Pagina %1$s de %2$s",
   "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
-  "command.lightmanscurrency.lcbaltop.error.page": "La página es demasiado grande"
+  "command.lightmanscurrency.lcbaltop.error.page": "La página es demasiado grande",
+  
+    "advancements.lightmanscurrency.root.title": "Moneda de Lightman",
+    "advancements.lightmanscurrency.root.description": "Recopilación de riqueza y comercio con jugadores.",
+    "advancements.lightmanscurrency.myfirstpenny.title": "¡Mi primer centavo!",
+    "advancements.lightmanscurrency.myfirstpenny.description": "Consigue tu primera moneda.",
+    "advancements.lightmanscurrency.wallet_crafting.title": "Almacenamiento de monedas",
+    "advancements.lightmanscurrency.wallet_crafting.description": "Crea tu primera billetera. ¡Puedes usarla para guardar tus monedas!",
+    "advancements.lightmanscurrency.netherite_wallet.title": "Cartera a prueba de fuego",
+    "advancements.lightmanscurrency.netherite_wallet.description": "¡Crea una billetera netherite, la billetera más grande y resistente!",
+    "advancements.lightmanscurrency.atm.title": "Ahora piensa en la banca",
+    "advancements.lightmanscurrency.atm.description": "Crea un cajero automático. Puedes usarlo para cambiar monedas y acceder a tu cuenta bancaria.",
+    "advancements.lightmanscurrency.banker_trade.title": "Negociar con el establecimiento.",
+    "advancements.lightmanscurrency.banker_trade.description": "Comprar un artículo relacionado con divisas de un banquero.",
+    "advancements.lightmanscurrency.coin_mint.title": "Acuñación de moneda",
+    "advancements.lightmanscurrency.coin_mint.description": "Crea una Casa de Moneda, para que puedas acuñar tus propias monedas.",
+    "advancements.lightmanscurrency.terminal.title": "Comercio inalámbrico",
+    "advancements.lightmanscurrency.terminal.description": "Elabore una terminal comercial. Esto le permitirá acceder a la red de comerciantes desde cualquier lugar.",
+    "advancements.lightmanscurrency.cash_register.title": "¡Todo en una interacción!",
+    "advancements.lightmanscurrency.cash_register.description": "¡Crea una caja registradora para que los jugadores puedan interactuar con todos los comerciantes cercanos a la vez!",
+    "advancements.lightmanscurrency.cashier_trade.title": "Trabajo por hora, pago por hora",
+    "advancements.lightmanscurrency.cashier_trade.description": "Compra algo de un cajero.",
+    "advancements.lightmanscurrency.trading_core.title": "Núcleo comercial",
+    "advancements.lightmanscurrency.trading_core.description": "¡Crea un núcleo comercial! Estos son necesarios para hacer máquinas comerciales desde las que comerciar.",
+    "advancements.lightmanscurrency.trader.title": "¡Es hora de operar!",
+    "advancements.lightmanscurrency.trader.description": "¡Crea cualquier comerciante de artículos para que puedas comerciar con tus amigos!",
+    "advancements.lightmanscurrency.specialty_trader.title": "Comercio especializado",
+    "advancements.lightmanscurrency.specialty_trader.description": "Crea un comerciante de artículos especiales. Ten cuidado, ya que tienen reglas especiales que limitan cómo se definen sus intercambios.",
+    "advancements.lightmanscurrency.network_trader.title": "¡Bienvenido a Amazon!",
+    "advancements.lightmanscurrency.network_trader.description": "¡Crea un comerciante de red, para que puedas vender tus artículos a cualquier persona, en cualquier lugar!",
+    "advancements.lightmanscurrency.trader_interface.title": "Patching",
+    "advancements.lightmanscurrency.trader_interface.description": "¡Crea una interfaz de comerciante, para que puedas automatizar el comercio o el reabastecimiento con un comerciante de la red!"
 
 }
