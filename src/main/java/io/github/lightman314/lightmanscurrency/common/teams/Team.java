@@ -121,7 +121,8 @@ public class Team {
 		if(this.isAdmin(requestor))
 		{
 			this.teamName = newName;
-			this.bankAccount.updateOwnersName(this.teamName);
+			if(this.bankAccount != null)
+				this.bankAccount.updateOwnersName(this.teamName);
 			this.markDirty();
 		}
 	}
