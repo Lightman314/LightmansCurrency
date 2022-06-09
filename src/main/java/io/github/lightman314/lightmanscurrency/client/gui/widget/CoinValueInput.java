@@ -75,6 +75,8 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	
 	public boolean drawBG = true;
 	
+	public boolean locked = false;
+	
 	int scroll = 0;
 	List<CoinData> coinData = new ArrayList<>();
 	
@@ -265,6 +267,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	public void tick()
 	{
 		//Set the decrease buttons as inactive if their value is 0;
+		this.toggleFree.active = !this.locked;
 		if(this.inputType == ValueType.DEFAULT)
 		{
 			List<Item> coinItems = MoneyUtil.getAllCoins();
@@ -273,12 +276,10 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 				if(i + this.scroll >= coinItems.size())
 					decreaseButtons.get(i).active = false;
 				else
-				{
-					decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i + this.scroll)) > 0;
-				}
+					decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i + this.scroll)) > 0 && !this.locked;
 			}
 			for(int i = 0; i < this.increaseButtons.size(); i++)
-				this.increaseButtons.get(i).active = !this.coinValue.isFree();
+				this.increaseButtons.get(i).active = !this.coinValue.isFree() && !this.locked;
 			
 			if(this.buttonLeft != null)
 				this.buttonLeft.visible = this.scroll > 0;
@@ -288,7 +289,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		else if(this.valueInput != null)
 		{
 			this.valueInput.tick();
-			this.valueInput.active = !this.coinValue.isFree();
+			this.valueInput.active = !this.coinValue.isFree() && !this.locked;
 			if(!this.coinValue.isFree())
 			{
 				TextInputUtil.whitelistFloat(this.valueInput);

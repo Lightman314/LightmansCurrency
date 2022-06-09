@@ -35,6 +35,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
@@ -576,7 +577,7 @@ public class MoneyUtil {
     			//Out of room to place it, throw it at the player
     			if(!coinStack.isEmpty())
     			{
-    				player.getInventory().placeItemBackInInventory(coinStack);
+    				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
     			}
     		}
     	}

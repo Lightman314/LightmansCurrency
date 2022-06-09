@@ -47,7 +47,7 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
 	
 	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
 		//Get facing
 		Direction facing = this.getFacing(state);
 		//Define directions for easy positional handling
@@ -101,8 +101,7 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 		if(firstPosition != null)
 		{
 			posList.add(firstPosition);
-			float deltaDist = isBlock ? (isDoubleTrade ? 1.6f : 3.2f) : 0.5f;
-			for(float distance = deltaDist; distance < 7; distance += deltaDist)
+			for(float distance = 3.2f; distance < 7; distance += 3.2f)
 				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16F)));
 		}
 		else
@@ -114,7 +113,7 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
@@ -124,7 +123,7 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0.3f; }
+	public float GetStackRenderScale(int tradeSlot, BlockState state){ return 0.3f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

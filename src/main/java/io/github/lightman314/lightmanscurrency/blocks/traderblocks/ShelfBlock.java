@@ -50,24 +50,18 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
 		List<Vector3f> posList = new ArrayList<Vector3f>(1);
-		Direction facing = this.getFacing(state);
-		//Define directions for easy positional handling
-		Vector3f forward = IRotatableBlock.getForwardVect(facing);
-		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
-		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
-		
 		if(tradeSlot == 0)
 		{
-			Vector3f firstPosition = MathUtil.VectorAdd(offset, MathUtil.VectorMult(right, 0.5f), MathUtil.VectorMult(forward, 14.5f/16f), MathUtil.VectorMult(up, 9f/16f));
-			posList.add(firstPosition); 
-			float deltaDist = isBlock ? (isDoubleTrade ? -1.6f : -3.2f) : -1f;
-			for(float distance = deltaDist; distance >= -3f; distance += deltaDist)
-			{
-				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16f)));
-			}
+			Direction facing = this.getFacing(state);
+			//Define directions for easy positional handling
+			Vector3f forward = IRotatableBlock.getForwardVect(facing);
+			Vector3f right = IRotatableBlock.getRightVect(facing);
+			Vector3f up = Vector3f.YP;
+			Vector3f offset = IRotatableBlock.getOffsetVect(facing);
+			//Only 1 position for shelves
+			posList.add(MathUtil.VectorAdd(offset, MathUtil.VectorMult(right, 0.5f), MathUtil.VectorMult(forward, 14.5f/16f), MathUtil.VectorMult(up, 9f/16f)));
 		}
 		
 		return posList;
@@ -76,7 +70,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		//Return null for automatic rotation
 		List<Quaternion> rotation = new ArrayList<>();
@@ -87,7 +81,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 14f/16f; }
+	public float GetStackRenderScale(int tradeSlot, BlockState state){ return 14f/16f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

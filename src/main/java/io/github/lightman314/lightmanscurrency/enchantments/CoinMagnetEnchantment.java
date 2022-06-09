@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.enchantments;
 
+import java.util.List;
+
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -7,6 +9,10 @@ import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,14 +20,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
-public class CoinMagnetEnchantment extends Enchantment {
+public class CoinMagnetEnchantment extends WalletEnchantment {
 
+	//Max enchantment level
 	public static final int MAX_LEVEL = 3;
+	//Max level to calculate range for
+	public static final int MAX_CALCULATION_LEVEL = MAX_LEVEL + 2;
 	
 	public CoinMagnetEnchantment(Rarity rarity, EquipmentSlot... slots) {
 		super(rarity, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY, slots);
@@ -41,12 +49,12 @@ public class CoinMagnetEnchantment extends Enchantment {
 			if(!WalletItem.isWallet(wallet) || !(wallet.getItem() instanceof WalletItem) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 				return;
 			//Get the level (-1 to properly calculate range)
-			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET, wallet) - 1;
+			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET, wallet);
 			//Don't do anything if the Coin Magnet enchantment is not present.
-			if(enchantLevel < 0)
+			if(enchantLevel <= 0)
 				return;
 			//Calculate the search radius
-			float range = Config.SERVER.coinMagnetRangeBase.get() + (Config.SERVER.coinMagnetRangeLevel.get() * Math.min(enchantLevel, MAX_LEVEL - 1));
+			float range = getCollectionRange(enchantLevel);
 			Level level = entity.level;
 			if(level == null)
 				return;
@@ -78,6 +86,30 @@ public class CoinMagnetEnchantment extends Enchantment {
 				}
 			}
 		});
+	}
+	
+	public static float getCollectionRange(int enchantLevel) {
+		enchantLevel -= 1;
+		if(enchantLevel < 0)
+			return 0f;
+		return Config.SERVER.coinMagnetRangeBase.get() + (Config.SERVER.coinMagnetRangeLevel.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
+	}
+	
+	public static Component getCollectionRangeDisplay(int enchantLevel) {
+		float range = getCollectionRange(enchantLevel);
+		String display = range %1f > 0f ? String.valueOf(range) : String.valueOf(Math.round(range));
+		return new TextComponent(display).withStyle(ChatFormatting.GREEN);
+	}
+	
+	@Override
+	public void addWalletTooltips(List<Component> tooltips, int enchantLevel, ItemStack wallet) {
+		if(wallet.getItem() instanceof WalletItem)
+		{
+			if(enchantLevel > 0 && WalletItem.CanPickup((WalletItem)wallet.getItem()))
+			{
+				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
+			}
+		}
 	}
 	
 }

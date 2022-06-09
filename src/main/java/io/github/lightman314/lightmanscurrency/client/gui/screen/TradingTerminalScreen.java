@@ -8,12 +8,14 @@ import java.util.Objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
@@ -30,8 +32,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
-	public static final Comparator<UniversalTraderData> TERMINAL_SORTER = new TraderSorter(true, true);
-	public static final Comparator<UniversalTraderData> NAME_ONLY_SORTER = new TraderSorter(false, false);
+	public static final Comparator<UniversalTraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
+	public static final Comparator<UniversalTraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
 	
 	private int xSize = 176;
 	private int ySize = 187;
@@ -45,6 +47,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	private List<UniversalTraderData> traderList(){
 		List<UniversalTraderData> traderList = ClientTradingOffice.getTraderList();
+		traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
 		traderList.sort(TERMINAL_SORTER);
 		return traderList;
 	}
@@ -226,13 +229,25 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		
 		private final boolean creativeAtTop;
 		private final boolean emptyAtBottom;
+		private final boolean auctionHousePriority;
 
-		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; }
+		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; this.auctionHousePriority = auctionHousePriority; }
 
 		@Override
 		public int compare(UniversalTraderData a, UniversalTraderData b) {
 			
 			try {
+				
+				if(this.auctionHousePriority)
+				{
+					boolean ahA = a instanceof AuctionHouseTrader;
+					boolean ahB = b instanceof AuctionHouseTrader;
+					if(ahA && !ahB)
+						return -1;
+					else if(ahB && !ahA)
+						return 1;
+				}
+				
 				if(this.emptyAtBottom)
 				{
 					boolean emptyA = a.hasNoValidTrades();

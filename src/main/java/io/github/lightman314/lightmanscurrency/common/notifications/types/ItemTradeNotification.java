@@ -159,6 +159,8 @@ public class ItemTradeNotification extends Notification{
 		final Component itemName;
 		final int count;
 		
+		public ItemData(ItemStack item) { this(item, ""); }
+		
 		public ItemData(ItemStack item, String customName) {
 			this.isEmpty = item.isEmpty();
 			if(this.isEmpty)
@@ -199,6 +201,8 @@ public class ItemTradeNotification extends Notification{
 		}
 		
 		public Component format() { return new TranslatableComponent("log.shoplog.item.itemformat", this.count, this.itemName); }
+		
+		public Component formatWith(Component other) { return new TranslatableComponent("log.shoplog.and", this.format(), other); }
 		
 		public Component formatWith(ItemData other) { return new TranslatableComponent("log.shoplog.and", this.format(), other.format()); }
 		

@@ -4,17 +4,48 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class SimpleSlot extends Slot{
 
 	public boolean active = true;
+	public boolean locked = false;
 	
 	public SimpleSlot(Container container, int index, int x, int y) { super(container, index, x, y); }
 
 	@Override
 	public boolean isActive() { return this.active; }
+	
+	@Override
+	public boolean mayPlace(ItemStack stack) {
+		if(this.locked)
+			return false;
+		return super.mayPlace(stack);
+	}
+	
+	@Override
+	public void set(ItemStack stack) {
+		if(this.locked)
+			return;
+		super.set(stack);
+	}
+	
+	@Override
+	public ItemStack remove(int amount) {
+		if(this.locked)
+			return ItemStack.EMPTY;
+		return super.remove(amount);
+	}
+	
+	@Override
+	public boolean mayPickup(Player player) {
+		if(this.locked)
+			return false;
+		return super.mayPickup(player);
+	}
 	
 	public static void SetActive(AbstractContainerMenu menu) {
 		SetActive(menu, (slot) -> true);

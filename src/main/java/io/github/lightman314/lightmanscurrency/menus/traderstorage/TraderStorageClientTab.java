@@ -86,6 +86,11 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	public void receiveSelfMessage(CompoundTag message) { }
 	
 	/**
+	 * Processes a server -> client message response to an action made on the client.
+	 */
+	public void receiveServerMessage(CompoundTag message) { }
+	
+	/**
 	 * Called when the tab is closed.
 	 */
 	public void onClose() { }

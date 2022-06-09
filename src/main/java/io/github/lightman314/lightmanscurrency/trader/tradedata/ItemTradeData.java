@@ -590,10 +590,10 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			return tooltips;
 		
 		//Trade Info
-		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.info"));
+		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.info").withStyle(ChatFormatting.GOLD));
 		//Custom Name
 		if(originalName != null)
-			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName));
+			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(ChatFormatting.GOLD));
 		
 		if(context.hasTrader() && context.hasPlayerReference())
 		{
@@ -601,7 +601,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(context.getTrader() instanceof IItemTrader)
 			{
 				IItemTrader trader = (IItemTrader)context.getTrader();
-				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent(String.valueOf(this.stockCount(context))).withStyle(ChatFormatting.GOLD)));
+				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : new TextComponent(String.valueOf(this.stockCount(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD));
 			}
 		}
 		

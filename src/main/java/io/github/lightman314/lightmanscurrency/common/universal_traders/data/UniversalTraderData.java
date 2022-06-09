@@ -9,6 +9,7 @@ import com.google.common.base.Function;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -39,6 +40,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,6 +49,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkHooks;
 
 public abstract class UniversalTraderData implements ITrader{
@@ -64,7 +68,7 @@ public abstract class UniversalTraderData implements ITrader{
 			LightmansCurrency.LogWarning("Attempted to set the traders ID when it's already been defined.");
 	}
 	
-	BlockPos pos;
+	BlockPos pos = new BlockPos(0,0,0);
 	public BlockPos getPos() { return this.pos; }
 	ResourceKey<Level> world = Level.OVERWORLD;
 	public ResourceKey<Level> getWorld() { return this.world; }
@@ -384,6 +388,8 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	public MutableComponent getTitle()
 	{
+		if(this.coreSettings.getOwnerName().isBlank())
+			return new TextComponent("").append(this.getName());
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
@@ -426,9 +432,7 @@ public abstract class UniversalTraderData implements ITrader{
 			this.users.remove(player);
 	}
 	
-	//public final void forceReopen() { if(this.isServer()) this.forceReopen(Lists.newArrayList(this.users)); }
-	
-	//protected abstract void forceReopen(List<Player> users);
+	public boolean hasUser() { return this.users.size() > 0; }
 	
 	@Override
 	public void sendOpenTraderMessage() {
@@ -478,6 +482,29 @@ public abstract class UniversalTraderData implements ITrader{
 			json.addProperty("TraderName", this.coreSettings.getCustomName());
 		json.addProperty("OwnerName", "Minecraft");
 		return json;
+	}
+	
+	public void onRemoved() {}
+	
+	/**
+	 * Whether the data should be removed due to the server block being destroyed via unauthorized means.
+	 */
+	public boolean shouldRemove(MinecraftServer server) {
+		try {
+			BlockPos pos = this.pos;
+			ServerLevel world = server.getLevel(this.world);
+			if(world.isLoaded(pos))
+			{
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				if(blockEntity instanceof UniversalTraderBlockEntity)
+				{
+					UniversalTraderBlockEntity traderEntity = (UniversalTraderBlockEntity)blockEntity;
+					return traderEntity.getTraderID() == null || !traderEntity.getTraderID().equals(this.traderID);
+				}
+				return true;
+			}
+		} catch(Exception e) {}
+		return false;
 	}
 	
 }

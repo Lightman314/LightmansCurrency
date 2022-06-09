@@ -15,14 +15,17 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacke
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -147,28 +150,30 @@ public class WalletItem extends Item{
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup"));
+			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
 		}
 		if(CanConvert(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoConvert(stack) ? new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.on") : new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.off");
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText));
+				Component onOffText = getAutoConvert(stack) ? new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.manualConvert"));
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.bankaccount"));
+			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
 		}
+		
+		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 		
 		CoinValue contents = new CoinValue(getWalletInventory(stack));
 		if(contents.getRawValue() > 0)
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", "§2" + contents.getString() ));
+			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", new TextComponent(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
 		
 	}
 	

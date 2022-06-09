@@ -53,7 +53,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER; }
 	
 	@Override
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
 		//Get facing
 		Direction facing = this.getFacing(state);
 		//Define directions for easy positional handling
@@ -119,8 +119,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		if(firstPosition != null)
 		{
 			posList.add(firstPosition);
-			float deltaDist = isBlock ? (isDoubleTrade ? 1.6f : 3.2f) : 0.5f;
-			for(float distance = deltaDist; distance < 7; distance += deltaDist)
+			for(float distance = 3.2f; distance < 7; distance += 3.2f)
 			{
 				posList.add(MathUtil.VectorAdd(firstPosition, MathUtil.VectorMult(forward, distance/16F)));
 			}
@@ -134,7 +133,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
@@ -144,7 +143,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0.4f; }
+	public float GetStackRenderScale(int tradeSlot, BlockState state){ return 0.4f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

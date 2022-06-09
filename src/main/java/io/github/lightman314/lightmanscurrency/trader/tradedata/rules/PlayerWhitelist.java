@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +41,7 @@ public class PlayerWhitelist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(!this.isWhitelisted(event.getPlayerReference()))
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial"));
+			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial").withStyle(ChatFormatting.RED));
 		
 	}
 	

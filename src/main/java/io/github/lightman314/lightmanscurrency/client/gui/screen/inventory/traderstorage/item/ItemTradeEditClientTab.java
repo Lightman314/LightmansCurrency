@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -39,7 +38,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
 	public Component getTooltip() { return new TextComponent(""); }

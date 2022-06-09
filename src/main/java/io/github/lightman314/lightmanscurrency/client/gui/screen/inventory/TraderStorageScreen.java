@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
+import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
@@ -39,7 +40,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
 
 @IPNIgnore
 public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMenu> implements IClientMessage {
@@ -71,6 +71,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		this.menu.getAllTabs().forEach((key,tab) -> this.availableTabs.put(key, tab.createClientTab(this)));
 		this.imageWidth = TraderScreen.WIDTH;
 		this.imageHeight = TraderScreen.HEIGHT;
+		menu.addMessageListener(this::serverMessage);
 	}
 	
 	@Override
@@ -142,7 +143,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Coin Slots
-		for(Slot slot : this.menu.getCoinSlots())
+		for(CoinSlot slot : this.menu.getCoinSlots())
 		{
 			if(slot.isActive())
 				this.blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
@@ -206,6 +207,8 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.menu.player.closeContainer();
 			return;
 		}
+		
+		this.menu.validateCoinSlots();
 		
 		if(!this.menu.hasPermission(Permissions.OPEN_STORAGE))
 		{
@@ -278,7 +281,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		
 		//Inform the server that the tab has been changed
 		if(oldTab != this.menu.getCurrentTabIndex() && sendMessage)
-			this.menu.sendMessage(this.menu.createTabChangeMessage(newTab, null));
+			this.menu.sendMessage(this.menu.createTabChangeMessage(newTab, selfMessage));
 		
 	}
 	
@@ -289,6 +292,10 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.changeTab(message.getInt("ChangeTab"), false, message);
 		else
 			this.currentTab().receiveSelfMessage(message);
+	}
+	
+	public void serverMessage(CompoundTag message) {
+		this.currentTab().receiveServerMessage(message);
 	}
 	
 	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {

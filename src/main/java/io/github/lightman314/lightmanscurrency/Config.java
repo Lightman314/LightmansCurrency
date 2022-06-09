@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.google.common.collect.ImmutableList;
-
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -19,47 +17,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class Config {
-	
-	public static final List<String> CLIENT_DEFAULT_RENDER_AS_BLOCK = ImmutableList.of(
-			//1.16 and prior
-			"minecraft:oak_sapling", "minecraft:birch_sapling", "minecraft:spruce_sapling", "minecraft:jungle_sapling",
-			"minecraft:acacia_sapling", "minecraft:dark_oak_sapling", "minecraft:cobweb", "minecraft:grass",
-			"minecraft:dead_bush", "minecraft:fern", "minecraft:seagrass", "minecraft:sea_pickle", "minecraft:dandelion",
-			"minecraft:poppy", "minecraft:blue_orchid", "minecraft:allium", "minecraft:azure_bluet", "minecraft:red_tulip",
-			"minecraft:orange_tulip", "minecraft:white_tulip", "minecraft:pink_tulip", "minecraft:oxeye_daisy",
-			"minecraft:cornflower", "minecraft:lily_of_the_valley", "minecraft:wither_rose", "minecraft:brown_mushroom",
-			"minecraft:red_mushroom", "minecraft:crimson_fungus", "minecraft:warped_fungus", "minecraft:crimson_roots",
-			"minecraft:warped_roots", "minecraft:nether_sprouts", "minecraft:weeping_vines", "minecraft:twisting_vines",
-			"minecraft:sugar_cane", "minecraft:kelp", "minecraft:bamboo", "minecraft:torch", "minecraft:end_rod",
-			"minecraft:soul_torch", "minecraft:chain", "minecraft:vine", "minecraft:lily_pad", "minecraft:flower_pot",
-			"minecraft:sunflower", "minecraft:lilac", "minecraft:rose_bush", "minecraft:peony", "minecraft:tall_grass",
-			"minecraft:large_fern", "minecraft:glass_pane", "minecraft:white_stained_glass_pane",
-			"minecraft:orange_stained_glass_pane", "minecraft:magenta_stained_glass_pane", "minecraft:light_blue_stained_glass_pane",
-			"minecraft:yellow_stained_glass_pane", "minecraft:lime_stained_glass_pane", "minecraft:pink_stained_glass_pane",
-			"minecraft:gray_stained_glass_pane", "minecraft:light_gray_stained_glass_pane", "minecraft:cyan_stained_glass_pane",
-			"minecraft:purple_stained_glass_pane", "minecraft:blue_stained_glass_pane", "minecraft:brown_stained_glass_pane",
-			"minecraft:green_stained_glass_pane", "minecraft:red_stained_glass_pane", "minecraft:black_stained_glass_pane",
-			"minecraft:tube_coral", "minecraft:brain_coral", "minecraft:bubble_coral", "minecraft:fire_coral",
-			"minecraft:horn_coral", "minecraft:dead_brain_coral", "minecraft:dead_bubble_coral", "minecraft:dead_horn_coral",
-			"minecraft:dead_tube_coral", "minecraft:tube_coral_fan", "minecraft:brain_coral_fan", "minecraft:bubble_coral_fan",
-			"minecraft:fire_coral_fan", "minecraft:horn_coral_fan", "minecraft:dead_tube_coral_fan", "minecraft:dead_brain_coral_fan",
-			"minecraft:dead_bubble_coral_fan", "minecraft:dead_fire_coral_fan", "minecraft:dead_horn_coral_fan", "minecraft:oak_sign",
-			"minecraft:spruce_sign", "minecraft:birch_sign", "minecraft:jungle_sign", "minecraft:acacia_sign",
-			"minecraft:dark_oak_sign", "minecraft:crimson_sign", "minecraft:warped_sign", "minecraft:campfire", "minecraft:lantern",
-			"minecraft:soul_lantern", "minecraft:bell", "minecraft:soul_campfire", "minecraft:redstone_torch", "minecraft:lever",
-			"minecraft:tripwire_hook", "minecraft:string", "minecraft:hopper", "minecraft:iron_door", "minecraft:oak_door",
-			"minecraft:spruce_door", "minecraft:birch_door", "minecraft:jungle_door", "minecraft:acacia_door",
-			"minecraft:dark_oak_door", "minecraft:crimson_door", "minecraft:warped_door", "minecraft:repeater", "minecraft:comparator",
-			"minecraft:redstone", "minecraft:rail", "minecraft:powered_rail", "minecraft:detector_rail", "minecraft:activator_rail",
-			"minecraft:cake", "minecraft:iron_bars",
-			//1.17 & 1.18
-			"minecraft:small_amethyst_bud","minecraft:medium_amethyst_bud","minecraft:large_amethyst_bud","minecraft:amethyst_cluster",
-			"minecraft:lightning_rod", "minecraft:pointed_dripstone", "minecraft:spore_blossom",
-			//Lightmans Currency
-			"lightmanscurrency:coinpile_copper", "lightmanscurrency:coinpile_iron", "lightmanscurrency:coinpile_gold",
-			"lightmanscurrency:coinpile_emerald", "lightmanscurrency:coinpile_diamond", "lightmanscurrency:coinpile_netherite"
-			
-			);
 	
 	public static boolean canMint(Item item)
 	{
@@ -145,10 +102,12 @@ public class Config {
 	public static class Client
 	{
 		
-		public enum TraderRenderType { FULL, PARTIAL, NONE }
+		public enum TraderRenderType { FULL(Integer.MAX_VALUE), PARTIAL(1), NONE(0);
+			public final int renderLimit;
+			TraderRenderType(int renderLimit) { this.renderLimit = renderLimit; } 
+		}
 		
 		//Render options
-		public final ForgeConfigSpec.ConfigValue<List <? extends String>> renderBlocksAsItems;
 		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
 		//Wallet Button options
@@ -170,10 +129,6 @@ public class Config {
 		Client(ForgeConfigSpec.Builder builder)
 		{
 			builder.comment("Client configuration settings").push("client");
-			
-			this.renderBlocksAsItems = builder
-					.comment("BlockItems that should be spaced out as though they were normal items.")
-					.defineList("renderBlocksAsItems", CLIENT_DEFAULT_RENDER_AS_BLOCK, o -> o instanceof String);
 			
 			builder.comment("Quality Settings").push("settings");
 			
@@ -441,6 +396,10 @@ public class Config {
 		public final ForgeConfigSpec.IntValue coinMagnetRangeBase;
 		public final ForgeConfigSpec.IntValue coinMagnetRangeLevel;
 		
+		//Auction House Options
+		public final ForgeConfigSpec.BooleanValue enableAuctionHouse;
+		public final ForgeConfigSpec.IntValue maxAuctionDuration;
+		
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
@@ -568,6 +527,18 @@ public class Config {
 					.defineInRange("coinMagnetRangeBase", 5, 0, 50);
 			this.coinMagnetRangeLevel = builder.comment("The increase in collection radius added by each additional level of the enchantment.")
 					.defineInRange("coinMagnetRangeLevel", 2, 0, 50);
+			
+			
+			builder.pop();
+			
+			builder.comment("Auction House Settings").push("auction_house");
+			
+			this.enableAuctionHouse = builder.comment("Whether the Auction House will appear on the trader list.",
+					"If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.")
+					.define("enabled", true);
+			
+			this.maxAuctionDuration = builder.comment("The maximum number of days an auction can be carried out.")
+					.defineInRange("maxDuration", 30, 1, Integer.MAX_VALUE);
 			
 			builder.pop();
 			

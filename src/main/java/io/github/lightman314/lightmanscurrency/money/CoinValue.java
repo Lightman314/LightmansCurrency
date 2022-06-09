@@ -38,6 +38,8 @@ public class CoinValue
 	public void setFree(boolean free) { this.isFree = free; if(this.isFree) this.coinValues.clear(); }
 	public final List<CoinValuePair> coinValues;
 	
+	public boolean hasAny() { return this.coinValues.size() > 0; }
+	
 	public boolean isValid() { return this.isFree || this.coinValues.size() > 0; }
 	
 	public CoinValue(CompoundTag compound)

@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.trader;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IPermissions;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
@@ -154,5 +156,7 @@ public interface ITrader extends IPermissions, ITraderSource {
 	 * If not changed, the default BasicTradeEditTab will be the only available tab.
 	 */
 	public default void initStorageTabs(TraderStorageMenu menu) { }
+	
+	public default Function<ITradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) { return TradeButtonArea.FILTER_ANY; }
 	
 }

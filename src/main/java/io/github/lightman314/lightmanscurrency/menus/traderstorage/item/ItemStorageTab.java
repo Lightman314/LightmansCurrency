@@ -34,7 +34,6 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof IItemTrader; }
 	
-	//Eventually will add upgrade slots
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	

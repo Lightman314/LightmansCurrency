@@ -91,7 +91,8 @@ public class TradeContext {
 	
 	//Player Data
 	private final Player player;
-	private boolean hasPlayer() { return this.player != null; }
+	public boolean hasPlayer() { return this.player != null; }
+	public Player getPlayer() { return this.player; }
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;

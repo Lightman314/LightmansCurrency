@@ -12,13 +12,19 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.PaygateNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.ItemTraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
@@ -121,7 +127,8 @@ public class LightmansCurrency {
     	LightmansCurrencyPacketHandler.init();
     	
     	//Initialize the UniversalTraderData deserializers
-    	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, () -> new UniversalItemTraderData());
+    	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, UniversalItemTraderData::new);
+    	TradingOffice.RegisterDataType(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
     	
     	//Register the custom game rules
     	ModGameRules.registerRules();
@@ -142,11 +149,16 @@ public class LightmansCurrency {
     	Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
     	Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
     	Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
+    	Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);
+    	Notification.register(AuctionHouseBuyerNotification.TYPE, AuctionHouseBuyerNotification::new);
+    	Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
+    	Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
     	
     	//Initialize the Notification Category deserializers
     	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
     	Category.register(TraderCategory.TYPE, TraderCategory::new);
     	Category.register(BankCategory.TYPE, BankCategory::new);
+    	Category.register(AuctionHouseCategory.TYPE, compound -> AuctionHouseCategory.INSTANCE);
     	
     	//Register Trader Search Filters
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());

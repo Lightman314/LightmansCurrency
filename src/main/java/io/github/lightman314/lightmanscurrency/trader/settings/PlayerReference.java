@@ -172,6 +172,8 @@ public class PlayerReference {
 	
 	public static PlayerReference of(Player player)
 	{
+		if(player == null)
+			return null;
 		return of(player.getGameProfile());
 	}
 	

@@ -261,6 +261,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	public Component getTitle()
 	{
+		if(this.coreSettings.getOwnerName().isBlank())
+			return this.getName();
 		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	

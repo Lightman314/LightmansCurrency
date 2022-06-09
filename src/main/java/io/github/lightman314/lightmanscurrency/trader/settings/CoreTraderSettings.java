@@ -640,7 +640,8 @@ public class CoreTraderSettings extends Settings{
 	
 	public void loadFromOldUniversalData(CompoundTag compound)
 	{
-		LightmansCurrency.LogInfo("Loading Core Trader Settings from old UniversalData compound.");
+		//Don't send debug message, as it triggers when the client receives a partial update packet
+		//LightmansCurrency.LogInfo("Loading Core Trader Settings from old UniversalData compound.");
 		//Owner
 		UUID ownerID = null;
 		String ownerName = "";

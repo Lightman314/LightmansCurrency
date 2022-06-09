@@ -59,8 +59,8 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		this.player = inventory.player;
 		this.traderSource = traderSource;
 		this.init(this.player, inventory);
-		if(this.isSingleTrader())
-			this.getSingleTrader().userOpen(this.player);
+		for(ITrader trader : this.traderSource.get().getTraders())
+			trader.userOpen(this.player);
 	}
 	
 	public TradeContext getContext(ITrader trader) { 
@@ -106,8 +106,8 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		super.removed(player);
 		this.clearContainer(player, this.coins);
 		this.clearContainer(player, this.interactionSlot.container);
-		if(this.isSingleTrader())
-			this.getSingleTrader().userClose(this.player);
+		for(ITrader trader : this.traderSource.get().getTraders())
+			trader.userClose(this.player);
 	}
 	
 	@Override

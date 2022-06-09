@@ -76,6 +76,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
 		register(MessageChangeSettings.class, MessageChangeSettings::encode, MessageChangeSettings::decode, MessageChangeSettings::handle);
 		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
+		register(MessageStorageInteractionC.class, MessageStorageInteractionC::encode, MessageStorageInteractionC::decode, MessageStorageInteractionC::handle);
 		
 		//Armor Display Trader
 		register(MessageRequestArmorStandID.class, MessageRequestArmorStandID::encode, MessageRequestArmorStandID::decode, MessageRequestArmorStandID::handle);

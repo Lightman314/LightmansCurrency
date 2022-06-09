@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -41,8 +42,8 @@ public class TradeLimit extends TradeRule{
 		
 		if(this.count >= this.limit)
 		{
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit2.denial", this.count));
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
+			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit2.denial", this.count).withStyle(ChatFormatting.RED));
+			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit).withStyle(ChatFormatting.RED));
 		}
 	}
 

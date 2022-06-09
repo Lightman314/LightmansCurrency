@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -180,7 +181,7 @@ public class CashRegisterItem extends BlockItem{
 		}
 		else if(data.size() > 0)
 		{
-			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.holdshift"));
+			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.holdshift").withStyle(ChatFormatting.YELLOW));
 		}
 	}
 	

@@ -41,12 +41,14 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void onOpen() {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, trader -> this.menu.getContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, TradeButtonArea.FILTER_ANY));		
+		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, t -> this.menu.getContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu)));		
 		this.tradeDisplay.init();
 		this.tradeDisplay.setInteractionConsumer(this);
 		
 		this.buttonAddTrade = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + this.screen.getXSize() - 25, this.screen.getGuiTop() + 4, 10, 10, this::AddTrade, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20));
 		this.buttonRemoveTrade = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + this.screen.getXSize() - 14, this.screen.getGuiTop() + 4, 10, 10, this::RemoveTrade, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20));
+		
+		this.tick();
 		
 	}
 

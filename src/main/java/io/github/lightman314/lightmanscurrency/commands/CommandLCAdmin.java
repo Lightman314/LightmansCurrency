@@ -9,11 +9,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
@@ -57,8 +59,10 @@ public class CommandLCAdmin {
 			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin.help", "/lcadmin toggleadmin -> "), false);
 		//universaldata list
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.help", "/lcadmin universaldata list -> "), false);
+		//universaldata search
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.help", "/lcadmin universaldata search <searchText> -> "), false);
 		//universaldata delete <traderID>
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.help", "/lcadmin universaldata delete <traderID> "), false);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.help", "/lcadmin universaldata delete <dataID> "), false);
 		
 		return 1;
 	}
@@ -69,7 +73,8 @@ public class CommandLCAdmin {
 		ServerPlayer sourcePlayer = source.getPlayerOrException();
 		
 		TradingOffice.toggleAdminPlayer(sourcePlayer);
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin",new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin." + (TradingOffice.isAdminPlayer(sourcePlayer) ? "enabled" : "disabled"))), true);
+		Component enabledDisabled = TradingOffice.isAdminPlayer(sourcePlayer) ? new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
+		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
 		
 		return 1;
 	}
@@ -140,8 +145,20 @@ public class CommandLCAdmin {
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid", new TextComponent(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), true);
 		//Type
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.getTraderType()), true);
+		
+		//Team / Team ID
+		if(thisTrader.getCoreSettings().getTeam() != null)
+		{
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner.team", thisTrader.getCoreSettings().getTeam().getName(), thisTrader.getCoreSettings().getTeam().getID().toString()), true);
+		}
 		//Owner / Owner ID
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getCoreSettings().getOwner().lastKnownName(), thisTrader.getCoreSettings().getOwner().id.toString()), true);
+		else if(thisTrader.getCoreSettings().getOwner() != null)
+		{
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getCoreSettings().getOwner().lastKnownName(), thisTrader.getCoreSettings().getOwner().id.toString()), true);
+		}
+		else
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner.none"), true);
+		
 		//Dimension
 		String dimension = thisTrader.getWorld().location().toString();
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), true);

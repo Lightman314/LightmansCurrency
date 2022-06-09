@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -45,7 +46,7 @@ public class CoinJarItem extends BlockItem {
 			}
 			else
 			{
-				tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.holdshift"));
+				tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 

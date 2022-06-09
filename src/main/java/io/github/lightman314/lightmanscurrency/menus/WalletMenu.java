@@ -36,11 +36,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class WalletMenu extends AbstractContainerMenu implements IBankAccountMenu{
 	
 	private static int maxWalletSlots = 0;
-	public static void updateMaxWalletSlots(int slotCount)
-	{
-		if(slotCount > maxWalletSlots)
-			maxWalletSlots = slotCount;
-	}
+	public static void updateMaxWalletSlots(int slotCount) { maxWalletSlots = Math.max(maxWalletSlots, slotCount); }
 	
 	private Container dummyInventory = new SimpleContainer(1);
 	
@@ -310,24 +306,14 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index == 0)
+			if(index < 36)
 			{
-				if(!this.moveItemStackTo(slotStack, 1, 37, false))
-					return ItemStack.EMPTY;
-			}
-			else if(index < 37)
-			{
-				if(clickedStack.getItem() instanceof WalletItem)
-				{
-					if(!this.moveItemStackTo(slotStack, 0, 1, true))
-						return ItemStack.EMPTY;
-				}
-				if(!this.moveItemStackTo(slotStack, 37, this.slots.size(), false))
+				if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 1, 37, true))
+			else if(!this.moveItemStackTo(slotStack, 0, 36, true))
 			{
 				return ItemStack.EMPTY;
 			}

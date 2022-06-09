@@ -42,6 +42,7 @@ public class ClientTradingOffice {
 	
 	public static void clearData()
 	{
+		loadedTraders.forEach((id,data) -> data.onRemoved());
 		loadedTraders.clear();
 	}
 	
@@ -57,7 +58,12 @@ public class ClientTradingOffice {
 	public static void removeTrader(UUID traderID)
 	{
 		if(loadedTraders.containsKey(traderID))
+		{
+			UniversalTraderData data = loadedTraders.get(traderID);
 			loadedTraders.remove(traderID);
+			data.onRemoved();
+		}
+			
 	}
 	
 	public static List<Team> getTeamList()

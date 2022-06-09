@@ -16,23 +16,9 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
-
-	public static int positionLimit()
-	{
-		switch(Config.CLIENT.traderRenderType.get())
-		{
-		case PARTIAL:
-			return 1;
-		case NONE:
-			return 0;
-			default:
-				return Integer.MAX_VALUE;
-		}
-	}
 	
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher) { }
 	
@@ -53,20 +39,6 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		return result;
 	}
 	
-	public static boolean BlockSpacing(List<ItemStack> renderItems) {
-		for(ItemStack stack : renderItems)
-		{
-			boolean isBlock = stack.getItem() instanceof BlockItem;
-			if(isBlock && Config.CLIENT.renderBlocksAsItems.get().contains(stack.getItem().getRegistryName().toString()))
-			{
-				isBlock = false;
-			}
-			if(isBlock)
-				return true;
-		}
-		return false;
-	}
-	
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
 		for(int tradeSlot = 0; tradeSlot < blockEntity.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
@@ -77,18 +49,16 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			if(renderItems.size() > 0)
 			{
 				
-				boolean isBlock = BlockSpacing(renderItems);
-				
 				//Get positions
-				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, isBlock, renderItems.size() > 1);
+				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
 				
 				//Get rotation
-				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks, isBlock);
+				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
 				
 				//Get scale
-				float scale = blockEntity.GetStackRenderScale(tradeSlot, isBlock);
+				float scale = blockEntity.GetStackRenderScale(tradeSlot);
 
-				for(int pos = 0; pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot) && pos < positionLimit(); pos++)
+				for(int pos = 0; pos < Config.CLIENT.traderRenderType.get().renderLimit && pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot); pos++)
 				{
 					
 					pose.pushPose();

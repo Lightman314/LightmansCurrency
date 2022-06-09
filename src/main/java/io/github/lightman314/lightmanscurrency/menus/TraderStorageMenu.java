@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -22,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -59,6 +61,8 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
+	
+	private List<Consumer<CompoundTag>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
 	
@@ -136,6 +140,16 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	@Override
 	public boolean stillValid(Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
 	
+	public void validateCoinSlots() {
+		boolean canAddCoins = this.hasCoinSlotAccess();
+		for(CoinSlot slot : this.coinSlots) slot.active = canAddCoins;
+	}
+	
+	private boolean hasCoinSlotAccess() {
+		ITrader trader = this.getTrader();
+		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS);
+	}
+	
 	@Override
 	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
@@ -153,8 +167,20 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 				//Move from inventory to current tab
 				if(!this.getCurrentTab().quickMoveStack(slotStack))
 				{
+					if(this.hasCoinSlotAccess())
+					{
+						//Move to coin slots
+						if(!this.moveItemStackTo(slotStack, 36, 36 + this.coinSlots.size(), false))
+						{
+							//Else, move from inventory to additional slots
+							if(!this.moveItemStackTo(slotStack, 36 + this.coinSlots.size(), this.slots.size(), false))
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+					}
 					//Else, move from inventory to additional slots
-					if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
+					else if(!this.moveItemStackTo(slotStack, 36 + this.coinSlots.size(), this.slots.size(), false))
 					{
 						return ItemStack.EMPTY;
 					}
@@ -162,7 +188,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			}
 			else if(index < this.slots.size())
 			{
-				//Move from coin/interaction slots to inventory
+				//Move from coin/additional slots to inventory
 				if(!this.moveItemStackTo(slotStack, 0, 36, false))
 				{
 					return ItemStack.EMPTY;
@@ -232,7 +258,10 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 		if(this.isClient())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStorageInteraction(message));
-			//LightmansCurrency.LogInfo("Sending message:\n" + message.getAsString());
+		}
+		else
+		{
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(this.player), new MessageStorageInteractionC(message));
 		}
 	}
 	
@@ -244,6 +273,13 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			SimpleSlot.SetActive(this.coinSlots, message.getBoolean("SetCoinSlotsActive"));
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable t) { }
+		for(Consumer<CompoundTag> listener : this.listeners)
+			try { listener.accept(message); } catch(Throwable t) {}
+	}
+	
+	public void addMessageListener(Consumer<CompoundTag> listener) {
+		if(!this.listeners.contains(listener) && listener != null)
+			this.listeners.add(listener);
 	}
 	
 	public interface IClientMessage {

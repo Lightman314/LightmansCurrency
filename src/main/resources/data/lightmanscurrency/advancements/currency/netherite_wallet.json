@@ -2,8 +2,7 @@
     "parent": "lightmanscurrency:currency/wallet_crafting",
     "display": {
         "icon": {
-            "item": "lightmanscurrency:wallet_netherite",
-            "nbt": "{Enchantments:[{id:\"minecraft:infinity\",lvl:1}]}"
+            "item": "lightmanscurrency:wallet_netherite"
         },
         "title": {
             "translate": "advancements.lightmanscurrency.netherite_wallet.title"

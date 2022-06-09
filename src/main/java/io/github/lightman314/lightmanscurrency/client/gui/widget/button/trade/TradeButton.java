@@ -571,8 +571,9 @@ public class TradeButton extends Button{
 		public static DisplayEntry of(Component text, TextFormatting format) { return new TextEntry(text, format, null); }
 		public static DisplayEntry of(Component text, TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip); }
 		
-		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price, null); }
-		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips) { return new PriceEntry(price, additionalTooltips); }
+		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price, null, false); }
+		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips) { return new PriceEntry(price, additionalTooltips, false); }
+		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return new PriceEntry(price, additionalTooltips, tooltipOverride); }
 		
 		private static class ItemEntry extends DisplayEntry
 		{
@@ -677,15 +678,17 @@ public class TradeButton extends Button{
 		private static class PriceEntry extends DisplayEntry {
 			private final CoinValue price;
 			
-			public PriceEntry(CoinValue price, List<Component> additionalTooltips) {
-				super(getTooltip(price, additionalTooltips));
+			public PriceEntry(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) {
+				super(getTooltip(price, additionalTooltips, tooltipOverride));
 				this.price = price;
 			}
 			
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 			
-			private static List<Component> getTooltip(CoinValue price, List<Component> additionalTooltips) {
+			private static List<Component> getTooltip(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) {
 				List<Component> tooltips = new ArrayList<>();
+				if(tooltipOverride && additionalTooltips != null)
+					return additionalTooltips;
 				if(!price.isFree() && price.isValid())
 					tooltips.add(new TextComponent(price.getString()));
 				if(additionalTooltips != null)

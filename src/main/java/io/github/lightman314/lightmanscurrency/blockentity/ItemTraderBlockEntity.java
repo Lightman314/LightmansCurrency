@@ -282,13 +282,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isBlock, boolean isDoubleTrade)
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isDoubleTrade)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
 		{
 			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
-			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isBlock, isDoubleTrade);
+			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isDoubleTrade);
 		}
 		else
 		{
@@ -299,13 +299,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, float partialTicks, boolean isBlock)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
 		{
 			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
-			List<Quaternion> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState(), isBlock);
+			List<Quaternion> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
 			//If null received. Rotate item based on world time
 			if(rotation == null)
 			{
@@ -324,13 +324,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, boolean isBlock)
+	public float GetStackRenderScale(int tradeSlot)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
 		{
 			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
-			return traderBlock.GetStackRenderScale(tradeSlot, this.getBlockState(), isBlock);
+			return traderBlock.GetStackRenderScale(tradeSlot, this.getBlockState());
 		}
 		else
 			return 0f;

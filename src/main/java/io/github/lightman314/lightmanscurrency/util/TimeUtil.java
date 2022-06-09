@@ -4,6 +4,11 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 public class TimeUtil {
 
+	public static final long DURATION_SECOND = 1000;
+	public static final long DURATION_MINUTE = 60 * DURATION_SECOND;
+	public static final long DURATION_HOUR = 60 * DURATION_MINUTE;
+	public static final long DURATION_DAY = 24 * DURATION_HOUR;
+	
 	/**
 	 * Gets the current system time in milliseconds
 	 */

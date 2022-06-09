@@ -7,20 +7,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
@@ -42,7 +46,6 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -53,13 +56,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
@@ -70,9 +71,72 @@ public class TradingOffice extends SavedData{
 	
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/persistentTraders.json";
 	
-	public TradingOffice() { this.loadPersistentTraders(); }
+	public static final boolean AUCTION_HOUSE_TESTING = false;
 	
-	public TradingOffice(CompoundTag tag) { this.load(tag); this.loadPersistentTraders(); }
+	private static TradingOffice activeOffice = null;
+	
+	public TradingOffice() {
+		cleanOldOffice(this);
+		this.validateAuctionHouse();
+		this.loadPersistentTraders();
+	}
+	
+	public TradingOffice(CompoundTag tag) {
+		cleanOldOffice(this);
+		this.load(tag);
+		this.validateAuctionHouse();
+		this.loadPersistentTraders();
+	}
+	
+	private static void cleanOldOffice(TradingOffice newOffice) {
+		if(activeOffice != null)
+		{
+			activeOffice.persistentTraderMap.forEach((id,data) -> data.onRemoved());
+			activeOffice.universalTraderMap.forEach((id,data) -> data.onRemoved());
+		}
+		activeOffice = newOffice;
+	}
+	
+	public static void forceValidateAuctionHouse() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			get(server).validateAuctionHouse();
+	}
+	
+	private void validateAuctionHouse() {
+		if(!AUCTION_HOUSE_TESTING)
+			return;
+		if(!Config.SERVER.enableAuctionHouse.get())
+		{
+			LightmansCurrency.LogInfo("Will not create or validate the auction house as the auction house is disabled.");
+			return;
+		}
+		AtomicBoolean hasAuctionHouse = new AtomicBoolean(false);
+		this.universalTraderMap.forEach((id,data) -> {
+			if(data instanceof AuctionHouseTrader)
+				hasAuctionHouse.set(true);
+		});
+		if(!hasAuctionHouse.get())
+		{
+			//Create the auction house manually
+			AuctionHouseTrader ah = new AuctionHouseTrader();
+			ah.getCoreSettings().forceCreative();
+			
+			//Generate a trader ID
+			UUID traderID = this.getValidTraderID();
+			
+			//Apply it to the trader
+			ah.initTraderID(traderID);
+			
+			LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
+			this.universalTraderMap.put(traderID, ah);
+			this.setDirty();
+			//Send update packet to the connected clients
+			CompoundTag compound = ah.write(new CompoundTag());
+			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
+			
+		}
+	}
 	
 	private static final Map<ResourceLocation,Supplier<? extends UniversalTraderData>> registeredDeserializers = Maps.newHashMap();
 	
@@ -126,9 +190,9 @@ public class TradingOffice extends SavedData{
 	
 	public void load(CompoundTag compound) {
 		
-		
 		if(compound.contains("UniversalTraders", Tag.TAG_LIST))
 		{
+			this.universalTraderMap.forEach((id,data) -> data.onRemoved());
 			this.universalTraderMap.clear();
 			ListTag universalTraderDataList = compound.getList("UniversalTraders", Tag.TAG_COMPOUND);
 			universalTraderDataList.forEach(nbt ->{
@@ -298,6 +362,7 @@ public class TradingOffice extends SavedData{
 	private void loadPersistentTrader(JsonObject fileData) throws Exception {
 		if(fileData.has("Traders"))
 		{
+			this.persistentTraderMap.forEach((id,data) -> data.onRemoved());
 			this.persistentTraderMap.clear();
 			List<String> loadedIDs = new ArrayList<>();
 			JsonArray traderList = fileData.get("Traders").getAsJsonArray();
@@ -512,7 +577,7 @@ public class TradingOffice extends SavedData{
 		return traderID;
 	}
 	
-	public static UUID registerTrader(UniversalTraderData data, Player owner)
+	public static UUID registerTrader(UniversalTraderData data, @Nullable Player owner)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -531,7 +596,8 @@ public class TradingOffice extends SavedData{
 			CompoundTag compound = data.write(new CompoundTag());
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientData(compound));
 			//Post Universal Trader Create Event
-			MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
+			if(owner != null)
+				MinecraftForge.EVENT_BUS.post(new UniversalTradeCreateEvent(traderID, owner));
 			
 			return traderID;
 		}
@@ -548,6 +614,7 @@ public class TradingOffice extends SavedData{
 			UniversalTraderData removedData = office.universalTraderMap.get(traderID);
 			office.universalTraderMap.remove(traderID);
 			office.setDirty();
+			removedData.onRemoved();
 			LightmansCurrency.LogInfo("Successfully removed the universal trader with id '" + traderID + "'!");
 			//Send update packet to the connected clients
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
@@ -719,7 +786,7 @@ public class TradingOffice extends SavedData{
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerLevel world = server.getLevel(Level.OVERWORLD);
-        return world.getDataStorage().computeIfAbsent((compound) -> new TradingOffice(compound), () -> new TradingOffice(), DATA_NAME);
+        return world.getDataStorage().computeIfAbsent(TradingOffice::new, TradingOffice::new, DATA_NAME);
     }
 	
 	/**
@@ -780,27 +847,17 @@ public class TradingOffice extends SavedData{
 	@SubscribeEvent
 	public static void onTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.phase != TickEvent.Phase.START)
-			return;
-		
-		if(event.side != LogicalSide.SERVER)
+		if(event.phase != TickEvent.Phase.START || !event.side.isServer())
 			return;
 		
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null && server.getTickCount() % 1200 == 0)
 		{
 			TradingOffice office = get(server);
-			office.universalTraderMap.values().removeIf(traderData ->{
-				BlockPos pos = traderData.getPos();
-				ServerLevel world = server.getLevel(traderData.getWorld());
-				if(world.isLoaded(pos))
+			office.universalTraderMap.values().removeIf(traderData -> {
+				if(traderData.shouldRemove(server))
 				{
-					BlockEntity tileEntity = world.getBlockEntity(pos);
-					if(tileEntity instanceof UniversalTraderBlockEntity)
-					{
-						UniversalTraderBlockEntity traderEntity = (UniversalTraderBlockEntity)tileEntity;
-						return traderEntity.getTraderID() == null || !traderEntity.getTraderID().equals(traderData.getTraderID());
-					}
+					traderData.onRemoved();
 					return true;
 				}
 				return false;

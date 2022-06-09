@@ -40,7 +40,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isBlock, boolean isDoubleTrade) {
+	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
 		List<Vector3f> posList = new ArrayList<Vector3f>(1);
 		posList.add(new Vector3f(0.5F, 0.5F + 2F/16F, 0.5F));
 		return posList;
@@ -49,7 +49,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state, boolean isBlock)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		//Return null for automatic rotation
 		return null;
@@ -57,7 +57,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state, boolean isBlock){ return 0.75f; }
+	public float GetStackRenderScale(int tradeSlot, BlockState state){ return 0.75f; }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
