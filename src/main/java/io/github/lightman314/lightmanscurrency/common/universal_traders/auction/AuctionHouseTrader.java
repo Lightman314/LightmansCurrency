@@ -29,7 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
@@ -60,7 +60,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	}
 	
 	@Override
-	public Component getName() { return new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction"); }
+	public MutableComponent getName() { return Component.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
@@ -279,7 +279,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	public List<? extends ITradeData> getTradeInfo() { return this.trades; }
 
 	@Override
-	protected ItemLike getCategoryItem() { return ModItems.TRADING_CORE; }
+	protected ItemLike getCategoryItem() { return ModItems.TRADING_CORE.get(); }
 
 	@Override
 	protected void onVersionUpdate(int oldVersion) { }

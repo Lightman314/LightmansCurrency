@@ -15,8 +15,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,11 +35,11 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	private AccountReference accountSource = null;
 	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
 	
-	private Component transferMessage = new TextComponent("");
+	private MutableComponent transferMessage = Component.empty();
 	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
-		super(ModMenus.ATM, windowId);
+		super(ModMenus.ATM.get(), windowId);
 		
 		this.player = inventory.player;
 		//Auto-select the players bank account for now.
@@ -138,27 +137,27 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		//Copper to Iron
 		else if(buttonInput == 1)
 		{
-			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_COPPER);
+			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_COPPER.get());
 		}
 		//Iron to Gold
 		else if(buttonInput == 2)
 		{
-			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_IRON);
+			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_IRON.get());
 		}
 		//Gold to Emerald
 		else if(buttonInput == 3)
 		{
-			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_GOLD);
+			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_GOLD.get());
 		}
 		//Emerald to Diamond
 		else if(buttonInput == 4)
 		{
-			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_EMERALD);
+			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_EMERALD.get());
 		}
 		//Diamond to Netherite
 		else if(buttonInput == 5)
 		{
-			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_DIAMOND);
+			MoneyUtil.ConvertCoinsUp(this.coinInput, ModItems.COIN_DIAMOND.get());
 		}
 		///Converting Downwards
 		//Converting All Downwards
@@ -169,27 +168,27 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		//Netherite to Diamond
 		else if(buttonInput == -5)
 		{
-			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_NETHERITE);
+			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_NETHERITE.get());
 		}
 		//Netherite to Diamond
 		if(buttonInput == -4)
 		{
-			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_DIAMOND);
+			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_DIAMOND.get());
 		}
 		//Netherite to Diamond
 		if(buttonInput == -3)
 		{
-			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_EMERALD);
+			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_EMERALD.get());
 		}
 		//Netherite to Diamond
 		if(buttonInput == -2)
 		{
-			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_GOLD);
+			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_GOLD.get());
 		}
 		//Netherite to Diamond
 		if(buttonInput == -1)
 		{
-			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_IRON);
+			MoneyUtil.ConvertCoinsDown(this.coinInput, ModItems.COIN_IRON.get());
 		}
 		
 	}
@@ -199,7 +198,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		this.accountSource = account;
 	}
 	
-	public Pair<AccountReference,Component> SetPlayerAccount(String playerName) {
+	public Pair<AccountReference,MutableComponent> SetPlayerAccount(String playerName) {
 		
 		if(TradingOffice.isAdminPlayer(this.player))
 		{
@@ -207,12 +206,12 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			if(accountPlayer != null)
 			{
 				this.accountSource = BankAccount.GenerateReference(false, accountPlayer);
-				return Pair.of(this.accountSource, new TranslatableComponent("gui.bank.select.player.success", accountPlayer.lastKnownName()));
+				return Pair.of(this.accountSource, Component.translatable("gui.bank.select.player.success", accountPlayer.lastKnownName()));
 			}
 			else
-				return Pair.of(null, new TranslatableComponent("gui.bank.transfer.error.null.to"));
+				return Pair.of(null, Component.translatable("gui.bank.transfer.error.null.to"));
 		}
-		return Pair.of(null, new TextComponent("ERROR"));
+		return Pair.of(null, Component.literal("ERROR"));
 	}
 
 	@Override
@@ -224,7 +223,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	public Component getLastMessage() { return this.transferMessage; }
 	
 	@Override
-	public void setMessage(Component message) { this.transferMessage = message; }
+	public void setMessage(MutableComponent message) { this.transferMessage = message; }
 	
 	@Override
 	public void setNotificationLevel(CoinValue amount) {

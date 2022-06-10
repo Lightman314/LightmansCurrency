@@ -1,18 +1,10 @@
-buildscript {
-    repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-    }
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '5.1.+'
 }
-apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 
-version = '1.18.2-1.1.4.2a'
+version = '1.19-1.1.4.2a'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -26,12 +18,14 @@ minecraft {
     // snapshot_YYYYMMDD   Snapshot are built nightly.
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.19'
     runs {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            
+            property 'forge.enabledGameTestNamespaces', 'lightmanscurrency'
 
             mods {
                 lightmanscurrency {
@@ -75,14 +69,14 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.18.2-40.0.18'
+    minecraft 'net.minecraftforge:forge:1.19-41.0.16'
    	
    	//JEI when actually working on plugin
     //compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.5.5.174:api")
     //JEI when not working on plugin, to save compile/runClient time
     compileOnly fg.deobf("curse.maven:jei-238222:3723913")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
-    compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
+    //runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
+    compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3784660')
     
 }

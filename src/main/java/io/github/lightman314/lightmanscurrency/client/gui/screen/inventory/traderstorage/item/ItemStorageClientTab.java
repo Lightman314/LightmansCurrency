@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -42,7 +42,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }
 
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -65,7 +65,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -136,13 +136,13 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 				{
 					ItemStack stack = storage.getContents().get(hoveredSlot);
 					List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+					tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
 					if(stack.getCount() >= 64)
 					{
 						if(stack.getCount() % 64 == 0)
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+							tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
 						else
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+							tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
 					}
 					this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
 				}	

@@ -10,7 +10,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.FormattedCharSequence;
 
 public class TextRenderUtil {
@@ -83,7 +82,7 @@ public class TextRenderUtil {
 	
 	public static Component fitString(String text, int width, Style style) { return fitString(text, width, "...", style); }
 	
-	public static Component fitString(String text, int width, String edge) { return fitString(new TextComponent(text), width, edge); }
+	public static Component fitString(String text, int width, String edge) { return fitString(Component.literal(text), width, edge); }
 	
 	public static Component fitString(Component component, int width) { return fitString(component.getString(), width, "...", component.getStyle()); }
 	
@@ -95,28 +94,28 @@ public class TextRenderUtil {
 	
 	public static Component fitString(String text, int width, String edge, Style style) {
 		Font font = getFont();
-		if(font.width(new TextComponent(text).withStyle(style)) <= width)
-			return new TextComponent(text).withStyle(style);
-		while(font.width(new TextComponent(text + edge).withStyle(style)) > width && text.length() > 0)
+		if(font.width(Component.literal(text).withStyle(style)) <= width)
+			return Component.literal(text).withStyle(style);
+		while(font.width(Component.literal(text + edge).withStyle(style)) > width && text.length() > 0)
 			text = text.substring(0, text.length() - 1);
-		return new TextComponent(text + edge).withStyle(style);
+		return Component.literal(text + edge).withStyle(style);
 	}
 	
-	public static void drawCenteredText(PoseStack pose, String string, int centerX, int yPos, int color) { drawCenteredText(pose, new TextComponent(string), centerX, yPos, color); }
+	public static void drawCenteredText(PoseStack pose, String string, int centerX, int yPos, int color) { drawCenteredText(pose, Component.literal(string), centerX, yPos, color); }
 	public static void drawCenteredText(PoseStack pose, Component component, int centerX, int yPos, int color) {
 		Font font = getFont();
 		int width = font.width(component);
 		font.draw(pose, component, centerX - (width/2), yPos, color);
 	}
 	
-	public static void drawRightEdgeText(PoseStack pose, String string, int rightPos, int yPos, int color) { drawRightEdgeText(pose, new TextComponent(string), rightPos, yPos, color); }
+	public static void drawRightEdgeText(PoseStack pose, String string, int rightPos, int yPos, int color) { drawRightEdgeText(pose, Component.literal(string), rightPos, yPos, color); }
 	public static void drawRightEdgeText(PoseStack pose, Component component, int rightPos, int yPos, int color) {
 		Font font = getFont();
 		int width = font.width(component);
 		font.draw(pose, component, rightPos, yPos - width, color);
 	}
 	
-	public static void drawCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(pose, new TextComponent(string), leftPos, width, topPos, color); }
+	public static void drawCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int color) { drawCenteredMultilineText(pose, Component.literal(string), leftPos, width, topPos, color); }
 	public static void drawCenteredMultilineText(PoseStack pose, Component component, int leftPos, int width, int topPos, int color) { 
 		Font font = getFont();
 		List<FormattedCharSequence> lines = font.split(component, width);
@@ -129,7 +128,7 @@ public class TextRenderUtil {
 		}
 	}
 	
-	public static void drawVerticallyCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int height, int color) { drawVerticallyCenteredMultilineText(pose, new TextComponent(string), leftPos, width, topPos, height, color); }
+	public static void drawVerticallyCenteredMultilineText(PoseStack pose, String string, int leftPos, int width, int topPos, int height, int color) { drawVerticallyCenteredMultilineText(pose, Component.literal(string), leftPos, width, topPos, height, color); }
 	public static void drawVerticallyCenteredMultilineText(PoseStack pose, Component component, int leftPos, int width, int topPos, int height, int color) {
 		Font font = getFont();
 		List<FormattedCharSequence> lines = font.split(component, width);
@@ -148,7 +147,7 @@ public class TextRenderUtil {
 			MutableComponent mc = (MutableComponent)component;
 			return mc.withStyle(styleChanges);
 		}
-		return new TextComponent("").append(component).withStyle(component.getStyle()).withStyle(styleChanges);
+		return Component.empty().append(component).withStyle(component.getStyle()).withStyle(styleChanges);
 	}
 	
 }

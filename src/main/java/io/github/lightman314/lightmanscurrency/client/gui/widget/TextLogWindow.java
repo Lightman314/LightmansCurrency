@@ -12,8 +12,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class TextLogWindow extends AbstractWidget{
@@ -25,18 +25,10 @@ public class TextLogWindow extends AbstractWidget{
 	
 	int scroll = 0;
 	
-	//OG 
-	public TextLogWindow(int x, int y, Supplier<TextLogger> logger, Font font)
-	{
-		super(x, y, 256, 256, new TextComponent(""));
-		this.logger = logger;
-		this.font = font;
-	}
-	
 	@SuppressWarnings("resource")
 	public TextLogWindow(AbstractContainerScreen<?> screen, Supplier<TextLogger> logger)
 	{
-		super(screen.getGuiLeft(), screen.getGuiTop(), screen.getXSize(), screen.getYSize(), new TextComponent(""));
+		super(screen.getGuiLeft(), screen.getGuiTop(), screen.getXSize(), screen.getYSize(), Component.empty());
 		this.logger = logger;
 		this.font = screen.getMinecraft().font;
 	}

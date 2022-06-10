@@ -23,8 +23,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,7 +39,7 @@ public class PlayerWhitelist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(!this.isWhitelisted(event.getPlayerReference()))
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial").withStyle(ChatFormatting.RED));
+			event.denyTrade(Component.translatable("traderule.lightmanscurrency.whitelist.denial").withStyle(ChatFormatting.RED));
 		
 	}
 	
@@ -186,10 +184,10 @@ public class PlayerWhitelist extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, new TextComponent("")));
+			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
-			this.buttonRemovePlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
+			this.buttonAddPlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
+			this.buttonRemovePlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
 			
 			//Player list display
 			this.playerDisplay = this.screen.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));
@@ -203,7 +201,7 @@ public class PlayerWhitelist extends TradeRule{
 			if(getWhitelistRule() == null)
 				return playerList;
 			for(PlayerReference player : getWhitelistRule().whitelistedPlayers)
-				playerList.add(new TextComponent(player.lastKnownName()));
+				playerList.add(player.lastKnownNameComponent());
 			return playerList;
 		}
 		

@@ -1,21 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.client.gui.Font;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public abstract class SettingsTab implements ITab{
 
+	/* Obsolete, as these are included in ITab
 	public abstract int getColor();
 	public abstract IconData getIcon();
-	public abstract Component getTooltip();
+	public abstract MutableComponent getTooltip();
+	*/
 	
 	private TraderSettingsScreen screen;
 	protected final TraderSettingsScreen getScreen() { return this.screen; }
@@ -24,16 +23,15 @@ public abstract class SettingsTab implements ITab{
 	protected final <T extends Settings> T getSetting(Class<T> type) { return this.screen.getSetting(type); }
 	public final void setScreen(TraderSettingsScreen screen) { this.screen = screen; }
 	
-	public boolean canOpen()
-	{
-		return this.getScreen().hasPermissions(this.requiredPermissions());
-	}
+	public abstract boolean canOpen();
 	
-	/**
-	 * Returns a list of required permissions that the player must have in order to see this tab.
-	 */
-	@Deprecated //Use canOpen instead
-	public abstract ImmutableList<String> requiredPermissions();
+	protected final boolean hasPermissions(String... permissions) {
+		for(String perm : permissions) {
+			if(!this.screen.hasPermission(perm))
+				return false;
+		}
+		return true;
+	}
 	
 	/**
 	 * Called when the tab is opened.

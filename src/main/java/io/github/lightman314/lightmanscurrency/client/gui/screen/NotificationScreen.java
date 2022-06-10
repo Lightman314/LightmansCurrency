@@ -24,8 +24,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -55,9 +53,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	int notificationScroll = 0;
 	
-	public NotificationScreen() {
-		super(new TextComponent(""));
-	}
+	public NotificationScreen() { super(Component.empty()); }
 	
 	@Override
 	public boolean isPauseScreen() { return false; }
@@ -86,7 +82,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		
 		this.notificationScroller = this.addRenderableOnly(new ScrollBarWidget(this.guiLeft() + TabButton.SIZE + this.xSize - 15, this.guiTop() + 15, this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
-		this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, new TranslatableComponent("gui.button.notifications.mark_read"), this::markAsRead));
+		this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, Component.translatable("gui.button.notifications.mark_read"), this::markAsRead));
 		
 		this.tick();
 		

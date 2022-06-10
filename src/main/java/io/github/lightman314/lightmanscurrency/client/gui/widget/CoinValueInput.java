@@ -32,7 +32,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -191,7 +190,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			int postfixWidth = this.font.width(this.postfix);
 			if(postfixWidth > 0)
 				postfixWidth += 2;
-			this.valueInput = new EditBox(this.font, this.x + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, new TextComponent(""));
+			this.valueInput = new EditBox(this.font, this.x + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, Component.empty());
 			this.addWidget.accept(this.valueInput);
 		}
 		this.tick();

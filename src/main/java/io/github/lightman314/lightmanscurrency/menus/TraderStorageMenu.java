@@ -69,7 +69,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
 	public TraderStorageMenu(int windowID, Inventory inventory, BlockPos traderPos) {
-		this(ModMenus.TRADER_STORAGE, windowID, inventory, () ->{
+		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () ->{
 			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
 			if(be instanceof ITrader)
 				return (ITrader)be;
@@ -289,7 +289,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	public static class TraderStorageMenuUniversal extends TraderStorageMenu {
 
 		public TraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.TRADER_STORAGE_UNIVERSAL, windowID, inventory, () ->{
+			super(ModMenus.TRADER_STORAGE_UNIVERSAL.get(), windowID, inventory, () ->{
 				if(inventory.player.level.isClientSide)
 					return ClientTradingOffice.getData(traderID);
 				else

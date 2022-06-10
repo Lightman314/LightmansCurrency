@@ -28,9 +28,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
 public class TransferTab extends ATMTab {
@@ -53,29 +52,29 @@ public class TransferTab extends ATMTab {
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.transfer"); }
 
 	@Override
 	public void init() {
 		
 		SimpleSlot.SetInactive(this.screen.getMenu());
 		
-		this.screen.getMenu().setMessage(new TextComponent(""));
+		this.screen.getMenu().setMessage(Component.empty());
 		
-		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop() - CoinValueInput.HEIGHT, new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
+		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop() - CoinValueInput.HEIGHT, Component.translatable("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
 		this.amountWidget.init();
 		this.amountWidget.allowFreeToggle = false;
 		
-		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 10, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.team"), new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
+		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 10, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, Component.translatable("tooltip.lightmanscurrency.atm.transfer.mode.team"), Component.translatable("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
 		
-		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 50, this.screen.getXSize() - 20, 20, new TextComponent("")));
+		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 50, this.screen.getXSize() - 20, 20, Component.empty()));
 		this.playerInput.visible = this.playerMode;
 		
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 30, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 72, this.screen.getXSize() - 20, 20, new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
+		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 72, this.screen.getXSize() - 20, 20, Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
 		
 	}
@@ -129,7 +128,7 @@ public class TransferTab extends ATMTab {
 
 	private void ToggleMode(Button button) {
 		this.playerMode = !this.playerMode;
-		this.buttonTransfer.setMessage(new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
+		this.buttonTransfer.setMessage(Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
 		this.teamSelection.visible = !this.playerMode;
 		this.playerInput.visible = this.playerMode;
 		this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
@@ -138,7 +137,7 @@ public class TransferTab extends ATMTab {
 	@Override
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
-		Component balance = this.screen.getMenu().getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
+		Component balance = this.screen.getMenu().getAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
 		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 18, 0x404040);
 		
 		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);

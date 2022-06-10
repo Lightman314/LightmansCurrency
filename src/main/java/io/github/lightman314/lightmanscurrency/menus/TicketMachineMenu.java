@@ -26,7 +26,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 	
 	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity tileEntity)
 	{
-		super(ModMenus.TICKET_MACHINE, windowId);
+		super(ModMenus.TICKET_MACHINE.get(), windowId);
 		this.tileEntity = tileEntity;
 		
 		//Slots
@@ -113,7 +113,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		ItemStack outputStack = this.output.getItem(0);
 		if(outputStack.isEmpty())
 			return true;
-		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET)
+		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET.get())
 		{
 			//Confirm that the output item has the same ticket id as the master ticket
 			UUID ticketID = getTicketID();

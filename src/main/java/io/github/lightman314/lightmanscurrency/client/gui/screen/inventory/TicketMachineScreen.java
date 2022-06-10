@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -80,9 +79,9 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 		if(this.buttonCraft != null && this.buttonCraft.active && this.buttonCraft.isMouseOver(mouseX, mouseY))
 		{
 			if(this.menu.hasMasterTicket())
-				this.renderTooltip(matrixStack, new TranslatableComponent("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, new TranslatableComponent("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
 		}
 		
 	}

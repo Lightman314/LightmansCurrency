@@ -24,7 +24,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
 public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStorageTab> implements IScrollListener, IScrollable {
@@ -48,7 +48,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.auction.storage"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.auction.storage"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -72,7 +72,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.auction.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.auction.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -108,7 +108,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 				}
 				
 				if(storedItems.size() <= 0)
-					TextRenderUtil.drawCenteredMultilineText(pose, new TranslatableComponent("tooltip.lightmanscurrency.auction.storage.items.none"), this.screen.getGuiLeft() + 10, this.screen.getXSize() - 20, this.screen.getGuiTop() + X_OFFSET + (18 * ROWS / 2), 0x404040);
+					TextRenderUtil.drawCenteredMultilineText(pose, Component.translatable("tooltip.lightmanscurrency.auction.storage.items.none"), this.screen.getGuiLeft() + 10, this.screen.getXSize() - 20, this.screen.getGuiTop() + X_OFFSET + (18 * ROWS / 2), 0x404040);
 				
 				this.buttonCollectItems.active = storedItems.size() > 0;
 				
@@ -116,12 +116,12 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 				if(storage.getStoredCoins().hasAny())
 				{
 					this.buttonCollectMoney.active = true;
-					this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.auction.storage.money", storage.getStoredCoins().getString("0")), this.screen.getGuiLeft() + 50, this.screen.getGuiTop() + 118, 0x404040);
+					this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.auction.storage.money", storage.getStoredCoins().getString("0")), this.screen.getGuiLeft() + 50, this.screen.getGuiTop() + 118, 0x404040);
 				}
 				else
 				{
 					this.buttonCollectMoney.active = false;
-					this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.auction.storage.money.none"), this.screen.getGuiLeft() + 50, this.screen.getGuiTop() + 118, 0x404040);
+					this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.auction.storage.money.none"), this.screen.getGuiLeft() + 50, this.screen.getGuiTop() + 118, 0x404040);
 				}
 				
 			}

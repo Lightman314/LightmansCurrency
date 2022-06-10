@@ -27,6 +27,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.level.storage.loot.LootPool.Builder;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
@@ -174,20 +175,20 @@ public class LootManager {
 			return;
 		
 		//Normal Loot
-		ENTITY_LOOT_COPPER = GenerateEntityCoinPool(ModItems.COIN_COPPER, 1, 10, 0.75f, "lightmanscurrency:entityloot_copper", true);
-		ENTITY_LOOT_IRON = GenerateEntityCoinPool(ModItems.COIN_IRON, 1, 5, 0.5f, "lightmanscurrency:entityloot_iron", true);
-		ENTITY_LOOT_GOLD = GenerateEntityCoinPool(ModItems.COIN_GOLD, 1, 5, 0.25f, "lightmanscurrency:entityloot_gold", true);
-		ENTITY_LOOT_EMERALD = GenerateEntityCoinPool(ModItems.COIN_EMERALD, 1, 3, 0.1f, "lightmanscurrency:entityloot_emerald", true);
-		ENTITY_LOOT_DIAMOND = GenerateEntityCoinPool(ModItems.COIN_DIAMOND, 1, 3, 0.05f, "lightmanscurrency:entityloot_diamond", true);
-		ENTITY_LOOT_NETHERITE = GenerateEntityCoinPool(ModItems.COIN_NETHERITE, 1, 3, 0.025F, "lightmanscurrency:entityloot_netherite", true);
+		ENTITY_LOOT_COPPER = GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 1, 10, 0.75f, "lightmanscurrency:entityloot_copper", true);
+		ENTITY_LOOT_IRON = GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 1, 5, 0.5f, "lightmanscurrency:entityloot_iron", true);
+		ENTITY_LOOT_GOLD = GenerateEntityCoinPool(ModItems.COIN_GOLD.get(), 1, 5, 0.25f, "lightmanscurrency:entityloot_gold", true);
+		ENTITY_LOOT_EMERALD = GenerateEntityCoinPool(ModItems.COIN_EMERALD.get(), 1, 3, 0.1f, "lightmanscurrency:entityloot_emerald", true);
+		ENTITY_LOOT_DIAMOND = GenerateEntityCoinPool(ModItems.COIN_DIAMOND.get(), 1, 3, 0.05f, "lightmanscurrency:entityloot_diamond", true);
+		ENTITY_LOOT_NETHERITE = GenerateEntityCoinPool(ModItems.COIN_NETHERITE.get(), 1, 3, 0.025F, "lightmanscurrency:entityloot_netherite", true);
 		
 		//Boss loot
-		ENTITY_LOOT_BOSS_COPPER = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false));
-		ENTITY_LOOT_BOSS_IRON = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false));
-		ENTITY_LOOT_BOSS_GOLD = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false));
-		ENTITY_LOOT_BOSS_EMERALD = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false));
-		ENTITY_LOOT_BOSS_DIAMOND = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(ModItems.COIN_DIAMOND, 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false));
-		ENTITY_LOOT_BOSS_NETHERITE = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(ModItems.COIN_DIAMOND, 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false),GenerateEntityCoinPool(ModItems.COIN_NETHERITE, 1, 5, 1.0f, "lightmanscurrency:coinloot_boss_netherite", false));
+		ENTITY_LOOT_BOSS_COPPER = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false));
+		ENTITY_LOOT_BOSS_IRON = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false));
+		ENTITY_LOOT_BOSS_GOLD = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false));
+		ENTITY_LOOT_BOSS_EMERALD = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false));
+		ENTITY_LOOT_BOSS_DIAMOND = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(ModItems.COIN_DIAMOND.get(), 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false));
+		ENTITY_LOOT_BOSS_NETHERITE = ImmutableList.of(GenerateEntityCoinPool(ModItems.COIN_COPPER.get(), 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(ModItems.COIN_IRON.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(ModItems.COIN_GOLD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(ModItems.COIN_EMERALD.get(), 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(ModItems.COIN_DIAMOND.get(), 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false),GenerateEntityCoinPool(ModItems.COIN_NETHERITE.get(), 1, 5, 1.0f, "lightmanscurrency:coinloot_boss_netherite", false));
 		
 		//Chest loot
 		CHEST_LOOT_COPPER = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER}, 1, 5, "lightmanscurrency:chestloot_copper");
@@ -296,7 +297,7 @@ public class LootManager {
 			}
 		}
 		
-		String name = event.getEntityLiving().getType().getRegistryName().toString();
+		String name = ForgeRegistries.ENTITIES.getKey(event.getEntityLiving().getType()).toString();
 		Player player = null;
 		
 		if(event.getSource().getDirectEntity() instanceof Player || event.getSource().getEntity() instanceof Player)
@@ -749,12 +750,12 @@ public class LootManager {
 			this.weight = weight;
 		}
 		
-		public static ChestLootEntryData COPPER = new ChestLootEntryData(ModItems.COIN_COPPER, 1,10, 1);
-		public static ChestLootEntryData IRON = new ChestLootEntryData(ModItems.COIN_IRON, 1,10, 2);
-		public static ChestLootEntryData GOLD = new ChestLootEntryData(ModItems.COIN_GOLD, 1,10, 3);
-		public static ChestLootEntryData EMERALD = new ChestLootEntryData(ModItems.COIN_EMERALD, 1,10, 4);
-		public static ChestLootEntryData DIAMOND = new ChestLootEntryData(ModItems.COIN_DIAMOND, 1, 8, 5);
-		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE, 1,3, 6);
+		public static ChestLootEntryData COPPER = new ChestLootEntryData(ModItems.COIN_COPPER.get(), 1, 10, 1);
+		public static ChestLootEntryData IRON = new ChestLootEntryData(ModItems.COIN_IRON.get(), 1, 10, 2);
+		public static ChestLootEntryData GOLD = new ChestLootEntryData(ModItems.COIN_GOLD.get(), 1, 10, 3);
+		public static ChestLootEntryData EMERALD = new ChestLootEntryData(ModItems.COIN_EMERALD.get(), 1, 10, 4);
+		public static ChestLootEntryData DIAMOND = new ChestLootEntryData(ModItems.COIN_DIAMOND.get(), 1, 8, 5);
+		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE.get(), 1, 3, 6);
 		
 	}
 	

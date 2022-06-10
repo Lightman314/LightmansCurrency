@@ -21,8 +21,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
@@ -33,7 +32,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.owner"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.owner"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -53,19 +52,19 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	@Override
 	public void onOpen() {
 		
-		this.newOwnerInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 26, 160, 20, new TextComponent("")));
+		this.newOwnerInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 26, 160, 20, Component.empty()));
 		this.newOwnerInput.setMaxLength(16);
 		
-		this.buttonSetOwner = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 47, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.set_owner"), this::setOwner));
+		this.buttonSetOwner = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 47, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner));
 		this.buttonSetOwner.active = false;
 		
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 25, 4, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
 		this.teamSelection.init(screen::addRenderableTabWidget, this.font);
 		
-		this.buttonSetTeamOwner = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 117, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner));
+		this.buttonSetTeamOwner = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 23, this.screen.getGuiTop() + 117, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner));
 		this.buttonSetTeamOwner.active = false;
 		
-		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - IconButton.SIZE - 3, this.screen.getGuiTop() + 3, this::toggleMode, this::getModeIcon, new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, new TranslatableComponent("tooltip.lightmanscurrency.settings.owner.player"), new TranslatableComponent("tooltip.lightmanscurrency.settings.owner.team"))));
+		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - IconButton.SIZE - 3, this.screen.getGuiTop() + 3, this::toggleMode, this::getModeIcon, new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, Component.translatable("tooltip.lightmanscurrency.settings.owner.player"), Component.translatable("tooltip.lightmanscurrency.settings.owner.team"))));
 		
 		this.tick();
 		
@@ -104,7 +103,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 		if(this.menu.getBE() == null)
 			return;
 		
-		this.font.draw(pose, TextRenderUtil.fitString(new TranslatableComponent("gui.button.lightmanscurrency.team.owner", this.menu.getBE().getOwnerName()), this.screen.getXSize() - 20), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 10, 0x404040);
+		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.menu.getBE().getOwnerName()), this.screen.getXSize() - 20), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 10, 0x404040);
 		
 	}
 	
@@ -127,7 +126,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 		//Render button tooltips
 		if(this.buttonSetOwner.isMouseOver(mouseX, mouseY) || this.buttonSetTeamOwner.isMouseOver(mouseX, mouseY))
 		{
-			this.screen.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
+			this.screen.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
 		}
 		
 		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonToggleMode));

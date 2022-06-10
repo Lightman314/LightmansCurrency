@@ -15,7 +15,7 @@ import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer{
 
@@ -25,7 +25,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.edit_trades"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.edit_trades"); }
 
 	@Override
 	public boolean tabButtonVisible() { return true; }

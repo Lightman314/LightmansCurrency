@@ -24,7 +24,7 @@ public class FileUtil {
 	
 	public static JsonObject convertItemStack(ItemStack item) {
 		JsonObject json = new JsonObject();
-		json.addProperty("id", item.getItem().getRegistryName().toString());
+		json.addProperty("id", ForgeRegistries.ITEMS.getKey(item.getItem()).toString());
 		json.addProperty("Count", item.getCount());
 		if(item.hasTag())
 		{

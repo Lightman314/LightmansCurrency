@@ -25,7 +25,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -49,18 +49,18 @@ public class MoneyUtil {
 	public static MoneyData getMoneyData() { return moneyData; }
 	public static void receiveMoneyData(MoneyData data) { moneyData = data; }
 	
-	public static Component getPluralName(Item coin) {
+	public static MutableComponent getPluralName(Item coin) {
 		if(moneyData != null)
 			return moneyData.getPluralName(coin);
 		return getDefaultPlural(coin);
 	}
 	
-	public static Component getDefaultPlural(Item coin) {
+	public static MutableComponent getDefaultPlural(Item coin) {
 		//If no plural form defined, attempt to find one.
 		String defaultPlural = coin.getDescriptionId() + ".plural";
-		if(new TranslatableComponent(defaultPlural).getString().equals(defaultPlural))
-			return new TranslatableComponent("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
-		return new TranslatableComponent(defaultPlural);
+		if(Component.translatable(defaultPlural).getString().equals(defaultPlural))
+			return Component.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
+		return Component.translatable(defaultPlural);
 	}
 	
 	@SubscribeEvent
@@ -122,99 +122,99 @@ public class MoneyUtil {
     	LightmansCurrency.LogInfo("Generating default coin values.");
     	
     	//Copper Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_COPPER, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_COPPER.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_copper.initial")
     			.definePluralForm("item.lightmanscurrency.coin_copper.plural"));
     	//Iron Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_IRON, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_IRON.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_iron.initial")
     			.definePluralForm("item.lightmanscurrency.coin_iron.plural")
-    			.defineConversion(ModItems.COIN_COPPER, 10));
+    			.defineConversion(ModItems.COIN_COPPER.get(), 10));
     	//Gold Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_GOLD, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_GOLD.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_gold.initial")
     			.definePluralForm("item.lightmanscurrency.coin_gold.plural")
-    			.defineConversion(ModItems.COIN_IRON, 10));
+    			.defineConversion(ModItems.COIN_IRON.get(), 10));
     	//Emerald Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_EMERALD, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_EMERALD.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_emerald.initial")
     			.definePluralForm("item.lightmanscurrency.coin_emerald.plural")
-    			.defineConversion(ModItems.COIN_GOLD, 10));
+    			.defineConversion(ModItems.COIN_GOLD.get(), 10));
     	//Diamond Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_DIAMOND, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_DIAMOND.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_diamond.initial")
     			.definePluralForm("item.lightmanscurrency.coin_diamond.plural")
-    			.defineConversion(ModItems.COIN_EMERALD, 10));
+    			.defineConversion(ModItems.COIN_EMERALD.get(), 10));
     	//Netherite Coin
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_NETHERITE, MAIN_CHAIN)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModItems.COIN_NETHERITE.get(), MAIN_CHAIN)
     			.defineInitial("item.lightmanscurrency.coin_netherite.initial")
     			.definePluralForm("item.lightmanscurrency.coin_netherite.plural")
-    			.defineConversion(ModItems.COIN_DIAMOND, 10));
+    			.defineConversion(ModItems.COIN_DIAMOND.get(), 10));
     	
     	//Hidden coins
     	//Copper Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_COPPER, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_COPPER, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_COPPER.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_COPPER.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_copper.plural")
     			.setHidden());
     	//Copper Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_COPPER, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_COPPER, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_COPPER.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_COPPER.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_copper.plural")
     			.setHidden());
     	
     	//Iron Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_IRON, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_IRON, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_IRON.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_IRON.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_iron.plural")
     			.setHidden());
     	//Iron Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_IRON, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_IRON, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_IRON.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_IRON.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_iron.plural")
     			.setHidden());
     	
     	//Gold Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_GOLD, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_GOLD, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_GOLD.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_GOLD.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_gold.plural")
     			.setHidden());
     	//Gold Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_GOLD, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_GOLD, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_GOLD.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_GOLD.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_gold.plural")
     			.setHidden());
     	
     	//Emerald Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_EMERALD, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_EMERALD, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_EMERALD.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_EMERALD.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_emerald.plural")
     			.setHidden());
     	//Emerald Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_EMERALD, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_EMERALD, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_EMERALD.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_EMERALD.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_emerald.plural")
     			.setHidden());
     	
     	//Diamond Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_DIAMOND, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_DIAMOND, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_DIAMOND.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_DIAMOND.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_diamond.plural")
     			.setHidden());
     	//Diamond Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_DIAMOND, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_DIAMOND, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_DIAMOND.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_DIAMOND.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_diamond.plural")
     			.setHidden());
     	
     	//Netherite Coinpile
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_NETHERITE, MAIN_CHAIN)
-    			.defineConversion(ModItems.COIN_NETHERITE, 9)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINPILE_NETHERITE.get(), MAIN_CHAIN)
+    			.defineConversion(ModItems.COIN_NETHERITE.get(), 9)
     			.definePluralForm("block.lightmanscurrency.coinpile_netherite.plural")
     			.setHidden());
     	//Netherite Coin Block
-    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_NETHERITE, MAIN_CHAIN)
-    			.defineConversion(ModBlocks.COINPILE_NETHERITE, 4)
+    	event.dataCollector.addCoinBuilder(CoinData.getBuilder(ModBlocks.COINBLOCK_NETHERITE.get(), MAIN_CHAIN)
+    			.defineConversion(ModBlocks.COINPILE_NETHERITE.get(), 4)
     			.definePluralForm("block.lightmanscurrency.coinblock_netherite.plural")
     			.setHidden());
 		

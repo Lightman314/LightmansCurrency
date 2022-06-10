@@ -18,9 +18,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
+public abstract class UpgradeType {
 
 	private static final Map<ResourceLocation,UpgradeType> UPGRADE_TYPE_REGISTRY = new HashMap<>();
 	
@@ -35,18 +34,15 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 	
-	@Override
 	public UpgradeType setRegistryName(ResourceLocation name) {
 		this.type = name;
 		return this;
 	}
 
-	@Override
 	public ResourceLocation getRegistryName() {
 		return this.type;
 	}
 
-	@Override
 	public Class<UpgradeType> getRegistryType() {
 		return UpgradeType.class;
 	}

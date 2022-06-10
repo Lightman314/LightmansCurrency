@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -31,7 +31,7 @@ public class TooltipItem extends Item{
 		
 		while(true)
 		{
-			TranslatableComponent nextLine = getTooltipLine(tooltipTranslation, ++i);
+			MutableComponent nextLine = getTooltipLine(tooltipTranslation, ++i);
 			if(nextLine == null)
 				return result;
 			if(format != null)
@@ -40,9 +40,9 @@ public class TooltipItem extends Item{
 		}
 	}
 	
-	private static TranslatableComponent getTooltipLine(String tooltipTranslation, int page) {
+	private static MutableComponent getTooltipLine(String tooltipTranslation, int page) {
 		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + String.valueOf(page);
-		TranslatableComponent result = new TranslatableComponent(tt);
+		MutableComponent result = Component.translatable(tt);
 		//Returns null if the translated text is the translation key.
 		if(result.getString().contentEquals(tt))
 			return null;
@@ -63,7 +63,7 @@ public class TooltipItem extends Item{
 		if(Screen.hasShiftDown())
 			tooltip.addAll(tooltipSource.get());
 		else
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.tooltip").withStyle(DEFAULT_STYLE));
+			tooltip.add(Component.translatable("tooltip.lightmanscurrency.tooltip").withStyle(DEFAULT_STYLE));
 	}
 	
 	public static void addTooltipAlways(List<Component> tooltip, NonNullSupplier<List<Component>> tooltipSource) {

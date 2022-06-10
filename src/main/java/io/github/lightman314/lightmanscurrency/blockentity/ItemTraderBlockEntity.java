@@ -96,14 +96,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.ITEM_TRADER, pos, state);
+		super(ModBlockEntities.ITEM_TRADER.get(), pos, state);
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.validateTradeRestrictions();
 	}
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModBlockEntities.ITEM_TRADER, pos, state);
+		super(ModBlockEntities.ITEM_TRADER.get(), pos, state);
 		this.tradeCount = tradeCount;
 		this.trades = ItemTradeData.listOfSize(tradeCount);
 		this.validateTradeRestrictions();

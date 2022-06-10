@@ -14,7 +14,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 
 public class BankAccountWidget {
@@ -45,12 +44,12 @@ public class BankAccountWidget {
 		
 		int screenMiddle = this.parent.getScreen().width / 2;
 		
-		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(screenMiddle - CoinValueInput.DISPLAY_WIDTH / 2, this.y, new TranslatableComponent("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this.parent.getFont(), value -> {}, this.parent::addCustomWidget));
+		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(screenMiddle - CoinValueInput.DISPLAY_WIDTH / 2, this.y, Component.translatable("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this.parent.getFont(), value -> {}, this.parent::addCustomWidget));
 		this.amountSelection.allowFreeToggle = false;
 		this.amountSelection.init();
 		
-		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.deposit"), this::OnDeposit));
-		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.withdraw"), this::OnWithdraw));
+		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, Component.translatable("gui.button.bank.deposit"), this::OnDeposit));
+		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, Component.translatable("gui.button.bank.withdraw"), this::OnWithdraw));
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		
 	}
@@ -62,7 +61,7 @@ public class BankAccountWidget {
 		
 		int screenMiddle = this.parent.getScreen().width / 2;
 		Font font = this.parent.getFont();
-		Component balanceComponent = this.parent.getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.parent.getAccount().getCoinStorage().getString("0"));
+		Component balanceComponent = this.parent.getAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.parent.getAccount().getCoinStorage().getString("0"));
 		int offset = font.width(balanceComponent.getString()) / 2;
 		this.parent.getFont().draw(pose, balanceComponent, screenMiddle - offset, this.y + CoinValueInput.HEIGHT + 30 + spacing + yOffset, 0x404040);
 		

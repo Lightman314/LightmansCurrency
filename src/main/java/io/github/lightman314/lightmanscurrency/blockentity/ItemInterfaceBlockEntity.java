@@ -17,7 +17,7 @@ public class ItemInterfaceBlockEntity extends BlockEntity{
 	
 	
 	public ItemInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.ITEM_INTERFACE, pos, state);
+		super(ModBlockEntities.ITEM_INTERFACE.get(), pos, state);
 	}
 	
 	//Item capability for hopper and item automation

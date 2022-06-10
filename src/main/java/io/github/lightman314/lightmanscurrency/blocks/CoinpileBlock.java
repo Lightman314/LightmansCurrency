@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import java.util.function.Supplier;
+
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
@@ -31,12 +33,12 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
-	public CoinpileBlock(Properties properties, Item coinItem)
+	public CoinpileBlock(Properties properties, Supplier<Item> coinItem)
 	{
 		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
 	}
 	
-	public CoinpileBlock(Properties properties, Item coinItem, VoxelShape shape)
+	public CoinpileBlock(Properties properties, Supplier<Item> coinItem, VoxelShape shape)
 	{
 		super(properties, coinItem);
 		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;

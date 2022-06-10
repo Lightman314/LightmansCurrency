@@ -11,8 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
@@ -23,14 +22,10 @@ public class TeamMemberListTab extends TeamTab {
 	private TeamMemberListTab() { }
 	
 	@Override
-	public IconData getIcon() {
-		return IconData.of(Items.PLAYER_HEAD);
-	}
+	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.members");
-	}
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.members"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -55,11 +50,11 @@ public class TeamMemberListTab extends TeamTab {
 		if(team != null)
 		{
 			//List Owner
-			list.add(new TextComponent(team.getOwner().lastKnownName()).withStyle(ChatFormatting.GREEN));
+			list.add(team.getOwner().lastKnownNameComponent().withStyle(ChatFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(new TextComponent(admin.lastKnownName()).withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(admin.lastKnownNameComponent().withStyle(ChatFormatting.DARK_GREEN)));
 			//List members
-			team.getMembers().forEach(member -> list.add(new TextComponent(member.lastKnownName())));
+			team.getMembers().forEach(member -> list.add(member.lastKnownNameComponent()));
 		}
 		
 		return list;

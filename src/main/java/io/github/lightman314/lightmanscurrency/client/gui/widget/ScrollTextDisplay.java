@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public class ScrollTextDisplay extends AbstractWidget{
 
@@ -26,7 +25,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	
 	public ScrollTextDisplay(int x, int y, int width, int height, Font font, Supplier<List<? extends Component>> textSource)
 	{
-		super(x,y,width,height, new TextComponent(""));
+		super(x, y, width, height, Component.empty());
 		
 		this.font = font;
 		this.textSource = textSource;

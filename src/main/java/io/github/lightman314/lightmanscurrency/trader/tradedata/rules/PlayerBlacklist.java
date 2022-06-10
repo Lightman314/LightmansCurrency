@@ -23,8 +23,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -41,7 +39,7 @@ public class PlayerBlacklist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(this.isBlacklisted(event.getPlayerReference()))
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.blacklist.denial").withStyle(ChatFormatting.RED));
+			event.denyTrade(Component.translatable("traderule.lightmanscurrency.blacklist.denial").withStyle(ChatFormatting.RED));
 	}
 
 	public boolean isBlacklisted(PlayerReference player)
@@ -183,10 +181,10 @@ public class PlayerBlacklist extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, new TextComponent("")));
+			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
-			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
 			
 			this.playerDisplay = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getBlacklistedPlayers));
 			this.playerDisplay.setColumnCount(2);
@@ -199,7 +197,7 @@ public class PlayerBlacklist extends TradeRule{
 			if(getBlacklistRule() == null)
 				return playerList;
 			for(PlayerReference player : getBlacklistRule().bannedPlayers)
-				playerList.add(new TextComponent(player.lastKnownName()));
+				playerList.add(player.lastKnownNameComponent());
 			return playerList;
 		}
 		

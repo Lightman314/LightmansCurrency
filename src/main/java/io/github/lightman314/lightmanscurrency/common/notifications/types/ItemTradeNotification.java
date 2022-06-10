@@ -14,8 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -61,9 +60,9 @@ public class ItemTradeNotification extends Notification{
 	public Category getCategory() { return this.traderData; }
 
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 		
 		Component itemText = getItemNames(this.items.get(0), this.items.get(1));
 		
@@ -75,16 +74,16 @@ public class ItemTradeNotification extends Notification{
 			itemText = getItemNames(this.items.get(2), this.items.get(3));
 		}
 		else
-			cost = new TextComponent(this.cost.getString("0"));
+			cost = Component.literal(this.cost.getString("0"));
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
+		return Component.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		
 	}
 	
 	private Component getItemNames(ItemData item1, ItemData item2) {
 		if(item1.isEmpty && item2.isEmpty)
-			return new TextComponent("ERROR");
+			return Component.literal("ERROR");
 		else if(item2.isEmpty)
 			return item1.format();
 		else if(item1.isEmpty)
@@ -165,14 +164,14 @@ public class ItemTradeNotification extends Notification{
 			this.isEmpty = item.isEmpty();
 			if(this.isEmpty)
 			{
-				this.itemName = new TextComponent("");
+				this.itemName = Component.empty();
 				this.count = 0;
 				return;
 			}
 			if(customName.isEmpty())
 				itemName = item.getHoverName();
 			else
-				this.itemName = new TextComponent(customName);
+				this.itemName = Component.literal(customName);
 			this.count = item.getCount();
 		}
 		
@@ -180,7 +179,7 @@ public class ItemTradeNotification extends Notification{
 			this.isEmpty = compound.contains("Empty");
 			if(this.isEmpty)
 			{
-				this.itemName = new TextComponent("");
+				this.itemName = Component.empty();
 				this.count = 0;
 				return;
 			}
@@ -200,11 +199,11 @@ public class ItemTradeNotification extends Notification{
 			return compound;
 		}
 		
-		public Component format() { return new TranslatableComponent("log.shoplog.item.itemformat", this.count, this.itemName); }
+		public Component format() { return Component.translatable("log.shoplog.item.itemformat", this.count, this.itemName); }
 		
-		public Component formatWith(Component other) { return new TranslatableComponent("log.shoplog.and", this.format(), other); }
+		public Component formatWith(Component other) { return Component.translatable("log.shoplog.and", this.format(), other); }
 		
-		public Component formatWith(ItemData other) { return new TranslatableComponent("log.shoplog.and", this.format(), other.format()); }
+		public Component formatWith(ItemData other) { return Component.translatable("log.shoplog.and", this.format(), other.format()); }
 		
 	}
 	

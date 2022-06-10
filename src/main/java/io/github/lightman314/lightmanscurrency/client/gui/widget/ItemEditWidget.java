@@ -26,14 +26,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
@@ -67,7 +67,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	private final Font font;
 	
 	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
-		super(x, y, columns * 18, rows * 18, new TextComponent(""));
+		super(x, y, columns * 18, rows * 18, Component.empty());
 		this.listener = listener;
 		
 		this.columns = columns;
@@ -203,7 +203,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 					this.searchResultItems.add(stack);
 				}
 				//Search the registry name
-				else if(stack.getItem().getRegistryName().toString().contains(this.searchString))
+				else if(ForgeRegistries.ITEMS.getKey(stack.getItem()).toString().contains(this.searchString))
 				{
 					this.searchResultItems.add(stack);
 				}
@@ -213,7 +213,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 					AtomicReference<Boolean> enchantmentMatch = new AtomicReference<>(false);
 					Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
 					enchantments.forEach((enchantment, level) ->{
-						if(enchantment.getRegistryName().toString().contains(this.searchString))
+						if(ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString().contains(this.searchString))
 							enchantmentMatch.set(true);
 						else if(enchantment.getFullname(level).getString().toLowerCase().contains(this.searchString))
 							enchantmentMatch.set(true);
@@ -235,7 +235,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	
 	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
 		
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
@@ -304,7 +304,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 			}
 		}
 		if(this.isMouseOverStackSizeScroll(mouseX,mouseY))
-			screen.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
+			screen.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
 	}
 	
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {

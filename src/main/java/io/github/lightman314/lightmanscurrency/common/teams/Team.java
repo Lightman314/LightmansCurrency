@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -286,7 +286,7 @@ public class Team {
 		this.markDirty();
 	}
 	
-	private void notificationGenerator(Component accountName, CoinValue value) {
+	private void notificationGenerator(MutableComponent accountName, CoinValue value) {
 		List<PlayerReference> sendTo = new ArrayList<>();
 		if(this.bankAccountLimit < 1)
 			sendTo.addAll(this.members);

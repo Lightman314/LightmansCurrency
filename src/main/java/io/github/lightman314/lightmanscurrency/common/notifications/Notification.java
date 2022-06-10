@@ -11,8 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
@@ -67,16 +66,16 @@ public abstract class Notification {
 	
 	public abstract Category getCategory();
 	
-	public abstract Component getMessage();
+	public abstract MutableComponent getMessage();
 	
-	public Component getGeneralMessage() {
-		return new TranslatableComponent("notifications.source.general.format", this.getCategory().getTooltip(), this.getMessage());
+	public MutableComponent getGeneralMessage() {
+		return Component.translatable("notifications.source.general.format", this.getCategory().getTooltip(), this.getMessage());
 	}
 	
-	public Component getChatMessage() {
-		return new TranslatableComponent("notifications.chat.format",
-				new TranslatableComponent("notifications.chat.format.title", this.getCategory().getTooltip()).withStyle(ChatFormatting.GOLD),
-				new TextComponent("").append(this.getMessage()));
+	public MutableComponent getChatMessage() {
+		return Component.translatable("notifications.chat.format",
+				Component.translatable("notifications.chat.format.title", this.getCategory().getTooltip()).withStyle(ChatFormatting.GOLD),
+				this.getMessage());
 	}
 	
 	public final CompoundTag save() {
@@ -165,8 +164,11 @@ public abstract class Notification {
 			}
 		}
 		
+		/* Obsolete as this is covered by ITab
 		public abstract IconData getIcon();
-		public abstract Component getTooltip();
+		*/
+		public final MutableComponent getTooltip() { return this.getName(); }
+		public abstract MutableComponent getName();
 		public final int getColor() { return 0xFFFFFF; }
 		protected abstract ResourceLocation getType();
 		
@@ -176,7 +178,7 @@ public abstract class Notification {
 			@Override
 			public IconData getIcon() { return IconData.of(Items.CHEST); }
 			@Override
-			public Component getTooltip() { return new TranslatableComponent("notifications.source.general"); }
+			public MutableComponent getName() { return Component.translatable("notifications.source.general"); }
 			@Override
 			public boolean matches(Category other) { return other == GENERAL; }
 			@Override

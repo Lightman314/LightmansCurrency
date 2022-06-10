@@ -68,7 +68,7 @@ public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleH
 	List<TradeRule> tradeRules = new ArrayList<>();
 	
 	public PaygateBlockEntity(BlockPos pos, BlockState state) {
-		this(ModBlockEntities.PAYGATE, pos, state);
+		this(ModBlockEntities.PAYGATE.get(), pos, state);
 	}
 	
 	public PaygateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
@@ -445,7 +445,7 @@ public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleH
 	}
 	
 	public int getValidTicketTrade(Player player, ItemStack heldItem) {
-		if(heldItem.getItem() == ModItems.TICKET)
+		if(heldItem.getItem() == ModItems.TICKET.get())
 		{
 			UUID ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID != null)
@@ -517,7 +517,7 @@ public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleH
 			}
 			
 			//Abort if not enough room to put the ticket stub
-			if(!context.canFitItem(new ItemStack(ModItems.TICKET_STUB)))
+			if(!context.canFitItem(new ItemStack(ModItems.TICKET_STUB.get())))
 			{
 				LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
@@ -531,7 +531,7 @@ public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleH
 			}
 			
 			//Give the ticket stub
-			context.putItem(new ItemStack(ModItems.TICKET_STUB));
+			context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
 			
 			//Activate the paygate
 			this.activate(trade.getDuration());

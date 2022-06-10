@@ -16,7 +16,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class TeamSelectWidget extends AbstractWidget {
 
@@ -32,7 +32,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 	
 	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, size.width, TeamButton.HEIGHT * rows, new TextComponent(""));
+		super(x, y, size.width, TeamButton.HEIGHT * rows, Component.empty());
 		this.rows = rows;
 		this.size = size;
 		this.teamSource = teamSource;

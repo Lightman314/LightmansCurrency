@@ -26,7 +26,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -50,7 +49,7 @@ public class TradeButton extends Button{
 	public boolean displayOnly = false;
 	
 	public TradeButton(Supplier<TradeContext> contextSource, Supplier<ITradeData> tradeSource, OnPress onPress) {
-		super(0, 0, 0, 0, new TextComponent(""), onPress);
+		super(0, 0, 0, 0, Component.empty(), onPress);
 		this.tradeSource = tradeSource;
 		this.contextSource = contextSource;
 		this.recalculateSize();
@@ -539,7 +538,7 @@ public class TradeButton extends Button{
 	public static abstract class DisplayEntry
 	{
 		
-		private static final DisplayEntry EMPTY = of(new TextComponent(""), TextFormatting.create());
+		private static final DisplayEntry EMPTY = of(Component.empty(), TextFormatting.create());
 		
 		private final List<Component> tooltip;
 		
@@ -690,7 +689,7 @@ public class TradeButton extends Button{
 				if(tooltipOverride && additionalTooltips != null)
 					return additionalTooltips;
 				if(!price.isFree() && price.isValid())
-					tooltips.add(new TextComponent(price.getString()));
+					tooltips.add(Component.literal(price.getString()));
 				if(additionalTooltips != null)
 					tooltips.addAll(additionalTooltips);
 				return tooltips;
@@ -703,7 +702,7 @@ public class TradeButton extends Button{
 					Font font = this.getFont();
 					int left = x + area.xOffset + (area.width / 2) - (font.width(this.price.getString()) / 2);
 					int top = y + area.yOffset + (area.height / 2) - (font.lineHeight / 2);
-					font.draw(pose, new TextComponent(this.price.getString()), left, top, 0xFFFFFF);
+					font.draw(pose, Component.literal(this.price.getString()), left, top, 0xFFFFFF);
 				}
 				else
 				{

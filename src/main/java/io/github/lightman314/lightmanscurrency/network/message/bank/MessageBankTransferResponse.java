@@ -7,13 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageBankTransferResponse {
 	
-	Component responseMessage;
+	MutableComponent responseMessage;
 	
-	public MessageBankTransferResponse(Component responseMessage) {
+	public MessageBankTransferResponse(MutableComponent responseMessage) {
 		this.responseMessage = responseMessage;
 	}
 	

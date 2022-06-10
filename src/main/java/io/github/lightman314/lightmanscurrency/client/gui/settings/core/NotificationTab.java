@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
@@ -13,8 +12,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSetting
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class NotificationTab extends SettingsTab{
@@ -28,7 +26,7 @@ public class NotificationTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.notifications"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.notifications"); }
 	
 	private NotificationTab() { }
 	
@@ -36,9 +34,7 @@ public class NotificationTab extends SettingsTab{
 	Button buttonToggleTeamLevel;
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() {
-		return ImmutableList.of(Permissions.TRANSFER_OWNERSHIP);
-	}
+	public boolean canOpen() { return this.hasPermissions(Permissions.TRANSFER_OWNERSHIP); }
 
 	@Override
 	public void initTab() {
@@ -47,7 +43,7 @@ public class NotificationTab extends SettingsTab{
 		
 		this.buttonToggleNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 35, 10, 10, this::TogglePermission, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
-		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, screen.xSize - 40, 20, new TextComponent(""), this::ToggleTeamNotificationLevel));
+		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, screen.xSize - 40, 20, Component.empty(), this::ToggleTeamNotificationLevel));
 		
 		this.tick();
 		
@@ -59,13 +55,13 @@ public class NotificationTab extends SettingsTab{
 		TraderSettingsScreen screen = this.getScreen();
 		
 		//Render the enable notification test
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.notifications.enabled"), screen.guiLeft() + 32, screen.guiTop() + 35, 0x404040);
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.notifications.enabled"), screen.guiLeft() + 32, screen.guiTop() + 35, 0x404040);
 		
 		CoreTraderSettings coreSettings = this.getSetting(CoreTraderSettings.class);
 		this.buttonToggleTeamLevel.visible = coreSettings.getTeam() != null;
 		if(this.buttonToggleTeamLevel.visible)
 		{
-			Component message = new TranslatableComponent("gui.button.lightmanscurrency.team.bank.notifications", new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit." + coreSettings.getTeamNotificationLevel()));
+			Component message = Component.translatable("gui.button.lightmanscurrency.team.bank.notifications", Component.translatable("gui.button.lightmanscurrency.team.bank.limit." + coreSettings.getTeamNotificationLevel()));
 			this.buttonToggleTeamLevel.setMessage(message);
 		}
 		

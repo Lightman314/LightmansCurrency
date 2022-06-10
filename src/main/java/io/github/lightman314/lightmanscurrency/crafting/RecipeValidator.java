@@ -18,7 +18,7 @@ public class RecipeValidator {
 	{
 		Results results = new Results();
 		RecipeManager recipeManager = level.getRecipeManager();
-		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT))
+		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT.get()))
 		{
 			if(recipe instanceof CoinMintRecipe)
 			{

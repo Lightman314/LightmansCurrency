@@ -11,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -39,14 +38,14 @@ public class CoinJarItem extends BlockItem {
 				{
 					ItemStack coin = jarStorage.get(i);
 					if(coin.getCount() > 1)
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
+						tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
 					else
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
+						tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
 				}
 			}
 			else
 			{
-				tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(Component.translatable("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
 			}
 		}
 

@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInter
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TradeSelectTab;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTab> {
 
@@ -24,7 +24,7 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trade"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.trade"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return false; }

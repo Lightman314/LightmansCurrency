@@ -10,9 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<CoinMintRecipe>{
+public class CoinMintRecipeSerializer /*extends ForgeRegistryEntry<RecipeSerializer<?>>*/ implements RecipeSerializer<CoinMintRecipe>{
 
 	@Override
 	public CoinMintRecipe fromJson(ResourceLocation recipeId, JsonObject json) {

@@ -39,7 +39,7 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, TRADECOUNT); }
 	
 	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
+	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {

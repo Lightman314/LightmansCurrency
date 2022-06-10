@@ -5,7 +5,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class SpeedUpgrade extends UpgradeType{
 
@@ -27,7 +26,7 @@ public class SpeedUpgrade extends UpgradeType{
 	@Override
 	public List<Component> getTooltip(UpgradeData data)
 	{
-		return Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.upgrade.speed", data.getIntValue(DELAY_AMOUNT)));
+		return Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.upgrade.speed", data.getIntValue(DELAY_AMOUNT)));
 	}
 	
 }

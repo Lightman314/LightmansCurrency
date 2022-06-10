@@ -18,7 +18,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class DropdownWidget extends AbstractWidget {
@@ -51,7 +50,7 @@ public class DropdownWidget extends AbstractWidget {
 	}
 	
 	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, List<Component> options) {
-		super(x, y, width, HEIGHT, new TextComponent(""));
+		super(x, y, width, HEIGHT, Component.empty());
 		this.font = font;
 		this.options = options;
 		this.currentlySelected = MathUtil.clamp(selected, 0, this.options.size() - 1);

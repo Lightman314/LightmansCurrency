@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.menus.MintMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,7 +32,7 @@ import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 
 public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 
-	private static final TranslatableComponent TITLE = new TranslatableComponent("gui.lightmanscurrency.coinmint.title");
+	private static final MutableComponent TITLE = Component.translatable("gui.lightmanscurrency.coinmint.title");
 	
 	public CoinMintBlock(Properties properties)
 	{

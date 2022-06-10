@@ -43,7 +43,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return ModRecipes.WALLET_UPGRADE;
+		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		return width * height >= this.ingredients.size();
 	}
 	
-	public static class Serializer extends net.minecraftforge.registries.ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<WalletUpgradeRecipe> {
+	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
 	    
 		
 		@Override

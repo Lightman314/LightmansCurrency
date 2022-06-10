@@ -24,7 +24,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
@@ -55,7 +55,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	public TradingTerminalScreen()
 	{
-		super(new TranslatableComponent("block.lightmanscurrency.terminal"));
+		super(Component.translatable("block.lightmanscurrency.terminal"));
 	}
 	
 	@Override
@@ -67,7 +67,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int guiLeft = (this.width - this.xSize) / 2;
 		int guiTop = (this.height - this.ySize) / 2;
 		
-		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, Component.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);;
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);

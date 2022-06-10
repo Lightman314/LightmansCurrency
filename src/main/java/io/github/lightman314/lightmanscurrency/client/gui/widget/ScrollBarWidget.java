@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class ScrollBarWidget extends AbstractWidget {
@@ -28,7 +28,7 @@ public class ScrollBarWidget extends AbstractWidget {
 	private int getKnobHeight() { return this.smallKnob ? SMALL_KNOB_HEIGHT : KNOB_HEIGHT; }
 	
 	public ScrollBarWidget(int x, int y, int height, IScrollable scrollable) {
-		super(x, y, WIDTH, height, new TextComponent(""));
+		super(x, y, WIDTH, height, Component.empty());
 		this.scrollable = scrollable;
 	}
 

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.item;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -13,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.ItemTraderSetting
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class ItemInputTab extends SettingsTab{
@@ -37,10 +36,10 @@ public class ItemInputTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(Items.HOPPER); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.iteminput"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
 
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(Permissions.ItemTrader.EXTERNAL_INPUTS); }
+	public boolean canOpen() { return this.hasPermissions(Permissions.ItemTrader.EXTERNAL_INPUTS); }
 
 	@Override
 	public void initTab() {
@@ -63,8 +62,8 @@ public class ItemInputTab extends SettingsTab{
 		//ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		
 		//Side Widget Labels
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, textColor);
 		
 		//Limit Toggle Labels
 		//Input

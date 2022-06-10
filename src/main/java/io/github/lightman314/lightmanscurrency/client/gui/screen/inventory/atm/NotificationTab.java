@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSetBankNotificationLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class NotificationTab extends ATMTab {
@@ -26,7 +26,7 @@ public class NotificationTab extends ATMTab {
 	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.notification"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.notification"); }
 
 	@Override
 	public void init() {
@@ -51,7 +51,7 @@ public class NotificationTab extends ATMTab {
 		
 		BankAccount account = this.screen.getMenu().getAccount();
 		if(account != null)
-			TextRenderUtil.drawCenteredMultilineText(pose, account.getNotificationLevel() > 0 ? new TranslatableComponent("gui.lightmanscurrency.notification.details", account.getNotificationValue().getString()) : new TranslatableComponent("gui.lightmanscurrency.notification.disabled"), this.screen.getGuiLeft() + 5, this.screen.getXSize() - 10, this.screen.getGuiTop() + 70, 0x404040);
+			TextRenderUtil.drawCenteredMultilineText(pose, account.getNotificationLevel() > 0 ? Component.translatable("gui.lightmanscurrency.notification.details", account.getNotificationValue().getString()) : Component.translatable("gui.lightmanscurrency.notification.disabled"), this.screen.getGuiLeft() + 5, this.screen.getXSize() - 10, this.screen.getGuiTop() + 70, 0x404040);
 		
 	}
 

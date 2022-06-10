@@ -24,7 +24,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -221,14 +220,14 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		
 		if(this.buttonConvert != null && this.buttonConvert.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
+			this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
 		}
 		else if(this.buttonToggleAutoConvert != null && this.buttonToggleAutoConvert.isMouseOver(mouseX, mouseY))
 		{
 			if(this.autoConvert)
-				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
 		}
 	}
 	

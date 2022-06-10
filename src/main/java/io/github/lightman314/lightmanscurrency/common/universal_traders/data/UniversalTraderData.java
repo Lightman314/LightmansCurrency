@@ -36,8 +36,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -100,7 +98,7 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	@Override
 	public TraderCategory getNotificationCategory() {
-		ItemLike icon = ModItems.TRADING_CORE;
+		ItemLike icon = ModItems.TRADING_CORE.get();
 		try {
 			icon = getCategoryItem();
 		} catch(Exception e) {}
@@ -338,7 +336,7 @@ public abstract class UniversalTraderData implements ITrader{
 		private final UUID traderID;
 		public TradeMenuProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return Component.empty(); }
 		@Override
 		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu.TraderMenuUniversal(windowID, inventory, this.traderID); }
 	}
@@ -369,28 +367,14 @@ public abstract class UniversalTraderData implements ITrader{
 		private final UUID traderID;
 		public StorageMenuProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return Component.empty(); }
 		@Override
 		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderStorageMenu.TraderStorageMenuUniversal(windowID, inventory, this.traderID); }
 	}
 	
-	protected Component getDefaultName()
+	public MutableComponent getDefaultName()
 	{
-		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.default");
-	}
-	
-	public Component getName()
-	{
-		if(this.coreSettings.hasCustomName())
-			return new TextComponent(this.coreSettings.getCustomName());
-		return getDefaultName();
-	}
-	
-	public MutableComponent getTitle()
-	{
-		if(this.coreSettings.getOwnerName().isBlank())
-			return new TextComponent("").append(this.getName());
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
+		return Component.translatable("gui.lightmanscurrency.universaltrader.default");
 	}
 	
 	protected class DataWriter implements Consumer<FriendlyByteBuf>

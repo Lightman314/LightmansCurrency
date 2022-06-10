@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -41,7 +40,7 @@ public class ATMBlock extends TallRotatableBlock{
 	@Override
 	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, Component.empty());
 	}
 	
 	@Override

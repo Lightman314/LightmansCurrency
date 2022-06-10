@@ -8,10 +8,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,35 +28,26 @@ public class IconButton extends Button{
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon)
 	{
-		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
+		super(x, y, SIZE, SIZE, Component.empty(), pressable);
 		this.setIcon(icon);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource)
 	{
-		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
+		super(x, y, SIZE, SIZE, Component.empty(), pressable);
 		this.setIcon(iconSource);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon, OnTooltip tooltip)
 	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
+		super(x, y, SIZE, SIZE, Component.empty(), pressable, tooltip);
 		this.setIcon(icon);
 	}
 	
 	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource, OnTooltip tooltip)
 	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
+		super(x, y, SIZE, SIZE, Component.empty(), pressable, tooltip);
 		this.setIcon(iconSource);
-	}
-	
-	@Deprecated
-	public IconButton(int x, int y, OnPress pressable, Font font, IconData icon) { this(x, y, pressable, icon); }
-	@Deprecated
-	public IconButton(int x, int y, OnPress pressable, ResourceLocation iconResource, int resourceX, int resourceY)
-	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable);
-		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
 	}
 	
 	public void setVisiblityCheck(NonNullSupplier<Boolean> visibilityCheck) {

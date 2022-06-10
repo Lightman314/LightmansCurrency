@@ -46,7 +46,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 	
 	public TraderMenu(int windowID, Inventory inventory, BlockPos sourcePosition) {
-		this(ModMenus.TRADER, windowID, inventory, () -> {
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> {
 			BlockEntity be = inventory.player.level.getBlockEntity(sourcePosition);
 			if(be instanceof ITraderSource)
 				return (ITraderSource)be;
@@ -217,7 +217,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	public static class TraderMenuUniversal extends TraderMenu
 	{
 		public TraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.TRADER_UNIVERSAL, windowID, inventory, () ->{
+			super(ModMenus.TRADER_UNIVERSAL.get(), windowID, inventory, () ->{
 				if(inventory.player.level.isClientSide)
 					return ClientTradingOffice.getData(traderID);
 				else
@@ -233,7 +233,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	public static class TraderMenuAllUniversal extends TraderMenu
 	{
 		public TraderMenuAllUniversal(int windowID, Inventory inventory) {
-			super(ModMenus.TRADER_UNIVERSAL_ALL, windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
+			super(ModMenus.TRADER_UNIVERSAL_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
 		}
 		
 		@Override

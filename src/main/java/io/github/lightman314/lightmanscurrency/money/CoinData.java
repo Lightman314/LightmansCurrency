@@ -8,8 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,7 +64,7 @@ public class CoinData
 		}
 		else
 		{
-			LightmansCurrency.LogError("CoinData.getValue() for " + this.coinItem.getRegistryName() + " returning 1 due it's dependent coin (" + this.worthOtherCoin.getRegistryName() + ") not being registered.");
+			LightmansCurrency.LogError("CoinData.getValue() for " + ForgeRegistries.ITEMS.getKey(this.coinItem) + " returning 1 due it's dependent coin (" + ForgeRegistries.ITEMS.getKey(this.worthOtherCoin) + ") not being registered.");
 			return 1;
 		}
 	}
@@ -91,29 +90,29 @@ public class CoinData
 		return new Pair<>(this.worthOtherCoin, this.worthOtherCoinCount);
 	}
 	
-	public Component getInitial()
+	public MutableComponent getInitial()
 	{
 		if(this.initialTranslation != null && !this.initialTranslation.isBlank())
-			return new TranslatableComponent(this.initialTranslation);
+			return Component.translatable(this.initialTranslation);
 		//LightmansCurrency.LogWarning("No initial found for the coin '" + this.coinItem.getRegistryName().toString() + "'.");
-		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
+		return Component.literal(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
 	}
 	
-	public Component getPlural() {
+	public MutableComponent getPlural() {
 		//Get plural form
 		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
-			return new TranslatableComponent(this.pluralTranslation);
+			return Component.translatable(this.pluralTranslation);
 		return MoneyUtil.getDefaultPlural(this.coinItem);
 	}
 	
 	public JsonObject toJson() {
 		JsonObject json = new JsonObject();
-		json.addProperty("coinitem", this.coinItem.getRegistryName().toString());
+		json.addProperty("coinitem", ForgeRegistries.ITEMS.getKey(this.coinItem).toString());
 		json.addProperty("chain", this.chain);
 		if(this.worthOtherCoin != null && this.worthOtherCoinCount > 0)
 		{
 			JsonObject worth = new JsonObject();
-			worth.addProperty("coin", this.worthOtherCoin.getRegistryName().toString());
+			worth.addProperty("coin", ForgeRegistries.ITEMS.getKey(this.worthOtherCoin).toString());
 			worth.addProperty("count", this.worthOtherCoinCount);
 			json.add("worth", worth);
 		}

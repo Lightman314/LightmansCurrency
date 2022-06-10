@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.RegistryObject;
 
 public class CustomCreativeTab extends CreativeModeTab {
 
@@ -59,6 +60,21 @@ public class CustomCreativeTab extends CreativeModeTab {
 	public void initSortingList(List<ItemLike> defaultList)
 	{
 		this.itemSorter.initSortingList(defaultList);
+	}
+	
+	/**
+	 * Initializes the sorting list of the item group. Should be called in the FMLCommonSetupEvent.
+	 */
+	public void initSortingList2(List<RegistryObject<? extends ItemLike>> defaultList)
+	{
+		List<ItemLike> list = new ArrayList<>();
+		for(RegistryObject<? extends ItemLike> item : defaultList)
+		{
+			ItemLike i = item.get();
+			if(i != null)
+				list.add(i);
+		}
+		this.itemSorter.initSortingList(list);
 	}
 	
 	private static class ItemSorter implements Comparator<ItemStack>

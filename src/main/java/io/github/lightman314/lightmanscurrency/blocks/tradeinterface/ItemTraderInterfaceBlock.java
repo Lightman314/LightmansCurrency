@@ -26,7 +26,7 @@ public class ItemTraderInterfaceBlock extends TraderInterfaceBlock {
 
 	@Override
 	protected BlockEntityType<?> interfaceType() {
-		return ModBlockEntities.TRADER_INTERFACE_ITEM;
+		return ModBlockEntities.TRADER_INTERFACE_ITEM.get();
 	}
 	
 	@Override

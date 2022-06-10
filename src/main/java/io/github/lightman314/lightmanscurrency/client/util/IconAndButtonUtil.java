@@ -29,7 +29,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -112,34 +111,34 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_ONLINEMODE_TRUE = IconData.of(Items.PLAYER_HEAD);
 	public static final IconData ICON_ONLINEMODE_FALSE = ICON_CHECKMARK;
 	
-	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.opentrades"));
-	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"));
+	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.opentrades"));
+	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.openstorage"));
 	
 	public static final String TOOLTIP_COLLECT_COINS = "tooltip.lightmanscurrency.trader.collectcoins";
-	public static final SimpleTooltip TOOLTIP_STORE_COINS = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.storecoins"));
+	public static final SimpleTooltip TOOLTIP_STORE_COINS = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.storecoins"));
 	
-	public static final SimpleTooltip TOOLTIP_BACK_TO_TERMINAL = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.universaltrader.back"));
+	public static final SimpleTooltip TOOLTIP_BACK_TO_TERMINAL = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.universaltrader.back"));
 	
-	public static final Component TOOLTIP_SHOW_LOGGER = new TranslatableComponent("tooltip.lightmanscurrency.trader.log.show");
-	public static final Component TOOLTIP_HIDE_LOGGER = new TranslatableComponent("tooltip.lightmanscurrency.trader.log.hide");
-	public static final SimpleTooltip TOOLTIP_CLEAR_LOGGER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.log.clear"));
+	public static final Component TOOLTIP_SHOW_LOGGER = Component.translatable("tooltip.lightmanscurrency.trader.log.show");
+	public static final Component TOOLTIP_HIDE_LOGGER = Component.translatable("tooltip.lightmanscurrency.trader.log.hide");
+	public static final SimpleTooltip TOOLTIP_CLEAR_LOGGER = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.log.clear"));
 	
-	public static final SimpleTooltip TOOLTIP_TRADE_RULES = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules"));
-	public static final Component TOOLTIP_TRADE_RULES_TRADER = new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules.trader");
-	public static final Component TOOLTIP_TRADE_RULES_TRADE = new TranslatableComponent("tooltip.lightmanscurrency.trader.traderules.trade");
-	public static final SimpleTooltip TOOLTIP_OPEN_SETTINGS = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.trader.settings"));
+	public static final SimpleTooltip TOOLTIP_TRADE_RULES = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.traderules"));
+	public static final Component TOOLTIP_TRADE_RULES_TRADER = Component.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
+	public static final Component TOOLTIP_TRADE_RULES_TRADE = Component.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
+	public static final SimpleTooltip TOOLTIP_OPEN_SETTINGS = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.settings"));
 	
-	public static final Component TOOLTIP_CREATIVE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.enable");
-	public static final Component TOOLTIP_CREATIVE_DISABLE = new TranslatableComponent("tooltip.lightmanscurrency.trader.creative.disable");
+	public static final Component TOOLTIP_CREATIVE_ENABLE = Component.translatable("tooltip.lightmanscurrency.trader.creative.enable");
+	public static final Component TOOLTIP_CREATIVE_DISABLE = Component.translatable("tooltip.lightmanscurrency.trader.creative.disable");
 	
-	public static final Component TOOLTIP_INTERFACE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.enable");
-	public static final Component TOOLTIP_INTERFACE_DISABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.disable");
+	public static final Component TOOLTIP_INTERFACE_ENABLE = Component.translatable("tooltip.lightmanscurrency.interface.enable");
+	public static final Component TOOLTIP_INTERFACE_DISABLE = Component.translatable("tooltip.lightmanscurrency.interface.disable");
 	
-	public static final SimpleTooltip TOOLTIP_PERSISTENT_DATA = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistenttrader.copy"));
+	public static final SimpleTooltip TOOLTIP_PERSISTENT_DATA = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.persistenttrader.copy"));
 	
-	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket"));
+	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.paygate.setticket"));
 	
-	public static final SimpleTooltip TOOLTIP_PAYGATE_ACTIVATE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.paybutton"));
+	public static final SimpleTooltip TOOLTIP_PAYGATE_ACTIVATE = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.paygate.paybutton"));
 	
 	public static IconButton traderButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADER, TOOLTIP_TRADER); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORAGE, TOOLTIP_STORAGE); }
@@ -247,7 +246,7 @@ public class IconAndButtonUtil {
 		private final Supplier<Object[]> inputSource;
 		public AdditiveTooltip(String translationKey, Supplier<Object[]> inputSource) { this.translationKey = translationKey; this.inputSource = inputSource; }
 		@Override
-		protected Component getTooltip() { return new TranslatableComponent(translationKey, inputSource.get()); }
+		protected Component getTooltip() { return Component.translatable(translationKey, inputSource.get()); }
 	}
 	
 	public static class ToggleTooltip extends BaseTooltip

@@ -27,8 +27,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
@@ -67,7 +65,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<ITrader, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<ITrader,ITradeData> onPress, Function<ITradeData,Boolean> tradeFilter)
 	{
-		super(x, y, width, height, new TextComponent(""));
+		super(x, y, width, height, Component.empty());
 		this.columns = columns;
 		this.traderSource = traderSource;
 		this.getContext = getContext;
@@ -134,8 +132,8 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(this.validTrades() <= 0)
 		{
-			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.notrades"));
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.notrades"), this.x + (this.width / 2) - (textWidth / 2), this.y + (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.notrades"));
+			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notrades"), this.x + (this.width / 2) - (textWidth / 2), this.y + (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
 		}
 	}
 	
@@ -309,7 +307,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			if(text.isEmpty())
 				text = renderTitle ? trader.getTitle().getString() : trader.getName().getString();
 			else
-				text += new TranslatableComponent("gui.lightmanscurrency.trading.listseperator").getString() + (renderTitle ? trader.getTitle().getString() : trader.getName().getString());
+				text += Component.translatable("gui.lightmanscurrency.trading.listseperator").getString() + (renderTitle ? trader.getTitle().getString() : trader.getName().getString());
 		}
 		
 		this.font.draw(pose, TextRenderUtil.fitString(text, maxWidth), x, y, 0x404040);

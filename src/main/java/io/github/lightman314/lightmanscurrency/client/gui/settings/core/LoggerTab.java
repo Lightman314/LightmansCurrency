@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.api.TextLogger;
@@ -10,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDispl
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class LoggerTab extends SettingsTab{
@@ -30,10 +29,10 @@ public class LoggerTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.log"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.log"); }
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(); }
+	public boolean canOpen() { return true; }
 	
 	@Override
 	public void initTab() {

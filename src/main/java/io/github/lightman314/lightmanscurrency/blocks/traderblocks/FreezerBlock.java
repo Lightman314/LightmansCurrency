@@ -50,7 +50,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }
 	
 	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER; }
+	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER.get(); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {

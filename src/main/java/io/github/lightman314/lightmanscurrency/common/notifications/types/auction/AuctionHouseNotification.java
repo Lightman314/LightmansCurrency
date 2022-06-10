@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification.ItemData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public abstract class AuctionHouseNotification extends Notification {
 
@@ -25,7 +24,7 @@ public abstract class AuctionHouseNotification extends Notification {
 			else
 				result = items.get(i).format();
 		}
-		return result == null ? new TextComponent("ERROR") : result;
+		return result == null ? Component.literal("ERROR") : result;
 	}
 	
 }

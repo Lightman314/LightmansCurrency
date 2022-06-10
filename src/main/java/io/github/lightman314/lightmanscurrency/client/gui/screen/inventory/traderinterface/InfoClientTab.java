@@ -27,7 +27,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeC
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
@@ -47,7 +47,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.info"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.info"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -68,7 +68,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		//Set background color to clear.
 		this.changesDisplay.backgroundColor = 0x00000000;
 		
-		this.acceptChangesButton = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop() + 40, this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK, new IconAndButtonUtil.SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
+		this.acceptChangesButton = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop() + 40, this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK, new IconAndButtonUtil.SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
 		this.acceptChangesButton.visible = false;
 		
 	}
@@ -91,14 +91,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				return new ArrayList<>();
 			if(trueTrade == null)
 			{
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.missing").withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.missing").withStyle(ChatFormatting.RED));
 				return list;
 			}
 			TradeComparisonResult differences = referencedTrade.compare(trueTrade);
 			//Type check
 			if(!differences.TypeMatches())
 			{
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.type").withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.type").withStyle(ChatFormatting.RED));
 				return list;
 			}
 			//Trade-specific checks
@@ -110,7 +110,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			UniversalTraderData trader = this.menu.getBE().getTrader();
 			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
 			{
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
 			}
 		}
 		return list;
@@ -130,9 +130,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		else
 		{
 			if(this.menu.getBE().hasTrader())
-				infoText = new TranslatableComponent("gui.lightmanscurrency.interface.info.trader.removed").withStyle(ChatFormatting.RED);
+				infoText = Component.translatable("gui.lightmanscurrency.interface.info.trader.removed").withStyle(ChatFormatting.RED);
 			else
-				infoText = new TranslatableComponent("gui.lightmanscurrency.interface.info.trader.null");
+				infoText = Component.translatable("gui.lightmanscurrency.interface.info.trader.null");
 				
 		}
 		this.font.draw(pose, TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
@@ -145,7 +145,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		{
 			//If no defined trade, give "No Trade Selected" message.
 			if(this.menu.getBE().getReferencedTrade() == null)
-				this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.interface.info.trade.notdefined"), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 20, 0x404040);
+				this.font.draw(pose, Component.translatable("gui.lightmanscurrency.interface.info.trade.notdefined"), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 20, 0x404040);
 		}
 		if(this.newTradeDisplay.visible)
 		{
@@ -158,7 +158,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			
 			//If no found trade, give "Trade No Longer Exists" message.
 			if(this.menu.getBE().getTrueTrade() == null)
-				this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 109 - this.font.lineHeight, 0x404040);
+				this.font.draw(pose, Component.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 109 - this.font.lineHeight, 0x404040);
 			
 		}
 		
@@ -167,7 +167,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		{
 			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
 			this.font.draw(pose, accountName, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(accountName) / 2), this.screen.getGuiTop() + 120, 0x404040);
-			Component balanceText = new TranslatableComponent("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
+			Component balanceText = Component.translatable("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
 			this.font.draw(pose, balanceText, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(balanceText) / 2), this.screen.getGuiTop() + 130, 0x404040);
 		}
 		

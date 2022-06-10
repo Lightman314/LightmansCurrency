@@ -32,8 +32,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -72,7 +71,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(this.level != null)
 			return new TraderCategory(this.level.getBlockState(this.worldPosition).getBlock(), this.getName());
 		else
-			return new TraderCategory(ModItems.TRADING_CORE, this.getName());
+			return new TraderCategory(ModItems.TRADING_CORE.get(), this.getName());
 	}
 	
 	public void userOpen(Player player)
@@ -247,31 +246,14 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	public Component getName()
-	{
-		if(this.coreSettings.hasCustomName())
-			return new TextComponent(this.coreSettings.getCustomName());
-		return this.getBlockName();
-	}
-	
-	//Separated into it's own function, as this will be a slightly more complicated process in 1.16, as block.getName() is client only
-	private Component getBlockName() {
-		return this.getBlockState().getBlock().getName();
-	}
-	
-	public Component getTitle()
-	{
-		if(this.coreSettings.getOwnerName().isBlank())
-			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
-	}
+	public MutableComponent getDefaultName() { return this.getBlockState().getBlock().getName(); }
 	
 	public MenuProvider getTradeMenuProvider() { return new TradeMenuProvider<>(this); }
 	
 	public static class TradeMenuProvider<T extends BlockEntity & ITraderSource> implements MenuProvider {
 		T trader;
 		public TradeMenuProvider(T trader) { this.trader = trader; }
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return Component.empty(); }
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderMenu(id, inventory, this.trader.getBlockPos()); }
 	}
 	
@@ -280,7 +262,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		MenuProvider provider = getTradeMenuProvider();
 		if(provider == null)
 		{
-			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + this.getType().getRegistryName().toString());
+			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + BlockEntityType.getKey(this.getType()).toString());
 			return;
 		}
 		if(!(player instanceof ServerPlayer))
@@ -296,7 +278,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	public static class TradeStorageMenuProvider<T extends BlockEntity & ITrader> implements MenuProvider {
 		T trader;
 		public TradeStorageMenuProvider(T trader) { this.trader = trader; }
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return Component.empty(); }
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderStorageMenu(id, inventory, this.trader.getBlockPos()); }
 	}
 	
@@ -310,7 +292,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		MenuProvider provider = getStorageMenuProvider();
 		if(provider == null)
 		{
-			LightmansCurrency.LogError("No storage container provider was given for the trader of type " + this.getType().getRegistryName().toString());
+			LightmansCurrency.LogError("No storage container provider was given for the trader of type " + BlockEntityType.getKey(this.getType()));
 			return;
 		}
 		if(!(player instanceof ServerPlayer))

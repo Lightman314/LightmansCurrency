@@ -12,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class CoinMintRecipeBuilder {
 
@@ -30,17 +31,17 @@ public class CoinMintRecipeBuilder {
 	
 	public static CoinMintRecipeBuilder minting(Ingredient ingredient, ItemLike result)
 	{
-		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT, MintType.MINT, ingredient, result);
+		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT.get(), MintType.MINT, ingredient, result);
 	}
 	
 	public static CoinMintRecipeBuilder melting(Ingredient ingredient, ItemLike result)
 	{
-		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT, MintType.MELT, ingredient, result);
+		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT.get(), MintType.MELT, ingredient, result);
 	}
 	
 	public static CoinMintRecipeBuilder other(Ingredient ingredient, ItemLike result)
 	{
-		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT, MintType.OTHER, ingredient, result);
+		return new CoinMintRecipeBuilder(ModRecipes.COIN_MINT.get(), MintType.OTHER, ingredient, result);
 	}
 	
 	public void save(Consumer<FinishedRecipe> consumer, String name)
@@ -75,7 +76,7 @@ public class CoinMintRecipeBuilder {
 		{
 			object.addProperty("mintType", this.type.name());
 			object.add("ingredient", this.ingredient.toJson());
-			object.addProperty("result", this.result.getRegistryName().toString());
+			object.addProperty("result", ForgeRegistries.ITEMS.getKey(this.result).toString());
 		}
 		
 		@Override

@@ -16,7 +16,6 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,7 +27,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	public CoinMintCategory(IGuiHelper guiHelper)
 	{
 		this.background = guiHelper.createDrawable(MintScreen.GUI_TEXTURE, 0, 138, 82, 26);
-		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(ModBlocks.MACHINE_MINT));
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(ModBlocks.MACHINE_MINT.get()));
 	}
 	
 	@Override
@@ -44,7 +43,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	public Class<? extends CoinMintRecipe> getRecipeClass() { return CoinMintRecipe.class; }
 
 	@Override
-	public Component getTitle() { return new TranslatableComponent("gui.lightmanscurrency.coinmint.title"); }
+	public Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
 	
 	@Override
 	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, IFocusGroup focus) {

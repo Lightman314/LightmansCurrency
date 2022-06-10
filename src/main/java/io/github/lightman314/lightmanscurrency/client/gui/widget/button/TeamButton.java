@@ -7,12 +7,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class TeamButton extends Button{
@@ -40,7 +40,7 @@ public class TeamButton extends Button{
 	
 	public TeamButton(int x, int y, Size size, OnPress press, Font font, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
 	{
-		super(x, y, size.width, HEIGHT, new TextComponent(""), press);
+		super(x, y, size.width, HEIGHT, Component.empty(), press);
 		this.font = font;
 		this.size = size;
 		this.teamSource = teamSource;
@@ -60,21 +60,10 @@ public class TeamButton extends Button{
 		this.blit(pose, this.x, this.y, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
 		
 		//Render Team Name
-		this.font.draw(pose, this.fitString(this.getTeam().getName()), this.x + 2, this.y + 2, TEXT_COLOR);
+		this.font.draw(pose, TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), this.x + 2, this.y + 2, TEXT_COLOR);
 		//Render Owner Name)
-		this.font.draw(pose, this.fitString(new TranslatableComponent("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().lastKnownName()).getString()), this.x + 2, this.y + 10, TEXT_COLOR);
+		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().lastKnownName()), this.width - 4), this.x + 2, this.y + 10, TEXT_COLOR);
 		
-	}
-	
-	private String fitString(String string)
-	{
-		//If it already fits, don't bother editing it
-		if(this.font.width(string) <= this.width - 4)
-			return string;
-		//Shorten 1 char at a time, but assume a ... will be at the end
-		while(this.font.width(string + "...") > this.width - 4 && string.length() > 0)
-			string = string.substring(0, string.length() - 1);
-		return string + "...";
 	}
 	
 	@Override

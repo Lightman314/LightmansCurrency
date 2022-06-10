@@ -19,6 +19,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AuctionStorageTab extends TraderStorageTab {
 
@@ -77,7 +78,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 					//Remove the correct amount from storage
 					if(removedAmount > 0)
 					{
-						LightmansCurrency.LogInfo("Removed " + removedAmount + "x " + stackToRemove.getItem().getRegistryName().toString() + " from storage.");
+						LightmansCurrency.LogInfo("Removed " + removedAmount + "x " + ForgeRegistries.ITEMS.getKey(stackToRemove.getItem()).toString() + " from storage.");
 						storage.removePartial(storageSlot, removedAmount);
 						//Mark the storage dirty
 						trader.markStorageDirty();

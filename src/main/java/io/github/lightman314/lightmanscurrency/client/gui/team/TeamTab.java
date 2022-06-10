@@ -4,17 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.client.gui.Font;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public abstract class TeamTab implements ITab{
 
 	public int getColor() { return 0xFFFFFF; }
+	/* Obsolete as these are covered by the ITab interface
 	public abstract IconData getIcon();
-	public abstract Component getTooltip();
+	public abstract MutableComponent getTooltip();
+	*/
 	
 	private TeamManagerScreen screen;
 	protected final TeamManagerScreen getScreen() { return this.screen; }

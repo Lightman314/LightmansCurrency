@@ -27,7 +27,7 @@ public class ClientModEvents {
 	public static void registerItemColors(ColorHandlerEvent.Item event)
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
+		event.getItemColors().register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
 	}
 	
 	@SubscribeEvent

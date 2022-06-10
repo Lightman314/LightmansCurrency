@@ -23,7 +23,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -49,7 +49,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -84,7 +84,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -125,9 +125,9 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			}
 			
 			//Render the input/output labels
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"));
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
+			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 		}
 		
 	}
@@ -162,13 +162,13 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					{
 						ItemStack stack = storage.getContents().get(hoveredSlot);
 						List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-						tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+						tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
 						if(stack.getCount() >= 64)
 						{
 							if(stack.getCount() % 64 == 0)
-								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+								tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
 							else
-								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+								tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
 						}
 						this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
 					}	

@@ -17,8 +17,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,8 +41,8 @@ public class TradeLimit extends TradeRule{
 		
 		if(this.count >= this.limit)
 		{
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit2.denial", this.count).withStyle(ChatFormatting.RED));
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit).withStyle(ChatFormatting.RED));
+			event.denyTrade(Component.translatable("traderule.lightmanscurrency.tradelimit2.denial", this.count).withStyle(ChatFormatting.RED));
+			event.denyTrade(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit).withStyle(ChatFormatting.RED));
 		}
 	}
 
@@ -144,21 +143,21 @@ public class TradeLimit extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.limitInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 19, 30, 20, new TextComponent("")));
+			this.limitInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 19, 30, 20, Component.empty()));
 			this.limitInput.setMaxLength(3);
 			this.limitInput.setValue(Integer.toString(this.getRule().limit));
 			
-			this.buttonSetLimit = this.addCustomRenderable(new Button(screen.guiLeft() + 41, screen.guiTop() + 19, 40, 20, new TranslatableComponent("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton));
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, new TranslatableComponent("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton));
+			this.buttonSetLimit = this.addCustomRenderable(new Button(screen.guiLeft() + 41, screen.guiTop() + 19, 40, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton));
+			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton));
 		}
 
 		@Override
 		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 			
-			screen.getFont().draw(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.playerlimit.info", this.getRule().limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
+			screen.getFont().draw(poseStack, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", this.getRule().limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
 			
 			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip"), mouseX, mouseY);
+				screen.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip"), mouseX, mouseY);
 			
 		}
 

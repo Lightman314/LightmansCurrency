@@ -24,8 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -208,15 +206,15 @@ public class PlayerDiscounts extends TradeRule {
 		@Override
 		public void initTab() {
 			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 34, screen.xSize - 20, 20, new TextComponent("")));
+			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 34, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 55, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
-			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 55, 78, 20, Component.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55, 78, 20, Component.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
 			
-			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, new TextComponent("")));
+			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
 			this.discountInput.setMaxLength(2);
 			this.discountInput.setValue(Integer.toString(this.getRule().discount));
-			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
 			this.playerList = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 78, screen.xSize - 14, 91, this.screen.getFont(), this::getPlayerList));
 			this.playerList.setColumnCount(2);	
@@ -229,7 +227,7 @@ public class PlayerDiscounts extends TradeRule {
 			if(getRule() == null)
 				return playerList;
 			for(PlayerReference player : getRule().playerList)
-				playerList.add(new TextComponent(player.lastKnownName()));
+				playerList.add(player.lastKnownNameComponent());
 			return playerList;
 		}
 				
@@ -242,7 +240,7 @@ public class PlayerDiscounts extends TradeRule {
 			this.screen.blit(poseStack, this.screen.guiLeft(), this.screen.guiTop() + 78, 0, this.screen.ySize, this.screen.xSize, 80);
 			this.screen.blit(poseStack, this.screen.guiLeft(), this.screen.guiTop() + 78 + 80, 0, this.screen.ySize, this.screen.xSize, 11);
 			
-			this.screen.getFont().draw(poseStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
 		}
 		

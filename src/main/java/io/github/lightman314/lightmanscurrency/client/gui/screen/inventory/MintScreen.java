@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -82,9 +81,9 @@ public class MintScreen extends AbstractContainerScreen<MintMenu>{
 		if(this.buttonMint != null && this.buttonMint.visible && this.buttonMint.isMouseOver(mouseX, mouseY))
 		{
 			if(this.menu.isMeltInput())
-				this.renderTooltip(matrixStack, new TranslatableComponent("gui.button.lightmanscurrency.melt"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.melt"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, new TranslatableComponent("gui.button.lightmanscurrency.mint"), mouseX, mouseY);
+				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.mint"), mouseX, mouseY);
 		}
 		
 	}

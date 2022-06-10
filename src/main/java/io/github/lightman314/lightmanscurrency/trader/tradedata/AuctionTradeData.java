@@ -31,7 +31,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -304,16 +303,16 @@ public class AuctionTradeData extends TradeData {
 		if(this.lastBidPlayer == null)
 		{
 			//First bid info
-			bidInfo.add(new TranslatableComponent("tooltip.lightmanscurrency.auction.nobidder"));
-			bidInfo.add(new TranslatableComponent("tooltip.lightmanscurrency.auction.minbid", this.lastBidAmount.getString()));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.nobidder"));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.minbid", this.lastBidAmount.getString()));
 		}
 		else
 		{
 			//Last bid info
-			bidInfo.add(new TranslatableComponent("tooltip.lightmanscurrency.auction.lastbidder", this.lastBidPlayer.lastKnownName()));
-			bidInfo.add(new TranslatableComponent("tooltip.lightmanscurrency.auction.currentbid", this.lastBidAmount.getString()));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.lastBidPlayer.lastKnownName()));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.currentbid", this.lastBidAmount.getString()));
 			//Next bid info
-			bidInfo.add(new TranslatableComponent("tooltip.lightmanscurrency.auction.minbid", this.getMinNextBid().getString()));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.minbid", this.getMinNextBid().getString()));
 		}
 		return bidInfo;
 	}

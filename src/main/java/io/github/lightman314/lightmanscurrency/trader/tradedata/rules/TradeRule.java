@@ -24,7 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,7 +33,7 @@ public abstract class TradeRule {
 	public static final String DEFAULT_TAG = "TradeRules";
 	
 	public final ResourceLocation type;
-	public final Component getName() { return new TranslatableComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
+	public final Component getName() { return Component.translatable("traderule." + type.getNamespace() + "." + type.getPath()); }
 	
 	public void beforeTrade(PreTradeEvent event) {}
 	public void tradeCost(TradeCostEvent event) {}

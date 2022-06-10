@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -16,8 +15,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class AllyTab extends SettingsTab {
@@ -43,21 +41,21 @@ public class AllyTab extends SettingsTab {
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.ally"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.ally"); }
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(Permissions.ADD_REMOVE_ALLIES); }
+	public boolean canOpen() { return this.hasPermissions(Permissions.ADD_REMOVE_ALLIES); }
 
 	@Override
 	public void initTab() {
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
-		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, new TextComponent("")));
+		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, Component.empty()));
 		this.nameInput.setMaxLength(16);
 		
-		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, new TranslatableComponent("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
-		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, new TranslatableComponent("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
+		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
+		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
 		
 		this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 60, 190, 135, screen.getFont(), this::getAllyList));
 		this.display.setColumnCount(2);
@@ -77,7 +75,7 @@ public class AllyTab extends SettingsTab {
 	private List<Component> getAllyList()
 	{
 		List<Component> list = Lists.newArrayList();
-		this.getSetting(CoreTraderSettings.class).getAllies().forEach(ally -> list.add(new TextComponent(ally.lastKnownName())));
+		this.getSetting(CoreTraderSettings.class).getAllies().forEach(ally -> list.add(Component.literal(ally.lastKnownName())));
 		return list;
 	}
 	

@@ -17,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class WalletUpgradeRecipeBuilder {
 
@@ -132,13 +133,13 @@ public class WalletUpgradeRecipeBuilder {
 
 	    	  json.add("ingredients", jsonarray);
 	    	  JsonObject jsonobject = new JsonObject();
-	    	  jsonobject.addProperty("item", this.result.getRegistryName().toString());
+	    	  jsonobject.addProperty("item", ForgeRegistries.ITEMS.getKey(this.result).toString());
 
 	    	  json.add("result", jsonobject);
 	      }
 
 	      public RecipeSerializer<?> getType() {
-	         return ModRecipes.WALLET_UPGRADE;
+	         return ModRecipes.WALLET_UPGRADE.get();
 	      }
 
 	      /**

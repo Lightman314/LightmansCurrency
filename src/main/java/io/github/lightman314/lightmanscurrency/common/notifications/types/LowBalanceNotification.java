@@ -6,17 +6,17 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.B
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class LowBalanceNotification extends Notification{
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank_low_balance");
 	
-	private Component accountName;
+	private MutableComponent accountName;
 	private CoinValue value = new CoinValue();
 	
-	public LowBalanceNotification(Component accountName, CoinValue value) {
+	public LowBalanceNotification(MutableComponent accountName, CoinValue value) {
 		this.accountName = accountName;
 		this.value = value;
 	}
@@ -30,8 +30,8 @@ public class LowBalanceNotification extends Notification{
 	public Category getCategory() { return new BankCategory(this.accountName); }
 
 	@Override
-	public Component getMessage() {
-		return new TranslatableComponent("notifications.message.bank_low_balance", this.value.getString());
+	public MutableComponent getMessage() {
+		return Component.translatable("notifications.message.bank_low_balance", this.value.getString());
 	}
 
 	@Override

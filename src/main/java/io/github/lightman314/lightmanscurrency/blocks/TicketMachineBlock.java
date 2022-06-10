@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -37,7 +37,7 @@ public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
 	private static final VoxelShape SHAPE_EAST = box(8d,0d,4d,16d,16d,12d);
 	private static final VoxelShape SHAPE_WEST = box(0d,0d,4d,8d,16d,12d);
 	
-	private static final TranslatableComponent TITLE = new TranslatableComponent("gui.lightmanscurrency.ticket_machine.title");
+	private static final MutableComponent TITLE = Component.translatable("gui.lightmanscurrency.ticket_machine.title");
 	
 	public TicketMachineBlock(Properties properties)
 	{

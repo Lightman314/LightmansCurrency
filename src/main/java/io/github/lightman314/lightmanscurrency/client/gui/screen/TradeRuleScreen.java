@@ -19,8 +19,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class TradeRuleScreen extends Screen{
@@ -85,7 +84,7 @@ public class TradeRuleScreen extends Screen{
 	
 	public TradeRuleScreen(ITradeRuleScreenHandler handler)
 	{
-		super(new TextComponent(""));
+		super(Component.empty());
 		this.handler = handler;
 	}
 	
@@ -169,7 +168,7 @@ public class TradeRuleScreen extends Screen{
 		
 		if(this.managerTab.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.mananger"), mouseX, mouseY);
+			this.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.mananger"), mouseX, mouseY);
 		}
 		else
 		{
@@ -187,7 +186,7 @@ public class TradeRuleScreen extends Screen{
 			{
 				if(this.removeRuleButtons.get(i).isMouseOver(mouseX, mouseY))
 				{
-					this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.removerule", this.activeRules().get(i).getName()), mouseX, mouseY);
+					this.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.removerule", this.activeRules().get(i).getName()), mouseX, mouseY);
 					hoverButton = false;
 				}
 			}
@@ -195,7 +194,7 @@ public class TradeRuleScreen extends Screen{
 			{
 				if(this.addRuleButtons.get(i).isMouseOver(mouseX, mouseY))
 				{
-					this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.addrule", this.addableRules().get(i).getName()), mouseX, mouseY);
+					this.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.addrule", this.addableRules().get(i).getName()), mouseX, mouseY);
 					hoverButton = false;
 				}
 			}

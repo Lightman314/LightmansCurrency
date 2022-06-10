@@ -40,8 +40,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -82,7 +80,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		public final boolean drains;
 		public final boolean trades;
 		public final int index;
-		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return Component.translatable("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
 		
 		public final InteractionType getNext() { return fromIndex(this.index + 1); }
 		InteractionType(boolean requiresPermissions, boolean restocks, boolean drains, boolean trades, int index) {
@@ -121,7 +119,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		ALWAYS_ON(3, be -> true);
 		
 		public final int index;
-		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
+		public final Component getDisplayText() { return Component.translatable("gui.lightmanscurrency.interface.mode." + this.name().toLowerCase()); }
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
 		private final Function<TraderInterfaceBlockEntity,Boolean> active;
@@ -596,7 +594,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return Component.empty(); }
 	}
 	
 	protected int getInteractionDelay() {

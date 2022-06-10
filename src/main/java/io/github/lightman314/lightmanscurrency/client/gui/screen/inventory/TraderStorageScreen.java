@@ -342,13 +342,6 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		if(this.currentTab().mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY))
-			return true;
-		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
-	}
-	
 	private void PressTradesButton(Button button)
 	{
 		this.menu.getTrader().sendOpenTraderMessage();

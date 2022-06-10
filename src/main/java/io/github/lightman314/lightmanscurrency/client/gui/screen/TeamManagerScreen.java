@@ -24,7 +24,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -33,7 +33,7 @@ public class TeamManagerScreen extends Screen{
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teammanager.png");
 	
 	public TeamManagerScreen() {
-		super(new TextComponent(""));
+		super(Component.empty());
 		this.tabs.forEach(tab -> tab.setScreen(this));
 	}
 	

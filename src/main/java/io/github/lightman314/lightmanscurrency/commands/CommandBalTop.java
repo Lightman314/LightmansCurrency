@@ -17,7 +17,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class CommandBalTop {
 	
@@ -64,20 +63,20 @@ public class CommandBalTop {
 		
 		if(startIndex >= allAccounts.size())
 		{
-			source.sendFailure(new TranslatableComponent("command.lightmanscurrency.lcbaltop.error.page"));
+			source.sendFailure(Component.translatable("command.lightmanscurrency.lcbaltop.error.page"));
 			return 0;
 		}
 			
 		
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
 				BankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
 				String amount = account.getCoinStorage().getString("0");
-				source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
+				source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
 			} catch(Exception e) { }
 		}
 		

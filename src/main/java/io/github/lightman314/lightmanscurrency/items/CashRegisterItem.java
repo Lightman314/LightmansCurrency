@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -164,11 +163,11 @@ public class CashRegisterItem extends BlockItem{
 		
 		TooltipItem.addTooltipAlways(tooltip, LCTooltips.CASH_REGISTER);
 		
-		tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register", data.size()));
+		tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register", data.size()));
 		
 		if(!Screen.hasShiftDown() || data.size() <= 0)
 		{
-			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.instructions"));
+			tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register.instructions"));
 		}
 		
 		if(Screen.hasShiftDown())
@@ -176,12 +175,12 @@ public class CashRegisterItem extends BlockItem{
 			//Display details of the 
 			for(int i = 0; i < data.size(); i++)
 			{
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.cash_register.details", i + 1, data.get(i).getX(), data.get(i).getY(), data.get(i).getZ()));
+				tooltip.add(Component.translatable("tooltip.lightmanscurrency.cash_register.details", i + 1, data.get(i).getX(), data.get(i).getY(), data.get(i).getZ()));
 			}
 		}
 		else if(data.size() > 0)
 		{
-			tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.cash_register.holdshift").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register.holdshift").withStyle(ChatFormatting.YELLOW));
 		}
 	}
 	

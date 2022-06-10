@@ -10,8 +10,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,7 +33,7 @@ public class UniversalTraderButton extends Button{
 	
 	public UniversalTraderButton(int x, int y, OnPress pressable, Font font)
 	{
-		super(x, y, WIDTH, HEIGHT, new TextComponent(""), pressable);
+		super(x, y, WIDTH, HEIGHT, Component.empty(), pressable);
 		this.font = font;
 	}
 	

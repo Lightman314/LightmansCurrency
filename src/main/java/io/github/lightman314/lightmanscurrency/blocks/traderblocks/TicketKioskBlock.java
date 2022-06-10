@@ -46,7 +46,7 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }
 	
 	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER; }
+	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleBlock) { return new ArrayList<>(); }

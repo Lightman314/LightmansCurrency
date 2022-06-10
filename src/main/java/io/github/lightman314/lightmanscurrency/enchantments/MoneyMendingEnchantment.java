@@ -53,7 +53,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 				if(repairCost > currentWalletValue)
 					return;
 				//Go through the players inventory searching for items with the money mending enchantment
-				Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING, entity, ItemStack::isDamaged);
+				Entry<EquipmentSlot,ItemStack> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.MONEY_MENDING.get(), entity, ItemStack::isDamaged);
 				if(entry != null)
 				{
 					//Repair the item

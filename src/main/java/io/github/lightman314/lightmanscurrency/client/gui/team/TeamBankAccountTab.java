@@ -16,8 +16,6 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.MessageSetT
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 
 public class TeamBankAccountTab extends TeamTab {
@@ -27,14 +25,10 @@ public class TeamBankAccountTab extends TeamTab {
 	private TeamBankAccountTab() { }
 	
 	@Override
-	public IconData getIcon() {
-		return IconData.of(ModBlocks.COINPILE_GOLD);
-	}
+	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 	
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.bank");
-	}
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.bank"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -51,9 +45,9 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
+		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
 		
-		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, new TextComponent(""), this::toggleBankLimit));
+		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, Component.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();
 		
 		this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
@@ -70,7 +64,7 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		if(this.getActiveTeam() != null && this.getActiveTeam().hasBankAccount())
-			this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 46, 0x404040);
+			this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 46, 0x404040);
 		
 	}
 
@@ -126,7 +120,7 @@ public class TeamBankAccountTab extends TeamTab {
 	
 	private void updateBankLimitText()
 	{
-		Component message = new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit", new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit." + this.getActiveTeam().getBankLimit()));
+		Component message = Component.translatable("gui.button.lightmanscurrency.team.bank.limit", Component.translatable("gui.button.lightmanscurrency.team.bank.limit." + this.getActiveTeam().getBankLimit()));
 		this.buttonToggleAccountLimit.setMessage(message);
 	}
 	

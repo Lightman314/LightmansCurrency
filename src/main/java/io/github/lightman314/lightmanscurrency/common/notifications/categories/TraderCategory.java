@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -17,10 +17,10 @@ public class TraderCategory extends Category {
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"trader");
 	
 	private final Item trader;
-	private final Component traderName;
-	public Component getTraderName() { return this.traderName; }
+	private final MutableComponent traderName;
+	public MutableComponent getTraderName() { return this.traderName; }
 	
-	public TraderCategory(ItemLike trader, Component traderName) {
+	public TraderCategory(ItemLike trader, MutableComponent traderName) {
 		this.trader = trader.asItem();
 		this.traderName = traderName;
 	}
@@ -30,12 +30,12 @@ public class TraderCategory extends Category {
 		if(compound.contains("Icon"))
 			this.trader = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Icon")));
 		else
-			this.trader = ModItems.TRADING_CORE;
+			this.trader = ModItems.TRADING_CORE.get();
 		
 		if(compound.contains("TraderName"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"));
 		else
-			this.traderName = new TranslatableComponent("gui.lightmanscurrency.universaltrader.default");
+			this.traderName = Component.translatable("gui.lightmanscurrency.universaltrader.default");
 		
 	}
 
@@ -43,7 +43,7 @@ public class TraderCategory extends Category {
 	public IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override
-	public Component getTooltip() { return this.traderName; }
+	public MutableComponent getName() { return this.traderName; }
 
 	@Override
 	public ResourceLocation getType() { return TYPE; }
@@ -62,7 +62,7 @@ public class TraderCategory extends Category {
 	}
 	
 	public void saveAdditional(CompoundTag compound) {
-		compound.putString("Icon", this.trader.getRegistryName().toString());
+		compound.putString("Icon", ForgeRegistries.ITEMS.getKey(this.trader).toString());
 		compound.putString("TraderName", Component.Serializer.toJson(this.traderName));
 	}
 	

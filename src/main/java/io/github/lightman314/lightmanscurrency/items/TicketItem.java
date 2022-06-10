@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +33,7 @@ public class TicketItem extends Item{
 		{
 			UUID ticketID = GetTicketID(stack);
 			if(ticketID != null)
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.ticket.id", ticketID));
+				tooltip.add(Component.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
 		}
 	}
 	
@@ -42,7 +41,7 @@ public class TicketItem extends Item{
 	{
 		if(ticket.isEmpty() || !ticket.hasTag())
 			return false;
-		return ticket.getItem() == ModItems.TICKET_MASTER;
+		return ticket.getItem() == ModItems.TICKET_MASTER.get();
 	}
 	
 	public static UUID GetTicketID(ItemStack ticket)
@@ -58,7 +57,7 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateMasterTicket(UUID ticketID)
 	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
+		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER.get());
 		if(ticketID != null)
 			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;
@@ -71,7 +70,7 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateTicket(UUID ticketID, int count)
 	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
+		ItemStack ticket = new ItemStack(ModItems.TICKET.get(), count);
 		if(ticketID != null)
 			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;

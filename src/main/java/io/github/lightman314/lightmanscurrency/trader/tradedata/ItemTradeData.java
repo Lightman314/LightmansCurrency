@@ -25,8 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
@@ -507,27 +505,27 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
 		}
 		for(int i = 0; i < differences.getProductResultCount(); ++i)
 		{
-			Component slotName = new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.product." + i);
+			Component slotName = Component.translatable("gui.lightmanscurrency.interface.item.difference.product." + i);
 			ProductComparisonResult productCheck = differences.getProductResult(i);
 			if(!productCheck.SameProductType())
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT()) //Don't announce changes in NBT if the item is also different
-					list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
+					list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
 				else if(!productCheck.SameProductQuantity()) //Don't announce changes in quantity if the item or nbt is also different
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference < 0) //More items
-						list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
+						list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
 					else //Less items
-						list.add(new TranslatableComponent("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));	
+						list.add(Component.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));	
 				}
 			}
 		}
@@ -538,7 +536,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public List<DisplayEntry> getInputDisplays(TradeContext context) {
 		//If this is a sale, this is the price
 		if(this.isSale())
-			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.price_edit")) : null));
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
 		if(this.isPurchase())
 			return this.getSaleItemEntries(context);
 		if(this.isBarter())
@@ -564,7 +562,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(!item.isEmpty())
 				entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.getCustomName(i), context)));
 			else if(context.isStorageMode)
-				entries.add(DisplayEntry.of(this.restriction.getEmptySlotBG(), Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"))));
+				entries.add(DisplayEntry.of(this.restriction.getEmptySlotBG(), Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
 		}
 		return entries;
 	}
@@ -574,7 +572,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(stack.isEmpty())
 		{
 			if(context.isStorageMode)
-				return Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"));
+				return Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.item_edit"));
 			return null;			
 		}
 		
@@ -583,17 +581,17 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!customName.isEmpty() && (this.isSale() || this.isBarter()))
 		{
 			originalName = tooltips.get(0);
-			tooltips.set(0, new TextComponent(customName).withStyle(ChatFormatting.GOLD));
+			tooltips.set(0, Component.literal(customName).withStyle(ChatFormatting.GOLD));
 		}
 		//Stop here if this is in storage mode, and there's no custom name
 		if(context.isStorageMode && originalName == null)
 			return tooltips;
 		
 		//Trade Info
-		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.info").withStyle(ChatFormatting.GOLD));
+		tooltips.add(Component.translatable("tooltip.lightmanscurrency.trader.info").withStyle(ChatFormatting.GOLD));
 		//Custom Name
 		if(originalName != null)
-			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(ChatFormatting.GOLD));
+			tooltips.add(Component.translatable("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(ChatFormatting.GOLD));
 		
 		if(context.hasTrader() && context.hasPlayerReference())
 		{
@@ -601,7 +599,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(context.getTrader() instanceof IItemTrader)
 			{
 				IItemTrader trader = (IItemTrader)context.getTrader();
-				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : new TextComponent(String.valueOf(this.stockCount(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD));
+				tooltips.add(Component.translatable("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? Component.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : Component.literal(String.valueOf(this.stockCount(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD));
 			}
 		}
 		
@@ -617,7 +615,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(!item.isEmpty())
 				entries.add(DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
 			else if(context.isStorageMode)
-				entries.add(DisplayEntry.of(ItemRenderUtil.BACKGROUND, Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.item_edit"))));
+				entries.add(DisplayEntry.of(ItemRenderUtil.BACKGROUND, Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
 		}
 		return entries;
 	}
@@ -661,14 +659,14 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			{
 				//Check Stock
 				if(this.stockCount(context) <= 0)
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofstock"));
 				//Check Space
 				if(!this.hasSpace(trader))
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofspace"));
 			}
 			//Check whether they can afford the cost
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
 			
 		}
 		this.addTradeRuleAlerts(alerts, context);

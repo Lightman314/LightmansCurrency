@@ -13,10 +13,11 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class MoneyData {
 
@@ -100,18 +101,18 @@ public class MoneyData {
     		//Confirm that there's no duplicate coin
     		if(coinData.coinItem == newCoinData.coinItem)
     		{
-    			LightmansCurrency.LogWarning("Attempted to add Duplicate Coin Item (" + newCoinData.coinItem.getRegistryName().toString() + ") to the coin list.");
+    			LightmansCurrency.LogWarning("Attempted to add Duplicate Coin Item (" + ForgeRegistries.ITEMS.getKey(newCoinData.coinItem).toString() + ") to the coin list.");
     			//LightmansCurrency.LOGGER.warn("Please use MoneyUtil.changeCoinValue if you wish to change a coins value.");
     			return;
     		}
     		//Confirm that there's no duplicate dependent (Ignore this if either party is hidden, as conversion will be ignored for that coin)
     		if(coinData.worthOtherCoin == newCoinData.worthOtherCoin && !newCoinData.isHidden && !coinData.isHidden && newCoinData.worthOtherCoin != null && coinData.chain.contentEquals(newCoinData.chain))
     		{
-    			LightmansCurrency.LogWarning("Attempted to add a new Coin Item '" + newCoinData.coinItem.getRegistryName() + "' with the same dependent (" + coinData.worthOtherCoin.getRegistryName() + ") as another coin (" + coinData.coinItem.getRegistryName() + ") in the same chain '" + coinData.chain + "'.\nEntry will be flagged as hidden.");
+    			LightmansCurrency.LogWarning("Attempted to add a new Coin Item '" + ForgeRegistries.ITEMS.getKey(newCoinData.coinItem) + "' with the same dependent (" + ForgeRegistries.ITEMS.getKey(coinData.worthOtherCoin) + ") as another coin (" + ForgeRegistries.ITEMS.getKey(coinData.coinItem) + ") in the same chain '" + coinData.chain + "'.\nEntry will be flagged as hidden.");
     			newCoinData = newCoinDataBuilder.setHidden().build();
     		}
     	}
-    	LightmansCurrency.LogInfo("Registered " + newCoinData.coinItem.getRegistryName() + " as a coin.");
+    	LightmansCurrency.LogInfo("Registered " + ForgeRegistries.ITEMS.getKey(newCoinData.coinItem) + " as a coin.");
     	coinList.add(newCoinData);
     	
     }
@@ -137,7 +138,7 @@ public class MoneyData {
     	}
     }
 	
-	public Component getPluralName(Item coinItem) {
+	public MutableComponent getPluralName(Item coinItem) {
 		CoinData data = this.getData(coinItem);
 		if(data != null)
 			return data.getPlural();

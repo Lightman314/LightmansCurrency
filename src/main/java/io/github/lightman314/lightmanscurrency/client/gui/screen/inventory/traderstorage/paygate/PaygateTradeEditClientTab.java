@@ -23,8 +23,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTradeEditTab> implements InteractionConsumer {
 	
@@ -36,7 +35,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
-	public Component getTooltip() { return new TextComponent(""); }
+	public MutableComponent getTooltip() { return Component.empty(); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -58,13 +57,13 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + TraderScreen.WIDTH / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 55, new TextComponent(""), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
+		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + TraderScreen.WIDTH / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 55, Component.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.priceSelection.drawBG = false;
 		this.priceSelection.init();
 		
-		int labelWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.duration"));
-		int unitWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.duration.unit"));
-		this.durationInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 30 - labelWidth - unitWidth, 18, new TextComponent("")));
+		int labelWidth = this.font.width(Component.translatable("gui.lightmanscurrency.duration"));
+		int unitWidth = this.font.width(Component.translatable("gui.lightmanscurrency.duration.unit"));
+		this.durationInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 30 - labelWidth - unitWidth, 18, Component.empty()));
 		this.durationInput.setValue(String.valueOf(trade.getDuration()));
 		
 	}
@@ -77,9 +76,9 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		
 		this.validateRenderables();
 		
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.duration"), this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 42, 0x404040);
-		int unitWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.duration.unit"));
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.duration.unit"), this.screen.getGuiLeft() + this.screen.getXSize() - unitWidth - 13, this.screen.getGuiTop() + 42, 0x404040);
+		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.duration"), this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 42, 0x404040);
+		int unitWidth = this.font.width(Component.translatable("gui.lightmanscurrency.duration.unit"));
+		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.duration.unit"), this.screen.getGuiLeft() + this.screen.getXSize() - unitWidth - 13, this.screen.getGuiTop() + 42, 0x404040);
 		
 		
 	}
@@ -118,7 +117,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		if(trade instanceof PaygateTradeData)
 		{
 			PaygateTradeData t = (PaygateTradeData)trade;
-			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER)
+			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER.get())
 			{
 				UUID ticketID = TicketItem.GetTicketID(this.menu.getCarried());
 				this.commonTab.setTicket(ticketID);

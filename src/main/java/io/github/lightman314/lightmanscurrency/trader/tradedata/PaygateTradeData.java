@@ -23,8 +23,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 
 public class PaygateTradeData extends TradeData {
@@ -177,9 +175,9 @@ public class PaygateTradeData extends TradeData {
 	@Override
 	public List<DisplayEntry> getInputDisplays(TradeContext context) {
 		if(this.isTicketTrade())
-			return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.ticketID), 1, Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.ticket.id", this.ticketID))));
+			return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.ticketID), 1, Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.ticket.id", this.ticketID))));
 		else
-			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.price_edit")) : null));
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
 	}
 
 	@Override
@@ -193,15 +191,15 @@ public class PaygateTradeData extends TradeData {
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = new TextComponent("");
+		MutableComponent result = Component.empty();
 		if(hours > 0)
-			result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.hours.short", hours));
+			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.short", hours));
 		if(minutes > 0)
-			result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes));
+			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes));
 		if(seconds > 0)
-			result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds));
+			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds));
 		if(ticks > 0 || result.getString().isBlank())
-			result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks));
+			result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks));
 		return result;
 	}
 	
@@ -212,12 +210,12 @@ public class PaygateTradeData extends TradeData {
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
 		if(hours > 0)
-			return new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.hours.short", hours);
+			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.short", hours);
 		if(minutes > 0)
-			return new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes);
+			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes);
 		if(seconds > 0)
-			return new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds);
-		return new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks);
+			return Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds);
+		return Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks);
 	}
 	
 	public static MutableComponent formatDuration(int duration) { 
@@ -226,47 +224,47 @@ public class PaygateTradeData extends TradeData {
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = new TextComponent("");
+		MutableComponent result = Component.empty();
 		boolean addSpacer = false;
 		if(hours > 0)
 		{
 			if(addSpacer)
-				result.append(new TextComponent(" "));
+				result.append(Component.literal(" "));
 			addSpacer = true;
 			if(hours > 1)
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.hours", hours));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours", hours));
 			else
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.hours.singular", hours));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.hours.singular", hours));
 		}	
 		if(minutes > 0)
 		{
 			if(addSpacer)
-				result.append(new TextComponent(" "));
+				result.append(Component.literal(" "));
 			addSpacer = true;
 			if(minutes > 1)
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.minutes", minutes));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes", minutes));
 			else
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.minutes.singular", minutes));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.singular", minutes));
 		}
 		if(seconds > 0)
 		{
 			if(addSpacer)
-				result.append(new TextComponent(" "));
+				result.append(Component.literal(" "));
 			addSpacer = true;
 			if(seconds > 1)
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.seconds", seconds));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds", seconds));
 			else
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.seconds.singular", seconds));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.singular", seconds));
 		}
 		if(ticks > 0)
 		{
 			if(addSpacer)
-				result.append(new TextComponent(" "));
+				result.append(Component.literal(" "));
 			addSpacer = true;
 			if(ticks > 1)
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.ticks", ticks));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks", ticks));
 			else
-				result.append(new TranslatableComponent("tooltip.lightmanscurrency.paygate.duration.ticks.singular", ticks));
+				result.append(Component.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.singular", ticks));
 		}
 		return result;
 	}
@@ -281,10 +279,10 @@ public class PaygateTradeData extends TradeData {
 			PaygateBlockEntity paygate = (PaygateBlockEntity)context.getTrader();
 			//Check whether the paygate is currently active
 			if(paygate.isActive())
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.paygate.active"));
+				alerts.add(Component.translatable("tooltip.lightmanscurrency.paygate.active"));
 			//Check whether they can afford the costs
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
 		}
 		this.addTradeRuleAlerts(alerts, context);
 		return alerts;
@@ -298,7 +296,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			if(heldItem.getItem() == ModItems.TICKET_MASTER)
+			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
 			{
 				this.setTicketID(TicketItem.GetTicketID(heldItem));
 				tab.sendInputInteractionMessage(tradeIndex, 0, button, heldItem);

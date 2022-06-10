@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMConversion;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class ConversionTab extends ATMTab{
 
@@ -150,7 +150,7 @@ public class ConversionTab extends ATMTab{
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.conversion"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.conversion"); }
 	
 	
 

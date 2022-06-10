@@ -20,8 +20,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -203,14 +201,14 @@ public class TimedSale extends TradeRule {
 		public void initTab() {
 			
 			
-			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, new TextComponent("")));
+			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
 			this.discountInput.setMaxLength(2);
 			this.discountInput.setValue(Integer.toString(this.getRule().discount));
-			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
 			this.buttonStartSale = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 45, 156, 20, this.getButtonText(), this::PressStartButton));
 			
-			this.durationInput = this.addCustomRenderable(new TimeWidget(screen.guiLeft(), screen.guiTop() + 75, screen.getFont(), this.getRule().duration, this, this, new TranslatableComponent("gui.widget.lightmanscurrency.timed_sale.noduration")));
+			this.durationInput = this.addCustomRenderable(new TimeWidget(screen.guiLeft(), screen.guiTop() + 75, screen.getFont(), this.getRule().duration, this, this, Component.translatable("gui.widget.lightmanscurrency.timed_sale.noduration")));
 			
 		}
 		
@@ -220,11 +218,11 @@ public class TimedSale extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(matrixStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
-			Component infoText = new TranslatableComponent("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).toString());
+			Component infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).toString());
 			if(this.getRule().isActive())
-				infoText = new TranslatableComponent("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().toString());
+				infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().toString());
 			
 			this.screen.getFont().draw(matrixStack, infoText.getString(), screen.guiLeft() + 10, screen.guiTop() + 35, 0xFFFFFF);
 			
@@ -246,12 +244,12 @@ public class TimedSale extends TradeRule {
 		
 		private Component getButtonText()
 		{
-			return new TranslatableComponent("gui.button.lightmanscurrency.timed_sale." + (this.getRule().isActive() ? "stop" : "start"));
+			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().isActive() ? "stop" : "start"));
 		}
 		
 		private Component getButtonTooltip()
 		{
-			return new TranslatableComponent("gui.button.lightmanscurrency.timed_sale." + (this.getRule().isActive() ? "stop" : "start") + ".tooltip");
+			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().isActive() ? "stop" : "start") + ".tooltip");
 		}
 		
 		@Override

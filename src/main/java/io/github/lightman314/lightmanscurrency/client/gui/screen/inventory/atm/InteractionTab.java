@@ -16,7 +16,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 
 public class InteractionTab extends ATMTab implements IBankAccountWidget{
@@ -29,7 +29,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.interact"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.interact"); }
 
 	@Override
 	public void init() {

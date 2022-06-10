@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
 public class LogTab extends ATMTab{
@@ -26,7 +25,7 @@ public class LogTab extends ATMTab{
 	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.log"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.log"); }
 
 	@Override
 	public void init() {

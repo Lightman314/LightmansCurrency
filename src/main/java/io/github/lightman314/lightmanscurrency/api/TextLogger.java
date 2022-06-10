@@ -12,8 +12,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class TextLogger {
 	
@@ -75,17 +73,17 @@ public abstract class TextLogger {
 			this.logText.remove(0);
 	}
 	
-	public static Component getCreativeText(boolean isCreative) { return isCreative ? new TranslatableComponent("log.shoplog.creative").withStyle(ChatFormatting.YELLOW) : new TextComponent(""); }
+	public static MutableComponent getCreativeText(boolean isCreative) { return isCreative ? Component.translatable("log.shoplog.creative").withStyle(ChatFormatting.YELLOW) : Component.empty(); }
 	
-	public static Component getPlayerText(PlayerReference player) { return new TextComponent(player.lastKnownName()).withStyle(ChatFormatting.GREEN); }
+	public static MutableComponent getPlayerText(PlayerReference player) { return Component.literal(player.lastKnownName()).withStyle(ChatFormatting.GREEN); }
 	
 	/** @deprecated Use getCostText(CoinValue cost) */
 	@Deprecated 
-	public static Component getCostText(boolean isFree, CoinValue cost)  { return getCostText(cost); }
+	public static MutableComponent getCostText(boolean isFree, CoinValue cost)  { return getCostText(cost); }
 	
-	public static Component getCostText(CoinValue cost)
+	public static MutableComponent getCostText(CoinValue cost)
 	{
-		return new TextComponent(cost.getString()).withStyle(ChatFormatting.YELLOW);
+		return Component.literal(cost.getString()).withStyle(ChatFormatting.YELLOW);
 	}
 	
 }

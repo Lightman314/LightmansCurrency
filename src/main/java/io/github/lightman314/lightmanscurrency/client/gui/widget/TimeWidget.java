@@ -17,8 +17,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class TimeWidget extends AbstractWidget{
 	
@@ -39,7 +37,7 @@ public class TimeWidget extends AbstractWidget{
 	
 	public TimeWidget(int x, int y, Font font, long startingValue, GUIHandler handler, @Nullable ITimeInput timeInput, Component noTimeText) {
 		
-		super(x, y, WIDTH, HEIGHT, new TextComponent(""));
+		super(x, y, WIDTH, HEIGHT, Component.empty());
 		
 		this.startingValue = startingValue;
 		this.handler = handler;
@@ -54,19 +52,19 @@ public class TimeWidget extends AbstractWidget{
 	protected void init()
 	{
 		TimeData timeData = TimeUtil.separateDuration(this.startingValue);
-		this.hourInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 10, this.y + 19, 30, 20, new TextComponent("")));
+		this.hourInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 10, this.y + 19, 30, 20, Component.empty()));
 		this.hourInput.setMaxLength(3);
 		this.hourInput.setValue(Long.toString(timeData.hours));
 		
-		this.minuteInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 80, this.y + 19, 20, 20, new TextComponent("")));
+		this.minuteInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 80, this.y + 19, 20, 20, Component.empty()));
 		this.minuteInput.setMaxLength(2);
 		this.minuteInput.setValue(Long.toString(timeData.minutes));
 		
-		this.secondInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 130, this.y + 19, 20, 20, new TextComponent("")));
+		this.secondInput = handler.addCustomRenderable(new EditBox(this.font, this.x + 130, this.y + 19, 20, 20, Component.empty()));
 		this.secondInput.setMaxLength(2);
 		this.secondInput.setValue(Long.toString(timeData.seconds));
 		
-		this.setTimeButton = handler.addCustomRenderable(new Button(this.x + 80, this.y - 2, 80, 20, new TranslatableComponent("gui.button.lightmanscurrency.time_widget.settime"), this::PressSetTimeButton));
+		this.setTimeButton = handler.addCustomRenderable(new Button(this.x + 80, this.y - 2, 80, 20, Component.translatable("gui.button.lightmanscurrency.time_widget.settime"), this::PressSetTimeButton));
 		this.setTimeButton.visible = this.timeInput != null;
 		
 	}
@@ -78,7 +76,7 @@ public class TimeWidget extends AbstractWidget{
 		TimeData time = this.getTime();
 		//Render the time info
 		if(time.miliseconds > 0)
-			this.font.draw(poseStack, new TranslatableComponent("gui.widget.lightmanscurrency.time_widget.info", time.hours, time.minutes, time.seconds).getString(), this.x + 10, this.y + 2, 0xFFFFFF);
+			this.font.draw(poseStack, Component.translatable("gui.widget.lightmanscurrency.time_widget.info", time.hours, time.minutes, time.seconds).getString(), this.x + 10, this.y + 2, 0xFFFFFF);
 		else
 			this.font.draw(poseStack, this.noTimeText.getString(), this.x + 10, this.y + 2, 0xFFFFFF);
 		

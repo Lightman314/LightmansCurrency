@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -63,7 +62,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	private Container coinInput;
 	
 	private WalletItem walletItem;
-	public Component getTitle() { ItemStack wallet = getWallet(); if(wallet.isEmpty()) return new TextComponent(""); return wallet.getHoverName(); }
+	public Component getTitle() { ItemStack wallet = getWallet(); if(wallet.isEmpty()) return Component.empty(); return wallet.getHoverName(); }
 	
 	boolean autoConvert = false;
 	
@@ -76,7 +75,7 @@ public class WalletMenu extends AbstractContainerMenu implements IBankAccountMen
 	public WalletMenu(int windowId, Inventory inventory, int walletStackIndex)
 	{
 		
-		super(ModMenus.WALLET, windowId);
+		super(ModMenus.WALLET.get(), windowId);
 		
 		this.walletStackIndex = walletStackIndex;
 		this.inventory = inventory;

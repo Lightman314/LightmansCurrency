@@ -17,8 +17,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
 public class TeamMemberEditTab extends TeamTab {
@@ -28,14 +27,10 @@ public class TeamMemberEditTab extends TeamTab {
 	private TeamMemberEditTab() { }
 	
 	@Override
-	public IconData getIcon() {
-		return IconData.of(ItemRenderUtil.getAlexHead());
-	}
+	public IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
 
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.member_edit");
-	}
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.member_edit"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -53,12 +48,12 @@ public class TeamMemberEditTab extends TeamTab {
 	public void initTab() {
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.memberNameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 11, screen.guiTop() + 9, 178, 20, new TextComponent("")));
+		this.memberNameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 11, screen.guiTop() + 9, 178, 20, Component.empty()));
 		this.memberNameInput.setMaxLength(16);
 		
-		this.buttonAddMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 60, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.member.add"), this::addMember));
-		this.buttonPromoteMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 70, screen.guiTop() + 30, 60, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin));
-		this.buttonRemoveMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 130, screen.guiTop() + 30, 60, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.member.remove"), this::removeMember));
+		this.buttonAddMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember));
+		this.buttonPromoteMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 70, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin));
+		this.buttonRemoveMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 130, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember));
 		this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 		
 		this.memberDisplay = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 10, screen.guiTop() + 55, screen.xSize - 20, screen.ySize - 65, this.getFont(), this::getMemberList));
@@ -75,9 +70,9 @@ public class TeamMemberEditTab extends TeamTab {
 			//Do NOT List Owner
 			//list.add(new TextComponent(team.getOwner().lastKnownName()).withStyle(ChatFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(new TextComponent(admin.lastKnownName()).withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(Component.literal(admin.lastKnownName()).withStyle(ChatFormatting.DARK_GREEN)));
 			//List members
-			team.getMembers().forEach(member -> list.add(new TextComponent(member.lastKnownName())));
+			team.getMembers().forEach(member -> list.add(Component.literal(member.lastKnownName())));
 		}
 		
 		return list;

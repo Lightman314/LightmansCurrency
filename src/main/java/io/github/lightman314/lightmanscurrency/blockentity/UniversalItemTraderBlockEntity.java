@@ -15,7 +15,7 @@ public class UniversalItemTraderBlockEntity extends UniversalTraderBlockEntity{
 	
 	public UniversalItemTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.UNIVERSAL_ITEM_TRADER, pos, state);
+		super(ModBlockEntities.UNIVERSAL_ITEM_TRADER.get(), pos, state);
 	}
 	
 	public UniversalItemTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)

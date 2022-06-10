@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class CommandReloadData {
 	
@@ -28,7 +28,7 @@ public class CommandReloadData {
 		
 		TradingOffice.reloadPersistentTraders();
 		MoneyUtil.reloadMoneyData();
-		commandContext.getSource().sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcreload"), true);
+		commandContext.getSource().sendSuccess(Component.translatable("command.lightmanscurrency.lcreload"), true);
 		return 1;
 		
 	}

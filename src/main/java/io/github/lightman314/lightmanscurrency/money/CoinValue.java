@@ -18,7 +18,8 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -129,7 +130,7 @@ public class CoinValue
     		{
     			CompoundTag thisCompound = new CompoundTag();
     			//new ItemStack(null).write(nbt)
-				ResourceLocation resource = value.coin.getRegistryName();
+				ResourceLocation resource = ForgeRegistries.ITEMS.getKey(value.coin);
     			if(resource != null && MoneyUtil.isCoin(value.coin))
     			{
     				thisCompound.putString("id", resource.toString());
@@ -366,7 +367,7 @@ public class CoinValue
 	{
 		
 		if(this.isFree)
-			return new TranslatableComponent("gui.coinvalue.free").getString();
+			return Component.translatable("gui.coinvalue.free").getString();
 		
 		switch(Config.SERVER.coinValueType.get())
 		{
@@ -392,6 +393,10 @@ public class CoinValue
 		}
 		
 	}
+	
+	public MutableComponent getComponent() { return this.getComponent(""); }
+	
+	public MutableComponent getComponent(String emptyFiller) { return Component.literal(this.getString(emptyFiller)); }
 	
 	public long getRawValue()
 	{
@@ -558,7 +563,7 @@ public class CoinValue
 				if(quantity <= 0)
 					LightmansCurrency.LogWarning("Coin Count (" + quantity + ") is <= 0. Entry will be ignored.");
 				else if(!MoneyUtil.isCoin(coinItem))
-					LightmansCurrency.LogWarning("Coin Item (" + coinItem.getRegistryName() + ") is not a valid coin. Entry will be ignored.");
+					LightmansCurrency.LogWarning("Coin Item (" + ForgeRegistries.ITEMS.getKey(coinItem) + ") is not a valid coin. Entry will be ignored.");
 				else
 					pairs.add(new CoinValuePair(coinItem, quantity));
 			}
@@ -579,7 +584,7 @@ public class CoinValue
 			{
 				JsonObject entry = new JsonObject();
 				CoinValuePair pair = this.coinValues.get(i);
-				entry.addProperty("coin", pair.coin.getRegistryName().toString());
+				entry.addProperty("coin", ForgeRegistries.ITEMS.getKey(pair.coin).toString());
 				entry.addProperty("count", pair.amount);
 				array.add(entry);
 			}

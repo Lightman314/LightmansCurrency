@@ -12,7 +12,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,7 +31,7 @@ public class TabButton extends Button{
 	
 	public TabButton(OnPress pressable, Font font, ITab tab)
 	{
-		super(0, 0, SIZE, SIZE, new TextComponent(""), pressable);
+		super(0, 0, SIZE, SIZE, Component.empty(), pressable);
 		this.font = font;
 		this.tab = tab;
 	}
@@ -78,7 +78,7 @@ public class TabButton extends Button{
 		@Nonnull
 		public IconData getIcon();
 		public int getColor();
-		public Component getTooltip();
+		public MutableComponent getTooltip();
 		
 	}
 

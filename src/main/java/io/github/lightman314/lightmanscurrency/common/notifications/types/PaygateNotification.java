@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class PaygateNotification extends Notification{
@@ -51,12 +51,12 @@ public class PaygateNotification extends Notification{
 	public Category getCategory() { return this.traderData; }
 
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
 		if(this.ticketID != null)
-			return new TranslatableComponent("notifications.message.paygate_trade.ticket", this.customer, this.ticketID.toString(), PaygateTradeData.formatDurationShort(this.duration));
+			return Component.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID.toString(), PaygateTradeData.formatDurationShort(this.duration));
 		else
-			return new TranslatableComponent("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
+			return Component.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
 		
 	}
 

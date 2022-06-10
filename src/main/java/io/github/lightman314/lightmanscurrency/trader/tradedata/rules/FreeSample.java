@@ -19,7 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -173,7 +173,7 @@ public class FreeSample extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, new TranslatableComponent("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
+			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
 			
 		}
 
@@ -181,7 +181,7 @@ public class FreeSample extends TradeRule{
 		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 			
 			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.free_sample.reset.tooltip"), mouseX, mouseY);
+				screen.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.free_sample.reset.tooltip"), mouseX, mouseY);
 			
 		}
 

@@ -10,8 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.MessageRena
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
 public class TeamNameTab extends TeamTab {
@@ -21,14 +20,10 @@ public class TeamNameTab extends TeamTab {
 	private TeamNameTab() { }
 	
 	@Override
-	public IconData getIcon() {
-		return IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.changename"));
-	}
+	public IconData getIcon() { return IconData.of(Component.translatable("gui.button.lightmanscurrency.changename")); }
 
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.name");
-	}
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.name"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -43,11 +38,11 @@ public class TeamNameTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.nameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, new TextComponent("")));
+		this.nameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.empty()));
 		this.nameInput.setMaxLength(Team.MAX_NAME_LENGTH);
 		this.nameInput.setValue(this.getActiveTeam().getName());
 		
-		this.buttonChangeName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.rename"), this::changeName));
+		this.buttonChangeName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName));
 		this.buttonChangeName.active = false;
 	}
 
@@ -59,7 +54,7 @@ public class TeamNameTab extends TeamTab {
 		String currentName = "NULL";
 		if(this.getActiveTeam() != null)
 			currentName = this.getActiveTeam().getName();
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.team.name.current", currentName), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.team.name.current", currentName), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
 		
 	}
 

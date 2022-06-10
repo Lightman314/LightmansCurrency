@@ -6,7 +6,6 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class LCTooltips {
@@ -19,9 +18,9 @@ public class LCTooltips {
 	public static final NonNullSupplier<List<Component>> COIN_MINT = () -> {
 		List<Component> result = new ArrayList<>();
 		if(Config.SERVER.allowCoinMinting.get())
-			result.add(new TranslatableComponent("tooltip.lightmanscurrency.coinmint.mintable").withStyle(TooltipItem.DEFAULT_STYLE));
+			result.add(Component.translatable("tooltip.lightmanscurrency.coinmint.mintable").withStyle(TooltipItem.DEFAULT_STYLE));
 		if(Config.SERVER.allowCoinMelting.get())
-			result.add(new TranslatableComponent("tooltip.lightmanscurrency.coinmint.meltable").withStyle(TooltipItem.DEFAULT_STYLE));
+			result.add(Component.translatable("tooltip.lightmanscurrency.coinmint.meltable").withStyle(TooltipItem.DEFAULT_STYLE));
 		return result;
 	};
 	

@@ -30,7 +30,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -80,7 +79,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		
 		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
 		
-		this.onlineModeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> new TranslatableComponent("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
+		this.onlineModeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> Component.translatable("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -281,13 +280,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		if(this.currentTab().mouseReleased(mouseX, mouseY, button))
 			return true;
 		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		if(this.currentTab().mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY))
-			return true;
-		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
 	}
 	
 	@Override

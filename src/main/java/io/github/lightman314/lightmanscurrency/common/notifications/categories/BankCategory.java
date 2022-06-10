@@ -6,15 +6,16 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class BankCategory extends Category {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank");
 	
-	private final Component name;
+	private final MutableComponent name;
 	
-	public BankCategory(Component name) { this.name = name; }
+	public BankCategory(MutableComponent name) { this.name = name; }
 	
 	public BankCategory(CompoundTag compound) {
 		this.name = Component.Serializer.fromJson(compound.getString("Name"));
@@ -24,7 +25,7 @@ public class BankCategory extends Category {
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override
-	public Component getTooltip() { return this.name; }
+	public MutableComponent getName() { return this.name; }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }

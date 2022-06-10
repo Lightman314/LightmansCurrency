@@ -39,7 +39,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	public ItemInterfaceHandler getItemHandler() { return this.itemHandler; }
 	
 	public ItemTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_ITEM, pos, state);
+		super(ModBlockEntities.TRADER_INTERFACE_ITEM.get(), pos, state);
 		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this, this::getItemBuffer));
 	}
 

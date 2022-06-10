@@ -12,8 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
@@ -24,14 +23,10 @@ public class TeamOwnerTab extends TeamTab{
 	private TeamOwnerTab() { }
 	
 	@Override
-	public IconData getIcon() {
-		return IconData.of(Items.WRITABLE_BOOK);
-	}
+	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.owner");
-	}
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.owner"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) {
@@ -54,13 +49,13 @@ public class TeamOwnerTab extends TeamTab{
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.newOwnerName = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, new TextComponent("")));
+		this.newOwnerName = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.empty()));
 		this.newOwnerName.setMaxLength(16);
 		
-		this.buttonChangeOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.set_owner"), this::setNewOwner));
+		this.buttonChangeOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setNewOwner));
 		this.buttonChangeOwner.active = false;
 		
-		this.buttonDisbandTeam = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 160, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.disband"), this::disbandTeam));
+		this.buttonDisbandTeam = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 160, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.disband"), this::disbandTeam));
 		
 	}
 
@@ -72,7 +67,7 @@ public class TeamOwnerTab extends TeamTab{
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.getFont().draw(pose, new TranslatableComponent("gui.button.lightmanscurrency.team.owner", this.getActiveTeam().getOwner().lastKnownName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
+		this.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.team.owner", this.getActiveTeam().getOwner().lastKnownName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
 		
 	}
 
@@ -81,7 +76,7 @@ public class TeamOwnerTab extends TeamTab{
 		
 		if(this.buttonChangeOwner.isMouseOver(mouseX, mouseY) || this.buttonDisbandTeam.isMouseOver(mouseX, mouseY))
 		{
-			this.getScreen().renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
+			this.getScreen().renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
 		}
 		
 	}

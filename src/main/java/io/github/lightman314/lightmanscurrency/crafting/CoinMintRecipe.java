@@ -108,11 +108,11 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return ModRecipes.COIN_MINT;
+		return ModRecipes.COIN_MINT.get();
 	}
 	@Override
 	public RecipeType<?> getType() {
-		return RecipeTypes.COIN_MINT;
+		return RecipeTypes.COIN_MINT.get();
 	}
 	
 }

@@ -19,7 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -51,14 +50,14 @@ public class BankAccount {
 	public long getNotificationLevel() { return this.notificationLevel.getRawValue(); }
 	public void setNotificationValue(CoinValue value) { this.notificationLevel = value.copy(); this.markDirty(); }
 	
-	private BiConsumer<Component,CoinValue> notificationSender;
-	public void setNotificationConsumer(BiConsumer<Component,CoinValue> notificationSender) { this.notificationSender = notificationSender; }
+	private BiConsumer<MutableComponent,CoinValue> notificationSender;
+	public void setNotificationConsumer(BiConsumer<MutableComponent,CoinValue> notificationSender) { this.notificationSender = notificationSender; }
 	public void pushNotification() {
 		if(this.notificationSender != null)
 			this.notificationSender.accept(this.getName(), this.getNotificationValue());
 	}
 	
-	public static BiConsumer<Component,CoinValue> generateNotificationAcceptor(UUID playerID) {
+	public static BiConsumer<MutableComponent,CoinValue> generateNotificationAcceptor(UUID playerID) {
 		return (accountName,value) -> {
 			TradingOffice.pushNotification(playerID, new LowBalanceNotification(accountName, value));
 		};
@@ -70,7 +69,7 @@ public class BankAccount {
 	private String ownerName = "Unknown";
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
-	public MutableComponent getName() { return new TranslatableComponent("lightmanscurrency.bankaccount", this.ownerName); }
+	public MutableComponent getName() { return Component.translatable("lightmanscurrency.bankaccount", this.ownerName); }
 	
 	public void depositCoins(CoinValue depositAmount) {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
@@ -160,28 +159,28 @@ public class BankAccount {
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 	
-	public static Component TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
+	public static MutableComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
 	{
 		return TransferCoins(menu.getPlayer(), menu.getAccount(), amount, destination.get());
 	}
 	
-	public static Component TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
+	public static MutableComponent TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
 	{
 		if(fromAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.from");
+			return Component.translatable("gui.bank.transfer.error.null.from");
 		if(destinationAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.to");
+			return Component.translatable("gui.bank.transfer.error.null.to");
 		if(amount.getRawValue() <= 0)
-			return new TranslatableComponent("gui.bank.transfer.error.amount", amount.getString("nothing"));
+			return Component.translatable("gui.bank.transfer.error.amount", amount.getString("nothing"));
 		if(fromAccount == destinationAccount)
-			return new TranslatableComponent("gui.bank.transfer.error.same");
+			return Component.translatable("gui.bank.transfer.error.same");
 		
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
 		destinationAccount.depositCoins(withdrawnAmount);
 		fromAccount.LogTransfer(player, withdrawnAmount, destinationAccount.getName().withStyle(ChatFormatting.GOLD), false);
 		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccount.getName().withStyle(ChatFormatting.GOLD), true);
 		
-		return new TranslatableComponent("gui.bank.transfer.success", amount.getString(), destinationAccount.getName());
+		return Component.translatable("gui.bank.transfer.success", amount.getString(), destinationAccount.getName());
 		
 	}
 	
@@ -299,7 +298,7 @@ public class BankAccount {
 	{
 		public AccountReference getAccountSource();
 		public Component getLastMessage();
-		public void setMessage(Component component);
+		public void setMessage(MutableComponent component);
 		public void setNotificationLevel(CoinValue amount);
 	}
 	

@@ -97,6 +97,6 @@ public class PaygateBlock extends TraderBlockRotatable {
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new PaygateBlockEntity(pos, state); }
 
 	@Override
-	protected BlockEntityType<?> traderType() { return ModBlockEntities.PAYGATE; }
+	protected BlockEntityType<?> traderType() { return ModBlockEntities.PAYGATE.get(); }
 	
 }

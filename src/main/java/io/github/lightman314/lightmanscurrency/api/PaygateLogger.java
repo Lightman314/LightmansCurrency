@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class PaygateLogger extends TextLogger {
 
@@ -20,9 +19,9 @@ public class PaygateLogger extends TextLogger {
 		Component durationText = PaygateTradeData.formatDurationShort(trade.getDuration());
 		
 		if(trade.isTicketTrade())
-			this.AddLog(new TranslatableComponent("log.shoplog.paygate.format.ticket", creativeText, playerName, trade.getTicketID().toString(), durationText));
+			this.AddLog(Component.translatable("log.shoplog.paygate.format.ticket", creativeText, playerName, trade.getTicketID().toString(), durationText));
 		else
-			this.AddLog(new TranslatableComponent("log.shoplog.paygate.format.coin", creativeText, playerName, getCostText(pricePaid), durationText));
+			this.AddLog(Component.translatable("log.shoplog.paygate.format.coin", creativeText, playerName, getCostText(pricePaid), durationText));
 		
 	}
 	

@@ -1,33 +1,25 @@
 package io.github.lightman314.lightmanscurrency.crafting;
 
-import net.minecraft.core.MappedRegistry;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
+import io.github.lightman314.lightmanscurrency.core.ModRegistries;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.registries.RegistryObject;
 
 public class RecipeTypes {
 
-	public static final RecipeType<CoinMintRecipe> COIN_MINT = register("lightmanscurrency:coin_mint");
+	/**
+	 * Placeholder function to force the static class loading
+	 */
+	public static void init() { }
 	
-	@SuppressWarnings("deprecation")
-	private static <T extends Recipe<?>> RecipeType<T> register(final String key)
-	{
-		//Unfreeze and the registry before registration.
-		MappedRegistry<?> registry = null;
-		if(Registry.RECIPE_TYPE instanceof MappedRegistry<?>)
-		{
-			registry = (MappedRegistry<?>)Registry.RECIPE_TYPE;
-			registry.unfreeze();
-		}
-		RecipeType<T> value = Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(key), new RecipeType<T>() {
+	static {
+		
+		COIN_MINT = ModRegistries.RECIPE_TYPES.register("coin_mint", () -> new RecipeType<CoinMintRecipe>() {
 			@Override
-			public String toString() { return key; }
+			public String toString() { return "lightmanscurrency:coin_mint"; }
 		});
-		//Re-freeze the registry after registration.
-		if(registry != null)
-			registry.freeze();
-		return value;
+		
 	}
+	
+	public static final RegistryObject<RecipeType<CoinMintRecipe>> COIN_MINT;
 	
 }

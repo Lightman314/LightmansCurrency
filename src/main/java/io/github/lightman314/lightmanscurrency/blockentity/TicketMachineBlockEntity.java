@@ -16,7 +16,7 @@ public class TicketMachineBlockEntity extends BlockEntity{
 	
 	public TicketMachineBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.TICKET_MACHINE, pos, state);
+		super(ModBlockEntities.TICKET_MACHINE.get(), pos, state);
 	}
 	
 	@Override

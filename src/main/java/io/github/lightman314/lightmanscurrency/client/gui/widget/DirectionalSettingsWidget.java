@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.directional.Direc
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class DirectionalSettingsWidget {
@@ -55,7 +55,7 @@ public class DirectionalSettingsWidget {
 		{
 			Button button = this.getButton(side);
 			if(button.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(pose, new TranslatableComponent("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()), mouseX, mouseY);
+				screen.renderTooltip(pose, Component.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()), mouseX, mouseY);
 		}
 	}
 	

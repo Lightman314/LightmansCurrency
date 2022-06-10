@@ -11,8 +11,6 @@ import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -49,7 +47,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			if(!WalletItem.isWallet(wallet) || !(wallet.getItem() instanceof WalletItem) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 				return;
 			//Get the level (-1 to properly calculate range)
-			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET, wallet);
+			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET.get(), wallet);
 			//Don't do anything if the Coin Magnet enchantment is not present.
 			if(enchantLevel <= 0)
 				return;
@@ -98,7 +96,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	public static Component getCollectionRangeDisplay(int enchantLevel) {
 		float range = getCollectionRange(enchantLevel);
 		String display = range %1f > 0f ? String.valueOf(range) : String.valueOf(Math.round(range));
-		return new TextComponent(display).withStyle(ChatFormatting.GREEN);
+		return Component.literal(display).withStyle(ChatFormatting.GREEN);
 	}
 	
 	@Override
@@ -107,7 +105,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		{
 			if(enchantLevel > 0 && WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			{
-				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
+				tooltips.add(Component.translatable("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
 			}
 		}
 	}

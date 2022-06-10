@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +24,7 @@ public class PlayerReference {
 	public final UUID id;
 	private String name = "";
 	public String lastKnownName() { return this.name; }
+	public MutableComponent lastKnownNameComponent() { return Component.literal(this.name); }
 	
 	private PlayerReference(UUID playerID, String name)
 	{

@@ -45,7 +45,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -96,12 +96,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	protected ItemLike getCategoryItem() {
 		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
 		if(tradeCount <= ItemTraderServerBlock.SMALL_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_SMALL;
+			return ModBlocks.ITEM_TRADER_SERVER_SMALL.get();
 		else if(tradeCount <= ItemTraderServerBlock.MEDIUM_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_MEDIUM;
+			return ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get();
 		else if(tradeCount <= ItemTraderServerBlock.LARGE_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_LARGE;
-		return ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE;
+			return ModBlocks.ITEM_TRADER_SERVER_LARGE.get();
+		return ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get();
 		
 	}
 
@@ -321,9 +321,9 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	}
 	
 	@Override
-	protected Component getDefaultName()
+	public MutableComponent getDefaultName()
 	{
-		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.item");
+		return Component.translatable("gui.lightmanscurrency.universaltrader.item");
 	}
 
 	/*@Override

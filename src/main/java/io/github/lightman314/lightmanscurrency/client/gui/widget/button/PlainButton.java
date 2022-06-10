@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,7 +20,7 @@ public class PlainButton extends Button{
 	
 	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, int resourceX, int resourceY)
 	{
-		super(x,y,sizeX,sizeY, new TextComponent(""), pressable);
+		super(x, y, sizeX, sizeY, Component.empty(), pressable);
 		this.buttonResource = buttonResource;
 		this.resourceX = resourceX;
 		this.resourceY = resourceY;

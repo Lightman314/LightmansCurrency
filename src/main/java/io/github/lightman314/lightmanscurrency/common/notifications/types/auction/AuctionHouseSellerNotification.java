@@ -11,8 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class AuctionHouseSellerNotification extends AuctionHouseNotification{
@@ -41,14 +40,14 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
 		Component itemText = getItemNames(this.items);
 		
-		Component cost = new TextComponent(this.cost.getString("0"));
+		Component cost = this.cost.getComponent("0");
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.auction.seller", this.customer, itemText, cost);
+		return Component.translatable("notifications.message.auction.seller", this.customer, itemText, cost);
 		
 	}
 

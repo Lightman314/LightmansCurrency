@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.items;
 
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
@@ -27,7 +27,7 @@ public class PortableATMItem extends TooltipItem{
 	
 	public MenuProvider getMenuProvider()
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
+		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, Component.empty());
 	}
 	
 }

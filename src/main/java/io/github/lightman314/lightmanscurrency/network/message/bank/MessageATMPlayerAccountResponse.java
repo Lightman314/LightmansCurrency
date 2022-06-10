@@ -9,14 +9,15 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageATMPlayerAccountResponse {
 	
 	private AccountReference account;
-	private Component message;
+	private MutableComponent message;
 	
-	public MessageATMPlayerAccountResponse(AccountReference account, Component message)
+	public MessageATMPlayerAccountResponse(AccountReference account, MutableComponent message)
 	{
 		this.account = account;
 		this.message = message;

@@ -27,7 +27,7 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
 
@@ -37,7 +37,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trader"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.trader"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -79,7 +79,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void onOpen() {
 		
-		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, Component.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);

@@ -15,8 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class CoinItem extends Item{
 
@@ -44,16 +42,16 @@ public class CoinItem extends Item{
 			case DEFAULT:
 				if(coinData.convertsDownwards())
 				{
-					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.coinworth.down", coinData.getDownwardConversion().getSecond(), MoneyUtil.getPluralName(coinData.getDownwardConversion().getFirst()).getString()).withStyle(ChatFormatting.YELLOW));
+					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.down", coinData.getDownwardConversion().getSecond(), MoneyUtil.getPluralName(coinData.getDownwardConversion().getFirst()).getString()).withStyle(ChatFormatting.YELLOW));
 				}
 				Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(stack.getItem());
 				if(upwardConversion != null)
 				{
-					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), "§e" + upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(ChatFormatting.YELLOW));
+					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), "§e" + upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(ChatFormatting.YELLOW));
 				}
 				break;
 			case VALUE:
-				tooltip.add(new TextComponent(Config.formatValueDisplay(coinData.getDisplayValue())).withStyle(ChatFormatting.YELLOW));
+				tooltip.add(Component.literal(Config.formatValueDisplay(coinData.getDisplayValue())).withStyle(ChatFormatting.YELLOW));
 				break;
 				default: //Default is NONE
 			}

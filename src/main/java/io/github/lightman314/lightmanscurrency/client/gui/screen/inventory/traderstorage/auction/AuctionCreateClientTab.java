@@ -25,8 +25,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreateTab> {
 
@@ -39,7 +38,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.auction.create"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -83,11 +82,11 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, () -> this.pendingAuction, b -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 15, this.screen.getGuiTop() + 5);
 		
-		this.priceSelect = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 34, new TextComponent(""), CoinValue.EMPTY, this.font, this::onPriceChanged, this.screen::addRenderableTabWidget));
+		this.priceSelect = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 34, Component.empty(), CoinValue.EMPTY, this.font, this::onPriceChanged, this.screen::addRenderableTabWidget));
 		this.priceSelect.init();
 		this.priceSelect.drawBG = this.priceSelect.allowFreeToggle = false;
 		
-		this.buttonTogglePriceMode = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 114, this.screen.getGuiTop() + 5, this.screen.getXSize() - 119, 20, new TranslatableComponent("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()));
+		this.buttonTogglePriceMode = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 114, this.screen.getGuiTop() + 5, this.screen.getXSize() - 119, 20, Component.translatable("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()));
 		
 		this.commonTab.getAuctionItems().addListener(c -> this.UpdateAuctionItems());
 		
@@ -99,7 +98,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.buttonDecreaseHour = this.screen.addRenderableTabWidget(new PlainButton(this.screen.getGuiLeft() + 110, this.screen.getGuiTop() + 135, 20, 10, b -> this.changeHourCount(-1), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT));
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20, this.screen.getXSize() - 80, 20, new TranslatableComponent("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
+		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
 	}
@@ -121,14 +120,14 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		}
 		
 		//Item Slot label
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.auction.auctionitems"), this.screen.getGuiLeft() + TraderMenu.SLOT_OFFSET + 7, this.screen.getGuiTop() + 112, 0x404040);
+		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.auction.auctionitems"), this.screen.getGuiLeft() + TraderMenu.SLOT_OFFSET + 7, this.screen.getGuiTop() + 112, 0x404040);
 		
 		//Duration labels
-		TextRenderUtil.drawCenteredText(pose, new TranslatableComponent("gui.lightmanscurrency.auction.duration.day", this.dayCount), this.screen.getGuiLeft() + 90, this.screen.getGuiTop() + 124, 0x404040);
-		TextRenderUtil.drawCenteredText(pose, new TranslatableComponent("gui.lightmanscurrency.auction.duration.hour", this.hourCount), this.screen.getGuiLeft() + 120, this.screen.getGuiTop() + 124, 0x404040);
+		TextRenderUtil.drawCenteredText(pose, Component.translatable("gui.lightmanscurrency.auction.duration.day", this.dayCount), this.screen.getGuiLeft() + 90, this.screen.getGuiTop() + 124, 0x404040);
+		TextRenderUtil.drawCenteredText(pose, Component.translatable("gui.lightmanscurrency.auction.duration.hour", this.hourCount), this.screen.getGuiLeft() + 120, this.screen.getGuiTop() + 124, 0x404040);
 		
 		if(this.locked && this.successTime != 0)
-			TextRenderUtil.drawCenteredText(pose, new TranslatableComponent("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getGuiLeft() + this.screen.getXSize() / 2, 34, 0x404040);
+			TextRenderUtil.drawCenteredText(pose, Component.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getGuiLeft() + this.screen.getXSize() / 2, 34, 0x404040);
 		
 	}
 	
@@ -184,7 +183,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	
 	private void TogglePriceTarget() {
 		this.startingBidMode = !this.startingBidMode;
-		this.buttonTogglePriceMode.setMessage(new TranslatableComponent(this.startingBidMode ? "button.lightmanscurrency.auction.toggleprice.startingbid" : "button.lightmanscurrency.auction.toggleprice.mindeltabid"));
+		this.buttonTogglePriceMode.setMessage(Component.translatable(this.startingBidMode ? "button.lightmanscurrency.auction.toggleprice.startingbid" : "button.lightmanscurrency.auction.toggleprice.mindeltabid"));
 		if(this.startingBidMode)
 			this.priceSelect.setCoinValue(this.pendingAuction.getLastBidAmount());
 		else

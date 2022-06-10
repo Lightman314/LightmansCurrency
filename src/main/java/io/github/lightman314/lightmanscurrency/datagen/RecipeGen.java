@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class RecipeGen extends RecipeProvider{
 
@@ -25,35 +26,35 @@ public class RecipeGen extends RecipeProvider{
 		
 		//Coin recipes
 		//Copper Coin
-		mint(consumer, Items.COPPER_INGOT, ModItems.COIN_COPPER);
-		melt(consumer, Items.COPPER_INGOT, ModItems.COIN_COPPER);
+		mint(consumer, Items.COPPER_INGOT, ModItems.COIN_COPPER.get());
+		melt(consumer, Items.COPPER_INGOT, ModItems.COIN_COPPER.get());
 		//Iron Coin
-		mint(consumer, Items.IRON_INGOT, ModItems.COIN_IRON);
-		melt(consumer, Items.IRON_INGOT, ModItems.COIN_IRON);
+		mint(consumer, Items.IRON_INGOT, ModItems.COIN_IRON.get());
+		melt(consumer, Items.IRON_INGOT, ModItems.COIN_IRON.get());
 		//Gold Coin
-		mint(consumer, Items.GOLD_INGOT, ModItems.COIN_GOLD);
-		melt(consumer, Items.GOLD_INGOT, ModItems.COIN_GOLD);
+		mint(consumer, Items.GOLD_INGOT, ModItems.COIN_GOLD.get());
+		melt(consumer, Items.GOLD_INGOT, ModItems.COIN_GOLD.get());
 		//Emerald Coin
-		mint(consumer, Items.EMERALD, ModItems.COIN_EMERALD);
-		melt(consumer, Items.EMERALD, ModItems.COIN_EMERALD);
+		mint(consumer, Items.EMERALD, ModItems.COIN_EMERALD.get());
+		melt(consumer, Items.EMERALD, ModItems.COIN_EMERALD.get());
 		//Diamond Coin
-		mint(consumer, Items.DIAMOND, ModItems.COIN_DIAMOND);
-		melt(consumer, Items.DIAMOND, ModItems.COIN_DIAMOND);
+		mint(consumer, Items.DIAMOND, ModItems.COIN_DIAMOND.get());
+		melt(consumer, Items.DIAMOND, ModItems.COIN_DIAMOND.get());
 		//Netherite Coin
-		mint(consumer, Items.NETHERITE_INGOT, ModItems.COIN_NETHERITE);
-		melt(consumer, Items.NETHERITE_INGOT, ModItems.COIN_NETHERITE);
+		mint(consumer, Items.NETHERITE_INGOT, ModItems.COIN_NETHERITE.get());
+		melt(consumer, Items.NETHERITE_INGOT, ModItems.COIN_NETHERITE.get());
 		
 		//Wallet Upgrades
 		//Copper -> Iron
-		upgrade(consumer, ModItems.WALLET_COPPER, ModItems.WALLET_IRON, Ingredient.of(ModItems.COIN_IRON));
+		upgrade(consumer, ModItems.WALLET_COPPER.get(), ModItems.WALLET_IRON.get(), Ingredient.of(ModItems.COIN_IRON.get()));
 		//Iron -> Gold (redstone material)
-		upgrade(consumer, ModItems.WALLET_IRON, ModItems.WALLET_GOLD, Ingredient.of(ModItems.COIN_GOLD));
+		upgrade(consumer, ModItems.WALLET_IRON.get(), ModItems.WALLET_GOLD.get(), Ingredient.of(ModItems.COIN_GOLD.get()));
 		//Gold -> Emerald (ender pearl material)
-		upgrade(consumer, ModItems.WALLET_GOLD, ModItems.WALLET_EMERALD, Ingredient.of(ModItems.COIN_EMERALD));
+		upgrade(consumer, ModItems.WALLET_GOLD.get(), ModItems.WALLET_EMERALD.get(), Ingredient.of(ModItems.COIN_EMERALD.get()));
 		//Emerald -> Diamond
-		upgrade(consumer, ModItems.WALLET_EMERALD, ModItems.WALLET_DIAMOND, Ingredient.of(ModItems.COIN_DIAMOND));
+		upgrade(consumer, ModItems.WALLET_EMERALD.get(), ModItems.WALLET_DIAMOND.get(), Ingredient.of(ModItems.COIN_DIAMOND.get()));
 		//Diamond -> Netherite
-		upgrade(consumer, ModItems.WALLET_DIAMOND, ModItems.WALLET_NETHERITE, Ingredient.of(ModItems.COIN_NETHERITE));
+		upgrade(consumer, ModItems.WALLET_DIAMOND.get(), ModItems.WALLET_NETHERITE.get(), Ingredient.of(ModItems.COIN_NETHERITE.get()));
 		
 		
 	}
@@ -87,13 +88,13 @@ public class RecipeGen extends RecipeProvider{
 	
 	protected static ResourceLocation recipeId(String prefix, ItemLike coin)
 	{
-		ResourceLocation coinItemID = coin.asItem().getRegistryName();
+		ResourceLocation coinItemID = ForgeRegistries.ITEMS.getKey(coin.asItem());
 		return new ResourceLocation(coinItemID.getNamespace(), prefix + coinItemID.getPath());
 	}
 	
 	protected static ResourceLocation upgradeId(ItemLike wallet)
 	{
-		ResourceLocation walletItemID = wallet.asItem().getRegistryName();
+		ResourceLocation walletItemID = ForgeRegistries.ITEMS.getKey(wallet.asItem());
 		return new ResourceLocation(walletItemID.getNamespace(), "upgraded_" + walletItemID.getPath());
 	}
 	

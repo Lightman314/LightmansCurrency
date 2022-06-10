@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -79,7 +78,7 @@ public class TradeContext {
 		FAIL_NULL("lightmanscurrency.remotetrade.fail.null");
 		public boolean hasMessage() { return this.failMessage != null; }
 		public final Component failMessage;
-		TradeResult(String message) { this.failMessage = message == null ? null : new TranslatableComponent(message); }
+		TradeResult(String message) { this.failMessage = message == null ? null : Component.translatable(message); }
 	}
 	
 	public final boolean isStorageMode;
@@ -326,7 +325,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET)
+				if(stack.getItem() == ModItems.TICKET.get())
 				{
 					UUID id = TicketItem.GetTicketID(stack);
 					if(id != null && id.equals(ticketID))
@@ -345,7 +344,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET)
+				if(stack.getItem() == ModItems.TICKET.get())
 				{
 					UUID id = TicketItem.GetTicketID(stack);
 					if(id != null && id.equals(ticketID))
@@ -391,7 +390,7 @@ public class TradeContext {
 			{
 				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
 					ItemStack stack = this.itemHandler.getStackInSlot(i);
-					if(stack.getItem() == ModItems.TICKET)
+					if(stack.getItem() == ModItems.TICKET.get())
 					{
 						UUID id = TicketItem.GetTicketID(stack);
 						if(id != null && id.equals(ticketID))
@@ -410,7 +409,7 @@ public class TradeContext {
 				for(int i = 0; i < inventory.getContainerSize(); ++i)
 				{
 					ItemStack stack = inventory.getItem(i);
-					if(stack.getItem() == ModItems.TICKET)
+					if(stack.getItem() == ModItems.TICKET.get())
 					{
 						UUID id = TicketItem.GetTicketID(stack);
 						if(id != null && id.equals(ticketID))

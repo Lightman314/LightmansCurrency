@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -36,11 +37,20 @@ public interface ITrader extends IPermissions, ITraderSource {
 	/**
 	 * The name of the trader.
 	 */
-	public Component getName();
+	public default MutableComponent getName() {
+		if(this.getCoreSettings().hasCustomName())
+			return Component.literal(this.getCoreSettings().getCustomName());
+		return getDefaultName();
+	}
 	/**
 	 * The formatted name & owner of the trader
 	 */
-	public Component getTitle();
+	public default MutableComponent getTitle() {
+		if(this.getCoreSettings().getOwnerName().isBlank())
+			return this.getName();
+		return Component.translatable("gui.lightmanscurrency.trading.title", this.getName(), this.getCoreSettings().getOwnerName());
+	}
+	public MutableComponent getDefaultName();
 	public CoinValue getStoredMoney();
 	public CoinValue getInternalStoredMoney();
 	public void addStoredMoney(CoinValue amount);
