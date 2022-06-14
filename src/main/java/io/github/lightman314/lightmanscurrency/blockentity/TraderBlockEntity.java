@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
@@ -153,6 +154,12 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	public void initOwner(PlayerReference player)
 	{
 		this.coreSettings.initializeOwner(player);
+	}
+	
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		if(this.isClient())
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
 	}
 	
 	/**

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
+import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
@@ -17,6 +18,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -146,6 +148,9 @@ public class LightmansCurrencyPacketHandler {
 		//Money Data
 		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
 		
+		//Enchantments
+		register(SPacketMoneyMendingClink.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(SPacketMoneyMendingClink::new), SPacketMoneyMendingClink::handle);
+		
 	}
 
 	private static <T> void register(Class<T> clazz, IMessage<T> message)
@@ -168,6 +173,14 @@ public class LightmansCurrencyPacketHandler {
 	public static PacketTarget getTarget(ServerPlayer player)
 	{
 		return PacketDistributor.PLAYER.with(() -> player);
+	}
+	
+	private static class LazyEncoders
+	{
+
+		public static <T> void emptyEncode(T message, FriendlyByteBuf buffer) {}
+		public static <T> Function<FriendlyByteBuf,T> emptyDecode(NonNullSupplier<T> get) { return (buffer) -> get.get(); }
+
 	}
 	
 }

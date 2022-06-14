@@ -32,11 +32,11 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -65,10 +65,11 @@ public class CurrencyListener extends SingleChannelListener{
 		handleMessage(event.getChannel(), event.getMessage(), event.getAuthor());
 	}
 	
-	@Override
-	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event)
-	{
-		handleMessage(event.getChannel(), event.getMessage(), event.getAuthor());
+	public void onMessageReceived(MessageReceivedEvent event) {
+		if(event.getChannelType() == ChannelType.PRIVATE)
+			this.handleMessage(event.getChannel(), event.getMessage(), event.getAuthor());
+		else
+			super.onMessageReceived(event);
 	}
 	
 	private void handleMessage(MessageChannel channel, Message message, User author)

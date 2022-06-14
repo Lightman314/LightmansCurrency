@@ -23,7 +23,7 @@ public class ModGameRules {
 	{
 		try {
 			//1.16 obfuscated 'func_223562_a'
-			//1.17 & 1.18 obfuscated 'm_46312_'
+			//1.17-1.19 obfuscated 'm_46312_'
 			Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "m_46312_", int.class);
 			m.setAccessible(true);
 			return (GameRules.Type<GameRules.IntegerValue>) m.invoke(null, defaultVal);

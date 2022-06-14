@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.enchantments.SPacketMoneyMendingClink;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.SimpleContainer;
@@ -91,12 +93,16 @@ public class MoneyMendingEnchantment extends Enchantment {
 					}
 					WalletItem.putWalletInventory(wallet, InventoryUtil.buildList(newWalletInventory));
 					walletHandler.setWallet(wallet);
-					//Reload the wallets contents if the wallet menu is open.
 					if(entity instanceof Player)
 					{
 						Player player = (Player)entity;
+						//Reload the wallets contents if the wallet menu is open.
 						if(player.containerMenu instanceof WalletMenu)
 							((WalletMenu)player.containerMenu).onWalletSlotChanged();
+						
+						//Send Money Mending clink message
+						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketMoneyMendingClink());
+						
 					}
 				}
 			}
