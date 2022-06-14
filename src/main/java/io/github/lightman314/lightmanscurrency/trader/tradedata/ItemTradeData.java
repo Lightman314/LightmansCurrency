@@ -714,7 +714,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 						setItem.setCount(1);
 					this.setItem(setItem, index);
 				}
-				tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+				//Only send message on client, otherwise we get an infinite loop
+				if(tab.menu.isClient())
+					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
 			}
 			else if(this.isBarter() && index >= 0 && index < 2)
 			{
