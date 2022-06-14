@@ -53,4 +53,6 @@ public abstract class TraderStorageTab {
 	 */
 	public abstract void receiveMessage(CompoundTag message);
 	
+	public void receiveClientMessage(CompoundTag message) {}
+	
 }

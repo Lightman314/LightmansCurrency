@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
@@ -107,10 +106,10 @@ public class Config {
 			TraderRenderType(int renderLimit) { this.renderLimit = renderLimit; } 
 		}
 		
-		//Render options
+		//Render Options
 		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
 		
-		//Wallet Button options
+		//Wallet Button Options
 		public final ForgeConfigSpec.IntValue walletSlotX;
 		public final ForgeConfigSpec.IntValue walletSlotY;
 		public final ForgeConfigSpec.IntValue walletSlotCreativeX;
@@ -118,13 +117,18 @@ public class Config {
 		public final ForgeConfigSpec.IntValue walletButtonOffsetX;
 		public final ForgeConfigSpec.IntValue walletButtonOffsetY;
 		
-		//Notification Button options
-		public final ForgeConfigSpec.EnumValue<ClientEvents.NotifcationOffsetCorner> notificationButtonCorner;
-		public final ForgeConfigSpec.IntValue notificationButtonX;
-		public final ForgeConfigSpec.IntValue notificationButtonY;
-		public final ForgeConfigSpec.IntValue notificationButtonCreativeX;
-		public final ForgeConfigSpec.IntValue notificationButtonCreativeY;
+		//Notification Options
 		public final ForgeConfigSpec.BooleanValue pushNotificationsToChat;
+		
+		//Inventory Button Options
+		public final ForgeConfigSpec.IntValue notificationAndTeamButtonX;
+		public final ForgeConfigSpec.IntValue notificationAndTeamButtonY;
+		public final ForgeConfigSpec.IntValue notificationAndTeamButtonXCreative;
+		public final ForgeConfigSpec.IntValue notificationAndTeamButtonYCreative;
+		
+		//Sound Options
+		public final ForgeConfigSpec.BooleanValue moneyMendingClink;
+		
 		
 		Client(ForgeConfigSpec.Builder builder)
 		{
@@ -166,25 +170,21 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.comment("Notification Button Settings").push("notification_button");
+			builder.comment("Inventory Button Settings").push("inventory_buttons");
 			
-			this.notificationButtonCorner = builder
-					.comment("Where the notification button should be offset from.")
-					.defineEnum("notificationButtonCorner", ClientEvents.NotifcationOffsetCorner.MENU_TOP_RIGHT);
+			this.notificationAndTeamButtonX = builder
+					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
+					.defineInRange("buttonX", 152, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonY = builder
+					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
+					.defineInRange("buttonY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			
-			this.notificationButtonX = builder
-					.comment("The x offset from the offset corner that the notification button will be placed at in the players inventory.")
-					.defineInRange("notificationButtonX", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationButtonY = builder
-					.comment("The y offset from the offset corner that the notification button will be placed at in the players inventory.")
-					.defineInRange("notificationButtonY", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			
-			this.notificationButtonCreativeX = builder
-					.comment("The x offset from the offset corner that the notification button will be placed at in the players creative inventory.")
-					.defineInRange("notificationButtonCreativeX", -20, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationButtonCreativeY = builder
-					.comment("The y offset from the offset corner that the notification button will be placed at in the players creative inventory.")
-					.defineInRange("notificationButtonCreativeY", -70, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonXCreative = builder
+					.comment("The x position that the notification & team manager buttons will be placed at in the players creative inventory.")
+					.defineInRange("buttonCreativeX", 171, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonYCreative = builder
+					.comment("The y position that the notification & team manager buttons will be placed at in the players creative inventory.")
+					.defineInRange("buttonCreativeY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
 			
 			builder.pop();
 			
@@ -193,6 +193,14 @@ public class Config {
 			this.pushNotificationsToChat = builder
 					.comment("Whether notifications should be posted in your chat when you receive them.")
 					.define("notificationsInChat", true);
+			
+			builder.pop();
+			
+			builder.comment("Sound Settings").push("sounds");
+			
+			this.moneyMendingClink = builder
+					.comment("Whether Money Mending should make a noise when triggered.")
+					.define("moneyMendingClink", true);
 			
 			builder.pop();
 			

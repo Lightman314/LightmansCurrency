@@ -301,7 +301,9 @@ public class PaygateTradeData extends TradeData {
 			if(heldItem.getItem() == ModItems.TICKET_MASTER)
 			{
 				this.setTicketID(TicketItem.GetTicketID(heldItem));
-				tab.sendInputInteractionMessage(tradeIndex, 0, button, heldItem);
+				//Only send message on client, otherwise we get an infinite loop
+				if(tab.menu.isClient())
+					tab.sendInputInteractionMessage(tradeIndex, 0, button, heldItem);
 			}
 			else
 			{

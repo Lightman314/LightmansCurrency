@@ -358,6 +358,8 @@
     "log.shoplog.barter": "bartered",
     "log.shoplog.creative": "[C] ",
     
+    "tooltip.button.notification": "Open Notifications",
+    "tooltip.button.team_manager": "Open Team Manager",
     "notifications.source.general" : "General",
     "notifications.source.general.format": "%1$s: %2$s",
     "notifications.chat.format": "%1$s %2$s",

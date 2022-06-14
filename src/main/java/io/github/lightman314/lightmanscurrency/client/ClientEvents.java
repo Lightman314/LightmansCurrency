@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NotificationButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamManagerButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
@@ -49,7 +50,7 @@ public class ClientEvents {
 	public static final ResourceLocation WALLET_SLOT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
 	
 	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
-	public static final KeyMapping KEY_TEAM = new KeyMapping("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, KeyMapping.CATEGORY_INTERFACE);
+	//public static final KeyMapping KEY_TEAM = new KeyMapping("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, KeyMapping.CATEGORY_INTERFACE);
 	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.KeyInputEvent event)
@@ -80,10 +81,6 @@ public class ClientEvents {
 						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
 				}
 			}
-			else if(KEY_TEAM.isDown())
-			{
-				LightmansCurrency.PROXY.openTeamManager();
-			}
 		}
 		
 	}
@@ -97,8 +94,9 @@ public class ClientEvents {
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
+			
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			Pair<Integer,Integer> slotPosition = getSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			int xPos = slotPosition.getFirst() + Config.CLIENT.walletButtonOffsetX.get();
 			int yPos = slotPosition.getSecond() + Config.CLIENT.walletButtonOffsetY.get();
 			
@@ -108,6 +106,7 @@ public class ClientEvents {
 			
 			//Add notification button
 			event.addListener(new NotificationButton(gui));
+			event.addListener(new TeamManagerButton(gui));
 			
 		}
 	}
@@ -140,7 +139,7 @@ public class ClientEvents {
 			IWalletHandler walletHandler = getWalletHandler(); 
 			if(walletHandler == null)
 				return;
-			Pair<Integer,Integer> slotPosition = getSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			RenderSystem.setShaderTexture(0, WALLET_SLOT_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			//Render slot background
@@ -173,7 +172,8 @@ public class ClientEvents {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
-			Pair<Integer,Integer> slotPosition = getSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			
+			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			
 			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
 			{
@@ -182,6 +182,11 @@ public class ClientEvents {
 				if(!wallet.isEmpty())
 					screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
 			}
+			
+			//Render notification & team manager button tooltips
+			NotificationButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
+			TeamManagerButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
+			
 		}
 	}
 	
@@ -199,7 +204,7 @@ public class ClientEvents {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
-			Pair<Integer,Integer> slotPosition = getSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			
 			
 			//Wallet Slot click detection
@@ -258,11 +263,8 @@ public class ClientEvents {
 		return mc.player;
 	}
 	
-	private static Pair<Integer,Integer> getSlotPosition(boolean isCreative) {
+	private static Pair<Integer,Integer> getWalletSlotPosition(boolean isCreative) {
 		return isCreative ? Pair.of(Config.CLIENT.walletSlotCreativeX.get(), Config.CLIENT.walletSlotCreativeY.get()) : Pair.of(Config.CLIENT.walletSlotX.get(), Config.CLIENT.walletSlotY.get());
 	}
-	
-	public enum NotifcationOffsetCorner { SCREEN_TOP_LEFT, SCREEN_TOP_RIGHT, SCREEN_BOTTOM_LEFT, SCREEN_BOTTOM_RIGHT,
-		MENU_TOP_LEFT, MENU_TOP_RIGHT, MENU_BOTTOM_LEFT, MENU_BOTTOM_RIGHT }
 	
 }

@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -127,11 +126,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	public int getTradeCount()
 	{
 		return MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
-	}
-	
-	public void requestAddOrRemoveTrade(boolean isAdd)
-	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
 	}
 	
 	public void addTrade(Player requestor)

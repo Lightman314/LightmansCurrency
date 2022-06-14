@@ -131,9 +131,6 @@ public class ClientProxy extends CommonProxy{
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
-    	ClientRegistry.registerKeyBinding(ClientEvents.KEY_TEAM);
-    	
-    	//Wallet layer is now registered in ClientModEvents
     	
 	}
 	

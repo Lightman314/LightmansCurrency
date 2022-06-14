@@ -111,6 +111,14 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	
 	private void RemoveTrade(Button button) { this.commonTab.removeTrade(); }
 	
+	public void openTradeEdit(int tradeIndex, int selection) {
+		
+	}
+	
+	public void openTradeEdit(int tradeIndex) {
+		
+	}
+	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.getScrollBar().onMouseClicked(mouseX, mouseY, button);
