@@ -3,9 +3,7 @@ package io.github.lightman314.lightmanscurrency.network.message.enchantments;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class SPacketMoneyMendingClink {
@@ -21,9 +19,7 @@ public class SPacketMoneyMendingClink {
 				return;
 			lastClink = System.currentTimeMillis();
 			//Play a coin clinking sound
-			Minecraft minecraft = Minecraft.getInstance();
-			if(minecraft != null)
-				minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
+			LightmansCurrency.PROXY.playCoinSound();
 		});
 		supplier.get().setPacketHandled(true);
 	}

@@ -37,6 +37,8 @@ public class CommonProxy {
 	
 	public void openTeamManager() {}
 	
+	public void playCoinSound() {}
+	
 	public void createTeamResponse(UUID teamID) {}
 	
 	public long getTimeDesync() { return 0; }
