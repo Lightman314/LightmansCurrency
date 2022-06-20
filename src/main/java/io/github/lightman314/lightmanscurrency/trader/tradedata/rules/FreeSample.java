@@ -12,7 +12,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.client.gui.components.Button;
@@ -34,23 +36,30 @@ public class FreeSample extends TradeRule{
 	public FreeSample() { super(TYPE); }
 	
 	@Override
+	public void beforeTrade(PreTradeEvent event)
+	{
+		if(this.giveDiscount(event))
+			event.addHelpful(Component.translatable("traderule.lightmanscurrency.free_sample.alert"));
+	}
+	
+	@Override
 	public void tradeCost(TradeCostEvent event) {
-		
-		if(this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() != TradeDirection.PURCHASE)
-		{
+		if(this.giveDiscount(event))
 			event.applyCostMultiplier(0d);
-		}
-		
 	}
 
 	@Override
 	public void afterTrade(PostTradeEvent event) {
 		
-		if(this.giveDiscount(event.getPlayerReference().id))
+		if(this.giveDiscount(event))
 		{
 			this.addToMemory(event.getPlayerReference().id);
 			event.markDirty();
 		}
+	}
+	
+	private boolean giveDiscount(TradeEvent event) {
+		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() != TradeDirection.PURCHASE;
 	}
 	
 	private void addToMemory(UUID playerID) {

@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
@@ -270,21 +271,21 @@ public class PaygateTradeData extends TradeData {
 	}
 
 	@Override
-	public List<Component> getAlerts(TradeContext context) {
+	public List<AlertData> getAlertData(TradeContext context) {
 		if(context.isStorageMode)
 			return null;
-		List<Component> alerts = new ArrayList<>();
+		List<AlertData> alerts = new ArrayList<>();
 		if(context.hasTrader() && context.getTrader() instanceof PaygateBlockEntity)
 		{
 			PaygateBlockEntity paygate = (PaygateBlockEntity)context.getTrader();
 			//Check whether the paygate is currently active
 			if(paygate.isActive())
-				alerts.add(Component.translatable("tooltip.lightmanscurrency.paygate.active"));
+				alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.paygate.active")));
 			//Check whether they can afford the costs
 			if(!this.canAfford(context))
-				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.cannotafford")));
 		}
-		this.addTradeRuleAlerts(alerts, context);
+		this.addTradeRuleAlertData(alerts, context);
 		return alerts;
 	}
 

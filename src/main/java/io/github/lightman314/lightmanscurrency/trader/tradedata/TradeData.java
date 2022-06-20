@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
@@ -126,12 +127,11 @@ public abstract class TradeData implements ITradeRuleHandler, ITradeData {
 		this.rules.clear();
 	}
 	
-	public void addTradeRuleAlerts(List<Component> alerts, TradeContext context) {
+	public void addTradeRuleAlertData(List<AlertData> alerts, TradeContext context) {
 		if(context.hasTrader() && context.hasPlayerReference())
 		{
 			PreTradeEvent pte = context.getTrader().runPreTradeEvent(context.getPlayerReference(), this);
-			if(pte.isCanceled())
-				alerts.addAll(pte.getDenialReasons());
+			alerts.addAll(pte.getAlertInfo());
 		}
 	}
 	

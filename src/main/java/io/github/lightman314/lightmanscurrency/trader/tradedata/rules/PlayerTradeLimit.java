@@ -20,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -57,10 +56,17 @@ public class PlayerTradeLimit extends TradeRule{
 		if(tradeCount >= this.limit)
 		{
 			if(this.enforceTimeLimit())
-				event.denyTrade(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.timed", tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).toString()).withStyle(ChatFormatting.RED));
+				event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.timed", tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).toString()));
 			else
-				event.denyTrade(Component.translatable("traderule.lightmanscurrency.tradelimit.denial", tradeCount).withStyle(ChatFormatting.RED));
-			event.denyTrade(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit).withStyle(ChatFormatting.RED));
+				event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial", tradeCount));
+			event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
+		}
+		else
+		{
+			if(this.enforceTimeLimit())
+				event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit.info.timed", tradeCount, this.limit, new TimeUtil.TimeData(this.getTimeLimit()).toString()));
+			else
+				event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit.info", tradeCount, this.limit));
 		}
 	}
 

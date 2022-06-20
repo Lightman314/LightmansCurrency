@@ -91,8 +91,7 @@ public class TradeButton extends Button{
 			trade.renderAdditional(this, pose, mouseX, mouseY, context);
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 		
-		if(trade.hasAlert(context))
-			this.renderAlert(pose, trade.alertPosition(context));
+		this.renderAlert(pose, trade.alertPosition(context), trade.getAlertData(context));
 		
 		this.renderDisplays(pose, trade, context);
 		
@@ -179,14 +178,14 @@ public class TradeButton extends Button{
 		
 	}
 	
-	private void renderAlert(PoseStack pose, Pair<Integer,Integer> position)
+	private void renderAlert(PoseStack pose, Pair<Integer,Integer> position, List<AlertData> alerts)
 	{
 		
+		if(alerts == null || alerts.size() <= 0)
+			return;
+		alerts.sort(AlertData::compare);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		if(this.active)
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		else
-			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+		alerts.get(0).setShaderColor(this.active ? 1f : 0.5f);
 		
 		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 		
@@ -227,9 +226,9 @@ public class TradeButton extends Button{
 			}
 		}
 		
-		if(trade.hasAlert(context) && this.isMouseOverAlert(mouseX, mouseY, trade, context))
+		if(this.isMouseOverAlert(mouseX, mouseY, trade, context))
 		{
-			DrawTooltip(pose, mouseX, mouseY, trade.getAlerts(context));
+			DrawAlerts(pose, mouseX, mouseY, trade.getAlertData(context));
 		}
 		
 		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
@@ -282,6 +281,15 @@ public class TradeButton extends Button{
 		Minecraft mc = Minecraft.getInstance();
 		mc.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 		
+	}
+	
+	private static void DrawAlerts(PoseStack pose, int mouseX, int mouseY, List<AlertData> alerts) {
+		if(alerts == null || alerts.size() <= 0)
+			return;
+		alerts.sort(AlertData::compare);
+		List<Component> tooltips = new ArrayList<>();
+		for(AlertData alert : alerts) tooltips.add(alert.getFormattedMessage());
+		DrawTooltip(pose, mouseX, mouseY, tooltips);
 	}
 	
 	public int isMouseOverInput(int mouseX, int mouseY)
@@ -440,13 +448,14 @@ public class TradeButton extends Button{
 		/**
 		 * Whether the trade has any alerts
 		 */
-		public default boolean hasAlert(TradeContext context) { List<Component> alerts = this.getAlerts(context); return alerts != null && alerts.size() > 0; }
+		public default boolean hasAlert(TradeContext context) { List<AlertData> alerts = this.getAlertData(context); return alerts != null && alerts.size() > 0; }
 		
 		/**
-		 * List of alert text. Used for Out of Stock & misc Trade Rule messages.
+		 * List of alert data. Used for Out of Stock, Cannot Afford, or Trade Rule messages.
 		 * Return null to display no alert.
 		 */
-		public List<Component> getAlerts(TradeContext context);
+		public List<AlertData> getAlertData(TradeContext context);
+		
 		/**
 		 * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.
 		 * @param button The button that is rendering the trade
