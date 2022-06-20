@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDispl
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -42,6 +43,24 @@ public class PlayerDiscounts extends TradeRule {
 	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
 	
 	public PlayerDiscounts() { super(TYPE); }
+	
+	@Override
+	public void beforeTrade(PreTradeEvent event)
+	{
+		if(this.isOnList(event.getPlayerReference()))
+		{
+			switch(event.getTrade().getTradeDirection())
+			{
+			case SALE:
+				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.discount_list.info.sale", this.discount));
+				break;
+			case PURCHASE:
+				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.discount_list.info.purchase", this.discount));
+				break;
+				default: //Nothing by default
+			}
+		}
+	}
 	
 	@Override
 	public void tradeCost(TradeCostEvent event)

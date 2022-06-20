@@ -41,7 +41,9 @@ public class PlayerWhitelist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(!this.isWhitelisted(event.getPlayerReference()))
-			event.denyTrade(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial").withStyle(ChatFormatting.RED));
+			event.addDenial(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial").withStyle(ChatFormatting.RED));
+		else
+			event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.whitelist.allowed"));
 		
 	}
 	

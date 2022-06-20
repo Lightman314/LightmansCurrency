@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
@@ -649,10 +650,10 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 	
 	@Override
-	public List<Component> getAlerts(TradeContext context) {
+	public List<AlertData> getAlertData(TradeContext context) {
 		if(context.isStorageMode)
 			return null;
-		List<Component> alerts = new ArrayList<>();
+		List<AlertData> alerts = new ArrayList<>();
 		if(context.hasTrader() && context.getTrader() instanceof IItemTrader)
 		{
 			
@@ -661,17 +662,17 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			{
 				//Check Stock
 				if(this.stockCount(context) <= 0)
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.outofstock")));
 				//Check Space
 				if(!this.hasSpace(trader))
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.outofspace")));
 			}
 			//Check whether they can afford the cost
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford")));
 			
 		}
-		this.addTradeRuleAlerts(alerts, context);
+		this.addTradeRuleAlertData(alerts, context);
 		return alerts;
 	}
 

@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
@@ -331,7 +332,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
-	public List<Component> getAlerts(TradeContext context) {
+	public List<AlertData> getAlertData(TradeContext context) {
 		return new ArrayList<>();
 	}
 

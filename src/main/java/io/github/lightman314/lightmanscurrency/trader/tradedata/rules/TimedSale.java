@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -40,6 +41,24 @@ public class TimedSale extends TradeRule {
 	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
 	
 	public TimedSale() { super(TYPE); }
+	
+	@Override
+	public void beforeTrade(PreTradeEvent event)
+	{
+		if(this.isActive() && TimeUtil.compareTime(this.duration, this.startTime))
+		{
+			switch(event.getTrade().getTradeDirection())
+			{
+			case SALE:
+				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().toString()));
+				break;
+			case PURCHASE:
+				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().toString()));
+				break;
+				default: //Nothing if direction is NONE
+			}
+		}
+	}
 	
 	@Override
 	public void tradeCost(TradeCostEvent event)

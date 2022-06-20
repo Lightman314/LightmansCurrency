@@ -1,15 +1,18 @@
 package io.github.lightman314.lightmanscurrency.events;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -34,20 +37,72 @@ public abstract class TradeEvent extends Event{
 	public static class PreTradeEvent extends TradeEvent
 	{
 		
-		private final List<Component> denialText = Lists.newArrayList();
+		private final List<AlertData> alerts = Lists.newArrayList();
 		
 		public PreTradeEvent(PlayerReference player, TradeData trade, ITrader trader)
 		{
 			super(player, trade, trader);
 		}
 		
-		public void denyTrade(Component reason)
-		{
-			denialText.add(reason);
-			this.setCanceled(true);
+		/**
+		 * @deprecated Use addAlert instead.
+		 */
+		@Deprecated
+		public void denyTrade(Component reason) { this.addAlert(AlertData.convert(reason), true); }
+		
+		/**
+		 * Adds an alert to the trade display.
+		 * 
+		 * Use addHelpful, addWarning, addError, or addDenial for easier to use templates if you don't wish to add any special formatting to your alert.
+		 * @param cancelTrade Whether to also cancel the trade/event.
+		 */
+		public void addAlert(AlertData alert, boolean cancelTrade) {
+			this.alerts.add(alert);
+			if(cancelTrade)
+				this.setCanceled(true);
+		}
+
+		/**
+		 * Adds an alert to the trade with default helpful formatting (Green).
+		 * Does not cancel the trade.
+		 */
+		public void addHelpful(MutableComponent message) {
+			this.addAlert(AlertData.helpful(message), false);
+		}
+
+		/**
+		 * Adds an alert to the trade with default warning formatting (Orange).
+		 * Does not cancel the trade.
+		 */
+		public void addWarning(MutableComponent message) {
+			this.addAlert(AlertData.warn(message), false);
 		}
 		
-		public List<Component> getDenialReasons() { return this.denialText; }
+		/**
+		 * Adds an alert to the trade with default error formatting (Red).
+		 * Does not cancel the trade.
+		 * Use addDenial if you wish to cancel the trade.
+		 */
+		public void addError(MutableComponent message) {
+			this.addAlert(AlertData.error(message), false);
+		}
+
+		/**
+		 * Adds an alert to the trade with default error formatting (Red).
+		 * Also cancels the trade.
+		 * Use addError if you do not with so cancel the trade.
+		 */
+		public void addDenial(MutableComponent message) {
+			this.addAlert(AlertData.error(message), true);
+		}
+
+		/**
+		 * @deprecated use getAlertInfo instead.
+		 */
+		@Deprecated
+		public List<Component> getDenialReasons() { List<Component> text = new ArrayList<>(); for(AlertData a : this.alerts) text.add(a.getFormattedMessage()); return text; }
+
+		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
 		@Override
 		public boolean isCancelable() { return true; }
