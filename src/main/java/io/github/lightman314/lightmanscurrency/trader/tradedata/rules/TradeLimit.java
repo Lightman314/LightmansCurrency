@@ -44,7 +44,7 @@ public class TradeLimit extends TradeRule{
 			event.addDenial(Component.translatable("traderule.lightmanscurrency.tradelimit.denial.limit", this.limit));
 		}
 		else
-			event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit2.info"));
+			event.addHelpful(Component.translatable("traderule.lightmanscurrency.tradelimit2.info", this.count, this.limit));
 	}
 
 	@Override
