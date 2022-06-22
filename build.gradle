@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19-1.1.5.0'
+version = '1.19-1.1.5.0a'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -69,13 +69,14 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19-41.0.16'
+    minecraft 'net.minecraftforge:forge:1.19-41.0.28'
    	
    	//JEI when actually working on plugin
-    //compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.5.5.174:api")
+    //compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
+    //compileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.206")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:3723913")
-    //runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
+    compileOnly fg.deobf("curse.maven:jei-238222:3835406")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3835406")
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831243')
     

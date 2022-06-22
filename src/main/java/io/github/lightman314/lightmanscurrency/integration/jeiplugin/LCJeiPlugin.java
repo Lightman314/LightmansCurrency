@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator.Results;
@@ -22,8 +23,8 @@ import net.minecraft.world.item.ItemStack;
 @JeiPlugin
 public class LCJeiPlugin implements IModPlugin{
 
-	public static final ResourceLocation COIN_MINT_UID = new ResourceLocation(LightmansCurrency.MODID, "coin_mint");
-	public static final RecipeType<CoinMintRecipe> COIN_MINT_TYPE = RecipeType.create(COIN_MINT_UID.getNamespace(), COIN_MINT_UID.getPath(), CoinMintRecipe.class);
+	//private static final ResourceLocation COIN_MINT_UID = new ResourceLocation(LightmansCurrency.MODID, "coin_mint");
+	public static final RecipeType<CoinMintRecipe> COIN_MINT_TYPE = RecipeType.create(LightmansCurrency.MODID, "coin_mint", CoinMintRecipe.class);
 	
 	@Override
 	public ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
@@ -58,7 +59,7 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
 	{
-		registration.addRecipeTransferHandler(MintMenu.class, COIN_MINT_TYPE, 0, 1, 2, 36);
+		registration.addRecipeTransferHandler(MintMenu.class, ModMenus.MINT.get(), COIN_MINT_TYPE, 0, 1, 2, 36);
 	}
 	
 }
