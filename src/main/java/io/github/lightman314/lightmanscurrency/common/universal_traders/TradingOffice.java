@@ -71,8 +71,6 @@ public class TradingOffice extends SavedData{
 	
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/persistentTraders.json";
 	
-	public static final boolean AUCTION_HOUSE_TESTING = false;
-	
 	private static TradingOffice activeOffice = null;
 	
 	public TradingOffice() {
@@ -104,8 +102,8 @@ public class TradingOffice extends SavedData{
 	}
 	
 	private void validateAuctionHouse() {
-		if(!AUCTION_HOUSE_TESTING)
-			return;
+		//if(!AUCTION_HOUSE_TESTING)
+		//	return;
 		if(!Config.SERVER.enableAuctionHouse.get())
 		{
 			LightmansCurrency.LogInfo("Will not create or validate the auction house as the auction house is disabled.");

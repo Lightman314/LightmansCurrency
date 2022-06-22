@@ -79,6 +79,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.updateDuration();
 		this.locked = false;
 		this.successTime = 0;
+		this.startingBidMode = true;
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, () -> this.pendingAuction, b -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 15, this.screen.getGuiTop() + 5);

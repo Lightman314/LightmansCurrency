@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.Paygat
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
@@ -151,6 +152,7 @@ public class LightmansCurrency {
     	Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
     	Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);
     	Notification.register(AuctionHouseBuyerNotification.TYPE, AuctionHouseBuyerNotification::new);
+    	Notification.register(AuctionHouseSellerNobidNotification.TYPE, AuctionHouseSellerNobidNotification::new);
     	Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
     	Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
     	

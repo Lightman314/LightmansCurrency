@@ -96,14 +96,6 @@ public class AuctionPlayerStorage {
 		}
 	}
 	
-	public void removePartial(int itemSlot, int count) {
-		if(this.storedItems.size() >= itemSlot || itemSlot < 0)
-			return;
-		this.storedItems.get(itemSlot).shrink(count);
-		if(this.storedItems.get(itemSlot).isEmpty())
-			this.storedItems.remove(itemSlot);
-	}
-	
 	public void collectItems(Player player) {
 		for(ItemStack stack : this.storedItems) ItemHandlerHelper.giveItemToPlayer(player, stack);
 		this.storedItems = new ArrayList<>();

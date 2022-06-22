@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class PlayerReference {
-
+	
 	public final UUID id;
 	private String name = "";
 	public String lastKnownName() { return this.name; }
