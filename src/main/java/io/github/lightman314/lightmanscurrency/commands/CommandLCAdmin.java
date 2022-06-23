@@ -7,7 +7,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import net.minecraft.ChatFormatting;
@@ -43,10 +42,7 @@ public class CommandLCAdmin {
 										.executes(CommandLCAdmin::searchUniversalData)))
 						.then(Commands.literal("delete")
 								.then(Commands.argument("dataID", MessageArgument.message())
-										.executes(CommandLCAdmin::deleteUniversalData))))
-				.then(Commands.literal("setup_tools")
-						.then(Commands.literal("listLootTables")
-								.executes(CommandLCAdmin::listLootTables)));
+										.executes(CommandLCAdmin::deleteUniversalData))));
 		
 		dispatcher.register(lcAdminCommand);
 		
@@ -202,15 +198,6 @@ public class CommandLCAdmin {
 		//If no trader with that id found, send a not found message
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.notfound"), true);
 		return 0;
-	}
-	
-	static int listLootTables(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
-	{
-		
-		LightmansCurrency.LogInfo("Loot table entry list: (Triggered by command)");
-		
-		return 1;
-		
 	}
 	
 }

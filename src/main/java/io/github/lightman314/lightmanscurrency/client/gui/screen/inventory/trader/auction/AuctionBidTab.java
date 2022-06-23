@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.auction.MessageSubmitBid;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
@@ -77,11 +78,7 @@ public class AuctionBidTab extends TraderClientTab {
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		
-		
-	}
+	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
 
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
@@ -98,8 +95,13 @@ public class AuctionBidTab extends TraderClientTab {
 			return;
 		}
 		
+		long bidQuery = this.bidAmount.getCoinValue().getRawValue();
+		CoinValue minBid = this.getTrade().getMinNextBid();
+		if(bidQuery < minBid.getRawValue())
+			this.bidAmount.setCoinValue(this.getTrade().getMinNextBid());
+		this.bidButton.active = this.menu.getContext(this.getAuctionHouse()).getAvailableFunds() >= bidQuery;
+		
 		this.bidAmount.tick();
-		this.bidButton.active = this.getTrade().getMinNextBid().getRawValue() <= this.bidAmount.getCoinValue().getRawValue();
 		
 	}
 	
