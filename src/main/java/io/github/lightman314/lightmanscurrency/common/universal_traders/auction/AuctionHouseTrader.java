@@ -14,11 +14,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.auction.*;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.auction.MessageStartBid;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -240,11 +243,12 @@ public class AuctionHouseTrader extends UniversalTraderData {
 		else
 		{
 			//Open bid menu for the given trade index
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(context.getPlayer()), new MessageStartBid(this.getTraderID(), tradeIndex));
 			return TradeResult.SUCCESS;
 		}
 	}
 	
-	public boolean makeBid(Player player, int tradeIndex, CoinValue bidAmount) {
+	public boolean makeBid(Player player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
 		
 		AuctionTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null)
@@ -252,21 +256,16 @@ public class AuctionHouseTrader extends UniversalTraderData {
 		if(trade.hasExpired(System.currentTimeMillis()))
 			return false;
 		
-		AuctionPlayerStorage bidderStorage = this.getStorage(player);
-		
 		ItemStack wallet = LightmansCurrency.getWalletStack(player);
-		long inventoryValue = bidderStorage.getStoredCoins().getRawValue();
+		long inventoryValue = MoneyUtil.getValue(menu.getCoinInventory());
 		if(!wallet.isEmpty())
 			inventoryValue += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
     	if(inventoryValue < bidAmount.getRawValue())
     		return false;
 		if(trade.tryMakeBid(this, player, bidAmount))
 		{
-			//Take the money from the players storage first
-			CoinValue pendingPayment = bidderStorage.takeMoney(bidAmount);
-			//Take money from the players wallet second
-			if(pendingPayment.getRawValue() > 0)
-				MoneyUtil.ProcessPayment(null, player, bidAmount);
+			//Take money from the coin slots & players wallet second
+			MoneyUtil.ProcessPayment(menu.getCoinInventory(), player, bidAmount);
 			//Mark storage & trades dirty
 			this.markDirty(this.saveTrades(this.saveStorage(new CompoundTag())));
 			return true;

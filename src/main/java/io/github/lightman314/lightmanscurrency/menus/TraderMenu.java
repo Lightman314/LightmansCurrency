@@ -41,6 +41,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
 	Container coins = new SimpleContainer(5);
+	public Container getCoinInventory() { return this.coins; }
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }

@@ -130,14 +130,14 @@ public class LootManager {
 	public static final List<String> ENTITY_BOSS_COPPER_DROPLIST = ImmutableList.of();
 	public static final List<String> ENTITY_BOSS_IRON_DROPLIST = ImmutableList.of();
 	public static final List<String> ENTITY_BOSS_GOLD_DROPLIST = ImmutableList.of();
-	public static final List<String> ENTITY_BOSS_EMERALD_DROPLIST = ImmutableList.of();
+	public static final List<String> ENTITY_BOSS_EMERALD_DROPLIST = ImmutableList.of(ENTITY + "warden");
 	public static final List<String> ENTITY_BOSS_DIAMOND_DROPLIST = ImmutableList.of(ENTITY + "ender_dragon");
 	public static final List<String> ENTITY_BOSS_NETHERITE_DROPLIST = ImmutableList.of(ENTITY + "wither");
 	
 	public static final List<String> CHEST_COPPER_DROPLIST = ImmutableList.of(CHEST + "underwater_ruin_small", CHEST + "underwater_ruin_big");
 	public static final List<String> CHEST_IRON_DROPLIST = ImmutableList.of();
 	public static final List<String> CHEST_GOLD_DROPLIST = ImmutableList.of(CHEST + "jungle_temple", CHEST + "nether_bridge", CHEST + "simple_dungeon", CHEST + "ruined_portal");
-	public static final List<String> CHEST_EMERALD_DROPLIST = ImmutableList.of(CHEST + "stronghold_crossing", CHEST + "stronghold_corridor", CHEST + "stronghold_library");
+	public static final List<String> CHEST_EMERALD_DROPLIST = ImmutableList.of(CHEST + "stronghold_crossing", CHEST + "stronghold_corridor", CHEST + "stronghold_library", CHEST + "ancient_city");
 	public static final List<String> CHEST_DIAMOND_DROPLIST = ImmutableList.of(CHEST + "buried_treasure", CHEST + "bastion_hoglin_stable", CHEST + "bastion_bridge", CHEST + "bastion_other", CHEST + "bastion_treasure", CHEST + "end_city_treasure");
 	public static final List<String> CHEST_NETHERITE_DROPLIST = ImmutableList.of();
 	

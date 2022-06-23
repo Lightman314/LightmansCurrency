@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 @IPNIgnore
@@ -125,10 +126,15 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> implements
 		
 	}
 	
+	private Component getWalletName() {
+		ItemStack wallet = this.menu.getWallet();
+		return wallet.isEmpty() ? Component.empty() : wallet.getHoverName();
+	}
+	
 	@Override
 	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
 	{
-		this.font.draw(pose, this.menu.getTitle(), 8.0f, 6.0f + this.menu.getVerticalOffset(), 0x404040);
+		this.font.draw(pose, this.getWalletName(), 8.0f, 6.0f + this.menu.getVerticalOffset(), 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	

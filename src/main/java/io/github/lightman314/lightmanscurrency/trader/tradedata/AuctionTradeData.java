@@ -13,7 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
@@ -182,6 +184,9 @@ public class AuctionTradeData extends TradeData {
 			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 			sellerStorage.giveMoney(this.lastBidAmount);
 			
+			//Post notification to the auction winner
+			TradingOffice.pushNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
+			
 			//Post notification to the auction owner
 			TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
 		}
@@ -191,6 +196,10 @@ public class AuctionTradeData extends TradeData {
 			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 			for(int i = 0; i < this.auctionItems.size(); ++i)
 				sellerStorage.giveItem(this.auctionItems.get(i));
+			
+			//Post notification to the auction owner
+			TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
+			
 		}
 	}
 	
@@ -208,10 +217,20 @@ public class AuctionTradeData extends TradeData {
 			//Send cancel notification
 			TradingOffice.pushNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
 			
+		}
+		//Return the items being sold to their owner
+		if(giveToPlayer)
+		{
 			//Return items to the player who cancelled the trade
 			for(ItemStack stack : this.auctionItems) ItemHandlerHelper.giveItemToPlayer(player, stack);
-			
 		}
+		else
+		{
+			//Return items to the trader owners storage. Ignore the player
+			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner != null ? this.tradeOwner : PlayerReference.of(player));
+			for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
+		}
+			
 	}
 	
 	@Override
