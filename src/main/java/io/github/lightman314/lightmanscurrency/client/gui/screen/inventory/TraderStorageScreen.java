@@ -330,23 +330,20 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if(this.currentTab().mouseClicked(mouseX, mouseY, button))
-			return true;
+		try {
+			if(this.currentTab().mouseClicked(mouseX, mouseY, button))
+				return true;
+		} catch(Throwable t) {}
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if(this.currentTab().mouseReleased(mouseX, mouseY, button))
-			return true;
+		try {
+			if(this.currentTab().mouseReleased(mouseX, mouseY, button))
+				return true;
+		} catch(Throwable t) {}
 		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) {
-		if(this.currentTab().mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY))
-			return true;
-		return super.mouseDragged(mouseX, mouseY, button, deltaMouseX, deltaMouseY);
 	}
 	
 	private void PressTradesButton(Button button)

@@ -72,8 +72,8 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public boolean isClient();
 	public default boolean isServer() { return !this.isClient(); }
 	//Menu Functions
-	public void userOpen(Player player);
-	public void userClose(Player player);
+	public default void userOpen(Player player) {}
+	public default void userClose(Player player) {}
 	//Client-side messages
 	public void sendOpenTraderMessage();
 	public void sendOpenStorageMessage();

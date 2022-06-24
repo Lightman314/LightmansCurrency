@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
@@ -45,6 +46,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateClientData;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -102,8 +104,6 @@ public class TradingOffice extends SavedData{
 	}
 	
 	private void validateAuctionHouse() {
-		//if(!AUCTION_HOUSE_TESTING)
-		//	return;
 		if(!Config.SERVER.enableAuctionHouse.get())
 		{
 			LightmansCurrency.LogInfo("Will not create or validate the auction house as the auction house is disabled.");
@@ -152,6 +152,7 @@ public class TradingOffice extends SavedData{
 	
 	private Map<UUID, UniversalTraderData> persistentTraderMap = new HashMap<>();
 	private Map<UUID, String> persistentTraderIDs = new HashMap<>();
+	private List<PersistentAuctionData> persistentAuctionData = new ArrayList<>();
 	private Map<UUID, UniversalTraderData> universalTraderMap = new HashMap<>();
 	private Map<UUID, Team> playerTeams = new HashMap<>();
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
@@ -358,12 +359,14 @@ public class TradingOffice extends SavedData{
 	}
 	
 	private void loadPersistentTrader(JsonObject fileData) throws Exception {
+		boolean hadNone = true;
 		if(fileData.has("Traders"))
 		{
+			hadNone = false;
 			this.persistentTraderMap.forEach((id,data) -> data.onRemoved());
 			this.persistentTraderMap.clear();
 			List<String> loadedIDs = new ArrayList<>();
-			JsonArray traderList = fileData.get("Traders").getAsJsonArray();
+			JsonArray traderList = fileData.getAsJsonArray("Traders");
 			for(int i = 0; i < traderList.size(); ++i)
 			{
 				try {
@@ -402,8 +405,34 @@ public class TradingOffice extends SavedData{
 				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
 			}
 		}
-		else
-			throw new Exception("Json Data has no 'Traders' entry.");
+		if(fileData.has("Auctions"))
+		{
+			hadNone = false;
+			this.persistentAuctionData.clear();
+			List<String> loadedIDs = new ArrayList<>();
+			JsonArray auctionList = fileData.getAsJsonArray("Auctions");
+			for(int i = 0; i < auctionList.size(); ++i)
+			{
+				try {
+					
+					//Load the auction
+					JsonObject auctionTag = auctionList.get(i).getAsJsonObject();
+					PersistentAuctionData data = PersistentAuctionData.load(auctionTag);
+					if(loadedIDs.contains(data.id))
+						throw new Exception("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
+					else
+						loadedIDs.add(data.id);
+					
+					this.persistentAuctionData.add(data);
+					
+					LightmansCurrency.LogInfo("Successfully loaded persistent auction '" + data.id + "'");
+					
+				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Auction at index " + i, e); }
+			}
+			
+		}
+		if(hadNone)
+			throw new Exception("Json Data has no 'Traders' or 'Auctions' entry.");
 	};
 	
 	private UUID getPersistentTraderUUID(String traderID) {
@@ -450,7 +479,7 @@ public class TradingOffice extends SavedData{
 				
 				ptf.createNewFile();
 				
-				FileUtil.writeStringToFile(ptf, "{\n    \"Traders\":[]\n}");
+				FileUtil.writeStringToFile(ptf, "{\n    \"Traders\":[],\n    \"Auctions\":[]\n}");
 				
 				LightmansCurrency.LogInfo("persistentTraders.json does not exist. Creating a fresh copy.");
 				
@@ -849,17 +878,45 @@ public class TradingOffice extends SavedData{
 			return;
 		
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null && server.getTickCount() % 1200 == 0)
+		if(server != null)
 		{
 			TradingOffice office = get(server);
-			office.universalTraderMap.values().removeIf(traderData -> {
-				if(traderData.shouldRemove(server))
+			if(server.getTickCount() % 1200 == 0)
+			{
+				office.universalTraderMap.values().removeIf(traderData -> {
+					if(traderData.shouldRemove(server))
+					{
+						traderData.onRemoved();
+						return true;
+					}
+					return false;
+				});
+			}
+			if(server.getTickCount() % 20 == 0 && office.persistentAuctionData.size() > 0)
+			{
+				List<UniversalTraderData> traders = office.universalTraderMap.values().stream().collect(Collectors.toList());
+				AuctionHouseTrader ah = null;
+				for(int i = 0; i < traders.size() && ah == null; ++i)
 				{
-					traderData.onRemoved();
-					return true;
+					if(traders.get(i) instanceof AuctionHouseTrader)
+						ah = (AuctionHouseTrader)traders.get(i);
 				}
-				return false;
-			});
+				if(ah != null)
+				{
+					for(PersistentAuctionData pad : office.persistentAuctionData)
+					{
+						if(!ah.hasPersistentAuction(pad.id))
+						{
+							AuctionTradeData trade = pad.createAuction();
+							if(trade != null)
+							{
+								ah.addTrade(trade);
+								LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
+							}	
+						}
+					}
+				}
+			}
 		}
 	}
 	

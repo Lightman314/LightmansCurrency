@@ -195,7 +195,7 @@
     "gui.lightmanscurrency.auction.auctionitems": "Items:",
     "gui.lightmanscurrency.auction.duration.day": "%sd",
     "gui.lightmanscurrency.auction.duration.hour": "%sh",
-    "button.lightmanscurrency.auction.create": "Create",
+    "button.lightmanscurrency.auction.create": "Create Auction",
     "gui.lightmanscurrency.auction.create.success": "Successfully Created!",
 
     "button.lightmanscurrency.auction.cancel.self": "Return Items to Self",
