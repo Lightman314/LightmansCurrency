@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.auctio
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionPlayerStorage;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
@@ -43,12 +44,15 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 public class AuctionTradeData extends TradeData {
 
-	private static final long MINIMUM_DURATION = TimeUtil.DURATION_HOUR;
-	private static final long DEFAULT_DURATION = TimeUtil.DURATION_DAY;
+	public static final long MINIMUM_DURATION = TimeUtil.DURATION_HOUR;
+	public static final long DEFAULT_DURATION = TimeUtil.DURATION_DAY;
 	
 	public boolean hasBid() { return this.lastBidPlayer != null; }
 	
 	private boolean cancelled;
+	
+	private String persistentID = "";
+	public boolean isPersistentID(String id) { return this.persistentID.equals(id); }
 	
 	CoinValue lastBidAmount = new CoinValue();
 	public CoinValue getLastBidAmount() { return this.lastBidAmount; }
@@ -71,9 +75,8 @@ public class AuctionTradeData extends TradeData {
 			this.minBidDifference = new CoinValue(1);
 	}
 	PlayerReference tradeOwner;
-	public PlayerReference getTradeOwner() { return this.tradeOwner; }
 	public boolean isOwner(Player player) {
-		return tradeOwner == null || this.tradeOwner.is(player) || TradingOffice.isAdminPlayer(player);
+		return (this.tradeOwner != null && this.tradeOwner.is(player)) || TradingOffice.isAdminPlayer(player);
 	}
 	
 	long startTime = 0;
@@ -101,6 +104,17 @@ public class AuctionTradeData extends TradeData {
 	public AuctionTradeData(Player owner) { this.tradeOwner = PlayerReference.of(owner); this.setDuration(DEFAULT_DURATION); }
 	
 	public AuctionTradeData(CompoundTag compound) { this.loadFromNBT(compound); }
+	
+	/**
+	 * Used to create an auction trade from persistent auction data
+	 */
+	public AuctionTradeData(PersistentAuctionData data) {
+		this.persistentID = data.id;
+		this.setDuration(data.duration);
+		this.auctionItems = data.getAuctionItems();
+		this.setStartingBid(data.getStartingBid());
+		this.setMinBidDifferent(data.getMinimumBidDifference());
+	}
 
 	public boolean isActive() { return this.startTime != 0 && !this.cancelled; }
 	
@@ -111,8 +125,6 @@ public class AuctionTradeData extends TradeData {
 		if(this.auctionItems.size() <= 0)
 			return false;
 		if(this.isActive() && this.hasExpired(TimeUtil.getCurrentTime()))
-			return false;
-		if(this.tradeOwner == null)
 			return false;
 		if(this.minBidDifference.getRawValue() <= 0)
 			return false;
@@ -174,6 +186,7 @@ public class AuctionTradeData extends TradeData {
 	public void ExecuteTrade(AuctionHouseTrader trader) {
 		if(this.cancelled)
 			return;
+		this.cancelled = true;
 		if(this.lastBidPlayer != null)
 		{
 			AuctionPlayerStorage buyerStorage = trader.getStorage(this.lastBidPlayer);
@@ -181,25 +194,33 @@ public class AuctionTradeData extends TradeData {
 			for(int i = 0; i < this.auctionItems.size(); ++i)
 				buyerStorage.giveItem(this.auctionItems.get(i));
 			//Give the bid money to the trades owner
-			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
-			sellerStorage.giveMoney(this.lastBidAmount);
+			if(this.tradeOwner != null)
+			{
+				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
+				sellerStorage.giveMoney(this.lastBidAmount);
+			}
+			
 			
 			//Post notification to the auction winner
 			TradingOffice.pushNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
 			
 			//Post notification to the auction owner
-			TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
+			if(this.tradeOwner != null)
+				TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
 		}
 		else
 		{
 			//Nobody bid on the item(s), return the items to the auction owner
-			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
-			for(int i = 0; i < this.auctionItems.size(); ++i)
-				sellerStorage.giveItem(this.auctionItems.get(i));
-			
-			//Post notification to the auction owner
-			TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
-			
+			if(this.tradeOwner != null)
+			{
+				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
+				for(int i = 0; i < this.auctionItems.size(); ++i)
+					sellerStorage.giveItem(this.auctionItems.get(i));
+				
+				//Post notification to the auction owner
+				TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
+				
+			}
 		}
 	}
 	
@@ -227,8 +248,11 @@ public class AuctionTradeData extends TradeData {
 		else
 		{
 			//Return items to the trader owners storage. Ignore the player
-			AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner != null ? this.tradeOwner : PlayerReference.of(player));
-			for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
+			if(this.tradeOwner != null)
+			{
+				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner != null ? this.tradeOwner : PlayerReference.of(player));
+				for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
+			}
 		}
 			
 	}
@@ -252,9 +276,13 @@ public class AuctionTradeData extends TradeData {
 		compound.putLong("StartTime", this.startTime);
 		compound.putLong("Duration", this.duration);
 		
-		compound.put("TradeOwner", this.tradeOwner.save());
+		if(this.tradeOwner != null)
+			compound.put("TradeOwner", this.tradeOwner.save());
 		
 		compound.putBoolean("Cancelled", this.cancelled);
+		
+		if(!this.persistentID.isBlank())
+			compound.putString("PersistentID", this.persistentID);
 		
 		return compound;
 	}
@@ -281,9 +309,13 @@ public class AuctionTradeData extends TradeData {
 		this.startTime = compound.getLong("StartTime");
 		this.duration = compound.getLong("Duration");
 		
-		this.tradeOwner = PlayerReference.load(compound.getCompound("TradeOwner"));
+		if(compound.contains("TradeOwner", Tag.TAG_COMPOUND))
+			this.tradeOwner = PlayerReference.load(compound.getCompound("TradeOwner"));
 		
 		this.cancelled = compound.getBoolean("Cancelled");
+		
+		if(compound.contains("PersistentID", Tag.TAG_STRING))
+			this.persistentID = compound.getString("PersistentID");
 		
 	}
 	
@@ -386,19 +418,7 @@ public class AuctionTradeData extends TradeData {
 	public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
 		//Draw remaining time
 		TimeData time = TimeUtil.separateDuration(this.getRemainingTime(TimeUtil.getCurrentTime()));
-		TextRenderUtil.drawCenteredText(pose, time.toString(), button.x + button.getWidth() / 2, button.y + button.getHeight() - 10, this.getTextColor(time));
-	}
-	
-	@Override
-	public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
-		//If the mouse is over the time remaining text give time remaining info
-		if(mouseY >= this.tradeButtonHeight(context) - 10)
-		{
-			List<Component> durationData = new ArrayList<>();
-			
-			return durationData;
-		}
-		return null;
+		TextRenderUtil.drawCenteredText(pose, time.toString(), button.x + button.getWidth() / 2, button.y + button.getHeight() - 9, this.getTextColor(time));
 	}
 	
 	private int getTextColor(TimeData remainingTime) {

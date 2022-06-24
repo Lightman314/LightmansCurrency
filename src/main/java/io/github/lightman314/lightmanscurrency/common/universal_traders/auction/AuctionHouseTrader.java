@@ -74,6 +74,15 @@ public class AuctionHouseTrader extends UniversalTraderData {
 		} catch(Exception e) { return null; }
 	}
 	
+	public boolean hasPersistentAuction(String id) {
+		for(AuctionTradeData trade : this.trades)
+		{
+			if(trade.isPersistentID(id) && trade.isValid())
+				return true;
+		}
+		return false;
+	}
+	
 	public int getTradeIndex(AuctionTradeData trade) {
 		return this.trades.indexOf(trade);
 	}
@@ -103,7 +112,8 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	
 	@SubscribeEvent
 	public void onWorldTick(ServerTickEvent event) {
-		if(event.phase == Phase.END)
+		//Only run on server, never run on client, as the client doesn't know who has the trader open.
+		if(event.phase == Phase.END && event.side.isServer())
 		{
 			//Check if any trades have expired
 			long currentTime = System.currentTimeMillis();
@@ -302,7 +312,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 			{
 				AuctionTradeData at = (AuctionTradeData)trade;
 				//Only display if the trade owner is owned by the player.
-				return at.getTradeOwner().is(menu.player) && at.isActive();
+				return at.isOwner(menu.player) && at.isActive();
 			}
 			return false;
 		};
@@ -323,5 +333,14 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	
 	@Override
 	public boolean hasNoValidTrades() { return false; }
+
+	private final List<Player> currentUsers = new ArrayList<>();
+	public final boolean hasUser() { return this.currentUsers.size() > 0; }
+	
+	@Override
+	public void userOpen(Player player) { this.currentUsers.add(player); }
+
+	@Override
+	public void userClose(Player player) { this.currentUsers.remove(player); }
 	
 }

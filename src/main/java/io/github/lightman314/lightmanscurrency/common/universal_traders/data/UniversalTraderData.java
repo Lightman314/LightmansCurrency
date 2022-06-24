@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -400,23 +398,6 @@ public abstract class UniversalTraderData implements ITrader{
 	}
 	
 	public abstract IconData getIcon();
-	
-	/** A list of players using this trader */
-	private List<Player> users = new ArrayList<>();
-	
-	public void userOpen(Player player)
-	{
-		if(!users.contains(player))
-			this.users.add(player);
-	}
-	
-	public void userClose(Player player)
-	{
-		if(users.contains(player))
-			this.users.remove(player);
-	}
-	
-	public boolean hasUser() { return this.users.size() > 0; }
 	
 	@Override
 	public void sendOpenTraderMessage() {

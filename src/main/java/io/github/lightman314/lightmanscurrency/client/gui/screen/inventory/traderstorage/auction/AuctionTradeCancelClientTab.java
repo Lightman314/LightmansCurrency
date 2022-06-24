@@ -67,9 +67,9 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	
 	@Override
 	public void tick() {
-		//Reopen the default tab if the trade is null, or we're not allowed to edit it.
+		//Reopen the default tab if the trade is null, or we're not allowed to edit it. (Or it's already been handled).
 		AuctionTradeData trade = this.commonTab.getTrade();
-		if(trade == null || !trade.isOwner(this.menu.player))
+		if(trade == null || !trade.isOwner(this.menu.player) || !trade.isValid())
 			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}
 	
@@ -77,6 +77,12 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	public void receiveSelfMessage(CompoundTag message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
+	}
+	
+	@Override
+	public void receiveServerMessage(CompoundTag message) {
+		if(message.contains("CancelSuccess"))
+			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}
 	
 }

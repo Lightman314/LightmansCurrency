@@ -74,6 +74,9 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 				trade.CancelTrade(trader, giveToPlayer, this.menu.player);
 				trader.markTradesDirty();
 				trader.markStorageDirty();
+				CompoundTag message = new CompoundTag();
+				message.putBoolean("CancelSuccess", true);
+				this.menu.sendMessage(message);
 			}
 		}
 	}

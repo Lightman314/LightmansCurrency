@@ -58,12 +58,6 @@ public abstract class TraderClientTab {
 	public boolean mouseReleased(double mouseX, double mouseY, int button) { return false; }
 	
 	/**
-	 * Called when the mouse is clicked before any other click interactions are processed.
-	 * Return true an action was taken and other click interactions should be ignored.
-	 */
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaMouseX, double deltaMouseY) { return false; }
-	
-	/**
 	 * Called when the tab is closed.
 	 */
 	public void onClose() { }

@@ -26,12 +26,13 @@ public class SimpleSlot extends Slot{
 		return super.mayPlace(stack);
 	}
 	
-	@Override
+	//Don't override set as it's used for server-client sync
+	/*@Override
 	public void set(ItemStack stack) {
 		if(this.locked)
 			return;
 		super.set(stack);
-	}
+	}*/
 	
 	@Override
 	public ItemStack remove(int amount) {
