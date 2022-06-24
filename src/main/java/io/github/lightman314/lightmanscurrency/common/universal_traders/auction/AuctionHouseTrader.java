@@ -312,7 +312,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 			{
 				AuctionTradeData at = (AuctionTradeData)trade;
 				//Only display if the trade owner is owned by the player.
-				return at.isOwner(menu.player) && at.isActive();
+				return at.isOwner(menu.player) && at.isValid();
 			}
 			return false;
 		};
