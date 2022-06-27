@@ -94,6 +94,27 @@ public class ScrollBarWidget extends AbstractWidget {
 		public void setScroll(int newScroll);
 		public default int getMinScroll() { return 0; }
 		public int getMaxScroll();
+		public default boolean handleScrollWheel(double delta) {
+			int scroll = this.currentScroll();
+			if(delta < 0)
+			{			
+				if(scroll < this.getMaxScroll())
+				{
+					this.setScroll(scroll + 1);
+					return true;
+				}
+			}
+			else if(delta > 0)
+			{
+				if(scroll > 0)
+				{
+					this.setScroll(scroll - 1);
+					return true;
+				}
+			}
+			return false;
+		}
+		public static int calculateMaxScroll(int visibleCount, int totalCount) { return Math.max(0, totalCount - visibleCount); }
 	}
 
 	@Override
@@ -171,4 +192,6 @@ public class ScrollBarWidget extends AbstractWidget {
 	
 	public void playDownSound(SoundManager soundManager) { }
 
+	
+	
 }

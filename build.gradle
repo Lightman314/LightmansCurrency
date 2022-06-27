@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19-1.1.5.2'
+version = '1.19-1.1.5.3'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -26,7 +26,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             
             property 'forge.enabledGameTestNamespaces', 'lightmanscurrency'
-
+			
             mods {
                 lightmanscurrency {
                     source sourceSets.main

@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Reference.Color;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -205,6 +206,8 @@ public class LightmansCurrency {
 				ModBlocks.TICKET_KIOSK.get(), ModBlocks.ITEM_TRADER_SERVER_SMALL.get(), ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get(),
 				ModBlocks.ITEM_TRADER_SERVER_LARGE.get(), ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get()
 			));
+		
+		ATMIconData.init();
 		
     }
     

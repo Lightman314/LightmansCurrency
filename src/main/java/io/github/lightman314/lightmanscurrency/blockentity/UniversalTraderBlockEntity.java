@@ -64,11 +64,8 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 		return this.getData().getPermissionLevel(player, permission);
 	}
 	
-	public void updateNames(Player player)
-	{
-		if(this.getData() != null)
-			this.getData().getCoreSettings().updateNames(player);
-	}
+	@Deprecated
+	public void updateNames(Player player) {}
 	
 	public boolean canBreak(Player player)
 	{

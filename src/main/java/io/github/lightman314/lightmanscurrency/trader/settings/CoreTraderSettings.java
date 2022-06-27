@@ -371,15 +371,10 @@ public class CoreTraderSettings extends Settings{
 	
 	/**
 	 * Updates the last known name of all matching player references in the owner/ally/custom permissions list.
-	 * @param player
+	 * @deprecated No longer needed due to updates made to how the PlayerReference data is stored.
 	 */
-	public void updateNames(Player player)
-	{
-		if(this.owner != null)
-			this.owner.tryUpdateName(player);
-		for(PlayerReference ally : this.allies)
-			ally.tryUpdateName(player);
-	}
+	@Deprecated
+	public void updateNames(Player player) { }
 	
 	public boolean hasPermission(Player player, String permission)
 	{

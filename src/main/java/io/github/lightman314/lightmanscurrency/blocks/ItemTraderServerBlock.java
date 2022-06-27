@@ -96,7 +96,6 @@ public class ItemTraderServerBlock extends RotatableBlock implements ITraderBloc
 				if(trader.hasPermission(player, Permissions.OPEN_STORAGE))
 				{
 					//CurrencyMod.LOGGER.info("Updating the owner name.");
-					trader.updateNames(player);
 					trader.openStorageMenu(player);
 				}
 			}

@@ -2,13 +2,16 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator.Results;
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.menus.MintMenu;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
@@ -17,6 +20,7 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -42,6 +46,11 @@ public class LCJeiPlugin implements IModPlugin{
 	{
 		Results recipes = RecipeValidator.getValidRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(COIN_MINT_TYPE, recipes.getCoinMintRecipes());
+		
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER.get()), VanillaTypes.ITEM_STACK, Component.translatable("lightmanscurrency.jei.info.ticket"), Component.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET.get()), VanillaTypes.ITEM_STACK, Component.translatable("lightmanscurrency.jei.info.ticket_master"), Component.translatable("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM_STACK, Component.translatable("lightmanscurrency.jei.info.ticket_stub"));
+		
 	}
 	
 	@Override

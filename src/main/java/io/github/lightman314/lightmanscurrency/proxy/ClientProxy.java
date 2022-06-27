@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.client.util.PlayerSuggestionsUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -280,5 +281,8 @@ public class ClientProxy extends CommonProxy{
 		if(minecraft != null)
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
 	}
+	
+	@Override
+	public void processPlayerList(CompoundTag data) { PlayerSuggestionsUtil.loadFromServerData(data); }
 	
 }

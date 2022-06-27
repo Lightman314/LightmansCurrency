@@ -237,6 +237,14 @@ public class CoinValue
 		this.roundValue();
 	}
 	
+	public void removeValue(CoinValue otherValue) {
+		long thisValue = this.getRawValue();
+		long otherVal = otherValue.getRawValue();
+		if(otherVal > thisValue)
+			throw new RuntimeException("Other Coin Value is greater than this value.");
+		this.readFromOldValue(thisValue - otherVal);
+	}
+	
 	private void roundValue()
 	{
 		while(needsRounding())

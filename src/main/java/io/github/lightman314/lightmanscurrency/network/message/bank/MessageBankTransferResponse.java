@@ -39,7 +39,7 @@ public class MessageBankTransferResponse {
 				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
 				{
 					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu)player.containerMenu;
-					menu.setMessage(message.responseMessage);
+					menu.setTransferMessage(message.responseMessage);
 				}
 			}
 		});

@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
+import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
@@ -31,6 +32,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.money.MoneyData;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
@@ -153,8 +155,15 @@ public class LightmansCurrencyPacketHandler {
 		//Money Data
 		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
 		
+		//ATM Data
+		register(ATMData.class, ATMData::encode, ATMData::decode, ATMData::handle);
+		
 		//Enchantments
 		register(SPacketMoneyMendingClink.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(SPacketMoneyMendingClink::new), SPacketMoneyMendingClink::handle);
+		
+		//Player List
+		register(CPacketRequestPlayerList.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketRequestPlayerList::new), CPacketRequestPlayerList::handle);
+		register(SPacketSendPlayerList.class, SPacketSendPlayerList::encode, SPacketSendPlayerList::decode, SPacketSendPlayerList::handle);
 		
 	}
 

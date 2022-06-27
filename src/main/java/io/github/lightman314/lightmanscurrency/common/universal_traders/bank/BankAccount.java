@@ -80,7 +80,10 @@ public class BankAccount {
 		long oldValue = this.coinStorage.getRawValue();
 		if(withdrawAmount.getRawValue() > this.coinStorage.getRawValue())
 			withdrawAmount = this.coinStorage.copy();
-		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
+		//Cannot withdraw no money
+		if(withdrawAmount.getRawValue() <= 0)
+			return CoinValue.EMPTY;
+		this.coinStorage.readFromOldValue(this.coinStorage.getRawValue() - withdrawAmount.getRawValue());
 		this.markDirty();
 		//Check if we should push the notification
 		if(oldValue >= this.getNotificationLevel() && this.coinStorage.getRawValue() < this.getNotificationLevel())
@@ -176,11 +179,14 @@ public class BankAccount {
 			return Component.translatable("gui.bank.transfer.error.same");
 		
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
+		if(withdrawnAmount.getRawValue() <= 0)
+			return Component.translatable("gui.bank.transfer.error.nobalance", amount.getString());
+		
 		destinationAccount.depositCoins(withdrawnAmount);
 		fromAccount.LogTransfer(player, withdrawnAmount, destinationAccount.getName().withStyle(ChatFormatting.GOLD), false);
 		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccount.getName().withStyle(ChatFormatting.GOLD), true);
 		
-		return Component.translatable("gui.bank.transfer.success", amount.getString(), destinationAccount.getName());
+		return Component.translatable("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
 		
 	}
 	
@@ -297,8 +303,7 @@ public class BankAccount {
 	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
 		public AccountReference getAccountSource();
-		public Component getLastMessage();
-		public void setMessage(MutableComponent component);
+		public void setTransferMessage(MutableComponent component);
 		public void setNotificationLevel(CoinValue amount);
 	}
 	

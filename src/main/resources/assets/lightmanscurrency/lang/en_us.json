@@ -483,6 +483,7 @@
     "gui.bank.transfer.error.null.to": "Target bank account does not exist.",
     "gui.bank.transfer.error.same": "Cannot transfer to the same account.",
     "gui.bank.transfer.error.amount": "Cannot transfer %s.",
+    "gui.bank.transfer.error.nobalance": "Cannot transfer %s, as your bank account has no money.",
     "gui.bank.transfer.success": "Transferred %1$s to %2$s",
     
     "gui.bank.select.player.success": "Selected %s's Bank Account",
@@ -631,6 +632,12 @@
     "command.lightmanscurrency.lcbaltop.page": "Page %1$s of %2$s",
     "command.lightmanscurrency.lcbaltop.entry": "%1$s-%2$s (%3$s)",
     "command.lightmanscurrency.lcbaltop.error.page": "Page is too large",
+    
+    "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Machine using a printed Master Ticket and a valid ticket material.",
+    "lightmanscurrency.jei.info.ticket_master": "Crafted in the Ticket Machine using a valid ticket material. Each Master Ticket will have a unique id to prevent illegal ticket copying, and must be used to define ticket interactions.",
+    "lightmanscurrency.jei.info.ticket_stub": "A broken ticket returned to the customer when a ticket is used on a Paygate.",
+    "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials: %s",
+    "lightmanscurrency.jei.info.ticket_materials.seperator": ", ",
     
     "advancements.lightmanscurrency.root.title": "Lightman's Currency",
     "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",
