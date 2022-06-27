@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -33,7 +32,7 @@ public class LogTab extends ATMTab{
 		
 		SimpleSlot.SetInactive(this.screen.getMenu());
 		
-		this.logWidget = this.screen.addRenderableTabWidget(new ScrollTextDisplay(this.screen.getGuiLeft() + 5, this.screen.getGuiTop() + 5, this.screen.getXSize() - 10, 108, this.screen.getFont(), this::getBankLog));
+		this.logWidget = this.screen.addRenderableTabWidget(new ScrollTextDisplay(this.screen.getGuiLeft() + 5, this.screen.getGuiTop() + 5, this.screen.getXSize() - 10, 140, this.screen.getFont(), this::getBankLog));
 		this.logWidget.invertText = true;
 		
 	}
@@ -46,12 +45,7 @@ public class LogTab extends ATMTab{
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
-		
-	}
+	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) { this.hideCoinSlots(pose); }
 
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) { }

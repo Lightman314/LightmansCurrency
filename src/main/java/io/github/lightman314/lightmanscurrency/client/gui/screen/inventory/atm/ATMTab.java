@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -24,5 +25,10 @@ public abstract class ATMTab implements ITab
 	public boolean blockInventoryClosing() { return false; }
 	
 	public final int getColor() { return 0xFFFFFF; }
+	
+	protected final void hideCoinSlots(PoseStack pose) {
+		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
+		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 128, 7, 79, 162, 18);
+	}
 	
 }

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
@@ -16,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
@@ -27,8 +27,7 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankT
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
@@ -36,7 +35,12 @@ import net.minecraft.world.item.Items;
 public class TransferTab extends ATMTab {
 
 	public TransferTab(ATMScreen screen) { super(screen); }
-
+	
+	//Response should be 100 ticks or 5 seconds
+	public static final int RESPONSE_DURATION = 100;
+	
+	private int responseTimer = 0;
+	
 	CoinValueInput amountWidget;
 	
 	EditBox playerInput;
@@ -53,29 +57,31 @@ public class TransferTab extends ATMTab {
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer"); }
 
 	@Override
 	public void init() {
 		
 		SimpleSlot.SetInactive(this.screen.getMenu());
 		
-		this.screen.getMenu().setMessage(new TextComponent(""));
+		this.responseTimer = 0;
+		this.screen.getMenu().clearMessage();
 		
-		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop() - CoinValueInput.HEIGHT, new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
+		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
 		this.amountWidget.init();
 		this.amountWidget.allowFreeToggle = false;
+		this.amountWidget.drawBG = false;
 		
-		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 10, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.team"), new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
+		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 64, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.team"), new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
 		
-		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 50, this.screen.getXSize() - 20, 20, new TextComponent("")));
+		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 104, this.screen.getXSize() - 20, 20, new TextComponent("")));
 		this.playerInput.visible = this.playerMode;
 		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 30, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
+		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 84, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 72, this.screen.getXSize() - 20, 20, new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
+		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126, this.screen.getXSize() - 20, 20, new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
 		
 	}
@@ -137,15 +143,21 @@ public class TransferTab extends ATMTab {
 	
 	@Override
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
-		Component balance = this.screen.getMenu().getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
-		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 18, 0x404040);
 		
-		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
-		List<FormattedText> lines = this.screen.getFont().getSplitter().splitLines(this.screen.getMenu().getLastMessage().getString(), this.screen.getXSize() - 15, Style.EMPTY);
-		for(int i = 0; i < lines.size(); ++i)
-			this.screen.getFont().draw(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97 + (this.screen.getFont().lineHeight * i), 0x404040);
+		this.hideCoinSlots(pose);
+		
+		//this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
+		Component balance = this.screen.getMenu().getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
+		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 72, 0x404040);
+		
+		if(this.hasMessage())
+		{
+			//Draw a message background
+			TextRenderUtil.drawCenteredMultilineText(pose, this.getMessage(), this.screen.getGuiLeft() + 2, this.screen.getXSize() - 4, this.screen.getGuiTop() + 5, 0x404040);
+			this.amountWidget.visible = false;
+		}
+		else
+			this.amountWidget.visible = true;
 	}
 
 	@Override
@@ -168,11 +180,28 @@ public class TransferTab extends ATMTab {
 			Team team = this.selectedTeam();
 			this.buttonTransfer.active = team != null && team.hasBankAccount() && this.amountWidget.getCoinValue().isValid();
 		}
+		
+		
+		if(this.hasMessage())
+		{
+			this.responseTimer++;
+			if(this.responseTimer >= RESPONSE_DURATION)
+			{
+				this.responseTimer = 0;
+				this.screen.getMenu().clearMessage();
+			}
+		}
 	}
+	
+	private boolean hasMessage() { return this.screen.getMenu().hasTransferMessage(); }
+	
+	private MutableComponent getMessage() { return this.screen.getMenu().getTransferMessage(); }
 
 	@Override
 	public void onClose() {
 		SimpleSlot.SetActive(this.screen.getMenu());
+		this.responseTimer = 0;
+		this.screen.getMenu().clearMessage();
 	}
 
 	@Override

@@ -9,20 +9,19 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageATMConversion {
 	
-	private int buttonHit;
+	private final String command;
 	
-	public MessageATMConversion(int buttonHit)
+	public MessageATMConversion(String command)
 	{
-		this.buttonHit = buttonHit;
+		this.command = command;
 	}
 	
-	
 	public static void encode(MessageATMConversion message, FriendlyByteBuf buffer) {
-		buffer.writeInt(message.buttonHit);
+		buffer.writeUtf(message.command);
 	}
 
 	public static MessageATMConversion decode(FriendlyByteBuf buffer) {
-		return new MessageATMConversion(buffer.readInt());
+		return new MessageATMConversion(buffer.readUtf());
 	}
 
 	public static void handle(MessageATMConversion message, Supplier<Context> supplier) {
@@ -34,7 +33,7 @@ public class MessageATMConversion {
 				if(player.containerMenu instanceof ATMMenu)
 				{
 					ATMMenu menu = (ATMMenu) player.containerMenu;
-					menu.ConvertCoins(message.buttonHit);
+					menu.ConvertCoins(message.command);
 				}
 			}
 		});

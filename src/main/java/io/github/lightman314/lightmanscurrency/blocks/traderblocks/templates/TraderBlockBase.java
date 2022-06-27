@@ -86,7 +86,6 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 			if(blockEntity instanceof TraderBlockEntity)
 			{
 				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				trader.getCoreSettings().updateNames(player);
 				//Send update packet for safety, and open the menu
 				BlockEntityUtil.sendUpdatePacket(blockEntity);
 				trader.openTradeMenu(player);

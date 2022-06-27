@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
@@ -39,7 +39,7 @@ public class MessageATMSetPlayerAccount {
 				if(player.containerMenu instanceof ATMMenu)
 				{
 					ATMMenu menu = (ATMMenu) player.containerMenu;
-					Pair<AccountReference,Component> response = menu.SetPlayerAccount(message.playerName);
+					Pair<AccountReference,MutableComponent> response = menu.SetPlayerAccount(message.playerName);
 					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageATMPlayerAccountResponse(response.getFirst(), response.getSecond()));
 				}
 			}

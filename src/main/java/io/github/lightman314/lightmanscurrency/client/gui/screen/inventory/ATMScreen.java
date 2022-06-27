@@ -26,6 +26,8 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
+	public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm_buttons.png");
+	
 	int currentTabIndex = 0;
 	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this), new NotificationTab(this), new LogTab(this), new TransferTab(this));
 	public List<ATMTab> getTabs() { return this.tabs; }
@@ -41,7 +43,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public ATMScreen(ATMMenu container, Inventory inventory, Component title)
 	{
 		super(container, inventory, title);
-		this.imageHeight = 212;
+		this.imageHeight = 243;
 		this.imageWidth = 176;
 	}
 	

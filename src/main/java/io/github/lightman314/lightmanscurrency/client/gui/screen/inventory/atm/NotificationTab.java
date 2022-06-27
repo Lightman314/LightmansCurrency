@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
@@ -46,8 +45,7 @@ public class NotificationTab extends ATMTab {
 	@Override
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 97, 7, 79, 162, 18);
+		this.hideCoinSlots(pose);
 		
 		BankAccount account = this.screen.getMenu().getAccount();
 		if(account != null)

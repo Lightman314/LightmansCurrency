@@ -1,7 +1,10 @@
 package io.github.lightman314.lightmanscurrency.trader.settings;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
@@ -12,16 +15,23 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class PlayerReference {
+
+	private static Map<UUID,PlayerReference> knownReferences = new HashMap<>();
+	public static void clearPlayerCache() { knownReferences.clear(); }
+	public static List<PlayerReference> getKnownPlayers() { return knownReferences.values().stream().collect(Collectors.toList()); }
 	
 	public final UUID id;
 	private String name = "";
 	public String lastKnownName() { return this.name; }
+	public MutableComponent lastKnownNameComponent() { return new TextComponent(this.name); }
 	
 	private PlayerReference(UUID playerID, String name)
 	{
@@ -29,6 +39,10 @@ public class PlayerReference {
 		this.name = name;
 	}
 	
+	/**
+	 * @deprecated No longer needed, as the name is updated every time a reference is created on the server.
+	 */
+	@Deprecated
 	public void tryUpdateName(Player player)
 	{
 		if(is(player))
@@ -105,7 +119,7 @@ public class PlayerReference {
 		try {
 			UUID id = compound.getUUID("id");
 			String name = compound.getString("name");
-			return new PlayerReference(id, name);
+			return of(id, name);
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading PlayerReference from tag.", e.getMessage()); return null; }
 	}
 	
@@ -116,7 +130,7 @@ public class PlayerReference {
 			JsonObject j = json.getAsJsonObject();
 			UUID id = UUID.fromString(j.get("id").getAsString());
 			String name = j.get("name").getAsString();
-			return new PlayerReference(id, name);
+			return of(id, name);
 		} catch(Exception e) {LightmansCurrency.LogError("Error loading PlayerReference from JsonObject", e); return null; }
 	}
 	
@@ -145,14 +159,38 @@ public class PlayerReference {
 		return playerList;
 	}
 	
-	public static PlayerReference of(UUID playerID, String name)
+	public static PlayerReference of(UUID playerID, String name) { return of(playerID, name, false); }
+	
+	public static PlayerReference of(UUID playerID, String name, boolean isTrueName)
 	{
 		if(playerID == null)
 			return null;
 		//Attempt to the the players profile, for latest name updates
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null)
-			return of(server.getProfileCache().get(playerID).orElse(null));
+		if(!isTrueName)
+		{
+			//Only attempt this if this isn't already the true name.
+			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+			if(server != null)
+			{
+				GameProfile profile = server.getProfileCache().get(playerID).orElse(null);
+				if(profile == null)
+					return null;
+				name = profile.getName();
+				isTrueName = true;
+			}
+		}
+		
+		//Check if any known references have the same id
+		if(knownReferences.containsKey(playerID))
+		{
+			PlayerReference pr = knownReferences.get(playerID);
+			if(isTrueName) //If this is known to be the true player name, update the name
+				pr.name = name;
+			return pr;
+		}
+		//Otherwise, create the reference
+		PlayerReference newPR = new PlayerReference(playerID, name);
+		knownReferences.put(playerID, newPR);
 		return new PlayerReference(playerID, name);
 	}
 	
@@ -160,7 +198,7 @@ public class PlayerReference {
 	{
 		if(playerProfile == null)
 			return null;
-		return new PlayerReference(playerProfile.getId(), playerProfile.getName());
+		return of(playerProfile.getId(), playerProfile.getName(), true);
 	}
 	
 	public static PlayerReference of(Entity entity)

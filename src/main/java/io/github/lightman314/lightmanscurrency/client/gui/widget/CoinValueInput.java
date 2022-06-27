@@ -204,6 +204,8 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		this.toggleFree.visible = this.allowFreeToggle && this.visible;
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
 		this.decreaseButtons.forEach(button -> button.visible = this.visible);
+		if(this.valueInput != null)
+			this.valueInput.visible = this.visible;
 		if(!this.visible) //If not visible, render nothing
 			return;
 		

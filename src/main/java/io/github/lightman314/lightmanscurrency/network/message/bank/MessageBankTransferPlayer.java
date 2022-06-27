@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
@@ -43,7 +43,7 @@ public class MessageBankTransferPlayer {
 				{
 					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu) player.containerMenu;
 					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(message.playerName));
-					Component response = BankAccount.TransferCoins(menu, message.amount, destination);
+					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageBankTransferResponse(response));
 				}
