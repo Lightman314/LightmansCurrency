@@ -636,8 +636,7 @@
     "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Machine using a printed Master Ticket and a valid ticket material.",
     "lightmanscurrency.jei.info.ticket_master": "Crafted in the Ticket Machine using a valid ticket material. Each Master Ticket will have a unique id to prevent illegal ticket copying, and must be used to define ticket interactions.",
     "lightmanscurrency.jei.info.ticket_stub": "A broken ticket returned to the customer when a ticket is used on a Paygate.",
-    "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials: %s",
-    "lightmanscurrency.jei.info.ticket_materials.seperator": ", ",
+    "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials:%s",
     
     "advancements.lightmanscurrency.root.title": "Lightman's Currency",
     "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",

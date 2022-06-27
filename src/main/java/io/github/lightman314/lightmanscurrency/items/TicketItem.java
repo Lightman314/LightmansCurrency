@@ -83,16 +83,11 @@ public class TicketItem extends Item{
 	
 	public static MutableComponent getTicketMaterialsList() {
 		MutableComponent list = Component.empty();
-		boolean firstEntry = true;
 		
 		try {
 			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().collect(Collectors.toList()))
 			{
-				Component hoverName = new ItemStack(item).getHoverName();
-				if(firstEntry)
-					list.append(hoverName);
-				else
-					list.append(Component.translatable("lightmanscurrency.jei.info.ticket_materials.seperator")).append(hoverName);
+				list.append(Component.literal("\n")).append(new ItemStack(item).getHoverName());
 			}
 		} catch(Throwable t) { t.printStackTrace(); }
 		
