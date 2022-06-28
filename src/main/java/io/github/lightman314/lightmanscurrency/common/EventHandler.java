@@ -226,10 +226,16 @@ public class EventHandler {
 				Collection<ItemEntity> walletDrops = Lists.newArrayList();
 				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise it always drops the wallet.
 				{
-					boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
-					GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
+					
+					boolean keepWallet = true;
+					if(!LightmansCurrency.isCuriosValid(livingEntity))
+					{
+						boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+						GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
+						keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+					}
+					
 					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
-					boolean keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
 					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
 					
 					if(keepWallet && coinDropPercent <= 0)
@@ -344,6 +350,7 @@ public class EventHandler {
 			return;
 		
 		WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
+			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));

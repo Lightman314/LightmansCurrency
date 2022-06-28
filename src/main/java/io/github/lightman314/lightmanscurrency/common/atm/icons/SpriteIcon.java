@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class SpriteIcon extends ATMIconData {
 
@@ -56,6 +58,7 @@ public class SpriteIcon extends ATMIconData {
 	protected ResourceLocation getType() { return TYPE_NAME; }
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
 		RenderSystem.setShaderTexture(0, this.texture);
 		button.blit(pose, button.x + this.xPos, button.y + this.yPos, this.u, this.v, this.width, this.height);

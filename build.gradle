@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19-1.1.5.3'
+version = '1.19-1.1.5.4'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -77,6 +77,12 @@ dependencies {
     //JEI when not working on plugin, to save compile/runClient time
     compileOnly fg.deobf("curse.maven:jei-238222:3835406")
     runtimeOnly fg.deobf("curse.maven:jei-238222:3835406")
+    
+    //Curios API
+    compileOnly fg.deobf("curse.maven:curios-309927:3841962")
+    //Curios Runtime
+    //runtimeOnly fg.deobf("curse.maven:curios-309927:3841962")
+    
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831243')
     

@@ -6,7 +6,7 @@
       "item": "lightmanscurrency:vending_machine"
     },
     {
-      "item": "minecraft:black_dye"
+      "tag": "forge:dyes/black"
     }
   ],
   "result": {

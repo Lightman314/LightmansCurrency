@@ -96,13 +96,20 @@ public class ClientEvents {
 		{
 			
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			int xPos = slotPosition.getFirst() + Config.CLIENT.walletButtonOffsetX.get();
-			int yPos = slotPosition.getSecond() + Config.CLIENT.walletButtonOffsetY.get();
 			
-			event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet())));
-			
-			event.addListener(new VisibilityToggleButton(gui, slotPosition.getFirst(), slotPosition.getSecond(), ClientEvents::toggleVisibility));
+			Minecraft mc = Minecraft.getInstance();
+			if(!LightmansCurrency.isCuriosValid(mc.player))
+			{
+				
+				Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+				int xPos = slotPosition.getFirst() + Config.CLIENT.walletButtonOffsetX.get();
+				int yPos = slotPosition.getSecond() + Config.CLIENT.walletButtonOffsetY.get();
+				
+				event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet())));
+				
+				event.addListener(new VisibilityToggleButton(gui, slotPosition.getFirst(), slotPosition.getSecond(), ClientEvents::toggleVisibility));
+				
+			}
 			
 			//Add notification button
 			event.addListener(new NotificationButton(gui));
@@ -127,6 +134,11 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void renderInventoryScreen(ContainerScreenEvent.DrawBackground event)
 	{
+		
+		Minecraft mc = Minecraft.getInstance();
+		if(LightmansCurrency.isCuriosValid(mc.player))
+			return;
+		
 		AbstractContainerScreen<?> screen = event.getContainerScreen();
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
@@ -136,6 +148,7 @@ public class ClientEvents {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
+			
 			IWalletHandler walletHandler = getWalletHandler(); 
 			if(walletHandler == null)
 				return;
@@ -165,22 +178,28 @@ public class ClientEvents {
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
+			
 			if(!gui.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
 				return;
+			
 			if(gui instanceof CreativeModeInventoryScreen) {
 				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)gui;
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
 			
-			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			
-			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
+			Minecraft mc = Minecraft.getInstance();
+			if(!LightmansCurrency.isCuriosValid(mc.player))
 			{
-				IWalletHandler walletHandler = getWalletHandler();
-				ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
-				if(!wallet.isEmpty())
-					screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
+				Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+				
+				if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
+				{
+					IWalletHandler walletHandler = getWalletHandler();
+					ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
+					if(!wallet.isEmpty())
+						screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
+				}
 			}
 			
 			//Render notification & team manager button tooltips
@@ -194,6 +213,11 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void onInventoryClick(ScreenEvent.MouseClickedEvent.Pre event)
 	{
+		
+		Minecraft mc = Minecraft.getInstance();
+		if(LightmansCurrency.isCuriosValid(mc.player))
+			return;
+		
 		Screen screen = event.getScreen();
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)

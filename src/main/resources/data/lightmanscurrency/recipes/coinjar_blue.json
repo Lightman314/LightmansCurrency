@@ -11,7 +11,7 @@
       "item": "minecraft:brick"
     },
     "d": {
-      "item": "minecraft:blue_dye"
+      "tag": "forge:dyes/blue"
     }
   },
   "result": {

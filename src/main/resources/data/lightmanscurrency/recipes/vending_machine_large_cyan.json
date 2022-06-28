@@ -6,7 +6,7 @@
       "item": "lightmanscurrency:vending_machine_large"
     },
     {
-      "item": "minecraft:cyan_dye"
+      "tag": "forge:dyes/cyan"
     }
   ],
   "result": {

@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
@@ -11,8 +12,6 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -42,38 +41,54 @@ public class WalletCapability {
 		ItemStack backupWallet;
 		boolean visible;
 		boolean wasVisible;
-		final Container walletInventory;
+		ItemStack walletItem;
 		
 		public WalletHandler() { this(null); }
 		
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
 			this.backupWallet = ItemStack.EMPTY;
-			this.walletInventory = new SimpleContainer(1);
+			this.walletItem = ItemStack.EMPTY;
 			this.visible = true;
 			this.wasVisible = true;
 		}
 		
 		@Override
-		public Container getInventory()
-		{
-			return this.walletInventory;
-		}
-		
-		@Override
 		public ItemStack getWallet() {
-			return this.walletInventory.getItem(0);
+			
+			//Curios hook for consistent access
+			if(LightmansCurrency.isCuriosValid(this.entity))
+				return LCCurios.getCuriosWalletContents(this.entity);
+			
+			return this.walletItem;
 		}
 
 		@Override
 		public void setWallet(ItemStack walletStack) {
-			this.walletInventory.setItem(0, walletStack);
+			
+			if(LightmansCurrency.isCuriosValid(this.entity))
+			{
+				LCCurios.setCuriosWalletContents(this.entity, walletStack);
+				return;
+			}
+			
+			this.walletItem = walletStack;
 			if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
 				LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
+			
 		}
 		
 		@Override
-		public boolean visible() { return this.visible; }
+		public void syncWallet(ItemStack walletStack) {
+			this.walletItem = walletStack;
+		}
+		
+		@Override
+		public boolean visible() {
+			if(LightmansCurrency.isCuriosValid(this.entity))
+				return LCCurios.getCuriosWalletVisibility(this.entity);
+			return this.visible;
+		}
 		
 		@Override
 		public void setVisible(boolean visible) { this.visible = visible; }
@@ -88,14 +103,14 @@ public class WalletCapability {
 		
 		@Override
 		public void clean() {
-			this.backupWallet = this.getWallet().copy();
+			this.backupWallet = this.walletItem.copy();
 			this.wasVisible = this.visible;
 		}
 		
 		@Override
 		public Tag writeTag() {
 			CompoundTag compound = new CompoundTag();
-			CompoundTag walletItem = this.getWallet().save(new CompoundTag());
+			CompoundTag walletItem = this.walletItem.save(new CompoundTag());
 			compound.put("Wallet", walletItem);
 			compound.putBoolean("Visible", this.visible);
 			return compound;
@@ -111,8 +126,18 @@ public class WalletCapability {
 				this.setWallet(wallet);
 				if(compound.contains("Visible"))
 					this.visible = compound.getBoolean("Visible");
-					
+				
 				this.clean();
+			}
+		}
+		
+		@Override
+		public void tick() {
+			if(LightmansCurrency.isCuriosValid(this.entity) && !this.walletItem.isEmpty())
+			{
+				LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the Curios Wallet Slot.");
+				LCCurios.setCuriosWalletContents(this.entity, this.walletItem);
+				this.walletItem = ItemStack.EMPTY;
 			}
 		}
 		
@@ -147,6 +172,10 @@ public class WalletCapability {
 	
 	public static void WalletSlotInteraction(Player player, int clickedSlot, boolean heldShift, ItemStack heldItem)
 	{
+		
+		if(LightmansCurrency.isCuriosLoaded())
+			return;
+		
 		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
 		AbstractContainerMenu menu = player.containerMenu;
 		if(menu == null)

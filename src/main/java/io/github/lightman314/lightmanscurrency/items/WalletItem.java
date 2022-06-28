@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.enchantments.WalletEnchantment;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.ChatFormatting;
@@ -38,6 +39,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.network.NetworkHooks;
 
 public class WalletItem extends Item{
@@ -55,6 +57,15 @@ public class WalletItem extends Item{
 		this.storageSize = storageSize;
 		WalletMenu.updateMaxWalletSlots(this.storageSize);
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
+	}
+	
+	@Nullable
+	@Override
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
+	{
+		if(!LightmansCurrency.isCuriosLoaded())
+			return null;
+		return LCCurios.createWalletProvider(stack);
 	}
 	
 	@Override
@@ -194,7 +205,7 @@ public class WalletItem extends Item{
 			if(walletSlot >= 0)
 			{
 				
-				if(player.isCrouching())
+				if(player.isCrouching() && (!LightmansCurrency.isCuriosValid(player)))
 				{
 					AtomicBoolean equippedWallet = new AtomicBoolean(false);
 					WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{

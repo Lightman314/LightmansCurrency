@@ -44,7 +44,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			ItemStack wallet = walletHandler.getWallet();
 			//Don't do anything if the stack is not a waller
 			//Or if the wallet cannot pick up coins
-			if(!WalletItem.isWallet(wallet) || !(wallet.getItem() instanceof WalletItem) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
+			if(!WalletItem.isWallet(wallet) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 				return;
 			//Get the level (-1 to properly calculate range)
 			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET.get(), wallet);

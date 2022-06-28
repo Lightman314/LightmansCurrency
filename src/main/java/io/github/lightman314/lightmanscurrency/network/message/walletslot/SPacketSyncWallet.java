@@ -43,7 +43,7 @@ public class SPacketSyncWallet {
 				if(entity instanceof LivingEntity)
 				{
 					WalletCapability.getWalletHandler((LivingEntity)entity).ifPresent(walletHandler ->{
-						walletHandler.setWallet(message.walletItem);
+						walletHandler.syncWallet(message.walletItem);
 						walletHandler.setVisible(message.visible);
 					});
 				}
