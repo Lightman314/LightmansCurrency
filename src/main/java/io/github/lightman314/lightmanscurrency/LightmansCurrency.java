@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,13 +40,16 @@ import io.github.lightman314.lightmanscurrency.enchantments.LCEnchantmentCategor
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomPointsOfInterest;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -56,6 +57,7 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -63,9 +65,11 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
+import top.theillusivec4.curios.api.SlotTypeMessage;
 
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
@@ -84,6 +88,22 @@ public class LightmansCurrency {
     private static boolean discordIntegrationLoaded = false;
     public static boolean isDiscordIntegrationLoaded() { return discordIntegrationLoaded; }
     
+    private static boolean curiosLoaded = false;
+    /**
+     * Whether the Curios API mod is installed
+     */
+    public static boolean isCuriosLoaded() { return curiosLoaded; }
+    /**
+     * Whether the Curios API mod is installed, and a valid Wallet Slot is present on the given entity.
+     */
+    public static boolean isCuriosValid(LivingEntity player) {
+    	try {
+    		if(curiosLoaded)
+        		return LCCurios.hasWalletSlot(player);
+    	} catch(Throwable t) {}
+    	return false;
+    }
+    
 	public LightmansCurrency() {
     	
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
@@ -91,6 +111,7 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onDataSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::imc);
         
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -114,6 +135,7 @@ public class LightmansCurrency {
         MinecraftForge.EVENT_BUS.register(PROXY);
         
         discordIntegrationLoaded = ModList.get().isLoaded("lightmansdiscord");
+        curiosLoaded = ModList.get().isLoaded("curios");
         
         if(discordIntegrationLoaded)
         {
@@ -122,6 +144,16 @@ public class LightmansCurrency {
         }
         
     }
+	
+	private void imc(InterModEnqueueEvent event) {
+		if(isCuriosLoaded())
+		{
+			//Add a wallet slot
+			InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder(LCCurios.WALLET_SLOT).icon(WalletSlot.EMPTY_WALLET_SLOT).size(1).build());
+		}
+	}
+
+
     
     private void doCommonStuff(final FMLCommonSetupEvent event)
     {
@@ -264,18 +296,19 @@ public class LightmansCurrency {
      */
     public static ItemStack getWalletStack(Player player)
     {
-    	AtomicReference<ItemStack> wallet = new AtomicReference<>(ItemStack.EMPTY);
-    	WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
-			wallet.set(walletHandler.getWallet());
-		});
+    	ItemStack wallet = ItemStack.EMPTY;
+
+    	IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
+    	if(walletHandler != null)
+    		wallet = walletHandler.getWallet();
     	//Safety check to confirm that the Item Stack found is a valid wallet
-    	if(!WalletItem.validWalletStack(wallet.get()))
+    	if(!WalletItem.validWalletStack(wallet))
     	{
     		LightmansCurrency.LogError(player.getName().getString() + "'s equipped wallet is not a valid WalletItem.");
-    		LightmansCurrency.LogError("Equipped wallet is of type " + wallet.get().getItem().getClass().getName());
+    		LightmansCurrency.LogError("Equipped wallet is of type " + wallet.getItem().getClass().getName());
 			return ItemStack.EMPTY;
     	}
-    	return wallet.get();
+    	return wallet;
     	
     }
     

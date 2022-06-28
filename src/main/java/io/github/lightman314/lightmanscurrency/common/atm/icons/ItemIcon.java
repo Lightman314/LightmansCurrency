@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemIcon extends ATMIconData {
@@ -63,6 +65,7 @@ public class ItemIcon extends ATMIconData {
 	protected ResourceLocation getType() { return TYPE_NAME; }
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
 		ItemRenderUtil.drawItemStack(button, null, this.item, button.x + this.xPos, button.y + this.yPos, "");
 	}

@@ -10,7 +10,7 @@
       "item": "lightmanscurrency:trading_core"
     },
     "g": {
-      "item": "minecraft:glass"
+      "tag": "forge:glass/colorless"
     },
     "w": {
       "item": "minecraft:white_wool"

@@ -638,6 +638,8 @@
     "lightmanscurrency.jei.info.ticket_stub": "A broken ticket returned to the customer when a ticket is used on a Paygate.",
     "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials:%s",
     
+    "curios.identifier.wallet": "Wallet",
+    
     "advancements.lightmanscurrency.root.title": "Lightman's Currency",
     "advancements.lightmanscurrency.root.description": "Collecting wealth and trading with players.",
     "advancements.lightmanscurrency.myfirstpenny.title": "My first penny!",

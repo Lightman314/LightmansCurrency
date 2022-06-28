@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-1.1.5.3'
+version = '1.18.2-1.1.5.4'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -82,6 +82,11 @@ dependencies {
     //JEI when not working on plugin, to save compile/runClient time
     compileOnly fg.deobf("curse.maven:jei-238222:3723913")
     runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
+    
+    //Curios API
+    compileOnly fg.deobf("curse.maven:curios-309927:3841948")
+    runtimeOnly fg.deobf("curse.maven:curios-309927:3841948")
+    
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831233')
     

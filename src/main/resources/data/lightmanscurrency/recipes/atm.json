@@ -10,7 +10,7 @@
       "item": "minecraft:iron_ingot"
     },
     "g": {
-      "item": "minecraft:glass_pane"
+      "tag": "forge:glass_panes/colorless"
     },
     "r": {
       "item": "minecraft:redstone"
