@@ -38,12 +38,12 @@ public class WalletCapability {
 	{
 		
 		final LivingEntity entity;
+		//Wallet
+		ItemStack walletItem;
 		ItemStack backupWallet;
+		//Visibility
 		boolean visible;
 		boolean wasVisible;
-		ItemStack walletItem;
-		
-		public WalletHandler() { this(null); }
 		
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
@@ -122,8 +122,7 @@ public class WalletCapability {
 			if(tag instanceof CompoundTag)
 			{
 				CompoundTag compound = (CompoundTag)tag;
-				ItemStack wallet = ItemStack.of(compound.getCompound("Wallet"));
-				this.setWallet(wallet);
+				this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
 				if(compound.contains("Visible"))
 					this.visible = compound.getBoolean("Visible");
 				
@@ -133,9 +132,10 @@ public class WalletCapability {
 		
 		@Override
 		public void tick() {
+			
 			if(LightmansCurrency.isCuriosValid(this.entity) && !this.walletItem.isEmpty())
 			{
-				LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the Curios Wallet Slot.");
+				LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
 				LCCurios.setCuriosWalletContents(this.entity, this.walletItem);
 				this.walletItem = ItemStack.EMPTY;
 			}
@@ -173,7 +173,7 @@ public class WalletCapability {
 	public static void WalletSlotInteraction(Player player, int clickedSlot, boolean heldShift, ItemStack heldItem)
 	{
 		
-		if(LightmansCurrency.isCuriosLoaded())
+		if(LightmansCurrency.isCuriosValid(player))
 			return;
 		
 		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
