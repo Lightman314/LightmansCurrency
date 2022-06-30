@@ -31,7 +31,7 @@ public class MessageOpenWalletBank {
 			{
 				IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
 				if(walletHandler != null && !walletHandler.getWallet().isEmpty())
-					NetworkHooks.openGui(player, new WalletBankMenuProvider(message.walletStackIndex), new DataWriter(-1));
+					NetworkHooks.openGui(player, new WalletBankMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
 			}
 		});
 		supplier.get().setPacketHandled(true);

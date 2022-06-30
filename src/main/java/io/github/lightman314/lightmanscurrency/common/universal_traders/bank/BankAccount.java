@@ -262,7 +262,7 @@ public class BankAccount {
 		public BankAccount get() {
 			switch(this.accountType) {
 			case Player:
-				return ClientTradingOffice.getPlayerBankAccount(this.id);
+				return this.isClient ? ClientTradingOffice.getPlayerBankAccount(this.id) : TradingOffice.getBankAccount(this.id);
 			case Team:
 				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
 				if(team != null && team.hasBankAccount())

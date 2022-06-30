@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
-import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -55,7 +55,7 @@ public class WalletItem extends Item{
 		super(properties.stacksTo(1));
 		this.level = level;
 		this.storageSize = storageSize;
-		WalletMenu.updateMaxWalletSlots(this.storageSize);
+		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
 		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
 	}
 	
