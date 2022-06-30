@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;

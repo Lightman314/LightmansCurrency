@@ -87,7 +87,7 @@ public class TransferTab extends ATMTab {
 	private List<Team> getTeamList()
 	{
 		List<Team> results = Lists.newArrayList();
-		AccountReference source = this.screen.getMenu().getAccountSource();
+		AccountReference source = this.screen.getMenu().getBankAccountReference();
 		Team blockTeam = null;
 		if(source != null && source.accountType == AccountType.Team)
 			blockTeam = ClientTradingOffice.getTeam(source.id);
@@ -145,7 +145,7 @@ public class TransferTab extends ATMTab {
 		this.hideCoinSlots(pose);
 		
 		//this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
-		Component balance = this.screen.getMenu().getAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getAccount().getCoinStorage().getString("0"));
+		Component balance = this.screen.getMenu().getBankAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getBankAccount().getCoinStorage().getString("0"));
 		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 72, 0x404040);
 		
 		if(this.hasMessage())

@@ -56,7 +56,7 @@ public class LightmansCurrencyPacketHandler {
 		
 		//ATM & Bank
 		register(MessageATMConversion.class, MessageATMConversion::encode, MessageATMConversion::decode, MessageATMConversion::handle);
-		register(MessageATMSetAccount.class, MessageATMSetAccount::encode, MessageATMSetAccount::decode, MessageATMSetAccount::handle);
+		register(MessageSelectBankAccount.class, MessageSelectBankAccount::encode, MessageSelectBankAccount::decode, MessageSelectBankAccount::handle);
 		register(MessageBankInteraction.class, MessageBankInteraction::encode, MessageBankInteraction::decode, MessageBankInteraction::handle);
 		register(MessageInitializeClientBank.class, MessageInitializeClientBank::encode, MessageInitializeClientBank::decode, MessageInitializeClientBank::handle);
 		register(MessageUpdateClientBank.class, MessageUpdateClientBank::encode, MessageUpdateClientBank::decode, MessageUpdateClientBank::handle);
@@ -66,6 +66,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageATMSetPlayerAccount.class, MessageATMSetPlayerAccount::encode, MessageATMSetPlayerAccount::decode, MessageATMSetPlayerAccount::handle);
 		register(MessageATMPlayerAccountResponse.class, MessageATMPlayerAccountResponse::encode, MessageATMPlayerAccountResponse::decode, MessageATMPlayerAccountResponse::handle);
 		register(MessageSetBankNotificationLevel.class, MessageSetBankNotificationLevel::encode, MessageSetBankNotificationLevel::decode, MessageSetBankNotificationLevel::handle);
+		register(SPacketSyncSelectedBankAccount.class,SPacketSyncSelectedBankAccount::encode, SPacketSyncSelectedBankAccount::decode, SPacketSyncSelectedBankAccount::handle);
 		
 		//Coinmint
 		register(MessageMintCoin.class, MessageMintCoin::encode, MessageMintCoin::decode, MessageMintCoin::handle);
@@ -92,6 +93,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageWalletConvertCoins.class, MessageWalletConvertCoins::encode, MessageWalletConvertCoins::decode, MessageWalletConvertCoins::handle);
 		register(MessageWalletToggleAutoConvert.class, MessageWalletToggleAutoConvert::encode, MessageWalletToggleAutoConvert::decode, MessageWalletToggleAutoConvert::handle);
 		register(MessageOpenWallet.class, MessageOpenWallet::encode, MessageOpenWallet::decode, MessageOpenWallet::handle);
+		register(MessageOpenWalletBank.class, MessageOpenWalletBank::encode, MessageOpenWalletBank::decode, MessageOpenWalletBank::handle);
 		
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet::encode, SPacketSyncWallet::decode, SPacketSyncWallet::handle);

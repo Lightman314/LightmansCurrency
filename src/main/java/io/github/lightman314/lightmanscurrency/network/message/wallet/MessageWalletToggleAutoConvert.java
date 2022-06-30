@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;

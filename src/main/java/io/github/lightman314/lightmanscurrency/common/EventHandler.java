@@ -7,12 +7,12 @@ import io.github.lightman314.lightmanscurrency.common.capability.WalletCapabilit
 import io.github.lightman314.lightmanscurrency.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
@@ -45,6 +45,7 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
@@ -63,14 +64,14 @@ public class EventHandler {
 		
 		Player player = event.getPlayer();
 		ItemStack coinStack = event.getItem().getItem();
-		WalletMenu activeContainer = null;
+		WalletMenuBase activeContainer = null;
 		
-		//Check if the open container is a wallet that is pickup capable
-		if(player.containerMenu instanceof WalletMenu)
+		//Check if the open container is a wallet WalletMenuBase is pickup capable
+		if(player.containerMenu instanceof WalletMenuBase)
 		{
-			//CurrencyMod.LOGGER.info("Wallet Container was open. Adding to the wallet using this method.");
-			WalletMenu container = (WalletMenu)player.containerMenu;
-			if(container.canPickup())
+			//CurrencyMod.LOGGER.info("Wallet Menu was open. Adding to the wallet using this method.");
+			WalletMenuBase container = (WalletMenuBase)player.containerMenu;
+			if(container.isEquippedWallet())
 				activeContainer = container;
 		}
 		
@@ -84,14 +85,10 @@ public class EventHandler {
 			if(WalletItem.CanPickup(walletItem))
 			{
 				cancelEvent = true;
-				if(activeContainer != null && activeContainer.getWalletIndex() < 0)
-				{
+				if(activeContainer != null)
 					coinStack = activeContainer.PickupCoins(coinStack);
-				}
 				else
-				{
 					coinStack = WalletItem.PickupCoin(wallet, coinStack);
-				}
 			}
 		}
 		
@@ -100,15 +97,7 @@ public class EventHandler {
 			//CurrencyMod.LOGGER.info("Canceling the event as the pickup item is being handled by this event instead of vanilla means.");
 			event.getItem().setItem(ItemStack.EMPTY);
 			if(!coinStack.isEmpty())
-			{
-				if(!player.addItem(coinStack))
-				{
-					//Spawn the leftovers into the world
-					ItemEntity itemEntity = new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), coinStack);
-					itemEntity.setPickUpDelay(40);
-					player.level.addFreshEntity(itemEntity);
-				}
-			}
+				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level.isClientSide)
 				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessagePlayPickupSound());
 			event.setCanceled(true);

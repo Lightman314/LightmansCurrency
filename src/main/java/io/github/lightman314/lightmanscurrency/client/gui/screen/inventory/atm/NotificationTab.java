@@ -33,9 +33,9 @@ public class NotificationTab extends ATMTab {
 		SimpleSlot.SetInactive(this.screen.getMenu());
 		
 		Component accountName = this.screen.getMenu().getPlayer().getDisplayName();
-		if(this.screen.getMenu().getAccount() != null)
-			accountName = this.screen.getMenu().getAccount() .getName();
-		this.notificationSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), accountName, this.screen.getMenu().getAccount().getNotificationValue(), this.screen.getFont(), this::onValueChanged, this.screen::addRenderableTabWidget));
+		if(this.screen.getMenu().getBankAccount() != null)
+			accountName = this.screen.getMenu().getBankAccount() .getName();
+		this.notificationSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), accountName, this.screen.getMenu().getBankAccount().getNotificationValue(), this.screen.getFont(), this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.notificationSelection.drawBG = false;
 		this.notificationSelection.allowFreeToggle = false;
 		this.notificationSelection.init();
@@ -47,7 +47,7 @@ public class NotificationTab extends ATMTab {
 		
 		this.hideCoinSlots(pose);
 		
-		BankAccount account = this.screen.getMenu().getAccount();
+		BankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
 			TextRenderUtil.drawCenteredMultilineText(pose, account.getNotificationLevel() > 0 ? Component.translatable("gui.lightmanscurrency.notification.details", account.getNotificationValue().getString()) : Component.translatable("gui.lightmanscurrency.notification.disabled"), this.screen.getGuiLeft() + 5, this.screen.getXSize() - 10, this.screen.getGuiTop() + 70, 0x404040);
 		
@@ -65,7 +65,7 @@ public class NotificationTab extends ATMTab {
 	}
 	
 	public void onValueChanged(CoinValue value) {
-		this.screen.getMenu().getAccount().setNotificationValue(value);
+		this.screen.getMenu().getBankAccount().setNotificationValue(value);
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetBankNotificationLevel(value));
 	}
 

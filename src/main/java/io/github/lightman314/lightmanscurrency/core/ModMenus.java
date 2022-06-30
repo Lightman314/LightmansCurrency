@@ -4,6 +4,8 @@ import io.github.lightman314.lightmanscurrency.menus.*;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuAllUniversal;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuUniversal;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.TraderStorageMenuUniversal;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletBankMenu;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.network.IContainerFactory;
@@ -49,6 +51,10 @@ public class ModMenus {
 			return new WalletMenu(id, playerInventory, data.readInt());
 		}));
 		
+		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> new MenuType<>((IContainerFactory<WalletBankMenu>)(id, playerInventory, data) ->{
+			return new WalletBankMenu(id, playerInventory, data.readInt());
+		}));
+		
 		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> new MenuType<>((IContainerFactory<TicketMachineMenu>)(id, playerInventory, data)->{
 			TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
 			return new TicketMachineMenu(id, playerInventory, tileEntity);
@@ -75,6 +81,7 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TraderStorageMenuUniversal>> TRADER_STORAGE_UNIVERSAL;
 	
 	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
+	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;
 	
 	public static final RegistryObject<MenuType<TicketMachineMenu>> TICKET_MACHINE;
 	

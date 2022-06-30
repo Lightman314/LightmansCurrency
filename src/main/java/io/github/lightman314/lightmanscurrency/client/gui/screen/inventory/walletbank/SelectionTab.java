@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
 import java.util.List;
 
@@ -6,70 +6,41 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMSetPlayerAccount;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Items;
 
-public class SelectionTab extends ATMTab{
+public class SelectionTab extends WalletBankTab {
 
-	public SelectionTab(ATMScreen screen) { super(screen); }
-
+	public SelectionTab(WalletBankScreen screen) { super(screen); }
+	
 	Button buttonPersonalAccount;
 	TeamSelectWidget teamSelection;
-	
-	Button buttonToggleAdminMode;
-	
-	EditBox playerAccountSelect;
-	Button buttonSelectPlayerAccount;
-	MutableComponent responseMessage = Component.empty();
-	
-	boolean adminMode = false;
 	
 	@Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.selection"); }
-
+	
 	@Override
 	public void init() {
 		
-		this.adminMode = false;
-		this.responseMessage = Component.empty();
-		
-		SimpleSlot.SetInactive(this.screen.getMenu());
-		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 6, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
+		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 5, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
 		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
-		
-		this.buttonToggleAdminMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop(), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
-		this.buttonToggleAdminMode.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().getPlayer());
-		
-		this.playerAccountSelect = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 20, 162, 20, Component.empty()));
-		this.playerAccountSelect.visible = false;
-		
-		this.buttonSelectPlayerAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 45, 162, 20, Component.translatable("gui.button.bank.admin.playeraccount"), this::PressSelectPlayerAccount));
-		this.buttonSelectPlayerAccount.visible = false;
 		
 		this.tick();
 		
@@ -119,42 +90,13 @@ public class SelectionTab extends ATMTab{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
 	}
 	
-	private void ToggleAdminMode(Button button) {
-		this.adminMode = !this.adminMode;
-		this.buttonPersonalAccount.visible = !this.adminMode;
-		this.teamSelection.visible = !this.adminMode;
-		
-		this.buttonSelectPlayerAccount.visible = this.adminMode;
-		this.playerAccountSelect.visible = this.adminMode;
-	}
-	
-	private void PressSelectPlayerAccount(Button button) {
-		String playerName = this.playerAccountSelect.getValue();
-		this.playerAccountSelect.setValue("");
-		if(!playerName.isBlank())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageATMSetPlayerAccount(playerName));
-	}
-	
-	public void ReceiveSelectPlayerResponse(MutableComponent message) {
-		this.responseMessage = message;
-	}
-
 	@Override
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.hideCoinSlots(pose);
-		
 		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		
-		if(this.adminMode)
-		{
-			List<FormattedText> lines = this.screen.getFont().getSplitter().splitLines(this.responseMessage, this.screen.getXSize() - 15, Style.EMPTY);
-			for(int i = 0; i < lines.size(); ++i)
-				this.screen.getFont().draw(pose, lines.get(i).getString(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 70 + (this.screen.getFont().lineHeight * i), 0x404040);
-		}
-		
 	}
-
+	
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) {
 		//Render text in front of selection background
@@ -165,14 +107,9 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void tick() {
 		this.buttonPersonalAccount.active = !this.isSelfSelected();
-		this.buttonToggleAdminMode.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().getPlayer());
-		if(this.adminMode)
-			this.playerAccountSelect.tick();
 	}
-
+	
 	@Override
-	public void onClose() {
-		SimpleSlot.SetActive(this.screen.getMenu());
-	}
-
+	public void onClose() { }
+	
 }
