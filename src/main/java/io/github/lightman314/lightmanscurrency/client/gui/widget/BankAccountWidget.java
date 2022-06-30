@@ -62,7 +62,7 @@ public class BankAccountWidget {
 		
 		int screenMiddle = this.parent.getScreen().width / 2;
 		Font font = this.parent.getFont();
-		Component balanceComponent = this.parent.getAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.parent.getAccount().getCoinStorage().getString("0"));
+		Component balanceComponent = this.parent.getBankAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.parent.getBankAccount().getCoinStorage().getString("0"));
 		int offset = font.width(balanceComponent.getString()) / 2;
 		this.parent.getFont().draw(pose, balanceComponent, screenMiddle - offset, this.y + CoinValueInput.HEIGHT + 30 + spacing + yOffset, 0x404040);
 		
@@ -72,7 +72,7 @@ public class BankAccountWidget {
 	{
 		this.amountSelection.tick();
 		
-		if(this.parent.getAccount() == null)
+		if(this.parent.getBankAccount() == null)
 		{
 			this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		}
@@ -101,7 +101,7 @@ public class BankAccountWidget {
 		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget);
 		public Font getFont();
 		public Screen getScreen();
-		public BankAccount getAccount();
+		public BankAccount getBankAccount();
 		public Container getCoinAccess();
 	}
 	

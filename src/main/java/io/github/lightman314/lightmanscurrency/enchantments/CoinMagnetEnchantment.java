@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -81,8 +81,8 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 				if(entity instanceof Player)
 				{
 					Player player = (Player)entity;
-					if(player.containerMenu instanceof WalletMenu)
-						((WalletMenu)player.containerMenu).onWalletSlotChanged();
+					if(player.containerMenu instanceof WalletMenuBase)
+						((WalletMenuBase)player.containerMenu).reloadWalletContents();
 				}
 			}
 		});

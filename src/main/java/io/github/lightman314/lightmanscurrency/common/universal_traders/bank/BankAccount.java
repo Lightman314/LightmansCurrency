@@ -111,7 +111,7 @@ public class BankAccount {
 	{
 		if(menu == null)
 			return;
-		DepositCoins(menu.getPlayer(), menu.getCoinInput(), menu.getAccount(), amount);
+		DepositCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
 	}
 	
 	public static void DepositCoins(Player player, Container coinInput, BankAccount account, CoinValue amount)
@@ -135,7 +135,7 @@ public class BankAccount {
 	{
 		if(menu == null)
 			return;
-		WithdrawCoins(menu.getPlayer(), menu.getCoinInput(), menu.getAccount(), amount);
+		WithdrawCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
 	}
 	
 	public static void WithdrawCoins(Player player, Container coinOutput, BankAccount account, CoinValue amount)
@@ -165,7 +165,7 @@ public class BankAccount {
 	
 	public static MutableComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
 	{
-		return TransferCoins(menu.getPlayer(), menu.getAccount(), amount, destination.get());
+		return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination.get());
 	}
 	
 	public static MutableComponent TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
@@ -260,33 +260,31 @@ public class BankAccount {
 		}
 		
 		public BankAccount get() {
-			if(isClient)
-			{
-				switch(this.accountType) {
-				case Player:
-					return ClientTradingOffice.getPlayerBankAccount(this.id);
-				case Team:
-					Team team = ClientTradingOffice.getTeam(this.id);
-					if(team != null && team.hasBankAccount())
-						return team.getBankAccount();
-				default:
-					return null;
-				}
-			}
-			else
-			{
-				switch(this.accountType) {
-				case Player:
-					return TradingOffice.getBankAccount(this.id);
-				case Team:
-					Team team = TradingOffice.getTeam(this.id);
-					if(team != null && team.hasBankAccount())
-						return team.getBankAccount();
-				default:
-					return null;
-				}
+			switch(this.accountType) {
+			case Player:
+				return this.isClient ? ClientTradingOffice.getPlayerBankAccount(this.id) : TradingOffice.getBankAccount(this.id);
+			case Team:
+				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
+				if(team != null && team.hasBankAccount())
+					return team.getBankAccount();
+			default:
+				return null;
 			}
 		}
+		
+		public boolean allowedAccess(Player player) {
+			switch(this.accountType) {
+			case Player:
+				return player.getUUID().equals(this.id) || TradingOffice.isAdminPlayer(player);
+			case Team:
+				Team team = this.isClient ? ClientTradingOffice.getTeam(this.id) : TradingOffice.getTeam(this.id);
+				if(team != null && team.hasBankAccount())
+					return team.canAccessBankAccount(player);
+			default:
+				return false;
+			}
+		}
+		
 		
 	}
 	
@@ -296,15 +294,25 @@ public class BankAccount {
 	{
 		public Player getPlayer();
 		public Container getCoinInput();
-		public BankAccount getAccount();
 		public default void onDepositOrWithdraw() {}
+		public boolean isClient();
+		public default AccountReference getBankAccountReference() {
+			return this.isClient() ? ClientTradingOffice.getLastSelectedAccount() : TradingOffice.getSelectedBankAccount(this.getPlayer());
+		}
+		public default BankAccount getBankAccount() {
+			AccountReference reference = this.getBankAccountReference();
+			return reference == null ? null : reference.get();
+		}
 	}
 	
 	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
-		public AccountReference getAccountSource();
 		public void setTransferMessage(MutableComponent component);
-		public void setNotificationLevel(CoinValue amount);
+		public default void setNotificationLevel(CoinValue amount) {
+			BankAccount account = this.getBankAccount();
+			if(account != null)
+				account.setNotificationValue(amount);
+		}
 	}
 	
 }

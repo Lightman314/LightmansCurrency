@@ -5,25 +5,25 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.items.WalletItem.DataWriter;
-import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
+import io.github.lightman314.lightmanscurrency.menus.providers.WalletBankMenuProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 import net.minecraftforge.network.NetworkHooks;
 
-public class MessageOpenWallet {
+public class MessageOpenWalletBank {
 	
 	private final int walletStackIndex;
 	
-	public MessageOpenWallet(int walletStackIndex) { this.walletStackIndex = walletStackIndex;  }
+	public MessageOpenWalletBank(int walletStackIndex) { this.walletStackIndex = walletStackIndex;  }
 	
-	public static void encode(MessageOpenWallet message, FriendlyByteBuf buffer) { buffer.writeInt(message.walletStackIndex); }
+	public static void encode(MessageOpenWalletBank message, FriendlyByteBuf buffer) { buffer.writeInt(message.walletStackIndex); }
 
-	public static MessageOpenWallet decode(FriendlyByteBuf buffer) {
-		return new MessageOpenWallet(buffer.readInt());
+	public static MessageOpenWalletBank decode(FriendlyByteBuf buffer) {
+		return new MessageOpenWalletBank(buffer.readInt());
 	}
 
-	public static void handle(MessageOpenWallet message, Supplier<Context> supplier) {
+	public static void handle(MessageOpenWalletBank message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer player = supplier.get().getSender();
@@ -31,7 +31,7 @@ public class MessageOpenWallet {
 			{
 				IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
 				if(walletHandler != null && !walletHandler.getWallet().isEmpty())
-					NetworkHooks.openGui(player, new WalletMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
+					NetworkHooks.openGui(player, new WalletBankMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
 			}
 		});
 		supplier.get().setPacketHandled(true);

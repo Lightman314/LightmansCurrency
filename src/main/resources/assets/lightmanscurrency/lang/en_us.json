@@ -277,6 +277,8 @@
     "tooltip.lightmanscurrency.wallet.convert": "Convert Coinage To Largest Coin",
     "tooltip.lightmanscurrency.wallet.autoconvert.enable": "Enable Auto-Conversion",
     "tooltip.lightmanscurrency.wallet.autoconvert.disable": "Disable Auto-Conversion",
+    "tooltip.lightmanscurrency.wallet.openbank": "Access Bank Account",
+    "tooltip.lightmanscurrency.wallet.openwallet": "Return to Wallet",
     "tooltip.lightmanscurrency.trader.info": "Trade Info: ",
     "tooltip.lightmanscurrency.trader.originalname": "Original Name: %s",
     "tooltip.lightmanscurrency.trader.stock": "%s trade(s) in-stock.",

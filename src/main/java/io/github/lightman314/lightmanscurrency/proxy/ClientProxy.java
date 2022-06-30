@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
@@ -115,6 +116,7 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL, TraderStorageScreen::new);
     	
     	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
+    	MenuScreens.register(ModMenus.WALLET_BANK, WalletBankScreen::new);
     	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE, TraderInterfaceScreen::new);
@@ -216,6 +218,9 @@ public class ClientProxy extends CommonProxy{
 		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
 			mc.gui.getChat().addMessage(notification.getChatMessage());
 	}
+	
+	@Override
+	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientTradingOffice.updateLastSelectedAccount(selectedAccount); }
 	
 	@Override
 	public void openTerminalScreen() { this.openTerminal = true; }

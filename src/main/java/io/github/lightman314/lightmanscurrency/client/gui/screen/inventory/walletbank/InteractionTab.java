@@ -1,11 +1,11 @@
-package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
+package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget.IBankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -21,10 +21,10 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 
-public class InteractionTab extends ATMTab implements IBankAccountWidget{
+public class InteractionTab extends WalletBankTab implements IBankAccountWidget {
 
-	public InteractionTab(ATMScreen screen) { super(screen); }
-	
+	public InteractionTab(WalletBankScreen screen) { super(screen); }
+
 	BankAccountWidget accountWidget;
 	
 	@Override
@@ -36,7 +36,8 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	@Override
 	public void init() {
 		
-		this.accountWidget = new BankAccountWidget(this.screen.getGuiTop(), this, 14);
+		this.accountWidget = new BankAccountWidget(this.screen.getGuiTop(), this, 7);
+		this.accountWidget.allowEmptyDeposits = false;
 		this.accountWidget.getAmountSelection().drawBG = false;
 		
 	}
@@ -46,7 +47,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 		Component accountName = new TextComponent("ERROR FINDING ACCOUNT");
 		if(this.screen.getMenu().getBankAccount() != null)
 			accountName = this.screen.getMenu().getBankAccount().getName();
-		this.screen.getFont().draw(pose, accountName, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f + CoinValueInput.HEIGHT, 0x404040);
+		this.screen.getFont().draw(pose, accountName, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + CoinValueInput.HEIGHT, 0x404040);
 		this.accountWidget.renderInfo(pose);
 	}
 

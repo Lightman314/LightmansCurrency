@@ -38,7 +38,7 @@ public class LogTab extends ATMTab{
 	}
 	
 	private List<MutableComponent> getBankLog() {
-		BankAccount account = this.screen.getMenu().getAccount();
+		BankAccount account = this.screen.getMenu().getBankAccount();
 		if(account != null)
 			return account.getLogs().logText;
 		return new ArrayList<>();

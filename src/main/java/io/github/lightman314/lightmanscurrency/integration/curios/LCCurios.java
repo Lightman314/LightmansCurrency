@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
-import io.github.lightman314.lightmanscurrency.menus.WalletMenu;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -104,8 +104,8 @@ public class LCCurios {
 				{
 					Player player = (Player)context.entity();
 					//Prevent unequipping if the wallet is open in the menu.
-					if(player.containerMenu instanceof WalletMenu)
-						return ((WalletMenu)player.containerMenu).getWalletIndex() >= 0;
+					if(player.containerMenu instanceof WalletMenuBase)
+						return !((WalletMenuBase)player.containerMenu).isEquippedWallet();
 				}
 				return true;
 			}

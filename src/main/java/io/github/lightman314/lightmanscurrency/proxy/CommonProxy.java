@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import net.minecraft.nbt.CompoundTag;
 
 public class CommonProxy {
@@ -30,6 +31,8 @@ public class CommonProxy {
 	public void updateNotifications(NotificationData data) {}
 	
 	public void receiveNotification(Notification notification) {}
+	
+	public void receiveSelectedBankAccount(AccountReference selectedAccount) {}
 	
 	public void openTerminalScreen() {}
 	

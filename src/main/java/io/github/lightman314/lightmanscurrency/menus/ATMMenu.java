@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 
-import com.mojang.datafixers.util.Pair;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
@@ -11,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.network.chat.MutableComponent;
@@ -36,9 +33,6 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	private final Container coinInput = new SimpleContainer(9);
 	public Container getCoinInput() { return this.coinInput; }
 	
-	private AccountReference accountSource = null;
-	public BankAccount getAccount() { if(this.accountSource == null) return null; return this.accountSource.get(); }
-	
 	private MutableComponent transferMessage = null;
 	
 	public ATMMenu(int windowId, Inventory inventory)
@@ -46,8 +40,6 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		super(ModMenus.ATM, windowId);
 		
 		this.player = inventory.player;
-		//Auto-select the players bank account for now.
-		this.accountSource = BankAccount.GenerateReference(this.player.level.isClientSide, AccountType.Player, this.player.getUUID());
 		
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
@@ -71,13 +63,29 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn) { return true; }
+	public boolean stillValid(Player playerIn) {
+		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
+		this.getBankAccountReference();
+		return true;
+	}
 	
 	@Override
 	public void removed(Player playerIn)
 	{
 		super.removed(playerIn);
 		this.clearContainer(playerIn,  this.coinInput);
+		if(!this.isClient())
+		{
+			AccountReference account = this.getBankAccountReference();
+			if(account.accountType == AccountType.Player)
+			{
+				if(!account.id.equals(this.player.getUUID()))
+				{
+					//Switch back to their personal bank account when closing the ATM if they're accessing another players bank account.
+					TradingOffice.setSelectedBankAccount(this.player, BankAccount.GenerateReference(this.player));
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -189,31 +197,23 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			LightmansCurrency.LogError("'" + command + "' is not a valid ATM Conversion command.");
 		
 	}
+
 	
-	public void SetAccount(AccountReference account)
-	{
-		this.accountSource = account;
-	}
-	
-	public Pair<AccountReference,MutableComponent> SetPlayerAccount(String playerName) {
+	public MutableComponent SetPlayerAccount(String playerName) {
 		
 		if(TradingOffice.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(playerName);
 			if(accountPlayer != null)
 			{
-				this.accountSource = BankAccount.GenerateReference(false, accountPlayer);
-				return Pair.of(this.accountSource, new TranslatableComponent("gui.bank.select.player.success", accountPlayer.lastKnownName()));
+				TradingOffice.setSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
+				return new TranslatableComponent("gui.bank.select.player.success", accountPlayer.lastKnownName());
 			}
 			else
-				return Pair.of(null, new TranslatableComponent("gui.bank.transfer.error.null.to"));
+				return new TranslatableComponent("gui.bank.transfer.error.null.to");
 		}
-		return Pair.of(null, new TextComponent("ERROR"));
-	}
-
-	@Override
-	public AccountReference getAccountSource() {
-		return this.accountSource;
+		return new TextComponent("ERROR");
+		
 	}
 	
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
@@ -224,13 +224,8 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
 	
 	public void clearMessage() { this.transferMessage = null; }
-	
+
 	@Override
-	public void setNotificationLevel(CoinValue amount) {
-		if(this.getAccount() != null)
-		{
-			this.getAccount().setNotificationValue(amount);
-		}
-	}
+	public boolean isClient() { return this.player.level.isClientSide; }
 	
 }

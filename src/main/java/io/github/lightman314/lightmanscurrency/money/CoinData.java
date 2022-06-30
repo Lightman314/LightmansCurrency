@@ -190,6 +190,11 @@ public class CoinData
 		{
 			this.worthOtherCoin = otherCoin.asItem();
 			this.worthOtherCoinCount = coinAmount;
+			if(this.worthOtherCoinCount > new ItemStack(this.worthOtherCoin).getMaxStackSize())
+			{
+				this.worthOtherCoinCount = new ItemStack(this.worthOtherCoin).getMaxStackSize();
+				LightmansCurrency.LogError("Coin conversion for '" + ForgeRegistries.ITEMS.getKey(this.coinItem).toString() + "' is larger than 1 stack of '" + ForgeRegistries.ITEMS.getKey(this.worthOtherCoin).toString() + "'\nValue will be shrunk to " + this.worthOtherCoinCount);
+			}
 			return this;
 		}
 		

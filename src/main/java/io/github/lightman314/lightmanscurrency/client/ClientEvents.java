@@ -69,7 +69,7 @@ public class ClientEvents {
 			if(KEY_WALLET.isDown())
 			{
 				
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet());
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1));
 				
 				if(!LightmansCurrency.getWalletStack(player).isEmpty())
 				{
@@ -105,7 +105,7 @@ public class ClientEvents {
 				int xPos = slotPosition.getFirst() + Config.CLIENT.walletButtonOffsetX.get();
 				int yPos = slotPosition.getSecond() + Config.CLIENT.walletButtonOffsetY.get();
 				
-				event.addListener(new WalletButton(gui, xPos, yPos, button -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet())));
+				event.addListener(new WalletButton(gui, xPos, yPos, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
 				
 				event.addListener(new VisibilityToggleButton(gui, slotPosition.getFirst(), slotPosition.getSecond(), ClientEvents::toggleVisibility));
 				

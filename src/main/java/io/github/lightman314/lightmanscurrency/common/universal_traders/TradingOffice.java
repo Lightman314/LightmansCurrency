@@ -36,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageInitializeClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
+import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageClientNotification;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageUpdateClientNotifications;
@@ -157,6 +158,8 @@ public class TradingOffice extends SavedData{
 	private Map<UUID, Team> playerTeams = new HashMap<>();
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
 	private Map<UUID, NotificationData> playerNotifications = new HashMap<>();
+	private Map<UUID, AccountReference> lastSelectedAccounts = new HashMap<>();
+	
 	//Store persistent data locally, so that it doesn't get lost if the persistent trader file is malformed
 	ListTag persistentData = new ListTag();
 	
@@ -274,6 +277,23 @@ public class TradingOffice extends SavedData{
 			}
 		}
 		
+		if(compound.contains("LastSelectedBankAccounts", Tag.TAG_LIST))
+		{
+			this.lastSelectedAccounts.clear();
+			ListTag selectedAccounts = compound.getList("LastSelectedBankAccounts", Tag.TAG_COMPOUND);
+			for(int i = 0; i < selectedAccounts.size(); ++i)
+			{
+				CompoundTag accountData = selectedAccounts.getCompound(i);
+				if(accountData.contains("Player"))
+				{
+					UUID playerID = accountData.getUUID("Player");
+					AccountReference account = BankAccount.LoadReference(false, accountData);
+					if(playerID != null && account != null)
+						this.lastSelectedAccounts.put(playerID, account);
+				}
+			}
+		}
+		
 	}
 
 	@Override
@@ -333,6 +353,14 @@ public class TradingOffice extends SavedData{
 			notficationData.add(notData);
 		});
 		compound.put("PlayerNotifications", notficationData);
+		
+		ListTag selectedAccounts = new ListTag();
+		this.lastSelectedAccounts.forEach((uuid,account) -> {
+			CompoundTag accountData = account.save();
+			accountData.putUUID("Player", uuid);
+			selectedAccounts.add(accountData);
+		});
+		compound.put("LastSelectedBankAccounts", selectedAccounts);
 		
 		return compound;
 	}
@@ -810,6 +838,51 @@ public class TradingOffice extends SavedData{
 		}
 	}
 	
+	public static AccountReference getSelectedBankAccount(Player player) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			if(office.lastSelectedAccounts.containsKey(player.getUUID()))
+			{
+				AccountReference account = office.lastSelectedAccounts.get(player.getUUID());
+				if(!account.allowedAccess(player))
+				{
+					LightmansCurrency.LogInfo(player.getName().getString() + " is no longer allowed to access their selected bank account. Switching back to their personal account.");
+					account = BankAccount.GenerateReference(player);
+					setSelectedBankAccount(player, account);
+				}
+				return account;
+			}
+			//Generate default bank account for the player
+			AccountReference account = BankAccount.GenerateReference(player);
+			setSelectedBankAccount(player,account);
+			return account;
+		}
+		return BankAccount.GenerateReference(player);
+	}
+	
+	public static void setSelectedBankAccount(Player player, AccountReference account) {
+		//Ignore if the account is null or the player isn't allowed to access it.
+		if(account == null)
+			return;
+		if(!account.allowedAccess(player))
+		{
+			LightmansCurrency.LogInfo("Player does not have access to the selected account. Canceling selection.");
+			return;
+		}
+			
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			office.lastSelectedAccounts.put(player.getUUID(), account);
+			
+			office.setDirty();
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncSelectedBankAccount(account));
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
         ServerLevel world = server.getLevel(Level.OVERWORLD);
@@ -857,6 +930,10 @@ public class TradingOffice extends SavedData{
 			//Only send their personal notifications
 			NotificationData notifications = getNotifications(event.getPlayer());
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientNotifications(notifications));
+			
+			//Update to let them know their selected bank account
+			AccountReference selectedAccount = getSelectedBankAccount(event.getPlayer());
+			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncSelectedBankAccount(selectedAccount));
 			
 		}
 	}
