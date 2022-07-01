@@ -27,6 +27,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.level.storage.loot.LootPool.Builder;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
@@ -48,23 +49,24 @@ public class LootManager {
 	
 	public enum PoolLevel
 	{
-		COPPER(true),
-		IRON(true),
-		GOLD(true),
-		EMERALD(true),
-		DIAMOND(true),
-		NETHERITE(true),
-		BOSS_COPPER(false),
-		BOSS_IRON(false),
-		BOSS_GOLD(false),
-		BOSS_EMERALD(false),
-		BOSS_DIAMOND(false),
-		BOSS_NETHERITE(false);
+		COPPER(0, true),
+		IRON(1, true),
+		GOLD(2, true),
+		EMERALD(3, true),
+		DIAMOND(4, true),
+		NETHERITE(5, true),
+		BOSS_COPPER(6, false),
+		BOSS_IRON(7, false),
+		BOSS_GOLD(8, false),
+		BOSS_EMERALD(9, false),
+		BOSS_DIAMOND(10, false),
+		BOSS_NETHERITE(11, false);
 		
+		public final int level;
 		private final boolean requiresPlayerKill;
 		public final boolean requiresPlayerKill() { return this.requiresPlayerKill; }
 		
-		private PoolLevel(boolean requiresPlayerKill) { this.requiresPlayerKill = requiresPlayerKill; }
+		private PoolLevel(int level, boolean requiresPlayerKill) { this.level = level; this.requiresPlayerKill = requiresPlayerKill; }
 		
 	};
 	
@@ -129,14 +131,14 @@ public class LootManager {
 	public static final List<String> ENTITY_BOSS_COPPER_DROPLIST = ImmutableList.of();
 	public static final List<String> ENTITY_BOSS_IRON_DROPLIST = ImmutableList.of();
 	public static final List<String> ENTITY_BOSS_GOLD_DROPLIST = ImmutableList.of();
-	public static final List<String> ENTITY_BOSS_EMERALD_DROPLIST = ImmutableList.of();
+	public static final List<String> ENTITY_BOSS_EMERALD_DROPLIST = ImmutableList.of(ENTITY + "warden");
 	public static final List<String> ENTITY_BOSS_DIAMOND_DROPLIST = ImmutableList.of(ENTITY + "ender_dragon");
 	public static final List<String> ENTITY_BOSS_NETHERITE_DROPLIST = ImmutableList.of(ENTITY + "wither");
 	
 	public static final List<String> CHEST_COPPER_DROPLIST = ImmutableList.of(CHEST + "underwater_ruin_small", CHEST + "underwater_ruin_big");
 	public static final List<String> CHEST_IRON_DROPLIST = ImmutableList.of();
 	public static final List<String> CHEST_GOLD_DROPLIST = ImmutableList.of(CHEST + "jungle_temple", CHEST + "nether_bridge", CHEST + "simple_dungeon", CHEST + "ruined_portal");
-	public static final List<String> CHEST_EMERALD_DROPLIST = ImmutableList.of(CHEST + "stronghold_crossing", CHEST + "stronghold_corridor", CHEST + "stronghold_library");
+	public static final List<String> CHEST_EMERALD_DROPLIST = ImmutableList.of(CHEST + "stronghold_crossing", CHEST + "stronghold_corridor", CHEST + "stronghold_library", CHEST + "ancient_city");
 	public static final List<String> CHEST_DIAMOND_DROPLIST = ImmutableList.of(CHEST + "buried_treasure", CHEST + "bastion_hoglin_stable", CHEST + "bastion_bridge", CHEST + "bastion_other", CHEST + "bastion_treasure", CHEST + "end_city_treasure");
 	public static final List<String> CHEST_NETHERITE_DROPLIST = ImmutableList.of();
 	
@@ -201,11 +203,60 @@ public class LootManager {
 		
 	}
 	
+	private static boolean firstLoad = true;
+	
+	private static String getValueList(ConfigValue<List<? extends String>> config) {
+		StringBuffer buffer = new StringBuffer();
+		List<? extends String> list = config.get();
+		for(String value : list)
+		{
+			if(buffer.length() > 0)
+				buffer.append(", ");
+			buffer.append("\"").append(value).append("\"");
+		}
+		return buffer.toString();
+	}
+	
+	public static void debugLootConfigs() {
+		
+		LightmansCurrency.LogDebug("Lightman's Currency common configs have been loaded. Coin loot values are as follows.");
+		//Chests
+		LightmansCurrency.LogDebug("Chest Copper: " + getValueList(Config.COMMON.copperChestDrops));
+		LightmansCurrency.LogDebug("Chest Iron: " + getValueList(Config.COMMON.ironChestDrops));
+		LightmansCurrency.LogDebug("Chest Gold: " + getValueList(Config.COMMON.goldChestDrops));
+		LightmansCurrency.LogDebug("Chest Emerald: " + getValueList(Config.COMMON.emeraldChestDrops));
+		LightmansCurrency.LogDebug("Chest Diamond: " + getValueList(Config.COMMON.diamondChestDrops));
+		LightmansCurrency.LogDebug("Chest Netherite: " + getValueList(Config.COMMON.netheriteChestDrops));
+		
+		//Entity (normal)
+		LightmansCurrency.LogDebug("Entity Copper (Normal): " + getValueList(Config.COMMON.copperEntityDrops));
+		LightmansCurrency.LogDebug("Entity Iron (Normal): " + getValueList(Config.COMMON.ironEntityDrops));
+		LightmansCurrency.LogDebug("Entity Gold (Normal): " + getValueList(Config.COMMON.goldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Emerald (Normal): " + getValueList(Config.COMMON.emeraldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Diamond (Normal): " + getValueList(Config.COMMON.diamondEntityDrops));
+		LightmansCurrency.LogDebug("Entity Netherite (Normal): " + getValueList(Config.COMMON.netheriteEntityDrops));
+		
+		//Entity (boss)
+		LightmansCurrency.LogDebug("Entity Copper (Boss): " + getValueList(Config.COMMON.bossCopperEntityDrops));
+		LightmansCurrency.LogDebug("Entity Iron (Boss): " + getValueList(Config.COMMON.bossIronEntityDrops));
+		LightmansCurrency.LogDebug("Entity Gold (Boss): " + getValueList(Config.COMMON.bossGoldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Emerald (Boss): " + getValueList(Config.COMMON.bossEmeraldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Diamond (Boss): " + getValueList(Config.COMMON.bossDiamondEntityDrops));
+		LightmansCurrency.LogDebug("Entity Netherite (Boss): " + getValueList(Config.COMMON.bossNetheriteEntityDrops));
+		
+	}
+	
 	@SubscribeEvent
     public static void onLootTablesLoaded(LootTableLoadEvent event)
     {
 		
 		generateLootTables();
+		
+		if(firstLoad)
+		{
+			firstLoad = false;
+			LightmansCurrency.LogDebug("Loot tables are loading. Any future changes to the chest loot configs will not be applied.");
+		}
 		
     	String name = event.getName().toString();
     	LootTable table = event.getTable();
@@ -236,22 +287,22 @@ public class LootManager {
     	}
     	else
     	{
-    		//External entries
-    		for(Pair<String,PoolLevel> pair : EXTERNAL_ENTITY_ENTRIES)
-    		{
-    			if(pair.getFirst() == name)
-    			{
-    				AddEntityPoolToTable(table, pair.getSecond(), name);
-    			}
-    		}
+    		boolean notFound = true;
     		for(Pair<String,PoolLevel> pair : EXTERNAL_CHEST_ENTRIES)
     		{
-    			if(pair.getFirst() == name)
+    			if(pair.getFirst().equals(name))
     			{
+    				notFound = false;
     				AddChestPoolToTable(table, pair.getSecond(), name);
+    				break;
     			}
     		}
+    		if(notFound && event.getName().getPath().startsWith("chest"))
+    		{
+    			LightmansCurrency.LogDebug("No coin loot added to the " + name + " loot entry.");
+    		}
     	}
+    	
     }
 	
 	@SubscribeEvent
@@ -296,7 +347,7 @@ public class LootManager {
 			}
 		}
 		
-		String name = event.getEntityLiving().getType().getRegistryName().toString();
+		String name = ForgeRegistries.ENTITIES.getKey(event.getEntityLiving().getType()).toString();
 		Player player = null;
 		
 		if(event.getSource().getDirectEntity() instanceof Player || event.getSource().getEntity() instanceof Player)
@@ -360,7 +411,7 @@ public class LootManager {
 	    	{
 	    		for(Pair<String,PoolLevel> pair : EXTERNAL_ENTITY_ENTRIES)
 	    		{
-	    			if(pair.getFirst() == name && pair.getSecond() != PoolLevel.BOSS_COPPER &&pair.getSecond() != PoolLevel.BOSS_IRON &&pair.getSecond() != PoolLevel.BOSS_GOLD &&pair.getSecond() != PoolLevel.BOSS_EMERALD && pair.getSecond() != PoolLevel.BOSS_DIAMOND && pair.getSecond() != PoolLevel.BOSS_NETHERITE)
+	    			if(pair.getFirst().equals(name) && pair.getSecond() != PoolLevel.BOSS_COPPER &&pair.getSecond() != PoolLevel.BOSS_IRON &&pair.getSecond() != PoolLevel.BOSS_GOLD &&pair.getSecond() != PoolLevel.BOSS_EMERALD && pair.getSecond() != PoolLevel.BOSS_DIAMOND && pair.getSecond() != PoolLevel.BOSS_NETHERITE)
 	    			{
 	    				DropEntityLoot(event.getEntityLiving(), player, pair.getSecond());
 	    			}
@@ -396,7 +447,7 @@ public class LootManager {
     	{
     		for(Pair<String,PoolLevel> pair : EXTERNAL_ENTITY_ENTRIES)
     		{
-    			if(pair.getFirst() == name && (pair.getSecond() == PoolLevel.BOSS_COPPER || pair.getSecond() == PoolLevel.BOSS_IRON || pair.getSecond() == PoolLevel.BOSS_GOLD || pair.getSecond() == PoolLevel.BOSS_EMERALD || pair.getSecond() == PoolLevel.BOSS_DIAMOND || pair.getSecond() == PoolLevel.BOSS_NETHERITE))
+    			if(pair.getFirst().equals(name) && (pair.getSecond() == PoolLevel.BOSS_COPPER || pair.getSecond() == PoolLevel.BOSS_IRON || pair.getSecond() == PoolLevel.BOSS_GOLD || pair.getSecond() == PoolLevel.BOSS_EMERALD || pair.getSecond() == PoolLevel.BOSS_DIAMOND || pair.getSecond() == PoolLevel.BOSS_NETHERITE))
     			{
     				DropEntityLoot(event.getEntityLiving(), player, pair.getSecond());
     			}
@@ -566,87 +617,8 @@ public class LootManager {
 		InventoryUtil.dumpContents(entity.level, entity.blockPosition(), lootDrops);
 	}
 	
-	private static void AddEntityPoolToTable(LootTable table, PoolLevel coinPool, String name)
-	{
-		if(!Config.COMMON.enableEntityDrops.get())
-			return;
-		
-		
-		if(coinPool == PoolLevel.BOSS_COPPER)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_COPPER)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_IRON)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_IRON)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_GOLD)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_GOLD)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_EMERALD)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_EMERALD)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_DIAMOND)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_DIAMOND)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		else if(coinPool == PoolLevel.BOSS_NETHERITE)
-		{
-			for(Builder builder : ENTITY_LOOT_BOSS_NETHERITE)
-			{
-				table.addPool(builder.build());
-			}
-			return;
-		}
-		
-		LightmansCurrency.LogDebug("Added " + coinPool + " level entity loot to the " + name + " loot entry.");
-		table.addPool(ENTITY_LOOT_COPPER.build());
-		if(coinPool == PoolLevel.COPPER)
-			return;
-		table.addPool(ENTITY_LOOT_IRON.build());
-		if(coinPool == PoolLevel.IRON)
-			return;
-		table.addPool(ENTITY_LOOT_GOLD.build());
-		if(coinPool == PoolLevel.GOLD)
-			return;
-		table.addPool(ENTITY_LOOT_EMERALD.build());
-		if(coinPool == PoolLevel.EMERALD)
-			return;
-		table.addPool(ENTITY_LOOT_DIAMOND.build());
-		if(coinPool == PoolLevel.DIAMOND)
-			return;
-		table.addPool(ENTITY_LOOT_NETHERITE.build());
-	}
-	
 	private static void AddChestPoolToTable(LootTable table, PoolLevel coinPool, String name)
 	{
-		if(!Config.COMMON.enableChestLoot.get())
-		{
-			//CurrencyMod.LOGGER.info("Entity loot is disabled. Aborting adding loot to " + name);
-			return;
-		}
 		
 		LightmansCurrency.LogDebug("Added " + coinPool + " level chest loot to the " + name + " loot entry.");
 		if(coinPool == PoolLevel.COPPER)
@@ -689,10 +661,15 @@ public class LootManager {
 	/**
 	 * Adds the given chest's loot table to the list so that it will spawn coins in addition to its already given loot.
 	 * @param resource String format of the loot tables ResourceLocation (e.g. "minecraft:chests/buried_treasure")
-	 * @param coinPool The highest level coin that the chest should spawn.
+	 * @param coinPool The highest level coin that the chest should spawn. Should not include the BOSS pool levels, as those are for entities only.
 	 */
 	public static void AddChestCoinPoolToTable(String resource, PoolLevel coinPool)
 	{
+		if(coinPool.level > PoolLevel.NETHERITE.level)
+		{
+			LightmansCurrency.LogError("Attempted to add a chest to the coin pool at level " + coinPool.name() + ", but that level is not valid for chests.");
+			return;
+		}
 		EXTERNAL_CHEST_ENTRIES.add(new Pair<String,PoolLevel>(resource, coinPool));
 	}
 	
@@ -749,12 +726,12 @@ public class LootManager {
 			this.weight = weight;
 		}
 		
-		public static ChestLootEntryData COPPER = new ChestLootEntryData(ModItems.COIN_COPPER, 1,10, 1);
-		public static ChestLootEntryData IRON = new ChestLootEntryData(ModItems.COIN_IRON, 1,10, 2);
-		public static ChestLootEntryData GOLD = new ChestLootEntryData(ModItems.COIN_GOLD, 1,10, 3);
-		public static ChestLootEntryData EMERALD = new ChestLootEntryData(ModItems.COIN_EMERALD, 1,10, 4);
+		public static ChestLootEntryData COPPER = new ChestLootEntryData(ModItems.COIN_COPPER, 1, 10, 1);
+		public static ChestLootEntryData IRON = new ChestLootEntryData(ModItems.COIN_IRON, 1, 10, 2);
+		public static ChestLootEntryData GOLD = new ChestLootEntryData(ModItems.COIN_GOLD, 1, 10, 3);
+		public static ChestLootEntryData EMERALD = new ChestLootEntryData(ModItems.COIN_EMERALD, 1, 10, 4);
 		public static ChestLootEntryData DIAMOND = new ChestLootEntryData(ModItems.COIN_DIAMOND, 1, 8, 5);
-		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE, 1,3, 6);
+		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE, 1, 3, 6);
 		
 	}
 	
