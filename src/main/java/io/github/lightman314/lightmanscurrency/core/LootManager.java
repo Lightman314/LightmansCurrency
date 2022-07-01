@@ -204,7 +204,7 @@ public class LootManager {
 	}
 	
 	private static boolean firstLoad = true;
-	
+
 	private static String getValueList(ConfigValue<List<? extends String>> config) {
 		StringBuffer buffer = new StringBuffer();
 		List<? extends String> list = config.get();
@@ -216,23 +216,46 @@ public class LootManager {
 		}
 		return buffer.toString();
 	}
-	
+
+	public static void debugLootConfigs() {
+
+		LightmansCurrency.LogDebug("Lightman's Currency common configs have been loaded. Coin loot values are as follows.");
+		//Chests
+		LightmansCurrency.LogDebug("Chest Copper: " + getValueList(Config.COMMON.copperChestDrops));
+		LightmansCurrency.LogDebug("Chest Iron: " + getValueList(Config.COMMON.ironChestDrops));
+		LightmansCurrency.LogDebug("Chest Gold: " + getValueList(Config.COMMON.goldChestDrops));
+		LightmansCurrency.LogDebug("Chest Emerald: " + getValueList(Config.COMMON.emeraldChestDrops));
+		LightmansCurrency.LogDebug("Chest Diamond: " + getValueList(Config.COMMON.diamondChestDrops));
+		LightmansCurrency.LogDebug("Chest Netherite: " + getValueList(Config.COMMON.netheriteChestDrops));
+
+		//Entity (normal)
+		LightmansCurrency.LogDebug("Entity Copper (Normal): " + getValueList(Config.COMMON.copperEntityDrops));
+		LightmansCurrency.LogDebug("Entity Iron (Normal): " + getValueList(Config.COMMON.ironEntityDrops));
+		LightmansCurrency.LogDebug("Entity Gold (Normal): " + getValueList(Config.COMMON.goldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Emerald (Normal): " + getValueList(Config.COMMON.emeraldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Diamond (Normal): " + getValueList(Config.COMMON.diamondEntityDrops));
+		LightmansCurrency.LogDebug("Entity Netherite (Normal): " + getValueList(Config.COMMON.netheriteEntityDrops));
+
+		//Entity (boss)
+		LightmansCurrency.LogDebug("Entity Copper (Boss): " + getValueList(Config.COMMON.bossCopperEntityDrops));
+		LightmansCurrency.LogDebug("Entity Iron (Boss): " + getValueList(Config.COMMON.bossIronEntityDrops));
+		LightmansCurrency.LogDebug("Entity Gold (Boss): " + getValueList(Config.COMMON.bossGoldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Emerald (Boss): " + getValueList(Config.COMMON.bossEmeraldEntityDrops));
+		LightmansCurrency.LogDebug("Entity Diamond (Boss): " + getValueList(Config.COMMON.bossDiamondEntityDrops));
+		LightmansCurrency.LogDebug("Entity Netherite (Boss): " + getValueList(Config.COMMON.bossNetheriteEntityDrops));
+
+	}
+
 	@SubscribeEvent
     public static void onLootTablesLoaded(LootTableLoadEvent event)
     {
-		
+
 		generateLootTables();
-		
+
 		if(firstLoad)
 		{
 			firstLoad = false;
-			LightmansCurrency.LogDebug("Loot table loading detected. Outputting current chest loot configs.");
-			LightmansCurrency.LogDebug("Chest Copper: " + getValueList(Config.COMMON.copperChestDrops));
-			LightmansCurrency.LogDebug("Chest Iron: " + getValueList(Config.COMMON.ironChestDrops));
-			LightmansCurrency.LogDebug("Chest Gold: " + getValueList(Config.COMMON.goldChestDrops));
-			LightmansCurrency.LogDebug("Chest Emerald: " + getValueList(Config.COMMON.emeraldChestDrops));
-			LightmansCurrency.LogDebug("Chest Diamond: " + getValueList(Config.COMMON.diamondChestDrops));
-			LightmansCurrency.LogDebug("Chest Netherite: " + getValueList(Config.COMMON.netheriteChestDrops));
+			LightmansCurrency.LogDebug("Loot tables are loading. Any future changes to the chest loot configs will not be applied.");
 		}
 		
     	String name = event.getName().toString();

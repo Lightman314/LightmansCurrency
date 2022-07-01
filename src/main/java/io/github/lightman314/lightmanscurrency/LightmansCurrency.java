@@ -247,12 +247,13 @@ public class LightmansCurrency {
         
     }
     
-    private void onConfigLoad(ModConfigEvent.Loading event)
+    private void onConfigLoad(ModConfigEvent event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
     		//Have the loot manager validate the entity loot contents
     		LootManager.validateEntityDropList();
+    		LootManager.debugLootConfigs();
     	}
     }
     
