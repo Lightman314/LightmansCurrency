@@ -19,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -70,7 +70,11 @@ public class ATMData {
 	}
 	
 	private static ATMData loadedData = null;
-	public static ATMData get() { return loadedData; }
+	public static ATMData get() {
+		if(loadedData == null)
+			reloadATMData();
+		return loadedData;
+	}
 	
 	
 	
@@ -104,12 +108,6 @@ public class ATMData {
 		return new ATMData(ATMConversionButtonData.generateDefault());
 	}
 	
-	@SubscribeEvent
-	public static void onServerStart(ServerStartedEvent event) {
-		LightmansCurrency.LogInfo("Loading ATM Data for the server.");
-		reloadATMData();
-	}
-	
 	public static void reloadATMData() {
 		LightmansCurrency.LogInfo("Reloading ATM Data");
 		File file = new File(ATM_FILE_LOCATION);
@@ -125,6 +123,12 @@ public class ATMData {
 			loadedData = generateDefault();
 		}
 		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), loadedData);
+	}
+	
+	@SubscribeEvent
+	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+		//Send the ATM data to the player
+		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), get());
 	}
 	
 	private static void createATMDataFile(File file) {

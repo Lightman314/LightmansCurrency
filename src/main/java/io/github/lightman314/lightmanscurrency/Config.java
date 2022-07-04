@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
