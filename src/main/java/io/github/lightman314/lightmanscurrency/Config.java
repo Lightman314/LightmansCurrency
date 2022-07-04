@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import io.github.lightman314.lightmanscurrency.core.LootManager;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -326,7 +326,7 @@ public class Config {
 			
 			builder.pop();
 			
-			builder.comment("Chest loot settings. Note that any changes to these options will require a datapack reload (/reload) to be applied.").push("chest_loot");
+			builder.comment("Chest loot settings.").push("chest_loot");
 			this.enableChestLoot = builder
 					.comment("Whether coins can spawn in chests Does not effect entity loot drops.")
 					.define("enableChestLoot", true);

@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.core;
+package io.github.lightman314.lightmanscurrency.loot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
+import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -202,8 +202,6 @@ public class LootManager {
 		lootTablesBuilt = true;
 		
 	}
-	
-	private static boolean firstLoad = true;
 
 	private static String getValueList(ConfigValue<List<? extends String>> config) {
 		StringBuffer buffer = new StringBuffer();
@@ -245,65 +243,6 @@ public class LootManager {
 		LightmansCurrency.LogDebug("Entity Netherite (Boss): " + getValueList(Config.COMMON.bossNetheriteEntityDrops));
 
 	}
-
-	@SubscribeEvent
-    public static void onLootTablesLoaded(LootTableLoadEvent event)
-    {
-
-		generateLootTables();
-
-		if(firstLoad)
-		{
-			firstLoad = false;
-			LightmansCurrency.LogDebug("Loot tables are loading. Any future changes to the chest loot configs will not be applied.");
-		}
-		
-    	String name = event.getName().toString();
-    	LootTable table = event.getTable();
-    	//Chest Drops
-    	if(Config.COMMON.copperChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.COPPER, name);
-    	}
-    	else if(Config.COMMON.ironChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.IRON, name);
-    	}
-    	else if(Config.COMMON.goldChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.GOLD, name);
-    	}
-    	else if(Config.COMMON.emeraldChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.EMERALD, name);
-    	}
-    	else if(Config.COMMON.diamondChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.DIAMOND, name);
-    	}
-    	else if(Config.COMMON.netheriteChestDrops.get().contains(name))
-    	{
-    		AddChestPoolToTable(table, PoolLevel.NETHERITE, name);
-    	}
-    	else
-    	{
-    		boolean notFound = true;
-    		for(Pair<String,PoolLevel> pair : EXTERNAL_CHEST_ENTRIES)
-    		{
-    			if(pair.getFirst().equals(name))
-    			{
-    				notFound = false;
-    				AddChestPoolToTable(table, pair.getSecond(), name);
-    				break;
-    			}
-    		}
-    		if(notFound && event.getName().getPath().startsWith("chest"))
-    		{
-    			LightmansCurrency.LogDebug("No coin loot added to the " + name + " loot entry.");
-    		}
-    	}
-    	
-    }
 	
 	@SubscribeEvent
 	public static void onEntitySpawned(LivingSpawnEvent.SpecialSpawn event)
@@ -503,6 +442,8 @@ public class LootManager {
 		if(!Config.COMMON.enableEntityDrops.get())
 			return;
 		
+		generateLootTables();
+		
 		//LightmansCurrency.LOGGER.info("Dropping entity loot level " + coinPool);
 		
 		LootTable table = LootTable.lootTable().build();
@@ -611,41 +552,80 @@ public class LootManager {
 		
 	}
 	
+	public static List<ItemStack> GetRandomChestLoot(PoolLevel coinPool, LootContext context) {
+		
+		generateLootTables();
+		
+		try {
+			
+			if(coinPool == PoolLevel.COPPER)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_COPPER.build());
+				return table.getRandomItems(context);
+			}
+			else if(coinPool == PoolLevel.IRON)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_IRON.build());
+				return table.getRandomItems(context);
+			}
+			else if(coinPool == PoolLevel.GOLD)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_GOLD.build());
+				return table.getRandomItems(context);
+			}
+			else if(coinPool == PoolLevel.EMERALD)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_EMERALD.build());
+				return table.getRandomItems(context);
+			}
+			else if(coinPool == PoolLevel.DIAMOND)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_DIAMOND.build());
+				return table.getRandomItems(context);
+			}
+			else if(coinPool == PoolLevel.NETHERITE)
+			{
+				LootTable table = LootTable.lootTable().build();
+				table.addPool(CHEST_LOOT_NETHERITE.build());
+				return table.getRandomItems(context);
+			}
+			else
+			{
+				LightmansCurrency.LogError("Attempting to get random chest loot from an invalid chest pool level of '" + (coinPool == null ? "NULL" : coinPool.toString()) + "'");
+				return new ArrayList<>();
+			}
+			
+		} catch(Exception e) {
+			LightmansCurrency.LogError("Error spawning chest coin drops!", e);
+			return new ArrayList<>();
+		}
+	}
+	
+	public static PoolLevel GetChestPoolLevel(String lootTable) {
+		if(Config.COMMON.copperChestDrops.get().contains(lootTable))
+			return PoolLevel.COPPER;
+		if(Config.COMMON.ironChestDrops.get().contains(lootTable))
+			return PoolLevel.IRON;
+		if(Config.COMMON.goldChestDrops.get().contains(lootTable))
+			return PoolLevel.GOLD;
+		if(Config.COMMON.emeraldChestDrops.get().contains(lootTable))
+			return PoolLevel.EMERALD;
+		if(Config.COMMON.diamondChestDrops.get().contains(lootTable))
+			return PoolLevel.DIAMOND;
+		if(Config.COMMON.netheriteChestDrops.get().contains(lootTable))
+			return PoolLevel.NETHERITE;
+		return null;
+	}
+	
 	private static void SpawnLootDrops(Entity entity, List<ItemStack> lootDrops)
 	{
 		//LightmansCurrency.LOGGER.info("Spawning " + lootDrops.size() + " coin drops.");
 		InventoryUtil.dumpContents(entity.level, entity.blockPosition(), lootDrops);
-	}
-	
-	private static void AddChestPoolToTable(LootTable table, PoolLevel coinPool, String name)
-	{
-		
-		LightmansCurrency.LogDebug("Added " + coinPool + " level chest loot to the " + name + " loot entry.");
-		if(coinPool == PoolLevel.COPPER)
-		{
-			table.addPool(CHEST_LOOT_COPPER.build());
-		}
-		else if(coinPool == PoolLevel.IRON)
-		{
-			table.addPool(CHEST_LOOT_IRON.build());
-		}
-		else if(coinPool == PoolLevel.GOLD)
-		{
-			table.addPool(CHEST_LOOT_GOLD.build());
-		}
-		else if(coinPool == PoolLevel.EMERALD)
-		{
-			table.addPool(CHEST_LOOT_EMERALD.build());
-		}
-		else if(coinPool == PoolLevel.DIAMOND)
-		{
-			table.addPool(CHEST_LOOT_DIAMOND.build());
-		}
-		else if(coinPool == PoolLevel.NETHERITE)
-		{
-			table.addPool(CHEST_LOOT_NETHERITE.build());
-		}
-		
 	}
 	
 	/**
@@ -693,7 +673,6 @@ public class LootManager {
 		
 	}
 	
-	
 	private static Builder GenerateChestCoinPool(ChestLootEntryData[] lootEntries, float minRolls, float maxRolls, String name)
 	{
 		
@@ -734,7 +713,6 @@ public class LootManager {
 		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE.get(), 1, 3, 6);
 		
 	}
-	
 	
 	
 }

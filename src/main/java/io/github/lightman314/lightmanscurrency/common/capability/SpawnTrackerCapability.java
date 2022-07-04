@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.capability;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lightmanscurrency.core.LootManager;
+import io.github.lightman314.lightmanscurrency.loot.LootManager;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
