@@ -165,7 +165,7 @@ public class PlayerReference {
 	{
 		if(playerID == null)
 			return null;
-		//Attempt to the the players profile, for latest name updates
+		//Attempt to get the players profile, for latest name updates
 		if(!isTrueName)
 		{
 			//Only attempt this if this isn't already the true name.
@@ -173,7 +173,7 @@ public class PlayerReference {
 			if(server != null)
 			{
 				GameProfile profile = server.getProfileCache().get(playerID).orElse(null);
-				if(profile == null)
+				if(profile == null || profile.getName() == null)
 					return null;
 				name = profile.getName();
 				isTrueName = true;
@@ -191,7 +191,7 @@ public class PlayerReference {
 		//Otherwise, create the reference
 		PlayerReference newPR = new PlayerReference(playerID, name);
 		knownReferences.put(playerID, newPR);
-		return new PlayerReference(playerID, name);
+		return newPR;
 	}
 	
 	public static PlayerReference of(GameProfile playerProfile)

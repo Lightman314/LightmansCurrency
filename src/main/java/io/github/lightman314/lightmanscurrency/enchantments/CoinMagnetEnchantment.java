@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
@@ -47,7 +46,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			if(!WalletItem.isWallet(wallet) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 				return;
 			//Get the level (-1 to properly calculate range)
-			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET.get(), wallet);
+			int enchantLevel = wallet.getEnchantmentLevel(ModEnchantments.COIN_MAGNET.get());
 			//Don't do anything if the Coin Magnet enchantment is not present.
 			if(enchantLevel <= 0)
 				return;

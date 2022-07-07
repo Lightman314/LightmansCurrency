@@ -2,8 +2,11 @@ package io.github.lightman314.lightmanscurrency.events;
 
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 public class NotificationEvent extends Event {
@@ -34,18 +37,16 @@ public class NotificationEvent extends Event {
 		 * Can be used to modify and/or replace the sent notification.
 		 * Cancel the event to cancel the notification from being sent.
 		 */
+		@Cancelable
 		public static class Pre extends NotificationSent
 		{
 			public Pre(UUID playerID, NotificationData data, Notification notification) { super(playerID, data, notification); }
 			
-			public void setNotification(Notification notification) {
+			public void setNotification(@Nonnull Notification notification) {
 				if(notification == null)
 					throw new NullPointerException("Cannot set the notification to null. Cancel the event if you wish for no notification to be sent.");
 				this.notification = notification;
 			}
-			
-			@Override
-			public boolean isCancelable() { return true; }
 			
 		}
 		
@@ -64,12 +65,10 @@ public class NotificationEvent extends Event {
 	 * Sent when a notification is received on the client.
 	 * Cancel to prevent the notification from being posted in chat.
 	 */
+	@Cancelable
 	public static class NotificationReceivedOnClient extends NotificationEvent {
 		
 		public NotificationReceivedOnClient(UUID playerID, NotificationData data, Notification notification) { super(playerID, data, notification); }
-		
-		@Override
-		public boolean isCancelable() { return true; }
 		
 	}
 	

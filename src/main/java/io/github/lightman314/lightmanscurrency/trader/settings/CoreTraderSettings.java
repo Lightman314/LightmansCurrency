@@ -142,6 +142,9 @@ public class CoreTraderSettings extends Settings{
 	//Notifications
 	private boolean notificationsEnabled = true;
 	public boolean notificationsEnabled() { return this.notificationsEnabled; }
+	//Chat Notifications
+	private boolean chatNotifications = true;
+	public boolean notificationsToChat() { return this.chatNotifications; }
 	//0 for members, 1 for admins, 2 for owners only
 	private int teamNotificationLevel = 2;
 	public int getTeamNotificationLevel() { return this.teamNotificationLevel; }
@@ -163,14 +166,14 @@ public class CoreTraderSettings extends Settings{
 			{
 				if(player != null && player.id != null)
 				{
-					TradingOffice.pushNotification(player.id, notificationSource.get());
+					TradingOffice.pushNotification(player.id, notificationSource.get(), this.chatNotifications);
 				}
 			}
 		}
 		else if(this.owner != null)
 		{
 			//Push to owner
-			TradingOffice.pushNotification(this.owner.id, notificationSource.get());
+			TradingOffice.pushNotification(this.owner.id, notificationSource.get(), this.chatNotifications);
 		}
 	}
 	
@@ -349,6 +352,20 @@ public class CoreTraderSettings extends Settings{
 		this.logger.LogSettingsChange(requestor, "traderNotifications", this.notificationsEnabled);
 		CompoundTag updateInfo = initUpdateInfo(UPDATE_NOTIFICATION);
 		updateInfo.putBoolean("nowEnabled", this.notificationsEnabled);
+		return updateInfo;
+	}
+	
+	public CompoundTag toggleChatNotifications(Player requestor)
+	{
+		if(!this.hasPermission(requestor, Permissions.NOTIFICATION))
+		{
+			PermissionWarning(requestor, "toggle chat notifications", Permissions.ADD_REMOVE_ALLIES);
+			return null;
+		}
+		this.chatNotifications = !this.chatNotifications;
+		this.logger.LogSettingsChange(requestor, "traderChatNotifications", this.chatNotifications);
+		CompoundTag updateInfo = initUpdateInfo(UPDATE_NOTIFICATION);
+		updateInfo.putBoolean("chatEnabled", this.chatNotifications);
 		return updateInfo;
 	}
 	
@@ -547,6 +564,16 @@ public class CoreTraderSettings extends Settings{
 						this.markDirty();
 				}
 			}
+			if(updateInfo.contains("chatEnabled"))
+			{
+				boolean newValue = updateInfo.getBoolean("chatEnabled");
+				if(this.chatNotifications != newValue)
+				{
+					CompoundTag result = this.toggleChatNotifications(requestor);
+					if(result != null)
+						this.markDirty();
+				}
+			}
 			if(updateInfo.contains("newLevel"))
 			{
 				CompoundTag result = this.setTeamNotificationLevel(requestor, updateInfo.getInt("newLevel"));
@@ -623,6 +650,7 @@ public class CoreTraderSettings extends Settings{
 	public CompoundTag saveNotificationSettings(CompoundTag compound)
 	{
 		compound.putBoolean("Notifications", this.notificationsEnabled);
+		compound.putBoolean("ChatNotifications", this.chatNotifications);
 		compound.putInt("TeamNotifications", this.teamNotificationLevel);
 		return compound;
 	}
@@ -743,6 +771,8 @@ public class CoreTraderSettings extends Settings{
 		//Notification settings
 		if(compound.contains("Notifications"))
 			this.notificationsEnabled = compound.getBoolean("Notifications");
+		if(compound.contains("ChatNotifications"))
+			this.chatNotifications = compound.getBoolean("ChatNotifications");
 		if(compound.contains("TeamNotifications"))
 			this.teamNotificationLevel = compound.getInt("TeamNotifications");
 		

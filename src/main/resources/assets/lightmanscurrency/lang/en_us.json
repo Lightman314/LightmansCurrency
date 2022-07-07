@@ -413,6 +413,7 @@
     "gui.lightmanscurrency.settings.side.west": "Left",
     "gui.lightmanscurrency.settings.side.east": "Right",
     "gui.lightmanscurrency.notifications.enabled": "Notifications Enabled",
+    "gui.lightmanscurrency.notifications.chat": "Notify in Chat",
     "tooltip.lightmanscurrency.persistenttrader.copy": "Copy trader to clipboard as Persistent Trader Json text.",
     "lightmanscurrency.chat.persistenttrader":"Persistent Trader Data Copied!",
     "tooltip.lightmanscurrency.persistenttrader.copyagain": "Click to re-copy %s to clipboard.",

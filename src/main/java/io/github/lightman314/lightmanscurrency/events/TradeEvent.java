@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class TradeEvent extends Event{
@@ -32,6 +33,7 @@ public abstract class TradeEvent extends Event{
 		this.trader = trader;
 	}
 	
+	@Cancelable
 	public static class PreTradeEvent extends TradeEvent
 	{
 		
@@ -102,9 +104,6 @@ public abstract class TradeEvent extends Event{
 		
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
-		@Override
-		public boolean isCancelable() { return true; }
-		
 		
 	}
 	
@@ -141,20 +140,11 @@ public abstract class TradeEvent extends Event{
 			this.pricePaid = pricePaid;
 		}
 		
-		public boolean isDirty()
-		{
-			return this.isDirty;
-		}
+		public boolean isDirty() { return this.isDirty; }
 		
-		public void markDirty()
-		{
-			this.isDirty = true;
-		}
-		
-		public void clean()
-		{
-			this.isDirty = false;
-		}
+		public void markDirty() { this.isDirty = true; }
+	 		
+		public void clean() { this.isDirty = false; }
 		
 	}
 	

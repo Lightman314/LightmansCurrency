@@ -8,7 +8,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
 
+@Cancelable
 public class WalletDropEvent extends PlayerEvent{
 
 	private final IWalletHandler walletHandler;
@@ -42,8 +44,5 @@ public class WalletDropEvent extends PlayerEvent{
 		this.keepWallet = keepWallet;
 		this.coinDropPercent = coinDropPercent;
 	}
-	
-	@Override
-	public boolean isCancelable() { return true; }
 	
 }

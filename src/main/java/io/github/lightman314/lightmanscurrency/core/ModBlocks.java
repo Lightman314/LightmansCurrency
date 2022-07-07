@@ -59,8 +59,6 @@ public class ModBlocks {
 		};
 	}
 	
-	
-	
 	static {
 		//Coin Piles
 		COINPILE_COPPER = register("coinpile_copper", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(

@@ -31,6 +31,7 @@ public class NotificationTab extends SettingsTab{
 	private NotificationTab() { }
 	
 	PlainButton buttonToggleNotifications;
+	PlainButton buttonToggleChatNotifications;
 	Button buttonToggleTeamLevel;
 	
 	@Override
@@ -41,9 +42,11 @@ public class NotificationTab extends SettingsTab{
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
-		this.buttonToggleNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 35, 10, 10, this::TogglePermission, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		this.buttonToggleNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 35, 10, 10, this::ToggleNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
-		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, screen.xSize - 40, 20, Component.empty(), this::ToggleTeamNotificationLevel));
+		this.buttonToggleChatNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 55, 10, 10, this::ToggleChatNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		
+		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 80, screen.xSize - 40, 20, Component.empty(), this::ToggleTeamNotificationLevel));
 		
 		this.tick();
 		
@@ -56,6 +59,9 @@ public class NotificationTab extends SettingsTab{
 		
 		//Render the enable notification test
 		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.notifications.enabled"), screen.guiLeft() + 32, screen.guiTop() + 35, 0x404040);
+		
+		//Render the enable chat notification text
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.notifications.chat"), screen.guiLeft() + 32, screen.guiTop() + 55, 0x404040);
 		
 		CoreTraderSettings coreSettings = this.getSetting(CoreTraderSettings.class);
 		this.buttonToggleTeamLevel.visible = coreSettings.getTeam() != null;
@@ -75,16 +81,25 @@ public class NotificationTab extends SettingsTab{
 		
 		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
 		if(settings != null)
+		{
 			this.buttonToggleNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.notificationsEnabled() ? 200 : 220);
+			this.buttonToggleChatNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.notificationsToChat() ? 200 : 220);
+		}
 		
 	}
 
 	@Override
 	public void closeTab() { }
 	
-	private void TogglePermission(Button button) {
+	private void ToggleNotifications(Button button) {
 		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
 		CompoundTag updateInfo = coreSettings.toggleNotifications(this.getPlayer());
+		coreSettings.sendToServer(updateInfo);
+	}
+	
+	private void ToggleChatNotifications(Button button) {
+		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
+		CompoundTag updateInfo = coreSettings.toggleChatNotifications(this.getPlayer());
 		coreSettings.sendToServer(updateInfo);
 	}
 	
