@@ -793,7 +793,9 @@ public class TradingOffice extends SavedData{
 		return null;
 	}
 	
-	public static boolean pushNotification(UUID playerID, Notification notification) {
+	public static boolean pushNotification(UUID playerID, Notification notification) { return pushNotification(playerID, notification, true); }
+	
+	public static boolean pushNotification(UUID playerID, Notification notification, boolean pushToChat) {
 		if(notification == null)
 		{
 			LightmansCurrency.LogError("Cannot push a null notification!");
@@ -814,12 +816,16 @@ public class TradingOffice extends SavedData{
 			MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationSent.Post(playerID, data, event.getNotification()));
 			
 			//Send the notification message to the client so that it will be posted in chat
-			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-			if(server != null)
+			
+			if(pushToChat)
 			{
-				ServerPlayer player = server.getPlayerList().getPlayer(playerID);
-				if(player != null)
-					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageClientNotification(notification));
+				MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+				if(server != null)
+				{
+					ServerPlayer player = server.getPlayerList().getPlayer(playerID);
+					if(player != null)
+						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageClientNotification(notification));
+				}
 			}
 			return true;
 		}

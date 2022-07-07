@@ -215,8 +215,10 @@ public class ClientProxy extends CommonProxy{
 		Minecraft mc = Minecraft.getInstance();
 		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientTradingOffice.getNotifications(), notification)))
 			return;
+		
 		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
 			mc.gui.getChat().addMessage(notification.getChatMessage());
+		
 	}
 	
 	@Override
