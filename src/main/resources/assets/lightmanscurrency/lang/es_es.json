@@ -16,7 +16,7 @@
   "item.lightmanscurrency.coin_emerald": "Moneda de Esmeralda",
   "item.lightmanscurrency.coin_emerald.plural": "Monedas de Esmeralda",
   "item.lightmanscurrency.coin_emerald.initial": "e",
-  "item.lightmanscurrency.coin_diamond": "Moneda de Diamante",
+  "item.lightmanscurrency.coin_diamond": "Moneda de Diamante", 
   "item.lightmanscurrency.coin_diamond.plural": "Monedas de Diamante",
   "item.lightmanscurrency.coin_diamond.initial": "d",
   "item.lightmanscurrency.coin_netherite": "Moneda de Netherita",
