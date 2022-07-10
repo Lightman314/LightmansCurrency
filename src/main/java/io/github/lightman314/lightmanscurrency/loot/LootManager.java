@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabil
 import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -562,37 +563,37 @@ public class LootManager {
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_COPPER.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else if(coinPool == PoolLevel.IRON)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_IRON.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else if(coinPool == PoolLevel.GOLD)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_GOLD.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else if(coinPool == PoolLevel.EMERALD)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_EMERALD.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else if(coinPool == PoolLevel.DIAMOND)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_DIAMOND.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else if(coinPool == PoolLevel.NETHERITE)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_NETHERITE.build());
-				return table.getRandomItems(context);
+				return safelyGetResults(table, context);
 			}
 			else
 			{
@@ -604,6 +605,18 @@ public class LootManager {
 			LightmansCurrency.LogError("Error spawning chest coin drops!", e);
 			return new ArrayList<>();
 		}
+	}
+	
+	private static List<ItemStack> safelyGetResults(LootTable table, LootContext context) {
+		//Store queried loot table id to restore later
+		ResourceLocation oldID = context.getQueriedLootTableId();
+		//Set queried loot table id to utter nonesense (very technical term that) so that it won't come up as a success for a loot chest
+		context.setQueriedLootTableId(new ResourceLocation("iamnotavalidlootchestpleasedonttrytosetmeasaconfigvalue"));
+		//Get the results
+		List<ItemStack> results = table.getRandomItems(context);
+		//Restore the actual loot table id to the context so that other GLM's can process the loot table properly.
+		context.setQueriedLootTableId(oldID);
+		return results;
 	}
 
 	public static PoolLevel GetChestPoolLevel(String lootTable) {

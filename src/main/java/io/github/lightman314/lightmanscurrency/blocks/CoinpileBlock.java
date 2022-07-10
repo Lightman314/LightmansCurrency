@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks;
 
+import java.util.function.Supplier;
+
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
@@ -7,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
@@ -31,12 +33,12 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 	protected static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
-	public CoinpileBlock(Properties properties, Item coinItem)
+	public CoinpileBlock(Properties properties, Supplier<ItemLike> coinItem)
 	{
 		this(properties, coinItem, LazyShapes.SHORT_BOX_T);
 	}
 	
-	public CoinpileBlock(Properties properties, Item coinItem, VoxelShape shape)
+	public CoinpileBlock(Properties properties, Supplier<ItemLike> coinItem, VoxelShape shape)
 	{
 		super(properties, coinItem);
 		this.shape = shape != null ? shape : LazyShapes.SHORT_BOX_T;

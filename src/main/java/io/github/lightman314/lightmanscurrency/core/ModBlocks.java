@@ -63,42 +63,42 @@ public class ModBlocks {
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER
+				() -> ModItems.COIN_COPPER
 				)
 		);
 		register("coinpile_iron", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_IRON
+				() -> ModItems.COIN_IRON
 				)
 		);
 		register("coinpile_gold", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD
+				() -> ModItems.COIN_GOLD
 				)
 		);
 		register("coinpile_emerald", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD
+				() -> ModItems.COIN_EMERALD
 				)
 		);
 		register("coinpile_diamond", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND
+				() -> ModItems.COIN_DIAMOND
 				)
 		);
 		register("coinpile_netherite", LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE
+				() -> ModItems.COIN_NETHERITE
 				)
 		);
 		
@@ -107,42 +107,42 @@ public class ModBlocks {
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER
+				() -> ModItems.COIN_COPPER
 				)
 		);
 		register("coinblock_iron", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_IRON
+				() -> ModItems.COIN_IRON
 				)
 		);
 		register("coinblock_gold", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD
+				() -> ModItems.COIN_GOLD
 				)
 		);
 		register("coinblock_emerald", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD
+				() -> ModItems.COIN_EMERALD
 				)
 		);
 		register("coinblock_diamond", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND
+				() -> ModItems.COIN_DIAMOND
 				)
 		);
 		register("coinblock_netherite", LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE
+				() -> ModItems.COIN_NETHERITE
 				)
 		);
 		
