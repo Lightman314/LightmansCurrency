@@ -345,12 +345,12 @@ public class LootManager {
 	    	}
 	    	else
 	    	{
-	    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
-	    			if(entity.equals(name) && level.requiresPlayerKill)
-	    			{
+	    		if(EXTERNAL_ENTITY_ENTRIES.containsKey(name))
+	    		{
+	    			PoolLevel level = EXTERNAL_ENTITY_ENTRIES.get(name);
+	    			if(level.requiresPlayerKill)
 	    				DropEntityLoot(event.getEntityLiving(), player, level);
-	    			}
-	    		});
+	    		}
 	    	}
 		}
 		
@@ -381,12 +381,12 @@ public class LootManager {
     	}
     	else
     	{
-    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
-    			if(entity.equals(name) && level.requiresPlayerKill)
-    			{
+    		if(EXTERNAL_ENTITY_ENTRIES.containsKey(name))
+    		{
+    			PoolLevel level = EXTERNAL_ENTITY_ENTRIES.get(name);
+    			if(!level.requiresPlayerKill)
     				DropEntityLoot(event.getEntityLiving(), null, level);
-    			}
-    		});
+    		}
     	}
 	}
 	
@@ -623,9 +623,10 @@ public class LootManager {
 			return PoolLevel.DIAMOND;
 		if(Config.COMMON.netheriteChestDrops.get().contains(lootTable))
 			return PoolLevel.NETHERITE;
-		EXTERNAL_CHEST_ENTRIES.forEach((chest, level) -> {
-			
-		});
+		
+		if(EXTERNAL_CHEST_ENTRIES.containsKey(lootTable))
+			return EXTERNAL_CHEST_ENTRIES.get(lootTable);
+		
 		return null;
 	}
 	
