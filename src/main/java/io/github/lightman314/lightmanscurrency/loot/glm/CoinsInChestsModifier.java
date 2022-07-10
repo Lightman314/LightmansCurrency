@@ -20,19 +20,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
-	private CoinsInChestsModifier() {
-		LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!");
-	}
-	
-	private static LootContext lastContext = null;
+	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
 	
 	@Override
 	public @NotNull ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-		
-		if(lastContext == context) //Return early if we've already modified this loot 
-			return generatedLoot;
-		//Store the loot context to prevent this from being applied twice to the same chest
-		lastContext = context;
 		
 		String lootTable = context.getQueriedLootTableId().toString();
 		
