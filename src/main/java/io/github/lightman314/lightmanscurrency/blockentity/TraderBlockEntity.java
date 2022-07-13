@@ -277,7 +277,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
 	public MenuProvider getStorageMenuProvider() { return new TradeStorageMenuProvider<>(this); }
@@ -307,7 +307,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
 	@Override

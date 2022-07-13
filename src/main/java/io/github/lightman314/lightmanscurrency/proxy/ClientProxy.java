@@ -10,9 +10,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
@@ -32,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
@@ -48,8 +45,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.ClientRegistry;
-import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -64,17 +59,25 @@ public class ClientProxy extends CommonProxy{
 	
 	private long timeOffset = 0;
 	
+	@SuppressWarnings("removal")
 	@Override
 	public void setupClient() {
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
+		//Done in the model themselves since 1.19-41.0.64
+		//Or at least it's supposed to be, but I have no f-in clue how it's done cause lord knows they can't document anything...
+		try {
+			
+			ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
+			
+			this.setRenderLayer(ModBlocks.VENDING_MACHINE.getAll(), RenderType.cutout());
+			
+			this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
+	    	
+	    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
+	    	
+		} catch(Throwable t) { LightmansCurrency.LogError("Cannot set block render layers anymore apparently. Hopefully forge has finally made the tutorial on how to define that in the block model..."); }
 		
-		this.setRenderLayer(ModBlocks.VENDING_MACHINE.getAll(), RenderType.cutout());
-		
-		this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
-    	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
     	
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
@@ -105,13 +108,11 @@ public class ClientProxy extends CommonProxy{
     	TradeRuleScreen.RegisterTradeRule(() -> new TradeLimit());
     	TradeRuleScreen.RegisterTradeRule(() -> new FreeSample());
     	
-    	//Register the key bind
-    	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
-    	
 	}
 	
+	@SuppressWarnings("removal")
 	private void setRenderLayer(List<Block> blocks, RenderType type) {
-		for(Block block : blocks) ItemBlockRenderTypes.setRenderLayer(block, type);
+		for(Block b : blocks) ItemBlockRenderTypes.setRenderLayer(b, type);
 	}
 	
 	@Override
@@ -240,12 +241,6 @@ public class ClientProxy extends CommonProxy{
 	public void loadAdminPlayers(List<UUID> serverAdminList)
 	{
 		TradingOffice.loadAdminPlayers(serverAdminList);
-	}
-	
-	public void registerItemColors(ColorHandlerEvent.Item event)
-	{
-		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.getItemColors().register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
 	}
 	
 	@SubscribeEvent

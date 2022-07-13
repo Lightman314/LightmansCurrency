@@ -126,7 +126,7 @@ public class ATMData {
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		//Send the ATM data to the player
-		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), get());
+		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getEntity()), get());
 	}
 	
 	private static void createATMDataFile(File file) {

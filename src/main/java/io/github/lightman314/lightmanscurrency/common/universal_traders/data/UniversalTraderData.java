@@ -324,7 +324,7 @@ public abstract class UniversalTraderData implements ITrader{
 			return;
 		}
 		if(playerEntity instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)playerEntity, provider, new DataWriter(this.getTraderID()));
+			NetworkHooks.openScreen((ServerPlayer)playerEntity, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}
@@ -355,7 +355,7 @@ public abstract class UniversalTraderData implements ITrader{
 			return;
 		}
 		if(player instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)player, provider, new DataWriter(this.getTraderID()));
+			NetworkHooks.openScreen((ServerPlayer)player, provider, new DataWriter(this.getTraderID()));
 		else
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 	}

@@ -47,7 +47,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 	}
 	
 	/*public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)

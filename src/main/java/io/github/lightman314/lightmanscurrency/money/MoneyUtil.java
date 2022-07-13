@@ -109,7 +109,7 @@ public class MoneyUtil {
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		//Send the player the Money Data
-		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getPlayer()), moneyData);
+		LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(event.getEntity()), moneyData);
 	}
 	
 	/**

@@ -15,8 +15,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggedInEvent;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggedOutEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -68,7 +67,7 @@ public class PlayerSuggestionsUtil {
 	}
 	
 	@SubscribeEvent
-	public static void onLogin(LoggedInEvent event) {
+	public static void onLogin(ClientPlayerNetworkEvent.LoggingIn event) {
 		try {
 			timer = new Timer();
 			TimerTask task = new RequestPlayerListTask();
@@ -78,7 +77,7 @@ public class PlayerSuggestionsUtil {
 	}
 	
 	@SubscribeEvent
-	public static void onLogout(LoggedOutEvent event) {
+	public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
 		try {
 			timer.cancel();
 			timer = null;

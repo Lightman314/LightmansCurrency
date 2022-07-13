@@ -4,17 +4,17 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.loot.LootManager.PoolLevel;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -41,17 +41,20 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		
 		return generatedLoot;
 	}
+	
+	@Override
+	public Codec<? extends IGlobalLootModifier> codec() { return new Serializer(); }
 
-	public static class Serializer extends GlobalLootModifierSerializer<CoinsInChestsModifier> {
+	public static class Serializer implements Codec<CoinsInChestsModifier> {
 
 		@Override
-		public CoinsInChestsModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] ailootcondition) {
-			return new CoinsInChestsModifier();
+		public <T> DataResult<T> encode(CoinsInChestsModifier input, DynamicOps<T> ops, T prefix) {
+			return DataResult.success(prefix);
 		}
 
 		@Override
-		public JsonObject write(CoinsInChestsModifier instance) {
-			return new JsonObject();
+		public <T> DataResult<Pair<CoinsInChestsModifier, T>> decode(DynamicOps<T> ops, T input) {
+			return DataResult.success(Pair.of(new CoinsInChestsModifier(), input));
 		}
 		
 	}

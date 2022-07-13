@@ -53,7 +53,7 @@ public class ClientEvents {
 	//public static final KeyMapping KEY_TEAM = new KeyMapping("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, KeyMapping.CATEGORY_INTERFACE);
 	
 	@SubscribeEvent
-	public static void onKeyInput(InputEvent.KeyInputEvent event)
+	public static void onKeyInput(InputEvent.Key event)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
 		if(minecraft.screen instanceof WalletScreen)
@@ -87,7 +87,7 @@ public class ClientEvents {
 	
 	//Add the wallet button to the gui
 	@SubscribeEvent
-	public static void onInventoryGuiInit(ScreenEvent.InitScreenEvent.Post event)
+	public static void onInventoryGuiInit(ScreenEvent.Init.Post event)
 	{
 		
 		Screen screen = event.getScreen();
@@ -132,7 +132,7 @@ public class ClientEvents {
 	
 	//Renders empty gui slot & wallet item
 	@SubscribeEvent
-	public static void renderInventoryScreen(ContainerScreenEvent.DrawBackground event)
+	public static void renderInventoryScreen(ContainerScreenEvent.Render.Background event)
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
@@ -171,7 +171,7 @@ public class ClientEvents {
 	
 	//Renders wallet tooltip
 	@SubscribeEvent
-	public static void renderInventoryTooltips(ScreenEvent.DrawScreenEvent.Post event)
+	public static void renderInventoryTooltips(ScreenEvent.Render.Post event)
 	{
 		Screen screen = event.getScreen();
 		
@@ -211,7 +211,7 @@ public class ClientEvents {
 	
 	//Interact
 	@SubscribeEvent
-	public static void onInventoryClick(ScreenEvent.MouseClickedEvent.Pre event)
+	public static void onInventoryClick(ScreenEvent.MouseButtonPressed.Post event)
 	{
 		
 		Minecraft mc = Minecraft.getInstance();

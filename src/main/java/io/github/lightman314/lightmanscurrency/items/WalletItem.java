@@ -223,7 +223,7 @@ public class WalletItem extends Item{
 					if(equippedWallet.get())
 						walletSlot = -1;
 				}
-				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+				NetworkHooks.openScreen((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
 			}
 				
 			else

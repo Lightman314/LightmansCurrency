@@ -149,7 +149,7 @@ public class ClientTradingOffice {
 	}
 	
 	@SubscribeEvent
-	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+	public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
 		//Reset loaded traders, teams, and bank accounts
 		loadedTraders = new HashMap<>();
 		loadedTeams = new HashMap<>();

@@ -580,7 +580,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			MenuProvider provider = this.getMenuProvider();
 			if(provider == null)
 				return;
-			NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 		}
 	}
 	

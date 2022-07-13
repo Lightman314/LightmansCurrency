@@ -41,7 +41,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -62,7 +62,7 @@ public class EventHandler {
 		if(coinData == null || coinData.isHidden)
 			return;
 		
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 		ItemStack coinStack = event.getItem().getItem();
 		WalletMenuBase activeContainer = null;
 		
@@ -108,10 +108,10 @@ public class EventHandler {
 	
 	//Block break event for trader protection functionality
 	@SubscribeEvent
-	public static void onBlockBreak(BreakEvent event)
+	public static void onBlockBreak(BlockEvent.BreakEvent event)
 	{
 		
-		LevelAccessor world = event.getWorld();
+		LevelAccessor world = event.getLevel();
 		BlockState state = world.getBlockState(event.getPos());
 		
 		if(state.getBlock() instanceof IOwnableBlock)
@@ -140,9 +140,9 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerLogin(PlayerLoggedInEvent event)
 	{
-		if(event.getPlayer().level.isClientSide)
+		if(event.getEntity().level.isClientSide)
 			return;
-		sendWalletUpdatePacket(event.getPlayer(), LightmansCurrencyPacketHandler.getTarget(event.getPlayer()));
+		sendWalletUpdatePacket(event.getEntity(), LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
 	}
 	
 	//Sync wallet contents for newly loaded entities
@@ -150,7 +150,7 @@ public class EventHandler {
 	public static void playerStartTracking(PlayerEvent.StartTracking event)
 	{
 		Entity target = event.getTarget();
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 		sendWalletUpdatePacket(target, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 	
@@ -158,7 +158,7 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerClone(PlayerEvent.Clone event)
 	{
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 		if(player.level.isClientSide) //Do nothing client-side
 			return;
 		
@@ -179,7 +179,7 @@ public class EventHandler {
 	
 	@SubscribeEvent
 	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
-		Player player = event.getPlayer();
+		Player player = event.getEntity();
 		if(player.level.isClientSide)
 			return;
 		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
@@ -198,7 +198,7 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void playerDrops(LivingDropsEvent event)
 	{
-		LivingEntity livingEntity = event.getEntityLiving();
+		LivingEntity livingEntity = event.getEntity();
 		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
 		
@@ -333,8 +333,8 @@ public class EventHandler {
 	
 	//Check for wallet updates, and send update packets
 	@SubscribeEvent
-	public static void entityTick(LivingEvent.LivingUpdateEvent event) {
-		LivingEntity livingEntity = event.getEntityLiving();
+	public static void entityTick(LivingEvent.LivingTickEvent event) {
+		LivingEntity livingEntity = event.getEntity();
 		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
 		

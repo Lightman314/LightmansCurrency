@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.loot;
 
+import com.mojang.serialization.Codec;
+
 import io.github.lightman314.lightmanscurrency.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.loot.glm.CoinsInChestsModifier;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.registries.RegistryObject;
 
 public class LootModifiers {
@@ -15,6 +16,6 @@ public class LootModifiers {
 		
 	}
 	
-	public static final RegistryObject<GlobalLootModifierSerializer<CoinsInChestsModifier>> COINS_IN_CHESTS;
+	public static final RegistryObject<Codec<CoinsInChestsModifier>> COINS_IN_CHESTS;
 	
 }

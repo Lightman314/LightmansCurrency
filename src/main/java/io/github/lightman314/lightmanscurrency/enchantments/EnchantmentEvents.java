@@ -9,9 +9,9 @@ import net.minecraftforge.fml.common.Mod;
 public class EnchantmentEvents {
 
 	@SubscribeEvent
-	public static void onEntityTick(LivingEvent.LivingUpdateEvent event)
+	public static void onEntityTick(LivingEvent.LivingTickEvent event)
 	{
-		LivingEntity entity = event.getEntityLiving();
+		LivingEntity entity = event.getEntity();
 		//Do nothing client-side
 		if(entity.level.isClientSide)
 			return;

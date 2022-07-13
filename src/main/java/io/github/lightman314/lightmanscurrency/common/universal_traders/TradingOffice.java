@@ -904,7 +904,7 @@ public class TradingOffice extends SavedData{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
 			
 			TradingOffice office = get(server);
 			
@@ -921,7 +921,7 @@ public class TradingOffice extends SavedData{
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound2));
 			
 			//Confirm the presence of the loading players bank account
-			getBankAccount(event.getPlayer());
+			getBankAccount(event.getEntity());
 			
 			CompoundTag compound3 = new CompoundTag();
 			ListTag bankList = new ListTag();
@@ -934,11 +934,11 @@ public class TradingOffice extends SavedData{
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientBank(compound3));
 			
 			//Only send their personal notifications
-			NotificationData notifications = getNotifications(event.getPlayer());
+			NotificationData notifications = getNotifications(event.getEntity());
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientNotifications(notifications));
 			
 			//Update to let them know their selected bank account
-			AccountReference selectedAccount = getSelectedBankAccount(event.getPlayer());
+			AccountReference selectedAccount = getSelectedBankAccount(event.getEntity());
 			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncSelectedBankAccount(selectedAccount));
 			
 		}
@@ -955,7 +955,7 @@ public class TradingOffice extends SavedData{
 	 * Clean up invalid traders
 	 */
 	@SubscribeEvent
-	public static void onTick(TickEvent.WorldTickEvent event)
+	public static void onTick(TickEvent.LevelTickEvent event)
 	{
 		if(event.phase != TickEvent.Phase.START || !event.side.isServer())
 			return;

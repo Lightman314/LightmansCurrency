@@ -33,7 +33,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSe
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModRegistries;
-import io.github.lightman314.lightmanscurrency.datagen.RecipeGen;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.enchantments.LCEnchantmentCategories;
@@ -47,7 +46,6 @@ import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncC
 import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -66,7 +64,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 
@@ -109,7 +106,6 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onDataSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::imc);
         
         //Register configs
@@ -268,18 +264,12 @@ public class LightmansCurrency {
     {
     	
     	//Preload target
-    	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+    	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getEntity());
     	//Sync time
     	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
     	//Sync admin list
     	LightmansCurrencyPacketHandler.instance.send(target, TradingOffice.getAdminSyncMessage());
     	
-    }
-    
-    private void onDataSetup(GatherDataEvent event)
-    {
-    	DataGenerator dataGenerator = event.getGenerator();
-    	dataGenerator.addProvider(false, new RecipeGen(dataGenerator));
     }
     
     /**

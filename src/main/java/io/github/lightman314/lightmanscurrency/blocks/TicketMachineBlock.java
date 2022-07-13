@@ -55,7 +55,7 @@ public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
 		if(!level.isClientSide)
-			NetworkHooks.openGui((ServerPlayer)player, this.getMenuProvider(state, level, pos), pos);
+			NetworkHooks.openScreen((ServerPlayer)player, this.getMenuProvider(state, level, pos), pos);
 		return InteractionResult.SUCCESS;
 	}
 	
