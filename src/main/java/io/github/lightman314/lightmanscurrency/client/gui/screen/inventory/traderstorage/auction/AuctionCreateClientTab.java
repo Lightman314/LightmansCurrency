@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -7,22 +8,27 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.persistentdata.MessageAddPersistentAuction;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,7 +50,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public boolean tabButtonVisible() { return true; }
 	
 	@Override
-	public boolean blockInventoryClosing() { return false; }
+	public boolean blockInventoryClosing() { return TradingOffice.isAdminPlayer(this.screen.getMenu().player); }
 	
 	AuctionTradeData pendingAuction;
 	
@@ -68,6 +74,9 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	
 	boolean locked = false;
 	long successTime = 0;
+	
+	Button buttonSubmitPersistentAuction;
+	EditBox persistentAuctionIDInput;
 	
 	@Override
 	public void onOpen() {
@@ -102,6 +111,14 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
+		this.buttonSubmitPersistentAuction = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 20, this.screen.getGuiTop() - 20, this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA, IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION));
+		this.buttonSubmitPersistentAuction.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().player);
+		this.buttonSubmitPersistentAuction.active = false;
+		
+		int idWidth = this.font.width(Component.translatable("gui.lightmanscurrency.settings.persistent.id"));
+		this.persistentAuctionIDInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + idWidth + 2, this.screen.getGuiTop() - 40, this.screen.getXSize() - idWidth - 2, 18, Component.empty()));
+		this.persistentAuctionIDInput.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().player);
+		
 	}
 	
 	@Override
@@ -130,12 +147,19 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		if(this.locked && this.successTime != 0)
 			TextRenderUtil.drawCenteredText(pose, Component.translatable("gui.lightmanscurrency.auction.create.success").withStyle(ChatFormatting.BOLD), this.screen.getGuiLeft() + this.screen.getXSize() / 2, 34, 0x404040);
 		
+		if(TradingOffice.isAdminPlayer(this.screen.getMenu().player))
+		{
+			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.settings.persistent.id"), this.screen.getGuiLeft(), this.screen.getGuiTop() - 35, 0xFFFFFF);
+		}
+		
 	}
 	
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
+		
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonSubmitPersistentAuction));
 		
 	}
 	
@@ -169,6 +193,16 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.buttonDecreaseHour.active = this.dayCount > 0 || this.hourCount > 1;
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
+		
+		if(TradingOffice.isAdminPlayer(this.screen.getMenu().player))
+		{
+			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = !this.locked;
+			this.buttonSubmitPersistentAuction.active = this.pendingAuction.isValid();
+			this.persistentAuctionIDInput.tick();
+		}
+		else
+			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = false;
+		
 	}
 	
 	private void UpdateAuctionItems() {
@@ -233,6 +267,10 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.locked = true;
 		for(SimpleSlot slot : this.commonTab.getSlots())
 			slot.locked = true;
+	}
+	
+	private void submitPersistentAuction(Button button) {
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddPersistentAuction(this.pendingAuction.getAsNBT(), this.persistentAuctionIDInput.getValue()));
 	}
 	
 	@Override

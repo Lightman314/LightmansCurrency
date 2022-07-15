@@ -38,7 +38,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 		Component itemText = getItemNames(this.items);
 		
 		//Create log from stored data
-		return Component.translatable("notifications.message.auction.nobid", itemText);
+		return Component.translatable("notifications.message.auction.seller.nobid", itemText);
 		
 	}
 

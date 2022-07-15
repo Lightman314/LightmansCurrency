@@ -37,6 +37,10 @@ public class NotificationButton extends PlainButton {
 	
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		
+		this.x = getXPosition(this.screen);
+		this.y = getYPosition(this.screen);
+		
 		//Change icon based on whether there's an active notification or not.
 		this.setResource(NotificationScreen.GUI_TEXTURE, ClientTradingOffice.getNotifications().unseenNotification() ? 200 + SIZE : 200, 0);
 		//Change visibility based on whether the correct tab is open

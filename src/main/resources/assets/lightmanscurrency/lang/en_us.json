@@ -373,7 +373,6 @@
     "notifications.message.item_trade": "%1$s %2$s %3$s for %4$s",
     "notifications.message.auction.seller": "%1$s won your auction for %2$s with a bid of %3$s",
     "notifications.message.auction.seller.nobid": "Your auction for %s was not bid on within the time limit",
-    "notifications.message.auction.seller.bid": "Your auction for %s was not bid on within the time limit",
     "notifications.message.auction.buyer": "You won the auction for %1$s with a bid of %2$s",
     "notifications.message.auction.outbid": "%1$s out-bid your bid for %2$s with a bid of %3$s",
     "notifications.message.auction.canceled": "The auction for %s has been canceled.",
@@ -414,9 +413,20 @@
     "gui.lightmanscurrency.settings.side.east": "Right",
     "gui.lightmanscurrency.notifications.enabled": "Notifications Enabled",
     "gui.lightmanscurrency.notifications.chat": "Notify in Chat",
-    "tooltip.lightmanscurrency.persistenttrader.copy": "Copy trader to clipboard as Persistent Trader Json text.",
-    "lightmanscurrency.chat.persistenttrader":"Persistent Trader Data Copied!",
-    "tooltip.lightmanscurrency.persistenttrader.copyagain": "Click to re-copy %s to clipboard.",
+    
+    "gui.lightmanscurrency.settings.persistent.owner": "PT Owner: ",
+    "gui.lightmanscurrency.settings.persistent.id": "ID: ",
+    
+    "lightmanscurrency.message.persistent.trader.overwrite": "Overwrote Persistent Trader with id %s.",
+    "lightmanscurrency.message.persistent.trader.add": "Added Persistent Trader with id %s.",
+    "lightmanscurrency.message.persistent.trader.fail": "Error occurred when attempting to add the Persistent Trader.",
+    
+    "lightmanscurrency.message.persistent.auction.overwrite": "Overwrote Persistent Auction with id %s.",
+    "lightmanscurrency.message.persistent.auction.add": "Added Persistent Auction with id %s.",
+    "lightmanscurrency.message.persistent.auction.fail": "Error occurred when attempting to add the Persistent Auction.",
+    
+    "tooltip.lightmanscurrency.persistent.add.trader": "Create a Persistent Trader with a copy of this traders trades & name.",
+    "tooltip.lightmanscurrency.persistent.add.auction": "Create a Persistent Auction with the given data.",
     
     "gui.lightmanscurrency.settings.banklink": "Link to Bank Account",
     

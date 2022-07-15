@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
+import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
@@ -166,6 +167,10 @@ public class LightmansCurrencyPacketHandler {
 		//Player List
 		register(CPacketRequestPlayerList.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketRequestPlayerList::new), CPacketRequestPlayerList::handle);
 		register(SPacketSendPlayerList.class, SPacketSendPlayerList::encode, SPacketSendPlayerList::decode, SPacketSendPlayerList::handle);
+		
+		//Persistent Data
+		register(MessageAddPersistentTrader.class, MessageAddPersistentTrader::encode, MessageAddPersistentTrader::decode, MessageAddPersistentTrader::handle);
+		register(MessageAddPersistentAuction.class, MessageAddPersistentAuction::encode, MessageAddPersistentAuction::decode, MessageAddPersistentAuction::handle);
 		
 	}
 
