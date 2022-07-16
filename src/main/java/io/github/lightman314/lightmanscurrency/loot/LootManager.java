@@ -345,16 +345,16 @@ public class LootManager {
 	    	}
 	    	else
 	    	{
-	    		if(EXTERNAL_ENTITY_ENTRIES.containsKey(name))
-	    		{
-	    			PoolLevel level = EXTERNAL_ENTITY_ENTRIES.get(name);
-	    			if(level.requiresPlayerKill)
+	    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
+	    			if(entity.equals(name))
+	    			{
 	    				DropEntityLoot(event.getEntity(), player, level);
-	    		}
+	    				return;
+	    			}
+	    		});
 	    	}
 			return;
 		}
-		
 		//Boss deaths don't require a player kill to drop coins
     	if(Config.COMMON.bossCopperEntityDrops.get().contains(name))
     	{
@@ -382,12 +382,12 @@ public class LootManager {
     	}
     	else
     	{
-    		if(EXTERNAL_ENTITY_ENTRIES.containsKey(name))
-    		{
-    			PoolLevel level = EXTERNAL_ENTITY_ENTRIES.get(name);
-    			if(!level.requiresPlayerKill)
+    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
+    			if(entity.equals(name) && !level.requiresPlayerKill)
+    			{
     				DropEntityLoot(event.getEntity(), null, level);
-    		}
+    			}
+    		});
     	}
 	}
 	
