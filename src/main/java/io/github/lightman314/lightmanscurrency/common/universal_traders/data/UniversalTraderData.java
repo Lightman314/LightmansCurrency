@@ -457,11 +457,11 @@ public abstract class UniversalTraderData implements ITrader{
 	 * Saves the trader data to json so it can be more easily added to the persistentTraders.json file.
 	 */
 	public JsonObject saveToJson(JsonObject json) {
-		json.addProperty("id", "ExampleID");
+		//json.addProperty("id", "ExampleID");
 		json.addProperty("type", this.getTraderType().toString());
 		if(this.coreSettings.hasCustomName())
 			json.addProperty("TraderName", this.coreSettings.getCustomName());
-		json.addProperty("OwnerName", "Minecraft");
+		//json.addProperty("OwnerName", "Minecraft");
 		return json;
 	}
 	

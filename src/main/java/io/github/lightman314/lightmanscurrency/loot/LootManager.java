@@ -346,12 +346,14 @@ public class LootManager {
 	    	else
 	    	{
 	    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
-	    			if(entity.equals(name) && level.requiresPlayerKill)
+	    			if(entity.equals(name))
 	    			{
 	    				DropEntityLoot(event.getEntityLiving(), player, level);
+	    				return;
 	    			}
 	    		});
 	    	}
+			return;
 		}
 		//Boss deaths don't require a player kill to drop coins
     	if(Config.COMMON.bossCopperEntityDrops.get().contains(name))

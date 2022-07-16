@@ -36,6 +36,10 @@ public class TeamManagerButton extends PlainButton {
 	
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+		
+		this.x = getXPosition(this.screen);
+		this.y = getYPosition(this.screen);
+		
 		//Change visibility based on whether the correct tab is open
 		if(this.screen instanceof CreativeModeInventoryScreen)
 			this.visible = ((CreativeModeInventoryScreen)this.screen).getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();

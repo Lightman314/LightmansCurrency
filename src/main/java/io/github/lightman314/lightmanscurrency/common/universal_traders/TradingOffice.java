@@ -74,7 +74,58 @@ public class TradingOffice extends SavedData{
 	
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/persistentTraders.json";
 	
+	public static final String PERSISTENT_TRADER_SECTION = "Traders";
+	public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
+	
 	private static TradingOffice activeOffice = null;
+	
+	private static JsonObject persistentTraderData = null;
+	
+	public static JsonObject getPersistentTraderJson() {
+		//Force the Trading Office to be loaded.
+		get(ServerLifecycleHooks.getCurrentServer());
+		return persistentTraderData;
+	}
+	
+	public static JsonArray getPersistentTraderJson(String section) {
+		JsonObject json = getPersistentTraderJson();
+		if(json != null)
+		{
+			if(!json.has(section))
+			{
+				JsonArray newSection = new JsonArray();
+				json.add(section, newSection);
+			}
+			if(json.get(section).isJsonArray())
+				return json.get(section).getAsJsonArray();
+			else
+				LightmansCurrency.LogError("Cannot get Persistent Data section '" + section + "' as it is not a JsonArray.");
+		}
+		return null;
+	}
+	
+	public static void setPersistentTraderJson() { setPersistentTraderJson(getPersistentTraderJson()); }
+	
+	public static void setPersistentTraderJson(JsonObject newData) {
+		TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
+		File ptf = new File(PERSISTENT_TRADER_FILENAME);
+		try {
+			office.loadPersistentTrader(newData);
+		} catch(Exception e) {
+			LightmansCurrency.LogError("Error loading modified Persistent Trader Data. Ignoring request.", e);
+			return;
+		}
+		//Now that it's safely loaded, set the data and save to file
+		persistentTraderData = newData;
+		office.savePersistentTraderJson(ptf);
+		office.resendTraderData();
+	}
+	
+	public static void setPersistentTraderSection(String section, JsonArray newData) {
+		JsonObject json = getPersistentTraderJson();
+		json.add(section, newData);
+		setPersistentTraderJson(json);
+	}
 	
 	public TradingOffice() {
 		cleanOldOffice(this);
@@ -376,25 +427,37 @@ public class TradingOffice extends SavedData{
 		File ptf = new File(PERSISTENT_TRADER_FILENAME);
 		if(!ptf.exists())
 		{
-			this.createPersistentTraderFile(ptf);
+			persistentTraderData = this.generateDefaultPersistentTraderJson();
+			this.savePersistentTraderJson(ptf);
 		}
 		try { 
-			JsonObject fileData = GsonHelper.parse(Files.readString(ptf.toPath()));
-			this.loadPersistentTrader(fileData);
+			persistentTraderData = GsonHelper.parse(Files.readString(ptf.toPath()));
+			this.loadPersistentTrader(persistentTraderData);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Persistent Traders.", e);
+			//If an error occurs while loading, set the data to default.
+			persistentTraderData = this.generateDefaultPersistentTraderJson();
 		}
+	}
+	
+	private JsonObject generateDefaultPersistentTraderJson() {
+		JsonObject fileData = new JsonObject();
+		JsonArray traderList = new JsonArray();
+		fileData.add("Traders", traderList);
+		JsonArray auctions = new JsonArray();
+		fileData.add("Auctions", auctions);
+		return fileData;
 	}
 	
 	private void loadPersistentTrader(JsonObject fileData) throws Exception {
 		boolean hadNone = true;
-		if(fileData.has("Traders"))
+		if(fileData.has(PERSISTENT_TRADER_SECTION))
 		{
 			hadNone = false;
 			this.persistentTraderMap.forEach((id,data) -> data.onRemoved());
 			this.persistentTraderMap.clear();
 			List<String> loadedIDs = new ArrayList<>();
-			JsonArray traderList = fileData.getAsJsonArray("Traders");
+			JsonArray traderList = fileData.getAsJsonArray(PERSISTENT_TRADER_SECTION);
 			for(int i = 0; i < traderList.size(); ++i)
 			{
 				try {
@@ -433,12 +496,12 @@ public class TradingOffice extends SavedData{
 				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
 			}
 		}
-		if(fileData.has("Auctions"))
+		if(fileData.has(PERSISTENT_AUCTION_SECTION))
 		{
 			hadNone = false;
 			this.persistentAuctionData.clear();
 			List<String> loadedIDs = new ArrayList<>();
-			JsonArray auctionList = fileData.getAsJsonArray("Auctions");
+			JsonArray auctionList = fileData.getAsJsonArray(PERSISTENT_AUCTION_SECTION);
 			for(int i = 0; i < auctionList.size(); ++i)
 			{
 				try {
@@ -456,6 +519,7 @@ public class TradingOffice extends SavedData{
 					LightmansCurrency.LogInfo("Successfully loaded persistent auction '" + data.id + "'");
 					
 				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Auction at index " + i, e); }
+				
 			}
 			
 		}
@@ -497,7 +561,7 @@ public class TradingOffice extends SavedData{
 		this.persistentData.add(data);
 	}
 	
-	private void createPersistentTraderFile(File ptf) {
+	private void savePersistentTraderJson(File ptf) {
 		File dir = new File(ptf.getParent());
 		if(!dir.exists())
 			dir.mkdirs();
@@ -507,7 +571,9 @@ public class TradingOffice extends SavedData{
 				
 				ptf.createNewFile();
 				
-				FileUtil.writeStringToFile(ptf, "{\n    \"Traders\":[],\n    \"Auctions\":[]\n}");
+				String jsonString = FileUtil.GSON.toJson(persistentTraderData);
+				
+				FileUtil.writeStringToFile(ptf, jsonString);
 				
 				LightmansCurrency.LogInfo("persistentTraders.json does not exist. Creating a fresh copy.");
 				
@@ -816,7 +882,6 @@ public class TradingOffice extends SavedData{
 			MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationSent.Post(playerID, data, event.getNotification()));
 			
 			//Send the notification message to the client so that it will be posted in chat
-			
 			if(pushToChat)
 			{
 				MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -827,6 +892,7 @@ public class TradingOffice extends SavedData{
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageClientNotification(notification));
 				}
 			}
+			
 			return true;
 		}
 		return false;

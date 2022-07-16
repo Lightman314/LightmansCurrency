@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
@@ -28,6 +29,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -286,6 +288,20 @@ public class AuctionTradeData extends TradeData {
 			compound.putString("PersistentID", this.persistentID);
 		
 		return compound;
+	}
+	
+	public JsonObject saveToJson(JsonObject json) {
+
+		for(int i = 0; i < this.auctionItems.size(); ++i)
+			json.add("Item" + String.valueOf(i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
+
+		json.addProperty("Duration", this.duration);
+
+		json.add("StartingBid", this.lastBidAmount.toJson());
+
+		json.add("MinimumBid", this.minBidDifference.toJson());
+
+		return json;
 	}
 	
 	@Override

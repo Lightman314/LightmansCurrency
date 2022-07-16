@@ -135,7 +135,8 @@ public class IconAndButtonUtil {
 	public static final Component TOOLTIP_INTERFACE_ENABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.enable");
 	public static final Component TOOLTIP_INTERFACE_DISABLE = new TranslatableComponent("tooltip.lightmanscurrency.interface.disable");
 	
-	public static final SimpleTooltip TOOLTIP_PERSISTENT_DATA = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistenttrader.copy"));
+	public static final SimpleTooltip TOOLTIP_PERSISTENT_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistent.add.trader"));
+	public static final SimpleTooltip TOOLTIP_PERSISTENT_AUCTION = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistent.add.auction"));
 	
 	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket"));
 	
