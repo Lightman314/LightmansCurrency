@@ -179,7 +179,14 @@ public class MainTab extends SettingsTab{
 		
 		
 		if(this.buttonSavePersistentTrader != null)
+		{
 			this.buttonSavePersistentTrader.visible = isAdmin;
+			if(this.getScreen().getTrader() instanceof UniversalTraderData)
+			{
+				UniversalTraderData trader = (UniversalTraderData)this.getScreen().getTrader();
+				this.buttonSavePersistentTrader.active = trader.hasValidTrade();
+			}
+		}
 		if(this.persistentTraderIDInput != null)
 		{
 			this.persistentTraderIDInput.visible = isAdmin;

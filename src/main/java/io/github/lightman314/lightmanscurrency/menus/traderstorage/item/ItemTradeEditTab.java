@@ -114,12 +114,27 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			{
 				CompoundTag message = new CompoundTag();
 				message.putInt("Slot", selectedSlot);
-				CompoundTag itemTag = new CompoundTag();
-				stack.save(itemTag);
-				message.put("NewItem", itemTag);
+				message.put("NewItem", stack.save(new CompoundTag()));
 				this.menu.sendMessage(message);
 			}
 		}	
+	}
+	
+	public void defaultInteraction(int slotIndex, ItemStack heldStack, int mouseButton) {
+		ItemTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.onSlotInteraction(this, slotIndex, heldStack, mouseButton);
+			if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putInt("Interaction", slotIndex);
+				message.putInt("Button", mouseButton);
+				message.put("Item", heldStack.save(new CompoundTag()));
+				this.menu.sendMessage(message);
+			}
+		}
+		
 	}
 
 	@Override
@@ -149,6 +164,12 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		else if(message.contains("NewType"))
 		{
 			this.setType(ItemTradeType.fromIndex(message.getInt("NewType")));
+		}
+		else if(message.contains("Interaction"))
+		{
+			int index = message.getInt("Interaction");
+			int button = message.getInt("Button");
+			this.defaultInteraction(index, ItemStack.of(message.getCompound("Item")), button);
 		}
 	}
 	

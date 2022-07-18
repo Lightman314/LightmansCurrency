@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.universal_traders.traderS
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 
 public abstract class TraderSearchFilter {
@@ -19,8 +20,10 @@ public abstract class TraderSearchFilter {
 	{
 		for(TraderSearchFilter filter : REGISTERED_FILTERS)
 		{
-			if(filter.filter(data, searchText))
-				return true;
+			try{
+				if(filter.filter(data, searchText))
+					return true;
+			} catch(Throwable t) { LightmansCurrency.LogError("Error filtering traders: ", t); }
 		}
 		return false;
 	}

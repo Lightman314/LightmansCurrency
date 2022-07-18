@@ -215,6 +215,8 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
 		public final ForgeConfigSpec.BooleanValue addBankerVillager;
 		public final ForgeConfigSpec.BooleanValue addCashierVillager;
+		public final ForgeConfigSpec.BooleanValue changeVanillaTrades;
+		public final ForgeConfigSpec.BooleanValue changeModdedTrades;
 		
 		//Debug
 		public final ForgeConfigSpec.IntValue debugLevel;
@@ -261,6 +263,18 @@ public class Config {
 			this.addCashierVillager = builder
 					.comment("Whether the cashier villager profession will have any registered trades.. The cashier sells an amalgamation of vanilla traders products for coins.")
 					.define("addCashier", true);
+			
+			builder.comment("Settings Related to other Villagers").push("other_traders");
+			
+			this.changeVanillaTrades = builder
+					.comment("Whether vanilla villagers should have the Emeralds from their trades replaces with Emerald Coins.")
+					.define("changeVanillaTrades", false);
+			
+			this.changeModdedTrades = builder
+					.comment("Whether villagers added by other mods should have the Emeralds from their trades replaced with Emerald Coins.")
+					.define("changeModdedTrades", false);
+			
+			builder.pop();
 			
 			builder.pop();
 			

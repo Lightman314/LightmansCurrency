@@ -51,7 +51,10 @@ public class CoinItem extends Item{
 				}
 				break;
 			case VALUE:
-				tooltip.add(Component.literal(Config.formatValueDisplay(coinData.getDisplayValue())).withStyle(ChatFormatting.YELLOW));
+				double value = coinData.getDisplayValue();
+				tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value", Config.formatValueDisplay(value)).withStyle(ChatFormatting.YELLOW));
+				if(stack.getCount() > 1)
+					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value.stack", Config.formatValueDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
 				break;
 				default: //Default is NONE
 			}

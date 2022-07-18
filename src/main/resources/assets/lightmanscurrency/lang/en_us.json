@@ -226,6 +226,8 @@
     "gui.lightmanscurrency.item_edit.search": "Search Items",
     "tooltip.lightmanscurrency.coinworth.down": "Worth %1$s %2$s",
     "tooltip.lightmanscurrency.coinworth.up": "%1$s of these are worth 1 %2$s",
+    "tooltip.lightmanscurrency.coinworth.value": "Worth %s",
+    "tooltip.lightmanscurrency.coinworth.value.stack": "Stack worth %s",
     "tooptip.lightmanscurrency.cash_register": "Linked with %s traders.",
     "tooptip.lightmanscurrency.cash_register.holdshift": "Hold SHIFT for details.",
     "tooptip.lightmanscurrency.cash_register.instructions": "Shift + R-Click on a trader to register.",
