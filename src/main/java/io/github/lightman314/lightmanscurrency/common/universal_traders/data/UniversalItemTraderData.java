@@ -71,7 +71,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	private ItemTraderSettings itemSettings = new ItemTraderSettings(this, this::markItemSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	int tradeCount = 1;
-	List<ItemTradeData> trades = null;
+	List<ItemTradeData> trades = new ArrayList<>();
 	
 	TraderItemStorage storage = new TraderItemStorage(this);
 	
@@ -161,7 +161,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	protected final CompoundTag writeTrades(CompoundTag compound)
 	{
 		compound.putInt("TradeLimit", this.trades.size());
-		ItemTradeData.saveAllData(compound, trades);
+		ItemTradeData.saveAllData(compound, this.trades);
 		return compound;
 	}
 	
@@ -269,7 +269,7 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	
 	public List<ItemTradeData> getAllTrades()
 	{
-		return this.trades;
+		return this.trades == null ? new ArrayList<>() : this.trades;
 	}
 	
 	public void markTradesDirty()

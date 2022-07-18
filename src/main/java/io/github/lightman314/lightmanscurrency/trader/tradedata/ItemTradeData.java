@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
@@ -317,8 +318,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			listNBT.add(data.get(i).getAsNBT());
 		}
 		
-		if(listNBT.size() > 0)
-			nbt.put(key, listNBT);
+		nbt.put(key, listNBT);
 		
 		return nbt;
 	}
@@ -746,6 +746,50 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
 					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+			}
+		}
+	}
+	
+	/**
+	 * Code used for item slot interactions. Works on the assumption that we're in the Item Edit Tab
+	 */
+	public void onSlotInteraction(ItemTradeEditTab tab, int index, ItemStack heldItem, int button) {
+		if(index < 2)
+		{
+			//Set the item to the held item
+			ItemStack sellItem = this.getSellItem(index);
+			if(sellItem.isEmpty() && heldItem.isEmpty())
+				return;
+			if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+			{
+				sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
+				this.setItem(sellItem, index);
+			}
+			else
+			{
+				ItemStack setItem = heldItem.copy();
+				if(button == 1)
+					setItem.setCount(1);
+				this.setItem(setItem, index);
+			}
+		}
+		if(this.isBarter() && index >= 2 && index < 4)
+		{
+			//Set the item to the held item
+			ItemStack barterItem = this.getItem(index);
+			if(barterItem.isEmpty() && heldItem.isEmpty())
+				return;
+			if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
+			{
+				barterItem.setCount(Math.min(barterItem.getCount() + 1, barterItem.getMaxStackSize()));
+				this.setItem(barterItem, index);
+			}
+			else
+			{
+				ItemStack setItem = heldItem.copy();
+				if(button == 1)
+					setItem.setCount(1);
+				this.setItem(setItem, index);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -12,8 +13,10 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ConfiguredStructureTags;
 import net.minecraft.tags.TagKey;
@@ -303,8 +306,11 @@ public class VillagerTradeManager {
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
 		
-		if(event.getType() == CustomProfessions.BANKER && Config.COMMON.addBankerVillager.get())
+		if(event.getType() == CustomProfessions.BANKER)
 		{
+			
+			if(!Config.COMMON.addBankerVillager.get())
+				return;
 			
 			LightmansCurrency.LogInfo("Registering banker trades.");
 			
@@ -317,8 +323,11 @@ public class VillagerTradeManager {
 			}
 			
 		}
-		else if(event.getType() == CustomProfessions.CASHIER && Config.COMMON.addCashierVillager.get())
+		else if(event.getType() == CustomProfessions.CASHIER)
 		{
+			
+			if(!Config.COMMON.addBankerVillager.get())
+				return;
 			
 			LightmansCurrency.LogInfo("Registering cashier trades.");
 			
@@ -330,6 +339,41 @@ public class VillagerTradeManager {
 				newTrades.forEach(trade -> currentTrades.add(trade));
 			}
 		}
+		else
+		{
+			
+			ResourceLocation type = event.getType().getRegistryName();
+
+			if(type.getNamespace().equals("minecraft"))
+			{
+				if(!Config.COMMON.changeVanillaTrades.get())
+					return;
+				LightmansCurrency.LogInfo("Replacing Emeralds with Emerald Coins for villager type '" + type + "'.");
+				replaceExistingTrades(event.getTrades());
+			}
+			else if(Config.COMMON.changeModdedTrades.get())
+			{
+				LightmansCurrency.LogInfo("Replacing Emeralds with Emerald Coins for villager type '" + type + "'.");
+				replaceExistingTrades(event.getTrades());
+			}
+		}
+	}
+	
+	private static void replaceExistingTrades(Int2ObjectMap<List<ItemListing>> trades) {
+
+		for(int i = 1; i <= 5; ++i)
+		{
+			List<ItemListing> tradeList = trades.get(i);
+
+			List<ItemListing> newList = new ArrayList<>();
+
+			for(ItemListing trade : tradeList)
+				newList.add(new ConvertedTrade(trade, Items.EMERALD, ModItems.COIN_EMERALD));
+
+			trades.put(i, newList);
+
+		}
+
 	}
 	
 	@SubscribeEvent
@@ -681,8 +725,46 @@ public class VillagerTradeManager {
 			return new MerchantOffer(this.price1, this.price2, sellItem, this.maxTrades, this.xpValue, this.priceMult);
 		}
 		
-		
-		
+	}
+	
+	public static class ConvertedTrade implements ItemListing
+	{
+
+		final ItemListing tradeSource;
+		final ItemLike oldItem;
+		final ItemLike newItem;
+
+		/**
+		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
+		 * Warning: Replaced items do not keep any NBT data, so this should not be used for items that can be enchanted.
+		 * Used by LC to replace Emeralds with Emerald Coins.
+		 * @param tradeSource The Item Listing to modify.
+		 * @param oldItem The Item to replace.
+		 * @param newItem The Item to replace the oldItem with.
+		 */
+		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, ItemLike newItem) {
+			this.tradeSource = tradeSource;
+			this.oldItem = oldItem;
+			this.newItem = newItem;
+		}
+
+		@Override
+		public MerchantOffer getOffer(Entity trader, Random random) {
+			MerchantOffer offer = this.tradeSource.getOffer(trader, random);
+			ItemStack itemA = offer.getBaseCostA();
+			ItemStack itemB = offer.getCostB();
+			ItemStack itemC = offer.getResult();
+			if(itemA.getItem() == this.oldItem)
+				itemA = new ItemStack(this.newItem, itemA.getCount());
+			if(itemB.getItem() == this.oldItem)
+				itemB = new ItemStack(this.newItem, itemB.getCount());
+			if(itemC.getItem() == this.oldItem)
+				itemC = new ItemStack(this.newItem, itemC.getCount());
+
+
+			return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
+		}
+
 	}
 	
 }

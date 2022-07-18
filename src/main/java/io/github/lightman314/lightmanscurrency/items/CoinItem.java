@@ -15,7 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class CoinItem extends Item{
@@ -53,7 +52,10 @@ public class CoinItem extends Item{
 				}
 				break;
 			case VALUE:
-				tooltip.add(new TextComponent(Config.formatValueDisplay(coinData.getDisplayValue())).withStyle(ChatFormatting.YELLOW));
+				double value = coinData.getDisplayValue();
+				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.coinworth.value", Config.formatValueDisplay(value)).withStyle(ChatFormatting.YELLOW));
+				if(stack.getCount() > 1)
+					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.coinworth.value.stack", Config.formatValueDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
 				break;
 				default: //Default is NONE
 			}
