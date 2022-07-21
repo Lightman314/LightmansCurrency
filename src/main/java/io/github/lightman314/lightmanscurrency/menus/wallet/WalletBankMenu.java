@@ -13,7 +13,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	
 	public WalletBankMenu(int windowId, Inventory inventory, int walletStackIndex) {
 		
-		super(ModMenus.WALLET_BANK, windowId, inventory, walletStackIndex);
+		super(ModMenus.WALLET_BANK.get(), windowId, inventory, walletStackIndex);
 		
 		this.addCoinSlots(BANK_WIDGET_SPACING + 1);
 		this.addDummySlots(WalletMenuBase.getMaxWalletSlots());

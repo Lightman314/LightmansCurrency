@@ -43,7 +43,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 
 	@Override
 	public RecipeSerializer<?> getSerializer() {
-		return ModRecipes.WALLET_UPGRADE;
+		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**

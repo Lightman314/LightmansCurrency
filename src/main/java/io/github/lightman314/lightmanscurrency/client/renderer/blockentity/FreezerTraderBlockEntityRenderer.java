@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.Block;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
-	public static final Item doorItem = ModItems.FREEZER_DOOR;
+	public static final Item doorItem = ModItems.FREEZER_DOOR.get();
 	
 	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
 	

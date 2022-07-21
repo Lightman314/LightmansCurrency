@@ -38,7 +38,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return true;
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET;
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get();
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	{
 		if(TicketItem.isMasterTicket(itemStack))
 			return TicketItem.CreateTicket(TicketItem.GetTicketID(itemStack), 1);
-		else if(InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET)
+		else if(InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get())
 			return itemStack;
 		else
 			return ItemStack.EMPTY;
@@ -56,7 +56,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{
 		Item item = itemStack.getItem();
-		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET && item != ModItems.TICKET_MASTER;
+		return InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && item != ModItems.TICKET.get() && item != ModItems.TICKET_MASTER.get();
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		for(ItemStack sellItem : sellItemList) {
 			//Always add item to the ticket count, even if it's not a ticket, as the non-ticket sell item will still subtract from the available printing materials.
 			ticketCount += sellItem.getCount();
-			if(sellItem.getItem() == ModItems.TICKET)
+			if(sellItem.getItem() == ModItems.TICKET.get())
 				foundTicket = true;
 			else
 				minStock = Math.min(this.getItemStock(sellItem, traderStorage), minStock);
@@ -84,7 +84,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	
 	protected final int getTicketStock(int ticketCount, TraderItemStorage traderStorage)
 	{
-		return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER) / ticketCount;
+		return traderStorage.getItemTagCount(TicketItem.TICKET_MATERIAL_TAG, ModItems.TICKET_MASTER.get()) / ticketCount;
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		List<ItemStack> ignoreIfPossible = new ArrayList<>();
 		for(ItemStack sellItem : sellItemList)
 		{
-			if(sellItem.getItem() == ModItems.TICKET)
+			if(sellItem.getItem() == ModItems.TICKET.get())
 				tickets.add(sellItem);
 			else
 			{
@@ -113,7 +113,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 		//Remove the printing materials for tickets that needed to be printed
 		if(printCount > 0)
 		{
-			traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, printCount, ignoreIfPossible, ModItems.TICKET_MASTER);
+			traderStorage.removeItemTagCount(TicketItem.TICKET_MATERIAL_TAG, printCount, ignoreIfPossible, ModItems.TICKET_MASTER.get());
 		}
 	}
 	

@@ -28,7 +28,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	public CoinMintCategory(IGuiHelper guiHelper)
 	{
 		this.background = guiHelper.createDrawable(MintScreen.GUI_TEXTURE, 0, 138, 82, 26);
-		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(ModBlocks.MACHINE_MINT));
+		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(ModBlocks.MACHINE_MINT.get()));
 	}
 	
 	@Override

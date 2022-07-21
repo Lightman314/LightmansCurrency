@@ -28,7 +28,7 @@ public class TeamBankAccountTab extends TeamTab {
 	
 	@Override
 	public IconData getIcon() {
-		return IconData.of(ModBlocks.COINPILE_GOLD);
+		return IconData.of(ModBlocks.COINPILE_GOLD.get());
 	}
 	
 	@Override

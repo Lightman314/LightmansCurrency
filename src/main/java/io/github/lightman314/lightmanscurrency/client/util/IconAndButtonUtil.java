@@ -42,7 +42,7 @@ public class IconAndButtonUtil {
 	
 	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png");
 
-	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
+	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE.get());
 	public static final IconData ICON_STORAGE = IconData.of(Items.CHEST);
 	
 	public static final IconData ICON_COLLECT_COINS = IconData.of(ICON_TEXTURE, 0, 0);
@@ -65,7 +65,7 @@ public class IconAndButtonUtil {
 	
 	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
 	
-	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
+	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER.get());
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
 	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {

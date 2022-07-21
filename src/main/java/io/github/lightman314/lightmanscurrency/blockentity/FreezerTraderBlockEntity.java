@@ -16,12 +16,12 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	public FreezerTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.FREEZER_TRADER, pos, state);
+		super(ModBlockEntities.FREEZER_TRADER.get(), pos, state);
 	}
 	
 	public FreezerTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModBlockEntities.FREEZER_TRADER, pos, state, tradeCount);
+		super(ModBlockEntities.FREEZER_TRADER.get(), pos, state, tradeCount);
 	}
 	
 	public float getDoorAngle(float partialTicks) {

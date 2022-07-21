@@ -211,7 +211,7 @@ public class MainTab extends SettingsTab{
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
 	
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.name"); }

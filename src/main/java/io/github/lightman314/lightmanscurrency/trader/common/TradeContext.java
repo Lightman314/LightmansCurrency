@@ -326,7 +326,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(stack.getItem() == ModItems.TICKET)
+				if(stack.getItem() == ModItems.TICKET.get())
 				{
 					UUID id = TicketItem.GetTicketID(stack);
 					if(id != null && id.equals(ticketID))
@@ -345,7 +345,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(stack.getItem() == ModItems.TICKET)
+				if(stack.getItem() == ModItems.TICKET.get())
 				{
 					UUID id = TicketItem.GetTicketID(stack);
 					if(id != null && id.equals(ticketID))
@@ -391,7 +391,7 @@ public class TradeContext {
 			{
 				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
 					ItemStack stack = this.itemHandler.getStackInSlot(i);
-					if(stack.getItem() == ModItems.TICKET)
+					if(stack.getItem() == ModItems.TICKET.get())
 					{
 						UUID id = TicketItem.GetTicketID(stack);
 						if(id != null && id.equals(ticketID))
@@ -410,7 +410,7 @@ public class TradeContext {
 				for(int i = 0; i < inventory.getContainerSize(); ++i)
 				{
 					ItemStack stack = inventory.getItem(i);
-					if(stack.getItem() == ModItems.TICKET)
+					if(stack.getItem() == ModItems.TICKET.get())
 					{
 						UUID id = TicketItem.GetTicketID(stack);
 						if(id != null && id.equals(ticketID))

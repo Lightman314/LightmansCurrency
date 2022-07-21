@@ -38,7 +38,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.ARMOR_TRADER, pos, state, TRADE_COUNT);
+		super(ModBlockEntities.ARMOR_TRADER.get(), pos, state, TRADE_COUNT);
 	}
 	
 	@Override

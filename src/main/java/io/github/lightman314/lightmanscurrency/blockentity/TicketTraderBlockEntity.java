@@ -11,12 +11,12 @@ public class TicketTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	public TicketTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.TICKET_TRADER, pos, state);
+		super(ModBlockEntities.TICKET_TRADER.get(), pos, state);
 	}
 	
 	public TicketTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		super(ModBlockEntities.TICKET_TRADER, pos, state, tradeCount);
+		super(ModBlockEntities.TICKET_TRADER.get(), pos, state, tradeCount);
 	}
 	
 	@Override

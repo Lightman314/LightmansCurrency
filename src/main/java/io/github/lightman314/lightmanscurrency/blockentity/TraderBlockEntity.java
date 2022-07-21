@@ -73,7 +73,7 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		if(this.level != null)
 			return new TraderCategory(this.level.getBlockState(this.worldPosition).getBlock(), this.getName());
 		else
-			return new TraderCategory(ModItems.TRADING_CORE, this.getName());
+			return new TraderCategory(ModItems.TRADING_CORE.get(), this.getName());
 	}
 	
 	public void userOpen(Player player)

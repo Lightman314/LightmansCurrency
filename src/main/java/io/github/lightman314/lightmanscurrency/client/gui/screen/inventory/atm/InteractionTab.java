@@ -28,7 +28,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	BankAccountWidget accountWidget;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
+	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD.get()); }
 
 	@Override
 	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.interact"); }

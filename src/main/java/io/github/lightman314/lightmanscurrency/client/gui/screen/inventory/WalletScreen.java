@@ -112,7 +112,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 		
 		if(this.menu.hasBankAccess())
 		{
-			this.buttonOpenBank = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.asItem())));
+			this.buttonOpenBank = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.get())));
 		}
 		
 		

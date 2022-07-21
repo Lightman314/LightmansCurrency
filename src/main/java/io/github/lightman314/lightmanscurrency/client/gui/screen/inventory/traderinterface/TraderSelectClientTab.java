@@ -34,7 +34,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
+	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL.get()); }
 
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trader"); }

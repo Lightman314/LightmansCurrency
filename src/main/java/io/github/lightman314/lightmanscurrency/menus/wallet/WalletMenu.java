@@ -14,7 +14,7 @@ public class WalletMenu extends WalletMenuBase {
 	public WalletMenu(int windowId, Inventory inventory, int walletStackIndex)
 	{
 		
-		super(ModMenus.WALLET, windowId, inventory, walletStackIndex);
+		super(ModMenus.WALLET.get(), windowId, inventory, walletStackIndex);
 		
 		//Player Inventory before coin slots for desync safety.
 		//Should make the Player Inventory slot indexes constant regardless of the wallet state.

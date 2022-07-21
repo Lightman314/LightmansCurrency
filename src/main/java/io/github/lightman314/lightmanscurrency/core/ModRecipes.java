@@ -1,37 +1,25 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.crafting.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.RegistryObject;
 
-@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModRecipes {
-
-	private static final List<RecipeSerializer<?>> RECIPES = new ArrayList<>();
 	
-	public static final RecipeSerializer<WalletUpgradeRecipe> WALLET_UPGRADE = register("crafting_wallet_upgrade", new WalletUpgradeRecipe.Serializer());
-	public static final RecipeSerializer<CoinMintRecipe> COIN_MINT = register("coin_mint", new CoinMintRecipeSerializer());
+	/**
+	 * Placeholder function to force the static class loading
+	 */
+	public static void init() { }
 	
-	private static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String name, S recipeSerializer)
-	{
-		recipeSerializer.setRegistryName(new ResourceLocation(LightmansCurrency.MODID, name));
-		RECIPES.add(recipeSerializer);
-		return recipeSerializer;
+	static {
+		
+		WALLET_UPGRADE = ModRegistries.RECIPE_SERIALIZERS.register("crafting_wallet_upgrade", () -> new WalletUpgradeRecipe.Serializer());
+		
+		COIN_MINT = ModRegistries.RECIPE_SERIALIZERS.register("coin_mint", () -> new CoinMintRecipeSerializer());
+		
 	}
 	
-	@SubscribeEvent
-	public static void registerItems(final RegistryEvent.Register<RecipeSerializer<?>> event)
-	{
-		RECIPES.forEach(recipe -> event.getRegistry().register(recipe));
-		RECIPES.clear();
-	}
+	public static final RegistryObject<RecipeSerializer<WalletUpgradeRecipe>> WALLET_UPGRADE;
+	public static final RegistryObject<RecipeSerializer<CoinMintRecipe>> COIN_MINT;
 	
 }

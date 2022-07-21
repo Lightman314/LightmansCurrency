@@ -33,7 +33,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
 
 	@Override
 	public Component getTooltip() { return new TextComponent(""); }
@@ -118,7 +118,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		if(trade instanceof PaygateTradeData)
 		{
 			PaygateTradeData t = (PaygateTradeData)trade;
-			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER)
+			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER.get())
 			{
 				UUID ticketID = TicketItem.GetTicketID(this.menu.getCarried());
 				this.commonTab.setTicket(ticketID);

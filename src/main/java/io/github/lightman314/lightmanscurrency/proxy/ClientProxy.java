@@ -9,10 +9,8 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
@@ -32,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
@@ -47,8 +44,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.ClientRegistry;
-import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -67,63 +64,33 @@ public class ClientProxy extends CommonProxy{
 	public void setupClient() {
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
 		
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_ORANGE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_MAGENTA, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIGHTBLUE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_YELLOW, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIME, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_PINK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_GRAY, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LIGHTGRAY, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_CYAN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_PURPLE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BLUE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BROWN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_GREEN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_RED, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_BLACK, RenderType.cutout());
+		this.setRenderLayer(ModBlocks.VENDING_MACHINE.getAll(), RenderType.cutout());
 		
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_ORANGE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_MAGENTA, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIGHTBLUE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_YELLOW, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIME, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_PINK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_GRAY, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_LIGHTGRAY, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_CYAN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_PURPLE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BLUE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BROWN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_GREEN, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_RED, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE_BLACK, RenderType.cutout());
+		this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
     	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY, RenderType.cutout());
+    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
     	
     	//Register Screens
-    	MenuScreens.register(ModMenus.ATM, ATMScreen::new);
-    	MenuScreens.register(ModMenus.MINT, MintScreen::new);
+    	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
+    	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
     	
-    	MenuScreens.register(ModMenus.TRADER, TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_UNIVERSAL, TraderScreen::new);
+    	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_UNIVERSAL.get(), TraderScreen::new);
     	
-    	MenuScreens.register(ModMenus.TRADER_STORAGE, TraderStorageScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL, TraderStorageScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL.get(), TraderStorageScreen::new);
     	
-    	MenuScreens.register(ModMenus.WALLET, WalletScreen::new);
-    	MenuScreens.register(ModMenus.WALLET_BANK, WalletBankScreen::new);
-    	MenuScreens.register(ModMenus.TICKET_MACHINE, TicketMachineScreen::new);
+    	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
+    	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
+    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
     	
-    	MenuScreens.register(ModMenus.TRADER_INTERFACE, TraderInterfaceScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER, ItemTraderBlockEntityRenderer::new);
-    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER, FreezerTraderBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
+    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
     	
     	//Register Addable Trade Rules
     	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
@@ -137,6 +104,10 @@ public class ClientProxy extends CommonProxy{
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
     	
+	}
+	
+	private void setRenderLayer(List<Block> blocks, RenderType type) {
+		for(Block b : blocks) ItemBlockRenderTypes.setRenderLayer(b, type);
 	}
 	
 	@Override
@@ -265,12 +236,6 @@ public class ClientProxy extends CommonProxy{
 	public void loadAdminPlayers(List<UUID> serverAdminList)
 	{
 		TradingOffice.loadAdminPlayers(serverAdminList);
-	}
-	
-	public void registerItemColors(ColorHandlerEvent.Item event)
-	{
-		LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.getItemColors().register(new TicketColor(), ModItems.TICKET, ModItems.TICKET_MASTER);
 	}
 	
 	@SubscribeEvent

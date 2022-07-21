@@ -1,165 +1,169 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.Reference.Color;
+import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.RegistryObject;
 
-@ObjectHolder(LightmansCurrency.MODID)
 public class ModBlockEntities {
 	
-	public static void init() {
+	/**
+	 * Placeholder function to force the static class loading
+	 */
+	public static void init() { }
+	
+	static {
 		
-		ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(ItemTraderBlockEntity::new,
+		ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(ItemTraderBlockEntity::new,
 				//Display Case
-				ModBlocks.DISPLAY_CASE,
+				ModBlocks.DISPLAY_CASE.get(),
 				//Vending Machine 1
-				ModBlocks.VENDING_MACHINE,
-				ModBlocks.VENDING_MACHINE_ORANGE,
-				ModBlocks.VENDING_MACHINE_MAGENTA,
-				ModBlocks.VENDING_MACHINE_LIGHTBLUE,
-				ModBlocks.VENDING_MACHINE_YELLOW,
-				ModBlocks.VENDING_MACHINE_LIME,
-				ModBlocks.VENDING_MACHINE_PINK,
-				ModBlocks.VENDING_MACHINE_GRAY,
-				ModBlocks.VENDING_MACHINE_LIGHTGRAY,
-				ModBlocks.VENDING_MACHINE_CYAN,
-				ModBlocks.VENDING_MACHINE_PURPLE,
-				ModBlocks.VENDING_MACHINE_BLUE,
-				ModBlocks.VENDING_MACHINE_BROWN,
-				ModBlocks.VENDING_MACHINE_GREEN,
-				ModBlocks.VENDING_MACHINE_RED,
-				ModBlocks.VENDING_MACHINE_BLACK,
+				ModBlocks.VENDING_MACHINE.get(Color.WHITE),
+				ModBlocks.VENDING_MACHINE.get(Color.ORANGE),
+				ModBlocks.VENDING_MACHINE.get(Color.MAGENTA),
+				ModBlocks.VENDING_MACHINE.get(Color.LIGHTBLUE),
+				ModBlocks.VENDING_MACHINE.get(Color.YELLOW),
+				ModBlocks.VENDING_MACHINE.get(Color.LIME),
+				ModBlocks.VENDING_MACHINE.get(Color.PINK),
+				ModBlocks.VENDING_MACHINE.get(Color.GRAY),
+				ModBlocks.VENDING_MACHINE.get(Color.LIGHTGRAY),
+				ModBlocks.VENDING_MACHINE.get(Color.CYAN),
+				ModBlocks.VENDING_MACHINE.get(Color.PURPLE),
+				ModBlocks.VENDING_MACHINE.get(Color.BLUE),
+				ModBlocks.VENDING_MACHINE.get(Color.BROWN),
+				ModBlocks.VENDING_MACHINE.get(Color.GREEN),
+				ModBlocks.VENDING_MACHINE.get(Color.RED),
+				ModBlocks.VENDING_MACHINE.get(Color.BLACK),
 				//Vending Machine 2
-				ModBlocks.VENDING_MACHINE_LARGE,
-				ModBlocks.VENDING_MACHINE_LARGE_ORANGE,
-				ModBlocks.VENDING_MACHINE_LARGE_MAGENTA,
-				ModBlocks.VENDING_MACHINE_LARGE_LIGHTBLUE,
-				ModBlocks.VENDING_MACHINE_LARGE_YELLOW,
-				ModBlocks.VENDING_MACHINE_LARGE_LIME,
-				ModBlocks.VENDING_MACHINE_LARGE_PINK,
-				ModBlocks.VENDING_MACHINE_LARGE_GRAY,
-				ModBlocks.VENDING_MACHINE_LARGE_LIGHTGRAY,
-				ModBlocks.VENDING_MACHINE_LARGE_CYAN,
-				ModBlocks.VENDING_MACHINE_LARGE_PURPLE,
-				ModBlocks.VENDING_MACHINE_LARGE_BLUE,
-				ModBlocks.VENDING_MACHINE_LARGE_BROWN,
-				ModBlocks.VENDING_MACHINE_LARGE_GREEN,
-				ModBlocks.VENDING_MACHINE_LARGE_RED,
-				ModBlocks.VENDING_MACHINE_LARGE_BLACK,
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.WHITE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.ORANGE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.MAGENTA),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTBLUE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.YELLOW),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIME),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PINK),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GRAY),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTGRAY),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.CYAN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PURPLE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLUE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BROWN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GREEN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.RED),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLACK),
 				//Wooden Shelves
-				ModBlocks.SHELF_OAK,
-				ModBlocks.SHELF_BIRCH,
-				ModBlocks.SHELF_SPRUCE,
-				ModBlocks.SHELF_JUNGLE,
-				ModBlocks.SHELF_ACACIA,
-				ModBlocks.SHELF_DARK_OAK,
-				ModBlocks.SHELF_CRIMSON,
-				ModBlocks.SHELF_WARPED,
+				ModBlocks.SHELF.get(WoodType.OAK),
+				ModBlocks.SHELF.get(WoodType.BIRCH),
+				ModBlocks.SHELF.get(WoodType.SPRUCE),
+				ModBlocks.SHELF.get(WoodType.JUNGLE),
+				ModBlocks.SHELF.get(WoodType.ACACIA),
+				ModBlocks.SHELF.get(WoodType.DARK_OAK),
+				ModBlocks.SHELF.get(WoodType.CRIMSON),
+				ModBlocks.SHELF.get(WoodType.WARPED),
 				//Card Displays
-				ModBlocks.CARD_DISPLAY_OAK,
-				ModBlocks.CARD_DISPLAY_BIRCH,
-				ModBlocks.CARD_DISPLAY_SPRUCE,
-				ModBlocks.CARD_DISPLAY_JUNGLE,
-				ModBlocks.CARD_DISPLAY_ACACIA,
-				ModBlocks.CARD_DISPLAY_DARK_OAK,
-				ModBlocks.CARD_DISPLAY_CRIMSON,
-				ModBlocks.CARD_DISPLAY_WARPED
+				ModBlocks.CARD_DISPLAY.get(WoodType.OAK),
+				ModBlocks.CARD_DISPLAY.get(WoodType.BIRCH),
+				ModBlocks.CARD_DISPLAY.get(WoodType.SPRUCE),
+				ModBlocks.CARD_DISPLAY.get(WoodType.JUNGLE),
+				ModBlocks.CARD_DISPLAY.get(WoodType.ACACIA),
+				ModBlocks.CARD_DISPLAY.get(WoodType.DARK_OAK),
+				ModBlocks.CARD_DISPLAY.get(WoodType.CRIMSON),
+				ModBlocks.CARD_DISPLAY.get(WoodType.WARPED)
 			).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("armor_trader", () -> BlockEntityType.Builder.of(ArmorDisplayTraderBlockEntity::new, ModBlocks.ARMOR_DISPLAY).build(null));
+		ARMOR_TRADER = ModRegistries.BLOCK_ENTITIES.register("armor_trader", () -> BlockEntityType.Builder.of(ArmorDisplayTraderBlockEntity::new, ModBlocks.ARMOR_DISPLAY.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("freezer_trader", () -> BlockEntityType.Builder.of(FreezerTraderBlockEntity::new, ModBlocks.FREEZER).build(null));
+		FREEZER_TRADER = ModRegistries.BLOCK_ENTITIES.register("freezer_trader", () -> BlockEntityType.Builder.of(FreezerTraderBlockEntity::new, ModBlocks.FREEZER.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("ticket_trader", () -> BlockEntityType.Builder.of(TicketTraderBlockEntity::new, ModBlocks.TICKET_KIOSK).build(null));
+		TICKET_TRADER = ModRegistries.BLOCK_ENTITIES.register("ticket_trader", () -> BlockEntityType.Builder.of(TicketTraderBlockEntity::new, ModBlocks.TICKET_KIOSK.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL, ModBlocks.ITEM_TRADER_SERVER_MEDIUM, ModBlocks.ITEM_TRADER_SERVER_LARGE, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE).build(null));
+		UNIVERSAL_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.get(), ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get(), ModBlocks.ITEM_TRADER_SERVER_LARGE.get(), ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("item_interface", () -> BlockEntityType.Builder.of(ItemInterfaceBlockEntity::new,
+		ITEM_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("item_interface", () -> BlockEntityType.Builder.of(ItemInterfaceBlockEntity::new,
 				//Vending Machine 1
-				ModBlocks.VENDING_MACHINE,
-				ModBlocks.VENDING_MACHINE_ORANGE,
-				ModBlocks.VENDING_MACHINE_MAGENTA,
-				ModBlocks.VENDING_MACHINE_LIGHTBLUE,
-				ModBlocks.VENDING_MACHINE_YELLOW,
-				ModBlocks.VENDING_MACHINE_LIME,
-				ModBlocks.VENDING_MACHINE_PINK,
-				ModBlocks.VENDING_MACHINE_GRAY,
-				ModBlocks.VENDING_MACHINE_LIGHTGRAY,
-				ModBlocks.VENDING_MACHINE_CYAN,
-				ModBlocks.VENDING_MACHINE_PURPLE,
-				ModBlocks.VENDING_MACHINE_BLUE,
-				ModBlocks.VENDING_MACHINE_BROWN,
-				ModBlocks.VENDING_MACHINE_GREEN,
-				ModBlocks.VENDING_MACHINE_RED,
-				ModBlocks.VENDING_MACHINE_BLACK,
+				ModBlocks.VENDING_MACHINE.get(Color.WHITE),
+				ModBlocks.VENDING_MACHINE.get(Color.ORANGE),
+				ModBlocks.VENDING_MACHINE.get(Color.MAGENTA),
+				ModBlocks.VENDING_MACHINE.get(Color.LIGHTBLUE),
+				ModBlocks.VENDING_MACHINE.get(Color.YELLOW),
+				ModBlocks.VENDING_MACHINE.get(Color.LIME),
+				ModBlocks.VENDING_MACHINE.get(Color.PINK),
+				ModBlocks.VENDING_MACHINE.get(Color.GRAY),
+				ModBlocks.VENDING_MACHINE.get(Color.LIGHTGRAY),
+				ModBlocks.VENDING_MACHINE.get(Color.CYAN),
+				ModBlocks.VENDING_MACHINE.get(Color.PURPLE),
+				ModBlocks.VENDING_MACHINE.get(Color.BLUE),
+				ModBlocks.VENDING_MACHINE.get(Color.BROWN),
+				ModBlocks.VENDING_MACHINE.get(Color.GREEN),
+				ModBlocks.VENDING_MACHINE.get(Color.RED),
+				ModBlocks.VENDING_MACHINE.get(Color.BLACK),
 				//Vending Machine 2
-				ModBlocks.VENDING_MACHINE_LARGE,
-				ModBlocks.VENDING_MACHINE_LARGE_ORANGE,
-				ModBlocks.VENDING_MACHINE_LARGE_MAGENTA,
-				ModBlocks.VENDING_MACHINE_LARGE_LIGHTBLUE,
-				ModBlocks.VENDING_MACHINE_LARGE_YELLOW,
-				ModBlocks.VENDING_MACHINE_LARGE_LIME,
-				ModBlocks.VENDING_MACHINE_LARGE_PINK,
-				ModBlocks.VENDING_MACHINE_LARGE_GRAY,
-				ModBlocks.VENDING_MACHINE_LARGE_LIGHTGRAY,
-				ModBlocks.VENDING_MACHINE_LARGE_CYAN,
-				ModBlocks.VENDING_MACHINE_LARGE_PURPLE,
-				ModBlocks.VENDING_MACHINE_LARGE_BLUE,
-				ModBlocks.VENDING_MACHINE_LARGE_BROWN,
-				ModBlocks.VENDING_MACHINE_LARGE_GREEN,
-				ModBlocks.VENDING_MACHINE_LARGE_RED,
-				ModBlocks.VENDING_MACHINE_LARGE_BLACK,
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.WHITE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.ORANGE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.MAGENTA),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTBLUE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.YELLOW),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIME),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PINK),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GRAY),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTGRAY),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.CYAN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PURPLE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLUE),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BROWN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GREEN),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.RED),
+				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLACK),
 				//Armor Display
-				ModBlocks.ARMOR_DISPLAY,
+				ModBlocks.ARMOR_DISPLAY.get(),
 				//Freezer
-				ModBlocks.FREEZER
+				ModBlocks.FREEZER.get()
 			).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("trader_interface_item", () -> BlockEntityType.Builder.of(ItemTraderInterfaceBlockEntity::new, ModBlocks.ITEM_TRADER_INTERFACE).build(null));
+		TRADER_INTERFACE_ITEM = ModRegistries.BLOCK_ENTITIES.register("trader_interface_item", () -> BlockEntityType.Builder.of(ItemTraderInterfaceBlockEntity::new, ModBlocks.ITEM_TRADER_INTERFACE.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("cash_register", () -> BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER).build(null));
+		CASH_REGISTER = ModRegistries.BLOCK_ENTITIES.register("cash_register", () -> BlockEntityType.Builder.of(CashRegisterBlockEntity::new, ModBlocks.CASH_REGISTER.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.MACHINE_MINT).build(null));
+		COIN_MINT = ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.MACHINE_MINT.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_MACHINE).build(null));
+		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_MACHINE.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE).build(null));
+		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 		
-		ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK, ModBlocks.COINJAR_BLUE).build(null));
-		
+		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
 	}
 	
 	//Item Trader
-	@ObjectHolder("trader")
-	public static final BlockEntityType<ItemTraderBlockEntity> ITEM_TRADER = null;
+	public static final RegistryObject<BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER;
 	//Armor variant of the trader
-	public static final BlockEntityType<ArmorDisplayTraderBlockEntity> ARMOR_TRADER = null;
+	public static final RegistryObject<BlockEntityType<ArmorDisplayTraderBlockEntity>> ARMOR_TRADER;
 	//Freezer variant of the trader
-	public static final BlockEntityType<FreezerTraderBlockEntity> FREEZER_TRADER = null;
+	public static final RegistryObject<BlockEntityType<FreezerTraderBlockEntity>> FREEZER_TRADER;
 	//Ticket variant of the trader
-	public static final BlockEntityType<TicketTraderBlockEntity> TICKET_TRADER = null;
+	public static final RegistryObject<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
 	
 	//Universal Item Trader
-	public static final BlockEntityType<UniversalItemTraderBlockEntity> UNIVERSAL_ITEM_TRADER = null;
+	public static final RegistryObject<BlockEntityType<UniversalItemTraderBlockEntity>> UNIVERSAL_ITEM_TRADER;
 	
 	//Item Interface for multi-block traders
-	public static final BlockEntityType<ItemInterfaceBlockEntity> ITEM_INTERFACE = null;
+	public static final RegistryObject<BlockEntityType<ItemInterfaceBlockEntity>> ITEM_INTERFACE;
 	
-	public static final BlockEntityType<ItemTraderInterfaceBlockEntity> TRADER_INTERFACE_ITEM = null;
+	//Trader Interface Terminal
+	public static final RegistryObject<BlockEntityType<ItemTraderInterfaceBlockEntity>> TRADER_INTERFACE_ITEM;
 	
 	//Cash Register
-	public static final BlockEntityType<CashRegisterBlockEntity> CASH_REGISTER = null;
+	public static final RegistryObject<BlockEntityType<CashRegisterBlockEntity>> CASH_REGISTER;
 	
 	//Coin Mint
-	public static final BlockEntityType<CoinMintBlockEntity> COIN_MINT = null;
+	public static final RegistryObject<BlockEntityType<CoinMintBlockEntity>> COIN_MINT;
 	//Ticket Machine
-	public static final BlockEntityType<TicketMachineBlockEntity> TICKET_MACHINE = null;
+	public static final RegistryObject<BlockEntityType<TicketMachineBlockEntity>> TICKET_MACHINE;
 	
 	//Paygate
-	public static final BlockEntityType<PaygateBlockEntity> PAYGATE = null;
+	public static final RegistryObject<BlockEntityType<PaygateBlockEntity>> PAYGATE;
 	
 	//Coin Jars
-	public static final BlockEntityType<CoinJarBlockEntity> COIN_JAR = null;
+	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
 	
 }

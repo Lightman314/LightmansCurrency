@@ -46,13 +46,13 @@ public class LCJeiPlugin implements IModPlugin{
 		Results recipes = RecipeValidator.getValidRecipes(Minecraft.getInstance().level);
 		registration.addRecipes(COIN_MINT_TYPE, recipes.getCoinMintRecipes());
 		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_master"));
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_master"));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_MASTER.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
 		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket"));
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket"));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_materials", TicketItem.getTicketMaterialsList()));
 		
-		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_stub"));
+		registration.addIngredientInfo(new ItemStack(ModItems.TICKET_STUB.get()), VanillaTypes.ITEM, new TranslatableComponent("lightmanscurrency.jei.info.ticket_stub"));
 		
 	}
 	
@@ -65,7 +65,7 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration)
 	{
-		registration.addRecipeCatalyst(new ItemStack(ModBlocks.MACHINE_MINT), COIN_MINT_TYPE);
+		registration.addRecipeCatalyst(new ItemStack(ModBlocks.MACHINE_MINT.get()), COIN_MINT_TYPE);
 	}
 	
 	@Override

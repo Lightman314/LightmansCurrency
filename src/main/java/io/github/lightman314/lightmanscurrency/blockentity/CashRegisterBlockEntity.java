@@ -24,7 +24,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	
 	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.CASH_REGISTER, pos, state);
+		super(ModBlockEntities.CASH_REGISTER.get(), pos, state);
 	}
 	
 	public void loadDataFromItems(CompoundTag itemTag)

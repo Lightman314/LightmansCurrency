@@ -21,7 +21,7 @@ public class BankCategory extends Category {
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM.get()); }
 
 	@Override
 	public Component getTooltip() { return this.name; }

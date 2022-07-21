@@ -25,7 +25,7 @@ public class CoinJarBlockEntity extends BlockEntity
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.COIN_JAR, pos, state);
+		super(ModBlockEntities.COIN_JAR.get(), pos, state);
 	}
 	
 	public boolean addCoin(ItemStack coin)

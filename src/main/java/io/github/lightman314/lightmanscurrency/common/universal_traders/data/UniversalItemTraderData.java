@@ -96,12 +96,12 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 	protected ItemLike getCategoryItem() {
 		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
 		if(tradeCount <= ItemTraderServerBlock.SMALL_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_SMALL;
+			return ModBlocks.ITEM_TRADER_SERVER_SMALL.get();
 		else if(tradeCount <= ItemTraderServerBlock.MEDIUM_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_MEDIUM;
+			return ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get();
 		else if(tradeCount <= ItemTraderServerBlock.LARGE_SERVER_COUNT)
-			return ModBlocks.ITEM_TRADER_SERVER_LARGE;
-		return ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE;
+			return ModBlocks.ITEM_TRADER_SERVER_LARGE.get();
+		return ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get();
 		
 	}
 

@@ -70,6 +70,7 @@ public class ItemShopLogger extends TextLogger{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Component getItemComponent(ItemStack item, String customName) {
 		//Copy/pasted from the getTooltip function that is client-side only
 		MutableComponent itemName = (new TextComponent("")).append(customName.isBlank() ? item.getHoverName() : new TextComponent(customName)).withStyle(item.getRarity().color);

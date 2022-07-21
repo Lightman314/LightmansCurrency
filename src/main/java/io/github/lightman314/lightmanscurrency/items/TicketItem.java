@@ -48,7 +48,7 @@ public class TicketItem extends Item{
 	{
 		if(ticket.isEmpty() || !ticket.hasTag())
 			return false;
-		return ticket.getItem() == ModItems.TICKET_MASTER;
+		return ticket.getItem() == ModItems.TICKET_MASTER.get();
 	}
 	
 	public static UUID GetTicketID(ItemStack ticket)
@@ -64,7 +64,7 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateMasterTicket(UUID ticketID)
 	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER);
+		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER.get());
 		if(ticketID != null)
 			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;
@@ -77,7 +77,7 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateTicket(UUID ticketID, int count)
 	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET, count);
+		ItemStack ticket = new ItemStack(ModItems.TICKET.get(), count);
 		if(ticketID != null)
 			ticket.getOrCreateTag().putUUID("TicketID", ticketID);
 		return ticket;

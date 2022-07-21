@@ -49,7 +49,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			if(!WalletItem.isWallet(wallet) || !(wallet.getItem() instanceof WalletItem) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 				return;
 			//Get the level (-1 to properly calculate range)
-			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET, wallet);
+			int enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.COIN_MAGNET.get(), wallet);
 			//Don't do anything if the Coin Magnet enchantment is not present.
 			if(enchantLevel <= 0)
 				return;

@@ -30,7 +30,7 @@ public class TraderCategory extends Category {
 		if(compound.contains("Icon"))
 			this.trader = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("Icon")));
 		else
-			this.trader = ModItems.TRADING_CORE;
+			this.trader = ModItems.TRADING_CORE.get();
 		
 		if(compound.contains("TraderName"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"));

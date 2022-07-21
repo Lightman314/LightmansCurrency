@@ -299,7 +299,7 @@ public class PaygateTradeData extends TradeData {
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			if(heldItem.getItem() == ModItems.TICKET_MASTER)
+			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
 			{
 				this.setTicketID(TicketItem.GetTicketID(heldItem));
 				//Only send message on client, otherwise we get an infinite loop

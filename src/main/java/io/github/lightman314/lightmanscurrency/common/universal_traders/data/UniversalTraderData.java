@@ -98,9 +98,9 @@ public abstract class UniversalTraderData implements ITrader{
 	
 	@Override
 	public TraderCategory getNotificationCategory() {
-		ItemLike icon = ModItems.TRADING_CORE;
+		ItemLike icon = ModItems.TRADING_CORE.get();
 		try {
-			icon = getCategoryItem();
+			icon = this.getCategoryItem();
 		} catch(Exception e) {}
 		return new TraderCategory(icon, this.getName());
 	}

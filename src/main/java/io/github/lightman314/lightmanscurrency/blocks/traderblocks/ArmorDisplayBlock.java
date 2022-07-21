@@ -42,7 +42,7 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }
 	
 	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER; }
+	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
 	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)

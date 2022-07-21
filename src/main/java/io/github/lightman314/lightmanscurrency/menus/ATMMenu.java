@@ -37,7 +37,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	
 	public ATMMenu(int windowId, Inventory inventory)
 	{
-		super(ModMenus.ATM, windowId);
+		super(ModMenus.ATM.get(), windowId);
 		
 		this.player = inventory.player;
 		

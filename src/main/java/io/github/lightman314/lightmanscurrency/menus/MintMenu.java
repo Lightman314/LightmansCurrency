@@ -16,7 +16,7 @@ public class MintMenu extends AbstractContainerMenu{
 	
 	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity tileEntity)
 	{
-		super(ModMenus.MINT, windowId);
+		super(ModMenus.MINT.get(), windowId);
 		this.tileEntity = tileEntity;
 		
 		//Slots

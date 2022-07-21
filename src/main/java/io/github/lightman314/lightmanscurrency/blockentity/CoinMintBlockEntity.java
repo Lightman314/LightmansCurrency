@@ -45,7 +45,7 @@ public class CoinMintBlockEntity extends BlockEntity{
 		return RecipeValidator.getValidRecipes(level).getCoinMintRecipes();
 	}
 	
-	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT, pos, state); }
+	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
 	
 	protected CoinMintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{

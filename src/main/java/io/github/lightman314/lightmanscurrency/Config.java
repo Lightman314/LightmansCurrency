@@ -19,17 +19,17 @@ public class Config {
 	
 	public static boolean canMint(Item item)
 	{
-		if(item == ModItems.COIN_COPPER)
+		if(item == ModItems.COIN_COPPER.get())
 			return SERVER.mintCopper.get();
-		else if(item == ModItems.COIN_IRON)
+		else if(item == ModItems.COIN_IRON.get())
 			return SERVER.mintIron.get();
-		else if(item == ModItems.COIN_GOLD)
+		else if(item == ModItems.COIN_GOLD.get())
 			return SERVER.mintGold.get();
-		else if(item == ModItems.COIN_EMERALD)
+		else if(item == ModItems.COIN_EMERALD.get())
 			return SERVER.mintEmerald.get();
-		else if(item == ModItems.COIN_DIAMOND)
+		else if(item == ModItems.COIN_DIAMOND.get())
 			return SERVER.mintDiamond.get();
-		else if(item == ModItems.COIN_NETHERITE)
+		else if(item == ModItems.COIN_NETHERITE.get())
 			return SERVER.mintNetherite.get();
 		
 		//If no rule is against it, allow the minting
@@ -38,17 +38,17 @@ public class Config {
 	
 	public static boolean canMelt(Item item)
 	{
-		if(item == ModItems.COIN_COPPER)
+		if(item == ModItems.COIN_COPPER.get())
 			return SERVER.meltCopper.get();
-		else if(item == ModItems.COIN_IRON)
+		else if(item == ModItems.COIN_IRON.get())
 			return SERVER.meltIron.get();
-		else if(item == ModItems.COIN_GOLD)
+		else if(item == ModItems.COIN_GOLD.get())
 			return SERVER.meltGold.get();
-		else if(item == ModItems.COIN_EMERALD)
+		else if(item == ModItems.COIN_EMERALD.get())
 			return SERVER.meltEmerald.get();
-		else if(item == ModItems.COIN_DIAMOND)
+		else if(item == ModItems.COIN_DIAMOND.get())
 			return SERVER.meltDiamond.get();
-		else if(item == ModItems.COIN_NETHERITE)
+		else if(item == ModItems.COIN_NETHERITE.get())
 			return SERVER.meltNetherite.get();
 		
 		//If no rule is against it, allow the minting
@@ -85,7 +85,7 @@ public class Config {
 		} catch(Exception e) { e.printStackTrace(); }
 		if(coinItem != null && MoneyUtil.isCoin(coinItem))
 			return coinItem;
-		return ModItems.COIN_GOLD;
+		return ModItems.COIN_GOLD.get();
 	}
 	
 	public static Item getMoneyMendingCoinItem() {
@@ -95,7 +95,7 @@ public class Config {
 		} catch(Exception e) { e.printStackTrace(); }
 		if(coinItem != null && MoneyUtil.isCoin(coinItem))
 			return coinItem;
-		return ModItems.COIN_COPPER;
+		return ModItems.COIN_COPPER.get();
 	}
 	
 	public static class Client

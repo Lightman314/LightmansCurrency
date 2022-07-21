@@ -51,7 +51,7 @@ public class ConversionTab extends ATMTab{
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
+	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM.get()); }
 
 	@Override
 	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.conversion"); }

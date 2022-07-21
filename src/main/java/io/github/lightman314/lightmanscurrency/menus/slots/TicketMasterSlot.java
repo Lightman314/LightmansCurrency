@@ -18,7 +18,7 @@ public class TicketMasterSlot extends Slot{
 	
 	@Override
 	public boolean mayPlace(ItemStack stack) {
-		return stack.getItem() == ModItems.TICKET_MASTER;
+		return stack.getItem() == ModItems.TICKET_MASTER.get();
 	}
 	
 	@Override

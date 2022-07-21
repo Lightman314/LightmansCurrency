@@ -80,37 +80,37 @@ public class ATMConversionButtonData {
 				convertAllUpDefault(5,34),
 				convertAllDownDefault(89,34),
 				//Copper <-> Iron
-				convertSingle(6, 61, ModItems.COIN_IRON, ModItems.COIN_COPPER, "convertDown-lightmanscurrency:coin_iron"),
-				convertSingle(6, 88, ModItems.COIN_COPPER, ModItems.COIN_IRON, "convertUp-lightmanscurrency:coin_copper"),
+				convertSingle(6, 61, ModItems.COIN_IRON.get(), ModItems.COIN_COPPER.get(), "convertDown-lightmanscurrency:coin_iron"),
+				convertSingle(6, 88, ModItems.COIN_COPPER.get(), ModItems.COIN_IRON.get(), "convertUp-lightmanscurrency:coin_copper"),
 				//Iron <-> Gold
-				convertSingle(41, 61, ModItems.COIN_GOLD, ModItems.COIN_IRON, "convertDown-lightmanscurrency:coin_gold"),
-				convertSingle(41, 88, ModItems.COIN_IRON, ModItems.COIN_GOLD, "convertUp-lightmanscurrency:coin_iron"),
+				convertSingle(41, 61, ModItems.COIN_GOLD.get(), ModItems.COIN_IRON.get(), "convertDown-lightmanscurrency:coin_gold"),
+				convertSingle(41, 88, ModItems.COIN_IRON.get(), ModItems.COIN_GOLD.get(), "convertUp-lightmanscurrency:coin_iron"),
 				//Gold <-> Emerald
-				convertSingle(75, 61, ModItems.COIN_EMERALD, ModItems.COIN_GOLD, "convertDown-lightmanscurrency:coin_emerald"),
-				convertSingle(75, 88, ModItems.COIN_GOLD, ModItems.COIN_EMERALD, "convertUp-lightmanscurrency:coin_gold"),
+				convertSingle(75, 61, ModItems.COIN_EMERALD.get(), ModItems.COIN_GOLD.get(), "convertDown-lightmanscurrency:coin_emerald"),
+				convertSingle(75, 88, ModItems.COIN_GOLD.get(), ModItems.COIN_EMERALD.get(), "convertUp-lightmanscurrency:coin_gold"),
 				//Emerald <-> Diamond
-				convertSingle(109, 61, ModItems.COIN_DIAMOND, ModItems.COIN_EMERALD, "convertDown-lightmanscurrency:coin_diamond"),
-				convertSingle(109, 88, ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, "convertUp-lightmanscurrency:coin_emerald"),
+				convertSingle(109, 61, ModItems.COIN_DIAMOND.get(), ModItems.COIN_EMERALD.get(), "convertDown-lightmanscurrency:coin_diamond"),
+				convertSingle(109, 88, ModItems.COIN_EMERALD.get(), ModItems.COIN_DIAMOND.get(), "convertUp-lightmanscurrency:coin_emerald"),
 				//Diamond <-> Netherite
-				convertSingle(144, 61, ModItems.COIN_NETHERITE, ModItems.COIN_DIAMOND, "convertDown-lightmanscurrency:coin_netherite"),
-				convertSingle(144, 88, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, "convertUp-lightmanscurrency:coin_diamond")
+				convertSingle(144, 61, ModItems.COIN_NETHERITE.get(), ModItems.COIN_DIAMOND.get(), "convertDown-lightmanscurrency:coin_netherite"),
+				convertSingle(144, 88, ModItems.COIN_DIAMOND.get(), ModItems.COIN_NETHERITE.get(), "convertUp-lightmanscurrency:coin_diamond")
 			);
 	}
 	
 	private static ATMConversionButtonData convertAllUpDefault(int x, int y) {
 		return new ATMConversionButtonData(x, y, 82, "convertAllUp",
 			Lists.newArrayList(
-				new ItemIcon(-2,1,ModItems.COIN_COPPER),
+				new ItemIcon(-2,1,ModItems.COIN_COPPER.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,ModItems.COIN_IRON),
+				new ItemIcon(12,1,ModItems.COIN_IRON.get()),
 				new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-				new ItemIcon(26,1,ModItems.COIN_GOLD),
+				new ItemIcon(26,1,ModItems.COIN_GOLD.get()),
 				new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-				new ItemIcon(40,1,ModItems.COIN_EMERALD),
+				new ItemIcon(40,1,ModItems.COIN_EMERALD.get()),
 				new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-				new ItemIcon(54,1,ModItems.COIN_DIAMOND),
+				new ItemIcon(54,1,ModItems.COIN_DIAMOND.get()),
 				new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-				new ItemIcon(68,1,ModItems.COIN_NETHERITE)
+				new ItemIcon(68,1,ModItems.COIN_NETHERITE.get())
 			)
 		);
 	}
@@ -118,17 +118,17 @@ public class ATMConversionButtonData {
 	private static ATMConversionButtonData convertAllDownDefault(int x, int y) {
 		return new ATMConversionButtonData(x, y, 82, "convertAllDown",
 			Lists.newArrayList(
-				new ItemIcon(-2,1,ModItems.COIN_NETHERITE),
+				new ItemIcon(-2,1,ModItems.COIN_NETHERITE.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,ModItems.COIN_DIAMOND),
+				new ItemIcon(12,1,ModItems.COIN_DIAMOND.get()),
 				new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-				new ItemIcon(26,1,ModItems.COIN_EMERALD),
+				new ItemIcon(26,1,ModItems.COIN_EMERALD.get()),
 				new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-				new ItemIcon(40,1,ModItems.COIN_GOLD),
+				new ItemIcon(40,1,ModItems.COIN_GOLD.get()),
 				new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-				new ItemIcon(54,1,ModItems.COIN_IRON),
+				new ItemIcon(54,1,ModItems.COIN_IRON.get()),
 				new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-				new ItemIcon(68,1,ModItems.COIN_COPPER)
+				new ItemIcon(68,1,ModItems.COIN_COPPER.get())
 			)
 		);
 	}

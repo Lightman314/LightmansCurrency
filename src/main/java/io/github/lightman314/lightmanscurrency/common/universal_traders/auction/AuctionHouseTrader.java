@@ -288,7 +288,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	public List<? extends ITradeData> getTradeInfo() { return this.trades; }
 
 	@Override
-	protected ItemLike getCategoryItem() { return ModItems.TRADING_CORE; }
+	protected ItemLike getCategoryItem() { return ModItems.TRADING_CORE.get(); }
 
 	@Override
 	protected void onVersionUpdate(int oldVersion) { }
