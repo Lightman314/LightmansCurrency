@@ -1,9 +1,13 @@
 package io.github.lightman314.lightmanscurrency;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
@@ -13,8 +17,10 @@ import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+@Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
 	
 	public static boolean canMint(Item item)
@@ -96,6 +102,69 @@ public class Config {
 		if(coinItem != null && MoneyUtil.isCoin(coinItem))
 			return coinItem;
 		return ModItems.COIN_COPPER.get();
+	}
+	
+	private static Map<String,Item> traderOverrides = new HashMap<>();
+	
+	public static void reloadVillagerOverrides() {
+		traderOverrides = new HashMap<>();
+		List<? extends String> overrides = COMMON.traderOverrides.get();
+		for(int i = 0; i < overrides.size(); ++i)
+		{
+			try {
+				String override = overrides.get(i);
+				if(!override.contains("-"))
+					throw new RuntimeException("Input doesn't have a '-' splitter.");
+				String[] split = override.split("-");
+				if(split.length != 2)
+					throw new RuntimeException("Input has more than 1 '-' splitter.");
+				
+				ResourceLocation villagerType;
+				try {
+					villagerType = new ResourceLocation(split[0]);
+				} catch(Throwable t) { throw new RuntimeException("Villager type is not a valid resource location.", t); }
+				ResourceLocation itemType;
+				try {
+					itemType = new ResourceLocation(split[1]);
+				} catch(Throwable t) { throw new RuntimeException("Item is not a valid resource location.", t); }
+				
+				Item item = ForgeRegistries.ITEMS.getValue(itemType);
+				if(item == null)
+					throw new RuntimeException("Item '" + itemType + "' is not a registered item.");
+				
+				if(traderOverrides.containsKey(villagerType.toString()))
+					throw new RuntimeException("Villager Type '" + villagerType + "' already has an override. Cannot override it twice!");
+				
+				traderOverrides.put(villagerType.toString(), item);
+				LightmansCurrency.LogInfo("Trader Override loaded: " + villagerType + " -> " + itemType);
+				
+			} catch(Throwable t) { LightmansCurrency.LogError("Error parsing trader override input " + String.valueOf(i + 1) + ".", t); }
+		}
+	}
+	
+	public static Item getEmeraldReplacementItem(String trader) {
+		
+		if(traderOverrides.containsKey(trader))
+			return traderOverrides.get(trader);
+		
+		return getDefaultEmeraldReplacementItem();
+		
+	}
+	
+	public static Item getDefaultEmeraldReplacementItem() {
+		try {
+			
+			ResourceLocation itemType = new ResourceLocation(COMMON.defaultTraderCoin.get());
+			Item item = ForgeRegistries.ITEMS.getValue(itemType);
+			if(item == null)
+				throw new RuntimeException("Item '" + itemType + "' is not a registered item.");
+			
+			return item;
+			
+		} catch(Throwable t) {
+			LightmansCurrency.LogError("Error parsing default villager coin.", t); 
+			return ModItems.COIN_EMERALD.get();
+		}
 	}
 	
 	public static class Client
@@ -217,6 +286,9 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue addCashierVillager;
 		public final ForgeConfigSpec.BooleanValue changeVanillaTrades;
 		public final ForgeConfigSpec.BooleanValue changeModdedTrades;
+		public final ForgeConfigSpec.BooleanValue changeWanderingTrades;
+		public final ForgeConfigSpec.ConfigValue<String> defaultTraderCoin;
+		public final ForgeConfigSpec.ConfigValue<List<? extends String>> traderOverrides;
 		
 		//Debug
 		public final ForgeConfigSpec.IntValue debugLevel;
@@ -267,12 +339,35 @@ public class Config {
 			builder.comment("Settings Related to other Villagers").push("other_traders");
 			
 			this.changeVanillaTrades = builder
-					.comment("Whether vanilla villagers should have the Emeralds from their trades replaces with Emerald Coins.")
+					.comment("Whether vanilla villagers should have the Emeralds from their trades replaced with coins.")
 					.define("changeVanillaTrades", false);
 			
 			this.changeModdedTrades = builder
-					.comment("Whether villagers added by other mods should have the Emeralds from their trades replaced with Emerald Coins.")
+					.comment("Whether villagers added by other mods should have the Emeralds from their trades replaced with coins.")
 					.define("changeModdedTrades", false);
+			
+			this.changeWanderingTrades = builder
+					.comment("Whether the wandering trader should have the emeralds from their trades replaced with the default trader coin.")
+					.define("changeWanderingTrades", false);
+			
+			this.defaultTraderCoin = builder
+					.comment("The default coin to replace a traders emeralds with.")
+					.define("defaultTraderCoin", "lightmanscurrency:coin_emerald");
+			
+			this.traderOverrides = builder
+					.comment("List of trader coin overrides.",
+							"Each entry must be formatted as follows: \"mod:some_trader_type-lightmanscurrency:some_coin\"",
+							"Every trader not on this list will use the default trader coin defined above.")
+					.define("traderOverrides", Lists.newArrayList(
+							"minecraft:butcher-lightmanscurrency:coin_iron",
+							"minecraft:cartographer-lightmanscurrency:coin_iron",
+							"minecraft:farmer-lightmanscurrency:coin_iron",
+							"minecraft:fisherman-lightmanscurrency:coin_iron",
+							"minecraft:fletcher-lightmanscurrency:coin_copper",
+							"minecraft:leatherworker-lightmanscurrency:coin_iron",
+							"minecraft:mason-lightmanscurrency:coin_iron",
+							"minecraft:shepherd-lightmanscurrency:coin_iron"
+							));
 			
 			builder.pop();
 			
