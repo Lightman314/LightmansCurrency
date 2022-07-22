@@ -351,27 +351,29 @@ public class VillagerTradeManager {
 			{
 				if(!Config.COMMON.changeVanillaTrades.get())
 					return;
-				LightmansCurrency.LogInfo("Replacing Emeralds with Emerald Coins for villager type '" + type + "'.");
-				replaceExistingTrades(event.getTrades());
+				LightmansCurrency.LogInfo("Replacing Emeralds for villager type '" + type + "'.");
+				replaceExistingTrades(type.toString(), event.getTrades());
 			}
 			else if(Config.COMMON.changeModdedTrades.get())
 			{
-				LightmansCurrency.LogInfo("Replacing Emeralds with Emerald Coins for villager type '" + type + "'.");
-				replaceExistingTrades(event.getTrades());
+				LightmansCurrency.LogInfo("Replacing Emeralds for villager type '" + type + "'.");
+				replaceExistingTrades(type.toString(), event.getTrades());
 			}
 		}
 	}
 	
-	private static void replaceExistingTrades(Int2ObjectMap<List<ItemListing>> trades) {
+	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
 
+		Item replacementItem = Config.getEmeraldReplacementItem(trader);
+		
 		for(int i = 1; i <= 5; ++i)
 		{
 			List<ItemListing> tradeList = trades.get(i);
 
 			List<ItemListing> newList = new ArrayList<>();
-
+			
 			for(ItemListing trade : tradeList)
-				newList.add(new ConvertedTrade(trade, Items.EMERALD, ModItems.COIN_EMERALD.get()));
+				newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementItem));
 
 			trades.put(i, newList);
 
@@ -379,18 +381,35 @@ public class VillagerTradeManager {
 
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void OnWandererTradeSetup(WandererTradesEvent event)
 	{
 		
-		if(!Config.COMMON.addCustomWanderingTrades.get())
-			return;
+		if(Config.COMMON.addCustomWanderingTrades.get())
+		{
+			List<ItemListing> genericTrades = event.getGenericTrades();
+			List<ItemListing> rareTrades = event.getRareTrades();
+
+			getGenericWandererTrades().forEach(trade -> genericTrades.add(trade));
+			getRareWandererTrades().forEach(trade -> rareTrades.add(trade));
+		}
+
+		if(Config.COMMON.changeWanderingTrades.get())
+		{
+
+			replaceExistingTrades(event.getGenericTrades());
+			replaceExistingTrades(event.getRareTrades());
+
+		}
 		
-		List<ItemListing> genericTrades = event.getGenericTrades();
-		List<ItemListing> rareTrades = event.getRareTrades();
+	}
+	
+	private static void replaceExistingTrades(List<ItemListing> tradeList) {
 		
-		getGenericWandererTrades().forEach(trade -> genericTrades.add(trade));
-		getRareWandererTrades().forEach(trade -> rareTrades.add(trade));
+		Item replacementItem = Config.getDefaultEmeraldReplacementItem();
+		
+		for(int i = 0; i < tradeList.size(); ++i)
+			tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, replacementItem));
 		
 	}
 	

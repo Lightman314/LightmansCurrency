@@ -250,6 +250,8 @@ public class LightmansCurrency {
     		//Have the loot manager validate the entity loot contents
     		LootManager.validateEntityDropList();
     		LootManager.debugLootConfigs();
+    		if(event instanceof ModConfigEvent.Loading)
+    			Config.reloadVillagerOverrides();
     	}
     }
     
@@ -279,6 +281,7 @@ public class LightmansCurrency {
      */
     public static ItemStack getWalletStack(Player player)
     {
+    	
     	ItemStack wallet = ItemStack.EMPTY;
     	
     	IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
