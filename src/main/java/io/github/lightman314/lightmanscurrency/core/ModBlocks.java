@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
+import io.github.lightman314.lightmanscurrency.blocks.networktraders.ItemTraderServerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
@@ -290,6 +291,15 @@ public class ModBlocks {
 				)
 		);
 		
+		//Gem Terminal
+		GEM_TERMINAL = register("gem_terminal", LightmansCurrency.MACHINE_GROUP, () -> new TerminalBlock(
+				Block.Properties.of(Material.AMETHYST)
+				.strength(3.0f, 6.0f)
+				.sound(SoundType.AMETHYST_CLUSTER),
+				Block.box(2d, 0d, 2d, 14d, 12d, 14d)
+				)
+		);
+		
 		//Paygate
 		PAYGATE = register("paygate", LightmansCurrency.MACHINE_GROUP, () -> new PaygateBlock(
 				Block.Properties.of(Material.METAL)
@@ -381,6 +391,7 @@ public class ModBlocks {
 	
 	//Terminal
 	public static final RegistryObject<Block> TERMINAL;
+	public static final RegistryObject<Block> GEM_TERMINAL;
 	
 	//Paygate
 	public static final RegistryObject<Block> PAYGATE;

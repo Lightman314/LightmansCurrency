@@ -61,7 +61,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)

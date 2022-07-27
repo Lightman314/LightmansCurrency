@@ -201,7 +201,8 @@ public class LightmansCurrency {
 			));
 		
 		MACHINE_GROUP.initSortingList2(Lists.newArrayList(ModBlocks.MACHINE_ATM, ModItems.PORTABLE_ATM, ModBlocks.MACHINE_MINT, ModBlocks.CASH_REGISTER,
-				ModBlocks.TERMINAL, ModItems.PORTABLE_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE, ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
+				ModBlocks.TERMINAL, ModItems.PORTABLE_TERMINAL, ModBlocks.GEM_TERMINAL, ModItems.PORTABLE_GEM_TERMINAL, ModBlocks.ITEM_TRADER_INTERFACE,
+				ModBlocks.PAYGATE, ModBlocks.TICKET_MACHINE
 			));
 		
 		UPGRADE_GROUP.initSortingList2(Lists.newArrayList(ModItems.ITEM_CAPACITY_UPGRADE_1, ModItems.ITEM_CAPACITY_UPGRADE_2,

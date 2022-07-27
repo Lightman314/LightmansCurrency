@@ -2,13 +2,10 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -17,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +24,11 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	
 	UUID traderID = null;
 	
-	protected UniversalTraderData getData()
+	private boolean allowRemoval = false;
+	public boolean allowRemoval() { return this.allowRemoval; }
+	public void flagAsRemovable() { this.allowRemoval = true; }
+	
+	public UniversalTraderData getData()
 	{
 		if(this.traderID != null)
 			return TradingOffice.getData(this.traderID);
@@ -125,19 +127,17 @@ public abstract class UniversalTraderBlockEntity extends BlockEntity implements 
 	{
 		if(this.level.isClientSide)
 			return;
-		UniversalTraderData data = this.getData();
 		//Remove the data from the register
 		TradingOffice.removeTrader(this.traderID);
-		//Dump the inventory contents
-		if(data != null)
-		{
-			this.dumpContents(data);
-		}
 	}
 	
-	protected void dumpContents(@Nonnull UniversalTraderData data)
-	{
-		InventoryUtil.dumpContents(this.level, this.getBlockPos(), MoneyUtil.getCoinsOfValue(data.getInternalStoredMoney()));
+	public void dumpContents(Level level, BlockState state, BlockPos pos) {
+		if(this.level.isClientSide)
+			return;
+		
+		UniversalTraderData data = this.getData();
+		if(data != null)
+			InventoryUtil.dumpContents(level, pos, data.dumpContents(state, true));
 	}
 	
 }

@@ -43,6 +43,7 @@ public class ModItems {
 		
 		//Portable Blocks
 		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		PORTABLE_GEM_TERMINAL = ModRegistries.ITEMS.register("portable_gem_terminal", () -> new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		PORTABLE_ATM = ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		
 		//Item Capacity Upgrades
@@ -83,6 +84,7 @@ public class ModItems {
 	public static final RegistryObject<WalletItem> WALLET_NETHERITE;
 	
 	public static final RegistryObject<Item> PORTABLE_TERMINAL;
+	public static final RegistryObject<Item> PORTABLE_GEM_TERMINAL;
 	public static final RegistryObject<Item> PORTABLE_ATM;
 	
 	public static final RegistryObject<Item> ITEM_CAPACITY_UPGRADE_1;

@@ -235,6 +235,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 		{
 			this.trades.add(trade);
 			this.markTradesDirty();
+			
 		}
 		else
 			LightmansCurrency.LogError("Auction Trade is not fully valid. Unable to add it to the list.");
@@ -342,5 +343,8 @@ public class AuctionHouseTrader extends UniversalTraderData {
 
 	@Override
 	public void userClose(Player player) { this.currentUsers.remove(player); }
+
+	@Override
+	public void dumpContents(List<ItemStack> contents) { }
 	
 }

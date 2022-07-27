@@ -367,13 +367,13 @@ public class VillagerTradeManager {
 	
 	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
 		
+		Item replacementItem = Config.getEmeraldReplacementItem(trader);
+		
 		for(int i = 1; i <= 5; ++i)
 		{
 			List<ItemListing> tradeList = trades.get(i);
 			
 			List<ItemListing> newList = new ArrayList<>();
-			
-			Item replacementItem = Config.getEmeraldReplacementItem(trader);
 			
 			for(ItemListing trade : tradeList)
 				newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementItem));

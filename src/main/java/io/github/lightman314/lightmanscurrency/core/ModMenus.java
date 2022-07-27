@@ -65,6 +65,10 @@ public class ModMenus {
 			return new TraderInterfaceMenu(id, playerInventory, blockEntity);
 		}));
 		
+		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> new MenuType<>((IContainerFactory<TraderRecoveryMenu>)(id, playerInventory, data) -> {
+			return new TraderRecoveryMenu(id, playerInventory);
+		}));
+		
 	}
 	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
@@ -86,5 +90,7 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TicketMachineMenu>> TICKET_MACHINE;
 	
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
+	
+	public static final RegistryObject<MenuType<TraderRecoveryMenu>> TRADER_RECOVERY;
 	
 }

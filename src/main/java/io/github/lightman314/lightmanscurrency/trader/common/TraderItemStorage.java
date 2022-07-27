@@ -66,6 +66,20 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	
 	public List<ItemStack> getContents() { return this.storage; }
 	
+	public List<ItemStack> getSplitContents() {
+		List<ItemStack> contents = new ArrayList<>();
+		for(ItemStack s : this.storage)
+		{
+			//Interact with a copy to preserve the original storage data
+			ItemStack stack = s.copy();
+			int maxCount = stack.getMaxStackSize();
+			while(stack.getCount() > maxCount)
+				contents.add(stack.split(maxCount));
+			contents.add(stack);
+		}
+		return contents;
+	}
+	
 	public int getSlotCount() { return this.storage.size(); }
 	
 	/**

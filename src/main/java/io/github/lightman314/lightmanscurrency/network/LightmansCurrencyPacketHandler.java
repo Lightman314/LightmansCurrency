@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
+import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.logger.*;
@@ -171,6 +172,12 @@ public class LightmansCurrencyPacketHandler {
 		//Persistent Data
 		register(MessageAddPersistentTrader.class, MessageAddPersistentTrader::encode, MessageAddPersistentTrader::decode, MessageAddPersistentTrader::handle);
 		register(MessageAddPersistentAuction.class, MessageAddPersistentAuction::encode, MessageAddPersistentAuction::decode, MessageAddPersistentAuction::handle);
+		
+		//Ejection data
+		register(SPacketSyncEjectionData.class, SPacketSyncEjectionData::encode, SPacketSyncEjectionData::decode, SPacketSyncEjectionData::handle);
+		register(CPacketChangeSelectedData.class, CPacketChangeSelectedData::encode, CPacketChangeSelectedData::decode, CPacketChangeSelectedData::handle);
+		register(SPacketChangeSelectedData.class, SPacketChangeSelectedData::encode, SPacketChangeSelectedData::decode, SPacketChangeSelectedData::handle);
+		register(CPacketOpenTraderRecovery.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketOpenTraderRecovery::new), CPacketOpenTraderRecovery::handle);
 		
 	}
 

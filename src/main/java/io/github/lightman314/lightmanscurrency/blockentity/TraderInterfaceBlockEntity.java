@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -22,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
+import io.github.lightman314.lightmanscurrency.trader.IDumpable;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.interfacing.UniversalTradeReference;
@@ -51,7 +53,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -65,9 +66,13 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable {
+public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable {
 	
 	public static final int INTERACTION_DELAY = 20;
+	
+	private boolean allowRemoval = false;
+	public boolean allowRemoval() { return this.allowRemoval; }
+	public void flagAsRemovable() { this.allowRemoval = true; }
 	
 	public enum InteractionType {
 		RESTOCK_AND_DRAIN(true, true, true, false, 3),
@@ -612,13 +617,6 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		return delay;
 	}
 	
-	public final void dumpContents(Level level, BlockPos pos) {
-		InventoryUtil.dumpContents(level, pos, this.upgradeSlots);
-		this.dumpAdditionalContents(level, pos);
-	}
-	
-	protected abstract void dumpAdditionalContents(Level level, BlockPos pos);
-	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
 	public boolean allowUpgrade(UpgradeType type) {
@@ -626,5 +624,23 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	
 	protected boolean allowAdditionalUpgrade(UpgradeType type) { return false; }
+	
+	public final List<ItemStack> dumpContents(BlockState state, boolean dropBlock) { 
+		List<ItemStack> contents = new ArrayList<>();
+		
+		//Drop trader block
+		if(dropBlock)
+		{
+			if(state.getBlock() instanceof TraderInterfaceBlock)
+				contents.add(((TraderInterfaceBlock)state.getBlock()).getDropBlockItem(state, this));
+			else
+				contents.add(new ItemStack(state.getBlock()));
+		}
+		
+		//Dump contents
+		this.dumpContents(contents);
+		return contents;
+		
+	}
 	
 }

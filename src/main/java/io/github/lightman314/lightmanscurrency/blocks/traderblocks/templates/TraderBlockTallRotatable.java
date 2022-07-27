@@ -134,8 +134,13 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		//Destroy the other half of the Tall Block
 		setAir(level, this.getOtherHeight(pos, state), player);
 		
-		
-		
+	}
+	
+	@Override
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) {
+		super.onInvalidRemoval(state, level, pos, trader);
+		//Destroy the other half of the Tall Block
+		setAir(level, this.getOtherHeight(pos, state), null);
 	}
 	
 	protected final void setAir(Level level, BlockPos pos, Player player)
@@ -144,7 +149,8 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		if(state.getBlock() == this)
 		{
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+			if(player != null)
+				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 		}
 	}
 	

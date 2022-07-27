@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -38,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.MessageIniti
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageClientNotification;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageUpdateClientNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
@@ -49,6 +52,8 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -210,6 +215,7 @@ public class TradingOffice extends SavedData{
 	private Map<UUID, BankAccount> playerBankAccounts = new HashMap<>();
 	private Map<UUID, NotificationData> playerNotifications = new HashMap<>();
 	private Map<UUID, AccountReference> lastSelectedAccounts = new HashMap<>();
+	private List<EjectionData> emergencyEjectionData = new ArrayList<>();
 	
 	//Store persistent data locally, so that it doesn't get lost if the persistent trader file is malformed
 	ListTag persistentData = new ListTag();
@@ -345,6 +351,18 @@ public class TradingOffice extends SavedData{
 			}
 		}
 		
+		if(compound.contains("EmergencyEjectionData", Tag.TAG_LIST))
+		{
+			this.emergencyEjectionData.clear();
+			ListTag ejectionData = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+			for(int i = 0; i < ejectionData.size(); ++i)
+			{
+				try {
+					this.emergencyEjectionData.add(EjectionData.loadData(ejectionData.getCompound(i)));
+				} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
+			}
+		}
+		
 	}
 
 	@Override
@@ -412,6 +430,10 @@ public class TradingOffice extends SavedData{
 			selectedAccounts.add(accountData);
 		});
 		compound.put("LastSelectedBankAccounts", selectedAccounts);
+		
+		ListTag ejectionData = new ListTag();
+		this.emergencyEjectionData.forEach(data -> ejectionData.add(data.save(new CompoundTag())));
+		compound.put("EmergencyEjectionData", ejectionData);
 		
 		return compound;
 	}
@@ -955,8 +977,59 @@ public class TradingOffice extends SavedData{
 		}
 	}
 	
+	public static List<EjectionData> getEjectionData() {
+		TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
+		return office.emergencyEjectionData;
+	}
+	
+	public static void handleEjectionData(Level level, BlockPos pos, EjectionData data) {
+		Objects.requireNonNull(data);
+		
+		if(Config.SERVER.safelyEjectIllegalBreaks.get())
+		{
+			TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
+			if(office != null)
+			{
+				office.emergencyEjectionData.add(data);
+				MarkEjectionDataDirty();
+			}
+		}
+		else
+			InventoryUtil.dumpContents(level, pos, data);
+		
+	}
+	
+	public static void removeEjectionData(EjectionData data) {
+		Objects.requireNonNull(data);
+		TradingOffice office = get(ServerLifecycleHooks.getCurrentServer());
+		if(office != null && office.emergencyEjectionData.contains(data))
+		{
+			office.emergencyEjectionData.remove(data);
+			MarkEjectionDataDirty();
+		}
+	}
+	
+	public static void MarkEjectionDataDirty() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+		{
+			TradingOffice office = get(server);
+			office.setDirty();
+			//Send update packet to all connected clients
+			CompoundTag compound = new CompoundTag();
+			ListTag ejectionList = new ListTag();
+			office.emergencyEjectionData.forEach(data -> {
+				ejectionList.add(data.save(new CompoundTag()));
+			});
+			compound.put("EmergencyEjectionData", ejectionList);
+			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SPacketSyncEjectionData(compound));
+		}
+	}
+	
 	private static TradingOffice get(MinecraftServer server)
     {
+		if(server == null)
+			return null;
         ServerLevel world = server.getLevel(Level.OVERWORLD);
         return world.getDataStorage().computeIfAbsent(TradingOffice::new, TradingOffice::new, DATA_NAME);
     }
@@ -1006,6 +1079,15 @@ public class TradingOffice extends SavedData{
 			//Update to let them know their selected bank account
 			AccountReference selectedAccount = getSelectedBankAccount(event.getEntity());
 			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncSelectedBankAccount(selectedAccount));
+			
+			//Send ejection data
+			CompoundTag compound4 = new CompoundTag();
+			ListTag ejectionList = new ListTag();
+			office.emergencyEjectionData.forEach(data -> {
+				ejectionList.add(data.save(new CompoundTag()));
+			});
+			compound4.put("EmergencyEjectionData", ejectionList);
+			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncEjectionData(compound4));
 			
 		}
 	}

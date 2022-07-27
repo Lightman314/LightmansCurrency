@@ -33,6 +33,7 @@
     "item.lightmanscurrency.master_ticket": "Master Ticket",
     "item.lightmanscurrency.ticket_stub": "Ticket Stub",
     "item.lightmanscurrency.portable_terminal": "Trading Terminal",
+    "item.lightmanscurrency.portable_gem_terminal": "Trading Terminal",
     "item.lightmanscurrency.portable_atm": "ATM",
     "item.lightmanscurrency.item_capacity_upgrade_1": "Item Capacity Upgrade (Iron)",
     "item.lightmanscurrency.item_capacity_upgrade_2": "Item Capacity Upgrade (Gold)",
@@ -127,6 +128,7 @@
     "block.lightmanscurrency.armor_display": "Armor Display",
     "block.lightmanscurrency.freezer": "Freezer",
     "block.lightmanscurrency.terminal": "Trading Terminal",
+    "block.lightmanscurrency.gem_terminal": "Trading Terminal",
     "block.lightmanscurrency.item_trader_server_sml": "Small Item Network Trader",
     "block.lightmanscurrency.item_trader_server_med": "Medium Item Network Trader",
     "block.lightmanscurrency.item_trader_server_lrg": "Large Item Network Trader",
@@ -594,6 +596,8 @@
     
     "gui.lightmanscurrency.interface.onlinemode.true": "Requires Owner to be Online",
     "gui.lightmanscurrency.interface.onlinemode.false": "Always On",
+    
+    "gui.lightmanscurrency.trader_recovery.nodata": "No Recovery Data available.",
     
     "traderule.lightmanscurrency.whitelist": "Whitelist",
     "traderule.lightmanscurrency.whitelist.denial": "You are not whitelisted.",

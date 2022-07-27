@@ -76,6 +76,8 @@ public class ClientProxy extends CommonProxy{
 	    	
 	    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
 	    	
+	    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
+	    	
 		} catch(Throwable t) { LightmansCurrency.LogError("Cannot set block render layers anymore apparently. Hopefully forge has finally made the tutorial on how to define that in the block model..."); }
 		
     	
@@ -94,6 +96,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
+    	
+    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -176,6 +180,12 @@ public class ClientProxy extends CommonProxy{
 	public void updateBankAccount(CompoundTag compound)
 	{
 		ClientTradingOffice.updateBankAccount(compound);
+	}
+	
+	@Override
+	public void receiveEmergencyEjectionData(CompoundTag compound)
+	{
+		ClientTradingOffice.updateEjectionData(compound);
 	}
 	
 	@Override

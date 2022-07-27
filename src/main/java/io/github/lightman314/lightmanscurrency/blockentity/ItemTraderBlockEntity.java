@@ -44,7 +44,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -438,13 +437,13 @@ public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTra
 	}
 	
 	@Override
-	public void dumpContents(Level world, BlockPos pos)
-	{
-		super.dumpContents(world, pos);
-		//Dump the storage
-		InventoryUtil.dumpContents(world, pos, this.storage.getContents());
-		//Dump the upgrades
-		InventoryUtil.dumpContents(world, pos, this.upgradeInventory);
+	public void dumpContents(List<ItemStack> contents) {
+		
+		contents.addAll(this.storage.getSplitContents());
+		
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
+			contents.add(this.upgradeInventory.getItem(i));
+		
 	}
 	
 	@Override

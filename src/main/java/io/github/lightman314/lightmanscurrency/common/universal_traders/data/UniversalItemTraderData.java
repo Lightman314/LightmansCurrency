@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ItemShopLogger;
 import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
-import io.github.lightman314.lightmanscurrency.blocks.ItemTraderServerBlock;
+import io.github.lightman314.lightmanscurrency.blocks.networktraders.ItemTraderServerBlock;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -51,6 +51,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
@@ -695,6 +696,16 @@ public class UniversalItemTraderData extends UniversalTraderData implements IIte
 		{
 			this.updateRule(ruleType, updateInfo);
 		}
+		
+	}
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents) {
+		
+		contents.addAll(this.storage.getSplitContents());
+		
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
+			contents.add(this.upgradeInventory.getItem(i));
 		
 	}
 	
