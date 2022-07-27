@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -27,14 +28,13 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -42,7 +42,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -62,6 +61,10 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 	
 	private boolean versionUpdate = false;
 	private int oldVersion = 0;
+	
+	private boolean allowRemoval = false;
+	public boolean allowRemoval() { return this.allowRemoval; }
+	public void flagAsRemovable() { this.allowRemoval = true; }
 	
 	protected TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
@@ -254,23 +257,8 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	public Component getName()
-	{
-		if(this.coreSettings.hasCustomName())
-			return new TextComponent(this.coreSettings.getCustomName());
-		return this.getBlockName();
-	}
-	
-	//Separated into it's own function, as this will be a slightly more complicated process in 1.16, as block.getName() is client only
-	private Component getBlockName() {
+	public MutableComponent getDefaultName() {
 		return this.getBlockState().getBlock().getName();
-	}
-	
-	public Component getTitle()
-	{
-		if(this.coreSettings.getOwnerName().isBlank())
-			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.coreSettings.getOwnerName());
 	}
 	
 	public MenuProvider getTradeMenuProvider() { return new TradeMenuProvider<>(this); }
@@ -394,11 +382,23 @@ public abstract class TraderBlockEntity extends TickableBlockEntity implements I
 		}
 	}
 	
-	public void dumpContents(Level world, BlockPos pos)
-	{
-		List<ItemStack> coinItems = MoneyUtil.getCoinsOfValue(this.storedMoney);
-		if(coinItems.size() > 0)
-			InventoryUtil.dumpContents(world, pos, coinItems);
+	public final List<ItemStack> dumpContents(BlockState state, boolean dropBlock) { 
+		List<ItemStack> contents = new ArrayList<>();
+
+		//Drop trader block
+		if(dropBlock)
+		{
+			if(state.getBlock() instanceof ITraderBlock)
+				contents.add(((ITraderBlock)state.getBlock()).getDropBlockItem(state, this));
+			else
+				contents.add(new ItemStack(state.getBlock()));
+		}
+
+		//Drop stored coins
+		contents.addAll(MoneyUtil.getCoinsOfValue(this.storedMoney));
+		this.dumpContents(contents);
+
+		return contents;
 	}
 	
 	@Override

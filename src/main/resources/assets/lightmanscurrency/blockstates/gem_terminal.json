@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lightmanscurrency:block/gem_terminal",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lightmanscurrency:block/gem_terminal",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lightmanscurrency:block/gem_terminal",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lightmanscurrency:block/gem_terminal",
+            "y": 270
+        }
+    }
+}

@@ -136,8 +136,25 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			setAir(level, otherPos.below(), player);
 		}
 		
-		
-		
+	}
+	
+	@Override
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) {
+		super.onInvalidRemoval(state, level, pos, trader);
+		if(this.getIsBottom(state))
+		{
+			setAir(level, pos.above(), null);
+			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+			setAir(level, otherPos, null);
+			setAir(level, otherPos.above(), null);
+		}
+		else
+		{
+			setAir(level, pos.below(), null);
+			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+			setAir(level, otherPos, null);
+			setAir(level, otherPos.below(), null);
+		}
 	}
 	
 	@Override

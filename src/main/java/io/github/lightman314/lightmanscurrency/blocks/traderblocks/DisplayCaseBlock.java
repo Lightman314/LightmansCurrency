@@ -7,6 +7,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockBase;
@@ -81,5 +82,8 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
+	
+	@Override
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) { }
 	
 }

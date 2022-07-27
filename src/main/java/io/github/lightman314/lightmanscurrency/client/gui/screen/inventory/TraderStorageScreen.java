@@ -15,6 +15,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.api.TextLogger;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
@@ -28,6 +29,7 @@ import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorage
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.client.Minecraft;
@@ -102,26 +104,26 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		});
 		
 		//Other buttons
-		this.buttonShowTrades = this.addRenderableWidget(IconAndButtonUtil.traderButton(this.leftPos, this.topPos - 20, this::PressTradesButton));
+		this.buttonShowTrades = this.addRenderableWidget(IconAndButtonUtil.traderButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 118, this::PressTradesButton));
 		
-		this.buttonCollectMoney = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + 20, this.topPos - 20, this::PressCollectionButton, this.menu.player, this.menu::getTrader));
+		this.buttonCollectMoney = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 138, this::PressCollectionButton, this.menu.player, this.menu::getTrader));
 		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getTrader().getCoreSettings().hasBankAccount();
 		
-		this.buttonStoreMoney = this.addRenderableWidget(IconAndButtonUtil.storeCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 118, this::PressStoreCoinsButton));
+		this.buttonStoreMoney = this.addRenderableWidget(IconAndButtonUtil.storeCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 158, this::PressStoreCoinsButton));
 		this.buttonStoreMoney.visible = false;
 		
-		this.buttonOpenSettings = this.addRenderableWidget(IconAndButtonUtil.openSettingsButton(this.leftPos + this.imageWidth - 20, this.topPos - 20, this::PressSettingsButton));
+		this.buttonOpenSettings = this.addRenderableWidget(IconAndButtonUtil.openSettingsButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 118, this::PressSettingsButton));
 		this.buttonOpenSettings.visible = this.menu.hasPermission(Permissions.EDIT_SETTINGS);
 		
-		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(this.leftPos + this.imageWidth - 40, this.topPos - 20, this::PressTradeRulesButton, () -> this.currentTab().getTradeRuleTradeIndex() >= 0));
+		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 138, this::PressTradeRulesButton, () -> this.currentTab().getTradeRuleTradeIndex() >= 0));
 		this.buttonTradeRules.visible = this.menu.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
 		if(this.menu.getTrader() instanceof ILoggerSupport<?>)
 		{
-			this.buttonShowLog = this.addRenderableWidget(IconAndButtonUtil.showLoggerButton(this.leftPos + 40, this.topPos - 20, this::PressLogButton, () -> this.logWindow.visible));
-			this.buttonClearLog = this.addRenderableWidget(IconAndButtonUtil.clearLoggerButton(this.leftPos + 60, this.topPos - 20, this::PressClearLogButton));
+			this.buttonShowLog = this.addRenderableWidget(IconAndButtonUtil.showLoggerButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 158, this::PressLogButton, () -> this.logWindow.visible));
+			this.buttonClearLog = this.addRenderableWidget(IconAndButtonUtil.clearLoggerButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 178, this::PressClearLogButton));
 			
-			this.logWindow = this.addWidget(IconAndButtonUtil.traderLogWindow(this, () -> (ILoggerSupport<?>)this.menu.getTrader()));
+			this.logWindow = this.addWidget(new TextLogWindow(this.leftPos + TraderStorageMenu.SLOT_OFFSET, this.topPos, 176, this.imageHeight, this.font, this::safelyGetLogger));
 			this.logWindow.visible = false;
 		}
 		
@@ -131,6 +133,13 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		
 		this.containerTick();
 		
+	}
+	
+	private TextLogger safelyGetLogger() {
+		ITrader trader = this.menu.getTrader();
+		if(trader instanceof ILoggerSupport<?>)
+			return ((ILoggerSupport<?>)trader).getLogger();
+		return null;
 	}
 
 	@Override

@@ -470,6 +470,9 @@ public class Config {
 		public final ForgeConfigSpec.IntValue logLimit;
 		public final ForgeConfigSpec.IntValue notificationLimit;
 		
+		//Ejection Options
+		public final ForgeConfigSpec.BooleanValue safelyEjectIllegalBreaks;
+		
 		//Melt/Mint Options
 		public final ForgeConfigSpec.BooleanValue allowCoinMinting;
 		public final ForgeConfigSpec.BooleanValue allowCoinMelting;
@@ -519,6 +522,8 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
 		
+		
+		
 		Server(ForgeConfigSpec.Builder builder)
 		{
 			
@@ -533,6 +538,11 @@ public class Config {
 					.comment("The maximum number of notifications each player can have before old entries are deleted.",
 							"Lower if you encounter packet size problems.")
 					.defineInRange("notificationLimit", 500, 0, Integer.MAX_VALUE);
+			
+			this.safelyEjectIllegalBreaks = builder
+					.comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
+							"If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.")
+					.define("ejectIllegalBreaks", true);
 			
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")

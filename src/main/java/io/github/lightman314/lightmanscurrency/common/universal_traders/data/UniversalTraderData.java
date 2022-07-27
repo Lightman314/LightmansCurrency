@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.universal_traders.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -8,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -17,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageChangeSettings2;
@@ -45,9 +49,11 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
 
 public abstract class UniversalTraderData implements ITrader{
@@ -372,12 +378,12 @@ public abstract class UniversalTraderData implements ITrader{
 		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderStorageMenu.TraderStorageMenuUniversal(windowID, inventory, this.traderID); }
 	}
 	
-	protected Component getDefaultName()
+	public MutableComponent getDefaultName()
 	{
 		return new TranslatableComponent("gui.lightmanscurrency.universaltrader.default");
 	}
 	
-	public Component getName()
+	public MutableComponent getName()
 	{
 		if(this.coreSettings.hasCustomName())
 			return new TextComponent(this.coreSettings.getCustomName());
@@ -486,6 +492,25 @@ public abstract class UniversalTraderData implements ITrader{
 			}
 		} catch(Exception e) {}
 		return false;
+	}
+	
+	public final List<ItemStack> dumpContents(BlockState state, boolean dropBlock) { 
+		List<ItemStack> contents = new ArrayList<>();
+
+		//Drop trader block
+		if(dropBlock)
+		{
+			if(state.getBlock() instanceof ITraderBlock)
+				contents.add(((ITraderBlock)state.getBlock()).getDropBlockItem(state, this));
+			else
+				contents.add(new ItemStack(state.getBlock()));
+		}
+
+		//Drop stored coins
+		contents.addAll(MoneyUtil.getCoinsOfValue(this.storedMoney));
+		this.dumpContents(contents);
+
+		return contents;
 	}
 	
 }

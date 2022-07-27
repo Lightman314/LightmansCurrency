@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Supplier;
@@ -39,6 +40,12 @@ public class TextLogWindow extends AbstractWidget{
 		super(screen.getGuiLeft(), screen.getGuiTop(), screen.getXSize(), screen.getYSize(), new TextComponent(""));
 		this.logger = logger;
 		this.font = screen.getMinecraft().font;
+	}
+	
+	public TextLogWindow(int x, int y, int width, int height, Font font, Supplier<TextLogger> logger) {
+		super(x, y, width, height, new TextComponent(""));
+		this.logger = logger;
+		this.font = font;
 	}
 	
 	@Override
@@ -86,7 +93,7 @@ public class TextLogWindow extends AbstractWidget{
 		this.blit(poseStack, this.x + this.width - 7, this.y + this.height - 7, 256 - 7, 256 - 7, 7, 7);
 		
 		//Render the text
-		List<MutableComponent> logText = this.logger.get().logText;
+		List<MutableComponent> logText = this.getLogText();
 		int yPos = 0;
 		for(int i = logText.size() - 1 - scroll; i >= 0 && yPos < this.height - 20; i--)
 		{
@@ -96,6 +103,13 @@ public class TextLogWindow extends AbstractWidget{
 			yPos += thisHeight;
 		}
 		
+	}
+	
+	private List<MutableComponent> getLogText() {
+		TextLogger logger = this.logger.get();
+		if(logger != null)
+			return logger.logText;
+		return new ArrayList<>();
 	}
 	
 	private boolean canScrollDown()

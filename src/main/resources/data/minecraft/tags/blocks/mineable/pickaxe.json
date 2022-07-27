@@ -56,6 +56,7 @@
     "lightmanscurrency:item_trader_server_xlrg",
     "lightmanscurrency:cash_register",
     "lightmanscurrency:terminal",
+    "lightmanscurrency:gem_terminal",
     "lightmanscurrency:paygate",
     "lightmanscurrency:ticket_machine",
     "lightmanscurrency:item_trader_interface"

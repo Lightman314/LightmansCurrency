@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScree
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -25,22 +26,33 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface ITrader extends IPermissions, ITraderSource {
+public interface ITrader extends IPermissions, ITraderSource, IDumpable {
 
 	public static final int GLOBAL_TRADE_LIMIT = 32;
 	
 	/**
 	 * The name of the trader.
 	 */
-	public Component getName();
+	public default MutableComponent getName() {
+		if(this.getCoreSettings().hasCustomName())
+			return new TextComponent(this.getCoreSettings().getCustomName());
+		return getDefaultName();
+	}
 	/**
 	 * The formatted name & owner of the trader
 	 */
-	public Component getTitle();
+	public default MutableComponent getTitle() {
+		if(this.getCoreSettings().getOwnerName().isBlank())
+			return this.getName();
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.getCoreSettings().getOwnerName());
+	}
+	public MutableComponent getDefaultName();
 	public CoinValue getStoredMoney();
 	public CoinValue getInternalStoredMoney();
 	public void addStoredMoney(CoinValue amount);
@@ -158,5 +170,9 @@ public interface ITrader extends IPermissions, ITraderSource {
 	public default void initStorageTabs(TraderStorageMenu menu) { }
 	
 	public default Function<ITradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) { return TradeButtonArea.FILTER_ANY; }
+	
+	//IDumpable hooks
+	public default Team getTeam() { return this.getCoreSettings().getTeam(); }
+	public default PlayerReference getOwner() { return this.getCoreSettings().getOwner(); }
 	
 }

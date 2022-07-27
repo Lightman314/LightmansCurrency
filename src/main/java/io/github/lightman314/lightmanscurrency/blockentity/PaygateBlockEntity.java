@@ -586,4 +586,7 @@ public class PaygateBlockEntity extends TraderBlockEntity implements ITradeRuleH
 		}
 	}
 	
+	@Override
+	public void dumpContents(List<ItemStack> contents) { }
+	
 }

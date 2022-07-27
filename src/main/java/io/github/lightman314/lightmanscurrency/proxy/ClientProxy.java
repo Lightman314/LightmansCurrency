@@ -72,6 +72,8 @@ public class ClientProxy extends CommonProxy{
     	
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
     	
+    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
+    	
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
     	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
@@ -87,6 +89,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
+    	
+    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -171,6 +175,12 @@ public class ClientProxy extends CommonProxy{
 	public void updateBankAccount(CompoundTag compound)
 	{
 		ClientTradingOffice.updateBankAccount(compound);
+	}
+	
+	@Override
+	public void receiveEmergencyEjectionData(CompoundTag compound)
+	{
+		ClientTradingOffice.updateEjectionData(compound);
 	}
 	
 	@Override

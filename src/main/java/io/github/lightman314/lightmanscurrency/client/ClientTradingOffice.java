@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -16,6 +18,8 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.Ban
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,6 +36,7 @@ public class ClientTradingOffice {
 	private static Map<UUID,BankAccount> loadedBankAccounts = new HashMap<>();
 	private static NotificationData myNotifications = new NotificationData();
 	private static AccountReference lastSelectedAccount = null;
+	private static List<EjectionData> emergencyEjectionData = new ArrayList<>();
 	
 	public static List<UniversalTraderData> getTraderList()
 	{
@@ -143,11 +148,31 @@ public class ClientTradingOffice {
 	public static void updateLastSelectedAccount(AccountReference reference) {
 		lastSelectedAccount = reference;
 	}
-
+	
 	public static AccountReference getLastSelectedAccount() {
 		return lastSelectedAccount;
 	}
-
+	
+	public static List<EjectionData> getEjectionData() {
+		return emergencyEjectionData;
+	}
+	
+	public static List<EjectionData> getValidEjectionData() {
+		Minecraft mc = Minecraft.getInstance();
+		return emergencyEjectionData.stream().filter(e -> e.canAccess(mc.player)).collect(Collectors.toList());
+	}
+	
+	public static void updateEjectionData(CompoundTag compound) {
+		emergencyEjectionData.clear();
+		ListTag ejectionList = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+		for(int i = 0; i < ejectionList.size(); ++i)
+		{
+			try {
+				emergencyEjectionData.add(EjectionData.loadData(ejectionList.getCompound(i)));
+			} catch(Throwable t) { t.printStackTrace(); }
+		}
+	}
+	
 	@SubscribeEvent
 	public static void onClientLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
 		//Reset loaded traders, teams, and bank accounts
@@ -156,6 +181,7 @@ public class ClientTradingOffice {
 		loadedBankAccounts = new HashMap<>();
 		myNotifications = new NotificationData();
 		lastSelectedAccount = null;
+		emergencyEjectionData = new ArrayList<>();
 	}
 	
 }

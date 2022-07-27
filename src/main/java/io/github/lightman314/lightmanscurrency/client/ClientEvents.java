@@ -6,10 +6,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NotificationButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamManagerButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.WalletButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.NotificationButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TeamManagerButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TraderRecoveryButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.WalletButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -114,6 +115,7 @@ public class ClientEvents {
 			//Add notification button
 			event.addListener(new NotificationButton(gui));
 			event.addListener(new TeamManagerButton(gui));
+			event.addListener(new TraderRecoveryButton(gui));
 			
 		}
 	}

@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,19 +26,6 @@ public class UniversalItemTraderBlockEntity extends UniversalTraderBlockEntity{
 	@Override
 	protected UniversalTraderData createInitialData(Entity owner) {
 		return new UniversalItemTraderData(PlayerReference.of(owner), this.worldPosition, this.level.dimension(), this.traderID, this.tradeCount);
-	}
-	
-	@Override
-	protected void dumpContents(UniversalTraderData data)
-	{
-		super.dumpContents(data);
-		if(data instanceof UniversalItemTraderData)
-		{
-			UniversalItemTraderData itemData = (UniversalItemTraderData)data;
-			InventoryUtil.dumpContents(this.level, this.worldPosition, itemData.getStorage().getContents());
-			//Removed as the trade inventory no longer consumes items
-			//InventoryUtil.dumpContents(world, pos, new TradeInventory(itemData.getAllTrades()));
-		}
 	}
 	
 }

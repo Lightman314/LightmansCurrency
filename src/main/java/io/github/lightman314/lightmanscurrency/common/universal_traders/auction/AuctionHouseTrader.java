@@ -31,7 +31,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -63,7 +63,7 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	}
 	
 	@Override
-	public Component getName() { return new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction"); }
+	public MutableComponent getName() { return new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
@@ -342,5 +342,8 @@ public class AuctionHouseTrader extends UniversalTraderData {
 
 	@Override
 	public void userClose(Player player) { this.currentUsers.remove(player); }
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents) { }
 	
 }

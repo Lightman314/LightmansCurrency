@@ -28,6 +28,8 @@ public class CommonProxy {
 	
 	public void updateBankAccount(CompoundTag compound) {}
 	
+	public void receiveEmergencyEjectionData(CompoundTag compound) {}
+	
 	public void updateNotifications(NotificationData data) {}
 	
 	public void receiveNotification(Notification notification) {}

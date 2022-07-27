@@ -23,8 +23,9 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -320,11 +321,6 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		}
 		
 	}
-
-	@Override
-	public void dumpAdditionalContents(Level level, BlockPos pos) {
-		InventoryUtil.dumpContents(level, pos, this.itemBuffer.getContents());
-	}
 	
 	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
@@ -333,5 +329,17 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	
 	@Override
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return type == UpgradeType.ITEM_CAPACITY; }
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents) {
+
+		contents.addAll(this.itemBuffer.getSplitContents());
+
+	}
+
+	@Override
+	public MutableComponent getName() {
+		return new TranslatableComponent("block.lightmanscurrency.item_trader_interface");
+	}
 	
 }

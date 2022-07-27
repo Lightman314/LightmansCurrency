@@ -11,9 +11,12 @@ import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -60,7 +63,6 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	@Deprecated /** @deprecated Just put return null */
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return null; }
 	protected abstract BlockEntityType<?> traderType();
 	
@@ -135,7 +137,10 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 			if(!trader.canBreak(player))
 				return;
 			else
-				trader.dumpContents(level, pos);
+			{
+				trader.flagAsRemovable();
+				InventoryUtil.dumpContents(level, pos, trader.dumpContents(state, !player.isCreative()));
+			}
 		}
 		else
 		{
@@ -143,6 +148,42 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		}
 		super.playerWillDestroy(level, pos, state, player);
 	}
+	
+	@Override
+	@SuppressWarnings("deprecation")
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
+
+		//Ignore if the block is the same.
+		if(state.getBlock() == newState.getBlock())
+			return;
+		
+		if(!level.isClientSide)
+		{
+			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
+			if(blockEntity instanceof TraderBlockEntity)
+			{
+				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
+				if(!trader.allowRemoval())
+				{
+					LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
+					LightmansCurrency.LogError("Activating emergency eject protocol.");
+					EjectionData data = EjectionData.create(state, trader);
+					TradingOffice.handleEjectionData(level, pos, data);
+					trader.flagAsRemovable();
+					//Remove the rest of the multi-block structure.
+					try {
+						this.onInvalidRemoval(state, level, pos, trader);
+					} catch(Throwable t) { t.printStackTrace(); }
+				}
+				else
+					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
+			}
+		}
+
+		super.onRemove(state, level, pos, newState, flag);
+	}
+
+	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader);
 	
 	@Override
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
