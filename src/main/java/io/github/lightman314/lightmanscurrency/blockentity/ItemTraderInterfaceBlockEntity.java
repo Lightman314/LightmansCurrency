@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
@@ -341,11 +340,6 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	@Override
 	public MutableComponent getName() {
 		return Component.translatable("block.lightmanscurrency.item_trader_interface");
-	}
-
-	@Override
-	public PlayerReference getOwner() {
-		return this.owner;
 	}
 	
 }

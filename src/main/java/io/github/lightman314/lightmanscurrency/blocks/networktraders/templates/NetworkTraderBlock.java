@@ -79,6 +79,10 @@ public abstract class NetworkTraderBlock extends RotatableBlock implements ITrad
 	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
 		
+		//Ignore if the block is the same.
+		if(state.getBlock() == newState.getBlock())
+		    return;
+		
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);

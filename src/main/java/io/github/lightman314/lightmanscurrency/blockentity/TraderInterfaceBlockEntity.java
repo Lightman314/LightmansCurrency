@@ -643,4 +643,9 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		
 	}
 	
+	@Override
+	public PlayerReference getOwner() {
+		return this.owner;
+	}
+	
 }

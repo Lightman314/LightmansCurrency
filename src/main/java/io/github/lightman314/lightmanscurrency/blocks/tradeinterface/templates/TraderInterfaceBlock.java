@@ -92,6 +92,10 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
 		
+		//Ignore if the block is the same.
+		if(state.getBlock() == newState.getBlock())
+		    return;
+		
 		if(!level.isClientSide)
 		{
 			TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);

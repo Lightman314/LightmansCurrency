@@ -63,7 +63,6 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	@Deprecated /** @deprecated Just put return null */
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return null; }
 	protected abstract BlockEntityType<?> traderType();
 	
@@ -78,7 +77,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	{
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
-		return null;
+		return this.makeDummy(pos, state);
 	}
 	
 	@Override
@@ -154,6 +153,10 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	@Override
 	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
+		
+		//Ignore if the block is the same.
+		if(state.getBlock() == newState.getBlock())
+		    return;
 		
 		if(!level.isClientSide)
 		{

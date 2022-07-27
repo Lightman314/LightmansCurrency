@@ -181,6 +181,7 @@ public class ClientTradingOffice {
 		loadedBankAccounts = new HashMap<>();
 		myNotifications = new NotificationData();
 		lastSelectedAccount = null;
+		emergencyEjectionData = new ArrayList<>();
 	}
 	
 }
