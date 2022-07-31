@@ -1141,7 +1141,7 @@ public class TradingOffice extends SavedData{
 							AuctionTradeData trade = pad.createAuction();
 							if(trade != null)
 							{
-								ah.addTrade(trade);
+								ah.addTrade(trade, true);
 								LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
 							}	
 						}

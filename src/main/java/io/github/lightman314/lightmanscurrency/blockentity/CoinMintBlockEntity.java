@@ -32,7 +32,8 @@ public class CoinMintBlockEntity extends BlockEntity{
 	SimpleContainer storage = new SimpleContainer(2);
 	public SimpleContainer getStorage() { return this.storage; }
 	
-	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> new MintItemCapability(this));
+	private final MintItemCapability itemHandler = new MintItemCapability(this);
+	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> this.itemHandler);
 	
 	private final List<CoinMintRecipe> getCoinMintRecipes()
 	{

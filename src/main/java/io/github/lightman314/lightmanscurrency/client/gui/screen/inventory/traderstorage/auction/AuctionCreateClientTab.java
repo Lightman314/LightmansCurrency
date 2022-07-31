@@ -30,7 +30,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -45,13 +45,13 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.auction.create"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
 	
 	@Override
-	public boolean blockInventoryClosing() { return false; }
+	public boolean blockInventoryClosing() { return TradingOffice.isAdminPlayer(this.screen.getMenu().player); }
 	
 	AuctionTradeData pendingAuction;
 	
@@ -83,7 +83,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public void onOpen() {
 		
 		this.pendingAuction = new AuctionTradeData(this.menu.player);
-		this.dayCount = 1;
+		this.dayCount = Math.max(1, Config.SERVER.minAuctionDuration.get());
 		this.hourCount = 0;
 		this.updateDuration();
 		this.locked = false;
@@ -112,11 +112,10 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20, this.screen.getXSize() - 80, 20, new TranslatableComponent("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
-		
 		this.buttonSubmitPersistentAuction = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 20, this.screen.getGuiTop() - 20, this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA, IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION));
 		this.buttonSubmitPersistentAuction.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().player);
 		this.buttonSubmitPersistentAuction.active = false;
-
+		
 		int idWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.settings.persistent.id"));
 		this.persistentAuctionIDInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + idWidth + 2, this.screen.getGuiTop() - 40, this.screen.getXSize() - idWidth - 2, 18, new TextComponent("")));
 		this.persistentAuctionIDInput.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().player);
@@ -191,8 +190,9 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			}
 			else
 				this.buttonIncreaseDay.active = this.buttonIncreaseHour.active = true;
-			this.buttonDecreaseDay.active = this.dayCount > 0;
-			this.buttonDecreaseHour.active = this.dayCount > 0 || this.hourCount > 1;
+			
+			this.buttonDecreaseDay.active = this.dayCount > Config.SERVER.minAuctionDuration.get();
+			this.buttonDecreaseHour.active = this.dayCount > Config.SERVER.minAuctionDuration.get() || this.hourCount > 1;
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
@@ -231,12 +231,14 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.hourCount = this.hourCount + delta;
 		if(this.hourCount < 0)
 		{
-			if(this.dayCount > 0)
+			if(this.dayCount > Config.SERVER.minAuctionDuration.get())
 			{
 				this.hourCount += 24;
 				this.changeDayCount(-1);
 				return;
 			}
+			else if(this.dayCount > 0)
+				this.hourCount = 0;
 			else
 				this.hourCount = 1;
 		}
@@ -254,6 +256,8 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.dayCount = MathUtil.clamp(this.dayCount + delta, 0, Config.SERVER.maxAuctionDuration.get());
 		if(this.dayCount < 1 && this.hourCount < 1)
 			this.dayCount = 1;
+		if(this.dayCount < Config.SERVER.minAuctionDuration.get())
+			this.dayCount = Config.SERVER.minAuctionDuration.get();
 		if(this.dayCount >= Config.SERVER.maxAuctionDuration.get())
 			this.hourCount = 0;
 		this.updateDuration();

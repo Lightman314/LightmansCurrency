@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
@@ -22,6 +23,8 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.PersistentAuctionData;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
@@ -43,12 +46,21 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class AuctionTradeData extends TradeData {
 
-	public static final long MINIMUM_DURATION = TimeUtil.DURATION_HOUR;
-	public static final long DEFAULT_DURATION = TimeUtil.DURATION_DAY;
+	public static final long GetMinimumDuration() {
+		if(Config.SERVER.minAuctionDuration.get() > 0)
+			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
+		return TimeUtil.DURATION_HOUR;
+	}
+	public static final long GetDefaultDuration() {
+		if(Config.SERVER.minAuctionDuration.get() > 0)
+			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
+		return TimeUtil.DURATION_DAY;
+	}
 	
 	public boolean hasBid() { return this.lastBidPlayer != null; }
 	
@@ -78,6 +90,7 @@ public class AuctionTradeData extends TradeData {
 			this.minBidDifference = new CoinValue(1);
 	}
 	PlayerReference tradeOwner;
+	public PlayerReference getOwner() { return this.tradeOwner; }
 	public boolean isOwner(Player player) {
 		return (this.tradeOwner != null && this.tradeOwner.is(player)) || TradingOffice.isAdminPlayer(player);
 	}
@@ -87,7 +100,7 @@ public class AuctionTradeData extends TradeData {
 	public void setDuration(long duration) {
 		if(this.isActive())
 			return;
-		this.duration = Math.max(MINIMUM_DURATION, duration);
+		this.duration = Math.max(GetMinimumDuration(), duration);
 	}
 	
 	List<ItemStack> auctionItems = new ArrayList<>();
@@ -104,7 +117,7 @@ public class AuctionTradeData extends TradeData {
 		}
 	}
 	
-	public AuctionTradeData(Player owner) { this.tradeOwner = PlayerReference.of(owner); this.setDuration(DEFAULT_DURATION); }
+	public AuctionTradeData(Player owner) { this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
 	
 	public AuctionTradeData(CompoundTag compound) { this.loadFromNBT(compound); }
 	
@@ -190,17 +203,23 @@ public class AuctionTradeData extends TradeData {
 		if(this.cancelled)
 			return;
 		this.cancelled = true;
+		
+		//Throw auction completed event
+		AuctionCompletedEvent event = new AuctionCompletedEvent(trader, this);
+		MinecraftForge.EVENT_BUS.post(event);
+		
 		if(this.lastBidPlayer != null)
 		{
 			AuctionPlayerStorage buyerStorage = trader.getStorage(this.lastBidPlayer);
+			List<ItemStack> rewards = event.getItems();
 			//Reward the items to the last bidder
-			for(int i = 0; i < this.auctionItems.size(); ++i)
-				buyerStorage.giveItem(this.auctionItems.get(i));
+			for(int i = 0; i < rewards.size(); ++i)
+				buyerStorage.giveItem(rewards.get(i));
 			//Give the bid money to the trades owner
 			if(this.tradeOwner != null)
 			{
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
-				sellerStorage.giveMoney(this.lastBidAmount);
+				sellerStorage.giveMoney(event.getPayment());
 			}
 			
 			//Post notification to the auction winner
@@ -216,14 +235,14 @@ public class AuctionTradeData extends TradeData {
 			if(this.tradeOwner != null)
 			{
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
-				for(int i = 0; i < this.auctionItems.size(); ++i)
-					sellerStorage.giveItem(this.auctionItems.get(i));
-
+				List<ItemStack> items = event.getItems();
+				for(int i = 0; i < items.size(); ++i)
+					sellerStorage.giveItem(items.get(i));
+				
 				//Post notification to the auction owner
 				TradingOffice.pushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
-
+				
 			}
-			
 		}
 	}
 	
@@ -232,6 +251,7 @@ public class AuctionTradeData extends TradeData {
 		if(this.cancelled)
 			return;
 		this.cancelled = true;
+		
 		if(this.lastBidPlayer != null)
 		{
 			//Give a refund to the last bidder
@@ -257,6 +277,9 @@ public class AuctionTradeData extends TradeData {
 				for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
 			}
 		}
+		
+		CancelAuctionEvent event = new CancelAuctionEvent(trader, this, player);
+		MinecraftForge.EVENT_BUS.post(event);
 			
 	}
 	
@@ -291,16 +314,16 @@ public class AuctionTradeData extends TradeData {
 	}
 	
 	public JsonObject saveToJson(JsonObject json) {
-
+		
 		for(int i = 0; i < this.auctionItems.size(); ++i)
 			json.add("Item" + String.valueOf(i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
-
+		
 		json.addProperty("Duration", this.duration);
-
+		
 		json.add("StartingBid", this.lastBidAmount.toJson());
-
+		
 		json.add("MinimumBid", this.minBidDifference.toJson());
-
+		
 		return json;
 	}
 	

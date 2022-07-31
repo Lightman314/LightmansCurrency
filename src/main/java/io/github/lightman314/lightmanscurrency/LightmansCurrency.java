@@ -128,7 +128,7 @@ public class LightmansCurrency {
         if(discordIntegrationLoaded)
         {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
-        	MinecraftForge.EVENT_BUS.register(CurrencyMessages.class);
+        	CurrencyMessages.init();
         }
         
     }

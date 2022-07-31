@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.menus.slots;
+package io.github.lightman314.lightmanscurrency.menus.slots.ticket;
 
 import com.mojang.datafixers.util.Pair;
 

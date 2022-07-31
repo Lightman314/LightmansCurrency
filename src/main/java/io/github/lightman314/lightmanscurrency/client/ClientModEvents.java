@@ -6,9 +6,9 @@ import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.Wal
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.TicketSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.ticket.TicketSlot;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
