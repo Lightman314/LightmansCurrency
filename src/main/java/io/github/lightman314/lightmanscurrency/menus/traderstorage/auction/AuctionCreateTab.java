@@ -91,7 +91,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 				return;
 			}	
 			AuctionHouseTrader trader = (AuctionHouseTrader)t;
-			trader.addTrade(trade);
+			trader.addTrade(trade, false);
 			//Delete the contents of the auctionItems
 			this.auctionItems.clearContent();
 			//Send response message to the client

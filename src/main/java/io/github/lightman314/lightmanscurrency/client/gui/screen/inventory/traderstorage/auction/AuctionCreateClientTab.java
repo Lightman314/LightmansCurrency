@@ -82,7 +82,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public void onOpen() {
 		
 		this.pendingAuction = new AuctionTradeData(this.menu.player);
-		this.dayCount = 1;
+		this.dayCount = Math.max(1, Config.SERVER.minAuctionDuration.get());
 		this.hourCount = 0;
 		this.updateDuration();
 		this.locked = false;
@@ -189,8 +189,9 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			}
 			else
 				this.buttonIncreaseDay.active = this.buttonIncreaseHour.active = true;
-			this.buttonDecreaseDay.active = this.dayCount > 0;
-			this.buttonDecreaseHour.active = this.dayCount > 0 || this.hourCount > 1;
+			
+			this.buttonDecreaseDay.active = this.dayCount > Config.SERVER.minAuctionDuration.get();
+			this.buttonDecreaseHour.active = this.dayCount > Config.SERVER.minAuctionDuration.get() || this.hourCount > 1;
 			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
@@ -229,12 +230,14 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.hourCount = this.hourCount + delta;
 		if(this.hourCount < 0)
 		{
-			if(this.dayCount > 0)
+			if(this.dayCount > Config.SERVER.minAuctionDuration.get())
 			{
 				this.hourCount += 24;
 				this.changeDayCount(-1);
 				return;
 			}
+			else if(this.dayCount > 0)
+				this.hourCount = 0;
 			else
 				this.hourCount = 1;
 		}
@@ -252,6 +255,8 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.dayCount = MathUtil.clamp(this.dayCount + delta, 0, Config.SERVER.maxAuctionDuration.get());
 		if(this.dayCount < 1 && this.hourCount < 1)
 			this.dayCount = 1;
+		if(this.dayCount < Config.SERVER.minAuctionDuration.get())
+			this.dayCount = Config.SERVER.minAuctionDuration.get();
 		if(this.dayCount >= Config.SERVER.maxAuctionDuration.get())
 			this.hourCount = 0;
 		this.updateDuration();

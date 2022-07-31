@@ -13,6 +13,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionBidEvent;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
@@ -229,13 +231,21 @@ public class AuctionHouseTrader extends UniversalTraderData {
 	@Override
 	public void removeTrade(Player requestor) {}
 	
-	public void addTrade(AuctionTradeData trade) {
+	public void addTrade(AuctionTradeData trade, boolean persistent) {
+		
+		CreateAuctionEvent.Pre e1 = new CreateAuctionEvent.Pre(this, trade, persistent);
+		if(MinecraftForge.EVENT_BUS.post(e1))
+			return;
+		trade = e1.getAuction();
+		
 		trade.startTimer();
 		if(trade.isValid())
 		{
 			this.trades.add(trade);
 			this.markTradesDirty();
 			
+			CreateAuctionEvent.Post e2 = new CreateAuctionEvent.Post(this, trade, persistent);
+			MinecraftForge.EVENT_BUS.post(e2);
 		}
 		else
 			LightmansCurrency.LogError("Auction Trade is not fully valid. Unable to add it to the list.");
@@ -267,6 +277,12 @@ public class AuctionHouseTrader extends UniversalTraderData {
 		if(trade.hasExpired(System.currentTimeMillis()))
 			return false;
 		
+		AuctionBidEvent.Pre e1 = new AuctionBidEvent.Pre(this, trade, player, bidAmount);
+		if(MinecraftForge.EVENT_BUS.post(e1))
+			return false;
+		
+		bidAmount = e1.getBidAmount();
+		
 		ItemStack wallet = LightmansCurrency.getWalletStack(player);
 		long inventoryValue = MoneyUtil.getValue(menu.getCoinInventory());
 		if(!wallet.isEmpty())
@@ -279,6 +295,9 @@ public class AuctionHouseTrader extends UniversalTraderData {
 			MoneyUtil.ProcessPayment(menu.getCoinInventory(), player, bidAmount);
 			//Mark storage & trades dirty
 			this.markDirty(this.saveTrades(this.saveStorage(new CompoundTag())));
+			
+			AuctionBidEvent.Post e2 = new AuctionBidEvent.Post(this, trade, player, bidAmount);
+			MinecraftForge.EVENT_BUS.post(e2);
 			return true;
 		}
 		return false;

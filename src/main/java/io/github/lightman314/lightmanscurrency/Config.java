@@ -517,11 +517,17 @@ public class Config {
 		//Auction House Options
 		public final ForgeConfigSpec.BooleanValue enableAuctionHouse;
 		public final ForgeConfigSpec.IntValue maxAuctionDuration;
+		public final ForgeConfigSpec.IntValue minAuctionDuration;
 		
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
-		
+		//Discord Bot Notification Options
+		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
+		public final ForgeConfigSpec.BooleanValue auctionHouseCreateNotifications;
+		public final ForgeConfigSpec.BooleanValue auctionHouseCreatePersistentNotifications;
+		public final ForgeConfigSpec.BooleanValue auctionHouseCancelNotifications;
+		public final ForgeConfigSpec.BooleanValue auctionHouseWinNotifications;
 		
 		
 		Server(ForgeConfigSpec.Builder builder)
@@ -662,6 +668,9 @@ public class Config {
 					"If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.")
 					.define("enabled", true);
 			
+			this.minAuctionDuration = builder.comment("The minimum number of days an auction can be carried out.")
+					.defineInRange("minDuration", 0, 0, Integer.MAX_VALUE);
+			
 			this.maxAuctionDuration = builder.comment("The maximum number of days an auction can be carried out.")
 					.defineInRange("maxDuration", 30, 1, Integer.MAX_VALUE);
 			
@@ -675,6 +684,32 @@ public class Config {
 			this.currencyCommandPrefix = builder
 					.comment("Prefix for currency commands.")
 					.define("prefix", "!");
+			
+			builder.comment("Bot notification options.").push("notifications");
+			
+			this.traderCreationNotifications = builder
+					.comment("Whether a notification will appear in the currency bot channel when a Network Trader is created.",
+							"Notification will have a 60 second delay to allow them time to customize the traders name, etc.")
+					.define("networkTraderBuilt", true);
+			
+			this.auctionHouseCreateNotifications = builder
+					.comment("Whether a notification will appear in the currency bot channel when an Auction is created in the Auction House.")
+					.define("auctionHouseCreated", true);
+			
+			this.auctionHouseCreatePersistentNotifications = builder
+					.comment("Whether a notification will appear in the currency bot channel when a Persistent Auction is created automatically.",
+							"Requires that auction house creation notifications also be enabled.")
+					.define("auctionHousePersistentCreations", true);
+			
+			this.auctionHouseCancelNotifications = builder
+					.comment("Whether a notification will appear in the currency bot channel when an Auction is cancelled in the Auction House.")
+					.define("auctionHouseCancelled", false);
+			
+			this.auctionHouseWinNotifications = builder
+					.comment("Whether a notification will appear in the currency bot channel when an Auction is completed and had a bidder.")
+					.define("auctionHouseWon", true);
+			
+			builder.pop();
 			
 			builder.pop();
 			

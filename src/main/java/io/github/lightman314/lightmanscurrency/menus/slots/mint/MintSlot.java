@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.menus.slots;
+package io.github.lightman314.lightmanscurrency.menus.slots.mint;
 
 import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
 import net.minecraft.world.Container;

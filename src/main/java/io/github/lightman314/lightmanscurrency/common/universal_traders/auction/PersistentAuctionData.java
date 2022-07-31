@@ -55,9 +55,9 @@ public class PersistentAuctionData {
 		
 		long duration = 0;
 		if(json.has("Duration"))
-			duration = Math.max(json.get("Duration").getAsLong(), AuctionTradeData.MINIMUM_DURATION);
+			duration = Math.max(json.get("Duration").getAsLong(), AuctionTradeData.GetMinimumDuration());
 		else
-			duration = AuctionTradeData.DEFAULT_DURATION;
+			duration = AuctionTradeData.GetDefaultDuration();
 		
 		CoinValue startingBid;
 		if(json.has("StartingBid"))

@@ -25,9 +25,14 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingO
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
+import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.UniversalTradeCreateEvent;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
@@ -41,6 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CurrencyListener extends SingleChannelListener{
@@ -295,6 +301,37 @@ public class CurrencyListener extends SingleChannelListener{
 		return itemName.toString();
 	}
 	
+	private static String getItemNamesAndCounts(List<ItemStack> items) {
+		List<String> itemEntries = new ArrayList<>();
+		for(ItemStack item : items)
+		{
+			if(!item.isEmpty())
+				itemEntries.add(item.getCount() + "x " + getItemName(item,""));
+		}
+		if(itemEntries.size() > 0)
+		{
+			if(itemEntries.size() == 2)
+			{
+				return itemEntries.get(0) + " and " + itemEntries.get(1);
+			}
+			else
+			{
+				StringBuffer buffer = new StringBuffer("");
+				for(int i = 0; i < itemEntries.size(); ++i)
+				{
+					if(i != 0)
+						buffer.append(", ");
+					if(i == itemEntries.size() - 1)
+						buffer.append("and ");
+					buffer.append(itemEntries.get(i));
+				}
+				return buffer.toString();
+			}
+		}
+		else
+			return "NULL";
+	}
+	
 	private static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
 	{
 		if(item1.isEmpty() && !item2.isEmpty())
@@ -317,6 +354,60 @@ public class CurrencyListener extends SingleChannelListener{
 				}
 			}
 		} catch(Exception e) { LightmansCurrency.LogError("Error processing notification to bot:", e); }
+	}
+	
+	@SubscribeEvent
+	public void onAuctionCreated(CreateAuctionEvent.Post event) {
+		if(!Config.SERVER.auctionHouseCreateNotifications.get())
+			return;
+		if(event.isPersistent() && !Config.SERVER.auctionHouseCreatePersistentNotifications.get())
+			return;
+		
+		AuctionTradeData auction = event.getAuction();
+		
+		String itemText = getItemNamesAndCounts(auction.getAuctionItems());
+		String startingBid = auction.getLastBidAmount().getString();
+		String minBid = auction.getMinBidDifference().getString();
+		
+		if(event.isPersistent())
+		{
+			this.sendTextMessage(CurrencyMessages.M_NEWAUCTION_PERSISTENT.format(itemText, startingBid, minBid));
+		}
+		else
+		{
+			PlayerReference owner = auction.getOwner();
+			String ownerName = owner != null ? owner.lastKnownName() : "NULL";
+			this.sendTextMessage(CurrencyMessages.M_NEWAUCTION.format(ownerName, itemText, startingBid, minBid));
+		}
+		
+	}
+	
+	@SubscribeEvent
+	public void onAuctionCanceled(CancelAuctionEvent event) {
+		
+		if(!Config.SERVER.auctionHouseCancelNotifications.get())
+			return;
+		
+		this.sendTextMessage(CurrencyMessages.M_CANCELAUCTION.format(event.getPlayer().getDisplayName().getString(), getItemNamesAndCounts(event.getAuction().getAuctionItems())));
+		
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onAuctionCompleted(AuctionCompletedEvent event) {
+		if(!Config.SERVER.auctionHouseWinNotifications.get() || !event.hadBidder())
+			return;
+		
+		AuctionTradeData auction = event.getAuction();
+		
+		if(auction.getLastBidPlayer() == null)
+			return;
+		
+		String winner = auction.getLastBidPlayer().lastKnownName();
+		String itemText = getItemNamesAndCounts(auction.getAuctionItems());
+		String price = auction.getLastBidAmount().getString();
+		
+		this.sendTextMessage(CurrencyMessages.M_WINAUCTION.format(winner, itemText, price));
+		
 	}
 	
 	public void addPendingMessage(User user, String message)
@@ -350,6 +441,8 @@ public class CurrencyListener extends SingleChannelListener{
 	@SubscribeEvent
 	public void onUniversalTraderRegistered(UniversalTradeCreateEvent event)
 	{
+		if(!Config.SERVER.traderCreationNotifications.get())
+			return;
 		//Announce the creation of the trader 60s later
 		new Timer().schedule(new AnnouncementTask(this, event), ANNOUCEMENT_DELAY);
 	}

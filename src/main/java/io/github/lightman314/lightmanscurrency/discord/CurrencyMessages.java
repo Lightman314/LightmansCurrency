@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.discord;
 
-import io.github.lightman314.lightmansconsole.events.CreateMessageEntriesEvent;
 import io.github.lightman314.lightmansconsole.message.MessageManager.MessageEntry;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CurrencyMessages {
 	
@@ -35,11 +33,11 @@ public class CurrencyMessages {
 	//Trader Announcement
 	public static final MessageEntry M_NEWTRADER = MessageEntry.create("lightmanscurrency_newtrader", "Announcement made in the currency bot channel when a new universal trader has been made.\n{player} for the traders owner name.", "{player} has made a new Trading Server!", "player");
 	public static final MessageEntry M_NEWTRADER_NAMED = MessageEntry.create("lightmanscurrency_newtrader_named", "Announcement made in the currency bot channel when a new universal trader with a custom name has been made.\n{player} for the traders owner name.\n{trader} for the traders custom name.", "{player} has made a new Trading Server '{trader}'!", "player", "trader");
+	public static final MessageEntry M_NEWAUCTION = MessageEntry.create("lightmanscurrency_newauction", "Announcement made in the currency bot channel when a new auction is made.\n{player} for the auctions owner name.\n{items} for the items being sold.\n{startingBid} for the starting bid.\n{minBid} for the minimum bid difference.", "{player} has created an auction selling {items} with a starting bid of {startingBid}!", "player","items","startingBid","minBid");
+	public static final MessageEntry M_NEWAUCTION_PERSISTENT = MessageEntry.create("lightmanscurrency_newauction_persistent", "Announcement made in the currency bot channel when a new persistent auction is made.\n{items} for the items being sold.\n{startingBid} for the starting bid.\n{minBid} for the minimum bid difference.", "The server has created an auction selling {items} with a starting bid of {startingBid}!", "items","startingBid","minBid");
+	public static final MessageEntry M_CANCELAUCTION = MessageEntry.create("lightmanscurrency_cancelauction", "Announcement made in the currency bot channel when an auction is canceled.\n{player} for the person who canceled the auction.{items} for the items being sold.\n", "The auction for {items} has been cancelled!", "player","items");
+	public static final MessageEntry M_WINAUCTION = MessageEntry.create("lightmanscurrency_winauction", "Announcement made in the currency bot channel when a player wins an auction.\n{player} for the highest bidder that won the auction.\n{items} for the items being sold.\n{bid} for the amount paid to win the bid.", "{player} won the auction for {items} with a bid of {bid}!", "player","items","bid");
 	
-	@SubscribeEvent
-	public static void confirmMessageInit(CreateMessageEntriesEvent event) 
-	{
-		//Don't need to do anything, as just subscribing to the event will cause the static values to be loaded.
-	}
+	public static void init() {};
 	
 }
