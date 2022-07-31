@@ -66,8 +66,11 @@ public abstract class NetworkTraderBlock extends RotatableBlock implements ITrad
 			UniversalTraderBlockEntity trader = (UniversalTraderBlockEntity)blockEntity;
 			if(!trader.canBreak(player))
 				return;
-			trader.onDestroyed();
+			
+			//Dump contents before onDestroyed, as removing the trader from the office makes it impossible to 
 			trader.dumpContents(level, state, pos);
+			//Now delete the trader from the trading office
+			trader.onDestroyed();
 			trader.flagAsRemovable();
 		}
 		
