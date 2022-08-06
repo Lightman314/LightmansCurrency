@@ -5,15 +5,17 @@ Lightman's Currency is a forge mod that adds a simple currency system of 6 diffe
 #### Coins
 - 6 different interchangable coins (Copper, Iron, Gold, Emerald, Diamond, and Netherite), each of which can be minted or melted back into their base material at a coin mint.
 - Disclaimer: Copper coins cannot be minted or melted in 1.16 without use of a datapack to add mint/melt recipes for another mods copper ingots. More info can be found [here](https://github.com/Lightman314/LightmansCurrency/tree/LC-1.16/Recipe%20Datapacks).
+- Coins can be exchanged to different types of coins at an ATM.
 - Server owners can customize which coins are allowed to be minted or melted.
-- Coins can be converted all different types of coins at an ATM.
+- Server owners can customize the coins exhange rates & even add/remove coins to use another mods coins.
 #### Wallets
 - 6 Craftable wallets corresponding to the 6 different coin types, each with more storage than the previous one.
 - Wallets can be equipped in the wallet slot, which can be accessed by key bind ('V' by default) or by clicking a button on the top-right of the players inventory. Equipped wallets render on the players left hip.
 - High enough level wallets (Iron by default) can convert their contents into the highest level coins to conserve wallet space.
 - High enough level wallets (Gold by default) can automatically collect coins picked up from the ground while equipped.
-- High enough level wallets (Netherite by default) can transfer coins between your personal bank account and the wallet without the need to use an ATM.
-- Wallets can either be crafted directly, or upgraded from a lower level wallet at a slight inefficiency.
+- High enough level wallets (Netherite by default) can access basic bank account functions, allowing you to transfer money to/from your bank account.
+- Wallets can be enchanted to increase their coin collection range.
+- Wallets can either be crafted directly, or upgraded from a lower level wallet.
 - Server owners can customize what level of wallet is required to access certain wallet features.
 #### Bank Accounts
 - Each player has a personal bank account that can store a nearly infinite amount of money (only limited by java limitations).
@@ -25,7 +27,7 @@ Lightman's Currency is a forge mod that adds a simple currency system of 6 diffe
 - Team system, with which you can create a group of friends to moderate your traders together.
 - Trader permission system, from which you can define what your friends can & can't do to your traders.
 - Trade Rule system, from which you can set up time-limited sales, give discounts to your friends, or limit the number of purchases allowed to be made within a certain time period.
-- Universal Trader system (Trading Server's) from which people can buy items from your trader from anywhere in any dimension.
+- Network Trader's from which people can buy items from your trader from anywhere in any dimension.
 - Traders can be linked to the owners bank account for automatic deposit of any funds gained, and automatic withdrawl for any purchases made. Does not work for traders owned by a team unless the team owner has created a bank account for said team.
 #### Trading Teams
 - Players can create and invite other players to a Team.
