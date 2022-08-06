@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +41,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
-	public Component getTooltip() { return new TextComponent(""); }
+	public MutableComponent getTooltip() { return new TextComponent(""); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -194,14 +194,14 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 				this.changeSelection(-1);
 			else if(t.isPurchase())
 			{
-				if(heldItem.isEmpty() && t.getSellItem(index).isEmpty())
+				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
 					this.commonTab.defaultInteraction(index, heldItem, mouseButton);
 			}
 			else if(t.isBarter())
 			{
-				if(heldItem.isEmpty() && t.getBarterItem(index).isEmpty())
+				if(this.selection != (index + 2) && heldItem.isEmpty())
 					this.changeSelection(index + 2);
 				else
 					this.commonTab.defaultInteraction(index + 2, heldItem, mouseButton);
@@ -218,7 +218,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale() || t.isBarter())
 			{
-				if(heldItem.isEmpty() && t.getSellItem(index).isEmpty())
+				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
 					this.commonTab.defaultInteraction(index, heldItem, mouseButton);
