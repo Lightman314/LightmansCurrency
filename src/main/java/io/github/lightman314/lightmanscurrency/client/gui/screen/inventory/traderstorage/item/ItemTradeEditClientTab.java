@@ -193,14 +193,14 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 				this.changeSelection(-1);
 			else if(t.isPurchase())
 			{
-				if(heldItem.isEmpty() && t.getSellItem(index).isEmpty())
+				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
 					this.commonTab.defaultInteraction(index, heldItem, mouseButton);
 			}
 			else if(t.isBarter())
 			{
-				if(heldItem.isEmpty() && t.getBarterItem(index).isEmpty())
+				if(this.selection != (index + 2) && heldItem.isEmpty())
 					this.changeSelection(index + 2);
 				else
 					this.commonTab.defaultInteraction(index + 2, heldItem, mouseButton);
@@ -217,7 +217,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale() || t.isBarter())
 			{
-				if(heldItem.isEmpty() && t.getSellItem(index).isEmpty())
+				if(this.selection != index && heldItem.isEmpty())
 					this.changeSelection(index);
 				else
 					this.commonTab.defaultInteraction(index, heldItem, mouseButton);

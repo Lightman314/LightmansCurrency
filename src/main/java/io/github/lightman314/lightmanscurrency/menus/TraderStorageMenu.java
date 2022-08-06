@@ -147,7 +147,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	
 	private boolean hasCoinSlotAccess() {
 		ITrader trader = this.getTrader();
-		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS);
+		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.getCoreSettings().hasBankAccount();
 	}
 	
 	@Override
@@ -266,7 +266,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	}
 	
 	public void receiveMessage(CompoundTag message) {
-		//LightmansCurrency.LogInfo("Received nessage:\n" + message.getAsString());
+		//LightmansCurrency.LogInfo("Received message:\n" + message.getAsString());
 		if(message.contains("ChangeTab", Tag.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"));
 		if(message.contains("SetCoinSlotsActive"))

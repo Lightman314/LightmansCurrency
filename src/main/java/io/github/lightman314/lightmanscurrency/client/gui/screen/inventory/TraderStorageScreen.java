@@ -20,6 +20,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.IScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
@@ -44,7 +46,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 @IPNIgnore
-public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMenu> implements IClientMessage {
+public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMenu> implements IClientMessage, IScreen {
 
 	Map<Integer,TraderStorageClientTab<?>> availableTabs = new HashMap<>();
 	public TraderStorageClientTab<?> currentTab() { return this.availableTabs.get(this.menu.getCurrentTabIndex()); }
@@ -67,6 +69,8 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	List<AbstractWidget> tabRenderables = new ArrayList<>();
 	List<GuiEventListener> tabListeners = new ArrayList<>();
+	
+	private final List<Runnable> tickListeners = new ArrayList<>();
 	
 	public TraderStorageScreen(TraderStorageMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -127,6 +131,10 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.logWindow.visible = false;
 		}
 		
+		//Left side auto-position
+		LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, TraderMenu.SLOT_OFFSET - 20, 118, 20, this.buttonShowTrades, this.buttonCollectMoney, this.buttonShowLog, this.buttonClearLog);
+		//Right side auto-position
+		LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, TraderStorageMenu.SLOT_OFFSET + 176, 118, 20, this.buttonStoreMoney, this.buttonOpenSettings, this.buttonTradeRules);
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -236,6 +244,8 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		}
 		
 		this.currentTab().tick();
+		
+		for(Runnable r : this.tickListeners) r.run();
 		
 	}
 	
@@ -402,6 +412,11 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	{
 		this.menu.player.closeContainer();
 		Minecraft.getInstance().setScreen(new TraderSettingsScreen(this.menu::getTrader, (player) -> this.menu.getTrader().sendOpenStorageMessage()));
+	}
+
+	@Override
+	public void addTickListener(Runnable r) {
+		this.tickListeners.add(r);
 	}
 	
 }

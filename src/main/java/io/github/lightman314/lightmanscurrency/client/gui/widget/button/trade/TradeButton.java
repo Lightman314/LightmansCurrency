@@ -215,6 +215,7 @@ public class TradeButton extends Button{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
 				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
+				return;
 			}
 		}
 		
@@ -223,12 +224,14 @@ public class TradeButton extends Button{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
 				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
+				return;
 			}
 		}
 		
 		if(this.isMouseOverAlert(mouseX, mouseY, trade, context))
 		{
 			DrawAlerts(pose, mouseX, mouseY, trade.getAlertData(context));
+			return;
 		}
 		
 		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
