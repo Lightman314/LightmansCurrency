@@ -637,6 +637,13 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 				contents.add(new ItemStack(state.getBlock()));
 		}
 		
+		//Drop upgrade slots
+		for(int i = 0; i < this.upgradeSlots.getContainerSize(); ++i)
+		{
+			if(!this.upgradeSlots.getItem(i).isEmpty())
+				contents.add(this.upgradeSlots.getItem(i));
+		}
+		
 		//Dump contents
 		this.dumpContents(contents);
 		return contents;

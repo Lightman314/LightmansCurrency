@@ -321,7 +321,7 @@ public class CurrencyListener extends SingleChannelListener{
 				{
 					if(i != 0)
 						buffer.append(", ");
-					if(i == itemEntries.size() - 1)
+					if(i == itemEntries.size() - 1 && itemEntries.size() > 1)
 						buffer.append("and ");
 					buffer.append(itemEntries.get(i));
 				}

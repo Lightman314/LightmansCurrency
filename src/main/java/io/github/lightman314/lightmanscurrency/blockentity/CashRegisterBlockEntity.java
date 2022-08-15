@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -47,82 +48,11 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
-	}
-	
-	/*public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
-	{
-		//Validate the direction
-		if(direction == 0)
-			direction = 1;
+		if(this.getTraders().size() > 0)
+			NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
 		else
-			direction = MathUtil.clamp(direction, -1, 1);
-		//Only open the container server-side
-		if(this.level.isClientSide)
-			return;
-		//Confirm we have any tile entities that can be opened
-		if(this.positions.size() <= 0)
-		{
-			LightmansCurrency.LogInfo("Cash Register has no Trader Positions stored. Unable to open container.");
-			return;
-		}
-		//Round the newIndex value around if below 0 or greater than the position size
-		if(newIndex < 0)
-			newIndex = this.positions.size() - 1;
-		else if(newIndex >= this.positions.size())
-			newIndex = 0;
-		if(newIndex == oldIndex)
-		{
-			LightmansCurrency.LogInfo("Trader Index is the same as the original index.");
-			return;
-		}
-		
-		TraderBlockEntity tileEntity = this.getTrader(newIndex);
-		if(tileEntity != null)
-		{
-			//Open the container
-			tileEntity.openCashRegisterTradeMenu(player, this);
-			return;
-		}
-		else
-		{
-			//No tile entity found at the position. Keep moving through the loop
-			if(oldIndex < 0)
-				oldIndex = newIndex;
-			OpenContainer(oldIndex, newIndex + direction, direction, player);
-		}
-		
+			player.sendSystemMessage(Component.translatable("message.lightmanscurrency.cash_register.notlinked"));
 	}
-	
-	public void OpenEditorScreen()
-	{
-		
-	}
-	
-	public TraderBlockEntity getTrader(int index)
-	{
-		if(index < 0 || index >= positions.size())
-			return null;
-		BlockEntity tileEntity = this.level.getBlockEntity(positions.get(index));
-		if(tileEntity instanceof TraderBlockEntity)
-			return (TraderBlockEntity)tileEntity;
-		return null;
-	}
-	
-	public int getTraderIndex(TraderBlockEntity tileEntity)
-	{
-		for(int i = 0; i < positions.size(); i++)
-		{
-			if(positions.get(i).equals(tileEntity.getBlockPos()))
-				return i;
-		}
-		return -1;
-	}
-	
-	public int getPairedTraderSize()
-	{
-		return positions.size();
-	}*/
 	
 	@Override
 	public boolean isSingleTrader() { return false; }
