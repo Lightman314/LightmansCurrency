@@ -234,6 +234,7 @@
     "tooptip.lightmanscurrency.cash_register.holdshift": "Hold SHIFT for details.",
     "tooptip.lightmanscurrency.cash_register.instructions": "Shift + R-Click on a trader to register.",
     "tooltip.lightmanscurrency.cash_register.details": "Trader %1$s at %2$s %3$s %4$s",
+    "message.lightmanscurrency.cash_register.notlinked": "Cash Register is not linked to any traders.",
     "tooptip.lightmanscurrency.coinjar.holdshift": "Hold SHIFT to view contents.",
     "tooptip.lightmanscurrency.coinjar.storedcoins.single": "Contains a %s",
     "tooptip.lightmanscurrency.coinjar.storedcoins.multiple": "Contains %1$sx %2$s",

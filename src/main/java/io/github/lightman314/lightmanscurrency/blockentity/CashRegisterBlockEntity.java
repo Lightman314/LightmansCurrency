@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
@@ -11,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +49,10 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+		if(this.getTraders().size() > 0)
+			NetworkHooks.openGui((ServerPlayer)player, provider, this.worldPosition);
+		else
+			player.sendMessage(new TranslatableComponent("message.lightmanscurrency.cash_register.notlinked"), new UUID(0,0));
 	}
 	
 	/*public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
