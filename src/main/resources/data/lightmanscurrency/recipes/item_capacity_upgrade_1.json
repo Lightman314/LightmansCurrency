@@ -4,7 +4,7 @@
     "tag": "forge:chests/wooden"
   },
   "addition": {
-    "item": "minecraft:iron_ingot"
+    "tag": "forge:ingots/iron"
   },
   "result": {
     "item": "lightmanscurrency:item_capacity_upgrade_1"

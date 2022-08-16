@@ -11,7 +11,7 @@
       "item": "lightmanscurrency:item_trader_server_lrg"
     },
     "g": {
-      "item": "minecraft:gold_ingot"
+      "tag": "forge:ingots/gold"
     },
     "c": {
       "tag": "forge:chests/wooden"

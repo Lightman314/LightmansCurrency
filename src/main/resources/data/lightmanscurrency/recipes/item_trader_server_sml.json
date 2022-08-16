@@ -14,7 +14,7 @@
       "item": "minecraft:ender_eye"
     },
     "i": {
-      "item": "minecraft:iron_ingot"
+      "tag": "forge:ingots/iron"
     },
     "c": {
       "tag": "forge:chests/wooden"

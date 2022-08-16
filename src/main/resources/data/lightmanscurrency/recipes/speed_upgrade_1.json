@@ -4,7 +4,7 @@
     "item": "minecraft:clock"
   },
   "addition": {
-    "item": "minecraft:iron_ingot"
+    "tag": "forge:ingots/iron"
   },
   "result": {
     "item": "lightmanscurrency:speed_upgrade_1"
