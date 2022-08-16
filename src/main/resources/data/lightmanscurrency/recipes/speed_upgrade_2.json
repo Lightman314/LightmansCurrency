@@ -4,7 +4,7 @@
     "item": "lightmanscurrency:speed_upgrade_1"
   },
   "addition": {
-    "item": "minecraft:gold_ingot"
+    "tag": "forge:ingots/gold"
   },
   "result": {
     "item": "lightmanscurrency:speed_upgrade_2"

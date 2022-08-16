@@ -10,7 +10,7 @@
       "item": "minecraft:ender_eye"
     },
     "a": {
-      "item": "minecraft:amethyst_shard"
+      "tag": "forge:gems/amethyst"
     },
     "s": {
       "tag": "forge:stone"

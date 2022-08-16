@@ -2,7 +2,7 @@
   "type": "lightmanscurrency:coin_mint",
   "mintType": "MINT",
   "ingredient": {
-    "item": "minecraft:iron_ingot"
+    "tag": "forge:ingots/iron"
   },
   "result": "lightmanscurrency:coin_iron"
 }

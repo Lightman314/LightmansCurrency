@@ -36,7 +36,11 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ArmorDisplayTraderBlockEntity(pos, state); }
+	public BlockEntity makeTrader(BlockPos pos, BlockState state) {
+		ArmorDisplayTraderBlockEntity trader = new ArmorDisplayTraderBlockEntity(pos, state);
+		trader.flagAsLoaded();
+		return trader;
+	}
 	
 	@Override
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }

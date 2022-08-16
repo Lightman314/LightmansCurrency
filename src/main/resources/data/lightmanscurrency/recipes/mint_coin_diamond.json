@@ -2,7 +2,7 @@
   "type": "lightmanscurrency:coin_mint",
   "mintType": "MINT",
   "ingredient": {
-    "item": "minecraft:diamond"
+    "tag": "forge:gems/diamond"
   },
   "result": "lightmanscurrency:coin_diamond"
 }

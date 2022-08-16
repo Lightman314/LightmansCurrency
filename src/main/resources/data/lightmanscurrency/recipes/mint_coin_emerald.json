@@ -2,7 +2,7 @@
   "type": "lightmanscurrency:coin_mint",
   "mintType": "MINT",
   "ingredient": {
-    "item": "minecraft:emerald"
+    "tag": "forge:gems/emerald"
   },
   "result": "lightmanscurrency:coin_emerald"
 }

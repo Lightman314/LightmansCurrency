@@ -13,7 +13,7 @@
       "tag": "forge:glass/colorless"
     },
     "i": {
-      "item": "minecraft:iron_ingot"
+      "tag": "forge:ingots/iron"
     },
     "a": {
       "item": "minecraft:armor_stand"
