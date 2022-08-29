@@ -6,12 +6,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWalletBank;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
+import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletQuickCollect;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -33,6 +35,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	boolean autoConvert = false;
 	
 	Button buttonOpenBank;
+	
+	Button buttonQuickCollect;
 	
 	public WalletScreen(WalletMenu container, Inventory inventory, Component title)
 	{
@@ -113,6 +117,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 			this.buttonOpenBank = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.get().asItem())));
 		}
 		
+		this.buttonQuickCollect = this.addRenderableWidget(new PlainButton(this.leftPos + 159, this.topPos + this.imageHeight - 95, 10, 10, this::PressQuickCollectButton, GUI_TEXTURE, this.imageWidth + 16, 0));
 		
 	}
 	
@@ -175,6 +180,11 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	private void PressOpenBankButton(Button button)
 	{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWalletBank(this.menu.getWalletStackIndex()));
+	}
+	
+	private void PressQuickCollectButton(Button button)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageWalletQuickCollect());
 	}
 	
 }
