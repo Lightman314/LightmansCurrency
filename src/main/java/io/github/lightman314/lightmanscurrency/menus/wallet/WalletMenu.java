@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.menus.wallet;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.DisplaySlot;
-
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -85,6 +85,20 @@ public class WalletMenu extends WalletMenuBase {
 		
 		return clickedStack;
 		
+	}
+	
+	public void QuickCollectCoins()
+	{
+		Inventory inv = this.player.getInventory();
+		for(int i = 0; i < inv.getContainerSize(); ++i)
+		{
+			ItemStack item = inv.getItem(i);
+			if(MoneyUtil.isCoin(item))
+			{
+				ItemStack result = this.PickupCoins(item);
+				inv.setItem(i, result);
+			}
+		}
 	}
 	
 }
