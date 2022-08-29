@@ -93,7 +93,7 @@ public class WalletMenu extends WalletMenuBase {
 		for(int i = 0; i < inv.getContainerSize(); ++i)
 		{
 			ItemStack item = inv.getItem(i);
-			if(MoneyUtil.isCoin(item))
+			if(MoneyUtil.isCoin(item, false))
 			{
 				ItemStack result = this.PickupCoins(item);
 				inv.setItem(i, result);
