@@ -55,6 +55,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+@SuppressWarnings("removal")
 public class ItemTraderBlockEntity extends TraderBlockEntity implements IItemTrader {
 	
 	public static final int VERSION = 1;

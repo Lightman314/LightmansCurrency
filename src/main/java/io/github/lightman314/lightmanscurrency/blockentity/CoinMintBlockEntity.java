@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+@SuppressWarnings("removal")
 @Mod.EventBusSubscriber
 public class CoinMintBlockEntity extends BlockEntity{
 

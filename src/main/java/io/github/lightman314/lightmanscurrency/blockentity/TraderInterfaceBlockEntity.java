@@ -66,6 +66,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+@SuppressWarnings("removal")
 public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable {
 	
 	public static final int INTERACTION_DELAY = 20;
