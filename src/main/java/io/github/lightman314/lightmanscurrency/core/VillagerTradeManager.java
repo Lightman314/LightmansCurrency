@@ -373,7 +373,10 @@ public class VillagerTradeManager {
 			List<ItemListing> newList = new ArrayList<>();
 			
 			for(ItemListing trade : tradeList)
-				newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementItem));
+			{
+				if(trade != null)
+					newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementItem));
+			}	
 
 			trades.put(i, newList);
 
@@ -384,22 +387,18 @@ public class VillagerTradeManager {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void OnWandererTradeSetup(WandererTradesEvent event)
 	{
-		
-		if(Config.COMMON.addCustomWanderingTrades.get())
-		{
-			List<ItemListing> genericTrades = event.getGenericTrades();
-			List<ItemListing> rareTrades = event.getRareTrades();
-
-			getGenericWandererTrades().forEach(trade -> genericTrades.add(trade));
-			getRareWandererTrades().forEach(trade -> rareTrades.add(trade));
-		}
 
 		if(Config.COMMON.changeWanderingTrades.get())
 		{
-
 			replaceExistingTrades(event.getGenericTrades());
 			replaceExistingTrades(event.getRareTrades());
-
+		}
+		
+		//Add my own custom trades
+		if(Config.COMMON.addCustomWanderingTrades.get())
+		{
+			event.getGenericTrades().addAll(getGenericWandererTrades());
+			event.getRareTrades().addAll(getRareWandererTrades());
 		}
 		
 	}
@@ -409,7 +408,10 @@ public class VillagerTradeManager {
 		Item replacementItem = Config.getDefaultEmeraldReplacementItem();
 		
 		for(int i = 0; i < tradeList.size(); ++i)
-			tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, replacementItem));
+		{
+			if(tradeList.get(i) != null)
+				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, replacementItem));
+		}
 		
 	}
 	
@@ -772,19 +774,44 @@ public class VillagerTradeManager {
 
 		@Override
 		public MerchantOffer getOffer(Entity trader, Random random) {
-			MerchantOffer offer = this.tradeSource.getOffer(trader, random);
-			ItemStack itemA = offer.getBaseCostA();
-			ItemStack itemB = offer.getCostB();
-			ItemStack itemC = offer.getResult();
-			if(itemA.getItem() == this.oldItem)
-				itemA = new ItemStack(this.newItem, itemA.getCount());
-			if(itemB.getItem() == this.oldItem)
-				itemB = new ItemStack(this.newItem, itemB.getCount());
-			if(itemC.getItem() == this.oldItem)
-				itemC = new ItemStack(this.newItem, itemC.getCount());
+			try {
+				int attempts = 0;
+				MerchantOffer offer = null;
+				do
+				{
+					offer = this.tradeSource.getOffer(trader, random);
+				} while(offer == null && attempts++ < 100);
 
 
-			return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
+				if(attempts > 1)
+				{
+					if(offer == null)
+					{
+						LightmansCurrency.LogError("Original Item Listing Class: " + this.tradeSource.getClass().getName());
+						throw new NullPointerException("The original Item Listing of the converted trade returned a null trade offer " + attempts + " times!");
+					}
+					else
+					{
+						LightmansCurrency.LogWarning("Original Item Listing Class: " + this.tradeSource.getClass().getName());
+						LightmansCurrency.LogWarning("Converted Trade took " + attempts + " attempts to receive a non-null trade offer from the original Item Listing!");
+					}	
+				}
+
+				ItemStack itemA = offer.getBaseCostA();
+				ItemStack itemB = offer.getCostB();
+				ItemStack itemC = offer.getResult();
+				if(itemA.getItem() == this.oldItem)
+					itemA = new ItemStack(this.newItem, itemA.getCount());
+				if(itemB.getItem() == this.oldItem)
+					itemB = new ItemStack(this.newItem, itemB.getCount());
+				if(itemC.getItem() == this.oldItem)
+					itemC = new ItemStack(this.newItem, itemC.getCount());
+
+				return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
+			} catch(Throwable t) {
+				LightmansCurrency.LogError("Error converting trade:", t);
+				return null;
+			}
 		}
 
 	}
