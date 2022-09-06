@@ -7,7 +7,6 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -19,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -93,14 +91,6 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	@Override
 	public Direction getRelativeSide(BlockState state, Direction side) {
 		return IItemHandlerBlock.getRelativeSide(this.getFacing(state), side);
-	}
-
-	@Override
-	public IItemHandlerBlockEntity getItemHandlerEntity(BlockState state, Level level, BlockPos pos) {
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof IItemHandlerBlockEntity)
-			return (IItemHandlerBlockEntity)blockEntity;
-		return null;
 	}
 	
 	@Override

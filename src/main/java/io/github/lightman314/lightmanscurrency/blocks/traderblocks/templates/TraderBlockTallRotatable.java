@@ -157,6 +157,8 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	@Override
 	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
+		if(level == null)
+			return null;
 		if(this.getIsTop(state))
 			return level.getBlockEntity(pos.below());
 		return level.getBlockEntity(pos);

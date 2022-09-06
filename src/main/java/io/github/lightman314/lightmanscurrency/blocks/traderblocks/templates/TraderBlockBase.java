@@ -190,7 +190,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	@Override
 	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) {
-		return level.getBlockEntity(pos);
+		return level == null ? null : level.getBlockEntity(pos);
 	}
 	
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return () -> new ArrayList<>(); }
