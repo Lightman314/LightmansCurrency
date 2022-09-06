@@ -1,0 +1,58 @@
+package io.github.lightman314.lightmanscurrency.common.notifications.types;
+
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+
+public class TextNotification extends Notification {
+
+	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "text");
+	
+	private MutableComponent text = Component.literal("");
+	private Category category = NullCategory.INSTANCE;
+	
+	public TextNotification(MutableComponent text){ this(text, NullCategory.INSTANCE); }
+	public TextNotification(MutableComponent text, Category category) { this.text = text; this.category = category; }
+	
+	public TextNotification(CompoundTag compound) { this.load(compound); }
+	
+	@Override
+	protected ResourceLocation getType() { return TYPE; }
+
+	@Override
+	public Category getCategory() { return this.category; }
+
+	@Override
+	public MutableComponent getMessage() { return text; }
+
+	@Override
+	protected void saveAdditional(CompoundTag compound) {
+		compound.putString("Text", Component.Serializer.toJson(this.text));
+		compound.put("Category", this.category.save());
+	}
+
+	@Override
+	protected void loadAdditional(CompoundTag compound) {
+		if(compound.contains("Text", Tag.TAG_STRING))
+			this.text = Component.Serializer.fromJson(compound.getString("Text"));
+		if(compound.contains("Category", Tag.TAG_COMPOUND))
+			this.category = Category.deserialize(compound.getCompound("Category"));
+	}
+
+	@Override
+	protected boolean canMerge(Notification other) {
+		if(other instanceof TextNotification)
+		{
+			TextNotification otherText = (TextNotification)other;
+			if(otherText.text.getString() == this.text.getString())
+				return true;
+		}
+		return false;
+	}
+	
+}

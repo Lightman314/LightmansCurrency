@@ -15,11 +15,13 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.PaygateNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
@@ -175,9 +177,11 @@ public class LightmansCurrency {
     	Notification.register(AuctionHouseSellerNobidNotification.TYPE, AuctionHouseSellerNobidNotification::new);
     	Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
     	Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
+    	Notification.register(TextNotification.TYPE, TextNotification::new);
     	
     	//Initialize the Notification Category deserializers
     	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
+    	Category.register(NullCategory.TYPE, compound -> NullCategory.INSTANCE);
     	Category.register(TraderCategory.TYPE, TraderCategory::new);
     	Category.register(BankCategory.TYPE, BankCategory::new);
     	Category.register(AuctionHouseCategory.TYPE, compound -> AuctionHouseCategory.INSTANCE);

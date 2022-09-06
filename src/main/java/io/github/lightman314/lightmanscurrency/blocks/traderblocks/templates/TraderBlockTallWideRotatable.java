@@ -160,6 +160,8 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	@Override
 	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
+		if(level == null)
+			return null;
 		BlockPos getPos = pos;
 		if(this.getIsRight(state))
 			getPos = IRotatableBlock.getLeftPos(getPos, this.getFacing(state));

@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -90,14 +89,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	@Override
 	public Direction getRelativeSide(BlockState state, Direction side) {
 		return IItemHandlerBlock.getRelativeSide(this.getFacing(state), side);
-	}
-
-	@Override
-	public IItemHandlerBlockEntity getItemHandlerEntity(BlockState state, Level level, BlockPos pos) {
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof IItemHandlerBlockEntity)
-			return (IItemHandlerBlockEntity)blockEntity;
-		return null;
 	}
 	
 	@Override
