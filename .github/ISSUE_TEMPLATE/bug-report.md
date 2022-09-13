@@ -12,7 +12,7 @@ Forge Version (REQUIRED):
 Lightman's Currency Version (REQUIRED): 
 Other Relevant Mods & Version (LC Tech, etc.): 
 Connection Type (Single-player, server/client, LAN world): 
-If Server, is the server in Offline Mode: 
+If playing on a server, was the server ever in Offline Mode: 
 
 **Describe the bug**
 A clear and concise description of what the bug is.
