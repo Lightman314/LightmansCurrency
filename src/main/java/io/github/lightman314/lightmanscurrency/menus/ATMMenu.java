@@ -3,14 +3,15 @@ package io.github.lightman314.lightmanscurrency.menus;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -78,10 +79,10 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			AccountReference account = this.getBankAccountReference();
 			if(account.accountType == AccountType.Player)
 			{
-				if(!account.id.equals(this.player.getUUID()))
+				if(!account.playerID.equals(this.player.getUUID()))
 				{
 					//Switch back to their personal bank account when closing the ATM if they're accessing another players bank account.
-					TradingOffice.setSelectedBankAccount(this.player, BankAccount.GenerateReference(this.player));
+					BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(this.player));
 				}
 			}
 		}
@@ -200,12 +201,12 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	
 	public MutableComponent SetPlayerAccount(String playerName) {
 		
-		if(TradingOffice.isAdminPlayer(this.player))
+		if(CommandLCAdmin.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(playerName);
 			if(accountPlayer != null)
 			{
-				TradingOffice.setSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
+				BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
 				return Component.translatable("gui.bank.select.player.success", accountPlayer.lastKnownName());
 			}
 			else

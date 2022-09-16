@@ -1,13 +1,11 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
+import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.EquipmentRestriction;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +20,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.EquipmentRestriction;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 
@@ -44,28 +48,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public ItemTradeRestriction getRestriction(int tradeIndex) {
-		switch(tradeIndex % 4)
-		{
-		case 0:
-			return new EquipmentRestriction(EquipmentSlot.HEAD, this::getArmorStand);
-		case 1:
-			return new EquipmentRestriction(EquipmentSlot.CHEST, this::getArmorStand);
-		case 2:
-			return new EquipmentRestriction(EquipmentSlot.LEGS, this::getArmorStand);
-		case 3:
-			return new EquipmentRestriction(EquipmentSlot.FEET, this::getArmorStand);
-			default:
-				return ItemTradeRestriction.NONE;
-		}
-	}
-	
-	@Override
-	public void markTradesDirty() {
-		super.markTradesDirty();
-		if(this.isServer())
-			this.updateArmorStandArmor();
-	}
+	public ItemTraderData buildNewTrader() { return new ItemTraderDataArmor(this.level, this.worldPosition); }
 	
 	@Override
 	public void clientTick() {
@@ -146,25 +129,31 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		ArmorStand armorStand = this.getArmorStand();
 		if(armorStand != null)
 		{
-			for(int i = 0; i < 4 && i < this.tradeCount; i++)
+			ItemTraderData trader = this.getTraderData();
+			if(trader != null)
 			{
-				ItemTradeData thisTrade = this.getTrade(i);
-				//Trade restrictions shall determine the slot type
-				ItemTradeRestriction r = thisTrade.getRestriction();
-				EquipmentSlot slot = null;
-				if(r instanceof EquipmentRestriction)
+				List<ItemTradeData> trades = trader.getAllTrades();
+				for(int i = 0; i < 4 && i < trades.size(); i++)
 				{
-					EquipmentRestriction er = (EquipmentRestriction)r;
-					slot = er.getEquipmentSlot();
-				}
-				if(slot != null)
-				{
-					if(thisTrade.hasStock(this) || this.getCoreSettings().isCreative())
-						armorStand.setItemSlot(slot, thisTrade.getSellItem(0));
-					else
-						armorStand.setItemSlot(slot, ItemStack.EMPTY);
+					ItemTradeData thisTrade = trades.get(i);
+					//Trade restrictions shall determine the slot type
+					ItemTradeRestriction r = thisTrade.getRestriction();
+					EquipmentSlot slot = null;
+					if(r instanceof EquipmentRestriction)
+					{
+						EquipmentRestriction er = (EquipmentRestriction)r;
+						slot = er.getEquipmentSlot();
+					}
+					if(slot != null)
+					{
+						if(thisTrade.hasStock(trader) || trader.isCreative())
+							armorStand.setItemSlot(slot, thisTrade.getSellItem(0));
+						else
+							armorStand.setItemSlot(slot, ItemStack.EMPTY);
+					}
 				}
 			}
+			
 		}
 	}
 	
@@ -243,7 +232,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	@Override
 	public void load(CompoundTag compound)
 	{
-		loaded = true;
+		this.loaded = true;
 		if(compound.contains("ArmorStand"))
 			this.armorStandID = compound.getUUID("ArmorStand");
 		super.load(compound);
@@ -284,6 +273,14 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		else if(facing == Direction.EAST)
 			return 90f;
 		return 0f;
+	}
+	
+	@Override @Deprecated
+	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
+		ItemTraderDataArmor newTrader = new ItemTraderDataArmor(this.level, this.worldPosition);
+		newTrader.loadOldUniversalTraderData(compound);
+		this.tradeCount = newTrader.getTradeCount();
+		return newTrader;
 	}
 	
 }

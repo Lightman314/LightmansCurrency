@@ -2,12 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.api.TextLogger;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -36,12 +33,13 @@ public class LoggerTab extends SettingsTab{
 	
 	@Override
 	public void initTab() {
-		TraderSettingsScreen screen = this.getScreen();
-		this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 5, 190, 190, screen.getFont(), () -> getLogger().logText));
-		this.display.invertText = true;
+		//TraderSettingsScreen screen = this.getScreen();
+		//this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 5, 190, 190, screen.getFont(), () -> getLogger().logText));
+		//this.display.invertText = true;
+		//TODO rework logger display
 	}
 	
-	private TextLogger getLogger() { return this.getSetting(CoreTraderSettings.class).getLogger(); }
+	//private TextLogger getLogger() { return this.getSetting(CoreTraderSettings.class).getLogger(); }
 
 	@Override
 	public void preRender(PoseStack matrix, int mouseX, int mouseY, float partialTicks) { }

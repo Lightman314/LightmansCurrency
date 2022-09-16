@@ -6,9 +6,10 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,9 +56,12 @@ public class PaygateBlock extends TraderBlockRotatable {
 				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
 				if(tradeIndex >= 0)
 				{
-					//Emulate the trade execution
-					paygate.ExecuteTrade(TradeContext.create(paygate, player).build(), tradeIndex);
-					return InteractionResult.SUCCESS;
+					PaygateTraderData trader = paygate.getTraderData();
+					if(trader != null)
+					{
+						trader.ExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
+						return InteractionResult.SUCCESS;
+					}
 				}
 			}
 		}

@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.player;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.UsernameCache;

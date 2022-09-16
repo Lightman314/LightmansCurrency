@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener.
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -69,13 +69,13 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
 			//Validate the scroll
 			this.validateScroll();
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
-			TraderItemStorage storage = ((IItemTrader)this.menu.getTrader()).getStorage();
+			TraderItemStorage storage = ((ItemTraderData)this.menu.getTrader()).getStorage();
 			int hoverSlot = this.isMouseOverSlot(mouseX, mouseY) + (this.scroll * COLUMNS);
 			for(int y = 0; y < ROWS; ++y)
 			{
@@ -125,13 +125,13 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() instanceof IItemTrader && this.screen.getMenu().getCarried().isEmpty())
+		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getCarried().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)
 			{
 				hoveredSlot += scroll * COLUMNS;
-				TraderItemStorage storage = ((IItemTrader)this.menu.getTrader()).getStorage();
+				TraderItemStorage storage = ((ItemTraderData)this.menu.getTrader()).getStorage();
 				if(hoveredSlot < storage.getContents().size())
 				{
 					ItemStack stack = storage.getContents().get(hoveredSlot);
@@ -180,9 +180,9 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 	
 	private int totalStorageSlots() {
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			return ((IItemTrader)this.menu.getTrader()).getStorage().getContents().size();
+			return ((ItemTraderData)this.menu.getTrader()).getStorage().getContents().size();
 		}
 		return 0;
 	}
@@ -213,7 +213,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)

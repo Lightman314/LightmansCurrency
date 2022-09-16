@@ -3,15 +3,15 @@ package io.github.lightman314.lightmanscurrency.menus.traderstorage.paygate;
 import java.util.UUID;
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -32,9 +32,9 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public PaygateTradeData getTrade() { 
-		if(this.menu.getTrader() instanceof PaygateBlockEntity)
+		if(this.menu.getTrader() instanceof PaygateTraderData)
 		{
-			PaygateBlockEntity paygate = (PaygateBlockEntity)this.menu.getTrader();
+			PaygateTraderData paygate = (PaygateTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= paygate.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -66,7 +66,7 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.writeToNBT(message, "NewPrice");
+				price.save(message, "NewPrice");
 				this.menu.sendMessage(message);
 			}
 		}
@@ -113,7 +113,7 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 		else if(message.contains("NewPrice"))
 		{
 			CoinValue price = new CoinValue();
-			price.readFromNBT(message, "NewPrice");
+			price.load(message, "NewPrice");
 			this.setPrice(price);
 		}
 		else if(message.contains("NewTicket"))

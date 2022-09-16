@@ -9,10 +9,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -46,9 +47,9 @@ public class CommandBalTop {
 		
 		//Get and sort all of the bank accounts
 		//Get player bank accounts
-		List<AccountReference> allAccounts = TradingOffice.getPlayerBankAccounts();
+		List<AccountReference> allAccounts = BankSaveData.GetPlayerBankAccounts();
 		//Get team bank accounts
-		List<Team> allTeams = TradingOffice.getTeams();
+		List<Team> allTeams = TeamSaveData.GetAllTeams(false);
 		for(Team team : allTeams) {
 			if(team.hasBankAccount())
 				allAccounts.add(BankAccount.GenerateReference(false, team));

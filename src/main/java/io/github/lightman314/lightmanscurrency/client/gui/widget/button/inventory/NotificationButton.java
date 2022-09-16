@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -43,7 +43,7 @@ public class NotificationButton extends PlainButton {
 		this.y = getYPosition(this.screen);
 		
 		//Change icon based on whether there's an active notification or not.
-		this.setResource(NotificationScreen.GUI_TEXTURE, ClientTradingOffice.getNotifications().unseenNotification() ? 200 + SIZE : 200, 0);
+		this.setResource(NotificationScreen.GUI_TEXTURE, ClientNotificationData.GetNotifications().unseenNotification() ? 200 + SIZE : 200, 0);
 		//Change visibility based on whether the correct tab is open
 		if(this.screen instanceof CreativeModeInventoryScreen)
 			this.visible = ((CreativeModeInventoryScreen)this.screen).getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();

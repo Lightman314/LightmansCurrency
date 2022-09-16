@@ -1,13 +1,16 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataTicket;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.restrictions.TicketKioskRestriction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 
 
 public class TicketTraderBlockEntity extends ItemTraderBlockEntity{
+	
 	
 	public TicketTraderBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -20,6 +23,14 @@ public class TicketTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public ItemTradeRestriction getRestriction(int tradeIndex) { return TicketKioskRestriction.INSTANCE; }
+	public ItemTraderData buildNewTrader() { return new ItemTraderDataTicket(this.tradeCount, this.level, this.worldPosition); }
+	
+	@Override @Deprecated
+	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
+		ItemTraderDataTicket newTrader = new ItemTraderDataTicket(1, this.level, this.worldPosition);
+		newTrader.loadOldUniversalTraderData(compound);
+		this.tradeCount = newTrader.getTradeCount();
+		return newTrader;
+	}
 	
 }

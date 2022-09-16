@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -82,7 +82,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 		{
 			if(!blockEntity.isOwner(player))
 				return;
-			InventoryUtil.dumpContents(level, pos, blockEntity.dumpContents(state, true));
+			InventoryUtil.dumpContents(level, pos, blockEntity.getContents(level, pos, state, !player.isCreative()));
 			blockEntity.flagAsRemovable();
 		}
 		super.playerWillDestroy(level, pos, state, player);
@@ -105,8 +105,8 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 				{
 					LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
 					LightmansCurrency.LogError("Activating emergency eject protocol.");
-					EjectionData data = EjectionData.create(state, blockEntity);
-					TradingOffice.handleEjectionData(level, pos, data);
+					EjectionData data = EjectionData.create(level, pos, state, blockEntity);
+					EjectionSaveData.HandleEjectionData(level, pos, data);
 					blockEntity.flagAsRemovable();
 					//Remove the rest of the multi-block structure.
 					try {

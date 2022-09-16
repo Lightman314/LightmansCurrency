@@ -15,15 +15,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.InfoTab;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeComparisonResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -107,7 +107,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		}
 		else if(this.menu.getBE().getInteractionType().requiresPermissions)
 		{
-			UniversalTraderData trader = this.menu.getBE().getTrader();
+			TraderData trader = this.menu.getBE().getTrader();
 			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
 			{
 				list.add(Component.translatable("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
@@ -123,7 +123,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			return;
 		
 		//Trader name
-		UniversalTraderData trader = this.menu.getBE().getTrader();
+		TraderData trader = this.menu.getBE().getTrader();
 		Component infoText = null;
 		if(trader != null)
 			infoText = trader.getTitle();

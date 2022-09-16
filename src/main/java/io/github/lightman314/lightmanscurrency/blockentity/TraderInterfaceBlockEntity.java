@@ -2,38 +2,37 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates.TraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.Team.TeamReference;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.traderinterface.NetworkTradeReference;
+import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.SidedHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
-import io.github.lightman314.lightmanscurrency.trader.IDumpable;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.trader.interfacing.UniversalTradeReference;
-import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.SidedHandler;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.upgrades.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -53,6 +52,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -67,7 +67,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 @SuppressWarnings("removal")
-public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable {
+public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable, IClientTracker {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -143,59 +143,28 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		}
 	}
 	
-	PlayerReference owner = null;
-	public void initOwner(Entity owner) { if(this.owner == null) this.owner = PlayerReference.of(owner); }
+	public final OwnerData owner = new OwnerData(this, o -> BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()))));
+	public void initOwner(Entity owner) { if(!this.owner.hasOwner()) this.owner.SetOwner(PlayerReference.of(owner)); }
 	public void setOwner(String name) {
 		PlayerReference newOwner = PlayerReference.of(name);
 		if(newOwner != null)
 		{
-			this.owner = newOwner;
-			this.team = null;
+			this.owner.SetOwner(newOwner);
 			this.mode = ActiveMode.DISABLED;
 			this.setChanged();
 			if(!this.isClient())
-			{
 				BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag())));
-			}
 		}
 	}
-	
-	TeamReference team = null;
-	public boolean hasTeam() { return this.getTeam() != null; }
-	public Team getTeam() { 
-		if(this.team != null)
-			return this.team.getTeam(this.isClient());
-		return null;
-	}
-	public void setTeam(UUID teamID) {
-		this.team = Team.referenceOf(teamID);
-		this.setChanged();
-		if(!this.isClient())
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(new CompoundTag()));
-		}
+	public void setTeam(long teamID) {
+		Team team = TeamSaveData.GetTeam(this.isClient(), teamID);
+		if(team != null)
+			this.owner.SetOwner(team);
 	}
 	
-	public PlayerReference getReferencedPlayer() {
-		if(this.hasTeam())
-		{
-			Team team = this.getTeam();
-			if(team.getOwner() != null)
-				return team.getOwner().copyWithName(team.getName());
-		}
-		if(this.owner != null)
-			return this.owner;
-		return null;
-	}
+	public PlayerReference getReferencedPlayer() { return this.owner.getPlayerForContext(); }
 	
-	public String getOwnerName() {
-		if(this.hasTeam())
-			return this.getTeam().getName();
-		else if(this.owner != null)
-			return this.owner.lastKnownName();
-		else
-			return "ERROR";
-	}
+	public String getOwnerName() { return this.owner.getOwnerName(); }
 	
 	public BankAccount getBankAccount() { 
 		AccountReference reference = this.getAccountReference();
@@ -204,10 +173,10 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		return null;
 	}
 	public AccountReference getAccountReference() {
-		if(this.hasTeam())
-			return BankAccount.GenerateReference(this.isClient(), this.getTeam());
+		if(this.getOwner().hasTeam())
+			return BankAccount.GenerateReference(this.isClient(), this.owner.getTeam());
 		if(this.owner != null)
-			return BankAccount.GenerateReference(this.isClient(), this.owner);
+			return BankAccount.GenerateReference(this.isClient(), this.owner.getPlayer());
 		return null;
 	}
 	
@@ -234,9 +203,14 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	public List<InteractionType> getBlacklistedInteractions() { return new ArrayList<>(); }
 	
-	UniversalTradeReference reference = new UniversalTradeReference(this::isClient, this::deserializeTrade);
-	public boolean hasTrader() { return this.reference.hasTrader(); }
-	public UniversalTraderData getTrader() { return this.reference.getTrader(); }
+	NetworkTradeReference reference = new NetworkTradeReference(this::isClient, this::deserializeTrade);
+	public boolean hasTrader() { return this.getTrader() != null; }
+	public TraderData getTrader() {
+		TraderData trader = this.reference.getTrader();
+		if(this.interaction.requiresPermissions && !this.hasTraderPermissions(trader))
+			return null;
+		return trader;
+	}
 	public int getTradeIndex() { return this.reference.getTradeIndex(); }
 	public TradeData getReferencedTrade() { return this.reference.getLocalTrade(); }
 	public TradeData getTrueTrade() { return this.reference.getTrueTrade(); }
@@ -250,9 +224,9 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
 	}
 	
-	public void setTrader(UUID traderID) {
+	public void setTrader(long traderID) {
 		//Trader is the same id. Ignore the change.
-		if(this.reference.getTraderID() != null && this.reference.getTraderID().equals(traderID))
+		if(this.reference.getTraderID() == traderID)
 			return;
 		this.reference.setTrader(traderID);
 		this.reference.setTrade(-1);
@@ -276,31 +250,13 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	
 	private int waitTimer = INTERACTION_DELAY;
 	
-	public boolean canAccess(Player player) {
-		if(this.hasTeam())
-		{
-			Team team = this.getTeam();
-			return team.isMember(player);
-		}
-		else if(this.owner != null)
-			return this.owner.is(player) || TradingOffice.isAdminPlayer(player);
-		return true;
-	}
+	public boolean canAccess(Player player) { return this.owner.isMember(player); }
 	
 	/**
 	 * Whether the given player has owner-level permissions.
 	 * If owned by a team, this will return true for team admins & the team owner.
 	 */
-	public boolean isOwner(Entity player) {
-		if(this.hasTeam())
-		{
-			Team team = this.getTeam();
-			return team.isAdmin((Player)player);
-		}
-		else if(this.owner != null)
-			return this.owner.is(player) || TradingOffice.isAdminPlayer((Player)player);
-		return true;
-	}
+	public boolean isOwner(Player player) { return this.owner.isAdmin((Player)player); }
 	
 	protected TraderInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -359,10 +315,6 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	protected final CompoundTag saveOwner(CompoundTag compound) {
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
-		if(this.team != null)
-			compound.putUUID("Team", this.team.getID());
-		else
-			compound.putBoolean("Team", false);
 		return compound;
 	}
 	
@@ -410,11 +362,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	@Override
 	public void load(CompoundTag compound) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
-			this.owner = PlayerReference.load(compound.getCompound("Owner"));
-		if(compound.contains("Team", Tag.TAG_INT_ARRAY))
-			this.team = Team.referenceOf(compound.getUUID("Team"));
-		else if(compound.contains("Team"))
-			this.team = null;
+			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
@@ -455,7 +403,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	protected final Direction getRelativeSide(Direction side) {
 		Direction relativeSide = side;
 		if(relativeSide != null & this.getBlockState().getBlock() instanceof IRotatableBlock)
-			relativeSide = IItemHandlerBlock.getRelativeSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), side);
+			relativeSide = IRotatableBlock.getRelativeSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), side);
 		return relativeSide;
 	}
 	
@@ -481,7 +429,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	
 	public TradeResult interactWithTrader() {
 		TradeContext tradeContext = this.getTradeContext();
-		UniversalTraderData trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader != null)
 			this.lastResult = trader.ExecuteTrade(tradeContext, this.reference.getTradeIndex());
 		else
@@ -509,18 +457,27 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server == null)
 			return false;
-		if(this.hasTeam())
+		if(this.owner.hasTeam())
 		{
-			Team team = this.getTeam();
+			Team team = this.owner.getTeam();
 			for(PlayerReference member : team.getAllMembers())
 			{
 				if(member != null && server.getPlayerList().getPlayer(member.id) != null)
 					return true;
 			}
 		}
-		else if(this.owner != null)
-			return server.getPlayerList().getPlayer(this.owner.id) != null;
+		else if(this.owner.hasPlayer())
+			return server.getPlayerList().getPlayer(this.owner.getPlayer().id) != null;
 		return false;
+	}
+	
+	public final boolean hasTraderPermissions(TraderData trader) {
+		if(trader == null)
+			return false;
+		Team team = this.owner.getTeam();
+		if(team != null)
+			return trader.getOwner().getTeam() == team;
+		return trader.hasPermission(this.owner.getPlayer(), Permissions.INTERACTION_LINK);
 	}
 	
 	@Override
@@ -533,7 +490,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 				this.waitTimer = this.getInteractionDelay();
 				if(this.interaction.requiresPermissions)
 				{
-					if(!this.validTrader() || !this.getTrader().hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
+					if(!this.validTrader() || !this.hasTraderPermissions(this.getTrader()))
 						return;
 					if(this.interaction.drains)
 						this.drainTick();
@@ -546,22 +503,21 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 						return;
 					this.tradeTick();
 				}
+				if(this.hasHopperUpgrade())
+				{
+					this.hopperTick();
+				}
 			}
 		}
 			
 	}
 	
+	
+	
 	//Returns whether the trader referenced is valid
 	public boolean validTrader() {
-		UniversalTraderData trader = this.reference.getTrader();
+		TraderData trader = this.getTrader();
 		return trader != null && this.validTraderType(trader);
-	}
-	
-	public boolean hasTraderPermissions() {
-		UniversalTraderData trader = this.reference.getTrader();
-		if(trader != null && this.owner != null)
-			return trader.hasPermission(this.owner, Permissions.INTERACTION_LINK);
-		return false;
 	}
 	
 	public boolean validTrade() {
@@ -572,13 +528,15 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		return expectedTrade.AcceptableDifferences(expectedTrade.compare(trueTrade));
 	}
 	
-	public abstract boolean validTraderType(UniversalTraderData trader);
+	public abstract boolean validTraderType(TraderData trader);
 	
 	protected abstract void drainTick();
 	
 	protected abstract void restockTick();
 	
 	protected abstract void tradeTick();
+	
+	protected abstract void hopperTick();
 	
 	public void openMenu(Player player) {
 		if(this.canAccess(player))
@@ -621,12 +579,16 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
 	public boolean allowUpgrade(UpgradeType type) {
-		return type == UpgradeType.SPEED || this.allowAdditionalUpgrade(type);
+		return type == UpgradeType.SPEED || (type == UpgradeType.HOPPER && this.allowHopperUpgrade() && !this.hasHopperUpgrade()) || this.allowAdditionalUpgrade(type);
 	}
+	
+	protected boolean allowHopperUpgrade() { return true; }
 	
 	protected boolean allowAdditionalUpgrade(UpgradeType type) { return false; }
 	
-	public final List<ItemStack> dumpContents(BlockState state, boolean dropBlock) { 
+	protected final boolean hasHopperUpgrade() { return UpgradeType.hasUpgrade(UpgradeType.HOPPER, this.upgradeSlots); }
+	
+	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) { 
 		List<ItemStack> contents = new ArrayList<>();
 		
 		//Drop trader block
@@ -646,14 +608,15 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		}
 		
 		//Dump contents
-		this.dumpContents(contents);
+		this.getAdditionalContents(contents);
 		return contents;
 		
 	}
 	
+	protected abstract void getAdditionalContents(List<ItemStack> contents);
+	
 	@Override
-	public PlayerReference getOwner() {
-		return this.owner;
-	}
+	public OwnerData getOwner() { return this.owner; }
+	
 	
 }

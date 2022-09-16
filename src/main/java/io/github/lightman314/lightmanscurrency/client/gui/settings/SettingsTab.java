@@ -4,8 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.client.gui.Font;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 public abstract class SettingsTab implements ITab{
@@ -20,7 +21,8 @@ public abstract class SettingsTab implements ITab{
 	protected final TraderSettingsScreen getScreen() { return this.screen; }
 	protected final Player getPlayer() { return this.screen.getPlayer(); }
 	protected final Font getFont() { return this.screen.getFont(); }
-	protected final <T extends Settings> T getSetting(Class<T> type) { return this.screen.getSetting(type); }
+	protected final TraderData getTrader() { return this.screen != null ? this.screen.getTrader() : null; }
+	protected final void sendNetworkMessage(CompoundTag message) { this.getTrader().sendNetworkMessage(message); }
 	public final void setScreen(TraderSettingsScreen screen) { this.screen = screen; }
 	
 	public abstract boolean canOpen();

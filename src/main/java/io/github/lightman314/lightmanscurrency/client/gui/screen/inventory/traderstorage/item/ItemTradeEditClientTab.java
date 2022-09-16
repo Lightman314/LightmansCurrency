@@ -12,12 +12,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -89,8 +89,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, Component.empty(), this::ToggleTradeType));
 		
-		
-		
 	}
 	
 	@Override
@@ -147,7 +145,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.priceSelection.visible = this.selection < 0 && !this.getTrade().isBarter();
 		if(this.priceSelection.visible)
 			this.priceSelection.tick();
-		this.itemEditScroll.visible = this.itemEdit.visible = this.selection >= 0 && (this.getTrade().isBarter() ? this.selection < 4 : this.selection < 2);
+		this.itemEdit.visible = this.itemEditScroll.visible = (this.getTrade().isBarter() && this.selection >=2) || (this.getTrade().isPurchase() && this.selection >= 0);
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
@@ -184,7 +182,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof ItemTradeData)
 		{
 			ItemTradeData t = (ItemTradeData)trade;
@@ -210,7 +208,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof ItemTradeData)
 		{
 			ItemTradeData t = (ItemTradeData)trade;
@@ -233,12 +231,12 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			this.priceSelection.setCoinValue(this.getTrade().getCost());
 		if(this.selection >= 0 && this.selection < 2)
 			this.customNameInput.setValue(this.commonTab.getTrade().getCustomName(this.selection));
-		if(this.selection >= 0)
+		if(this.selection >= 2)
 			this.itemEdit.refreshSearch();
 	}
 
 	@Override
-	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
+	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

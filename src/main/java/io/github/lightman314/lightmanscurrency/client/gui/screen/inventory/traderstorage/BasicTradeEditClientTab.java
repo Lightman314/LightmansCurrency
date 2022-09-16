@@ -8,11 +8,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -57,7 +57,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		
 		this.tradeDisplay.tick();
 		
-		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 27 : 16), true);
+		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 32 : 16), true);
 		
 		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
 		
@@ -73,7 +73,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public void tick() {
 		super.tick();
 		
-		ITrader trader = this.menu.getTrader();
+		TraderData trader = this.menu.getTrader();
 		if(trader != null)
 		{
 			this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = trader.canEditTradeCount();
@@ -93,17 +93,17 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		trade.onInputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.getCarried());
 	}
 
 	@Override
-	public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		trade.onOutputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.getCarried());
 	}
 	
 	@Override
-	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) {
+	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
 	}
 	

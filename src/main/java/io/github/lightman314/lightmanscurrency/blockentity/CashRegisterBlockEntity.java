@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -37,12 +37,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	
 	public void OpenContainer(Player player)
 	{
-		MenuProvider provider = new TraderBlockEntity.TradeMenuProvider<CashRegisterBlockEntity>(this);
-		/*if(provider == null)
-		{
-			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + this.getType().getRegistryName().toString());
-			return;
-		}*/
+		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition);
 		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
@@ -58,13 +53,17 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	public boolean isSingleTrader() { return false; }
 	
 	@Override
-	public List<ITrader> getTraders() { 
-		List<ITrader> traders = new ArrayList<>();
+	public List<TraderData> getTraders() { 
+		List<TraderData> traders = new ArrayList<>();
 		for(int i = 0; i < this.positions.size(); ++i)
 		{
 			BlockEntity be = this.level.getBlockEntity(this.positions.get(i));
-			if(be instanceof ITrader)
-				traders.add((ITrader)be);
+			if(be instanceof TraderBlockEntity<?>)
+			{
+				TraderData trader = ((TraderBlockEntity<?>)be).getTraderData();
+				if(trader != null)
+					traders.add(trader);
+			}
 		}
 		return traders;
 	}

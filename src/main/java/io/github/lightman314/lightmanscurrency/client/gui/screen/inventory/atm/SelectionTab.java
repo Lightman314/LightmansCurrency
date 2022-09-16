@@ -5,17 +5,17 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
@@ -63,7 +63,7 @@ public class SelectionTab extends ATMTab{
 		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
 		
 		this.buttonToggleAdminMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop(), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
-		this.buttonToggleAdminMode.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().getPlayer());
+		this.buttonToggleAdminMode.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().getPlayer());
 		
 		this.playerAccountSelect = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 20, 162, 20, Component.empty()));
 		this.playerAccountSelect.visible = false;
@@ -86,7 +86,7 @@ public class SelectionTab extends ATMTab{
 	private List<Team> getTeamList()
 	{
 		List<Team> results = Lists.newArrayList();
-		for(Team team : ClientTradingOffice.getTeamList())
+		for(Team team : TeamSaveData.GetAllTeams(true))
 		{
 			if(team.hasBankAccount() && team.canAccessBankAccount(this.screen.getMenu().getPlayer()))
 				results.add(team);
@@ -97,7 +97,7 @@ public class SelectionTab extends ATMTab{
 	public Team selectedTeam()
 	{
 		if(this.isTeamSelected())
-			return ClientTradingOffice.getTeam(this.screen.getMenu().getBankAccountReference().id);
+			return TeamSaveData.GetTeam(true, this.screen.getMenu().getBankAccountReference().teamID);
 		return null;	
 	}
 	
@@ -106,7 +106,7 @@ public class SelectionTab extends ATMTab{
 		try {
 			Team team = this.getTeamList().get(teamIndex);
 			Team selectedTeam = this.selectedTeam();
-			if(selectedTeam != null && team.getID().equals(selectedTeam.getID()))
+			if(selectedTeam != null && team.getID() == selectedTeam.getID())
 				return;
 			AccountReference account = BankAccount.GenerateReference(true, team);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
@@ -165,7 +165,7 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void tick() {
 		this.buttonPersonalAccount.active = !this.isSelfSelected();
-		this.buttonToggleAdminMode.visible = TradingOffice.isAdminPlayer(this.screen.getMenu().getPlayer());
+		this.buttonToggleAdminMode.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().getPlayer());
 		if(this.adminMode)
 			this.playerAccountSelect.tick();
 	}

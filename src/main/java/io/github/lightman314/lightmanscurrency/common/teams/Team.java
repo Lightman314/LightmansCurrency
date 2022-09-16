@@ -6,24 +6,19 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
-import com.mojang.authlib.GameProfile;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class Team {
 
@@ -34,8 +29,9 @@ public class Team {
 	public static final String CATEGORY_REMOVE = "REMOVE";
 	public static final String CATEGORY_OWNER = "OWNER";
 	
-	final UUID id;
-	public UUID getID() { return id; }
+	private long id;
+	public long getID() { return this.id; }
+	public void overrideID(long newID) { this.id = newID; }
 	PlayerReference owner = null;
 	public PlayerReference getOwner() { return this.owner; }
 	String teamName = "Some Team";
@@ -87,7 +83,7 @@ public class Team {
 	 * Determines if the given player is the owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || TradingOffice.isAdminPlayer(player); }
+	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || CommandLCAdmin.isAdminPlayer(player); }
 	/**
 	 * Determines if the given player is the owner of this team.
 	 */
@@ -129,150 +125,86 @@ public class Team {
 	
 	public void changeAny(Player requestor, String playerName, String category)
 	{
+		PlayerReference player = PlayerReference.of(playerName);
+		if(player == null)
+			return;
 		if(category.contentEquals(CATEGORY_MEMBER) && this.isAdmin(requestor))
 		{
 			//Add or remove the member
-			GameProfile profile = this.getProfile(playerName);
-			if(profile != null)
-			{
-				//Confirm that this player isn't already on a list
-				if(this.isMember(profile.getId()))
-					return;
-				//Add the member
-				this.members.add(PlayerReference.of(profile));
-				this.markDirty();
-			}
+			//Confirm that this player isn't already on a list
+			if(this.isMember(player.id))
+				return;
+			//Add the member
+			this.members.add(player);
+			this.markDirty();
 		}
 		else if(category.contentEquals(CATEGORY_ADMIN) && this.isAdmin(requestor))
 		{
 			//Add or remove the admin
-			GameProfile profile = this.getProfile(playerName);
-			if(profile != null)
+			//Check if the player is an admin. If they are demote them
+			if(this.isAdmin(player.id))
 			{
-				//Check if the player is an admin. If they are demote them
-				if(this.isAdmin(profile.getId()))
+				//If the player is the owner, cannot do anything. Requires the owner transfer command
+				if(this.isOwner(player.id))
+					return;
+				//Can only demote admins if owner or self
+				if(PlayerReference.of(requestor).is(player) || this.isOwner(requestor))
 				{
-					//If the player is the owner, cannot do anything. Requires the owner transfer command
-					if(this.isOwner(profile.getId()))
-						return;
-					//Can only demote admins if owner or self
-					if(PlayerReference.of(requestor).is(profile) || this.isOwner(requestor))
-					{
-						//Remove them from the admin list
-						boolean notFound = true;
-						for(int i = 0; notFound && i < this.admins.size(); ++i)
-						{
-							if(this.admins.get(i).is(profile))
-							{
-								notFound = false;
-								this.admins.remove(i);
-							}
-						}
-						//Add them as a member
-						this.members.add(PlayerReference.of(profile));
-						this.markDirty();
-					}
-				}
-				//If the player is not already an admin, confirm that this is the owner promoting them and promote them to admin
-				else if(this.isOwner(requestor))
-				{
-					//Remove from the member list if making them an admin
-					if(this.isMember(profile.getId()))
-					{
-						boolean notFound = true;
-						for(int i = 0; notFound && i < this.members.size(); ++i)
-						{
-							if(this.members.get(i).is(profile))
-							{
-								notFound = false;
-								this.members.remove(i);
-							}
-						}
-					}
-					//Add to the admin list
-					this.admins.add(PlayerReference.of(profile));
+					//Remove them from the admin list
+					PlayerReference.removeFromList(this.admins, player);
+					//Add them as a member
+					this.members.add(player);
 					this.markDirty();
 				}
 			}
-		}
-		else if(category.contentEquals(CATEGORY_REMOVE) && (this.isAdmin(requestor) || PlayerReference.of(requestor).is(playerName)))
-		{
-			GameProfile profile = this.getProfile(playerName);
-			if(profile != null)
+			//If the player is not already an admin, confirm that this is the owner promoting them and promote them to admin
+			else if(this.isOwner(requestor))
 			{
-				//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
-				if(!this.isMember(profile.getId()))
-					return;
-				
-				//Confirm that this player isn't an admin, and if they are, confirm that this is the owner or self
-				if(this.isAdmin(profile.getId()) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(profile)))
-					return;
-				//Cannot remove the owner, can only replace them with the Owner-transfer category.
-				if(this.isOwner(profile.getId()))
-					return;
-				
-				boolean notFound = true;
-				if(this.isAdmin(profile.getId()))
-				{
-					//Remove from admin list if admin
-					for(int i = 0; notFound && i < this.admins.size(); ++i)
-					{
-						if(this.admins.get(i).is(profile))
-						{
-							notFound = false;
-							this.admins.remove(i);
-						}
-					}
-				}
-				else
-				{
-					//Remove from member list if member
-					for(int i = 0; notFound && i < this.members.size(); ++i)
-					{
-						if(this.members.get(i).is(profile))
-						{
-							notFound = false;
-							this.members.remove(i);
-						}
-					}
-				}
-				
-				if(notFound)
-					return;
-				
+				//Remove from the member list if making them an admin
+				if(this.isMember(player.id))
+					PlayerReference.removeFromList(this.members, player);
+				//Add to the admin list
+				this.admins.add(player);
 				this.markDirty();
-				
 			}
+		}
+		else if(category.contentEquals(CATEGORY_REMOVE) && (this.isAdmin(requestor) || PlayerReference.of(requestor).is(player)))
+		{
+			//Confirm that this player is a member (Can't remove them if they're not in the list in the first place)
+			if(!this.isMember(player.id))
+				return;
+			
+			//Confirm that this player isn't an admin, and if they are, confirm that this is the owner or self
+			if(this.isAdmin(player.id) && !(this.isOwner(requestor) || PlayerReference.of(requestor).is(player)))
+				return;
+			//Cannot remove the owner, can only replace them with the Owner-transfer category.
+			if(this.isOwner(player.id))
+				return;
+			
+			boolean notFound = true;
+			if(this.isAdmin(player.id))
+				PlayerReference.removeFromList(this.admins, player);
+			else
+				PlayerReference.removeFromList(this.members, player);
+			
+			if(notFound)
+				return;
+			
+			this.markDirty();
 		}
 		else if(category.contentEquals(CATEGORY_OWNER) && this.isOwner(requestor))
 		{
-			//Change the owner
-			GameProfile profile = this.getProfile(playerName);
-			if(profile != null)
-			{
-				//Cannot set the owner to yourself
-				if(this.owner.is(profile))
-					return;
-				//Set the previous owner as an admin
-				this.admins.add(this.owner);
-				//Set the new owner
-				this.owner = PlayerReference.of(profile);
-				//Check if the new owner is an admin or a member, and if so remove them.
-				for(int i = 0; i < this.admins.size(); ++i)
-				{
-					if(this.admins.get(i).is(this.owner))
-						this.admins.remove(i--);
-				}
-				for(int i = 0; i < this.members.size(); ++i)
-				{
-					if(this.members.get(i).is(this.owner))
-						this.members.remove(i--);
-				}
-				
-				
-				this.markDirty();
-				
-			}
+			//Cannot set the owner to yourself
+			if(this.owner.is(player))
+				return;
+			//Set the previous owner as an admin
+			this.admins.add(this.owner);
+			//Set the new owner
+			this.owner = player;
+			//Check if the new owner is an admin or a member, and if so remove them.
+			PlayerReference.removeFromList(this.admins, player);
+			PlayerReference.removeFromList(this.members, player);
+			this.markDirty();
 		}
 	}
 	
@@ -282,11 +214,11 @@ public class Team {
 			return;
 		this.bankAccount = new BankAccount(() -> this.markDirty());
 		this.bankAccount.updateOwnersName(this.teamName);
-		this.bankAccount.setNotificationConsumer(this::notificationGenerator);
+		this.bankAccount.setNotificationConsumer(this::notificationSender);
 		this.markDirty();
 	}
 	
-	private void notificationGenerator(MutableComponent accountName, CoinValue value) {
+	private void notificationSender(NonNullSupplier<Notification> notification) {
 		List<PlayerReference> sendTo = new ArrayList<>();
 		if(this.bankAccountLimit < 1)
 			sendTo.addAll(this.members);
@@ -297,7 +229,7 @@ public class Team {
 		{
 			if(player != null && player.id != null)
 			{
-				TradingOffice.pushNotification(player.id, new LowBalanceNotification(accountName, value));
+				NotificationSaveData.PushNotification(player.id, notification.get());
 			}
 		}
 	}
@@ -319,15 +251,7 @@ public class Team {
 		return result;
 	}
 	
-	private GameProfile getProfile(String playerName)
-	{
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null)
-			return server.getProfileCache().get(playerName).orElse(null);
-		return null;
-	}
-	
-	private Team(@Nonnull UUID teamID, @Nonnull PlayerReference owner, @Nonnull String name)
+	private Team(@Nonnull long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		this.id = teamID;
 		this.owner = owner;
@@ -337,14 +261,13 @@ public class Team {
 	public void markDirty()
 	{
 		if(!this.isClient)
-			TradingOffice.MarkTeamDirty(this.id);
+			TeamSaveData.MarkTeamDirty(this.id);
 	}
 	
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
-		if(this.id != null)
-			compound.putUUID("id", this.id);
+		compound.putLong("ID", this.id);
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
 		compound.putString("Name", this.teamName);
@@ -378,14 +301,14 @@ public class Team {
 	public static Team load(@Nonnull CompoundTag compound)
 	{
 		PlayerReference owner = null;
-		UUID id = null;
-		if(compound.contains("id"))
-			id = compound.getUUID("id");
+		long id = -1;
+		if(compound.contains("ID"))
+			id = compound.getLong("ID");
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
 			owner = PlayerReference.load(compound.getCompound("Owner"));
 		String name = compound.getString("Name");
 		
-		if(id != null && owner != null)
+		if(owner != null)
 		{
 			Team team = of(id, owner, name);
 			
@@ -411,7 +334,7 @@ public class Team {
 				if(compound.contains("BankLimit", Tag.TAG_INT))
 					team.bankAccountLimit = compound.getInt("BankLimit");
 				team.bankAccount.updateOwnersName(team.teamName);
-				team.bankAccount.setNotificationConsumer(team::notificationGenerator);
+				team.bankAccount.setNotificationConsumer(team::notificationSender);
 			}
 			
 			return team;
@@ -421,40 +344,9 @@ public class Team {
 		
 	}
 	
-	//Generate a team id
-	public static Team of(@Nonnull UUID id, @Nonnull PlayerReference owner, @Nonnull String name)
+	public static Team of(@Nonnull long id, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		return new Team(id, owner, name);
-	}
-	
-	public static TeamReference referenceOf(@Nullable UUID id)
-	{
-		if(id == null)
-			return null;
-		return new TeamReference(id);
-	}
-	
-	public static class TeamReference
-	{
-		
-		UUID teamID;
-		
-		private TeamReference(UUID teamID)
-		{
-			this.teamID = teamID;
-		}
-		
-		public UUID getID() { return this.teamID; }
-		
-		@Nullable
-		public Team getTeam(boolean isClient)
-		{
-			if(isClient)
-				return ClientTradingOffice.getTeam(this.teamID);
-			else
-				return TradingOffice.getTeam(teamID);
-		}
-
 	}
 	
 	public static Comparator<Team> sorterFor(Player player)

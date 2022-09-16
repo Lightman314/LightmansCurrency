@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,15 +13,13 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -40,16 +36,16 @@ public class TradeButton extends Button{
 	public static  final int TEMPLATE_WIDTH = 212;
 	public static  final int TEMPLATE_HEIGHT = 100;
 	
-	public static final int ASSUME_HEIGHT = 18;
+	public static final int BUTTON_HEIGHT = 18;
 	
-	private final Supplier<ITradeData> tradeSource;
-	public ITradeData getTrade() { return this.tradeSource.get(); }
+	private final Supplier<TradeData> tradeSource;
+	public TradeData getTrade() { return this.tradeSource.get(); }
 	private Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
 	public boolean displayOnly = false;
 	
-	public TradeButton(Supplier<TradeContext> contextSource, Supplier<ITradeData> tradeSource, OnPress onPress) {
-		super(0, 0, 0, 0, Component.empty(), onPress);
+	public TradeButton(Supplier<TradeContext> contextSource, Supplier<TradeData> tradeSource, OnPress onPress) {
+		super(0, 0, 0, BUTTON_HEIGHT, Component.empty(), onPress);
 		this.tradeSource = tradeSource;
 		this.contextSource = contextSource;
 		this.recalculateSize();
@@ -57,12 +53,11 @@ public class TradeButton extends Button{
 	
 	private void recalculateSize()
 	{
-		ITradeData trade = this.getTrade();
+		TradeData trade = this.getTrade();
 		if(trade != null)
 		{
 			TradeContext context = this.getContext();
 			this.width = trade.tradeButtonWidth(context);
-			this.height = trade.tradeButtonHeight(context);
 		}
 	}
 	
@@ -74,7 +69,7 @@ public class TradeButton extends Button{
 	@Override
 	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		ITradeData trade = this.getTrade();
+		TradeData trade = this.getTrade();
 		if(trade == null)
 			return;
 
@@ -191,7 +186,7 @@ public class TradeButton extends Button{
 		
 	}
 	
-	public void renderDisplays(PoseStack pose, ITradeData trade, TradeContext context)
+	public void renderDisplays(PoseStack pose, TradeData trade, TradeContext context)
 	{
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
 			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
@@ -204,7 +199,7 @@ public class TradeButton extends Button{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
 		
-		ITradeData trade = tradeSource.get();
+		TradeData trade = tradeSource.get();
 		if(trade == null)
 			return;
 		
@@ -228,10 +223,9 @@ public class TradeButton extends Button{
 			}
 		}
 		
-		if(this.isMouseOverAlert(mouseX, mouseY, trade, context))
+		if(this.isMouseOverAlert(mouseX, mouseY, trade, context) && trade.hasAlert(context))
 		{
 			DrawAlerts(pose, mouseX, mouseY, trade.getAlertData(context));
-			return;
 		}
 		
 		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
@@ -243,7 +237,7 @@ public class TradeButton extends Button{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
 		
-		ITradeData trade = tradeSource.get();
+		TradeData trade = tradeSource.get();
 		if(trade == null)
 			return;
 		
@@ -297,7 +291,7 @@ public class TradeButton extends Button{
 	
 	public int isMouseOverInput(int mouseX, int mouseY)
 	{
-		ITradeData trade = this.getTrade();
+		TradeData trade = this.getTrade();
 		if(trade == null)
 			return -1;
 		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, this.getContext());
@@ -311,7 +305,7 @@ public class TradeButton extends Button{
 	
 	public int isMouseOverOutput(int mouseX, int mouseY)
 	{
-		ITradeData trade = this.getTrade();
+		TradeData trade = this.getTrade();
 		if(trade == null)
 			return -1;
 		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, this.getContext());
@@ -323,7 +317,7 @@ public class TradeButton extends Button{
 		return -1;
 	}
 	
-	public boolean isMouseOverAlert(int mouseX, int mouseY, ITradeData trade, TradeContext context)
+	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeData trade, TradeContext context)
 	{
 		Pair<Integer,Integer> position = trade.alertPosition(context);
 		int left = this.x + position.getFirst();
@@ -331,7 +325,7 @@ public class TradeButton extends Button{
 		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
 	}
 	
-	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(ITradeData trade, TradeContext context)
+	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(TradeData trade, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
 		List<DisplayEntry> entries = trade.getInputDisplays(context);
@@ -341,7 +335,7 @@ public class TradeButton extends Button{
 		return results;
 	}
 	
-	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(ITradeData trade, TradeContext context)
+	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(TradeData trade, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
 		List<DisplayEntry> entries = trade.getOutputDisplays(context);
@@ -352,7 +346,7 @@ public class TradeButton extends Button{
 	}
 	
 	public DisplayEntry getInputDisplay(int index) {
-		ITradeData trade = tradeSource.get();
+		TradeData trade = tradeSource.get();
 		if(trade == null)
 			return DisplayEntry.EMPTY;
 		List<DisplayEntry> inputDisplays = trade.getInputDisplays(this.getContext());
@@ -362,14 +356,14 @@ public class TradeButton extends Button{
 	}
 	
 	private int inputDisplayCount() {
-		ITradeData trade = tradeSource.get();
+		TradeData trade = tradeSource.get();
 		if(trade == null)
 			return 0;
 		return trade.getInputDisplays(this.getContext()).size();
 	}
 	
 	public Pair<Integer,Integer> getInputDisplayPosition(int index) {
-		ITradeData trade = tradeSource.get();
+		TradeData trade = tradeSource.get();
 		if(trade == null)
 			return Pair.of(0, 0);
 		
@@ -386,7 +380,7 @@ public class TradeButton extends Button{
 	public boolean isMouseOverInputDisplay(int mouseX, int mouseY, int index) {
 		if(!this.visible)
 			return false;
-		ITradeData trade = tradeSource.get();
+		TradeData trade = this.tradeSource.get();
 		if(trade == null)
 			return false;
 		List<DisplayEntry> inputDisplays = trade.getInputDisplays(this.getContext());
@@ -402,120 +396,6 @@ public class TradeButton extends Button{
 		if(this.getContext().isStorageMode || this.displayOnly)
 			return false;
 		return super.isValidClickButton(button);
-	}
-	
-	public static interface ITradeData
-	{
-		
-		/**
-		 * Whether the trade is fully defined and capable of being interacted with.
-		 */
-		public boolean isValid();
-		/**
-		 * The width of the trade button.
-		 */
-		public int tradeButtonWidth(TradeContext context);
-		/**
-		 * The height of the trade button.
-		 */
-		public int tradeButtonHeight(TradeContext context);
-		/**
-		 * Whether the trade should render an arrow pointing from the inputs to the outputs.
-		 */
-		default boolean hasArrow(TradeContext context) { return true; }
-		
-		/**
-		 * Where on the button the arrow should be drawn.
-		 */
-		public Pair<Integer,Integer> arrowPosition(TradeContext context);
-		
-		public Pair<Integer,Integer> alertPosition(TradeContext context);
-		
-		/**
-		 * The position and size of the input displays
-		 */
-		public DisplayData inputDisplayArea(TradeContext context);
-		/**
-		 * The position and size of the output displays
-		 */
-		public DisplayData outputDisplayArea(TradeContext context);
-		/**
-		 * The input display entries. For a sale this would be the trades price.
-		 */
-		public List<DisplayEntry> getInputDisplays(TradeContext context);
-		/**
-		 * The output display entries. For a sale this would be the product being sold.
-		 */
-		public List<DisplayEntry> getOutputDisplays(TradeContext context);
-		
-		/**
-		 * Whether the trade has any alerts
-		 */
-		public default boolean hasAlert(TradeContext context) { List<AlertData> alerts = this.getAlertData(context); return alerts != null && alerts.size() > 0; }
-		
-		/**
-		 * List of alert data. Used for Out of Stock, Cannot Afford, or Trade Rule messages.
-		 * Return null to display no alert.
-		 */
-		public List<AlertData> getAlertData(TradeContext context);
-		
-		/**
-		 * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.
-		 * @param button The button that is rendering the trade
-		 * @param pose The pose stack
-		 * @param mouseX The x position of the mouse.
-		 * @param mouseY The y position of the mouse.
-		 * @param context The context of the trade.
-		 */
-		default void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) { }
-		/**
-		 * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.
-		 * @param context The context of the trade.
-		 * @param mouseX The mouses X position relative to the left edge of the button.
-		 * @param mouseY The mouses Y position relative to the top edge of the button.
-		 * @return The list of tooltip text. Return null to display no tooltip.
-		 */
-		default List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
-		
-		/**
-		 * 
-		 * Called when an input display is clicked on in display mode.
-		 * Runs on the client, but can be called on the server by running tab.sendInputInteractionMessage for consistent execution
-		 * 
-		 * @param tab The Trade Edit tab that is being used to display this tab.
-		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
-		 * @param index The index of the input display that was clicked.
-		 * @param button The mouse button that was clicked.
-		 * @param heldItem The item being held by the player.
-		 */
-		public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
-		
-		/**
-		 * 
-		 * Called when an output display is clicked on in display mode.
-		 * Runs on the client, but can be called on the server by running tab.sendOutputInteractionMessage for consistent execution
-		 * 
-		 * @param tab The Trade Edit tab that is being used to display this tab.
-		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
-		 * @param index The index of the input display that was clicked.
-		 * @param button The mouse button that was clicked.
-		 * @param heldItem The item being held by the player.
-		 */
-		public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
-		
-		/**
-		 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
-		 * Runs on the client, but can be called on the server by running tab.sendOtherInteractionMessage for consistent code execution.
-		 * 
-		 * @param tab The Trade Edit tab that is being used to display this tab.
-		 * @param clientHandler The client handler that can be used to send custom client messages to the currently opened tab. Will be null on the server.
-		 * @param mouseX The local X position of the mouse button when it was clicked. [0,tradeButtonWidth)
-		 * @param mouseY The local Y position of the mouse button when it was clicked. [0,tradeButtonHeight)
-		 * @param button The mouse button that was clicked.
-		 * @param heldItem The item currently being held by the player.
-		 */
-		public void onInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem);
-		
 	}
 	
 	public static class DisplayData

@@ -108,4 +108,11 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		
 	}
 	
+	public static class Simple extends UpgradeItem
+	{
+		public Simple(UpgradeType upgradeType, Properties properties) { super(upgradeType, properties); }
+		@Override
+		protected void fillUpgradeData(UpgradeData data) { }
+	}
+	
 }

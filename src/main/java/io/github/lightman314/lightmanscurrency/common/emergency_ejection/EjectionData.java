@@ -2,12 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.trader.IDumpable;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -16,50 +15,41 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class EjectionData implements Container {
+public class EjectionData implements Container, IClientTracker {
 
-	boolean playerOwner = false;
-	UUID ownerID = null;
+	OwnerData owner = new OwnerData(this, o -> {});
 	MutableComponent traderName = Component.empty();
 	public MutableComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();
 	
 	private boolean isClient = false;
 	public void flagAsClient() { this.isClient = true; }
+	public boolean isClient() { return this.isClient; }
 	
 	private EjectionData() {}
 	
-	private EjectionData(boolean isPlayer, UUID ownerID, MutableComponent traderName, List<ItemStack> items) {
-		this.playerOwner = isPlayer;
-		this.ownerID = ownerID;
+	private EjectionData(OwnerData owner, MutableComponent traderName, List<ItemStack> items) {
+		this.owner.copyFrom(owner);
 		this.traderName = traderName;
 		this.items = items;
 	}
 	
 	public boolean canAccess(Player player) {
-		if(TradingOffice.isAdminPlayer(player))
+		if(CommandLCAdmin.isAdminPlayer(player))
 			return true;
-		if(this.ownerID == null)
+		if(this.owner == null)
 			return false;
-		if(this.playerOwner)
-			return player.getUUID().equals(this.ownerID);
-		else
-		{
-			Team team = player.level.isClientSide ? ClientTradingOffice.getTeam(this.ownerID) : TradingOffice.getTeam(this.ownerID);
-			if(team != null)
-				return team.isMember(player);
-		}
-		return false;
+		return this.owner.isMember(player);
 	}
 	
-	public CompoundTag save(CompoundTag compound) {
-		if(this.ownerID != null)
-		{
-			compound.putBoolean("PlayerOwned", this.playerOwner);
-			compound.putUUID("Owner", this.ownerID);
-		}
+	public CompoundTag save() {
+		
+		CompoundTag compound = new CompoundTag();
+		if(this.owner != null)
+			compound.put("Owner", this.owner.save());
 		
 		compound.putString("Name", Component.Serializer.toJson(this.traderName));
 		
@@ -75,10 +65,8 @@ public class EjectionData implements Container {
 	
 	public void load(CompoundTag compound) {
 		
-		if(compound.contains("PlayerOwned"))
-			this.playerOwner = compound.getBoolean("PlayerOwned");
 		if(compound.contains("Owner"))
-			this.ownerID = compound.getUUID("Owner");
+			this.owner.load(compound);
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
 		if(compound.contains("Items"))
@@ -93,24 +81,19 @@ public class EjectionData implements Container {
 		
 	}
 	
-	public static EjectionData create(BlockState state, IDumpable trader) {
+	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader) {
+		return create(level, pos, state, trader, true);
+	}
+	
+	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader, boolean dropBlock) {
 		
-		boolean playerOwner = true;
-		UUID ownerID = null;
-		Team team = trader.getTeam();
-		if(team != null)
-		{
-			playerOwner = false;
-			ownerID = team.getID();
-		}
-		else if(trader.getOwner() != null)
-			ownerID = trader.getOwner().id;
+		OwnerData owner = trader.getOwner();
 		
 		MutableComponent traderName = trader.getName();
 		
-		List<ItemStack> items = trader.dumpContents(state, true);
+		List<ItemStack> items = trader.getContents(level, pos, state, dropBlock);
 		
-		return new EjectionData(playerOwner, ownerID, traderName, items);
+		return new EjectionData(owner, traderName, items);
 		
 	}
 	
@@ -182,10 +165,11 @@ public class EjectionData implements Container {
 		if(this.isClient)
 			return;
 		this.clearEmptySlots();
-		if(this.isEmpty())
+		//TODO mark new ejection data handler dirty
+		/*if(this.isEmpty())
 			TradingOffice.removeEjectionData(this);
 		else
-			TradingOffice.MarkEjectionDataDirty();
+			TradingOffice.MarkEjectionDataDirty();*/
 	}
 
 	@Override

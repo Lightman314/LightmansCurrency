@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraftforge.registries.RegistryObject;
@@ -49,6 +50,13 @@ public class RegistryObjectBundle<T,L> {
 		for(RegistryObject<T> value : this.getAllRegistryObjects())
 			values.add(value.get());
 		return values;
+	}
+	
+	public List<Supplier<T>> getSupplier() {
+		List<Supplier<T>> result = new ArrayList<>();
+		for(L key : this.values.keySet())
+			result.add(() -> this.get(key));
+		return result;
 	}
 	
 }

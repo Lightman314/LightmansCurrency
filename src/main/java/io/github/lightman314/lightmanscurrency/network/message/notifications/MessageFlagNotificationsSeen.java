@@ -3,18 +3,18 @@ package io.github.lightman314.lightmanscurrency.network.message.notifications;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageFlagNotificationsSeen {
 
-	Category category;
+	NotificationCategory category;
 	
-	public MessageFlagNotificationsSeen(Category category) {
+	public MessageFlagNotificationsSeen(NotificationCategory category) {
 		this.category = category;
 	}
 	
@@ -23,7 +23,7 @@ public class MessageFlagNotificationsSeen {
 	}
 	
 	public static MessageFlagNotificationsSeen decode(FriendlyByteBuf buffer) {
-		return new MessageFlagNotificationsSeen(Category.deserialize(buffer.readAnySizeNbt()));
+		return new MessageFlagNotificationsSeen(NotificationCategory.deserialize(buffer.readAnySizeNbt()));
 	}
 	
 	public static void handle(MessageFlagNotificationsSeen message, Supplier<Context> supplier) {
@@ -31,7 +31,7 @@ public class MessageFlagNotificationsSeen {
 			Player player = supplier.get().getSender();
 			if(player != null)
 			{
-				NotificationData data = TradingOffice.getNotifications(player);
+				NotificationData data = NotificationSaveData.GetNotifications(player);
 				if(data != null && data.unseenNotification(message.category))
 				{
 					for(Notification n : data.getNotifications(message.category))
@@ -39,7 +39,7 @@ public class MessageFlagNotificationsSeen {
 						if(!n.wasSeen())
 							n.setSeen();
 					}
-					TradingOffice.MarkNotificationsDirty(player.getUUID());
+					NotificationSaveData.MarkNotificationsDirty(player.getUUID());
 				}
 			}
 		});

@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,9 +12,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -31,9 +32,8 @@ public class TraderSettingsScreen extends Screen{
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/tradersettings.png");
 	
 	public Player getPlayer() { return this.minecraft.player; }
-	private final Supplier<ITrader> trader;
-	public ITrader getTrader() { return this.trader.get(); }
-	private final Consumer<Player> openStorage;
+	private final Supplier<TraderData> trader;
+	public TraderData getTrader() { return this.trader.get(); }
 	
 	public Font getFont() { return this.font; }
 	
@@ -41,9 +41,6 @@ public class TraderSettingsScreen extends Screen{
 	public final int guiTop() { return (this.height - this.ySize) / 2; }
 	public final int xSize = 200;
 	public final int ySize = 200;
-	
-	List<Settings> settings;
-	public List<Settings> getSettings() { return this.settings; }
 	
 	List<AbstractWidget> tabWidgets = Lists.newArrayList();
 	List<GuiEventListener> tabListeners = Lists.newArrayList();
@@ -57,33 +54,14 @@ public class TraderSettingsScreen extends Screen{
 		return this.tabs.get(MathUtil.clamp(currentTabIndex, 0, this.tabs.size() - 1));
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends Settings> T getSetting(Class<T> type)
-	{
-		for(int i = 0; i < this.settings.size(); ++i)
-		{
-			if(this.settings.get(i).getClass() == type)
-				return (T)this.settings.get(i);
-		}
-		return null;
-	}
-	
-	public TraderSettingsScreen(Supplier<ITrader> trader, Consumer<Player> openStorage)
+	public TraderSettingsScreen(Supplier<TraderData> trader)
 	{
 		super(Component.empty());
 		
 		this.trader = trader;
-		this.openStorage = openStorage;
-		//Initialize the settings list
-		this.settings = Lists.newArrayList(this.getTrader().getCoreSettings());
-		this.settings.addAll(this.getTrader().getAdditionalSettings());
 		
 		//Collect the Settings Tabs
-		this.tabs = Lists.newArrayList();
-		//Get normal tabs
-		this.settings.forEach(setting -> this.tabs.addAll(setting.getSettingsTabs()));
-		//Get back end tabs so that they appear last
-		this.settings.forEach(setting -> this.tabs.addAll(setting.getBackEndSettingsTabs()));
+		this.tabs = this.trader.get().getSettingsTabs();
 		
 		this.tabs.forEach(tab -> tab.setScreen(this));
 		
@@ -203,7 +181,9 @@ public class TraderSettingsScreen extends Screen{
 		{
 			this.minecraft.setScreen(null);
 			if(this.hasPermission(Permissions.OPEN_STORAGE))
-				this.openStorage.accept(this.getPlayer());
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.getTrader().getID()));
+			else
+				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.getTrader().getID()));
 			return;
 		}
 		//Update the tabs visibility
@@ -232,14 +212,14 @@ public class TraderSettingsScreen extends Screen{
 	public boolean hasPermission(String permission)
 	{
 		if(this.trader.get() != null)
-			return this.trader.get().getCoreSettings().hasPermission(this.getPlayer(), permission);
+			return this.trader.get().hasPermission(this.getPlayer(), permission);
 		return false;
 	}
 	
 	public int getPermissionLevel(String permission)
 	{
 		if(this.trader.get() != null)
-			return this.trader.get().getCoreSettings().getPermissionLevel(this.getPlayer(), permission);
+			return this.trader.get().getPermissionLevel(this.getPlayer(), permission);
 		return 0;
 	}
 	
@@ -301,7 +281,7 @@ public class TraderSettingsScreen extends Screen{
 	
 	private void OpenStorage(Button button)
 	{
-		this.openStorage.accept(this.getPlayer());
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.getTrader().getID()));
 	}
 	
 	@Override

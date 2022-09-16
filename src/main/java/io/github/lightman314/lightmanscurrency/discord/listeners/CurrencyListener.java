@@ -21,22 +21,20 @@ import io.github.lightman314.lightmansconsole.message.MessageManager;
 import io.github.lightman314.lightmansconsole.util.MessageUtil;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.events.UniversalTraderEvent.UniversalTradeCreateEvent;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.IBarterTrade;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
+import io.github.lightman314.lightmanscurrency.events.TraderEvent.UniversalTradeCreateEvent;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -188,9 +186,9 @@ public class CurrencyListener extends SingleChannelListener{
 				final SearchCategory searchType = type;
 				final String searchText = text;
 				List<String> output = new ArrayList<>();
-				TradingOffice.getTraders().forEach(trader -> {
+				TraderSaveData.GetAllTerminalTraders(false).forEach(trader -> {
 					try {
-						if(trader instanceof UniversalItemTraderData)
+						/*if(trader instanceof UniversalItemTraderData)
 						{
 							UniversalItemTraderData itemTrader = (UniversalItemTraderData)trader;
 							if(searchType.acceptTrader(itemTrader, searchText))
@@ -261,8 +259,8 @@ public class CurrencyListener extends SingleChannelListener{
 									}
 								}
 							}
-						}
-						else //If not an item trader, post the trader search eventm
+						}*/
+						//else //If not an item trader, post the trader search eventm
 							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
 					} catch(Exception e) { e.printStackTrace(); }
 				});
@@ -332,7 +330,7 @@ public class CurrencyListener extends SingleChannelListener{
 			return "NULL";
 	}
 	
-	private static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
+	public static String getItemNamesAndCount(ItemStack item1, String customName1, ItemStack item2, String customName2)
 	{
 		if(item1.isEmpty() && !item2.isEmpty())
 			return item2.getCount() + "x " + getItemName(item2, customName2);
@@ -477,12 +475,13 @@ public class CurrencyListener extends SingleChannelListener{
 		@Override
 		public void run() {
 			try {
-				if(this.event.getData() == null) //Abort if the trader was removed.
+				TraderData trader = this.event.getTrader();
+				if(trader == null) //Abort if the trader was removed.
 					return;
-				if(event.getData().getCoreSettings().hasCustomName())
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(this.event.getData().getCoreSettings().getOwnerName(), event.getData().getCoreSettings().getCustomName()));
+				if(trader.hasCustomName())
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getOwnerName(), trader.getCustomName()));
 				else
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(this.event.getData().getCoreSettings().getOwnerName()));
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getOwnerName()));
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 		
@@ -495,7 +494,7 @@ public class CurrencyListener extends SingleChannelListener{
 		TRADE_BARTER(trade -> { if(trade instanceof IBarterTrade) return ((IBarterTrade)trade).isBarter(); return false; }),
 		TRADE_ANY(trade -> true),
 		
-		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getCoreSettings().getOwnerName().toLowerCase().contains(search)),
+		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getOwnerName().toLowerCase().contains(search)),
 		TRADER_NAME((trader,search) -> search.isEmpty() || trader.getName().getString().toLowerCase().contains(search)),
 		TRADER_ANY((trader,search) -> true);
 		
@@ -505,8 +504,8 @@ public class CurrencyListener extends SingleChannelListener{
 		private final Function<TradeData,Boolean> tradeFilter;
 		public boolean acceptTradeType(TradeData trade) { return this.tradeFilter.apply(trade); }
 		
-		private final BiFunction<ITrader,String,Boolean> acceptTrader;
-		public boolean acceptTrader(ITrader trader, String searchText) { return this.acceptTrader.apply(trader, searchText); }
+		private final BiFunction<TraderData,String,Boolean> acceptTrader;
+		public boolean acceptTrader(TraderData trader, String searchText) { return this.acceptTrader.apply(trader, searchText); }
 		
 		SearchCategory(Function<TradeData,Boolean> tradeFilter) {
 			this.filterByTrade = true;
@@ -514,7 +513,7 @@ public class CurrencyListener extends SingleChannelListener{
 			this.acceptTrader = (t,s) -> true;
 		}
 		
-		SearchCategory(BiFunction<ITrader,String,Boolean> acceptTrader) {
+		SearchCategory(BiFunction<TraderData,String,Boolean> acceptTrader) {
 			this.filterByTrade = false;
 			this.tradeFilter = (t) -> true;
 			this.acceptTrader = acceptTrader;

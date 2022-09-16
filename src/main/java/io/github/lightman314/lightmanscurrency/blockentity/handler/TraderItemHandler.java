@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.blockentity.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -13,10 +13,10 @@ import net.minecraftforge.items.IItemHandler;
 
 public class TraderItemHandler{
 
-	private final IItemTrader trader;
+	private final ItemTraderData trader;
 	private final Map<Direction,IItemHandler> handlers = new HashMap<>();
 	
-	public TraderItemHandler(IItemTrader trader)
+	public TraderItemHandler(ItemTraderData trader)
 	{
 		this.trader = trader;
 	}
@@ -29,15 +29,15 @@ public class TraderItemHandler{
 	
 	private static class TraderHandler implements IItemHandler
 	{
-		private final IItemTrader trader;
+		private final ItemTraderData trader;
 		private final Direction side;
 		
-		protected TraderHandler(IItemTrader trader, Direction side) { this.trader = trader; this.side = side; }
+		protected TraderHandler(ItemTraderData trader, Direction side) { this.trader = trader; this.side = side; }
 		
 		protected final TraderItemStorage getStorage() { return this.trader.getStorage(); }
 		
-		protected final boolean allowsInputs() { return this.trader.getItemSettings().getInputSides().allows(this.side); }
-		protected final boolean allowsOutputs() { return this.trader.getItemSettings().getOutputSides().allows(this.side); }
+		protected final boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
+		protected final boolean allowsOutputs() { return this.trader.allowOutputSide(this.side); }
 		
 		@Override
 		public int getSlots() {

@@ -6,13 +6,13 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -32,7 +32,7 @@ public class ItemStorageTab extends TraderStorageTab{
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof IItemTrader; }
+	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof ItemTraderData; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
@@ -40,22 +40,16 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			IItemTrader trader = (IItemTrader)this.menu.getTrader();
-			for(int i = 0; i < trader.getUpgradeInventory().getContainerSize(); ++i)
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgradeInventory(), i, 176, 18 + 18 * i, trader, this::onUpgradeModified);
+				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
 			}
-		}
-	}
-	
-	private void onUpgradeModified() {
-		if(this.menu.getTrader() instanceof IItemTrader) {
-			((IItemTrader)this.menu.getTrader()).markUpgradesDirty();
 		}
 	}
 	
@@ -68,8 +62,8 @@ public class ItemStorageTab extends TraderStorageTab{
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
-		if(this.menu.getTrader() instanceof IItemTrader) {
-			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+		if(this.menu.getTrader() instanceof ItemTraderData) {
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			TraderItemStorage storage = trader.getStorage();
 			if(storage.getFittableAmount(stack) > 0)
 			{
@@ -82,9 +76,9 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			TraderItemStorage storage = trader.getStorage();
 			ItemStack heldItem = this.menu.getCarried();
 			if(heldItem.isEmpty())
@@ -170,8 +164,8 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getTrader() instanceof IItemTrader) {
-			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+		if(this.menu.getTrader() instanceof ItemTraderData) {
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			TraderItemStorage storage = trader.getStorage();
 			Inventory inv = this.menu.player.getInventory();
 			boolean changed = false;

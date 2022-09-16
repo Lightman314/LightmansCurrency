@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.menus.wallet;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;

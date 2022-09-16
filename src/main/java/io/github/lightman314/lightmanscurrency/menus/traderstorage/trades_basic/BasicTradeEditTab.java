@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.BasicTradeEditClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
@@ -136,7 +136,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 			int mouseX = message.contains("MouseX", Tag.TAG_INT) ? message.getInt("MouseX") : 0;
 			int mouseY = message.contains("MouseY", Tag.TAG_INT) ? message.getInt("MouseY") : 0;
 			ItemStack heldItem = ItemStack.of(message.getCompound("HeldItem"));
-			ITradeData trade = this.menu.getTrader().getTradeInfo().get(tradeIndex);
+			TradeData trade = this.menu.getTrader().getTradeData().get(tradeIndex);
 			switch(interaction) {
 			case INTERACTION_INPUT:
 				trade.onInputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);

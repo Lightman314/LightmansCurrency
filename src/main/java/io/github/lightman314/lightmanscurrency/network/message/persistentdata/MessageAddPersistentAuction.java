@@ -8,8 +8,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -49,14 +50,14 @@ public class MessageAddPersistentAuction {
 		supplier.get().enqueueWork(() -> {
 			//Only allow if player is in admin mode
 			ServerPlayer player = supplier.get().getSender();
-			if(TradingOffice.isAdminPlayer(player))
+			if(CommandLCAdmin.isAdminPlayer(player))
 			{
 				boolean generateID = message.id.isBlank();
 				if(!generateID) {
 					
 					JsonObject auctionJson = message.getAuctionJson(message.id);
 					
-					JsonArray persistentAuctions = TradingOffice.getPersistentTraderJson(TradingOffice.PERSISTENT_AUCTION_SECTION);
+					JsonArray persistentAuctions = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_AUCTION_SECTION);
 					//Check for auctions with the same id, and replace any entries that match
 					for(int i = 0; i < persistentAuctions.size(); ++i)
 					{
@@ -65,7 +66,7 @@ public class MessageAddPersistentAuction {
 						{
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
-							TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 							player.sendSystemMessage(Component.translatable("lightmanscurrency.message.persistent.auction.overwrite", message.id));
 							return;
 						}
@@ -73,7 +74,7 @@ public class MessageAddPersistentAuction {
 					
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
-					TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+					TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 					player.sendSystemMessage(Component.translatable("lightmanscurrency.message.persistent.auction.add", message.id));
 					return;
 				}
@@ -81,7 +82,7 @@ public class MessageAddPersistentAuction {
 				{
 					//Get a list of all known trader IDs
 					List<String> knownIDs = new ArrayList<>();
-					JsonArray persistentAuctions = TradingOffice.getPersistentTraderJson(TradingOffice.PERSISTENT_AUCTION_SECTION);
+					JsonArray persistentAuctions = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_AUCTION_SECTION);
 					for(int i = 0; i < persistentAuctions.size(); ++i)
 					{
 						JsonObject auctionData = persistentAuctions.get(i).getAsJsonObject();
@@ -96,7 +97,7 @@ public class MessageAddPersistentAuction {
 						if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 						{
 							persistentAuctions.add(message.getAuctionJson(genID));
-							TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_AUCTION_SECTION, persistentAuctions);
+							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
 							player.sendSystemMessage(Component.translatable("lightmanscurrency.message.persistent.auction.add", genID));
 							return;
 						}

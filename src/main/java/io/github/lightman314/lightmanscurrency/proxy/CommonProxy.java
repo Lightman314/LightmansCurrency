@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.proxy;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import net.minecraft.nbt.CompoundTag;
 
 public class CommonProxy {
@@ -16,13 +16,13 @@ public class CommonProxy {
 	
 	public void updateTrader(CompoundTag compound) {}
 	
-	public void removeTrader(UUID traderID) {}
+	public void removeTrader(long traderID) {}
 	
 	public void initializeTeams(CompoundTag compound) {}
 	
 	public void updateTeam(CompoundTag compound) {}
 	
-	public void removeTeam(UUID teamID) {}
+	public void removeTeam(long teamID) {}
 	
 	public void initializeBankAccounts(CompoundTag compound) {}
 	
@@ -44,7 +44,7 @@ public class CommonProxy {
 	
 	public void playCoinSound() {}
 	
-	public void createTeamResponse(UUID teamID) {}
+	public void createTeamResponse(long teamID) {}
 	
 	public long getTimeDesync() { return 0; }
 	

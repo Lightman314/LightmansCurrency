@@ -3,467 +3,209 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.mojang.datafixers.util.Pair;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.MessageRequestNBT;
-import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageChangeSettings;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageRequestSyncUsers;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSyncUsers;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
-public abstract class TraderBlockEntity extends TickableBlockEntity implements IOwnableBlockEntity, ITrader{
+public abstract class TraderBlockEntity<D extends TraderData> extends TickableBlockEntity implements IOwnableBlockEntity {
+
+	private long traderID = -1;
+	public long getTraderID() { return this.traderID; }
+	@Deprecated
+	public void setTraderID(long traderID) { this.traderID = traderID; }
 	
-	CoreTraderSettings coreSettings = new CoreTraderSettings(this, this::markCoreSettingsDirty, this::sendSettingsUpdateToServer);
+	private CompoundTag customTrader = null;
 	
-	protected CoinValue storedMoney = new CoinValue();
+	private CompoundTag loadFromOldTag = null;
 	
-	/** A list of players using this trader */
-	private List<Player> users = new ArrayList<>();
-	private int userCount = 0;
+	private boolean legitimateBreak = false;
+	public void flagAsLegitBreak() { this.legitimateBreak = true; }
+	public boolean legitimateBreak() { return this.legitimateBreak; }
 	
-	private boolean versionUpdate = false;
-	private int oldVersion = 0;
+	public final boolean isClient() { return this.level == null ? false : this.level.isClientSide; }
 	
-	private boolean allowRemoval = false;
-	public boolean allowRemoval() { return this.allowRemoval; }
-	public void flagAsRemovable() { this.allowRemoval = true; }
-	
-	protected TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
-	{
+	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 	
-	@Override
-	public TraderCategory getNotificationCategory() {
-		if(this.level != null)
-			return new TraderCategory(this.level.getBlockState(this.worldPosition).getBlock(), this.getName());
-		else
-			return new TraderCategory(ModItems.TRADING_CORE.get(), this.getName());
+	@SuppressWarnings("unchecked")
+	private final D buildTrader(Player owner, ItemStack placementStack)
+	{
+		if(this.customTrader != null)
+		{
+			try {
+				TraderData newTrader = TraderData.Deserialize(false, this.customTrader);
+				newTrader.move(this.level, this.worldPosition);
+				return (D)newTrader;
+			} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
+		}
+		D newTrader = this.buildNewTrader();
+		newTrader.getOwner().SetOwner(PlayerReference.of(owner));
+		if(placementStack.hasCustomHoverName())
+			newTrader.setCustomName(null, placementStack.getHoverName().getString());
+		return newTrader;
 	}
 	
-	public void userOpen(Player player)
-	{
-		if(!users.contains(player))
+	protected abstract D buildNewTrader();
+	
+	public final void saveCurrentTraderAsCustomTrader() {
+		TraderData trader = this.getTraderData();
+		if(trader != null)
 		{
-			this.users.add(player);
-			this.sendUserUpdate();
+			this.customTrader = trader.save();
+			this.setChanged();
 		}
 	}
 	
-	public void userClose(Player player)
+	public void initialize(Player owner, ItemStack placementStack)
 	{
-		if(users.contains(player))
-		{
-			this.users.remove(player);
-			this.sendUserUpdate();
-		}
-	}
-	
-	public int getUserCount()
-	{
-		if(this.level.isClientSide)
-			return this.userCount;
-		else
-			return this.users.size();
-	}
-	
-	protected List<Player> getUsers() { return this.users; }
-	
-	private void sendUserUpdate()
-	{
-		if(!this.level.isClientSide)
-		{
-			LevelChunk chunk = (LevelChunk)this.level.getChunk(this.worldPosition);
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), new MessageSyncUsers(this.worldPosition, this.getUserCount()));
-		}
-	}
-	
-	public void setUserCount(int value)
-	{
-		this.userCount = value;
-	}
-	
-	public CoreTraderSettings getCoreSettings() { return this.coreSettings; }
-	
-	public void markCoreSettingsDirty()
-	{
-		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeCoreSettings(new CompoundTag()));
-		}
-		this.setChanged();
-	}
-	
-	protected final void sendSettingsUpdateToServer(ResourceLocation type, CompoundTag updateInfo)
-	{
-		if(this.level.isClientSide)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageChangeSettings(this.worldPosition, type, updateInfo));
-		}
-	}
-	
-	public final void changeSettings(ResourceLocation type, Player requestor, CompoundTag updateInfo)
-	{
-		if(this.level.isClientSide)
-			LightmansCurrency.LogError("TraderTileEntity.changeSettings was called on a client.");
-		if(type.equals(this.coreSettings.getType()))
-			this.coreSettings.changeSetting(requestor, updateInfo);
-		else
-		{
-			this.getAdditionalSettings().forEach(setting ->{
-				if(type.equals(setting.getType()))
-					setting.changeSetting(requestor, updateInfo);
-			});
-		}
-	}
-	
-	public void initOwner(PlayerReference player)
-	{
-		this.coreSettings.initializeOwner(player);
-	}
-	
-	public void requestAddOrRemoveTrade(boolean isAdd)
-	{
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
-	}
-	
-	/**
-	 * Returns whether the player is allowed to break the block.
-	 * @return Returns true if the player is the owner, or if the player is both creative & opped.
-	 */
-	public boolean canBreak(Player player)
-	{
-		return this.hasPermission(player, Permissions.BREAK_TRADER);
-	}
-	
-	/**
-	 * Gets the amount of stored money.
-	 * If a bank account is linked, it will return the amount stored in the account instead.
-	 */
-	public CoinValue getStoredMoney()
-	{
-		if(this.coreSettings.hasBankAccount())
-		{
-			BankAccount account = this.coreSettings.getBankAccount();
-			return account.getCoinStorage().copy();
-		}
-		return this.storedMoney;
-	}
-	
-	/**
-	 * Gets the amount of stored money.
-	 * Always returns the amount contained within regardless of the linked bank account
-	 */
-	public CoinValue getInternalStoredMoney() {
-		return this.storedMoney;
-	}
-	
-	/**
-	 * Adds the given amount of money to the stored money.
-	 * If a bank account is linked, it will add it to the account instead.
-	 */
-	public void addStoredMoney(CoinValue addedAmount)
-	{
-		if(this.coreSettings.hasBankAccount())
-		{
-			BankAccount account = this.coreSettings.getBankAccount();
-			account.depositCoins(addedAmount);
-			account.LogInteraction(this, addedAmount, true);
+		if(this.getTraderData() != null)
 			return;
-		}
-		storedMoney.addValue(addedAmount);
-		this.markMoneyDirty();
-	}
-	
-	/**
-	 * Removes the given amount of money to the stored money.
-	 * If a bank account is linked, it will remove it from the account instead.
-	 */
-	public void removeStoredMoney(CoinValue removedAmount)
-	{
-		if(this.coreSettings.hasBankAccount())
-		{
-			BankAccount account = this.coreSettings.getBankAccount();
-			account.withdrawCoins(removedAmount);
-			account.LogInteraction(this, removedAmount, false);
-			return;
-		}
-		long newValue = this.storedMoney.getRawValue() - removedAmount.getRawValue();
-		this.storedMoney.readFromOldValue(newValue);
-		this.markMoneyDirty();
-	}
-	
-	/**
-	 * Resets the stored money to 0.
-	 */
-	public void clearStoredMoney()
-	{
-		this.storedMoney = new CoinValue();
-		this.markMoneyDirty();
-	}
-	
-	public void markMoneyDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStoredMoney(new CompoundTag()));
-	}
-	
-	@Override
-	public void serverTick()
-	{
-		if(this.versionUpdate && this.level != null)
-		{
-			this.versionUpdate = false;
-			this.onVersionUpdate(oldVersion);
-		}
-	}
-	
-	public MutableComponent getDefaultName() { return this.getBlockState().getBlock().getName(); }
-	
-	public MenuProvider getTradeMenuProvider() { return new TradeMenuProvider<>(this); }
-	
-	public static class TradeMenuProvider<T extends BlockEntity & ITraderSource> implements MenuProvider {
-		T trader;
-		public TradeMenuProvider(T trader) { this.trader = trader; }
-		public Component getDisplayName() { return Component.empty(); }
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderMenu(id, inventory, this.trader.getBlockPos()); }
-	}
-	
-	public void openTradeMenu(Player player)
-	{
-		MenuProvider provider = getTradeMenuProvider();
-		if(provider == null)
-		{
-			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + BlockEntityType.getKey(this.getType()).toString());
-			return;
-		}
-		if(!(player instanceof ServerPlayer))
-		{
-			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
-			return;
-		}
-		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
-	}
-	
-	public MenuProvider getStorageMenuProvider() { return new TradeStorageMenuProvider<>(this); }
-	
-	public static class TradeStorageMenuProvider<T extends BlockEntity & ITrader> implements MenuProvider {
-		T trader;
-		public TradeStorageMenuProvider(T trader) { this.trader = trader; }
-		public Component getDisplayName() { return Component.empty(); }
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) { return new TraderStorageMenu(id, inventory, this.trader.getBlockPos()); }
-	}
-	
-	public void openStorageMenu(Player player)
-	{
-		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
-		{
-			Settings.PermissionWarning(player, "open trader storage", Permissions.OPEN_STORAGE);
-			return;
-		}
-		MenuProvider provider = getStorageMenuProvider();
-		if(provider == null)
-		{
-			LightmansCurrency.LogError("No storage container provider was given for the trader of type " + BlockEntityType.getKey(this.getType()));
-			return;
-		}
-		if(!(player instanceof ServerPlayer))
-		{
-			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the storage menu.");
-			return;
-		}
-		NetworkHooks.openScreen((ServerPlayer)player, provider, this.worldPosition);
-	}
-	
-	@Override
-	public void saveAdditional(CompoundTag compound)
-	{
-		writeCoreSettings(compound);
-		writeStoredMoney(compound);
-		writeVersion(compound);
 		
+		D newTrader = this.buildTrader(owner, placementStack);
+		//Register to the trading office
+		this.traderID = TraderSaveData.RegisterTrader(newTrader);
+		this.setChanged();
+	}
+	
+	private TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
+	
+	@SuppressWarnings("unchecked")
+	public D getTraderData()
+	{
+		//Get from trading office
+		TraderData rawData = this.getRawTraderData();
+		try {
+			return (D)rawData;
+		} catch(Throwable t) { t.printStackTrace(); return null; }
+	}
+	
+	@Override
+	public void saveAdditional(CompoundTag compound) {
 		super.saveAdditional(compound);
-		
+		compound.putLong("TraderID", this.traderID);
+		if(this.customTrader != null)
+			compound.put("CustomTrader", this.customTrader);
 	}
 	
-	protected CompoundTag writeStoredMoney(CompoundTag compound)
-	{
-		this.storedMoney.writeToNBT(compound, "StoredMoney");
-		return compound;
-	}
-	
-	protected CompoundTag writeCoreSettings(CompoundTag compound)
-	{
-		compound.put("CoreSettings", this.coreSettings.save(new CompoundTag()));
-		return compound;
-	}
-	
-	protected CompoundTag writeVersion(CompoundTag compound)
-	{
-		compound.putInt("TraderVersion", this.GetCurrentVersion());
-		return compound;
-	}
-	
-	@Override
 	public void load(CompoundTag compound)
 	{
-		//Core Settings
-		if(compound.contains("CoreSettings", Tag.TAG_COMPOUND))
-			this.coreSettings.load(compound.getCompound("CoreSettings"));
-		else if(compound.contains("OwnerID"))
-			this.coreSettings.loadFromOldTraderData(compound);
-		//Stored Money
-		//Load stored money
-		this.storedMoney.readFromNBT(compound, "StoredMoney");
-		
-		//Version
-		if(compound.contains("TraderVersion", Tag.TAG_INT))
-			oldVersion = compound.getInt("TraderVersion");
-		//Validate the version #
-		if(oldVersion < this.GetCurrentVersion())
-			this.versionUpdate = true; //Flag this to perform a version update later once the world has been defined
-		
 		super.load(compound);
+		if(compound.contains("TraderID", Tag.TAG_LONG))
+			this.traderID = compound.getLong("TraderID");
+		if(compound.contains("CustomTrader"))
+			this.customTrader = compound.getCompound("CustomTrader");
+		
+		//Convert from old trader types
+		if(compound.contains("CoreSettings"))
+			this.loadFromOldTag = compound;
 		
 	}
 	
-	protected abstract void onVersionUpdate(int oldVersion);
+	@Override
+	public void serverTick() {
+		if(this.loadFromOldTag != null && this.level != null)
+		{
+			D newTrader = this.createTraderFromOldData(this.loadFromOldTag);
+			this.loadFromOldTag = null;
+			if(newTrader != null)
+			{
+				this.traderID = TraderSaveData.RegisterTrader(newTrader);
+				this.setChanged();
+				BlockEntityUtil.sendUpdatePacket(this);
+			}
+			else
+			{
+				LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
+			}
+		}
+	}
 	
-	public int GetCurrentVersion() { return 0; };
+	protected abstract D createTraderFromOldData(CompoundTag compound);
 	
 	@Override
 	public void onLoad()
 	{
 		if(this.level.isClientSide)
-		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestNBT(this));
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestSyncUsers(this.worldPosition));
-		}
-	}
-	
-	public final List<ItemStack> dumpContents(BlockState state, boolean dropBlock) { 
-		List<ItemStack> contents = new ArrayList<>();
-		
-		//Drop trader block
-		if(dropBlock)
-		{
-			if(state.getBlock() instanceof ITraderBlock)
-				contents.add(((ITraderBlock)state.getBlock()).getDropBlockItem(state, this));
-			else
-				contents.add(new ItemStack(state.getBlock()));
-		}
-		
-		//Drop stored coins
-		contents.addAll(MoneyUtil.getCoinsOfValue(this.storedMoney));
-		this.dumpContents(contents);
-		
-		return contents;
+			BlockEntityUtil.requestUpdatePacket(this);
 	}
 	
 	@Override
 	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
-	/*private class CRDataWriter implements Consumer<FriendlyByteBuf>
-	{
+	@Override
+	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
+    {
 		
-		BlockPos traderPos;
-		BlockPos registerPos;
-		
-		public CRDataWriter(BlockPos traderPos, BlockPos registerPos)
+		TraderData trader = this.getTraderData();
+		if(trader != null)
 		{
-			this.traderPos = traderPos;
-			this.registerPos = registerPos;
-		}
-		
-		@Override
-		public void accept(FriendlyByteBuf buffer) {
-			buffer.writeBlockPos(traderPos);
-			buffer.writeBlockPos(registerPos);
+			
+			Direction relativeSide = side;
+			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+			{
+				IRotatableBlock block = (IRotatableBlock)this.getBlockState().getBlock();
+				relativeSide = IRotatableBlock.getRelativeSide(block.getFacing(this.getBlockState()), side);
+			}
+			LazyOptional<T> result = trader.getCapability(cap, relativeSide);
+			if(result != null)
+				return result;
 			
 		}
-	}*/
-	
-	/*protected class TradeIndexDataWriter implements Consumer<FriendlyByteBuf>
-	{
-		BlockPos traderPos;
-		int tradeIndex;
 		
-		public TradeIndexDataWriter(BlockPos traderPos, int tradeIndex)
+		return super.getCapability(cap, side);
+    }
+	
+	
+	/**
+	 * Deletes the trader from the registry, and returns the traders contents to be dropped.
+	 */
+	public Pair<MutableComponent,List<ItemStack>> onBlockBreak(boolean dropBlock) {
+		TraderData trader = TraderSaveData.DeleteTrader(this.traderID);
+		if(trader != null)
 		{
-			this.traderPos = traderPos;
-			this.tradeIndex = tradeIndex;
+			List<ItemStack> contents = trader.getContents(this.level, this.worldPosition, this.getBlockState(), dropBlock);
+			return Pair.of(trader.getName(), contents);
 		}
-		
-		@Override
-		public void accept(FriendlyByteBuf buffer)
-		{
-			buffer.writeBlockPos(traderPos);
-			buffer.writeInt(tradeIndex);
-		}
-		
-	}*/
+		else
+			return Pair.of(Component.literal("NULL"), new ArrayList<>());
+	}
 	
-	public boolean isClient()
+	public boolean canBreak(Player player)
 	{
-		if(this.level == null)
-			return true;
-		return this.level.isClientSide;
+		TraderData trader = this.getTraderData();
+		if(trader != null)
+			return trader.hasPermission(player, Permissions.BREAK_TRADER);
+		return true;
 	}
 	
-	@Override
-	public void sendOpenTraderMessage() {
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.worldPosition));
+	public void onBreak() {
+		if(this.getTraderData() != null)
+			TraderSaveData.DeleteTrader(this.traderID);
 	}
-
-	@Override
-	public void sendOpenStorageMessage() {
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.worldPosition));
-	}
-
-	@Override
-	public void sendClearLogMessage() {
-		if(this.isClient())
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearLogger(this.worldPosition));
-	}
+	
+	
 	
 }

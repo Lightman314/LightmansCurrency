@@ -15,10 +15,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener.
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.trader.settings.directional.DirectionalSettings;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
@@ -73,8 +73,8 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 		
-		this.inputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this::getInputSettings, this::ToggleInputSide, this.screen::addRenderableTabWidget);
-		this.outputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 116, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this::getOutputSettings, this::ToggleOutputSide, this.screen::addRenderableTabWidget);
+		this.inputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this.screen::addRenderableTabWidget);
+		this.outputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 116, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getOutputSettings()::get, this.getInputSettings().ignoreSides,  this::ToggleOutputSide, this.screen::addRenderableTabWidget);
 		
 		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * 5 + 8, b -> this.commonTab.quickTransfer(0)));
 		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * 5 + 8, b -> this.commonTab.quickTransfer(1)));

@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.enchantments;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
@@ -69,7 +69,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 						ie.discard();
 					else
 						ie.setItem(leftovers);
-					level.playSound(null, entity, CurrencySoundEvents.COINS_CLINKING, SoundSource.PLAYERS, 0.4f, 1f);
+					level.playSound(null, entity, ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
 				}
 			}
 			if(updateWallet)

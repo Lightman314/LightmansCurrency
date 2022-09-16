@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenTraderRecovery;
@@ -46,7 +46,7 @@ public class TraderRecoveryButton extends PlainButton {
 		this.x = getXPosition(this.screen);
 		this.y = getYPosition(this.screen);
 		
-		if(ClientTradingOffice.getValidEjectionData().size() > 0)
+		if(ClientEjectionData.GetValidEjectionData().size() > 0)
 		{
 			this.visible = true;
 			//Change visibility based on whether the correct tab is open

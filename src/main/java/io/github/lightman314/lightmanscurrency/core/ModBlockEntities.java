@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import io.github.lightman314.lightmanscurrency.Reference.Color;
-import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
+import io.github.lightman314.lightmanscurrency.blockentity.old.item.*;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.core.util.BlockEntityBlockHelper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 
+@SuppressWarnings("deprecation")
 public class ModBlockEntities {
 	
 	/**
@@ -15,62 +17,8 @@ public class ModBlockEntities {
 	
 	static {
 		
-		ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(ItemTraderBlockEntity::new,
-				//Display Case
-				ModBlocks.DISPLAY_CASE.get(),
-				//Vending Machine 1
-				ModBlocks.VENDING_MACHINE.get(Color.WHITE),
-				ModBlocks.VENDING_MACHINE.get(Color.ORANGE),
-				ModBlocks.VENDING_MACHINE.get(Color.MAGENTA),
-				ModBlocks.VENDING_MACHINE.get(Color.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE.get(Color.YELLOW),
-				ModBlocks.VENDING_MACHINE.get(Color.LIME),
-				ModBlocks.VENDING_MACHINE.get(Color.PINK),
-				ModBlocks.VENDING_MACHINE.get(Color.GRAY),
-				ModBlocks.VENDING_MACHINE.get(Color.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE.get(Color.CYAN),
-				ModBlocks.VENDING_MACHINE.get(Color.PURPLE),
-				ModBlocks.VENDING_MACHINE.get(Color.BLUE),
-				ModBlocks.VENDING_MACHINE.get(Color.BROWN),
-				ModBlocks.VENDING_MACHINE.get(Color.GREEN),
-				ModBlocks.VENDING_MACHINE.get(Color.RED),
-				ModBlocks.VENDING_MACHINE.get(Color.BLACK),
-				//Vending Machine 2
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.WHITE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.ORANGE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.MAGENTA),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.YELLOW),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIME),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PINK),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GRAY),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.CYAN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PURPLE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLUE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BROWN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GREEN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.RED),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLACK),
-				//Wooden Shelves
-				ModBlocks.SHELF.get(WoodType.OAK),
-				ModBlocks.SHELF.get(WoodType.BIRCH),
-				ModBlocks.SHELF.get(WoodType.SPRUCE),
-				ModBlocks.SHELF.get(WoodType.JUNGLE),
-				ModBlocks.SHELF.get(WoodType.ACACIA),
-				ModBlocks.SHELF.get(WoodType.DARK_OAK),
-				ModBlocks.SHELF.get(WoodType.CRIMSON),
-				ModBlocks.SHELF.get(WoodType.WARPED),
-				//Card Displays
-				ModBlocks.CARD_DISPLAY.get(WoodType.OAK),
-				ModBlocks.CARD_DISPLAY.get(WoodType.BIRCH),
-				ModBlocks.CARD_DISPLAY.get(WoodType.SPRUCE),
-				ModBlocks.CARD_DISPLAY.get(WoodType.JUNGLE),
-				ModBlocks.CARD_DISPLAY.get(WoodType.ACACIA),
-				ModBlocks.CARD_DISPLAY.get(WoodType.DARK_OAK),
-				ModBlocks.CARD_DISPLAY.get(WoodType.CRIMSON),
-				ModBlocks.CARD_DISPLAY.get(WoodType.WARPED)
-			).build(null));
+		ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("item_trader", () -> BlockEntityType.Builder.of(ItemTraderBlockEntity::new,
+				BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.ITEM_TRADER_TYPE)).build(null));
 		
 		ARMOR_TRADER = ModRegistries.BLOCK_ENTITIES.register("armor_trader", () -> BlockEntityType.Builder.of(ArmorDisplayTraderBlockEntity::new, ModBlocks.ARMOR_DISPLAY.get()).build(null));
 		
@@ -78,48 +26,8 @@ public class ModBlockEntities {
 		
 		TICKET_TRADER = ModRegistries.BLOCK_ENTITIES.register("ticket_trader", () -> BlockEntityType.Builder.of(TicketTraderBlockEntity::new, ModBlocks.TICKET_KIOSK.get()).build(null));
 		
-		UNIVERSAL_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new, ModBlocks.ITEM_TRADER_SERVER_SMALL.get(), ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get(), ModBlocks.ITEM_TRADER_SERVER_LARGE.get(), ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get()).build(null));
-		
-		ITEM_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("item_interface", () -> BlockEntityType.Builder.of(ItemInterfaceBlockEntity::new,
-				//Vending Machine 1
-				ModBlocks.VENDING_MACHINE.get(Color.WHITE),
-				ModBlocks.VENDING_MACHINE.get(Color.ORANGE),
-				ModBlocks.VENDING_MACHINE.get(Color.MAGENTA),
-				ModBlocks.VENDING_MACHINE.get(Color.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE.get(Color.YELLOW),
-				ModBlocks.VENDING_MACHINE.get(Color.LIME),
-				ModBlocks.VENDING_MACHINE.get(Color.PINK),
-				ModBlocks.VENDING_MACHINE.get(Color.GRAY),
-				ModBlocks.VENDING_MACHINE.get(Color.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE.get(Color.CYAN),
-				ModBlocks.VENDING_MACHINE.get(Color.PURPLE),
-				ModBlocks.VENDING_MACHINE.get(Color.BLUE),
-				ModBlocks.VENDING_MACHINE.get(Color.BROWN),
-				ModBlocks.VENDING_MACHINE.get(Color.GREEN),
-				ModBlocks.VENDING_MACHINE.get(Color.RED),
-				ModBlocks.VENDING_MACHINE.get(Color.BLACK),
-				//Vending Machine 2
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.WHITE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.ORANGE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.MAGENTA),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTBLUE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.YELLOW),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIME),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PINK),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GRAY),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.LIGHTGRAY),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.CYAN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PURPLE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLUE),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BROWN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.GREEN),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.RED),
-				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLACK),
-				//Armor Display
-				ModBlocks.ARMOR_DISPLAY.get(),
-				//Freezer
-				ModBlocks.FREEZER.get()
-			).build(null));
+		CAPABILITY_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("capability_interface", () -> BlockEntityType.Builder.of(CapbilityInterfaceBlockEntity::new,
+				BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.CAPABILITY_INTERFACE_TYPE)).build(null));
 		
 		TRADER_INTERFACE_ITEM = ModRegistries.BLOCK_ENTITIES.register("trader_interface_item", () -> BlockEntityType.Builder.of(ItemTraderInterfaceBlockEntity::new, ModBlocks.ITEM_TRADER_INTERFACE.get()).build(null));
 		
@@ -132,6 +40,15 @@ public class ModBlockEntities {
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 		
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
+		
+		OLD_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(OldItemTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.ITEM_TRADER_TYPE)).build(null));
+		
+		UNIVERSAL_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new,
+				ModBlocks.ITEM_NETWORK_TRADER_1.get(),
+				ModBlocks.ITEM_NETWORK_TRADER_2.get(),
+				ModBlocks.ITEM_NETWORK_TRADER_3.get(),
+				ModBlocks.ITEM_NETWORK_TRADER_4.get()).build(null));
+		
 	}
 	
 	//Item Trader
@@ -143,11 +60,8 @@ public class ModBlockEntities {
 	//Ticket variant of the trader
 	public static final RegistryObject<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
 	
-	//Universal Item Trader
-	public static final RegistryObject<BlockEntityType<UniversalItemTraderBlockEntity>> UNIVERSAL_ITEM_TRADER;
-	
 	//Item Interface for multi-block traders
-	public static final RegistryObject<BlockEntityType<ItemInterfaceBlockEntity>> ITEM_INTERFACE;
+	public static final RegistryObject<BlockEntityType<CapbilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
 	
 	//Trader Interface Terminal
 	public static final RegistryObject<BlockEntityType<ItemTraderInterfaceBlockEntity>> TRADER_INTERFACE_ITEM;
@@ -165,5 +79,13 @@ public class ModBlockEntities {
 	
 	//Coin Jars
 	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
+	
+	//Old Item Trader ID
+	@Deprecated
+	public static final RegistryObject<BlockEntityType<OldItemTraderBlockEntity>> OLD_ITEM_TRADER;
+	//Network Item Trader (for conversion)
+	@Deprecated
+	public static final RegistryObject<BlockEntityType<UniversalItemTraderBlockEntity>> UNIVERSAL_ITEM_TRADER;
+	
 	
 }

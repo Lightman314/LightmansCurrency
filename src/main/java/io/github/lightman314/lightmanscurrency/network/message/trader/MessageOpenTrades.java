@@ -2,28 +2,27 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
-import net.minecraft.core.BlockPos;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageOpenTrades {
 	
-	BlockPos pos;
+	long traderID;
 	
-	public MessageOpenTrades(BlockPos pos)
+	public MessageOpenTrades(long traderID)
 	{
-		this.pos = pos;
+		this.traderID = traderID;
 	}
 	
 	public static void encode(MessageOpenTrades message, FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(message.pos);
+		buffer.writeLong(message.traderID);
 	}
 
 	public static MessageOpenTrades decode(FriendlyByteBuf buffer) {
-		return new MessageOpenTrades(buffer.readBlockPos());
+		return new MessageOpenTrades(buffer.readLong());
 	}
 
 	public static void handle(MessageOpenTrades message, Supplier<Context> supplier) {
@@ -32,12 +31,9 @@ public class MessageOpenTrades {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof TraderBlockEntity)
-				{
-					TraderBlockEntity traderEntity = (TraderBlockEntity)blockEntity;
-					traderEntity.openTradeMenu(player);
-				}
+				TraderData data = TraderSaveData.GetTrader(false, message.traderID);
+				if(data != null)
+					data.openTraderMenu(player);
 			}
 		});
 		supplier.get().setPacketHandled(true);

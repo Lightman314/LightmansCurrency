@@ -2,24 +2,20 @@ package io.github.lightman314.lightmanscurrency.menus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
-import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -31,7 +27,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
+public class TraderMenu extends AbstractContainerMenu {
 
 	public final Supplier<ITraderSource> traderSource;
 	public final Player player;
@@ -46,13 +42,8 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 	
-	public TraderMenu(int windowID, Inventory inventory, BlockPos sourcePosition) {
-		this(ModMenus.TRADER.get(), windowID, inventory, () -> {
-			BlockEntity be = inventory.player.level.getBlockEntity(sourcePosition);
-			if(be instanceof ITraderSource)
-				return (ITraderSource)be;
-			return null;
-		});
+	public TraderMenu(int windowID, Inventory inventory, long traderID) {
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
 	}
 	
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource) {
@@ -60,13 +51,12 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		this.player = inventory.player;
 		this.traderSource = traderSource;
 		this.init(this.player, inventory);
-		for(ITrader trader : this.traderSource.get().getTraders()) {
+		for(TraderData trader : this.traderSource.get().getTraders()) {
 			if(trader != null) trader.userOpen(this.player);
 		}
-			
 	}
 	
-	public TradeContext getContext(ITrader trader) { 
+	public TradeContext getContext(TraderData trader) { 
 		return TradeContext.create(trader, this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).build();
 	}
 
@@ -94,7 +84,7 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		
 		//Interaction Slots
 		List<InteractionSlotData> slotData = new ArrayList<>();
-		for(ITrader trader : this.traderSource.get().getTraders())
+		for(TraderData trader : this.traderSource.get().getTraders())
 			trader.addInteractionSlots(slotData);
 		this.interactionSlot = new InteractionSlot(slotData, SLOT_OFFSET + 8, 122);
 		this.addSlot(this.interactionSlot);
@@ -111,14 +101,13 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		this.clearContainer(player, this.interactionSlot.container);
 		if(this.traderSource.get() != null)
 		{
-			for(ITrader trader : this.traderSource.get().getTraders()) {
+			for(TraderData trader : this.traderSource.get().getTraders()) {
 				if(trader != null) trader.userClose(this.player);
 			}
 		}
 			
 	}
 	
-	@Override
 	public void ExecuteTrade(int traderIndex, int tradeIndex) {
 		//LightmansCurrency.LogInfo("Executing trade " + traderIndex + "/" + tradeIndex);
 		ITraderSource traderSource = this.traderSource.get();
@@ -127,10 +116,10 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 			this.player.closeContainer();
 			return;
 		}
-		List<ITrader> traderList = traderSource.getTraders();
+		List<TraderData> traderList = traderSource.getTraders();
 		if(traderIndex >= 0 && traderIndex < traderList.size())
 		{
-			ITrader trader = traderSource.getTraders().get(traderIndex);
+			TraderData trader = traderSource.getTraders().get(traderIndex);
 			if(trader == null)
 			{
 				LightmansCurrency.LogWarning("Trader at index " + traderIndex + " is null.");
@@ -154,13 +143,11 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		return tradeSource.isSingleTrader() && tradeSource.getTraders().size() == 1;
 	}
 	
-	public ITrader getSingleTrader() {
+	public TraderData getSingleTrader() {
 		if(this.isSingleTrader())
 			return this.traderSource.get().getSingleTrader();
 		return null;
 	}
-	
-	public boolean isUniversalTrader() { return false; }
 	
 	@Override
 	public ItemStack quickMoveStack(Player playerEntity, int index)
@@ -205,12 +192,11 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 		
 	}
 	
-	@Override
 	public void CollectCoinStorage() {
 		if(this.isSingleTrader())
 		{
 			LightmansCurrency.LogInfo("Attempting to collect coins from trader.");
-			ITrader trader = this.getSingleTrader();
+			TraderData trader = this.getSingleTrader();
 			if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
 			{
 				CoinValue payment = trader.getInternalStoredMoney();
@@ -218,34 +204,27 @@ public class TraderMenu extends AbstractContainerMenu implements ITraderMenu{
 					trader.clearStoredMoney();
 			}
 			else
-				Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+				Permissions.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 		}
 	}
 	
-	public static class TraderMenuUniversal extends TraderMenu
+	public static class TraderMenuBlockSource extends TraderMenu
 	{
-		public TraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.TRADER_UNIVERSAL.get(), windowID, inventory, () ->{
-				if(inventory.player.level.isClientSide)
-					return ClientTradingOffice.getData(traderID);
-				else
-					return TradingOffice.getData(traderID);
+		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos blockPosition) {
+			super(ModMenus.TRADER_BLOCK.get(), windowID, inventory, () -> {
+				BlockEntity be = inventory.player.level.getBlockEntity(blockPosition);
+				if(be instanceof ITraderSource)
+					return (ITraderSource)be;
+				return null;
 			});
 		}
-		
-		@Override
-		public boolean isUniversalTrader() { return true; }
-		
 	}
 
-	public static class TraderMenuAllUniversal extends TraderMenu
+	public static class TraderMenuAllNetwork extends TraderMenu
 	{
-		public TraderMenuAllUniversal(int windowID, Inventory inventory) {
-			super(ModMenus.TRADER_UNIVERSAL_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
+		public TraderMenuAllNetwork(int windowID, Inventory inventory) {
+			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
 		}
-		
-		@Override
-		public boolean isUniversalTrader() { return true; }
 	}
 	
 	

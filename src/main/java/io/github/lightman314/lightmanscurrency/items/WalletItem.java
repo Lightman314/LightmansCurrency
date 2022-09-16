@@ -15,10 +15,10 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacke
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -234,7 +234,7 @@ public class WalletItem extends Item{
 		{
 			player.level.playSound(player, player.blockPosition(), emptyOpenSound, SoundSource.PLAYERS, 0.75f, 1.25f + player.level.random.nextFloat() * 0.5f);
 			if(!isEmpty(wallet))
-				player.level.playSound(player, player.blockPosition(), CurrencySoundEvents.COINS_CLINKING, SoundSource.PLAYERS, 0.4f, 1f);
+				player.level.playSound(player, player.blockPosition(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
 		}
 		
 		return InteractionResultHolder.success(wallet);

@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
@@ -24,11 +24,6 @@ import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
@@ -39,12 +34,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class TraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu {
+public class TraderStorageMenu extends AbstractContainerMenu {
 
-	public final Supplier<ITrader> traderSource;
-	public final ITrader getTrader() { return this.traderSource.get(); }
+	public final Supplier<TraderData> traderSource;
+	public final TraderData getTrader() { return this.traderSource.get(); }
 	public final Player player;
 	
 	public static final int SLOT_OFFSET = 15;
@@ -68,21 +62,18 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
-	public TraderStorageMenu(int windowID, Inventory inventory, BlockPos traderPos) {
+	public TraderStorageMenu(int windowID, Inventory inventory, long traderID) {
 		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () ->{
-			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
-			if(be instanceof ITrader)
-				return (ITrader)be;
-			return null;
+			return TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID);
 		});
 	}
 	
-	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITrader> traderSource) {
+	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource) {
 		super(type, windowID);
 		this.traderSource = traderSource;
 		this.player = inventory.player;
 		
-		ITrader trader = this.traderSource.get();
+		TraderData trader = this.traderSource.get();
 		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
 		if(trader != null)
 			trader.initStorageTabs(this);
@@ -126,7 +117,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 		super.removed(player);
 		this.clearContainer(player, this.coinSlotContainer);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
-		ITrader trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader != null) trader.userClose(player);
 	}
 	
@@ -146,8 +137,8 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	}
 	
 	private boolean hasCoinSlotAccess() {
-		ITrader trader = this.getTrader();
-		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.getCoreSettings().hasBankAccount();
+		TraderData trader = this.getTrader();
+		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.hasBankAccount();
 	}
 	
 	@Override
@@ -210,14 +201,14 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 	}
 	
 	public boolean hasPermission(String permission) { 
-		ITrader trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader != null)
 			return trader.hasPermission(this.player, permission);
 		return false;
 	}
 	
 	public int getPermissionLevel(String permission) {
-		ITrader trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader != null)
 			return trader.getPermissionLevel(this.player, permission);
 		return 0;
@@ -286,25 +277,11 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 		public void selfMessage(CompoundTag message);
 	}
 	
-	public static class TraderStorageMenuUniversal extends TraderStorageMenu {
-
-		public TraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.TRADER_STORAGE_UNIVERSAL.get(), windowID, inventory, () ->{
-				if(inventory.player.level.isClientSide)
-					return ClientTradingOffice.getData(traderID);
-				else
-					return TradingOffice.getData(traderID);
-			});
-		}
-		
-	}
-	
 	public boolean HasCoinsToAdd() { return MoneyUtil.getValue(this.coinSlotContainer) > 0; }
 
-	@Override
 	public void CollectCoinStorage() {
 		
-		ITrader trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader == null)
 		{
 			this.player.closeContainer();
@@ -321,13 +298,12 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			}
 		}
 		else
-			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+			Permissions.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 	}
 	
-	@Override
 	public void AddCoins() {
 		
-		ITrader trader = this.getTrader();
+		TraderData trader = this.getTrader();
 		if(trader == null)
 		{
 			this.player.closeContainer();
@@ -340,7 +316,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements ITraderS
 			this.coinSlotContainer.clearContent();
 		}
 		else
-			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
+			Permissions.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
 	}
 	
 }

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network.message.teams;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -9,19 +8,19 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageCreateTeamResponse {
 	
-	UUID teamID;
+	long teamID;
 	
-	public MessageCreateTeamResponse(UUID teamID)
+	public MessageCreateTeamResponse(long teamID)
 	{
 		this.teamID = teamID;
 	}
 	
 	public static void encode(MessageCreateTeamResponse message, FriendlyByteBuf buffer) {
-		buffer.writeUUID(message.teamID);
+		buffer.writeLong(message.teamID);
 	}
 
 	public static MessageCreateTeamResponse decode(FriendlyByteBuf buffer) {
-		return new MessageCreateTeamResponse(buffer.readUUID());
+		return new MessageCreateTeamResponse(buffer.readLong());
 	}
 
 	public static void handle(MessageCreateTeamResponse message, Supplier<Context> supplier) {

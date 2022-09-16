@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.items;
 
-import io.github.lightman314.lightmanscurrency.upgrades.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lightmanscurrency.upgrades.types.SpeedUpgrade;
 
 public class SpeedUpgradeItem extends UpgradeItem{
 

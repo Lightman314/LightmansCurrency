@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.menus.traderinterface.base;
 
-import java.util.UUID;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -34,14 +33,14 @@ public class TraderSelectTab extends TraderInterfaceTab {
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
 	
-	public void setTrader(UUID traderID) {
+	public void setTrader(long traderID) {
 		this.menu.getBE().setTrader(traderID);
 		//Don't need to mark dirty, as that's done on the BE's side automatically
 		if(this.menu.isClient())
 		{
 			CompoundTag message = new CompoundTag();
-			if(traderID != null)
-				message.putUUID("NewTrader", traderID);
+			if(traderID >= 0)
+				message.putLong("NewTrader", traderID);
 			else
 				message.putBoolean("NullTrader", true);
 			this.menu.sendMessage(message);
@@ -52,11 +51,11 @@ public class TraderSelectTab extends TraderInterfaceTab {
 	public void receiveMessage(CompoundTag message) {
 		if(message.contains("NewTrader"))
 		{
-			this.setTrader(message.getUUID("NewTrader"));
+			this.setTrader(message.getLong("NewTrader"));
 		}
 		else if(message.contains("NullTrader"))
 		{
-			this.setTrader(null);
+			this.setTrader(-1);
 		}
 	}
 	

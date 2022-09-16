@@ -4,12 +4,12 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionTradeCancelClientTab;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -56,7 +56,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
 	public void cancelAuction(boolean giveToPlayer) {
-		ITrader t = this.menu.getTrader();
+		TraderData t = this.menu.getTrader();
 		if(t instanceof AuctionHouseTrader)
 		{
 			AuctionHouseTrader trader = (AuctionHouseTrader)t;

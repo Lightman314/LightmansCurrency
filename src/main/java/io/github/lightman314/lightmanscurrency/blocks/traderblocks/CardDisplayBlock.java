@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
@@ -38,6 +38,9 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
+	
+	@Override @SuppressWarnings("deprecation")
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
@@ -114,11 +117,6 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	public int maxRenderIndex()
 	{
 		return TRADECOUNT;
-	}
-	
-	@Override
-	public Direction getRelativeSide(BlockState state, Direction side) {
-		return IItemHandlerBlock.getRelativeSide(this.getFacing(state), side);
 	}
 	
 	@Override

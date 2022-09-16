@@ -85,9 +85,10 @@ public class TeamBankAccountTab extends TeamTab {
 	}
 	
 	private List<MutableComponent> getAccountLog() {
-		if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
-			return new ArrayList<>();
-		return this.getActiveTeam().getBankAccount().getLogs().logText;
+		//if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
+		//	return new ArrayList<>();
+		//return this.getActiveTeam().getBankAccount().getLogs().logText;
+		return new ArrayList<>();
 	}
 
 	@Override

@@ -3,21 +3,27 @@ package io.github.lightman314.lightmanscurrency.common.notifications;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
 
 public abstract class Notification {
 
 	private static final Map<String,Function<CompoundTag,Notification>> DESERIALIZERS = new HashMap<>();
+	
+	public static final void register(ResourceLocation type, Supplier<Notification> deserializer) {
+		register(type, c -> {
+			Notification n = deserializer.get();
+			n.load(c);
+			return n;
+		});
+	}
 	
 	public static final void register(ResourceLocation type, Function<CompoundTag,Notification> deserializer) {
 		String t = type.toString();
@@ -35,9 +41,9 @@ public abstract class Notification {
 	}
 	
 	public static final Notification deserialize(CompoundTag compound) {
-		if(compound.contains("type"))
+		if(compound.contains("Type") || compound.contains("type"))
 		{
-			String type = compound.getString("type");
+			String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
 			if(DESERIALIZERS.containsKey(type))
 			{
 				return DESERIALIZERS.get(type).apply(compound);
@@ -64,17 +70,17 @@ public abstract class Notification {
 	
 	protected abstract ResourceLocation getType();
 	
-	public abstract Category getCategory();
+	public abstract NotificationCategory getCategory();
 	
 	public abstract MutableComponent getMessage();
 	
 	public MutableComponent getGeneralMessage() {
-		return Component.translatable("notifications.source.general.format", this.getCategory().getTooltip(), this.getMessage());
+		return Component.translatable("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
 	}
 	
 	public MutableComponent getChatMessage() {
 		return Component.translatable("notifications.chat.format",
-				Component.translatable("notifications.chat.format.title", this.getCategory().getTooltip()).withStyle(ChatFormatting.GOLD),
+				Component.translatable("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
 				this.getMessage());
 	}
 	
@@ -83,7 +89,7 @@ public abstract class Notification {
 		if(this.seen)
 			compound.putBoolean("Seen", true);
 		compound.putInt("Count", this.count);
-		compound.putString("type", this.getType().toString());
+		compound.putString("Type", this.getType().toString());
 		this.saveAdditional(compound);
 		return compound;
 	}
@@ -119,83 +125,5 @@ public abstract class Notification {
 	 * Whether the other notification should be merged with this one.
 	 */
 	protected abstract boolean canMerge(Notification other);
-	
-	
-	public static abstract class Category implements ITab
-	{
-		
-		public static final ResourceLocation GENERAL_TYPE = new ResourceLocation(LightmansCurrency.MODID, "general");
-		
-		private static final Map<String,Function<CompoundTag,Category>> DESERIALIZERS = new HashMap<>();
-		
-		public static final void register(ResourceLocation type, Function<CompoundTag,Category> deserializer) {
-			String t = type.toString();
-			if(DESERIALIZERS.containsKey(t))
-			{
-				LightmansCurrency.LogError("Category of type " + t + " is already registered.");
-				return;
-			}
-			if(deserializer == null)
-			{
-				LightmansCurrency.LogError("Deserializer of category type " + t + " is null. Unable to register.");
-				return;
-			}
-			DESERIALIZERS.put(t, deserializer);
-		}
-		
-		public static final Category deserialize(CompoundTag compound) {
-			if(compound.contains("type"))
-			{
-				String type = compound.getString("type");
-				if(DESERIALIZERS.containsKey(type))
-				{
-					return DESERIALIZERS.get(type).apply(compound);
-				}
-				else
-				{
-					LightmansCurrency.LogError("Cannot deserialize notification type " + type + " as no deserializer has been registered.");
-					return null;
-				}
-			}
-			else
-			{
-				LightmansCurrency.LogError("Cannot deserialize notification as tag is missing the 'type' tag.");
-				return null;
-			}
-		}
-		
-		/* Obsolete as this is covered by ITab
-		public abstract IconData getIcon();
-		*/
-		public final MutableComponent getTooltip() { return this.getName(); }
-		public abstract MutableComponent getName();
-		public final int getColor() { return 0xFFFFFF; }
-		protected abstract ResourceLocation getType();
-		
-		public abstract boolean matches(Category other);
-		
-		public static final Category GENERAL = new Category() {
-			@Override
-			public IconData getIcon() { return IconData.of(Items.CHEST); }
-			@Override
-			public MutableComponent getName() { return Component.translatable("notifications.source.general"); }
-			@Override
-			public boolean matches(Category other) { return other == GENERAL; }
-			@Override
-			protected ResourceLocation getType() { return GENERAL_TYPE; }
-			@Override
-			protected void saveAdditional(CompoundTag compound) {}
-		};
-		
-		public final CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			compound.putString("type", this.getType().toString());
-			this.saveAdditional(compound);
-			return compound;
-		}
-		
-		protected abstract void saveAdditional(CompoundTag compound);
-		
-	}
 	
 }

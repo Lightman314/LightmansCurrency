@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.entity.merchant.villager;
 import com.google.common.collect.ImmutableSet;
 
 import io.github.lightman314.lightmanscurrency.core.ModRegistries;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
@@ -19,9 +19,9 @@ public class CustomProfessions {
 	
 	static {
 		
-		BANKER = ModRegistries.PROFESSIONS.register("banker", () -> create("banker", CustomPointsOfInterest.BANKER_KEY, CurrencySoundEvents.COINS_CLINKING));
+		BANKER = ModRegistries.PROFESSIONS.register("banker", () -> create("banker", CustomPointsOfInterest.BANKER_KEY, ModSounds.COINS_CLINKING.get()));
 		
-		CASHIER = ModRegistries.PROFESSIONS.register("cashier", () -> create("cashier", CustomPointsOfInterest.CASHIER_KEY, CurrencySoundEvents.COINS_CLINKING));
+		CASHIER = ModRegistries.PROFESSIONS.register("cashier", () -> create("cashier", CustomPointsOfInterest.CASHIER_KEY, ModSounds.COINS_CLINKING.get()));
 		
 	}
 	

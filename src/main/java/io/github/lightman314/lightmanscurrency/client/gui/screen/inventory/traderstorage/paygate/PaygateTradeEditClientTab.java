@@ -4,22 +4,22 @@ import java.util.UUID;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.PaygateTradeData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -88,8 +88,8 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 		this.priceSelection.visible = !this.commonTab.getTrade().isTicketTrade();
 		if(this.priceSelection.visible)
 			this.priceSelection.tick();
-		TextInputUtil.whitelistInteger(this.durationInput, PaygateBlockEntity.DURATION_MIN, PaygateBlockEntity.DURATION_MAX);
-		int inputDuration = Math.max(TextInputUtil.getIntegerValue(this.durationInput, PaygateBlockEntity.DURATION_MIN), PaygateBlockEntity.DURATION_MIN);
+		TextInputUtil.whitelistInteger(this.durationInput, PaygateTraderData.DURATION_MIN, PaygateTraderData.DURATION_MAX);
+		int inputDuration = Math.max(TextInputUtil.getIntegerValue(this.durationInput, PaygateTraderData.DURATION_MIN), PaygateTraderData.DURATION_MIN);
 		if(inputDuration != this.commonTab.getTrade().getDuration())
 			this.commonTab.setDuration(inputDuration);
 	}
@@ -113,7 +113,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 
 	@Override
-	public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof PaygateTradeData)
 		{
 			PaygateTradeData t = (PaygateTradeData)trade;
@@ -138,10 +138,10 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 	
 	@Override
-	public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) { }
+	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) { }
 
 	@Override
-	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
+	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 
 	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value.copy()); }
 	

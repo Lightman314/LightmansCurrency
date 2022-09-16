@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
-import io.github.lightman314.lightmanscurrency.blocks.networktraders.ItemTraderServerBlock;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
@@ -245,32 +244,32 @@ public class ModBlocks {
 		
 		
 		//Network Traders
-		ITEM_TRADER_SERVER_SMALL = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new ItemTraderServerBlock(
+		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
-					ItemTraderServerBlock.SMALL_SERVER_COUNT
+					NetworkItemTraderBlock.TRADER_COUNT_SMALL
 				)
 		);
-		ITEM_TRADER_SERVER_MEDIUM = register("item_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new ItemTraderServerBlock(
+		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
-					ItemTraderServerBlock.MEDIUM_SERVER_COUNT
+					NetworkItemTraderBlock.TRADER_COUNT_MEDIUM
 				)
 		);
-		ITEM_TRADER_SERVER_LARGE = register("item_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new ItemTraderServerBlock(
+		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
-					ItemTraderServerBlock.LARGE_SERVER_COUNT
+					NetworkItemTraderBlock.TRADER_COUNT_LARGE
 				)
 		);
-		ITEM_TRADER_SERVER_EXTRA_LARGE = register("item_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new ItemTraderServerBlock(
+		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
-					ItemTraderServerBlock.EXTRA_LARGE_SERVER_COUNT
+					NetworkItemTraderBlock.TRADER_COUNT_XLARGE
 				)
 		);
 		
@@ -378,10 +377,10 @@ public class ModBlocks {
 	
 	
 	//Network Traders
-	public static final RegistryObject<Block> ITEM_TRADER_SERVER_SMALL;
-	public static final RegistryObject<Block> ITEM_TRADER_SERVER_MEDIUM;
-	public static final RegistryObject<Block> ITEM_TRADER_SERVER_LARGE;
-	public static final RegistryObject<Block> ITEM_TRADER_SERVER_EXTRA_LARGE;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_1;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_2;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_3;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_4;
 	
 	//Trader Interface
 	public static final RegistryObject<Block> ITEM_TRADER_INTERFACE;

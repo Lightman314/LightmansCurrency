@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
@@ -26,7 +26,7 @@ public class MessageBankTransferPlayer {
 	
 	public static void encode(MessageBankTransferPlayer message, FriendlyByteBuf buffer) {
 		buffer.writeUtf(message.playerName);
-		buffer.writeNbt(message.amount.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
 	}
 
 	public static MessageBankTransferPlayer decode(FriendlyByteBuf buffer) {

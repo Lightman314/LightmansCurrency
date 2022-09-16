@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class CoinJarBlockEntity extends BlockEntity
 {
 	
-	public static int COIN_LIMIT = 64;
+	public static final int COIN_LIMIT = 64;
 	
 	List<ItemStack> storage = new ArrayList<>();
 	public List<ItemStack> getStorage() { return storage; }
@@ -51,7 +51,7 @@ public class CoinJarBlockEntity extends BlockEntity
 		{
 			ItemStack newCoin = coin.copy();
 			newCoin.setCount(1);
-			storage.add(newCoin);
+			this.storage.add(newCoin);
 		}
 		
 		if(!level.isClientSide)

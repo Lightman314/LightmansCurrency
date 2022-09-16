@@ -1,31 +1,29 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction;
 
-import java.util.UUID;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.auction.MessageSubmitBid;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 public class AuctionBidTab extends TraderClientTab {
 
-	private final UUID auctionHouseID;
+	private final long auctionHouseID;
 	private final int tradeIndex;
 	
 	private AuctionHouseTrader getAuctionHouse() {
-		UniversalTraderData data = ClientTradingOffice.getData(this.auctionHouseID);
+		TraderData data = TraderSaveData.GetTrader(true, this.auctionHouseID);
 		if(data instanceof AuctionHouseTrader)
 			return (AuctionHouseTrader)data;
 		return null;
@@ -38,7 +36,7 @@ public class AuctionBidTab extends TraderClientTab {
 		return null;
 	}
 	
-	public AuctionBidTab(TraderScreen screen, UUID auctionHouseID, int tradeIndex) { super(screen); this.auctionHouseID = auctionHouseID; this.tradeIndex = tradeIndex; }
+	public AuctionBidTab(TraderScreen screen, long auctionHouseID, int tradeIndex) { super(screen); this.auctionHouseID = auctionHouseID; this.tradeIndex = tradeIndex; }
 
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -94,13 +92,16 @@ public class AuctionBidTab extends TraderClientTab {
 			return;
 		}
 		
-		long bidQuery = this.bidAmount.getCoinValue().getRawValue();
-		CoinValue minBid = this.getTrade().getMinNextBid();
-		if(bidQuery < minBid.getRawValue())
-			this.bidAmount.setCoinValue(this.getTrade().getMinNextBid());
-		this.bidButton.active = this.menu.getContext(this.getAuctionHouse()).getAvailableFunds() >= bidQuery;
-		
-		this.bidAmount.tick();
+		if(this.bidAmount != null)
+		{
+			long bidQuery = this.bidAmount.getCoinValue().getRawValue();
+			CoinValue minBid = this.getTrade().getMinNextBid();
+			if(bidQuery < minBid.getRawValue())
+				this.bidAmount.setCoinValue(this.getTrade().getMinNextBid());
+			this.bidButton.active = this.menu.getContext(this.getAuctionHouse()).getAvailableFunds() >= bidQuery;
+			
+			this.bidAmount.tick();
+		}
 		
 	}
 	

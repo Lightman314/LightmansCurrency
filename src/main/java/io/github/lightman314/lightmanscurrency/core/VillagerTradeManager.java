@@ -101,7 +101,7 @@ public class VillagerTradeManager {
 						//Sell armor display
 						new LazyTrade(10, ModItems.COIN_IRON.get(), 20, ModBlocks.ARMOR_DISPLAY.get()),
 						//Sell small trader server
-						new LazyTrade(10, ModItems.COIN_IRON.get(), 15, ModBlocks.ITEM_TRADER_SERVER_SMALL.get()),
+						new LazyTrade(10, ModItems.COIN_IRON.get(), 15, ModBlocks.ITEM_NETWORK_TRADER_1.get()),
 						//Sell Terminal
 						new LazyTrade(10, ModItems.COIN_IRON.get(), 10, ModBlocks.TERMINAL.get())
 						),
@@ -110,7 +110,7 @@ public class VillagerTradeManager {
 						//Sell Vending Machines
 						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON.get(), 25), ModBlocks.VENDING_MACHINE.getAll().toArray(new Block[0]), 12, 15, 0.05f),
 						//Sell medium trader server
-						new LazyTrade(15, ModItems.COIN_IRON.get(), 30, ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get()),
+						new LazyTrade(15, ModItems.COIN_IRON.get(), 30, ModBlocks.ITEM_NETWORK_TRADER_2.get()),
 						//Sell Freezer
 						new LazyTrade(20, ModItems.COIN_IRON.get(), 30, ModBlocks.FREEZER.get()),
 						//Sell Money Mending book
@@ -121,9 +121,9 @@ public class VillagerTradeManager {
 						//Sell Large Vending Machines
 						new RandomItemForItemTrade(new ItemStack(ModItems.COIN_IRON.get(), 25), ModBlocks.VENDING_MACHINE_LARGE.getAll().toArray(new Block[0]), 12, 30, 0.05f),
 						//Sell large trader server
-						new LazyTrade(30, ModItems.COIN_GOLD.get(), 6, ModBlocks.ITEM_TRADER_SERVER_LARGE.get()),
+						new LazyTrade(30, ModItems.COIN_GOLD.get(), 6, ModBlocks.ITEM_NETWORK_TRADER_3.get()),
 						//Sell extra-large trader server
-						new LazyTrade(30, ModItems.COIN_GOLD.get(), 10, ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get()),
+						new LazyTrade(30, ModItems.COIN_GOLD.get(), 10, ModBlocks.ITEM_NETWORK_TRADER_4.get()),
 						//Sell Money Mending book
 						new LazyTrade(30, ModItems.COIN_DIAMOND.get(), 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
 						)

@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventor
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -22,7 +23,6 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacke
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketWalletInteraction;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -79,7 +79,7 @@ public class ClientEvents {
 					
 					ItemStack wallet = LightmansCurrency.getWalletStack(player);
 					if(!WalletItem.isEmpty(wallet))
-						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
+						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 				}
 			}
 		}

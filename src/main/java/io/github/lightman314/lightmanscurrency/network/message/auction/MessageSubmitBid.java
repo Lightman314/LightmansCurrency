@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
@@ -15,24 +14,24 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSubmitBid {
 
-	final UUID auctionHouseID;
+	final long auctionHouseID;
 	final int tradeIndex;
 	final CoinValue bidAmount;
 	
-	public MessageSubmitBid(UUID auctionHouseID, int tradeIndex, CoinValue bidAmount) {
+	public MessageSubmitBid(long auctionHouseID, int tradeIndex, CoinValue bidAmount) {
 		this.auctionHouseID = auctionHouseID;
 		this.tradeIndex = tradeIndex;
 		this.bidAmount = bidAmount;
 	}
 	
 	public static void encode(MessageSubmitBid message, FriendlyByteBuf buffer) {
-		buffer.writeUUID(message.auctionHouseID);
+		buffer.writeLong(message.auctionHouseID);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeNbt(message.bidAmount.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.bidAmount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
 	}
 	
 	public static MessageSubmitBid decode(FriendlyByteBuf buffer) {
-		return new MessageSubmitBid(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readAnySizeNbt()));
+		return new MessageSubmitBid(buffer.readLong(), buffer.readInt(), new CoinValue(buffer.readAnySizeNbt()));
 	}
 	
 	public static void handle(MessageSubmitBid message, Supplier<Context> supplier) {
@@ -42,7 +41,7 @@ public class MessageSubmitBid {
 			{
 				TraderMenu menu = (TraderMenu)player.containerMenu;
 				//Get the auction house
-				UniversalTraderData data = TradingOffice.getData(message.auctionHouseID);
+				TraderData data = TraderSaveData.GetTrader(false, message.auctionHouseID);
 				if(data instanceof AuctionHouseTrader)
 				{
 					AuctionHouseTrader ah = (AuctionHouseTrader)data;

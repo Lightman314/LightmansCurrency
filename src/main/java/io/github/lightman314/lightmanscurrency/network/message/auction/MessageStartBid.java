@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -11,21 +10,21 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageStartBid {
 
-	final UUID auctionHouseID;
+	final long auctionHouseID;
 	final int tradeIndex;
 	
-	public MessageStartBid(UUID auctionHouseID, int tradeIndex) {
+	public MessageStartBid(long auctionHouseID, int tradeIndex) {
 		this.auctionHouseID = auctionHouseID;
 		this.tradeIndex = tradeIndex;
 	}
 	
 	public static void encode(MessageStartBid message, FriendlyByteBuf buffer) {
-		buffer.writeUUID(message.auctionHouseID);
+		buffer.writeLong(message.auctionHouseID);
 		buffer.writeInt(message.tradeIndex);
 	}
 	
 	public static MessageStartBid decode(FriendlyByteBuf buffer) {
-		return new MessageStartBid(buffer.readUUID(), buffer.readInt());
+		return new MessageStartBid(buffer.readLong(), buffer.readInt());
 	}
 	
 	public static void handle(MessageStartBid message, Supplier<Context> supplier) {

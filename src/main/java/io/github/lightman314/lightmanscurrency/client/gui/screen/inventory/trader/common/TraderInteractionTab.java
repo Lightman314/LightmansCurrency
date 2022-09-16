@@ -7,11 +7,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 
 public class TraderInteractionTab extends TraderClientTab {
 
@@ -58,7 +58,7 @@ public class TraderInteractionTab extends TraderClientTab {
 		return false;
 	}
 
-	private void OnButtonPress(ITrader trader, ITradeData trade) {
+	private void OnButtonPress(TraderData trader, TradeData trade) {
 		
 		if(trader == null || trade == null)
 			return;
@@ -70,16 +70,16 @@ public class TraderInteractionTab extends TraderClientTab {
 			return;
 		}
 		
-		List<ITrader> traders = ts.getTraders();
+		List<TraderData> traders = ts.getTraders();
 		int ti = traders.indexOf(trader);
 		if(ti < 0)
 			return;
 		
-		ITrader t = traders.get(ti);
+		TraderData t = traders.get(ti);
 		if(t == null)
 			return;
 		
-		int tradeIndex = t.getTradeInfo().indexOf(trade);
+		int tradeIndex = t.getTradeData().indexOf(trade);
 		if(tradeIndex < 0)
 			return;
 		

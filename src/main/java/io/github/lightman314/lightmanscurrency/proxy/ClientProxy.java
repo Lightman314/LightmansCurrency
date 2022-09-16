@@ -8,23 +8,27 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
+import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
+import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
+import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
+import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.FreezerTraderBlockEntityRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.client.util.PlayerSuggestionsUtil;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
@@ -32,7 +36,6 @@ import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
@@ -86,10 +89,10 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_UNIVERSAL.get(), TraderScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
+    	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_STORAGE_UNIVERSAL.get(), TraderStorageScreen::new);
     	
     	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
     	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
@@ -103,15 +106,6 @@ public class ClientProxy extends CommonProxy{
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
     	
-    	//Register Addable Trade Rules
-    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerWhitelist());
-    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerBlacklist());
-    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerTradeLimit());
-    	TradeRuleScreen.RegisterTradeRule(() -> new PlayerDiscounts());
-    	TradeRuleScreen.RegisterTradeRule(() -> new TimedSale());
-    	TradeRuleScreen.RegisterTradeRule(() -> new TradeLimit());
-    	TradeRuleScreen.RegisterTradeRule(() -> new FreeSample());
-    	
 	}
 	
 	@SuppressWarnings("removal")
@@ -120,22 +114,13 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void clearClientTraders()
-	{
-		ClientTradingOffice.clearData();
-	}
+	public void clearClientTraders() { ClientTraderData.ClearTraders(); }
 	
 	@Override
-	public void updateTrader(CompoundTag compound)
-	{
-		ClientTradingOffice.updateTrader(compound);
-	}
+	public void updateTrader(CompoundTag compound) { ClientTraderData.UpdateTrader(compound); }
 	
 	@Override
-	public void removeTrader(UUID traderID)
-	{
-		ClientTradingOffice.removeTrader(traderID);
-	}
+	public void removeTrader(long traderID) { ClientTraderData.RemoveTrader(traderID); }
 	
 	public void initializeTeams(CompoundTag compound)
 	{
@@ -144,18 +129,19 @@ public class ClientProxy extends CommonProxy{
 			List<Team> teams = Lists.newArrayList();
 			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
 			teamList.forEach(nbt -> teams.add(Team.load((CompoundTag)nbt)));
-			ClientTradingOffice.initTeams(teams);
+			ClientTeamData.InitTeams(teams);
 		}
 	}
 	
 	public void updateTeam(CompoundTag compound)
 	{
-		ClientTradingOffice.updateTeam(compound);
+		ClientTeamData.UpdateTeam(compound);
 	}
 	
-	public void removeTeam(UUID teamID)
+	@Override
+	public void removeTeam(long teamID)
 	{
-		ClientTradingOffice.removeTeam(teamID);
+		ClientTeamData.RemoveTeam(teamID);
 	}
 	
 	@Override
@@ -172,26 +158,26 @@ public class ClientProxy extends CommonProxy{
 				BankAccount bankAccount = new BankAccount(tag);
 				bank.put(id,bankAccount);
 			}
-			ClientTradingOffice.initBankAccounts(bank);
+			ClientBankData.InitBankAccounts(bank);
 		}
 	}
 	
 	@Override
 	public void updateBankAccount(CompoundTag compound)
 	{
-		ClientTradingOffice.updateBankAccount(compound);
+		ClientBankData.UpdateBankAccount(compound);
 	}
 	
 	@Override
 	public void receiveEmergencyEjectionData(CompoundTag compound)
 	{
-		ClientTradingOffice.updateEjectionData(compound);
+		ClientEjectionData.UpdateEjectionData(compound);
 	}
 	
 	@Override
 	public void updateNotifications(NotificationData data)
 	{
-		ClientTradingOffice.updateNotifications(data);
+		ClientNotificationData.UpdateNotifications(data);
 	}
 	
 	@Override
@@ -199,7 +185,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
-		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientTradingOffice.getNotifications(), notification)))
+		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)))
 			return;
 		
 		if(Config.CLIENT.pushNotificationsToChat.get()) //Post the notification to chat
@@ -208,7 +194,7 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientTradingOffice.updateLastSelectedAccount(selectedAccount); }
+	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
 	
 	@Override
 	public void openTerminalScreen() { this.openTerminal = true; }
@@ -220,7 +206,7 @@ public class ClientProxy extends CommonProxy{
 	public void openTeamManager() { this.openTeamManager = true; }
 	
 	@Override
-	public void createTeamResponse(UUID teamID)
+	public void createTeamResponse(long teamID)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
 		Screen openScreen = minecraft.screen;
@@ -250,7 +236,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void loadAdminPlayers(List<UUID> serverAdminList)
 	{
-		TradingOffice.loadAdminPlayers(serverAdminList);
+		CommandLCAdmin.loadAdminPlayers(serverAdminList);
 	}
 	
 	@SubscribeEvent
@@ -291,7 +277,7 @@ public class ClientProxy extends CommonProxy{
 	public void playCoinSound() {
 		Minecraft minecraft = Minecraft.getInstance();
 		if(minecraft != null)
-			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CurrencySoundEvents.COINS_CLINKING, 1f, 0.4f));
+			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 	}
 	
 	@Override

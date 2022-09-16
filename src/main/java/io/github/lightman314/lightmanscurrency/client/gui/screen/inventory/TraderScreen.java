@@ -19,11 +19,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.IScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
@@ -64,6 +65,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	
 	private final List<Runnable> tickListeners = new ArrayList<>();
 	
+	protected boolean forceShowTerminalButton() { return false; }
+	
 	public TraderScreen(TraderMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		this.imageWidth = WIDTH;
@@ -80,7 +83,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		
 		this.buttonOpenStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
 		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
-		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this.menu::isUniversalTrader));
+		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
 		
 		LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, TraderMenu.SLOT_OFFSET - 20, 118, 20, this.buttonOpenStorage, this.buttonCollectCoins);
 		
@@ -89,6 +92,10 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		
 		this.containerTick();
 		
+	}
+	
+	private boolean showTerminalButton() {
+		return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); 
 	}
 
 	@Override
@@ -151,7 +158,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	
 	private void OpenStorage(Button button) {
 		if(this.menu.isSingleTrader())
-			this.menu.getSingleTrader().sendOpenStorageMessage();
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.menu.getSingleTrader().getID()));
 	}
 	
 	private void CollectCoins(Button button) {
@@ -160,7 +167,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 	
 	private void OpenTerminal(Button button) {
-		if(this.menu.isUniversalTrader())
+		if(this.showTerminalButton())
 		{
 			this.menu.player.closeContainer();
 			LightmansCurrency.PROXY.openTerminalScreen();

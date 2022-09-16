@@ -6,10 +6,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.auction.AuctionTradeCancelTab;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;

@@ -3,14 +3,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
@@ -18,12 +16,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TraderSelectTab;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -50,26 +48,26 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	private int scroll;
 	
-	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
+	private List<TraderData> filteredTraderList = new ArrayList<>();
 	
-	private List<UniversalTraderData> traderList() {
-		List<UniversalTraderData> traderList = this.filterTraders(ClientTradingOffice.getTraderList());
+	private List<TraderData> traderList() {
+		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
 		traderList.sort(TradingTerminalScreen.TERMINAL_SORTER);
 		return traderList;
 	}
 	
-	private List<UniversalTraderData> filterTraders(List<UniversalTraderData> allTraders) {
-		List<UniversalTraderData> traders = new ArrayList<>();
+	private List<TraderData> filterTraders(List<TraderData> allTraders) {
+		List<TraderData> traders = new ArrayList<>();
 		TraderInterfaceBlockEntity be = this.menu.getBE();
 		if(be == null)
 			return traders;
 		InteractionType interaction = be.getInteractionType();
-		for(UniversalTraderData trader : allTraders) {
+		for(TraderData trader : allTraders) {
 			//Confirm that the trader is the trade type that our interface is compatible with.
 			if(be.validTraderType(trader))
 			{
 				//Confirm that the trader either has a valid trade, or we have interaction permissions
-				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK)))
+				if((interaction.trades && trader.hasValidTrade()) || (interaction.requiresPermissions && be.hasTraderPermissions(trader)))
 					traders.add(trader);
 			}
 		}
@@ -93,7 +91,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		this.updateTraderList();
 		
 		//Automatically go to the page with the currently selected trader.
-		UniversalTraderData selectedTrader = this.menu.getBE().getTrader();
+		TraderData selectedTrader = this.menu.getBE().getTrader();
 		if(selectedTrader!= null)
 		{
 			this.scroll = this.scrollOf(selectedTrader);
@@ -180,7 +178,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
-			UUID traderID = this.filteredTraderList.get(index).getTraderID();
+			long traderID = this.filteredTraderList.get(index).getID();
 			this.commonTab.setTrader(traderID);
 		}
 	}
@@ -195,7 +193,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	public int getMaxScroll() { return Math.max(this.filteredTraderList.size() - this.traderButtons.size(), 0); }
 	
-	private int scrollOf(UniversalTraderData trader) {
+	private int scrollOf(TraderData trader) {
 		if(this.filteredTraderList != null)
 		{
 			int index = this.filteredTraderList.indexOf(trader);
@@ -209,7 +207,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
+		this.filteredTraderList = TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())

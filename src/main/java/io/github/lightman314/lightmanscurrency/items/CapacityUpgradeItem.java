@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.items;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
 
 public class CapacityUpgradeItem extends UpgradeItem{
 

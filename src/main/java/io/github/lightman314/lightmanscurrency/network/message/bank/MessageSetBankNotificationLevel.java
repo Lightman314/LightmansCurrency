@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,7 +18,7 @@ public class MessageSetBankNotificationLevel {
 	}
 	
 	public static void encode(MessageSetBankNotificationLevel message, FriendlyByteBuf buffer) {
-		buffer.writeNbt(message.amount.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
 	}
 
 	public static MessageSetBankNotificationLevel decode(FriendlyByteBuf buffer) {

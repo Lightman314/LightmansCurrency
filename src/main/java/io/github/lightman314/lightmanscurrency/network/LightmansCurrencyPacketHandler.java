@@ -6,16 +6,15 @@ import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
 import io.github.lightman314.lightmanscurrency.network.message.coinmint.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
+import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
 import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
-import io.github.lightman314.lightmanscurrency.network.message.logger.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import net.minecraft.network.FriendlyByteBuf;
@@ -80,9 +79,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenStorage.class, MessageOpenStorage::encode, MessageOpenStorage::decode, MessageOpenStorage::handle);
 		register(MessageOpenTrades.class, MessageOpenTrades::encode, MessageOpenTrades::decode, MessageOpenTrades::handle);
 		register(MessageSyncUsers.class, MessageSyncUsers::encode, MessageSyncUsers::decode, MessageSyncUsers::handle);
-		register(MessageRequestSyncUsers.class, MessageRequestSyncUsers::encode, MessageRequestSyncUsers::decode, MessageRequestSyncUsers::handle);
 		register(MessageAddOrRemoveTrade.class, MessageAddOrRemoveTrade::encode, MessageAddOrRemoveTrade::decode, MessageAddOrRemoveTrade::handle);
-		register(MessageChangeSettings.class, MessageChangeSettings::encode, MessageChangeSettings::decode, MessageChangeSettings::handle);
+		register(MessageTraderMessage.class, MessageTraderMessage::encode, MessageTraderMessage::decode, MessageTraderMessage::handle);
 		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
 		register(MessageStorageInteractionC.class, MessageStorageInteractionC::encode, MessageStorageInteractionC::decode, MessageStorageInteractionC::handle);
 		
@@ -107,14 +105,9 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageCraftTicket.class, MessageCraftTicket::encode, MessageCraftTicket::decode, MessageCraftTicket::handle);
 		
 		//Universal Traders
-		register(MessageOpenTrades2.class, MessageOpenTrades2::encode, MessageOpenTrades2::decode, MessageOpenTrades2::handle);
-		register(MessageOpenStorage2.class, MessageOpenStorage2::encode, MessageOpenStorage2::decode, MessageOpenStorage2::handle);
-		register(MessageSyncStorage.class, MessageSyncStorage::encode, MessageSyncStorage::decode, MessageSyncStorage::handle);
-		register(MessageClearClientTraders.class, MessageClearClientTraders::encode, MessageClearClientTraders::decode, MessageClearClientTraders::handle);
-		register(MessageUpdateClientData.class, MessageUpdateClientData::encode, MessageUpdateClientData::decode, MessageUpdateClientData::handle);
+		register(MessageClearClientTraders.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(MessageClearClientTraders::new), MessageClearClientTraders::handle);
+		register(MessageUpdateClientTrader.class, MessageUpdateClientTrader::encode, MessageUpdateClientTrader::decode, MessageUpdateClientTrader::handle);
 		register(MessageRemoveClientTrader.class, MessageRemoveClientTrader::encode, MessageRemoveClientTrader::decode, MessageRemoveClientTrader::handle);
-		register(MessageAddOrRemoveTrade2.class, MessageAddOrRemoveTrade2::encode, MessageAddOrRemoveTrade2::decode, MessageAddOrRemoveTrade2::handle);
-		register(MessageChangeSettings2.class, MessageChangeSettings2::encode, MessageChangeSettings2::decode, MessageChangeSettings2::handle);
 		
 		//Auction House
 		register(MessageStartBid.class, MessageStartBid::encode, MessageStartBid::decode, MessageStartBid::handle);
@@ -138,8 +131,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSetTeamBankLimit.class, MessageSetTeamBankLimit::encode, MessageSetTeamBankLimit::decode, MessageSetTeamBankLimit::handle);
 		
 		//Logger
-		register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
-		register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
+		//register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
+		//register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
 		
 		//Notifications
 		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
@@ -148,7 +141,6 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Trade Rules
 		register(MessageUpdateTradeRule.class, MessageUpdateTradeRule::encode, MessageUpdateTradeRule::decode, MessageUpdateTradeRule::handle);
-		register(MessageUpdateTradeRule2.class, MessageUpdateTradeRule2::encode, MessageUpdateTradeRule2::decode, MessageUpdateTradeRule2::handle);
 		
 		//Core
 		register(MessageRequestNBT.class, MessageRequestNBT::encode, MessageRequestNBT::decode, MessageRequestNBT::handle);

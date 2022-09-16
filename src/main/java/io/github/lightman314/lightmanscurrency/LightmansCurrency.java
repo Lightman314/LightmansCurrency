@@ -12,26 +12,47 @@ import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.LowBalanceNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.OutOfStockNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNobidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.ItemTraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveAllyNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeAllyPermissionNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeCreativeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeNameNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeOwnerNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataTicket;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.*;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerBlacklist;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerTradeLimit;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeLimit;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.ItemTraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModRegistries;
@@ -46,7 +67,6 @@ import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 import io.github.lightman314.lightmanscurrency.proxy.*;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -150,8 +170,11 @@ public class LightmansCurrency {
     	LightmansCurrencyPacketHandler.init();
     	
     	//Initialize the UniversalTraderData deserializers
-    	TradingOffice.RegisterDataType(UniversalItemTraderData.TYPE, UniversalItemTraderData::new);
-    	TradingOffice.RegisterDataType(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
+    	TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
+    	TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
+    	TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
+    	TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
+    	TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
     	
     	//Register the custom game rules
     	ModGameRules.registerRules();
@@ -178,15 +201,27 @@ public class LightmansCurrency {
     	Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
     	Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
     	Notification.register(TextNotification.TYPE, TextNotification::new);
+    	Notification.register(AddRemoveAllyNotification.TYPE, AddRemoveAllyNotification::new);
+    	Notification.register(AddRemoveTradeNotification.TYPE, AddRemoveTradeNotification::new);
+    	Notification.register(ChangeAllyPermissionNotification.TYPE, ChangeAllyPermissionNotification::new);
+    	Notification.register(ChangeCreativeNotification.TYPE, ChangeCreativeNotification::new);
+    	Notification.register(ChangeNameNotification.TYPE, ChangeNameNotification::new);
+    	Notification.register(ChangeOwnerNotification.TYPE, ChangeOwnerNotification::new);
+    	Notification.register(ChangeSettingNotification.SIMPLE_TYPE, ChangeSettingNotification.Simple::new);
+    	Notification.register(ChangeSettingNotification.ADVANCED_TYPE, ChangeSettingNotification.Advanced::new);
+    	Notification.register(DepositWithdrawNotification.PLAYER_TYPE, DepositWithdrawNotification.Player::new);
+    	Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
+    	Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
     	
     	//Initialize the Notification Category deserializers
-    	Category.register(Category.GENERAL_TYPE, compound -> Category.GENERAL);
-    	Category.register(NullCategory.TYPE, compound -> NullCategory.INSTANCE);
-    	Category.register(TraderCategory.TYPE, TraderCategory::new);
-    	Category.register(BankCategory.TYPE, BankCategory::new);
-    	Category.register(AuctionHouseCategory.TYPE, compound -> AuctionHouseCategory.INSTANCE);
+    	NotificationCategory.register(NotificationCategory.GENERAL_TYPE, c -> NotificationCategory.GENERAL);
+    	NotificationCategory.register(NullCategory.TYPE, c -> NullCategory.INSTANCE);
+    	NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
+    	NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
+    	NotificationCategory.register(AuctionHouseCategory.TYPE, c -> AuctionHouseCategory.INSTANCE);
     	
     	//Register Trader Search Filters
+    	TraderSearchFilter.addFilter(new BasicSearchFilter());
     	TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
     	
     	//Register Upgrade Types
@@ -211,7 +246,7 @@ public class LightmansCurrency {
 		
 		UPGRADE_GROUP.initSortingList2(Lists.newArrayList(ModItems.ITEM_CAPACITY_UPGRADE_1, ModItems.ITEM_CAPACITY_UPGRADE_2,
 				ModItems.ITEM_CAPACITY_UPGRADE_3, ModItems.SPEED_UPGRADE_1, ModItems.SPEED_UPGRADE_2, ModItems.SPEED_UPGRADE_3,
-				ModItems.SPEED_UPGRADE_4, ModItems.SPEED_UPGRADE_5
+				ModItems.SPEED_UPGRADE_4, ModItems.SPEED_UPGRADE_5, ModItems.NETWORK_UPGRADE, ModItems.HOPPER_UPGRADE
 			));
 		
 		TRADING_GROUP.initSortingList(Lists.newArrayList(ModBlocks.SHELF.get(WoodType.OAK), ModBlocks.SHELF.get(WoodType.BIRCH),
@@ -234,8 +269,8 @@ public class LightmansCurrency {
 				ModBlocks.VENDING_MACHINE_LARGE.get(Color.PURPLE), ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLUE),
 				ModBlocks.VENDING_MACHINE_LARGE.get(Color.BROWN), ModBlocks.VENDING_MACHINE_LARGE.get(Color.GREEN),
 				ModBlocks.VENDING_MACHINE_LARGE.get(Color.RED), ModBlocks.VENDING_MACHINE_LARGE.get(Color.BLACK),
-				ModBlocks.TICKET_KIOSK.get(), ModBlocks.ITEM_TRADER_SERVER_SMALL.get(), ModBlocks.ITEM_TRADER_SERVER_MEDIUM.get(),
-				ModBlocks.ITEM_TRADER_SERVER_LARGE.get(), ModBlocks.ITEM_TRADER_SERVER_EXTRA_LARGE.get()
+				ModBlocks.TICKET_KIOSK.get(), ModBlocks.ITEM_NETWORK_TRADER_1.get(), ModBlocks.ITEM_NETWORK_TRADER_2.get(),
+				ModBlocks.ITEM_NETWORK_TRADER_3.get(), ModBlocks.ITEM_NETWORK_TRADER_4.get()
 			));
 		
 		ATMIconData.init();
@@ -275,7 +310,7 @@ public class LightmansCurrency {
     	//Sync time
     	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
     	//Sync admin list
-    	LightmansCurrencyPacketHandler.instance.send(target, TradingOffice.getAdminSyncMessage());
+    	//LightmansCurrencyPacketHandler.instance.send(target, TradingOffice.getAdminSyncMessage());
     	
     }
     

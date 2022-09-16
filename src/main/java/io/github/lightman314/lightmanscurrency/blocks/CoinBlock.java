@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.blocks;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -30,10 +30,7 @@ public class CoinBlock extends FallingBlock{
 		return 36;
 	}
 	
-	protected SoundEvent getBreakingSound()
-	{
-		return CurrencySoundEvents.COINS_CLINKING;
-	}
+	protected SoundEvent getBreakingSound() { return ModSounds.COINS_CLINKING.get(); }
 	
 	@Override
 	public void onLand(Level level, BlockPos pos, BlockState fallingState, BlockState hitState, FallingBlockEntity fallingBlock) {
