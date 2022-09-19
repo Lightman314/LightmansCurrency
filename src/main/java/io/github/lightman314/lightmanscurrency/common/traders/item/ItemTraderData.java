@@ -53,8 +53,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter, ITradeSource<ItemTradeData> {
@@ -674,7 +674,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide){
-		if(cap == ForgeCapabilities.ITEM_HANDLER)
+		if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
 			return LazyOptional.of(() -> this.getItemHandler(relativeSide)).cast();
 		}

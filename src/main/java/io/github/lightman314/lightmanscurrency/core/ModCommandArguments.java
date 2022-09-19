@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.core;
 import io.github.lightman314.lightmanscurrency.commands.arguments.*;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraftforge.registries.RegistryObject;
 
 public class ModCommandArguments {
 
@@ -11,10 +10,10 @@ public class ModCommandArguments {
 	
 	static {
 		
-		TRADER_ARGUMENT = ModRegistries.COMMAND_ARGUMENT_TYPES.register("trader_argument", () -> ArgumentTypeInfos.registerByClass(TraderArgument.class, new TraderArgument.Info()));
+		TRADER_ARGUMENT = ArgumentTypeInfos.registerByClass(TraderArgument.class, new TraderArgument.Info());
 		
 	}
 	
-	public static final RegistryObject<ArgumentTypeInfo<TraderArgument, ?>> TRADER_ARGUMENT;
+	public static final ArgumentTypeInfo<TraderArgument, ?> TRADER_ARGUMENT;
 	
 }

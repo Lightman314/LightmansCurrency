@@ -56,10 +56,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -387,11 +389,11 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		Direction relativeSide = this.getRelativeSide(side);
 		for(int i = 0; i < this.handlers.size(); ++i) {
 			Object handler = this.handlers.get(i).getHandler(relativeSide);
-			if(cap == ForgeCapabilities.ITEM_HANDLER && handler instanceof IItemHandler)
+			if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && handler instanceof IItemHandler)
 				return LazyOptional.of(() -> (IItemHandler)handler).cast();
-			if(cap == ForgeCapabilities.FLUID_HANDLER && handler instanceof IFluidHandler)
+			if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && handler instanceof IFluidHandler)
 				return LazyOptional.of(() -> (IFluidHandler)handler).cast();
-			else if(cap == ForgeCapabilities.ENERGY && handler instanceof IEnergyStorage)
+			else if(cap == CapabilityEnergy.ENERGY && handler instanceof IEnergyStorage)
 				return LazyOptional.of(() -> (IEnergyStorage)handler).cast();
 		}
 		return super.getCapability(cap, side);

@@ -31,7 +31,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
@@ -344,7 +344,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 				BlockEntity be = this.level.getBlockEntity(queryPos);
 				if(be != null)
 				{
-					be.getCapability(ForgeCapabilities.ITEM_HANDLER, actualSide.getOpposite()).ifPresent(itemHandler -> {
+					be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, actualSide.getOpposite()).ifPresent(itemHandler -> {
 						boolean query = true;
 						for(int i = 0; query && i < itemHandler.getSlots(); ++i)
 						{

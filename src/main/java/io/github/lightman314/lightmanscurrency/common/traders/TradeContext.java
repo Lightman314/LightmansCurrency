@@ -35,7 +35,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
-@SuppressWarnings("removal")
 public class TradeContext {
 	
 	public enum TradeResult {
