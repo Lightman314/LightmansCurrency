@@ -2,10 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -21,20 +20,23 @@ public class ClientEjectionData {
 	
 	public static List<EjectionData> GetEjectionData() { return new ArrayList<>(emergencyEjectionData); }
 	
-	public static List<EjectionData> GetValidEjectionData() {
-		Minecraft mc = Minecraft.getInstance();
-		return emergencyEjectionData.stream().filter(e -> e.canAccess(mc.player)).collect(Collectors.toList());
-	}
-	
 	public static void UpdateEjectionData(CompoundTag compound) {
 		emergencyEjectionData.clear();
 		ListTag ejectionList = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < ejectionList.size(); ++i)
 		{
 			try {
-				emergencyEjectionData.add(EjectionData.loadData(ejectionList.getCompound(i)));
+				EjectionData e = EjectionData.loadData(ejectionList.getCompound(i));
+				if(e != null)
+				{
+					emergencyEjectionData.add(e);
+					e.flagAsClient();
+				}
+				else
+					throw new RuntimeException("EmergencyEjectionData entry " + i + " loaded as null.");
 			} catch(Throwable t) { t.printStackTrace(); }
 		}
+		LightmansCurrency.LogDebug("Client loaded " + emergencyEjectionData.size() + " ejection data entries from the server.");
 	}
 	
 	@SubscribeEvent

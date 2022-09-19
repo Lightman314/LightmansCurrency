@@ -3,9 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -15,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -36,9 +39,12 @@ public class EjectionSaveData extends SavedData {
 		for(int i = 0; i < ejectionData.size(); ++i)
 		{
 			try {
-				this.emergencyEjectionData.add(EjectionData.loadData(ejectionData.getCompound(i)));
+				EjectionData e = EjectionData.loadData(ejectionData.getCompound(i));
+				if(e != null && !e.isEmpty())
+					this.emergencyEjectionData.add(e);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
 		}
+		LightmansCurrency.LogDebug("Server loaded " + this.emergencyEjectionData.size() + " ejection data entries from file.");
 		
 	}
 	
@@ -65,7 +71,7 @@ public class EjectionSaveData extends SavedData {
 	public static List<EjectionData> GetEjectionData(boolean isClient) {
 		if(isClient)
 		{
-			//TODO get from client
+			return ClientEjectionData.GetEjectionData();
 		}
 		else
 		{
@@ -76,10 +82,18 @@ public class EjectionSaveData extends SavedData {
 		return new ArrayList<>();
 	}
 	
+	public static List<EjectionData> GetValidEjectionData(boolean isClient, Player player)
+	{
+		List<EjectionData> ejectionData = GetEjectionData(isClient);
+		if(ejectionData != null)
+			return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
+		return new ArrayList<>();
+	}
+	
 	@Deprecated /** @deprecated Use only to transfer ejection data from the old Trading Office. */
 	public static void GiveOldEjectionData(EjectionData data) {
 		EjectionSaveData esd = get();
-		if(esd != null)
+		if(esd != null && data != null && !data.isEmpty())
 		{
 			esd.emergencyEjectionData.add(data);
 			MarkEjectionDataDirty();

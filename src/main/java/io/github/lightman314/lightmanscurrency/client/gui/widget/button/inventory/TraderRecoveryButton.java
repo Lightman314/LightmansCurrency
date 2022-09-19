@@ -4,14 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenTraderRecovery;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 
 public class TraderRecoveryButton extends PlainButton {
@@ -25,6 +27,12 @@ public class TraderRecoveryButton extends PlainButton {
 	public static final int OFFSET = -10;
 	
 	private final AbstractContainerScreen<?> screen;
+	private final Player getPlayer() {
+			Minecraft mc = this.screen.getMinecraft();
+			if(mc != null)
+				return mc.player;
+			return null;
+	}
 	
 	public TraderRecoveryButton(AbstractContainerScreen<?> screen) {
 		super(getXPosition(screen), getYPosition(screen), SIZE, SIZE, b -> openTraderRecoveryMenu(), GUI_TEXTURE, 0, 0);
@@ -46,7 +54,7 @@ public class TraderRecoveryButton extends PlainButton {
 		this.x = getXPosition(this.screen);
 		this.y = getYPosition(this.screen);
 		
-		if(ClientEjectionData.GetValidEjectionData().size() > 0)
+		if(EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0)
 		{
 			this.visible = true;
 			//Change visibility based on whether the correct tab is open

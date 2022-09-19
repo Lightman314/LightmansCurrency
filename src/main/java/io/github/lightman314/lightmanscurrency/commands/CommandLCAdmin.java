@@ -54,9 +54,6 @@ public class CommandLCAdmin {
 				.then(Commands.literal("toggleadmin")
 						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
-				.then(Commands.literal("setCustomTrader")
-						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
-								.executes(CommandLCAdmin::setCustomTrader)))
 				.then(Commands.literal("traderdata")
 						.then(Commands.literal("list")
 							.executes(CommandLCAdmin::listTraderData))
@@ -72,7 +69,10 @@ public class CommandLCAdmin {
 						.then(Commands.literal("addToWhitelist")
 								.then(Commands.argument("traderID", TraderArgument.traderWithPersistent())
 										.then(Commands.argument("player", EntityArgument.players())
-												.executes(CommandLCAdmin::addToTraderWhitelist)))));
+												.executes(CommandLCAdmin::addToTraderWhitelist)))))
+				.then(Commands.literal("prepareForStructure")
+						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
+								.executes(CommandLCAdmin::setCustomTrader)));
 		
 		dispatcher.register(lcAdminCommand);
 		

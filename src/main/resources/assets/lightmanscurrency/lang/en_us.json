@@ -667,7 +667,7 @@
     "command.lightmanscurrency.lcadmin.traderdata.add_whitelist.missingrule": "Trader does not have a whitelist trade rule. Cannot add players to the whitelist.",
     "command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success": "Added %1$s players to %2$s's whitelist.",
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
-    "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied safely.",
+    "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
     
     
     "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",

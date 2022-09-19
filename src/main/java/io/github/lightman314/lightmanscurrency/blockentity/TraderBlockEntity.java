@@ -37,6 +37,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	public void setTraderID(long traderID) { this.traderID = traderID; }
 	
 	private CompoundTag customTrader = null;
+	private boolean ignoreCustomTrader = false; 
 	
 	private CompoundTag loadFromOldTag = null;
 	
@@ -50,22 +51,45 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		super(type, pos, state);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private final D buildTrader(Player owner, ItemStack placementStack)
 	{
 		if(this.customTrader != null)
 		{
-			try {
-				TraderData newTrader = TraderData.Deserialize(false, this.customTrader);
-				newTrader.move(this.level, this.worldPosition);
-				return (D)newTrader;
-			} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
+			D newTrader = this.fullyBuildCustomTrader();
+			if(newTrader != null)
+				return newTrader;
 		}
 		D newTrader = this.buildNewTrader();
 		newTrader.getOwner().SetOwner(PlayerReference.of(owner));
 		if(placementStack.hasCustomHoverName())
 			newTrader.setCustomName(null, placementStack.getHoverName().getString());
 		return newTrader;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected final D initCustomTrader()
+	{
+		try {
+			return (D)TraderData.Deserialize(false, this.customTrader);
+		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
+		return null;
+	}
+	
+	
+	protected final D fullyBuildCustomTrader()
+	{
+		try {
+			D newTrader = this.initCustomTrader();
+			this.moveCustomTrader(newTrader);
+			return newTrader;
+		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
+		return null;
+	}
+	
+	protected final void moveCustomTrader(D customTrader)
+	{
+		if(customTrader != null)
+			customTrader.move(this.level, this.worldPosition);
 	}
 	
 	protected abstract D buildNewTrader();
@@ -75,7 +99,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		if(trader != null)
 		{
 			this.customTrader = trader.save();
-			this.setChanged();
+			this.ignoreCustomTrader = true;
+			this.markDirty();
 		}
 	}
 	
@@ -87,7 +112,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
 		this.traderID = TraderSaveData.RegisterTrader(newTrader);
-		this.setChanged();
+		//Send update packet to connected clients, so that they'll have the new trader id.
+		this.markDirty();
 	}
 	
 	private TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
@@ -126,21 +152,51 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	
 	@Override
 	public void serverTick() {
-		if(this.loadFromOldTag != null && this.level != null)
+		if(this.level == null)
+			return;
+		if(this.loadFromOldTag != null)
 		{
 			D newTrader = this.createTraderFromOldData(this.loadFromOldTag);
 			this.loadFromOldTag = null;
 			if(newTrader != null)
 			{
 				this.traderID = TraderSaveData.RegisterTrader(newTrader);
-				this.setChanged();
-				BlockEntityUtil.sendUpdatePacket(this);
+				this.markDirty();
 			}
 			else
 			{
 				LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
 			}
 		}
+		if(this.customTrader != null && !this.ignoreCustomTrader)
+		{
+			//Build the custom trader
+			D customTrader = this.initCustomTrader();
+			if(customTrader == null)
+			{
+				LightmansCurrency.LogWarning("The trader block at " + this.worldPosition.toShortString() + " could not properly load it's custom trader.");
+				this.customTrader = null;
+			}
+			//Check if the custom trader is this position & dimension
+			if(customTrader.getLevel() == this.level.dimension() && this.worldPosition.equals(customTrader.getPos()))
+				this.ignoreCustomTrader = true;
+			else
+			{
+				//If the dimension and position don't match exactly, assume it's been moved and load the custom trader
+				this.moveCustomTrader(customTrader);
+				this.traderID = TraderSaveData.RegisterTrader(customTrader);
+				this.customTrader = null;
+				this.ignoreCustomTrader = true;
+				this.markDirty();
+				LightmansCurrency.LogInfo("Successfully loaded custom trader at " + this.worldPosition.toShortString());
+			}
+		}
+	}
+	
+	public final void markDirty() {
+		this.setChanged();
+		if(!this.isClient())
+			BlockEntityUtil.sendUpdatePacket(this);
 	}
 	
 	protected abstract D createTraderFromOldData(CompoundTag compound);

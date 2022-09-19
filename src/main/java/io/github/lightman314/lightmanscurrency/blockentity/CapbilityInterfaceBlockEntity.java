@@ -12,12 +12,10 @@ import net.minecraftforge.common.util.LazyOptional;
 
 public class CapbilityInterfaceBlockEntity extends BlockEntity{
 	
-	
 	public CapbilityInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.CAPABILITY_INTERFACE.get(), pos, state);
 	}
 	
-	//Item capability for hopper and item automation
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
 	{

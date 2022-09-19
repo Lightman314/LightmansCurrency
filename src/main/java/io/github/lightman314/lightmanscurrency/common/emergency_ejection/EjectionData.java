@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class EjectionData implements Container, IClientTracker {
 
-	OwnerData owner = new OwnerData(this, o -> {});
+	private final OwnerData owner = new OwnerData(this, o -> {});
 	MutableComponent traderName = Component.empty();
 	public MutableComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();
@@ -48,8 +52,8 @@ public class EjectionData implements Container, IClientTracker {
 	public CompoundTag save() {
 		
 		CompoundTag compound = new CompoundTag();
-		if(this.owner != null)
-			compound.put("Owner", this.owner.save());
+		
+		compound.put("Owner", this.owner.save());
 		
 		compound.putString("Name", Component.Serializer.toJson(this.traderName));
 		
@@ -65,8 +69,20 @@ public class EjectionData implements Container, IClientTracker {
 	
 	public void load(CompoundTag compound) {
 		
-		if(compound.contains("Owner"))
-			this.owner.load(compound);
+		//Load old owner data
+		if(compound.contains("PlayerOwned"))
+		{
+			if(compound.getBoolean("PlayerOwned"))
+				this.owner.SetOwner(PlayerReference.of(compound.getUUID("Owner"), "UNKNOWN"));
+			else
+			{
+				Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Owner")));
+				if(team != null)
+					this.owner.SetOwner(team);
+			}
+		}
+		else if(compound.contains("Owner"))
+			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
 		if(compound.contains("Items"))
@@ -111,9 +127,9 @@ public class EjectionData implements Container, IClientTracker {
 
 	@Override
 	public boolean isEmpty() {
-		for(ItemStack i : this.items)
+		for(ItemStack stack : this.items)
 		{
-			if(!i.isEmpty())
+			if(!stack.isEmpty())
 				return false;
 		}
 		return true;
@@ -149,27 +165,17 @@ public class EjectionData implements Container, IClientTracker {
 		this.items.set(slot, item);
 	}
 	
-	private void clearEmptySlots() {
-		for(int i = 0; i < this.items.size(); ++i)
-		{
-			if(this.items.get(i).isEmpty())
-			{
-				this.items.remove(i);
-				--i;
-			}
-		}
-	}
+	private void clearEmptySlots() { this.items.removeIf(stack -> stack.isEmpty()); }
 
 	@Override
 	public void setChanged() {
 		if(this.isClient)
 			return;
 		this.clearEmptySlots();
-		//TODO mark new ejection data handler dirty
-		/*if(this.isEmpty())
-			TradingOffice.removeEjectionData(this);
+		if(this.isEmpty())
+			EjectionSaveData.RemoveEjectionData(this);
 		else
-			TradingOffice.MarkEjectionDataDirty();*/
+			EjectionSaveData.MarkEjectionDataDirty();
 	}
 
 	@Override
