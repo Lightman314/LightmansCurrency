@@ -1,12 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.team;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
@@ -38,7 +34,7 @@ public class TeamBankAccountTab extends TeamTab {
 	Button buttonCreateBankAccount;
 	Button buttonToggleAccountLimit;
 	
-	ScrollTextDisplay logWidget;
+	//ScrollTextDisplay logWidget;
 	
 	@Override
 	public void initTab() {
@@ -50,9 +46,9 @@ public class TeamBankAccountTab extends TeamTab {
 		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, Component.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();
 		
-		this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
-		this.logWidget.invertText = true;
-		this.logWidget.visible = screen.getActiveTeam().hasBankAccount();
+		//this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
+		//this.logWidget.invertText = true;
+		//this.logWidget.visible = screen.getActiveTeam().hasBankAccount();
 		
 	}
 
@@ -80,16 +76,16 @@ public class TeamBankAccountTab extends TeamTab {
 			return;
 		
 		this.buttonCreateBankAccount.active = !this.getActiveTeam().hasBankAccount();
-		this.logWidget.visible = this.getScreen().getActiveTeam().hasBankAccount();
+		//this.logWidget.visible = this.getScreen().getActiveTeam().hasBankAccount();
 		
 	}
 	
-	private List<MutableComponent> getAccountLog() {
+	/*private List<MutableComponent> getAccountLog() {
 		//if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
 		//	return new ArrayList<>();
 		//return this.getActiveTeam().getBankAccount().getLogs().logText;
 		return new ArrayList<>();
-	}
+	}*/
 
 	@Override
 	public void closeTab() {

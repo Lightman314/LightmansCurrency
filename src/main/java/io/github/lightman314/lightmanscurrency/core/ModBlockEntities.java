@@ -2,7 +2,11 @@ package io.github.lightman314.lightmanscurrency.core;
 
 import io.github.lightman314.lightmanscurrency.blockentity.*;
 import io.github.lightman314.lightmanscurrency.blockentity.old.item.*;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ArmorDisplayTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.core.util.BlockEntityBlockHelper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
@@ -26,7 +30,7 @@ public class ModBlockEntities {
 		
 		TICKET_TRADER = ModRegistries.BLOCK_ENTITIES.register("ticket_trader", () -> BlockEntityType.Builder.of(TicketTraderBlockEntity::new, ModBlocks.TICKET_KIOSK.get()).build(null));
 		
-		CAPABILITY_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("capability_interface", () -> BlockEntityType.Builder.of(CapbilityInterfaceBlockEntity::new,
+		CAPABILITY_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("capability_interface", () -> BlockEntityType.Builder.of(CapabilityInterfaceBlockEntity::new,
 				BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.CAPABILITY_INTERFACE_TYPE)).build(null));
 		
 		TRADER_INTERFACE_ITEM = ModRegistries.BLOCK_ENTITIES.register("trader_interface_item", () -> BlockEntityType.Builder.of(ItemTraderInterfaceBlockEntity::new, ModBlocks.ITEM_TRADER_INTERFACE.get()).build(null));
@@ -61,7 +65,7 @@ public class ModBlockEntities {
 	public static final RegistryObject<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
 	
 	//Item Interface for multi-block traders
-	public static final RegistryObject<BlockEntityType<CapbilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
+	public static final RegistryObject<BlockEntityType<CapabilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;
 	
 	//Trader Interface Terminal
 	public static final RegistryObject<BlockEntityType<ItemTraderInterfaceBlockEntity>> TRADER_INTERFACE_ITEM;

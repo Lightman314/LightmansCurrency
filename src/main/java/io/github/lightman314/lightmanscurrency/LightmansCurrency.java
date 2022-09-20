@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Reference.Color;
 import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
@@ -310,7 +311,7 @@ public class LightmansCurrency {
     	//Sync time
     	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
     	//Sync admin list
-    	//LightmansCurrencyPacketHandler.instance.send(target, TradingOffice.getAdminSyncMessage());
+    	LightmansCurrencyPacketHandler.instance.send(target, CommandLCAdmin.getAdminSyncMessage());
     	
     }
     

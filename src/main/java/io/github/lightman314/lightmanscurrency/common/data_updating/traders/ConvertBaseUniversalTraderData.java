@@ -10,13 +10,13 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 @SuppressWarnings("deprecation")
-public class ConvertUniversalItemTraderData {
+public class ConvertBaseUniversalTraderData {
 
 	public static final ResourceLocation ITEM_TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	public static final ResourceLocation AUCTION_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house");
 	
 	@SubscribeEvent
-	public static void convertItemTrader(ConvertUniversalTraderEvent event) {
+	public static void convertBaseTraders(ConvertUniversalTraderEvent event) {
 		if(event.type.equals(ITEM_TYPE))
 		{
 			//Convert trader data

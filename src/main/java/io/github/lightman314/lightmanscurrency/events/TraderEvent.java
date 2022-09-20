@@ -18,27 +18,27 @@ public abstract class TraderEvent extends Event{
 		this.traderID = traderID;
 	}
 	
-	public static class UniversalTradeCreateEvent extends TraderEvent
+	public static class CreateNetworkTraderEvent extends TraderEvent
 	{
 		
 		private final Player player;
 		public Player getPlayer() { return this.player; }
 		
-		public UniversalTradeCreateEvent(long traderID, Player player)
+		public CreateNetworkTraderEvent(long traderID, Player player)
 		{
 			super(traderID);
 			this.player = player;
 		}
 	}
 	
-	public static class UniversalTradeRemoveEvent extends TraderEvent
+	public static class RemoveNetworkTraderEvent extends TraderEvent
 	{
 		
 		private final TraderData data;
 		@Override
 		public TraderData getTrader() { return this.data; }
 		
-		public UniversalTradeRemoveEvent(long traderID, TraderData removedData)
+		public RemoveNetworkTraderEvent(long traderID, TraderData removedData)
 		{
 			super(traderID);
 			this.data = removedData;

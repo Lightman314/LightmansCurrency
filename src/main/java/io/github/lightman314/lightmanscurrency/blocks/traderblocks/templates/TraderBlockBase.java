@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.CapbilityInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
@@ -66,7 +66,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapbilityInterfaceBlockEntity(pos, state); }
+	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapabilityInterfaceBlockEntity(pos, state); }
 	protected abstract BlockEntityType<?> traderType();
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(this.traderType()); }
 	

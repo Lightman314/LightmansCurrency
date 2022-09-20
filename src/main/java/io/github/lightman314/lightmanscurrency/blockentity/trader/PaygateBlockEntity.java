@@ -1,7 +1,8 @@
-package io.github.lightman314.lightmanscurrency.blockentity;
+package io.github.lightman314.lightmanscurrency.blockentity.trader;
 
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;

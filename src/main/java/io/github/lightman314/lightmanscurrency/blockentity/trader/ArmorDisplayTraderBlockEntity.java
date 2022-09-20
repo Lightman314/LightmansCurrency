@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.blockentity;
+package io.github.lightman314.lightmanscurrency.blockentity.trader;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;

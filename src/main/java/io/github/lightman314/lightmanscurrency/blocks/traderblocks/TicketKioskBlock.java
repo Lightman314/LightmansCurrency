@@ -6,8 +6,7 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blockentity.CapbilityInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TicketTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
@@ -37,9 +36,6 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new TicketTraderBlockEntity(pos, state, TRADECOUNT); }
-	
-	@Override
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapbilityInterfaceBlockEntity(pos, state); }
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.TICKET_TRADER.get(); }

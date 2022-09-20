@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;

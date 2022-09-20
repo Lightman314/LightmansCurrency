@@ -6,12 +6,11 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blockentity.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
-import io.github.lightman314.lightmanscurrency.blockentity.CapbilityInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -38,9 +37,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 		trader.flagAsLoaded();
 		return trader;
 	}
-	
-	@Override
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapbilityInterfaceBlockEntity(pos, state); }
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }

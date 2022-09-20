@@ -18,7 +18,7 @@ public class MessageUpdateClientTrader {
 	}
 
 	public static MessageUpdateClientTrader decode(FriendlyByteBuf buffer) {
-		return new MessageUpdateClientTrader(buffer.readNbt());
+		return new MessageUpdateClientTrader(buffer.readAnySizeNbt());
 	}
 
 	public static void handle(MessageUpdateClientTrader message, Supplier<Context> supplier) {
