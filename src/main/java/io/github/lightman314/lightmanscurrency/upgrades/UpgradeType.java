@@ -34,7 +34,7 @@ public abstract class UpgradeType {
 	
 	public static final Simple NETWORK = register(new ResourceLocation(LightmansCurrency.MODID, "trader_network"), new Simple(Component.translatable("tooltip.lightmanscurrency.upgrade.network")));
 	
-	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple());
+	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple(Component.translatable("tooltip.lightmanscurrency.upgrade.hopper")));
 	
 	private ResourceLocation type;
 	

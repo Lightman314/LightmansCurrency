@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.network.message.teams;
+package io.github.lightman314.lightmanscurrency.network.message.data;
 
 import java.util.function.Supplier;
 

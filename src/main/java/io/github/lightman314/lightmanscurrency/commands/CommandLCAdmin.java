@@ -304,7 +304,7 @@ public class CommandLCAdmin {
 		}
 	}
 	
-	private static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
+	public static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
 	
 	public static void loadAdminPlayers(List<UUID> serverAdminList) { adminPlayers = serverAdminList; }
 	

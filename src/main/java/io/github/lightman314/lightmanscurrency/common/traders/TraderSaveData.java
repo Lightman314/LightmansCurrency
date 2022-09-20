@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -20,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageClearClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
@@ -32,8 +35,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -471,10 +476,10 @@ public class TraderSaveData extends SavedData {
 				}
 			}
 		}
-		return RegisterTrader(newTrader);
+		return RegisterTrader(newTrader, null);
 	}
 	
-	public static long RegisterTrader(TraderData newTrader) {
+	public static long RegisterTrader(TraderData newTrader, @Nullable Player player) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
@@ -483,6 +488,8 @@ public class TraderSaveData extends SavedData {
 			tsd.traderData.put(newID, newTrader.allowMarkingDirty());
 			tsd.setDirty();
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(newTrader.save()));
+			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
+				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
 		}
 		return -1;
@@ -498,6 +505,8 @@ public class TraderSaveData extends SavedData {
 				tsd.traderData.remove(traderID);
 				tsd.setDirty();
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
+				if(trader.shouldAlwaysShowOnTerminal())
+					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
 				return trader;
 			}
 		}

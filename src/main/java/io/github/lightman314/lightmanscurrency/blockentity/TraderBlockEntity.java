@@ -111,7 +111,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Register to the trading office
-		this.traderID = TraderSaveData.RegisterTrader(newTrader);
+		this.traderID = TraderSaveData.RegisterTrader(newTrader, owner);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
 	}
@@ -160,7 +160,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 			this.loadFromOldTag = null;
 			if(newTrader != null)
 			{
-				this.traderID = TraderSaveData.RegisterTrader(newTrader);
+				this.traderID = TraderSaveData.RegisterTrader(newTrader, null);
 				this.markDirty();
 			}
 			else
@@ -184,7 +184,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 			{
 				//If the dimension and position don't match exactly, assume it's been moved and load the custom trader
 				this.moveCustomTrader(customTrader);
-				this.traderID = TraderSaveData.RegisterTrader(customTrader);
+				this.traderID = TraderSaveData.RegisterTrader(customTrader, null);
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();

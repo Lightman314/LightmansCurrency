@@ -88,6 +88,7 @@ public class DataConverter extends SavedData {
 				TraderData trader = this.convertTraderData(traderTag);
 				if(trader != null)
 				{
+					trader.setAlwaysShowOnTerminal();
 					TraderSaveData.RegisterOldTrader(trader);
 					if(traderTag.contains("ID"))
 					{

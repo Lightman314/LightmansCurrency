@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class CapbilityInterfaceBlockEntity extends BlockEntity{
+public class CapabilityInterfaceBlockEntity extends BlockEntity{
 	
-	public CapbilityInterfaceBlockEntity(BlockPos pos, BlockState state) {
+	public CapabilityInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.CAPABILITY_INTERFACE.get(), pos, state);
 	}
 	

@@ -24,17 +24,19 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.events.TraderEvent.UniversalTradeCreateEvent;
+import io.github.lightman314.lightmanscurrency.events.TraderEvent.CreateNetworkTraderEvent;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -188,9 +190,9 @@ public class CurrencyListener extends SingleChannelListener{
 				List<String> output = new ArrayList<>();
 				TraderSaveData.GetAllTerminalTraders(false).forEach(trader -> {
 					try {
-						/*if(trader instanceof UniversalItemTraderData)
+						if(trader instanceof ItemTraderData)
 						{
-							UniversalItemTraderData itemTrader = (UniversalItemTraderData)trader;
+							ItemTraderData itemTrader = (ItemTraderData)trader;
 							if(searchType.acceptTrader(itemTrader, searchText))
 							{
 								boolean showStock = !itemTrader.isCreative();
@@ -209,7 +211,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												String priceText = trade.getCost().getString();
@@ -227,7 +229,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												String priceText = trade.getCost().getString();
@@ -248,7 +250,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getCoreSettings().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
@@ -259,7 +261,7 @@ public class CurrencyListener extends SingleChannelListener{
 									}
 								}
 							}
-						}*/
+						}
 						//else //If not an item trader, post the trader search eventm
 							MinecraftForge.EVENT_BUS.post(new DiscordTraderSearchEvent(trader, searchText, searchType, output));
 					} catch(Exception e) { e.printStackTrace(); }
@@ -437,7 +439,7 @@ public class CurrencyListener extends SingleChannelListener{
 	}
 	
 	@SubscribeEvent
-	public void onUniversalTraderRegistered(UniversalTradeCreateEvent event)
+	public void onUniversalTraderRegistered(CreateNetworkTraderEvent event)
 	{
 		if(!Config.SERVER.traderCreationNotifications.get())
 			return;
@@ -465,9 +467,9 @@ public class CurrencyListener extends SingleChannelListener{
 	{
 		
 		private final CurrencyListener cl;
-		private final UniversalTradeCreateEvent event;
+		private final CreateNetworkTraderEvent event;
 
-		public AnnouncementTask(CurrencyListener cl, UniversalTradeCreateEvent event) {
+		public AnnouncementTask(CurrencyListener cl, CreateNetworkTraderEvent event) {
 			this.cl = cl;
 			this.event = event;
 		}
