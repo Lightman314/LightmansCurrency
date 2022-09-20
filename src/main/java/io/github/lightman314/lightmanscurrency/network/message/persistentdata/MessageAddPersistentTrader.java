@@ -9,8 +9,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,96 +21,99 @@ public class MessageAddPersistentTrader {
 
 	private static final String GENERATE_ID_FORMAT = "trader_";
 	
-	final UUID traderID;
+	final long traderID;
 	final String id;
 	final String owner;
 	
-	public MessageAddPersistentTrader(UUID traderID, String id, String owner) {
+	public MessageAddPersistentTrader(long traderID, String id, String owner) {
 		this.traderID = traderID;
 		this.id = id;
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 	
-	private JsonObject getTraderJson(UniversalTraderData trader, String id) {
-		JsonObject traderJson = new JsonObject();
-		traderJson.addProperty("id", this.id);
+	private JsonObject getTraderJson(TraderData trader, String id) throws Exception {
+		JsonObject traderJson = trader.saveToJson();
+		traderJson.addProperty("ID", this.id);
 		traderJson.addProperty("OwnerName", this.owner);
-		traderJson = trader.saveToJson(traderJson);
 		return traderJson;
 	}
 	
 	public static void encode(MessageAddPersistentTrader message, FriendlyByteBuf buffer) {
-		buffer.writeUUID(message.traderID);
+		buffer.writeLong(message.traderID);
 		buffer.writeUtf(message.id);
 		buffer.writeUtf(message.owner);
 	}
 	
 	public static MessageAddPersistentTrader decode(FriendlyByteBuf buffer) {
-		return new MessageAddPersistentTrader(buffer.readUUID(), buffer.readUtf(), buffer.readUtf());
+		return new MessageAddPersistentTrader(buffer.readLong(), buffer.readUtf(), buffer.readUtf());
 	}
 	
 	public static void handle(MessageAddPersistentTrader message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> {
 			//Only allow if player is in admin mode
 			ServerPlayer player = supplier.get().getSender();
-			if(TradingOffice.isAdminPlayer(player))
+			if(CommandLCAdmin.isAdminPlayer(player))
 			{
-				UniversalTraderData trader = TradingOffice.getData(message.traderID);
-				if(trader != null)
+				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+				if(trader != null && trader.canMakePersistent())
 				{
 					
 					boolean generateID = message.id.isBlank();
 					
 					if(!generateID)
 					{
-						JsonObject traderJson = message.getTraderJson(trader, message.id);
-						
-						JsonArray persistentTraders = TradingOffice.getPersistentTraderJson(TradingOffice.PERSISTENT_TRADER_SECTION);
-						//Check for traders with the same id, and replace any entries that match
-						for(int i = 0; i < persistentTraders.size(); ++i)
-						{
-							JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
-							if(traderData.has("id") && traderData.get("id").getAsString().equals(message.id))
+						try {
+							JsonObject traderJson = message.getTraderJson(trader, message.id);
+							
+							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
+							//Check for traders with the same id, and replace any entries that match
+							for(int i = 0; i < persistentTraders.size(); ++i)
 							{
-								//Overwrite the existing entry with the same id.
-								persistentTraders.set(i, traderJson);
-								TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_TRADER_SECTION, persistentTraders);
-								player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.overwrite", message.id), new UUID(0,0));
-								return;
+								JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
+								if(traderData.has("id") && traderData.get("id").getAsString().equals(message.id))
+								{
+									//Overwrite the existing entry with the same id.
+									persistentTraders.set(i, traderJson);
+									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.overwrite", message.id), new UUID(0,0));
+									return;
+								}
 							}
-						}
-						
-						//If no trader found with the id, add to list
-						persistentTraders.add(traderJson);
-						TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_TRADER_SECTION, persistentTraders);
-						player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", message.id), new UUID(0,0));
-						return;
+							
+							//If no trader found with the id, add to list
+							persistentTraders.add(traderJson);
+							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+							player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", message.id), new UUID(0,0));
+							return;
+						} catch (Throwable t) { t.printStackTrace(); }
 					}
 					else
 					{
-						//Get a list of all known trader IDs
-						List<String> knownIDs = new ArrayList<>();
-						JsonArray persistentTraders = TradingOffice.getPersistentTraderJson(TradingOffice.PERSISTENT_TRADER_SECTION);
-						for(int i = 0; i < persistentTraders.size(); ++i)
-						{
-							JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
-							if(traderData.has("id"))
-								knownIDs.add(traderData.get("id").getAsString());
-						}
-						
-						//Check trader_1 -> trader_2147483646 to find an available id
-						for(int i = 1; i < Integer.MAX_VALUE; ++i)
-						{
-							String genID = GENERATE_ID_FORMAT + String.valueOf(i);
-							if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
+						try {
+							//Get a list of all known trader IDs
+							List<String> knownIDs = new ArrayList<>();
+							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
+							for(int i = 0; i < persistentTraders.size(); ++i)
 							{
-								persistentTraders.add(message.getTraderJson(trader, genID));
-								TradingOffice.setPersistentTraderSection(TradingOffice.PERSISTENT_TRADER_SECTION, persistentTraders);
-								player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
-								return;
+								JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
+								if(traderData.has("id"))
+									knownIDs.add(traderData.get("id").getAsString());
 							}
-						}
-						LightmansCurrency.LogError("Could not generate ID, as all trader_# ID's are somehow spoken for.");
+							
+							//Check trader_1 -> trader_2147483646 to find an available id
+							for(int i = 1; i < Integer.MAX_VALUE; ++i)
+							{
+								String genID = GENERATE_ID_FORMAT + String.valueOf(i);
+								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
+								{
+									persistentTraders.add(message.getTraderJson(trader, genID));
+									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
+									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
+									return;
+								}
+							}
+							LightmansCurrency.LogError("Could not generate ID, as all trader_# ID's are somehow spoken for.");
+						} catch(Throwable t) { t.printStackTrace(); }
 					}
 				}
 			}

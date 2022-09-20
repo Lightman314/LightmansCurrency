@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "group": "item_trader_server",
   "pattern":[
-    " i ",
-    "cxc",
-    " i "
+    "c",
+    "x",
+    "i"
   ],
   "key": {
     "x": {

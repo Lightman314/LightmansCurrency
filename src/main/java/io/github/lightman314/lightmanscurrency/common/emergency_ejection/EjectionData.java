@@ -2,12 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.trader.IDumpable;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -17,50 +20,41 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class EjectionData implements Container {
+public class EjectionData implements Container, IClientTracker {
 
-	boolean playerOwner = false;
-	UUID ownerID = null;
+	private final OwnerData owner = new OwnerData(this, o -> {});
 	MutableComponent traderName = new TextComponent("");
 	public MutableComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();
 	
 	private boolean isClient = false;
 	public void flagAsClient() { this.isClient = true; }
+	public boolean isClient() { return this.isClient; }
 	
 	private EjectionData() {}
 	
-	private EjectionData(boolean isPlayer, UUID ownerID, MutableComponent traderName, List<ItemStack> items) {
-		this.playerOwner = isPlayer;
-		this.ownerID = ownerID;
+	private EjectionData(OwnerData owner, MutableComponent traderName, List<ItemStack> items) {
+		this.owner.copyFrom(owner);
 		this.traderName = traderName;
 		this.items = items;
 	}
 	
 	public boolean canAccess(Player player) {
-		if(TradingOffice.isAdminPlayer(player))
+		if(CommandLCAdmin.isAdminPlayer(player))
 			return true;
-		if(this.ownerID == null)
+		if(this.owner == null)
 			return false;
-		if(this.playerOwner)
-			return player.getUUID().equals(this.ownerID);
-		else
-		{
-			Team team = player.level.isClientSide ? ClientTradingOffice.getTeam(this.ownerID) : TradingOffice.getTeam(this.ownerID);
-			if(team != null)
-				return team.isMember(player);
-		}
-		return false;
+		return this.owner.isMember(player);
 	}
 	
-	public CompoundTag save(CompoundTag compound) {
-		if(this.ownerID != null)
-		{
-			compound.putBoolean("PlayerOwned", this.playerOwner);
-			compound.putUUID("Owner", this.ownerID);
-		}
+	public CompoundTag save() {
+		
+		CompoundTag compound = new CompoundTag();
+		
+		compound.put("Owner", this.owner.save());
 		
 		compound.putString("Name", Component.Serializer.toJson(this.traderName));
 		
@@ -76,10 +70,20 @@ public class EjectionData implements Container {
 	
 	public void load(CompoundTag compound) {
 		
+		//Load old owner data
 		if(compound.contains("PlayerOwned"))
-			this.playerOwner = compound.getBoolean("PlayerOwned");
-		if(compound.contains("Owner"))
-			this.ownerID = compound.getUUID("Owner");
+		{
+			if(compound.getBoolean("PlayerOwned"))
+				this.owner.SetOwner(PlayerReference.of(compound.getUUID("Owner"), "UNKNOWN"));
+			else
+			{
+				Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Owner")));
+				if(team != null)
+					this.owner.SetOwner(team);
+			}
+		}
+		else if(compound.contains("Owner"))
+			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
 		if(compound.contains("Items"))
@@ -94,24 +98,19 @@ public class EjectionData implements Container {
 		
 	}
 	
-	public static EjectionData create(BlockState state, IDumpable trader) {
+	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader) {
+		return create(level, pos, state, trader, true);
+	}
+	
+	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader, boolean dropBlock) {
 		
-		boolean playerOwner = true;
-		UUID ownerID = null;
-		Team team = trader.getTeam();
-		if(team != null)
-		{
-			playerOwner = false;
-			ownerID = team.getID();
-		}
-		else if(trader.getOwner() != null)
-			ownerID = trader.getOwner().id;
+		OwnerData owner = trader.getOwner();
 		
 		MutableComponent traderName = trader.getName();
 		
-		List<ItemStack> items = trader.dumpContents(state, true);
+		List<ItemStack> items = trader.getContents(level, pos, state, dropBlock);
 		
-		return new EjectionData(playerOwner, ownerID, traderName, items);
+		return new EjectionData(owner, traderName, items);
 		
 	}
 	
@@ -129,9 +128,9 @@ public class EjectionData implements Container {
 
 	@Override
 	public boolean isEmpty() {
-		for(ItemStack i : this.items)
+		for(ItemStack stack : this.items)
 		{
-			if(!i.isEmpty())
+			if(!stack.isEmpty())
 				return false;
 		}
 		return true;
@@ -167,16 +166,7 @@ public class EjectionData implements Container {
 		this.items.set(slot, item);
 	}
 	
-	private void clearEmptySlots() {
-		for(int i = 0; i < this.items.size(); ++i)
-		{
-			if(this.items.get(i).isEmpty())
-			{
-				this.items.remove(i);
-				--i;
-			}
-		}
-	}
+	private void clearEmptySlots() { this.items.removeIf(stack -> stack.isEmpty()); }
 
 	@Override
 	public void setChanged() {
@@ -184,9 +174,9 @@ public class EjectionData implements Container {
 			return;
 		this.clearEmptySlots();
 		if(this.isEmpty())
-			TradingOffice.removeEjectionData(this);
+			EjectionSaveData.RemoveEjectionData(this);
 		else
-			TradingOffice.MarkEjectionDataDirty();
+			EjectionSaveData.MarkEjectionDataDirty();
 	}
 
 	@Override

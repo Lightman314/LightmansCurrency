@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -66,6 +66,7 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	}
 	
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) { }
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }
+	
 	
 }

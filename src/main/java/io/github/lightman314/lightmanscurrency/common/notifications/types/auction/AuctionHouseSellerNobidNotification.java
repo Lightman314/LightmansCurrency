@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification.ItemData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -33,7 +34,7 @@ public class AuctionHouseSellerNobidNotification extends AuctionHouseNotificatio
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
 		Component itemText = getItemNames(this.items);
 		

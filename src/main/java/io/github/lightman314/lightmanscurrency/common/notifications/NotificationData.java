@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -13,8 +12,8 @@ public class NotificationData {
 
 	List<Notification> notifications = new ArrayList<>();
 	public List<Notification> getNotifications() { return this.notifications; }
-	public List<Notification> getNotifications(Category category) {
-		if(category == Category.GENERAL)
+	public List<Notification> getNotifications(NotificationCategory category) {
+		if(category == NotificationCategory.GENERAL)
 			return this.notifications;
 		List<Notification> result = new ArrayList<>();
 		for(Notification not : notifications)
@@ -25,8 +24,8 @@ public class NotificationData {
 		return result;
 	}
 	
-	public boolean unseenNotification() { return this.unseenNotification(Category.GENERAL); }
-	public boolean unseenNotification(Category category) {
+	public boolean unseenNotification() { return this.unseenNotification(NotificationCategory.GENERAL); }
+	public boolean unseenNotification(NotificationCategory category) {
 		for(Notification n : this.getNotifications(category))
 		{
 			if(!n.wasSeen())
@@ -35,11 +34,11 @@ public class NotificationData {
 		return false;
 	}
 	
-	public List<Category> getCategories() {
-		List<Category> result = new ArrayList<>();
+	public List<NotificationCategory> getCategories() {
+		List<NotificationCategory> result = new ArrayList<>();
 		for(Notification not : this.notifications)
 		{
-			Category category = not.getCategory();
+			NotificationCategory category = not.getCategory();
 			if(category != null && result.stream().noneMatch(cat -> cat.matches(category)))
 				result.add(category);
 		}
@@ -61,6 +60,13 @@ public class NotificationData {
 		}
 		if(shouldAdd)
 			this.notifications.add(0, newNotification);
+		
+		this.validateListSize();
+		
+	}
+	
+	private void validateListSize()
+	{
 		int limit = Config.SERVER.notificationLimit.get();
 		while(this.notifications.size() > limit)
 			this.notifications.remove(this.notifications.get(this.notifications.size() - 1));
@@ -95,6 +101,7 @@ public class NotificationData {
 				if(not != null)
 					this.notifications.add(not);
 			}
+			this.validateListSize();
 		}
 	}
 	

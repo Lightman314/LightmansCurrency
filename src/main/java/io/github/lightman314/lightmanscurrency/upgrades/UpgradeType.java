@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.upgrades;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,20 +14,28 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
+import io.github.lightman314.lightmanscurrency.upgrades.types.SpeedUpgrade;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.ItemCapacityUpgrade;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
+public abstract class UpgradeType {
 
 	private static final Map<ResourceLocation,UpgradeType> UPGRADE_TYPE_REGISTRY = new HashMap<>();
 	
 	public static final ItemCapacityUpgrade ITEM_CAPACITY = register(new ResourceLocation(LightmansCurrency.MODID, "item_capacity"), new ItemCapacityUpgrade());
 	
 	public static final SpeedUpgrade SPEED = register(new ResourceLocation(LightmansCurrency.MODID, "speed"), new SpeedUpgrade());
+	
+	public static final Simple NETWORK = register(new ResourceLocation(LightmansCurrency.MODID, "trader_network"), new Simple(new TranslatableComponent("tooltip.lightmanscurrency.upgrade.network")));
+	
+	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple(new TranslatableComponent("tooltip.lightmanscurrency.upgrade.hopper")));
 	
 	private ResourceLocation type;
 	
@@ -35,18 +44,15 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 	
-	@Override
 	public UpgradeType setRegistryName(ResourceLocation name) {
 		this.type = name;
 		return this;
 	}
 
-	@Override
 	public ResourceLocation getRegistryName() {
 		return this.type;
 	}
 
-	@Override
 	public Class<UpgradeType> getRegistryType() {
 		return UpgradeType.class;
 	}
@@ -180,6 +186,37 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 		public RegisterUpgradeTypeEvent() { }
 		
 		public <T extends UpgradeType> void Register(ResourceLocation type, T upgradeType) { register(type, upgradeType); }
+		
+	}
+	
+	
+	public static boolean hasUpgrade(UpgradeType type, Container upgradeContainer) {
+		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
+		{
+			ItemStack stack = upgradeContainer.getItem(i);
+			if(stack.getItem() instanceof UpgradeItem)
+			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
+				if(upgradeItem.getUpgradeType() == type)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public static class Simple extends UpgradeType {
+
+		private final List<Component> tooltips;
+		public Simple(Component... tooltips) { this.tooltips = Lists.newArrayList(tooltips); }
+		
+		@Override
+		protected List<String> getDataTags() { return new ArrayList<>(); }
+
+		@Override
+		protected Object defaultTagValue(String tag) { return null; }
+		
+		@Override
+		public List<Component> getTooltip(UpgradeData data) { return this.tooltips; }
 		
 	}
 	

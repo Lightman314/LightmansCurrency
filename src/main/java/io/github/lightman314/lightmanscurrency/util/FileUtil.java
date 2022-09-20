@@ -24,7 +24,7 @@ public class FileUtil {
 	
 	public static JsonObject convertItemStack(ItemStack item) {
 		JsonObject json = new JsonObject();
-		json.addProperty("id", item.getItem().getRegistryName().toString());
+		json.addProperty("ID", ForgeRegistries.ITEMS.getKey(item.getItem()).toString());
 		json.addProperty("Count", item.getCount());
 		if(item.hasTag())
 		{
@@ -35,13 +35,13 @@ public class FileUtil {
 	}
 	
 	public static ItemStack parseItemStack(JsonObject json) throws Exception{
-		String id = json.get("id").getAsString();
+		String id = json.get("ID").getAsString();
 		int count = json.get("Count").getAsInt();
 		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);
 		try {
-			if(json.has("tag"))
+			if(json.has("Tag"))
 			{
-				JsonElement tag = json.get("tag");
+				JsonElement tag = json.get("Tag");
 				if(tag.isJsonPrimitive() && tag.getAsJsonPrimitive().isString())
 				{
 					//Parse the compound tag

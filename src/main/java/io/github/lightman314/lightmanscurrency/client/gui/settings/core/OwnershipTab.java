@@ -1,26 +1,23 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import java.util.List;
-import java.util.UUID;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -37,8 +34,7 @@ public class OwnershipTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.owner"); }
-	
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.owner"); }
 	
 	private OwnershipTab() { }
 	
@@ -47,13 +43,11 @@ public class OwnershipTab extends SettingsTab{
 	TeamSelectWidget teamSelection;
 	Button buttonSetTeamOwner;
 	
-	UUID selectedTeam = null;
+	long selectedTeam = -1;
 	List<Team> teamList = Lists.newArrayList();
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() {
-		return ImmutableList.of(Permissions.TRANSFER_OWNERSHIP);
-	}
+	public boolean canOpen() { return this.hasPermissions(Permissions.TRANSFER_OWNERSHIP); }
 
 	@Override
 	public void initTab() {
@@ -83,15 +77,15 @@ public class OwnershipTab extends SettingsTab{
 	
 	private Team getSelectedTeam()
 	{
-		if(this.selectedTeam == null)
+		if(this.selectedTeam < 0)
 			return null;
-		return ClientTradingOffice.getTeam(this.selectedTeam);
+		return TeamSaveData.GetTeam(true, this.selectedTeam);
 	}
 	
 	private void refreshTeamList()
 	{
 		this.teamList = Lists.newArrayList();
-		List<Team> allTeams = ClientTradingOffice.getTeamList();
+		List<Team> allTeams = TeamSaveData.GetAllTeams(true);
 		allTeams.forEach(team ->{
 			if(team.isMember(this.getPlayer()))
 				this.teamList.add(team);
@@ -104,9 +98,7 @@ public class OwnershipTab extends SettingsTab{
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
-		CoreTraderSettings coreSettings = this.getSetting(CoreTraderSettings.class);
-		
-		this.getFont().draw(pose, new TranslatableComponent("gui.button.lightmanscurrency.team.owner", coreSettings.getOwnerName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
+		this.getFont().draw(pose, new TranslatableComponent("gui.button.lightmanscurrency.team.owner", this.getScreen().getTrader().getOwner().getOwnerName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
 		
 	}
 	
@@ -135,7 +127,7 @@ public class OwnershipTab extends SettingsTab{
 	@Override
 	public void closeTab() {
 		//Reset the selected team & team list to save space
-		this.selectedTeam = null;
+		this.selectedTeam = -1;
 		this.teamList = Lists.newArrayList();
 	}
 
@@ -144,8 +136,8 @@ public class OwnershipTab extends SettingsTab{
 		Team newTeam = this.getTeam(teamIndex);
 		if(newTeam != null)
 		{
-			if(newTeam.getID().equals(this.selectedTeam))
-				this.selectedTeam = null;
+			if(newTeam.getID() == this.selectedTeam)
+				this.selectedTeam = -1;
 			else
 				this.selectedTeam = newTeam.getID();
 		}
@@ -155,9 +147,9 @@ public class OwnershipTab extends SettingsTab{
 	{
 		if(this.newOwnerInput.getValue().isBlank())
 			return;
-		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
-		CompoundTag updateInfo = settings.setOwner(this.getPlayer(), this.newOwnerInput.getValue());
-		settings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putString("ChangePlayerOwner", this.newOwnerInput.getValue());
+		this.getScreen().getTrader().sendNetworkMessage(message);
 		this.newOwnerInput.setValue("");
 	}
 	
@@ -165,10 +157,10 @@ public class OwnershipTab extends SettingsTab{
 	{
 		if(this.getSelectedTeam() == null)
 			return;
-		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
-		CompoundTag updateInfo = settings.setTeam(this.getPlayer(), this.selectedTeam);
-		settings.sendToServer(updateInfo);
-		this.selectedTeam = null;
+		CompoundTag message = new CompoundTag();
+		message.putLong("ChangeTeamOwner", this.selectedTeam);
+		this.getScreen().getTrader().sendNetworkMessage(message);
+		this.selectedTeam = -1;
 	}
 	
 }

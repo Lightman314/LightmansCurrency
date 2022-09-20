@@ -5,16 +5,16 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageCreateTeam;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +30,7 @@ public class TeamSelectionTab extends TeamTab {
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.team.selection"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.team.selection"); }
 
 	@Override
 	public boolean allowViewing(Player player, Team team) { return true; }
@@ -69,7 +69,7 @@ public class TeamSelectionTab extends TeamTab {
 	private void refreshTeamList()
 	{
 		this.teamList = Lists.newArrayList();
-		List<Team> allTeams = ClientTradingOffice.getTeamList();
+		List<Team> allTeams = TeamSaveData.GetAllTeams(true);
 		allTeams.forEach(team ->{
 			if(team.isMember(this.getPlayer()))
 				this.teamList.add(team);
@@ -112,7 +112,7 @@ public class TeamSelectionTab extends TeamTab {
 		if(team != null)
 		{
 			if(this.getScreen().getActiveTeam() == team)
-				this.getScreen().setActiveTeam(null);
+				this.getScreen().setActiveTeam(-1);
 			else
 				this.getScreen().setActiveTeam(team.getID());
 		}

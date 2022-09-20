@@ -2,31 +2,30 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
-import net.minecraft.core.BlockPos;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageAddOrRemoveTrade {
 	
-	BlockPos pos;
+	long traderID;
 	boolean isTradeAdd;
 	
-	public MessageAddOrRemoveTrade(BlockPos pos, boolean isTradeAdd)
+	public MessageAddOrRemoveTrade(long traderID, boolean isTradeAdd)
 	{
-		this.pos = pos;
+		this.traderID = traderID;
 		this.isTradeAdd = isTradeAdd;
 	}
 	
 	public static void encode(MessageAddOrRemoveTrade message, FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(message.pos);
+		buffer.writeLong(message.traderID);
 		buffer.writeBoolean(message.isTradeAdd);
 	}
 
 	public static MessageAddOrRemoveTrade decode(FriendlyByteBuf buffer) {
-		return new MessageAddOrRemoveTrade(buffer.readBlockPos(), buffer.readBoolean());
+		return new MessageAddOrRemoveTrade(buffer.readLong(), buffer.readBoolean());
 	}
 
 	public static void handle(MessageAddOrRemoveTrade message, Supplier<Context> supplier) {
@@ -35,10 +34,9 @@ public class MessageAddOrRemoveTrade {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof TraderBlockEntity)
+				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
+				if(trader != null)
 				{
-					TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
 					if(message.isTradeAdd)
 						trader.addTrade(player);
 					else

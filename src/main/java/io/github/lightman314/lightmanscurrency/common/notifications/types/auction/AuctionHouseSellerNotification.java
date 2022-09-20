@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.ItemTradeNotification.ItemData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -41,11 +41,11 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
 		Component itemText = getItemNames(this.items);
 		
-		Component cost = new TextComponent(this.cost.getString("0"));
+		Component cost = this.cost.getComponent("0");
 		
 		//Create log from stored data
 		return new TranslatableComponent("notifications.message.auction.seller", this.customer, itemText, cost);
@@ -59,7 +59,7 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
-		this.cost.writeToNBT(compound, "Price");
+		this.cost.save(compound, "Price");
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -71,7 +71,7 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemData(itemList.getCompound(i)));
-		this.cost.readFromNBT(compound, "Price");
+		this.cost.load(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}

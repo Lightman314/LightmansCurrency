@@ -3,17 +3,17 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockBase;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,6 +37,9 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
+	
+	@Override @SuppressWarnings("deprecation")
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -65,16 +68,11 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	{
 		return TRADECOUNT;
 	}
-
-	@Override
-	public Direction getRelativeSide(BlockState state, Direction side) {
-		return side;
-	}
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
-	
+
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) { }
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }
 	
 }

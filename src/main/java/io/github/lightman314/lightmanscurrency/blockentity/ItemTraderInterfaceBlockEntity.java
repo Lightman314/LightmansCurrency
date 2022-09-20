@@ -2,31 +2,36 @@ package io.github.lightman314.lightmanscurrency.blockentity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ItemInterfaceHandler;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage.ITraderItemFilter;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
@@ -79,10 +84,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		else
 		{
 			//Scan all trades for sell items to restock
-			UniversalTraderData trader = this.getTrader();
-			if(trader instanceof IItemTrader)
+			TraderData trader = this.getTrader();
+			if(trader instanceof ItemTraderData)
 			{
-				for(ItemTradeData trade : ((IItemTrader) trader).getAllTrades())
+				for(ItemTradeData trade : ((ItemTraderData) trader).getAllTrades())
 				{
 					if(trade.isSale() || trade.isBarter())
 					{
@@ -116,10 +121,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		}
 		else
 		{
-			UniversalTraderData trader = this.getTrader();
-			if(trader instanceof IItemTrader)
+			TraderData trader = this.getTrader();
+			if(trader instanceof ItemTraderData)
 			{
-				for(ItemTradeData trade : ((IItemTrader) trader).getAllTrades())
+				for(ItemTradeData trade : ((ItemTraderData) trader).getAllTrades())
 				{
 					if(trade.allowItemInStorage(item))
 						return true;
@@ -127,12 +132,11 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 			}
 			return false;
 		}
-		
 	}
 	
 	@Override
 	public int getStorageStackLimit() { 
-		int limit = IItemTrader.DEFAULT_STACK_LIMIT;
+		int limit = ItemTraderData.DEFAULT_STACK_LIMIT;
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
@@ -179,19 +183,19 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	public boolean validTraderType(UniversalTraderData trader) { return trader instanceof IItemTrader; }
+	public boolean validTraderType(TraderData trader) { return trader instanceof ItemTraderData; }
 	
-	protected final IItemTrader getItemTrader() {
-		UniversalTraderData trader = this.getTrader();
-		if(trader instanceof IItemTrader)
-			return (IItemTrader)trader;
+	protected final ItemTraderData getItemTrader() {
+		TraderData trader = this.getTrader();
+		if(trader instanceof ItemTraderData)
+			return (ItemTraderData)trader;
 		return null;
 	}
 	
 	@Override
 	protected void drainTick() {
-		IItemTrader trader = this.getItemTrader();
-		if(trader != null && trader.hasPermission(this.owner, Permissions.INTERACTION_LINK))
+		ItemTraderData trader = this.getItemTrader();
+		if(trader != null && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
@@ -240,8 +244,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 
 	@Override
 	protected void restockTick() {
-		IItemTrader trader = this.getItemTrader();
-		if(trader != null && trader.hasPermission(this.owner, Permissions.INTERACTION_LINK))
+		ItemTraderData trader = this.getItemTrader();
+		if(trader != null && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
@@ -323,18 +327,60 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
+	protected void hopperTick() {
+		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
+		for(Direction relativeSide : Direction.values())
+		{
+			if(this.itemHandler.getInputSides().get(relativeSide))
+			{
+				Direction actualSide = relativeSide;
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				{
+					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
+				}
+				
+				BlockPos queryPos = this.worldPosition.relative(actualSide);
+				BlockEntity be = this.level.getBlockEntity(queryPos);
+				if(be != null)
+				{
+					be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, actualSide.getOpposite()).ifPresent(itemHandler -> {
+						boolean query = true;
+						for(int i = 0; query && i < itemHandler.getSlots(); ++i)
+						{
+							ItemStack stack = itemHandler.getStackInSlot(i);
+							int fittableAmount = this.itemBuffer.getFittableAmount(stack);
+							if(fittableAmount > 0)
+							{
+								query = false;
+								ItemStack result = itemHandler.extractItem(i, fittableAmount, false);
+								this.itemBuffer.forceAddItem(result);
+								markBufferDirty.set(true);
+							}
+						}
+					});
+				}
+				
+			}
+		}
+		if(markBufferDirty.get())
+			this.setItemBufferDirty();
+		
+	}
+	
+	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new ItemStorageTab(menu));
 	}
 	
 	@Override
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return type == UpgradeType.ITEM_CAPACITY; }
-	
+
 	@Override
-	public void dumpContents(List<ItemStack> contents) {
-
+	public void getAdditionalContents(List<ItemStack> contents) {
+		
 		contents.addAll(this.itemBuffer.getSplitContents());
-
+		
 	}
 
 	@Override

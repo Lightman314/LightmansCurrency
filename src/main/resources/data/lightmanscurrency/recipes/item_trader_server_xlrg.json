@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "group": "item_trader_server",
   "pattern":[
-    "ggg",
-    "gxg",
-    "gcg"
+    "c",
+    "x",
+    "i"
   ],
   "key": {
     "x": {
       "item": "lightmanscurrency:item_trader_server_lrg"
     },
-    "g": {
-      "tag": "forge:ingots/gold"
+    "i": {
+      "tag": "forge:ingots/iron"
     },
     "c": {
       "tag": "forge:chests/wooden"

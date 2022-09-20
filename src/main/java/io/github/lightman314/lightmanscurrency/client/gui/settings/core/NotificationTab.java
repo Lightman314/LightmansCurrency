@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
@@ -8,11 +7,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
@@ -28,7 +28,7 @@ public class NotificationTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.notifications"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.notifications"); }
 	
 	private NotificationTab() { }
 	
@@ -37,9 +37,7 @@ public class NotificationTab extends SettingsTab{
 	Button buttonToggleTeamLevel;
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() {
-		return ImmutableList.of(Permissions.TRANSFER_OWNERSHIP);
-	}
+	public boolean canOpen() { return this.hasPermissions(Permissions.TRANSFER_OWNERSHIP); }
 
 	@Override
 	public void initTab() {
@@ -49,7 +47,7 @@ public class NotificationTab extends SettingsTab{
 		this.buttonToggleNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 35, 10, 10, this::ToggleNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
 		this.buttonToggleChatNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 55, 10, 10, this::ToggleChatNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
-
+		
 		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 80, screen.xSize - 40, 20, new TextComponent(""), this::ToggleTeamNotificationLevel));
 		
 		this.tick();
@@ -60,6 +58,7 @@ public class NotificationTab extends SettingsTab{
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TraderSettingsScreen screen = this.getScreen();
+		TraderData trader = this.getTrader();
 		
 		//Render the enable notification test
 		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.notifications.enabled"), screen.guiLeft() + 32, screen.guiTop() + 35, 0x404040);
@@ -67,11 +66,10 @@ public class NotificationTab extends SettingsTab{
 		//Render the enable chat notification text
 		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.notifications.chat"), screen.guiLeft() + 32, screen.guiTop() + 55, 0x404040);
 		
-		CoreTraderSettings coreSettings = this.getSetting(CoreTraderSettings.class);
-		this.buttonToggleTeamLevel.visible = coreSettings.getTeam() != null;
+		this.buttonToggleTeamLevel.visible = trader.getOwner().hasTeam();
 		if(this.buttonToggleTeamLevel.visible)
 		{
-			Component message = new TranslatableComponent("gui.button.lightmanscurrency.team.bank.notifications", new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit." + coreSettings.getTeamNotificationLevel()));
+			Component message = new TranslatableComponent("gui.button.lightmanscurrency.team.bank.notifications", new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit." + trader.teamNotificationLevel()));
 			this.buttonToggleTeamLevel.setMessage(message);
 		}
 		
@@ -83,11 +81,11 @@ public class NotificationTab extends SettingsTab{
 	@Override
 	public void tick() {
 		
-		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
-		if(settings != null)
+		TraderData trader = this.getTrader();
+		if(trader != null)
 		{
-			this.buttonToggleNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.notificationsEnabled() ? 200 : 220);
-			this.buttonToggleChatNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.notificationsToChat() ? 200 : 220);
+			this.buttonToggleNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, trader.notificationsEnabled() ? 200 : 220);
+			this.buttonToggleChatNotifications.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, trader.notificationsToChat() ? 200 : 220);
 		}
 		
 	}
@@ -96,22 +94,21 @@ public class NotificationTab extends SettingsTab{
 	public void closeTab() { }
 	
 	private void ToggleNotifications(Button button) {
-		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
-		CompoundTag updateInfo = coreSettings.toggleNotifications(this.getPlayer());
-		coreSettings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putBoolean("Notifications", !this.getTrader().notificationsEnabled());
+		this.getTrader().sendNetworkMessage(message);
 	}
 	
 	private void ToggleChatNotifications(Button button) {
-		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
-		CompoundTag updateInfo = coreSettings.toggleChatNotifications(this.getPlayer());
-		coreSettings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putBoolean("NotificationsToChat", !this.getTrader().notificationsToChat());
+		this.getTrader().sendNetworkMessage(message);
 	}
 	
 	private void ToggleTeamNotificationLevel(Button button) {
-		CoreTraderSettings coreSettings = this.getScreen().getSetting(CoreTraderSettings.class);
-		int newLimit = Team.NextBankLimit(coreSettings.getTeamNotificationLevel());
-		CompoundTag updateInfo = coreSettings.setTeamNotificationLevel(this.getPlayer(), newLimit);
-		coreSettings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putInt("TeamNotificationLevel", Team.NextBankLimit(this.getTrader().teamNotificationLevel()));
+		this.getTrader().sendNetworkMessage(message);
 	}
 	
 }

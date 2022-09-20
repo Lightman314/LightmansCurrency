@@ -8,13 +8,15 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 
@@ -41,13 +43,18 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
-		for(int tradeSlot = 0; tradeSlot < blockEntity.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
+		ItemTraderData trader = blockEntity.getTraderData();
+		if(trader == null)
+			return;
+		for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
 		{
 			
-			ItemTradeData trade = blockEntity.getTrade(tradeSlot);
+			ItemTradeData trade = trader.getTrade(tradeSlot);
 			List<ItemStack> renderItems = GetRenderItems(trade);
 			if(renderItems.size() > 0)
 			{
+				
+				ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 				
 				//Get positions
 				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
@@ -58,7 +65,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				//Get scale
 				float scale = blockEntity.GetStackRenderScale(tradeSlot);
 
-				for(int pos = 0; pos < Config.CLIENT.traderRenderType.get().renderLimit && pos < positions.size() && pos < blockEntity.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < Config.CLIENT.traderRenderType.get().renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 				{
 					
 					pose.pushPose();
@@ -83,7 +90,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(0.25, 0.25, 0d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 						
 						pose.popPose();
 						
@@ -94,12 +101,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(-0.25, -0.25, 0.001d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 						
 						pose.popPose();
 					}
 					else
-						Minecraft.getInstance().getItemRenderer().renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 				
 					pose.popPose();
 					

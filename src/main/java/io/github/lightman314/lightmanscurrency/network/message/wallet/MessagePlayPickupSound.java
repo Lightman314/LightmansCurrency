@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.CurrencySoundEvents;
+import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,7 +26,7 @@ public class MessagePlayPickupSound implements IMessage<MessagePlayPickupSound>{
 			Minecraft minecraft = Minecraft.getInstance();
 			if(minecraft != null)
 			{
-				minecraft.player.level.playSound(minecraft.player, minecraft.player.blockPosition(), CurrencySoundEvents.COINS_CLINKING, SoundSource.PLAYERS, 0.4f, 1f);
+				minecraft.player.level.playSound(minecraft.player, minecraft.player.blockPosition(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
 			}
 		});
 		supplier.get().setPacketHandled(true);

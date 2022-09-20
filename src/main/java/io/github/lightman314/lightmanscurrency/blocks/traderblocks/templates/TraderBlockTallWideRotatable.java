@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRota
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IWideBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes.TriFunction;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -114,9 +115,9 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		this.playerWillDestroyBase(level, pos, state, player);
 		
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity)
+		if(blockEntity instanceof TraderBlockEntity<?>)
 		{
-			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
+			TraderBlockEntity<?> trader = (TraderBlockEntity<?>)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 		}
@@ -139,22 +140,11 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader) {
+	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
 		super.onInvalidRemoval(state, level, pos, trader);
-		if(this.getIsBottom(state))
-		{
-			setAir(level, pos.above(), null);
-			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
-			setAir(level, otherPos, null);
-			setAir(level, otherPos.above(), null);
-		}
-		else
-		{
-			setAir(level, pos.below(), null);
-			BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
-			setAir(level, otherPos, null);
-			setAir(level, otherPos.below(), null);
-		}
+		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
+		setAir(level, otherPos, null);
+		setAir(level, this.getOtherHeight(otherPos, state), null);
 	}
 	
 	@Override

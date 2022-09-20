@@ -7,12 +7,12 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -56,9 +56,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 		}
 	}
 	
-	private void onUpgradeModified() {
-		this.menu.getBE().setUpgradeSlotsDirty();
-	}
+	private void onUpgradeModified() { this.menu.getBE().setUpgradeSlotsDirty(); }
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {

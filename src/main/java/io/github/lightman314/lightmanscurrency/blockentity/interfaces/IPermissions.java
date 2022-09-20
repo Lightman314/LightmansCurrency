@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.blockentity.interfaces;
 
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import net.minecraft.world.entity.player.Player;
 
 public interface IPermissions {

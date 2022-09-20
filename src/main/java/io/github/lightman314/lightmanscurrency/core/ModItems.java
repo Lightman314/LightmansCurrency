@@ -58,6 +58,12 @@ public class ModItems {
 		SPEED_UPGRADE_4 = ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 		
+		//Network Upgrade
+		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(UpgradeType.NETWORK, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		
+		//Hopper Upgrade
+		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(UpgradeType.HOPPER, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		
 		//Freezer Door(s)
 		FREEZER_DOOR = ModRegistries.ITEMS.register("freezer_door", () -> new Item(new Item.Properties()));
 		
@@ -96,6 +102,10 @@ public class ModItems {
 	public static final RegistryObject<Item> SPEED_UPGRADE_3;
 	public static final RegistryObject<Item> SPEED_UPGRADE_4;
 	public static final RegistryObject<Item> SPEED_UPGRADE_5;
+	
+	public static final RegistryObject<Item> NETWORK_UPGRADE;
+	
+	public static final RegistryObject<Item> HOPPER_UPGRADE;
 	
 	//Hidden item(s)
 	public static final RegistryObject<Item> FREEZER_DOOR;

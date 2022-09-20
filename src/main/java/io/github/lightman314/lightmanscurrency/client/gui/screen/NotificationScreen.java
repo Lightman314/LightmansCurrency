@@ -10,14 +10,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageFlagNotificationsSeen;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
@@ -33,7 +33,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
 	
-	public final NotificationData getNotifications() { return ClientTradingOffice.getNotifications(); }
+	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
 	
 	public final int guiLeft() { return (this.width - this.xSize - TabButton.SIZE) / 2; }
 	public final int guiTop() { return (this.height - this.ySize) / 2; }
@@ -47,7 +47,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	List<NotificationTabButton> tabButtons;
 	int tabScroll = 0;
-	Category selectedCategory = Category.GENERAL;
+	NotificationCategory selectedCategory = NotificationCategory.GENERAL;
 	
 	ScrollBarWidget notificationScroller = null;
 	
@@ -55,16 +55,14 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	int notificationScroll = 0;
 	
-	public NotificationScreen() {
-		super(new TextComponent(""));
-	}
+	public NotificationScreen() { super(new TextComponent("")); }
 	
 	@Override
 	public boolean isPauseScreen() { return false; }
 	
-	public List<Category> getCategories() {
-		List<Category> categories = Lists.newArrayList(Category.GENERAL);
-		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != Category.GENERAL).collect(Collectors.toList()));
+	public List<NotificationCategory> getCategories() {
+		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
+		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).collect(Collectors.toList()));
 		return categories;
 	}
 	
@@ -78,7 +76,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	public void init() {
 		
 		this.tabButtons = new ArrayList<>();
-		for(Category cat : this.getCategories())
+		for(NotificationCategory cat : this.getCategories())
 		{
 			this.tabButtons.add(this.addRenderableWidget(new NotificationTabButton(this::SelectTab, this.font, this::getNotifications, cat)));
 		}
@@ -93,7 +91,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	}
 	
 	private void validateSelectedCategory() {
-		List<Category> categories = this.getCategories();
+		List<NotificationCategory> categories = this.getCategories();
 		boolean categoryFound = false;
 		for(int i = 0; i < categories.size() && !categoryFound; ++i)
 		{
@@ -101,7 +99,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 				categoryFound = true;
 		}
 		if(!categoryFound || this.selectedCategory == null)
-			this.selectedCategory = Category.GENERAL;
+			this.selectedCategory = NotificationCategory.GENERAL;
 	}
 	
 	private void positionTabButtons() {
@@ -109,7 +107,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		int startIndex = this.tabScroll;
 		int xPos = this.guiLeft();
 		int yPos = this.guiTop();
-		List<Category> categories = this.getCategories();
+		List<NotificationCategory> categories = this.getCategories();
 		for(int i = 0; i < this.tabButtons.size(); ++i)
 		{
 			TabButton tab = this.tabButtons.get(i);
@@ -176,7 +174,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 				textXPos += quantityWidth + 2;
 				textWidth -= quantityWidth + 2;
 			}
-			Component message = this.selectedCategory == Category.GENERAL ? not.getGeneralMessage() : not.getMessage();
+			Component message = this.selectedCategory == NotificationCategory.GENERAL ? not.getGeneralMessage() : not.getMessage();
 			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
@@ -208,10 +206,10 @@ public class NotificationScreen extends Screen implements IScrollable{
 		int tabIndex = this.tabButtons.indexOf(button);
 		if(tabIndex >= 0)
 		{
-			List<Category> categories = this.getCategories();
+			List<NotificationCategory> categories = this.getCategories();
 			if(tabIndex < categories.size())
 			{
-				Category newCategory = categories.get(tabIndex);
+				NotificationCategory newCategory = categories.get(tabIndex);
 				if(!newCategory.matches(this.selectedCategory))
 				{
 					this.selectedCategory = newCategory;

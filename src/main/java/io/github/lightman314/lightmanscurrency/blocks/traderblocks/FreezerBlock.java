@@ -6,9 +6,7 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import io.github.lightman314.lightmanscurrency.blockentity.FreezerTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
@@ -43,9 +41,6 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	
 	@Override
 	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FreezerTraderBlockEntity(pos, state, TRADECOUNT); }
-	
-	@Override
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new ItemInterfaceBlockEntity(pos, state); }
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER.get(); }
@@ -148,11 +143,6 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public int maxRenderIndex()
 	{
 		return TRADECOUNT;
-	}
-	
-	@Override
-	public Direction getRelativeSide(BlockState state, Direction side) {
-		return IItemHandlerBlock.getRelativeSide(this.getFacing(state), side);
 	}
 	
 	@Override

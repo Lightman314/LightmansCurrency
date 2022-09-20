@@ -10,15 +10,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -32,8 +32,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
-	public static final Comparator<UniversalTraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
-	public static final Comparator<UniversalTraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
+	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
+	public static final Comparator<TraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
 	
 	private int xSize = 176;
 	private int ySize = 187;
@@ -45,13 +45,13 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	List<UniversalTraderButton> traderButtons;
 	
-	private List<UniversalTraderData> traderList(){
-		List<UniversalTraderData> traderList = ClientTradingOffice.getTraderList();
+	private List<TraderData> traderList(){
+		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
 		traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
 		traderList.sort(TERMINAL_SORTER);
 		return traderList;
 	}
-	private List<UniversalTraderData> filteredTraderList = new ArrayList<>();
+	private List<TraderData> filteredTraderList = new ArrayList<>();
 	
 	public TradingTerminalScreen()
 	{
@@ -189,7 +189,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades2(this.filteredTraderList.get(index).getTraderID()));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.filteredTraderList.get(index).getID()));
 		}
 	}
 	
@@ -205,7 +205,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TradingOffice.filterTraders(this.searchField.getValue(), this.traderList());
+		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
 		//Validate the scroll
 		this.validateScroll();
 		//Update the trader buttons
@@ -224,7 +224,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		}
 	}
 	
-	private static class TraderSorter implements Comparator<UniversalTraderData>
+	private static class TraderSorter implements Comparator<TraderData>
 	{
 		
 		private final boolean creativeAtTop;
@@ -234,7 +234,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; this.auctionHousePriority = auctionHousePriority; }
 
 		@Override
-		public int compare(UniversalTraderData a, UniversalTraderData b) {
+		public int compare(TraderData a, TraderData b) {
 			
 			try {
 				
@@ -250,8 +250,8 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				
 				if(this.emptyAtBottom)
 				{
-					boolean emptyA = a.hasNoValidTrades();
-					boolean emptyB = b.hasNoValidTrades();
+					boolean emptyA = !a.hasValidTrade();
+					boolean emptyB = !b.hasValidTrade();
 					if(emptyA != emptyB)
 						return emptyA ? 1 : -1;
 				}
@@ -259,9 +259,9 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				if(this.creativeAtTop)
 				{
 					//Prioritize creative traders at the top of the list
-					if(a.getCoreSettings().isCreative() && !b.getCoreSettings().isCreative())
+					if(a.isCreative() && !b.isCreative())
 						return -1;
-					else if(b.getCoreSettings().isCreative() && !a.getCoreSettings().isCreative())
+					else if(b.isCreative() && !a.isCreative())
 						return 1;
 					//If both or neither are creative, sort by name.
 				}
@@ -270,7 +270,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
 				//Sort by owner name if trader name is equal
 				if(sort == 0)
-					sort = a.getCoreSettings().getOwnerName().compareToIgnoreCase(b.getCoreSettings().getOwnerName());
+					sort = a.getOwner().getOwnerName().compareToIgnoreCase(b.getOwner().getOwnerName());
 
 				return sort;
 			

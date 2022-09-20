@@ -15,11 +15,11 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -32,14 +32,14 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
-	public static final Function<ITradeData,Boolean> FILTER_VALID = trade -> trade.isValid();
-	public static final Function<ITradeData,Boolean> FILTER_ANY = trade -> true;
+	public static final Function<TradeData,Boolean> FILTER_VALID = trade -> trade.isValid();
+	public static final Function<TradeData,Boolean> FILTER_ANY = trade -> true;
 	
 	private final Supplier<? extends ITraderSource> traderSource;
-	private final Function<ITrader, TradeContext> getContext;
+	private final Function<TraderData, TradeContext> getContext;
 	
-	private BiFunction<ITrader,ITradeData,Boolean> isSelected = (trader,trade) -> false;
-	public void setSelectionDefinition(@Nonnull BiFunction<ITrader,ITradeData,Boolean> isSelected) { this.isSelected = isSelected; }
+	private BiFunction<TraderData,TradeData,Boolean> isSelected = (trader,trade) -> false;
+	public void setSelectionDefinition(@Nonnull BiFunction<TraderData,TradeData,Boolean> isSelected) { this.isSelected = isSelected; }
 	
 	private InteractionConsumer interactionConsumer = null;
 	public void setInteractionConsumer(InteractionConsumer consumer) { this.interactionConsumer = consumer; }
@@ -50,25 +50,24 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	private final Consumer<AbstractWidget> addWidget;
 	private final Consumer<TradeButton> removeButton;
-	private final BiConsumer<ITrader,ITradeData> onPress;
-	private final Function<ITradeData,Boolean> tradeFilter;
+	private final BiConsumer<TraderData,TradeData> onPress;
+	private final Function<TradeData,Boolean> tradeFilter;
 	
-	
-	private final int columns;
 	private int scroll = 0;
-	private int lastFittableLines = 0;
 	
 	ScrollBarWidget scrollBar;
 	public ScrollBarWidget getScrollBar() { return this.scrollBar; }
 	
 	private int scrollBarXOffset = 0;
 	
-	public int getAvailableWidth() { return this.scrollBar.visible() && this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width; }
+	//Variant of getAvailableWidth that assumes we'll have the smallest amount of available space.
+	//Assumption is made so that we don't get into an infinite loop calculating the whether we can scroll -> how many rows -> whether we can scroll...
+	public int getMinAvailableWidth() { return this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width; }
+	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width) : this.width; }
 	
-	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<ITrader, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<ITrader,ITradeData> onPress, Function<ITradeData,Boolean> tradeFilter)
+	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<TraderData, TradeContext> getContext, int x, int y, int width, int height, int columns, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<TraderData,TradeData> onPress, Function<TradeData,Boolean> tradeFilter)
 	{
 		super(x, y, width, height, new TextComponent(""));
-		this.columns = columns;
 		this.traderSource = traderSource;
 		this.getContext = getContext;
 		this.addWidget = addWidget;
@@ -91,40 +90,67 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		this.tick();
 	}
 	
-	public ITrader getTrader(int traderIndex) {
+	public TraderData getTrader(int traderIndex) {
 		ITraderSource source = this.traderSource.get();
 		if(source == null)
 			return null;
-		List<ITrader> traders = source.getTraders();
+		List<TraderData> traders = source.getTraders();
 		if(traderIndex < 0 || traderIndex >= traders.size())
 			return null;
 		return traders.get(traderIndex);
 	}
 	
-	public Pair<ITrader,ITradeData> getTradeAndTrader(int displayIndex) { return getTradeAndTrader(this.scroll, displayIndex); }
+	public List<List<Pair<TraderData,TradeData>>> getTradesInRows() {
+		List<List<Pair<TraderData,TradeData>>> result = new ArrayList<>();
+		List<TraderData> traders = this.traderSource.get().getTraders();
+		
+		int currentRowWidth = 0;
+		List<Pair<TraderData,TradeData>> currentRow = new ArrayList<>();
+		
+		for(int i = 0; i < traders.size(); ++i)
+		{
+			TraderData trader = traders.get(i);
+			TradeContext context = this.getContext.apply(trader);
+			List<? extends TradeData> trades = trader.getTradeData();
+			for(int t = 0; t < trades.size(); ++t)
+			{
+				TradeData trade = trades.get(t);
+				if(this.tradeFilter.apply(trade))
+				{
+					int tradeWidth = trade.tradeButtonWidth(context);
+					if(currentRowWidth + tradeWidth > this.getMinAvailableWidth() && currentRow.size() > 0)
+					{
+						//Start new row
+						result.add(currentRow);
+						currentRow = new ArrayList<>();
+						currentRowWidth = 0;
+					}
+					//Add button to row
+					currentRow.add(Pair.of(trader, trade));
+					currentRowWidth += tradeWidth;
+				}
+			}
+		}
+		result.add(currentRow);
+		return result;
+	}
 	
-	public Pair<ITrader,ITradeData> getTradeAndTrader(int assumedScroll, int displayIndex) {
-		int ignoreCount = assumedScroll * this.columns;
+	public Pair<TraderData,TradeData> getTradeAndTrader(int displayIndex) { return getTradeAndTrader(this.scroll, displayIndex); }
+	
+	public Pair<TraderData,TradeData> getTradeAndTrader(int assumedScroll, int displayIndex) {
 		ITraderSource source = this.traderSource.get();
 		if(source == null)
 			return Pair.of(null, null);
-		List<ITrader> traders = source.getTraders();
-		for(int t = 0; t < traders.size(); ++t)
+		List<List<Pair<TraderData,TradeData>>> rows = this.getTradesInRows();
+		for(int r = assumedScroll; r < rows.size(); ++r)
 		{
-			ITrader trader = traders.get(t);
-			List<? extends ITradeData> trades = trader.getTradeInfo();
-			for(int i = 0; i < trades.size(); ++i)
+			List<Pair<TraderData,TradeData>> row = rows.get(r);
+			for(int ri = 0; ri < row.size(); ++ri)
 			{
-				ITradeData trade = trades.get(i);
-				if(trade != null && this.tradeFilter.apply(trade))
-				{
-					if(ignoreCount > 0)
-						ignoreCount--;
-					else if(displayIndex <= 0)
-						return Pair.of(trader, trade);
-					else
-						displayIndex--;
-				}
+				if(displayIndex <= 0)
+					return row.get(ri);
+				else
+					displayIndex--;
 			}
 		}
 		return Pair.of(null, null);
@@ -142,7 +168,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	//Confirms each trades validity
 	public void tick() {
 		this.validateScroll();
-		if(this.lastFittableLines < this.fittableLines())
+		if(this.allButtons.size() < this.fittableLines())
 		{
 			//If we need to add more lines, recreate the buttons
 			this.resetButtons();
@@ -165,19 +191,14 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		this.allButtons.forEach(button -> this.removeButton.accept(button));
 		this.allButtons.clear();
 		
-		int displayIndex = 0;
-		this.lastFittableLines = this.fittableLines();
-		for(int line = 0; line < this.lastFittableLines; ++line)
+		int requiredButtons = this.requiredButtons();
+		for(int i = 0; i < requiredButtons; i++)
 		{
-			for(int c = 0; c < this.columns; ++c)
-			{
-				final int di = displayIndex;
-				//Create the trade button
-				TradeButton newButton = new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di));
-				this.addWidget.accept(newButton);
-				this.allButtons.add(newButton);
-				displayIndex++;
-			}
+			final int di = i;
+			//Create the trade button
+			TradeButton newButton = new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di));
+			this.addWidget.accept(newButton);
+			this.allButtons.add(newButton);
 		}
 		
 		this.repositionButtons();
@@ -189,11 +210,11 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		if(ts == null)
 			return 0;
 		int count = 0;
-		List<ITrader> traders = ts.getTraders();
-		for(ITrader trader : traders)
+		List<TraderData> traders = ts.getTraders();
+		for(TraderData trader : traders)
 		{
-			List<? extends ITradeData> trades = trader.getTradeInfo();
-			for(ITradeData trade : trades)
+			List<? extends TradeData> trades = trader.getTradeData();
+			for(TradeData trade : trades)
 			{
 				if(trade != null && this.tradeFilter.apply(trade))
 					count++;
@@ -202,69 +223,45 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		return count;
 	}
 	
-	private int fittableLines()
-	{
-		return fittableLines(this.scroll);
+	private int requiredButtons() {
+		List<List<Pair<TraderData,TradeData>>> rows = this.getTradesInRows();
+		int count = 0;
+		int lines = this.fittableLines();
+		for(int r = this.scroll; r < rows.size() && r < this.scroll + lines; ++r)
+			count += rows.get(r).size();
+		return count;
 	}
 	
-	private int fittableLines(int assumedScroll) {
-		int lineCount = 0;
-		int displayIndex = 0;
-		int yOffset = 0;
-		while(yOffset < this.height)
-		{
-			int lineHeight = 0;
-			//Get relevant info for the buttons in this row
-			for(int c = 0; c < this.columns; ++c)
-			{
-				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(assumedScroll, displayIndex);
-				if(trade.getFirst() != null && trade.getSecond() != null)
-				{
-					TradeContext context = this.getContext.apply(trade.getFirst());
-					lineHeight = Math.max(trade.getSecond().tradeButtonHeight(context), lineHeight);
-				}
-				displayIndex ++;
-			}
-			if(lineHeight <= 0) //Assume some height to a line even if the trade doesn't exist to prevent the calculation of "infinite" fittable lines.
-				lineHeight = TradeButton.ASSUME_HEIGHT;
-			if(yOffset + lineHeight > this.height)
-				return lineCount;
-			yOffset += lineHeight + 4;
-			lineCount++;
-		}
-		return lineCount;
-	}
+	private int fittableLines() { return this.height / (TradeButton.BUTTON_HEIGHT + 4); }
 	
 	private void repositionButtons() {
 		
 		int displayIndex = 0;
-		int queryIndex = 0;
 		int yOffset = 0;
 		int fittableLines = this.fittableLines();
-		for(int line = 0; line < fittableLines; ++line)
+		List<List<Pair<TraderData,TradeData>>> rows = this.getTradesInRows();
+		for(int line = 0; line < fittableLines && line + this.scroll < rows.size(); ++line)
 		{
-			int lineHeight = 0;
+			List<Pair<TraderData,TradeData>> row = rows.get(line + this.scroll);
 			int visibleButtons = 0;
 			int totalWidth = 0;
 			//Get relevant info for the buttons in this row
-			for(int c = 0; c < this.columns; ++c)
+			for(int c = 0; c < row.size(); ++c)
 			{
-				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(queryIndex);
+				Pair<TraderData,TradeData> trade = row.get(c);
 				if(trade.getFirst() != null && trade.getSecond() != null)
 				{
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					visibleButtons++;
 					totalWidth += trade.getSecond().tradeButtonWidth(context);
-					lineHeight = Math.max(trade.getSecond().tradeButtonHeight(context), lineHeight);
 				}
-				queryIndex++;
 			}
 			//Position the buttons in this row
 			int spacing = (this.getAvailableWidth() - totalWidth)/(visibleButtons + 1);
 			int xOffset = spacing;
-			for(int c = 0; c < this.columns; ++c)
+			for(int c = 0; c < row.size(); ++c)
 			{
-				Pair<ITrader,ITradeData> trade = this.getTradeAndTrader(displayIndex);
+				Pair<TraderData,TradeData> trade = row.get(c);
 				TradeButton button = this.allButtons.get(displayIndex);
 				if(trade.getFirst() != null && trade.getSecond() != null)
 				{
@@ -273,15 +270,17 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 					button.visible = true;
 					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
 					xOffset += trade.getSecond().tradeButtonWidth(context) + spacing;
+					
 				}
 				else
 					button.visible = false;
-				displayIndex ++;
+				displayIndex++;
+				
 			}
-			yOffset += lineHeight + 4;
+			yOffset += TradeButton.BUTTON_HEIGHT + 4;
 		}
 		//Hide spare/extra buttons
-		for(int i = fittableLines * this.columns; i < this.allButtons.size(); ++i)
+		for(int i = displayIndex; i < this.allButtons.size(); ++i)
 		{
 			this.allButtons.get(i).visible = false;
 		}
@@ -292,7 +291,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	{
 		if(this.onPress != null)
 		{
-			Pair<ITrader,ITradeData> data = this.getTradeAndTrader(displayIndex);
+			Pair<TraderData,TradeData> data = this.getTradeAndTrader(displayIndex);
 			this.onPress.accept(data.getFirst(), data.getSecond());
 		}
 	}
@@ -304,7 +303,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			return;
 		
 		String text = "";
-		for(ITrader trader : ts.getTraders())
+		for(TraderData trader : ts.getTraders())
 		{
 			if(text.isEmpty())
 				text = renderTitle ? trader.getTitle().getString() : trader.getName().getString();
@@ -333,7 +332,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			ITraderSource ts = this.traderSource.get();
 			if(ts == null)
 				return;
-			for(ITrader trader : ts.getTraders())
+			for(TraderData trader : ts.getTraders())
 				tooltips.add(trader.getTitle());
 			
 			if(tooltips.size() <= 0)
@@ -346,7 +345,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	private boolean canScrollDown() { return this.canScrollDown(this.scroll); }
 	
 	private boolean canScrollDown(int assumedScroll) {
-		return this.validTrades() - (assumedScroll * this.columns) > this.fittableLines(assumedScroll) * this.columns;
+		return this.getTradesInRows().size() - assumedScroll > this.fittableLines();
 	}
 	
 	@Override
@@ -381,7 +380,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			TradeButton b = this.allButtons.get(i);
 			if(b.isMouseOver(mouseX, mouseY))
 			{
-				Pair<ITrader,ITradeData> traderPair = this.getTradeAndTrader(i);
+				Pair<TraderData,TradeData> traderPair = this.getTradeAndTrader(i);
 				TradeContext context = this.getContext.apply(traderPair.getFirst());
 				if(context.isStorageMode)
 				{
@@ -408,9 +407,9 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	public boolean isMouseOver(double mouseX, double mouseY) { return true; }
 	
 	public interface InteractionConsumer {
-		public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton);
-		public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton);
-		public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton);
+		public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);
+		public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton);
+		public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton);
 	}
 
 	@Override

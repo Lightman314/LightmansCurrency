@@ -1,14 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamBankAccountTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamMemberEditTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamMemberListTab;
@@ -18,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.team.TeamSelectionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -45,17 +44,17 @@ public class TeamManagerScreen extends Screen{
 	public final int xSize = 200;
 	public final int ySize = 200;
 	
-	private UUID activeTeamID = null;
+	private long activeTeamID = -1;
 	public Team getActiveTeam()
 	{
-		if(this.activeTeamID == null)
+		if(this.activeTeamID < 0)
 			return null;
-		Team team = ClientTradingOffice.getTeam(this.activeTeamID);
+		Team team = TeamSaveData.GetTeam(true, this.activeTeamID);
 		if(team != null && team.isMember(this.getPlayer()))
 			return team;
 		return null;
 	}
-	public void setActiveTeam(UUID teamID) { this.activeTeamID = teamID; }
+	public void setActiveTeam(long teamID) { this.activeTeamID = teamID; }
 	
 	List<AbstractWidget> tabWidgets = Lists.newArrayList();
 	List<GuiEventListener> tabListeners = Lists.newArrayList();
@@ -163,7 +162,7 @@ public class TeamManagerScreen extends Screen{
 	@Override
 	public void tick()
 	{
-		if(this.activeTeamID == null && this.currentTabIndex != 0)
+		if(this.activeTeamID < 0 && this.currentTabIndex != 0)
 		{
 			this.changeTab(0);
 		}

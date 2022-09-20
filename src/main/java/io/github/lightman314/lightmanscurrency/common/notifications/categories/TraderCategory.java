@@ -2,27 +2,30 @@ package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class TraderCategory extends Category {
+public class TraderCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"trader");
 	
 	private final Item trader;
-	private final Component traderName;
-	public Component getTraderName() { return this.traderName; }
+	private final long traderID;
+	private final MutableComponent traderName;
+	public MutableComponent getTraderName() { return this.traderName; }
 	
-	public TraderCategory(ItemLike trader, Component traderName) {
+	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID) {
 		this.trader = trader.asItem();
 		this.traderName = traderName;
+		this.traderID = traderID;
 	}
 	
 	public TraderCategory(CompoundTag compound) {
@@ -37,22 +40,33 @@ public class TraderCategory extends Category {
 		else
 			this.traderName = new TranslatableComponent("gui.lightmanscurrency.universaltrader.default");
 		
+		if(compound.contains("TraderID"))
+			this.traderID = compound.getLong("TraderID");
+		else
+			this.traderID = -1;
+		
 	}
 
 	@Override
 	public IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override
-	public Component getTooltip() { return this.traderName; }
+	public MutableComponent getName() { return this.traderName; }
 
 	@Override
 	public ResourceLocation getType() { return TYPE; }
 	
 	@Override
-	public boolean matches(Category other) {
+	public boolean matches(NotificationCategory other) {
 		if(other instanceof TraderCategory)
 		{
 			TraderCategory otherTrader = (TraderCategory)other;
+			if(this.traderID >= 0)
+			{
+				//Check if the trader id matches
+				if(this.traderID == otherTrader.traderID)
+					return true;
+			}
 			//Confirm the trader name matches.
 			if(!this.traderName.getString().contentEquals(otherTrader.traderName.getString()) || !this.trader.equals(otherTrader.trader))
 				return false;
@@ -62,8 +76,9 @@ public class TraderCategory extends Category {
 	}
 	
 	public void saveAdditional(CompoundTag compound) {
-		compound.putString("Icon", this.trader.getRegistryName().toString());
+		compound.putString("Icon", ForgeRegistries.ITEMS.getKey(this.trader).toString());
 		compound.putString("TraderName", Component.Serializer.toJson(this.traderName));
+		compound.putLong("TraderID", this.traderID);
 	}
 	
 	

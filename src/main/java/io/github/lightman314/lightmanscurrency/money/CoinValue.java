@@ -18,6 +18,8 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -45,21 +47,21 @@ public class CoinValue
 	public CoinValue(CompoundTag compound)
 	{
 		this.coinValues = new ArrayList<>();
-		this.readFromNBT(compound, DEFAULT_KEY);
+		this.load(compound, DEFAULT_KEY);
 		this.roundValue();
 	}
 	
 	public CoinValue(long rawValue)
 	{
 		this.coinValues = new ArrayList<>();
-		this.readFromOldValue(rawValue);
+		this.loadFromOldValue(rawValue);
 		this.roundValue();
 	}
 	
 	public CoinValue(NonNullList<ItemStack> inventory)
 	{
 		this.coinValues = new ArrayList<>();
-		this.readFromOldValue(MoneyUtil.getValue(inventory));
+		this.loadFromOldValue(MoneyUtil.getValue(inventory));
 		this.roundValue();
 	}
 	
@@ -116,7 +118,7 @@ public class CoinValue
 		}
 	}
 	
-	public CompoundTag writeToNBT(CompoundTag compound, String key)
+	public CompoundTag save(CompoundTag compound, String key)
 	{
 		if(this.isFree)
 		{
@@ -129,7 +131,7 @@ public class CoinValue
     		{
     			CompoundTag thisCompound = new CompoundTag();
     			//new ItemStack(null).write(nbt)
-				ResourceLocation resource = value.coin.getRegistryName();
+				ResourceLocation resource = ForgeRegistries.ITEMS.getKey(value.coin);
     			if(resource != null && MoneyUtil.isCoin(value.coin))
     			{
     				thisCompound.putString("id", resource.toString());
@@ -143,12 +145,12 @@ public class CoinValue
 		return compound;
 	}
 	
-	public void readFromNBT(CompoundTag compound, String key)
+	public void load(CompoundTag compound, String key)
 	{
 		if(compound.contains(key, Tag.TAG_INT))
 		{
 			//Read old value
-			this.readFromOldValue(compound.getInt(key));
+			this.loadFromOldValue(compound.getInt(key));
 		}
 		else if(compound.contains(key, Tag.TAG_LIST))
 		{
@@ -174,7 +176,7 @@ public class CoinValue
 		
 	}
 	
-	public void readFromOldValue(long oldPrice)
+	public void loadFromOldValue(long oldPrice)
 	{
 		this.coinValues.clear();
 		List<ItemStack> coinItems = MoneyUtil.getCoinsOfValue(oldPrice);
@@ -225,14 +227,14 @@ public class CoinValue
 	public void addValue(Item coin, int amount)
 	{
 		long newValue = this.getRawValue() + (MoneyUtil.getValue(coin) * amount);
-		this.readFromOldValue(newValue);
+		this.loadFromOldValue(newValue);
 		this.roundValue();
 	}
 	
 	public void removeValue(Item coin, int amount)
 	{
 		long newValue = this.getRawValue() - (MoneyUtil.getValue(coin) * amount);
-		this.readFromOldValue(newValue);
+		this.loadFromOldValue(newValue);
 		this.roundValue();
 	}
 	
@@ -241,7 +243,7 @@ public class CoinValue
 		long otherVal = otherValue.getRawValue();
 		if(otherVal > thisValue)
 			throw new RuntimeException("Other Coin Value is greater than this value.");
-		this.readFromOldValue(thisValue - otherVal);
+		this.loadFromOldValue(thisValue - otherVal);
 	}
 	
 	private void roundValue()
@@ -401,6 +403,10 @@ public class CoinValue
 		
 	}
 	
+	public MutableComponent getComponent() { return this.getComponent(""); }
+	
+	public MutableComponent getComponent(String emptyFiller) { return new TextComponent(this.getString(emptyFiller)); }
+	
 	public long getRawValue()
 	{
 		long value = 0;
@@ -559,14 +565,14 @@ public class CoinValue
 				JsonObject coinData = list.get(i).getAsJsonObject();
 				Item coinItem = Items.AIR;
 				int quantity = 1;
-				if(coinData.has("coin"))
-					coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(coinData.get("coin").getAsString()));
-				if(coinData.has("count"))
-					quantity = coinData.get("count").getAsInt();
+				if(coinData.has("Coin"))
+					coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(coinData.get("Coin").getAsString()));
+				if(coinData.has("Count"))
+					quantity = coinData.get("Count").getAsInt();
 				if(quantity <= 0)
 					LightmansCurrency.LogWarning("Coin Count (" + quantity + ") is <= 0. Entry will be ignored.");
 				else if(!MoneyUtil.isCoin(coinItem))
-					LightmansCurrency.LogWarning("Coin Item (" + coinItem.getRegistryName() + ") is not a valid coin. Entry will be ignored.");
+					LightmansCurrency.LogWarning("Coin Item (" + ForgeRegistries.ITEMS.getKey(coinItem) + ") is not a valid coin. Entry will be ignored.");
 				else
 					pairs.add(new CoinValuePair(coinItem, quantity));
 			}
@@ -587,8 +593,8 @@ public class CoinValue
 			{
 				JsonObject entry = new JsonObject();
 				CoinValuePair pair = this.coinValues.get(i);
-				entry.addProperty("coin", pair.coin.getRegistryName().toString());
-				entry.addProperty("count", pair.amount);
+				entry.addProperty("Coin", ForgeRegistries.ITEMS.getKey(pair.coin).toString());
+				entry.addProperty("Count", pair.amount);
 				array.add(entry);
 			}
 			return array;

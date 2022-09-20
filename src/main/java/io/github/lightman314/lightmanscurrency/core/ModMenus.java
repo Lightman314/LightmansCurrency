@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
 import io.github.lightman314.lightmanscurrency.menus.*;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuAllUniversal;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu.TraderMenuUniversal;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.TraderStorageMenuUniversal;
+import io.github.lightman314.lightmanscurrency.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.blockentity.*;
@@ -28,23 +26,19 @@ public class ModMenus {
 		}));
 		
 		TRADER = ModRegistries.MENUS.register("trader", () -> new MenuType<>((IContainerFactory<TraderMenu>)(id, playerInventory,data) ->{
-			return new TraderMenu(id, playerInventory, data.readBlockPos());
+			return new TraderMenu(id, playerInventory, data.readLong());
 		}));
 		
-		TRADER_UNIVERSAL = ModRegistries.MENUS.register("trader_universal", () -> new MenuType<>((IContainerFactory<TraderMenuUniversal>)(id, playerInventory,data) ->{
-			return new TraderMenuUniversal(id, playerInventory, data.readUUID());
+		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> new MenuType<>((IContainerFactory<TraderMenuBlockSource>)(id, playerInventory, data) ->{
+			return new TraderMenuBlockSource(id, playerInventory, data.readBlockPos());
 		}));
 		
-		TRADER_UNIVERSAL_ALL = ModRegistries.MENUS.register("trader_universal_all", () -> new MenuType<>((IContainerFactory<TraderMenuAllUniversal>)(id, playerInventory,data) ->{
-			return new TraderMenuAllUniversal(id, playerInventory);
+		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> new MenuType<>((IContainerFactory<TraderMenuAllNetwork>)(id, playerInventory,data) ->{
+			return new TraderMenuAllNetwork(id, playerInventory);
 		}));
 		
 		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> new MenuType<>((IContainerFactory<TraderStorageMenu>)(id, playerInventory,data) ->{
-			return new TraderStorageMenu(id, playerInventory, data.readBlockPos());
-		}));
-		
-		TRADER_STORAGE_UNIVERSAL = ModRegistries.MENUS.register("trader_storage_universal", () -> new MenuType<>((IContainerFactory<TraderStorageMenuUniversal>)(id, playerInventory,data) ->{
-			return new TraderStorageMenuUniversal(id, playerInventory, data.readUUID());
+			return new TraderStorageMenu(id, playerInventory, data.readLong());
 		}));
 		
 		WALLET = ModRegistries.MENUS.register("wallet", () -> new MenuType<>((IContainerFactory<WalletMenu>)(id, playerInventory, data) ->{
@@ -77,12 +71,11 @@ public class ModMenus {
 	
 	//Any Trader
 	public static final RegistryObject<MenuType<TraderMenu>> TRADER;
-	public static final RegistryObject<MenuType<TraderMenuUniversal>> TRADER_UNIVERSAL;
-	public static final RegistryObject<MenuType<TraderMenuAllUniversal>> TRADER_UNIVERSAL_ALL;
+	public static final RegistryObject<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
+	public static final RegistryObject<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
 	
 	//Any Trader Storage
 	public static final RegistryObject<MenuType<TraderStorageMenu>> TRADER_STORAGE;
-	public static final RegistryObject<MenuType<TraderStorageMenuUniversal>> TRADER_STORAGE_UNIVERSAL;
 	
 	public static final RegistryObject<MenuType<WalletMenu>> WALLET;
 	public static final RegistryObject<MenuType<WalletBankMenu>> WALLET_BANK;

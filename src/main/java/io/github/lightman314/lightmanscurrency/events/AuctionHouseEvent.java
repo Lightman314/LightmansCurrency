@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.events;
 import java.util.List;
 import java.util.Objects;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.AuctionTradeData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;

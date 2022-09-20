@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -14,13 +12,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.OwnershipTab;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
@@ -33,7 +32,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.owner"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.owner"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -43,7 +42,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	TeamSelectWidget teamSelection;
 	Button buttonSetTeamOwner;
 	
-	UUID selectedTeam = null;
+	long selectedTeam = -1;
 	List<Team> teamList = Lists.newArrayList();
 	
 	IconButton buttonToggleMode;
@@ -82,15 +81,15 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	
 	private Team getSelectedTeam()
 	{
-		if(this.selectedTeam == null)
+		if(this.selectedTeam < 0)
 			return null;
-		return ClientTradingOffice.getTeam(this.selectedTeam);
+		return TeamSaveData.GetTeam(true, this.selectedTeam);
 	}
 	
 	private void refreshTeamList()
 	{
 		this.teamList = Lists.newArrayList();
-		List<Team> allTeams = ClientTradingOffice.getTeamList();
+		List<Team> allTeams = TeamSaveData.GetAllTeams(true);
 		allTeams.forEach(team ->{
 			if(team.isMember(this.menu.player))
 				this.teamList.add(team);
@@ -147,10 +146,10 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	}
 	
 	private void setTeamOwner(Button button) {
-		if(this.selectedTeam == null)
+		if(this.selectedTeam < 0)
 			return;
 		this.commonTab.setNewTeam(this.selectedTeam);
-		this.selectedTeam = null;
+		this.selectedTeam = -1;
 	}
 	
 	private void selectTeam(int teamIndex)
@@ -158,8 +157,8 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 		Team newTeam = this.getTeam(teamIndex);
 		if(newTeam != null)
 		{
-			if(newTeam.getID().equals(this.selectedTeam))
-				this.selectedTeam = null;
+			if(newTeam.getID() == this.selectedTeam)
+				this.selectedTeam = -1;
 			else
 				this.selectedTeam = newTeam.getID();
 		}
@@ -181,7 +180,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 	@Override
 	public void onClose() {
 		//Reset the selected team & team list to save space
-		this.selectedTeam = null;
+		this.selectedTeam = -1;
 		this.teamList = Lists.newArrayList();
 	}
 

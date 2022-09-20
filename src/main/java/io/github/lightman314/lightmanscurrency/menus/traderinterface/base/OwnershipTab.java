@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.menus.traderinterface.base;
 
-import java.util.UUID;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -50,14 +49,14 @@ public class OwnershipTab extends TraderInterfaceTab {
 		}
 	}
 	
-	public void setNewTeam(UUID team) {
-		if(this.isAdmin() && team != null)
+	public void setNewTeam(long team) {
+		if(this.isAdmin() && team >= 0)
 		{
 			this.menu.getBE().setTeam(team);
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				message.putUUID("NewTeam", team);
+				message.putLong("NewTeam", team);
 				this.menu.sendMessage(message);
 			}
 		}
@@ -71,7 +70,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 		}
 		if(message.contains("NewTeam"))
 		{
-			this.setNewTeam(message.getUUID("NewTeam"));
+			this.setNewTeam(message.getLong("NewTeam"));
 		}
 	}
 

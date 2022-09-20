@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -16,9 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
@@ -49,7 +48,7 @@ public class TransferTab extends ATMTab {
 	IconButton buttonToggleMode;
 	Button buttonTransfer;
 	
-	UUID selectedTeam = null;
+	long selectedTeam = -1;
 	
 	boolean playerMode = true;
 	
@@ -92,8 +91,8 @@ public class TransferTab extends ATMTab {
 		AccountReference source = this.screen.getMenu().getBankAccountReference();
 		Team blockTeam = null;
 		if(source != null && source.accountType == AccountType.Team)
-			blockTeam = ClientTradingOffice.getTeam(source.id);
-		for(Team team : ClientTradingOffice.getTeamList())
+			blockTeam = TeamSaveData.GetTeam(true, source.teamID);
+		for(Team team : TeamSaveData.GetAllTeams(true))
 		{
 			if(team.hasBankAccount() && team != blockTeam)
 				results.add(team);
@@ -103,8 +102,8 @@ public class TransferTab extends ATMTab {
 	
 	public Team selectedTeam()
 	{
-		if(this.selectedTeam != null)
-			return ClientTradingOffice.getTeam(this.selectedTeam);
+		if(this.selectedTeam >= 0)
+			return TeamSaveData.GetTeam(true, this.selectedTeam);
 		return null;
 	}
 	
@@ -112,7 +111,7 @@ public class TransferTab extends ATMTab {
 	{
 		try {
 			Team team = this.getTeamList().get(teamIndex);
-			if(team.getID().equals(this.selectedTeam))
+			if(team.getID() == this.selectedTeam)
 				return;
 			this.selectedTeam = team.getID();
 		} catch(Exception e) { }
@@ -126,7 +125,7 @@ public class TransferTab extends ATMTab {
 			this.playerInput.setValue("");
 			this.amountWidget.setCoinValue(CoinValue.EMPTY);
 		}
-		else if(this.selectedTeam != null)
+		else if(this.selectedTeam >= 0)
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageBankTransferTeam(this.selectedTeam, this.amountWidget.getCoinValue()));
 			this.amountWidget.setCoinValue(CoinValue.EMPTY);

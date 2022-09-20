@@ -18,6 +18,8 @@ public class UpgradeInputSlot extends SimpleSlot{
 	private final IUpgradeable machine;
 	private final IMessage onModified;
 	
+	public UpgradeInputSlot(Container inventory, int index, int x, int y, IUpgradeable machine) { this(inventory, index, x, y, machine, () -> {}); }
+	
 	public UpgradeInputSlot(Container inventory, int index, int x, int y, IUpgradeable machine, IMessage onModified)
 	{
 		super(inventory, index, x, y);

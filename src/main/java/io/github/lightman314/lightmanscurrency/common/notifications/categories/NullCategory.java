@@ -2,14 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification.Category;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
-public class NullCategory extends Category {
+public class NullCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "null");
 	
@@ -21,13 +21,13 @@ public class NullCategory extends Category {
 	public IconData getIcon() { return IconData.of(Items.BARRIER); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TextComponent("NULL"); }
+	public MutableComponent getName() { return new TextComponent("NULL"); }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public boolean matches(Category other) { return other instanceof NullCategory; }
+	public boolean matches(NotificationCategory other) { return other instanceof NullCategory; }
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) { }

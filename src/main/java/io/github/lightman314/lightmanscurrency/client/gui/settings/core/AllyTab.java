@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -10,12 +9,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsS
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.CoreTraderSettings;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
@@ -43,10 +42,10 @@ public class AllyTab extends SettingsTab {
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.ally"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.ally"); }
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(Permissions.ADD_REMOVE_ALLIES); }
+	public boolean canOpen() { return this.hasPermissions(Permissions.ADD_REMOVE_ALLIES); }
 
 	@Override
 	public void initTab() {
@@ -77,7 +76,7 @@ public class AllyTab extends SettingsTab {
 	private List<Component> getAllyList()
 	{
 		List<Component> list = Lists.newArrayList();
-		this.getSetting(CoreTraderSettings.class).getAllies().forEach(ally -> list.add(new TextComponent(ally.lastKnownName())));
+		this.getScreen().getTrader().getAllies().forEach(ally -> list.add(new TextComponent(ally.lastKnownName())));
 		return list;
 	}
 	
@@ -93,19 +92,19 @@ public class AllyTab extends SettingsTab {
 
 	private void AddAlly(Button button)
 	{
-		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
 		String allyName = this.nameInput.getValue();
-		CompoundTag updateInfo = settings.addAlly(this.getPlayer(), allyName);
-		settings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putString("AddAlly", allyName);
+		this.sendNetworkMessage(message);
 		this.nameInput.setValue("");
 	}
 	
 	private void RemoveAlly(Button button)
 	{
-		CoreTraderSettings settings = this.getSetting(CoreTraderSettings.class);
 		String allyName = this.nameInput.getValue();
-		CompoundTag updateInfo = settings.removeAlly(this.getPlayer(), allyName);
-		settings.sendToServer(updateInfo);
+		CompoundTag message = new CompoundTag();
+		message.putString("RemoveAlly", allyName);
+		this.sendNetworkMessage(message);
 		this.nameInput.setValue("");
 	}
 	

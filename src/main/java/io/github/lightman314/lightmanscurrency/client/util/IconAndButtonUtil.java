@@ -8,26 +8,25 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -42,7 +41,7 @@ public class IconAndButtonUtil {
 	
 	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png");
 
-	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE.get());
+	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
 	public static final IconData ICON_STORAGE = IconData.of(Items.CHEST);
 	
 	public static final IconData ICON_COLLECT_COINS = IconData.of(ICON_TEXTURE, 0, 0);
@@ -65,7 +64,7 @@ public class IconAndButtonUtil {
 	
 	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
 	
-	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER.get());
+	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
 	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
@@ -150,16 +149,16 @@ public class IconAndButtonUtil {
 		return button;
 	}
 	
-	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<ITrader> traderSource) {
+	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<TraderData> traderSource) {
 		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() }));
 		button.setVisiblityCheck(() -> {
-			ITrader trader = traderSource.get();
+			TraderData trader = traderSource.get();
 			if(trader == null)
 				return false;
-			return trader.hasPermission(player, Permissions.COLLECT_COINS) && !trader.getCoreSettings().hasBankAccount();
+			return trader.hasPermission(player, Permissions.COLLECT_COINS) && !trader.hasBankAccount();
 		});
 		button.setActiveCheck(() -> {
-			ITrader trader = traderSource.get();
+			TraderData trader = traderSource.get();
 			if(trader == null)
 				return false;
 			return trader.getInternalStoredMoney().getRawValue() > 0;
@@ -193,7 +192,11 @@ public class IconAndButtonUtil {
 	public static PlainButton quickInsertButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0); }
 	public static PlainButton quickExtractButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0); }
 	
-	public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
+	public static PlainButton checkmarkButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) {
+		return new PlainButton(x, y, 10, 10, pressable, TraderSettingsScreen.GUI_TEXTURE, () -> Pair.of(10, isActive.get() ? 200 : 220));
+	}
+	
+	//public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	
 	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<InteractionType> blacklist) {
 		List<Component> options = new ArrayList<>();

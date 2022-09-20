@@ -1,11 +1,9 @@
 package io.github.lightman314.lightmanscurrency.menus;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
@@ -34,10 +32,8 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
-	private final List<EjectionData> getEjectionData() { return this.isClient() ? ClientTradingOffice.getEjectionData() : TradingOffice.getEjectionData(); }
-	
 	public List<EjectionData> getValidEjectionData() {
-		return this.getEjectionData().stream().filter(e -> e.canAccess(this.player)).collect(Collectors.toList());
+		return EjectionSaveData.GetValidEjectionData(this.isClient(), this.player);
 	}
 	
 	private int selectedIndex = 0;

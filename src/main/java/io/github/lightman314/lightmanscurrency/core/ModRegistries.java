@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomPointsOfInterest;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.CustomProfessions;
 import io.github.lightman314.lightmanscurrency.loot.LootModifiers;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.inventory.MenuType;
@@ -53,9 +54,17 @@ public class ModRegistries {
 		POI_TYPES.register(bus);
 		CustomPointsOfInterest.init();
 		
+		//Sound Events
+		SOUND_EVENTS.register(bus);
+		ModSounds.init();
+		
 		//Global Loot Modifiers
 		GLOBAL_LOOT_MODIFIERS.register(bus);
 		LootModifiers.init();
+		
+		//Command Argument Types
+		//COMMAND_ARGUMENT_TYPES.register(bus);
+		ModCommandArguments.init();
 		
 	}
 	
@@ -75,5 +84,7 @@ public class ModRegistries {
     public static final DeferredRegister<PoiType> POI_TYPES = DeferredRegister.create(ForgeRegistries.POI_TYPES, LightmansCurrency.MODID);
 	
     public static final DeferredRegister<GlobalLootModifierSerializer<?>> GLOBAL_LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.LOOT_MODIFIER_SERIALIZERS, LightmansCurrency.MODID);
+    
+    public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.Keys.SOUND_EVENTS, LightmansCurrency.MODID);
     
 }

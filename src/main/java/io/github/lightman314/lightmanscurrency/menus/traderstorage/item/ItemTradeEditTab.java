@@ -4,14 +4,14 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ItemTradeEditClientTab;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.IItemTrader;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData.ItemTradeType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -33,16 +33,16 @@ public class ItemTradeEditTab extends TraderStorageTab{
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public ItemTradeData getTrade() { 
-		if(this.menu.getTrader() instanceof IItemTrader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			IItemTrader trader = (IItemTrader)this.menu.getTrader();
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				this.menu.sendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
 				return null;
 			}
-			return ((IItemTrader)this.menu.getTrader()).getTrade(this.tradeIndex);
+			return ((ItemTraderData)this.menu.getTrader()).getTrade(this.tradeIndex);
 		}
 		return null;
 	}
@@ -98,7 +98,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.writeToNBT(message, "NewPrice");
+				price.save(message, "NewPrice");
 				this.menu.sendMessage(message);
 			}
 		}
@@ -134,7 +134,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 				this.menu.sendMessage(message);
 			}
 		}
-
+		
 	}
 
 	@Override
@@ -158,7 +158,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 		else if(message.contains("NewPrice"))
 		{
 			CoinValue price = new CoinValue();
-			price.readFromNBT(message, "NewPrice");
+			price.load(message, "NewPrice");
 			this.setPrice(price);
 		}
 		else if(message.contains("NewType"))

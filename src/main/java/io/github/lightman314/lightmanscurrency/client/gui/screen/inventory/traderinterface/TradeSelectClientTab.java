@@ -7,13 +7,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TradeSelectTab;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTab> {
@@ -21,10 +21,10 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	public TradeSelectClientTab(TraderInterfaceScreen screen, TradeSelectTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
+	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trade"); }
+	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trade"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -70,18 +70,18 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 		}
 	}
 	
-	private boolean isTradeSelected(ITrader trader, ITradeData trade) {
+	private boolean isTradeSelected(TraderData trader, TradeData trade) {
 		return this.menu.getBE().getTrueTrade() == trade;
 	}
 	
-	private int getTradeIndex(ITrader trader, ITradeData trade) {
-		List<? extends ITradeData> trades = trader.getTradeInfo();
+	private int getTradeIndex(TraderData trader, TradeData trade) {
+		List<? extends TradeData> trades = trader.getTradeData();
 		if(trades != null)
 			return trades.indexOf(trade);
 		return -1;
 	}
 	
-	private void SelectTrade(ITrader trader, ITradeData trade) {
+	private void SelectTrade(TraderData trader, TradeData trade) {
 		
 		this.commonTab.setTradeIndex(this.getTradeIndex(trader, trade));
 		

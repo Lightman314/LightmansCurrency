@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemTraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.trader.common.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.ConfigurableSidedHandler;
+import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;

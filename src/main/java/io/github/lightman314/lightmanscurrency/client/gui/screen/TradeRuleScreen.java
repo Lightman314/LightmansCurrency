@@ -3,14 +3,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Supplier;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.*;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.*;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule.GUIHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
@@ -19,6 +26,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -26,17 +34,6 @@ import net.minecraft.resources.ResourceLocation;
 public class TradeRuleScreen extends Screen{
 	
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/traderules.png");
-	private static final List<Supplier<TradeRule>> REGISTERED_RULES = new ArrayList<>();
-	
-	public static void RegisterTradeRule(Supplier<TradeRule> rule)
-	{
-		REGISTERED_RULES.forEach(registeredRule ->
-		{
-			if(registeredRule.get().type == rule.get().type)
-				return;
-		});
-		REGISTERED_RULES.add(rule);
-	}
 	
 	public final int xSize = 176;
 	public final int ySize = 176;
@@ -44,7 +41,21 @@ public class TradeRuleScreen extends Screen{
 	public final int guiLeft() { return (this.width - this.xSize) / 2; }
 	public final int guiTop() { return (this.height - this.ySize) / 2; }
 	
-	final ITradeRuleScreenHandler handler;
+	private final long traderID;
+	private final int tradeIndex;
+	
+	private TraderData getTrader() { return TraderSaveData.GetTrader(true, this.traderID); }
+	private TradeData getTrade() { return this.getTrader().getTradeData().get(this.tradeIndex); }
+	
+	private boolean stillValid() {
+		try {
+			if(this.getTrader() == null || this.tradeIndex >= 0 && this.getTrade() == null)
+				return false;
+			if(!this.getTrader().hasPermission(this.minecraft.player, Permissions.EDIT_TRADE_RULES))
+				return false;
+		} catch(Throwable t) { return false; }
+		return true;
+	}
 	
 	int openTab = -1;
 	
@@ -52,41 +63,27 @@ public class TradeRuleScreen extends Screen{
 	
 	List<Button> tabButtons = new ArrayList<>();
 	
-	//Manager tab values
-	List<Button> removeRuleButtons = new ArrayList<>();
-	List<Button> addRuleButtons = new ArrayList<>();
+	List<Button> toggleRuleButtons = new ArrayList<>();
 	
-	
-	
-	List<TradeRule> activeRules() { return this.handler.ruleHandler().getRules(); }
+	private List<TradeRule> getTradeRules() {
+		if(this.tradeIndex < 0)
+			return this.getTrader().getRules();
+		else
+			return this.getTrade().getRules();
+	}
 	TradeRule currentRule()
 	{
-		if(this.openTab >= 0 && this.openTab < activeRules().size())
-			return activeRules().get(this.openTab);
+		if(this.openTab >= 0 && this.openTab < this.getTradeRules().size())
+			return this.getTradeRules().get(this.openTab);
 		return null;
 	}
-	TradeRule.GUIHandler currentGUIHandler = null;
+	GUIHandler currentGUIHandler = null;
 	
-	List<TradeRule> addableRules()
-	{
-		List<TradeRule> addableRules = new ArrayList<>();
-		REGISTERED_RULES.forEach(rule -> addableRules.add(rule.get()));
-		
-		this.activeRules().forEach(rule -> {
-			for(int i = 0; i < addableRules.size(); i++)
-			{
-				if(addableRules.get(i).type == rule.type)
-					addableRules.remove(i);
-			}
-		});
-		
-		return addableRules;
-	}
-	
-	public TradeRuleScreen(ITradeRuleScreenHandler handler)
+	public TradeRuleScreen(long traderID, int tradeIndex)
 	{
 		super(new TextComponent(""));
-		this.handler = handler;
+		this.traderID = traderID;
+		this.tradeIndex = tradeIndex;
 	}
 	
 	@Override
@@ -103,29 +100,27 @@ public class TradeRuleScreen extends Screen{
 		
 	}
 	
-	private void initManagerTab()
-	{
-		int y = 0;
-		this.removeRuleButtons.clear();
-		for(int i = 0; i < this.activeRules().size(); i++)
+	private void initManagerTab() {
+		this.toggleRuleButtons.clear();
+		int count = this.getTradeRules().size();
+		for(int i = 0; i < count; ++i)
 		{
-			this.removeRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressRemoveRuleButton, IconAndButtonUtil.ICON_X)));
-			y++;
-		}
-		this.addRuleButtons.clear();
-		for(int i = 0; i < this.addableRules().size(); i++)
-		{
-			this.addRuleButtons.add(this.addRenderableWidget(new IconButton(this.guiLeft() + 10, this.guiTop() + 10 + 20 * y, this::PressAddRuleButton, IconAndButtonUtil.ICON_PLUS)));
-			y++;
+			final int index = i;
+			this.toggleRuleButtons.add(this.addRenderableWidget(IconAndButtonUtil.checkmarkButton(guiLeft() + 20, guiTop() + 25 + (12 * i), this::PressManagerActiveButton, () -> {
+				List<TradeRule> rules = this.getTradeRules();
+				if(index < rules.size())
+					return rules.get(index).isActive();
+				return false;
+			})));
 		}
 	}
 	
-	private void closeManagerTab()
-	{
-		this.addRuleButtons.forEach(button -> this.removeWidget(button));
-		this.addRuleButtons.clear();
-		this.removeRuleButtons.forEach(button -> this.removeWidget(button));
-		this.removeRuleButtons.clear();
+	private void closeManagerTab() {
+		
+		for(Button b : this.toggleRuleButtons)
+			this.removeCustomWidget(b);
+		this.toggleRuleButtons.clear();
+		
 	}
 	
 	@Override
@@ -135,13 +130,27 @@ public class TradeRuleScreen extends Screen{
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		if(this.openTab >= 0)
+		{
+			TradeRule rule = this.currentRule();
+			if(rule != null && !rule.isActive())
+				RenderSystem.setShaderColor(1f, 0.5f, 0.5f, 1f);
+			else
+				RenderSystem.setShaderColor(0f, 1f, 0f, 1f);
+		}
+		else
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
+		
+		//Render the background
 		this.blit(poseStack, guiLeft(), guiTop(), 0, 0, this.xSize, this.ySize);
 		
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		//Render the current rule
 		if(this.currentGUIHandler!= null)
+		{
 			this.currentGUIHandler.renderTab(poseStack, mouseX, mouseY, partialTicks);
+		}
 		else
 		{
 			
@@ -149,17 +158,14 @@ public class TradeRuleScreen extends Screen{
 			if(this.openTab >= 0)
 				this.openTab = -1;
 			
-			//Render the manager tab
-			int y = 0;
-			for(int i = 0; i < this.activeRules().size(); i++)
+			this.font.draw(poseStack, new TranslatableComponent("traderule.list.blurb").withStyle(ChatFormatting.BOLD), guiLeft() + 20, guiTop() + 10, 0xFFFFFF);
+			
+			List<TradeRule> rules = this.getTradeRules();
+			for(int i = 0; i < this.getTradeRules().size(); ++i)
 			{
-				this.font.draw(poseStack, this.activeRules().get(i).getName().getString(), guiLeft() + 34, guiTop() + 16 + y * 20, 0xFFFFFF);
-				y++;
-			}
-			for(int i = 0; i < this.addableRules().size(); i++)
-			{
-				this.font.draw(poseStack, this.addableRules().get(i).getName().getString(), guiLeft() + 34, guiTop() + 16 + y * 20, 0xFFFFFF);
-				y++;
+				TradeRule rule = rules.get(i);
+				MutableComponent name = rule.getName().withStyle(rule.isActive() ? ChatFormatting.GREEN : ChatFormatting.RED).withStyle(ChatFormatting.BOLD);
+				this.font.draw(poseStack, name, guiLeft() + 32, guiTop() + 26 + (12 * i), 0xFFFFFF);
 			}
 			
 		}
@@ -169,33 +175,17 @@ public class TradeRuleScreen extends Screen{
 		
 		if(this.managerTab.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.mananger"), mouseX, mouseY);
+			this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.manager"), mouseX, mouseY);
 		}
 		else
 		{
 			boolean hoverButton = true;
-			for(int i = 0; i < this.tabButtons.size() && i < this.activeRules().size() && hoverButton; i++)
+			for(int i = 0; i < this.tabButtons.size() && i < this.getTradeRules().size() && hoverButton; i++)
 			{
 				Button thisTab = this.tabButtons.get(i);
 				if(thisTab.isMouseOver(mouseX, mouseY))
 				{
-					this.renderTooltip(poseStack, this.activeRules().get(i).getName(), mouseX, mouseY);
-					hoverButton = false;
-				}
-			}
-			for(int i = 0; i < this.removeRuleButtons.size() && i < this.activeRules().size() && hoverButton; i++)
-			{
-				if(this.removeRuleButtons.get(i).isMouseOver(mouseX, mouseY))
-				{
-					this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.removerule", this.activeRules().get(i).getName()), mouseX, mouseY);
-					hoverButton = false;
-				}
-			}
-			for(int i = 0; i < this.addRuleButtons.size() && i < this.addableRules().size() && hoverButton; i++)
-			{
-				if(this.addRuleButtons.get(i).isMouseOver(mouseX, mouseY))
-				{
-					this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.addrule", this.addableRules().get(i).getName()), mouseX, mouseY);
+					this.renderTooltip(poseStack, this.getTradeRules().get(i).getName(), mouseX, mouseY);
 					hoverButton = false;
 				}
 			}
@@ -204,7 +194,7 @@ public class TradeRuleScreen extends Screen{
 	
 	public void tick()
 	{
-		if(!this.handler.stillValid())
+		if(!this.stillValid())
 		{
 			this.minecraft.setScreen(null);
 			return;
@@ -221,7 +211,7 @@ public class TradeRuleScreen extends Screen{
 	
 	void PressBackButton(Button button)
 	{
-		this.handler.reopenLastScreen();
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.traderID));
 	}
 	
 	void PressTabButton(Button button)
@@ -260,50 +250,29 @@ public class TradeRuleScreen extends Screen{
 			}
 				
 			this.openTab = -1;
+			
 			this.initManagerTab();
 		}
 			
 	}
 	
-	void PressAddRuleButton(Button button)
+	void PressManagerActiveButton(Button button)
 	{
-		if(this.addRuleButtons.contains(button))
+		int ruleIndex = this.toggleRuleButtons.indexOf(button);
+		if(ruleIndex >= 0)
 		{
-			int addIndex = this.addRuleButtons.indexOf(button);
-			if(addIndex >= 0 && addIndex < this.addableRules().size())
+			List<TradeRule> rules = this.getTradeRules();
+			if(ruleIndex < rules.size())
 			{
-				TradeRule newRule = this.addableRules().get(addIndex);
-				this.handler.ruleHandler().getRules().add(newRule);
-				this.handler.updateServer(newRule.type, TradeRule.CreateRuleMessage());
-				LightmansCurrency.LogInfo("Adding rule type " + newRule.getName().getString());
-				this.closeManagerTab();
-				this.refreshTabs();
-				this.initManagerTab();
+				TradeRule rule = rules.get(ruleIndex);
+				CompoundTag updateInfo = new CompoundTag();
+				updateInfo.putBoolean("SetActive", !rule.isActive());
+				this.sendUpdateMessage(rule, updateInfo);
 			}
 		}
 	}
 	
-	void PressRemoveRuleButton(Button button)
-	{
-		if(this.removeRuleButtons.contains(button))
-		{
-			int removeIndex = this.removeRuleButtons.indexOf(button);
-			if(removeIndex >= 0 && removeIndex < this.activeRules().size())
-			{
-				TradeRule removedRule = this.activeRules().get(removeIndex);
-				this.handler.ruleHandler().getRules().remove(removeIndex);
-				this.handler.updateServer(removedRule.type, TradeRule.RemoveRuleMessage());
-				LightmansCurrency.LogInfo("Removing rule type " + removedRule.getName().getString());
-				this.closeManagerTab();
-				this.refreshTabs();
-				this.initManagerTab();
-			}
-		}
-	}
-	
-	public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
-		this.handler.updateServer(type, updateInfo);
-	}
+	public void sendUpdateMessage(TradeRule rule, CompoundTag updateInfo) { if(rule != null) this.getTrader().sendTradeRuleMessage(this.tradeIndex, rule.type, updateInfo); }
 	
 	public void refreshTabs()
 	{
@@ -311,12 +280,11 @@ public class TradeRuleScreen extends Screen{
 		this.tabButtons.forEach(button -> this.removeWidget(button) );
 		this.tabButtons.clear();
 		
-		List<TradeRule> activeRules = this.activeRules();
-		for(int i = 0; i < activeRules.size(); i++)
+		List<TradeRule> rules = this.getTradeRules();
+		for(int i = 0; i < rules.size(); i++)
 		{
-			TradeRule thisRule = activeRules.get(i);
+			TradeRule thisRule = rules.get(i);
 			this.tabButtons.add(this.addRenderableWidget(new IconButton(guiLeft() + 20 + 20 * i, guiTop() - 20, this::PressTabButton, thisRule.getButtonIcon())));
-				
 		}
 		
 	}
@@ -338,9 +306,6 @@ public class TradeRuleScreen extends Screen{
 		return widget;
 	}
 	
-	public <T extends GuiEventListener> void removeCustomWidget(T widget)
-	{
-		this.removeWidget(widget);
-	}
+	public <T extends GuiEventListener> void removeCustomWidget(T widget) { this.removeWidget(widget); }
 	
 }

@@ -5,15 +5,15 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
 import net.minecraft.client.gui.components.Button;
@@ -57,7 +57,7 @@ public class SelectionTab extends WalletBankTab {
 	private List<Team> getTeamList()
 	{
 		List<Team> results = Lists.newArrayList();
-		for(Team team : ClientTradingOffice.getTeamList())
+		for(Team team : TeamSaveData.GetAllTeams(true))
 		{
 			if(team.hasBankAccount() && team.canAccessBankAccount(this.screen.getMenu().getPlayer()))
 				results.add(team);
@@ -68,7 +68,7 @@ public class SelectionTab extends WalletBankTab {
 	public Team selectedTeam()
 	{
 		if(this.isTeamSelected())
-			return ClientTradingOffice.getTeam(this.screen.getMenu().getBankAccountReference().id);
+			return TeamSaveData.GetTeam(true, this.screen.getMenu().getBankAccountReference().teamID);
 		return null;	
 	}
 	
@@ -77,7 +77,7 @@ public class SelectionTab extends WalletBankTab {
 		try {
 			Team team = this.getTeamList().get(teamIndex);
 			Team selectedTeam = this.selectedTeam();
-			if(selectedTeam != null && team.getID().equals(selectedTeam.getID()))
+			if(selectedTeam != null && team.getID() == this.selectedTeam().getID())
 				return;
 			AccountReference account = BankAccount.GenerateReference(true, team);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));

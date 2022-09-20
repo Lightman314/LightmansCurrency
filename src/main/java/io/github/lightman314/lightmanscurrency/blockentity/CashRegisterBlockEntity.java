@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import io.github.lightman314.lightmanscurrency.trader.ITraderSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,12 +38,7 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	
 	public void OpenContainer(Player player)
 	{
-		MenuProvider provider = new TraderBlockEntity.TradeMenuProvider<CashRegisterBlockEntity>(this);
-		/*if(provider == null)
-		{
-			LightmansCurrency.LogError("No trade menu container provider was given for the trader of type " + this.getType().getRegistryName().toString());
-			return;
-		}*/
+		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition);
 		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
@@ -55,91 +50,21 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			player.sendMessage(new TranslatableComponent("message.lightmanscurrency.cash_register.notlinked"), new UUID(0,0));
 	}
 	
-	/*public void OpenContainer(int oldIndex, int newIndex, int direction, Player player)
-	{
-		//Validate the direction
-		if(direction == 0)
-			direction = 1;
-		else
-			direction = MathUtil.clamp(direction, -1, 1);
-		//Only open the container server-side
-		if(this.level.isClientSide)
-			return;
-		//Confirm we have any tile entities that can be opened
-		if(this.positions.size() <= 0)
-		{
-			LightmansCurrency.LogInfo("Cash Register has no Trader Positions stored. Unable to open container.");
-			return;
-		}
-		//Round the newIndex value around if below 0 or greater than the position size
-		if(newIndex < 0)
-			newIndex = this.positions.size() - 1;
-		else if(newIndex >= this.positions.size())
-			newIndex = 0;
-		if(newIndex == oldIndex)
-		{
-			LightmansCurrency.LogInfo("Trader Index is the same as the original index.");
-			return;
-		}
-		
-		TraderBlockEntity tileEntity = this.getTrader(newIndex);
-		if(tileEntity != null)
-		{
-			//Open the container
-			tileEntity.openCashRegisterTradeMenu(player, this);
-			return;
-		}
-		else
-		{
-			//No tile entity found at the position. Keep moving through the loop
-			if(oldIndex < 0)
-				oldIndex = newIndex;
-			OpenContainer(oldIndex, newIndex + direction, direction, player);
-		}
-		
-	}
-	
-	public void OpenEditorScreen()
-	{
-		
-	}
-	
-	public TraderBlockEntity getTrader(int index)
-	{
-		if(index < 0 || index >= positions.size())
-			return null;
-		BlockEntity tileEntity = this.level.getBlockEntity(positions.get(index));
-		if(tileEntity instanceof TraderBlockEntity)
-			return (TraderBlockEntity)tileEntity;
-		return null;
-	}
-	
-	public int getTraderIndex(TraderBlockEntity tileEntity)
-	{
-		for(int i = 0; i < positions.size(); i++)
-		{
-			if(positions.get(i).equals(tileEntity.getBlockPos()))
-				return i;
-		}
-		return -1;
-	}
-	
-	public int getPairedTraderSize()
-	{
-		return positions.size();
-	}*/
-	
 	@Override
 	public boolean isSingleTrader() { return false; }
 	
 	@Override
-	public List<ITrader> getTraders() { 
-		List<ITrader> traders = new ArrayList<>();
+	public List<TraderData> getTraders() { 
+		List<TraderData> traders = new ArrayList<>();
 		for(int i = 0; i < this.positions.size(); ++i)
 		{
 			BlockEntity be = this.level.getBlockEntity(this.positions.get(i));
-			if(be instanceof ITrader)
-				traders.add((ITrader)be);
+			if(be instanceof TraderBlockEntity<?>)
+			{
+				TraderData trader = ((TraderBlockEntity<?>)be).getTraderData();
+				if(trader != null)
+					traders.add(trader);
+			}
 		}
 		return traders;
 	}

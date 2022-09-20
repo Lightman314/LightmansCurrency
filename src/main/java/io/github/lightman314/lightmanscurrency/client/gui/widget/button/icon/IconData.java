@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.RegistryObject;
 
 public abstract class IconData {
 	
@@ -85,6 +86,7 @@ public abstract class IconData {
 	
 	public static final IconData BLANK = new IconData() { public void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y) {} };
 	
+	public static IconData of(RegistryObject<? extends ItemLike> item) { return of(item.get()); }
 	public static IconData of(ItemLike item) { return of(new ItemStack(item)); }
 	public static IconData of(ItemStack iconStack) { return new ItemIcon(iconStack); }
 	public static IconData of(ResourceLocation iconImage, int u, int v) { return new ImageIcon(iconImage, u,v); }

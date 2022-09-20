@@ -4,12 +4,12 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction.AuctionStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.auction.AuctionPlayerStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -41,7 +41,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld) 
 	{
-		ITrader t = this.menu.getTrader();
+		TraderData t = this.menu.getTrader();
 		if(t instanceof AuctionHouseTrader)
 		{
 			AuctionHouseTrader trader = (AuctionHouseTrader)t;
@@ -99,7 +99,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	}
 	
 	public void quickTransfer() {
-		ITrader t = this.menu.getTrader();
+		TraderData t = this.menu.getTrader();
 		if(t instanceof AuctionHouseTrader)
 		{
 			AuctionHouseTrader trader = (AuctionHouseTrader)t;
@@ -117,7 +117,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	}
 	
 	public void collectCoins() {
-		ITrader t = this.menu.getTrader();
+		TraderData t = this.menu.getTrader();
 		if(t instanceof AuctionHouseTrader)
 		{
 			AuctionHouseTrader trader = (AuctionHouseTrader)t;

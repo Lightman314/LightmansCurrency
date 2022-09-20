@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -15,10 +16,10 @@ public class TextNotification extends Notification {
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "text");
 	
 	private MutableComponent text = new TextComponent("");
-	private Category category = NullCategory.INSTANCE;
+	private NotificationCategory category = NullCategory.INSTANCE;
 	
 	public TextNotification(MutableComponent text){ this(text, NullCategory.INSTANCE); }
-	public TextNotification(MutableComponent text, Category category) { this.text = text; this.category = category; }
+	public TextNotification(MutableComponent text, NotificationCategory category) { this.text = text; this.category = category; }
 	
 	public TextNotification(CompoundTag compound) { this.load(compound); }
 	
@@ -26,7 +27,7 @@ public class TextNotification extends Notification {
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public Category getCategory() { return this.category; }
+	public NotificationCategory getCategory() { return this.category; }
 
 	@Override
 	public MutableComponent getMessage() { return text; }
@@ -42,7 +43,7 @@ public class TextNotification extends Notification {
 		if(compound.contains("Text", Tag.TAG_STRING))
 			this.text = Component.Serializer.fromJson(compound.getString("Text"));
 		if(compound.contains("Category", Tag.TAG_COMPOUND))
-			this.category = Category.deserialize(compound.getCompound("Category"));
+			this.category = NotificationCategory.deserialize(compound.getCompound("Category"));
 	}
 
 	@Override

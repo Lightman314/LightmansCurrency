@@ -2,23 +2,28 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -63,13 +68,20 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return null; }
+	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapabilityInterfaceBlockEntity(pos, state); }
 	protected abstract BlockEntityType<?> traderType();
+	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(this.traderType()); }
 	
-	@Nullable 
+	@Nullable @Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
-		return TickerUtil.createTickerHelper(type, this.traderType(), TickableBlockEntity::tickHandler);
+		for(BlockEntityType<?> validType : this.validTraderTypes())
+		{
+			BlockEntityTicker<T> ticker = TickerUtil.createTickerHelper(type, validType, TickableBlockEntity::tickHandler);
+			if(ticker != null)
+				return ticker;
+		}
+		return null;
 	}
 	
 	@Override
@@ -86,12 +98,25 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity)
+			if(blockEntity instanceof TraderBlockEntity<?>)
 			{
-				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				//Send update packet for safety, and open the menu
-				BlockEntityUtil.sendUpdatePacket(blockEntity);
-				trader.openTradeMenu(player);
+				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
+				TraderData trader = traderSource.getTraderData();
+				if(trader == null)
+				{
+					LightmansCurrency.LogWarning("Trader Data for block at " + pos.getX() + "," + pos.getY() + "," + pos.getZ() + " had to be re-initialized on interaction.");
+					player.sendMessage(new TranslatableComponent("trader.warning.reinitialized").withStyle(ChatFormatting.RED), new UUID(0,0));
+					traderSource.initialize(player, ItemStack.EMPTY);
+					trader = traderSource.getTraderData();
+				}
+				if(trader != null) //Open the trader menu
+				{
+					if(trader.shouldAlwaysShowOnTerminal())
+						trader.openStorageMenu(player);
+					else
+						trader.openTraderMenu(player);
+				}
+
 			}
 		}
 		return InteractionResult.SUCCESS;
@@ -105,15 +130,13 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	public final void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(!level.isClientSide)
+		if(!level.isClientSide && player instanceof Player)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity)
+			if(blockEntity instanceof TraderBlockEntity<?>)
 			{
-				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				trader.initOwner(PlayerReference.of(player));
-				if(stack.hasCustomHoverName())
-					trader.getCoreSettings().setCustomName(null, stack.getHoverName().getString());
+				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
+				traderSource.initialize((Player)player, stack);
 			}
 			else
 			{
@@ -131,15 +154,17 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	public final void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity)
+		if(blockEntity instanceof TraderBlockEntity<?>)
 		{
-			TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-			if(!trader.canBreak(player))
+			TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
+			if(!traderSource.canBreak(player))
 				return;
 			else
 			{
-				trader.flagAsRemovable();
-				InventoryUtil.dumpContents(level, pos, trader.dumpContents(state, !player.isCreative()));
+				traderSource.flagAsLegitBreak();
+				TraderData trader = traderSource.getTraderData();
+				if(trader != null)
+					InventoryUtil.dumpContents(level, pos, trader.getContents(level, pos, state, !player.isCreative()));
 			}
 		}
 		else
@@ -149,27 +174,33 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		super.playerWillDestroy(level, pos, state, player);
 	}
 	
+	
 	@Override
 	@SuppressWarnings("deprecation")
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
-
+		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
-			return;
+		    return;
 		
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity)
+			if(blockEntity instanceof TraderBlockEntity<?>)
 			{
-				TraderBlockEntity trader = (TraderBlockEntity)blockEntity;
-				if(!trader.allowRemoval())
+				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
+				if(!traderSource.legitimateBreak())
 				{
-					LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
-					LightmansCurrency.LogError("Activating emergency eject protocol.");
-					EjectionData data = EjectionData.create(state, trader);
-					TradingOffice.handleEjectionData(level, pos, data);
-					trader.flagAsRemovable();
+					traderSource.flagAsLegitBreak();
+					TraderData trader = traderSource.getTraderData();
+					if(trader != null)
+					{
+						LightmansCurrency.LogError("Trader block at " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " was broken by illegal means!");
+						LightmansCurrency.LogError("Activating emergency eject protocol.");
+						
+						EjectionData data = EjectionData.create(level, pos, state, trader);
+						EjectionSaveData.HandleEjectionData(level, pos, data);
+					}
 					//Remove the rest of the multi-block structure.
 					try {
 						this.onInvalidRemoval(state, level, pos, trader);
@@ -177,15 +208,17 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 				}
 				else
 					LightmansCurrency.LogInfo("Trader block was broken by legal means!");
+				
+				//Flag the block as broken, so that the trader gets deleted.
+				traderSource.onBreak();
 			}
 		}
-
+		
 		super.onRemove(state, level, pos, newState, flag);
 	}
-
-	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderBlockEntity trader);
 	
-	@Override
+	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader);
+	
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 	
 	@Override

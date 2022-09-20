@@ -106,15 +106,6 @@
 			"faces": {
 				"south": {"uv": [8.5, 10, 15.5, 11.5], "texture": "#main"}
 			}
-		},
-		{
-			"name": "Server-4",
-			"from": [1, 13, 1],
-			"to": [15, 16, 15],
-			"faces": {
-				"south": {"uv": [8.5, 14, 15.5, 15.5], "texture": "#main"},
-				"up": {"uv": [0.5, 8.5, 7.5, 15.5], "texture": "#main"}
-			}
 		}
 	]
 }

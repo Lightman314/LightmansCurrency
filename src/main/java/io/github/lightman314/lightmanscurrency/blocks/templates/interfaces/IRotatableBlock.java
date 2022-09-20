@@ -5,6 +5,7 @@ import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface IRotatableBlock {
@@ -175,4 +176,30 @@ public interface IRotatableBlock {
 	 * Gets the rotational direction of the given rotatable block state.
 	 */
 	public Direction getFacing(BlockState state);
+	
+	public static Direction getRelativeSide(Direction facing, Direction side)
+	{
+		if(side == null)
+			return side;
+		if(side.getAxis() == Axis.Y)
+			return side;
+		//Since my facings are backwards, invert it
+		if(facing.getAxis() == Axis.Z)
+			facing = facing.getOpposite();
+		return Direction.from2DDataValue(facing.get2DDataValue() + side.get2DDataValue());
+	}
+	
+	public static Direction getActualSide(Direction facing, Direction relativeSide)
+	{
+		if(relativeSide == null)
+			return relativeSide;
+		if(relativeSide.getAxis() == Axis.Y)
+			return relativeSide;
+		//Since my facings are backwards, invert it
+		if(facing.getAxis() == Axis.Z)
+			facing = facing.getOpposite();
+		Direction result = Direction.from2DDataValue(facing.get2DDataValue() - relativeSide.get2DDataValue() + 4);
+		return result.getAxis() == Axis.X ? result.getOpposite() : result;
+	}
+	
 }

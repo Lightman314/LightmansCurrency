@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.bank.BankAccount.IBankAccountMenu;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,7 +22,7 @@ public class MessageBankInteraction {
 	
 	public static void encode(MessageBankInteraction message, FriendlyByteBuf buffer) {
 		buffer.writeBoolean(message.isDeposit);
-		buffer.writeNbt(message.amount.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
 	}
 
 	public static MessageBankInteraction decode(FriendlyByteBuf buffer) {
