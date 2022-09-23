@@ -29,7 +29,7 @@ public class AddRemoveTradeNotification extends Notification {
 
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.settings.addremovetrade", player.lastKnownName(), Component.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), newCount);
+		return Component.translatable("log.settings.addremovetrade", player.getName(true), Component.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), newCount);
 	}
 
 	@Override

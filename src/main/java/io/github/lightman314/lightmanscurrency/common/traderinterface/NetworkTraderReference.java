@@ -46,7 +46,7 @@ public class NetworkTraderReference {
 		if(this.traderID < 0)
 			return null;
 		TraderData trader = TraderSaveData.GetTrader(this.isClient(), this.traderID);
-		return trader.showOnTerminal() ? trader : null;
+		return trader == null || !trader.showOnTerminal() ? null : trader;
 	}
 	
 }

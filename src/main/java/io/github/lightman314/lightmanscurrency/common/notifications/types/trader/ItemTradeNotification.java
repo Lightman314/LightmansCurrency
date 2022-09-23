@@ -48,7 +48,7 @@ public class ItemTradeNotification extends Notification{
 		else
 			this.cost = cost;
 		
-		this.customer = customer.lastKnownName();
+		this.customer = customer.getName(false);
 		
 	}
 	

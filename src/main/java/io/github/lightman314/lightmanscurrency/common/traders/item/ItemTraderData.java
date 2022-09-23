@@ -81,7 +81,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public ItemTraderData(){ this(TYPE); }
 	protected ItemTraderData(ResourceLocation type) {
 		super(type);
-		this.trades = ItemTradeData.listOfSize(1);
+		this.trades = ItemTradeData.listOfSize(1, true);
 		this.validateTradeRestrictions();
 	}
 	
@@ -90,7 +90,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	protected ItemTraderData(ResourceLocation type, int tradeCount, Level level, BlockPos pos)
 	{
 		super(type, level, pos);
-		this.trades = ItemTradeData.listOfSize(tradeCount);
+		this.trades = ItemTradeData.listOfSize(tradeCount, true);
 		this.validateTradeRestrictions();
 	}
 	
@@ -120,7 +120,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		
 		if(compound.contains(TradeData.DEFAULT_KEY))
 		{
-			this.trades = ItemTradeData.loadAllData(compound);
+			this.trades = ItemTradeData.loadAllData(compound, !this.isPersistent());
 			this.validateTradeRestrictions();
 		}
 		
@@ -172,7 +172,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			return;
 		int tradeCount = MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT);
 		List<ItemTradeData> oldTrades = trades;
-		trades = ItemTradeData.listOfSize(tradeCount);
+		trades = ItemTradeData.listOfSize(tradeCount, !this.isPersistent());
 		//Write the old trade data into the array.
 		for(int i = 0; i < oldTrades.size() && i < trades.size(); i++)
 		{
@@ -203,7 +203,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		if(tradeSlot < 0 || tradeSlot >= this.trades.size())
 		{
 			LightmansCurrency.LogError("Cannot get trade in index " + tradeSlot + " from a trader with only " + this.trades.size() + " trades.");
-			return new ItemTradeData();
+			return new ItemTradeData(false);
 		}
 		return this.trades.get(tradeSlot);
 	}
@@ -233,6 +233,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	@Override
 	public int inputSettingsTabColor() { return 0x00BF00; }
+	
+	@Override
+	public int inputSettingsTextColor() { return 0xD0D0D0; }
 
 	@Override
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
@@ -297,7 +300,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				if(ruleData.size() > 0)
 					tradeData.add("Rules", ruleData);
 				
-				trades.add(ruleData);
+				trades.add(tradeData);
 			}
 		}
 		
@@ -318,7 +321,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			try {
 				JsonObject tradeData = trades.get(i).getAsJsonObject();
 				
-				ItemTradeData newTrade = new ItemTradeData();
+				ItemTradeData newTrade = new ItemTradeData(false);
 				//Sell Item
 				newTrade.setItem(FileUtil.parseItemStack(tradeData.get("SellItem").getAsJsonObject()), 0);
 				if(tradeData.has("SellItem2"))
@@ -685,7 +688,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.trades = ItemTradeData.loadAllData(compound);
+			this.trades = ItemTradeData.loadAllData(compound, true);
 		
 		
 		//Could check if it's still the old inventory style, but I'm going to ignore that possibility.

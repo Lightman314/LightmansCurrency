@@ -97,7 +97,7 @@ public class OwnershipTab extends SettingsTab{
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
-		this.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.team.owner", this.getScreen().getTrader().getOwner().getOwnerName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
+		this.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.team.owner", this.getScreen().getTrader().getOwner().getOwnerName(true)), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
 		
 	}
 	

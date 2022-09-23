@@ -27,7 +27,7 @@ public class ChangeCreativeNotification extends Notification {
 	
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.settings.creativemode", this.player.lastKnownName(), Component.translatable(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
+		return Component.translatable("log.settings.creativemode", this.player.getName(true), Component.translatable(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
 	}
 	
 	@Override

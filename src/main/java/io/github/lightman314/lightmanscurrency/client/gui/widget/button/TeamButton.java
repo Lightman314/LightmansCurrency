@@ -62,7 +62,7 @@ public class TeamButton extends Button{
 		//Render Team Name
 		this.font.draw(pose, TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), this.x + 2, this.y + 2, TEXT_COLOR);
 		//Render Owner Name)
-		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().lastKnownName()), this.width - 4), this.x + 2, this.y + 10, TEXT_COLOR);
+		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), this.x + 2, this.y + 10, TEXT_COLOR);
 		
 	}
 	

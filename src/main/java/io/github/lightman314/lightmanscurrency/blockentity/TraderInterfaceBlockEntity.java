@@ -146,7 +146,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	public final OwnerData owner = new OwnerData(this, o -> BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()))));
 	public void initOwner(Entity owner) { if(!this.owner.hasOwner()) this.owner.SetOwner(PlayerReference.of(owner)); }
 	public void setOwner(String name) {
-		PlayerReference newOwner = PlayerReference.of(name);
+		PlayerReference newOwner = PlayerReference.of(false, name);
 		if(newOwner != null)
 		{
 			this.owner.SetOwner(newOwner);
@@ -164,7 +164,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	
 	public PlayerReference getReferencedPlayer() { return this.owner.getPlayerForContext(); }
 	
-	public String getOwnerName() { return this.owner.getOwnerName(); }
+	public String getOwnerName() { return this.owner.getOwnerName(this.isClient()); }
 	
 	public BankAccount getBankAccount() { 
 		AccountReference reference = this.getAccountReference();

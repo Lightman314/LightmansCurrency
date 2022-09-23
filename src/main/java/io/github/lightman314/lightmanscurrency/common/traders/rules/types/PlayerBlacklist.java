@@ -89,22 +89,6 @@ public class PlayerBlacklist extends TradeRule{
 					this.bannedPlayers.add(reference);
 			}
 		}
-		//Load player names (old method) and convert them to player references
-		if(compound.contains("BannedPlayersNames", Tag.TAG_LIST))
-		{
-			this.bannedPlayers.clear();
-			ListTag playerNameList = compound.getList("BannedPlayersNames", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerNameList.size(); i++)
-			{
-				CompoundTag thisCompound = playerNameList.getCompound(i);
-				if(thisCompound.contains("name", Tag.TAG_STRING))
-				{
-					PlayerReference reference = PlayerReference.of(thisCompound.getString("name"));
-					if(reference != null && !this.isBlacklisted(reference))
-						this.bannedPlayers.add(reference);
-				}
-			}
-		}
 		
 	}
 	
@@ -112,7 +96,7 @@ public class PlayerBlacklist extends TradeRule{
 	public void handleUpdateMessage(CompoundTag updateInfo) {
 		boolean add = updateInfo.getBoolean("Add");
 		String name = updateInfo.getString("Name");
-		PlayerReference player = PlayerReference.of(name);
+		PlayerReference player = PlayerReference.of(false, name);
 		if(player == null)
 			return;
 		if(add && !this.isBlacklisted(player))
@@ -195,7 +179,7 @@ public class PlayerBlacklist extends TradeRule{
 			if(getBlacklistRule() == null)
 				return playerList;
 			for(PlayerReference player : getBlacklistRule().bannedPlayers)
-				playerList.add(player.lastKnownNameComponent());
+				playerList.add(player.getNameComponent(true));
 			return playerList;
 		}
 		
@@ -218,11 +202,6 @@ public class PlayerBlacklist extends TradeRule{
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(reference != null && !getBlacklistRule().isBlacklisted(reference))
-				{
-					getBlacklistRule().bannedPlayers.add(reference);
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", true);
 				updateInfo.putString("Name", name);
@@ -236,19 +215,6 @@ public class PlayerBlacklist extends TradeRule{
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(getBlacklistRule().isBlacklisted(reference))
-				{
-					boolean notFound = true;
-					for(int i = 0; notFound && i < getBlacklistRule().bannedPlayers.size(); ++i)
-					{
-						if(getBlacklistRule().bannedPlayers.get(i).is(reference))
-						{
-							notFound = false;
-							getBlacklistRule().bannedPlayers.remove(i);
-						}
-					}
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", false);
 				updateInfo.putString("Name", name);

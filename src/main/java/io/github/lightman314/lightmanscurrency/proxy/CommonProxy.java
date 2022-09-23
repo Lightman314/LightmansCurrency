@@ -52,6 +52,4 @@ public class CommonProxy {
 	
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
 	
-	public void processPlayerList(CompoundTag data) { }
-	
 }

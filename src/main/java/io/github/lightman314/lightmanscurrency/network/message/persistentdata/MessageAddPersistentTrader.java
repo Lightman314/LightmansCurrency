@@ -32,7 +32,7 @@ public class MessageAddPersistentTrader {
 	
 	private JsonObject getTraderJson(TraderData trader, String id) throws Exception {
 		JsonObject traderJson = trader.saveToJson();
-		traderJson.addProperty("ID", this.id);
+		traderJson.addProperty("ID", id);
 		traderJson.addProperty("OwnerName", this.owner);
 		return traderJson;
 	}

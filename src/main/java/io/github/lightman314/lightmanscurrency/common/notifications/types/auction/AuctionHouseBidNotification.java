@@ -26,7 +26,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	public AuctionHouseBidNotification(AuctionTradeData trade) {
 		
 		this.cost = trade.getLastBidAmount().copy();
-		this.customer = trade.getLastBidPlayer().lastKnownName();
+		this.customer = trade.getLastBidPlayer().getName(false);
 		
 		this.items = new ArrayList<>();
 		for(int i = 0; i < trade.getAuctionItems().size(); ++i)

@@ -74,7 +74,7 @@ public class AllyTab extends SettingsTab {
 	private List<Component> getAllyList()
 	{
 		List<Component> list = Lists.newArrayList();
-		this.getScreen().getTrader().getAllies().forEach(ally -> list.add(Component.literal(ally.lastKnownName())));
+		this.getScreen().getTrader().getAllies().forEach(ally -> list.add(ally.getNameComponent(true)));
 		return list;
 	}
 	

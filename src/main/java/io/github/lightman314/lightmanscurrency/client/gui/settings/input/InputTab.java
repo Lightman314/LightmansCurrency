@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.input;
 
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -24,6 +26,8 @@ public class InputTab extends SettingsTab{
 	
 	DirectionalSettingsWidget inputWidget;
 	DirectionalSettingsWidget outputWidget;
+	
+	
 	
 	protected InputTraderData getInputTrader() {
 		TraderData trader = this.getTrader();
@@ -53,7 +57,12 @@ public class InputTab extends SettingsTab{
 		return ImmutableList.of(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN);
 	}
 	
-	private final int textColor = 0xD0D0D0;
+	public int getTextColor() {
+		InputTraderData trader = this.getInputTrader();
+		if(trader != null)
+			return trader.inputSettingsTextColor();
+		return 0xD0D0D0;
+	}
 	
 	@Override
 	public int getColor()
@@ -79,6 +88,13 @@ public class InputTab extends SettingsTab{
 			return trader.inputSettingsTabTooltip();
 		return Component.translatable("tooltip.lightmanscurrency.settings.iteminput");
 	}
+	
+	public List<InputTabAddon> getAddons() {
+		InputTraderData trader = this.getInputTrader();
+		if(trader != null)
+			return trader.inputSettingsAddons();
+		return ImmutableList.of();
+	}
 
 	@Override
 	public boolean canOpen() { return this.hasPermissions(Permissions.InputTrader.EXTERNAL_INPUTS); }
@@ -91,8 +107,7 @@ public class InputTab extends SettingsTab{
 		this.inputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 20, screen.guiTop() + 25, this::getInputSideValue, this.getIgnoreList(), this::ToggleInputSide, screen::addRenderableTabWidget);
 		this.outputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 110, screen.guiTop() + 25, this::getOutputSideValue, this.getIgnoreList(), this::ToggleOutputSide, screen::addRenderableTabWidget);
 		
-		//this.buttonToggleInputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 5, screen.guiTop() + 100, 10, 10, this::ToggleInputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
-		//this.buttonToggleOuputLimit = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 95, screen.guiTop() + 100, 10, 10, this::ToggleOutputLimit, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		this.getAddons().forEach(a -> a.onInit(screen));
 		
 	}
 
@@ -104,44 +119,43 @@ public class InputTab extends SettingsTab{
 		//ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
 		
 		//Side Widget Labels
-		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
-		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, textColor);
-		
-		//Limit Toggle Labels
-		//Input
-		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit"), screen.guiLeft() + 15, screen.guiTop() + 100, textColor);
-		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.limit." + (settings.limitInputsToSales() ? "limited" : "any")), screen.guiLeft() + 15, screen.guiTop() + 110, textColor);
-		
-		//Output
-		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit"), screen.guiLeft() + 105, screen.guiTop() + 100, textColor);
-		//this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.limit." + (settings.limitOutputsToPurchases() ? "limited" : "any")), screen.guiLeft() + 105, screen.guiTop() + 110, textColor);
-		
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, this.getTextColor());
+		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, this.getTextColor());
+
+		this.getAddons().forEach(a -> a.preRender(screen, pose, mouseX, mouseY, partialTicks));
 		
 	}
 
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
+		TraderSettingsScreen screen = this.getScreen();
+		
 		//Render side tooltips
 		this.inputWidget.renderTooltips(pose, mouseX, mouseY, this.getScreen());
 		this.outputWidget.renderTooltips(pose, mouseX, mouseY, this.getScreen());
+		
+		this.getAddons().forEach(a -> a.postRender(screen, pose, mouseX, mouseY, partialTicks));
 		
 	}
 
 	@Override
 	public void tick() {
 		
-		//ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
-		
-		//this.buttonToggleInputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitInputsToSales() ? 200 : 220);
-		//this.buttonToggleOuputLimit.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, settings.limitOutputsToPurchases() ? 200 : 220);
+		TraderSettingsScreen screen = this.getScreen();
 		this.inputWidget.tick();
 		this.outputWidget.tick();
+		
+		this.getAddons().forEach(a -> a.tick(screen));
 		
 	}
 
 	@Override
 	public void closeTab() {
+		
+		TraderSettingsScreen screen = this.getScreen();
+		
+		this.getAddons().forEach(a -> a.onClose(screen));
 		
 	}
 	
@@ -160,19 +174,5 @@ public class InputTab extends SettingsTab{
 		message.putInt("Side", side.get3DDataValue());
 		this.sendNetworkMessage(message);
 	}
-	
-	/*private void ToggleInputLimit(Button button)
-	{
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
-		CompoundTag updateInfo = settings.toggleInputLimit(this.getPlayer());
-		settings.sendToServer(updateInfo);
-	}
-	
-	private void ToggleOutputLimit(Button button)
-	{
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
-		CompoundTag updateInfo = settings.toggleOutputLimit(this.getPlayer());
-		settings.sendToServer(updateInfo);
-	}*/
 
 }

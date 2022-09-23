@@ -42,7 +42,7 @@ public class MessageBankTransferPlayer {
 				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
 				{
 					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu) player.containerMenu;
-					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(message.playerName));
+					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(false, message.playerName));
 					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageBankTransferResponse(response));

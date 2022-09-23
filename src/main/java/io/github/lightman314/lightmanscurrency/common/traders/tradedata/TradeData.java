@@ -80,6 +80,14 @@ public abstract class TradeData {
 		this.cost = value;
 	}
 	
+	private final boolean validateRules;
+	
+	protected TradeData(boolean validateRules) {
+		this.validateRules = validateRules;
+		if(this.validateRules)
+			TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
+	}
+	
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag tradeNBT = new CompoundTag();
@@ -104,7 +112,9 @@ public abstract class TradeData {
 		}
 		else
 			this.rules = TradeRule.loadRules(nbt, "RuleData");
-		TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
+		
+		if(this.validateRules)
+			TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 		
 	}
 	
@@ -135,14 +145,12 @@ public abstract class TradeData {
 		}
 	}
 	
-	public List<TradeRule> getRules() { return this.rules; }
+	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
 	
+	/**
+	 * Only to be used for persistent trader loading
+	 */
 	public void setRules(List<TradeRule> rules) { this.rules = rules; }
-	
-	public void clearRules()
-	{
-		this.rules.clear();
-	}
 	
 	public void addTradeRuleAlertData(List<AlertData> alerts, TradeContext context) {
 		if(context.hasTrader() && context.hasPlayerReference())
@@ -151,8 +159,6 @@ public abstract class TradeData {
 			alerts.addAll(pte.getAlertInfo());
 		}
 	}
-	
-	public void markRulesDirty() { }
 	
 	public abstract TradeComparisonResult compare(TradeData otherTrade);
 	
@@ -387,7 +393,16 @@ public abstract class TradeData {
 	 * List of alert data. Used for Out of Stock, Cannot Afford, or Trade Rule messages.
 	 * Return null to display no alert.
 	 */
-	public abstract List<AlertData> getAlertData(TradeContext context);
+	public final List<AlertData> getAlertData(TradeContext context) {
+		if(context.isStorageMode)
+			return null;
+		List<AlertData> alerts = new ArrayList<>();
+		this.addTradeRuleAlertData(alerts, context);
+		this.getAdditionalAlertData(context, alerts);
+		return alerts;
+	}
+	
+	protected abstract void getAdditionalAlertData(TradeContext context, List<AlertData> alerts);
 	
 	/**
 	 * Render trade-specific icons for the trade, such as the fluid traders drainable/fillable icons.

@@ -203,11 +203,11 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		
 		if(CommandLCAdmin.isAdminPlayer(this.player))
 		{
-			PlayerReference accountPlayer = PlayerReference.of(playerName);
+			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
-				return Component.translatable("gui.bank.select.player.success", accountPlayer.lastKnownName());
+				return Component.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else
 				return Component.translatable("gui.bank.transfer.error.null.to");

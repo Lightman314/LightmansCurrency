@@ -56,7 +56,7 @@ public abstract class DepositWithdrawNotification extends Notification {
 		public Player(CompoundTag compound) { this.load(compound); }
 		
 		@Override
-		protected MutableComponent getName() { return this.player.lastKnownNameComponent(); }
+		protected MutableComponent getName() { return this.player.getNameComponent(true); }
 		
 		@Override
 		protected ResourceLocation getType() { return PLAYER_TYPE; }

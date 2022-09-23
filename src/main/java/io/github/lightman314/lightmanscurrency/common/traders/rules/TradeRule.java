@@ -87,11 +87,7 @@ public abstract class TradeRule {
 	{
 		ListTag ruleData = new ListTag();
 		for(int i = 0; i < rules.size(); i++)
-		{
-			CompoundTag thisRuleData = rules.get(i).save();
-			if(thisRuleData != null)
-				ruleData.add(thisRuleData);
-		}
+			ruleData.add(rules.get(i).save());
 		compound.put(tag, ruleData);
 		return compound;
 	}
@@ -300,36 +296,28 @@ public abstract class TradeRule {
 	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
-		registeredDeserializers.forEach((type,deserializer) -> {
-			if(thisType.equals(type))
-			{
-				TradeRule rule = deserializer.get();
+		if(registeredDeserializers.containsKey(thisType))
+		{
+			try {
+				TradeRule rule = registeredDeserializers.get(thisType).get();
 				rule.load(compound);
-				data.set(rule);
-			}	
-		});
-		if(data.get() != null)
-			return data.get();
+				return rule;
+			} catch(Throwable t) { LightmansCurrency.LogError("Error deserializing trade rule:", t); }
+		}
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
 	
 	public static TradeRule Deserialize(JsonObject json) throws Exception{
 		String thisType = json.get("Type").getAsString();
-		AtomicReference<TradeRule> data = new AtomicReference<TradeRule>();
-		registeredDeserializers.forEach((type, deserializer) -> {
-			if(thisType.equals(type))
-			{
-				TradeRule rule = deserializer.get();
-				rule.loadFromJson(json);
-				rule.setActive(true);
-				data.set(rule);
-			}
-		});
-		if(data.get() == null)
-			throw new Exception("Could not find a deserializer of type '" + thisType + "'.");
-		return data.get();
+		if(registeredDeserializers.containsKey(thisType))
+		{
+			TradeRule rule = registeredDeserializers.get(thisType).get();
+			rule.loadFromJson(json);
+			rule.setActive(true);
+			return rule;
+		}
+		throw new Exception("Could not find a deserializer of type '" + thisType + "'.");
 	}
 	
 	public static TradeRule getRule(ResourceLocation type, List<TradeRule> rules) {
