@@ -83,7 +83,9 @@ public class TraderSettingsScreen extends Screen{
 		this.positionTabButtons();
 		
 		//Initialize the starting tab
-		this.currentTab().initTab();
+		try {
+			this.currentTab().initTab();
+		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab init.", t); }
 		
 	}
 	
@@ -146,11 +148,15 @@ public class TraderSettingsScreen extends Screen{
 		//Render the tab buttons
 		super.render(matrix, mouseX, mouseY, partialTicks);
 		//Pre-render the tab
-		this.currentTab().preRender(matrix, mouseX, mouseY, partialTicks);
+		try {
+			this.currentTab().preRender(matrix, mouseX, mouseY, partialTicks);
+		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab pre-render.", t); }
 		//Render the renderables
 		this.tabWidgets.forEach(widget -> widget.render(matrix, mouseX, mouseY, partialTicks));
 		//Post-render the tab
-		this.currentTab().postRender(matrix, mouseX, mouseY, partialTicks);
+		try {
+			this.currentTab().postRender(matrix, mouseX, mouseY, partialTicks);
+		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab post-render.", t); }
 		
 		//Render the tab button tooltips
 		for(int i = 0; i < this.tabButtons.size(); ++i)
@@ -206,7 +212,9 @@ public class TraderSettingsScreen extends Screen{
 		}
 		
 		//Tick the current tab
-		this.currentTab().tick();
+		try {
+			this.currentTab().tick();
+		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab tick.", t); }
 	}
 	
 	public boolean hasPermission(String permission)
@@ -265,7 +273,9 @@ public class TraderSettingsScreen extends Screen{
 		if(tabIndex != this.currentTabIndex)
 		{
 			//Close the old tab
-			this.currentTab().closeTab();
+			try {
+				this.currentTab().closeTab();
+			} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab close.", t); }
 			this.tabButtons.get(this.currentTabIndex).active = true;
 			this.currentTabIndex = tabIndex;
 			this.tabButtons.get(this.currentTabIndex).active = false;
@@ -275,7 +285,9 @@ public class TraderSettingsScreen extends Screen{
 			this.tabListeners.clear();
 			
 			//Initialize the new tab
-			this.currentTab().initTab();
+			try {
+				this.currentTab().initTab();
+			} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab init.", t); }
 		}
 	}
 	

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -260,6 +261,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	public void onBreak() {
 		if(this.getTraderData() != null)
 			TraderSaveData.DeleteTrader(this.traderID);
+	}
+	
+	@Override
+	public AABB getRenderBoundingBox()
+	{
+		if(this.getBlockState() != null)
+			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
+		return super.getRenderBoundingBox();
 	}
 	
 }

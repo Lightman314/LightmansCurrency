@@ -37,9 +37,9 @@ public class ChangeAllyPermissionNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(this.oldValue == 0)
-			return new TranslatableComponent("log.settings.permission.ally.simple", this.player.lastKnownName(), this.permission, this.newValue);
+			return new TranslatableComponent("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
 		else
-			return new TranslatableComponent("log.settings.permission.ally", this.player.lastKnownName(), this.permission, this.oldValue, this.newValue);
+			return new TranslatableComponent("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
 	}
 
 	@Override

@@ -42,11 +42,11 @@ public class ChangeOwnerNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(newOwner.is(this.player))
-			return new TranslatableComponent("log.settings.newowner.taken", this.player.lastKnownName(), this.oldOwner.getName());
+			return new TranslatableComponent("log.settings.newowner.taken", this.player.getName(true), this.oldOwner.getName());
 		if(oldOwner.is(this.player))
-			return new TranslatableComponent("log.settings.newowner.passed", this.player.lastKnownName(), this.newOwner.getName());
+			return new TranslatableComponent("log.settings.newowner.passed", this.player.getName(true), this.newOwner.getName());
 		else
-			return new TranslatableComponent("log.settings.newowner.transferred", this.player.lastKnownName(), this.oldOwner.getName(), this.newOwner.getName());
+			return new TranslatableComponent("log.settings.newowner.transferred", this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class ChangeOwnerNotification extends Notification {
 		
 		public String getName() {
 			if(this.player != null)
-				return this.player.lastKnownName();
+				return this.player.getName(true);
 			Team team = TeamSaveData.GetTeam(true, this.team);
 			if(team != null)
 				return team.getName();

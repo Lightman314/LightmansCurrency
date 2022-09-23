@@ -7,10 +7,12 @@ import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTraderData {
 
 	private static final Map<Long, TraderData> loadedTraders = new HashMap<>();
@@ -33,7 +35,9 @@ public class ClientTraderData {
 	{
 		long traderID = compound.getLong("ID");
 		if(loadedTraders.containsKey(traderID))
+		{
 			loadedTraders.get(traderID).load(compound);
+		}
 		else
 		{
 			TraderData trader = TraderData.Deserialize(true, compound);

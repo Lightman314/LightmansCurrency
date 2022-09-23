@@ -103,6 +103,8 @@ public class FreeSample extends TradeRule{
 			{
 				CompoundTag tag = memoryList.getCompound(i);
 				if(tag.contains("ID"))
+					this.memory.add(tag.getUUID("ID"));
+				else if(tag.contains("id"))
 					this.memory.add(tag.getUUID("id"));
 				
 			}
@@ -134,7 +136,8 @@ public class FreeSample extends TradeRule{
 				CompoundTag tag = memoryList.getCompound(i);
 				if(tag.contains("ID"))
 					this.memory.add(tag.getUUID("ID"));
-				
+				else if(tag.contains("id"))
+					this.memory.add(tag.getUUID("id"));
 			}
 		}
 	}

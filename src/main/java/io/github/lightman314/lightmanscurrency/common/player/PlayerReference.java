@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -22,18 +20,27 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class PlayerReference {
-
-	private static Map<UUID,PlayerReference> knownReferences = new HashMap<>();
-	public static void clearPlayerCache() { knownReferences.clear(); }
-	public static List<PlayerReference> getKnownPlayers() { return new ArrayList<>(knownReferences.values()); }
 	
 	public final UUID id;
+	private boolean forceName = false;
 	private String name = "";
-	public String lastKnownName() { return this.name; }
-	public MutableComponent lastKnownNameComponent() { return new TextComponent(this.name); }
+	public String getName(boolean isClient)
+	{
+		if(isClient || this.forceName)
+			return this.name;
+		else
+		{
+			String n = getPlayerName(this.id);
+			if(n == null || n.isBlank())
+				return this.name;
+			return n;
+		}
+	}
+	public MutableComponent getNameComponent(boolean isClient) { return new TextComponent(this.getName(isClient)); }
 	
 	private PlayerReference(UUID playerID, String name)
 	{
@@ -42,20 +49,12 @@ public class PlayerReference {
 	}
 	
 	/**
-	 * @deprecated No longer needed, as the name is updated every time a reference is created on the server.
-	 */
-	@Deprecated
-	public void tryUpdateName(Player player)
-	{
-		if(is(player))
-			this.name = player.getGameProfile().getName();
-	}
-	
-	/**
 	 * Used to run an action/interaction under a team's name.
 	 */
 	public PlayerReference copyWithName(String name) {
-		return new PlayerReference(this.id, name);
+		PlayerReference copy = new PlayerReference(this.id, name);
+		copy.forceName = true;
+		return copy;
 	}
 	
 	public boolean is(PlayerReference player)
@@ -100,14 +99,16 @@ public class PlayerReference {
 	{
 		CompoundTag compound = new CompoundTag();
 		compound.putUUID("id", this.id);
-		compound.putString("name", this.name);
+		compound.putString("name", this.getName(false));
+		if(this.forceName)
+			compound.putBoolean("forcedname", this.forceName);
 		return compound;
 	}
 	
 	public JsonObject saveAsJson() {
 		JsonObject json = new JsonObject();
 		json.addProperty("id", this.id.toString());
-		json.addProperty("name", this.name);
+		json.addProperty("name", this.getName(false));
 		return json;
 	}
 	
@@ -116,14 +117,17 @@ public class PlayerReference {
 		try {
 			UUID id = compound.getUUID("id");
 			String name = compound.getString("name");
-			return of(id, name);
+			PlayerReference pr = of(id, name);
+			if(compound.contains("forcedname"))
+				pr.forceName = compound.getBoolean("forcedname");
+			return pr;
 		} catch(Exception e) { LightmansCurrency.LogError("Error loading PlayerReference from tag.", e); return null; }
 	}
 	
 	public static PlayerReference load(JsonElement json) {
 		try {
 			if(json.isJsonPrimitive() && json.getAsJsonPrimitive().isString())
-				return PlayerReference.of(json.getAsString());
+				return PlayerReference.of(false, json.getAsString());
 			JsonObject j = json.getAsJsonObject();
 			UUID id = UUID.fromString(j.get("id").getAsString());
 			String name = j.get("name").getAsString();
@@ -156,46 +160,18 @@ public class PlayerReference {
 		return playerList;
 	}
 	
-	public static PlayerReference of(@Nonnull UUID playerID, String name) { return of(playerID, name, false); }
-	
-	public static PlayerReference of(@Nonnull UUID playerID, String name, boolean isTrueName)
+	public static PlayerReference of(@Nonnull UUID playerID, String name)
 	{
 		if(playerID == null)
 			throw new RuntimeException("Cannot make a PlayerReference from a null player ID!");
-		//Attempt to get the players profile, for latest name updates
-		if(!isTrueName)
-		{
-			//Only attempt this if this isn't already the true name.
-			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-			if(server != null)
-			{
-				GameProfile profile = server.getProfileCache().get(playerID).orElse(null);
-				if(profile == null || profile.getName() == null)
-					return null;
-				name = profile.getName();
-				isTrueName = true;
-			}
-		}
-		
-		//Check if any known references have the same id
-		if(knownReferences.containsKey(playerID))
-		{
-			PlayerReference pr = knownReferences.get(playerID);
-			if(isTrueName) //If this is known to be the true player name, update the name
-				pr.name = name;
-			return pr;
-		}
-		//Otherwise, create the reference
-		PlayerReference newPR = new PlayerReference(playerID, name);
-		knownReferences.put(playerID, newPR);
-		return newPR;
+		return new PlayerReference(playerID, name);
 	}
 	
 	public static PlayerReference of(GameProfile playerProfile)
 	{
 		if(playerProfile == null)
 			return null;
-		return of(playerProfile.getId(), playerProfile.getName(), true);
+		return of(playerProfile.getId(), playerProfile.getName());
 	}
 	
 	public static PlayerReference of(Entity entity)
@@ -212,19 +188,18 @@ public class PlayerReference {
 		return of(player.getGameProfile());
 	}
 	
-	public static PlayerReference of(String playerName)
+	public static PlayerReference of(boolean isClient, String playerName)
 	{
-		if(playerName.isBlank())
+		if(playerName.isBlank() || isClient)
 			return null;
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null)
-			return of(server.getProfileCache().get(playerName).orElse(null));
-		//Check known players on client
-		for(PlayerReference knownPlayer : knownReferences.values())
+		if(isClient)
 		{
-			if(knownPlayer.name.toLowerCase().equals(playerName.toLowerCase()))
-				return knownPlayer;
+			LightmansCurrency.LogWarning("Attempted to assemble a player reference from name alone on a client. Should not be doing that.");
+			return null;
 		}
+		UUID playerID = getPlayerID(playerName);
+		if(playerID != null)
+			return of(playerID, playerName);
 		return null;
 	}
 	
@@ -257,5 +232,50 @@ public class PlayerReference {
 	
 	@Override
 	public int hashCode() { return this.id.hashCode(); }
+	
+	/**
+	 * Only run on server.
+	 */
+	public static String getPlayerName(UUID playerID)
+	{
+		try {
+			String name = UsernameCache.getLastKnownUsername(playerID);
+			if(name != null)
+				return name;
+			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+			if(server != null)
+			{
+				GameProfile profile = server.getProfileCache().get(playerID).orElse(null);
+				if(profile != null)
+					return profile.getName();
+			}
+		} catch(Throwable t) { LightmansCurrency.LogError("Error getting player name.", t); }
+		return null;
+	}
+	
+	/**
+	 * Only run on server.
+	 */
+	public static UUID getPlayerID(String playerName)
+	{
+		playerName = playerName.toLowerCase();
+		try {
+			for(Entry<UUID,String> entry : UsernameCache.getMap().entrySet())
+			{
+				if(entry.getValue().toLowerCase().equals(playerName))
+					return entry.getKey();
+			}
+			
+			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+			if(server != null)
+			{
+				GameProfile profile = server.getProfileCache().get(playerName).orElse(null);
+				if(profile != null)
+					return profile.getId();
+			}
+			
+		} catch(Throwable t) { LightmansCurrency.LogError("Error getting player ID from name.", t); }
+		return null;
+	}
 	
 }

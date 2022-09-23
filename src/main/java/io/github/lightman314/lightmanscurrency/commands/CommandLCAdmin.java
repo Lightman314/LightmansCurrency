@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -203,10 +204,10 @@ public class CommandLCAdmin {
 		//Owner / Owner ID
 		else if(thisTrader.getOwner().hasPlayer())
 		{
-			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().lastKnownName(), thisTrader.getOwner().getPlayer().id.toString()), false);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
 		}
 		else
-			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName()), false);
+			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
 		
 		if(!thisTrader.isPersistent())
 		{
@@ -235,6 +236,8 @@ public class CommandLCAdmin {
 		TraderSaveData.DeleteTrader(trader.getID());
 		//Send success message
 		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
+		if(source.getEntity() != null && source.getEntity() instanceof Player)
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((Player)source.getEntity()), new MessageDebugTrader(trader.getID()));
 		return 1;
 		
 	}

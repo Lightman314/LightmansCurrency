@@ -71,7 +71,7 @@ public class BankSaveData extends SavedData {
 		BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(player), compound);
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
-			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).lastKnownName());
+			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
 		} catch(Throwable t) { t.printStackTrace(); }
 		return bankAccount;
 	}
@@ -80,7 +80,7 @@ public class BankSaveData extends SavedData {
 		BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(player));
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
-			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).lastKnownName());
+			bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
 		} catch(Throwable t) { t.printStackTrace(); }
 		return bankAccount;
 	}

@@ -74,9 +74,9 @@ public class TeamMemberEditTab extends TeamTab {
 			//Do NOT List Owner
 			//list.add(new TextComponent(team.getOwner().lastKnownName()).withStyle(ChatFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(new TextComponent(admin.lastKnownName()).withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(admin.getNameComponent(true).withStyle(ChatFormatting.DARK_GREEN)));
 			//List members
-			team.getMembers().forEach(member -> list.add(new TextComponent(member.lastKnownName())));
+			team.getMembers().forEach(member -> list.add(member.getNameComponent(true)));
 		}
 		
 		return list;

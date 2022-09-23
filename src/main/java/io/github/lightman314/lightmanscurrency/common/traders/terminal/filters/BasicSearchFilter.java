@@ -6,7 +6,7 @@ public class BasicSearchFilter extends TraderSearchFilter {
 
 	@Override
 	public boolean filter(TraderData data, String searchText) {
-		if(data.getOwner().getOwnerName().toLowerCase().contains(searchText.toLowerCase()))
+		if(data.getOwner().getOwnerName(true).toLowerCase().contains(searchText.toLowerCase()))
 			return true;
 		if(data.getName().getString().toLowerCase().contains(searchText.toLowerCase()))
 			return true;

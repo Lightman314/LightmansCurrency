@@ -133,7 +133,7 @@ public class PlayerDiscounts extends TradeRule {
 				//Load old method
 				else if(thisCompound.contains("name", Tag.TAG_STRING))
 				{
-					reference = PlayerReference.of(thisCompound.getString("name"));
+					reference = PlayerReference.of(false, thisCompound.getString("name"));
 					if(reference != null && !this.isOnList(reference))
 						this.playerList.add(reference);
 				}
@@ -172,7 +172,7 @@ public class PlayerDiscounts extends TradeRule {
 		{
 			boolean add = updateInfo.getBoolean("Add");
 			String name = updateInfo.getString("Name");
-			PlayerReference player = PlayerReference.of(name);
+			PlayerReference player = PlayerReference.of(false, name);
 			if(add && !this.isOnList(player))
 			{
 				this.playerList.add(player);
@@ -248,7 +248,7 @@ public class PlayerDiscounts extends TradeRule {
 			if(getRule() == null)
 				return playerList;
 			for(PlayerReference player : getRule().playerList)
-				playerList.add(player.lastKnownNameComponent());
+				playerList.add(player.getNameComponent(true));
 			return playerList;
 		}
 				
@@ -289,14 +289,6 @@ public class PlayerDiscounts extends TradeRule {
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(reference != null)
-				{
-					if(!getRule().isOnList(reference))
-					{
-						getRule().playerList.add(reference);
-					}
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", true);
 				updateInfo.putString("Name", name);
@@ -310,22 +302,6 @@ public class PlayerDiscounts extends TradeRule {
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(reference != null)
-				{
-					if(getRule().isOnList(reference))
-					{
-						boolean notFound = true;
-						for(int i = 0; notFound && i < getRule().playerList.size(); ++i)
-						{
-							if(getRule().playerList.get(i).is(reference))
-							{
-								notFound = false;
-								getRule().playerList.remove(i);
-							}
-						}
-					}
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", false);
 				updateInfo.putString("Name", name);

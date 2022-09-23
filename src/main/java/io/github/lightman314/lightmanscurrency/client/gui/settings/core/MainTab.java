@@ -89,6 +89,7 @@ public class MainTab extends SettingsTab{
 	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TraderSettingsScreen screen = this.getScreen();
+		TraderData trader = this.getScreen().getTrader();
 		
 		screen.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.customname"), screen.guiLeft() + 20, screen.guiTop() + 15, 0x404040);
 		
@@ -96,9 +97,9 @@ public class MainTab extends SettingsTab{
 			this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.banklink"), screen.guiLeft() + 32, screen.guiTop() + 101, 0x404040);
 		
 		//Draw current trade count
-		if(CommandLCAdmin.isAdminPlayer(this.getScreen().getPlayer()))
+		if(CommandLCAdmin.isAdminPlayer(this.getScreen().getPlayer()) && trader != null)
 		{
-			String count = String.valueOf(screen.getTrader().getTradeCount());
+			String count = String.valueOf(trader.getTradeCount());
 			int width = this.getFont().width(count);
 			this.getFont().draw(pose, count, screen.guiLeft() + 164 - width, screen.guiTop() + screen.ySize - 25, 0x404040);
 			

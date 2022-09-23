@@ -118,24 +118,31 @@ public class TraderSaveData extends SavedData {
 		cleanOldData(this);
 		
 		this.nextID = compound.getLong("NextID");
+		LightmansCurrency.LogInfo("Loaded NextID (" + this.nextID + ") from tag.");
 		
 		ListTag traderData = compound.getList("TraderData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < traderData.size(); ++i)
 		{
-			CompoundTag traderTag = traderData.getCompound(i);
-			TraderData trader = TraderData.Deserialize(false, traderTag);
-			if(trader != null)
-				this.traderData.put(trader.getID(), trader.allowMarkingDirty());
+			try {
+				CompoundTag traderTag = traderData.getCompound(i);
+				TraderData trader = TraderData.Deserialize(false, traderTag);
+				if(trader != null)
+					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
+				else
+					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
+			} catch(Throwable t) { LightmansCurrency.LogError("Error loading TraderData", t); }
 		}
 		
 		ListTag persistentData = compound.getList("PersistentData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < persistentData.size(); ++i)
 		{
-			CompoundTag c = persistentData.getCompound(i);
-			String name = c.getString("Name");
-			long id = c.getLong("ID");
-			CompoundTag tag = c.getCompound("Tag");
-			this.persistentTraderData.put(name, new PersistentData(id,tag));
+			try {
+				CompoundTag c = persistentData.getCompound(i);
+				String name = c.getString("Name");
+				long id = c.getLong("ID");
+				CompoundTag tag = c.getCompound("Tag");
+				this.persistentTraderData.put(name, new PersistentData(id,tag));
+			} catch(Throwable t) { LightmansCurrency.LogError("Error loading Persistent Data", t); }
 		}
 		
 		this.validateAuctionHouse();
@@ -166,11 +173,13 @@ public class TraderSaveData extends SavedData {
 		
 		ListTag persistentData = new ListTag();
 		this.persistentTraderData.forEach((id,data) -> {
-			CompoundTag c = new CompoundTag();
-			c.putString("Name", id);
-			c.putLong("ID", data.id);
-			c.put("Tag", data.tag);
-			persistentData.add(c);
+			try {
+				CompoundTag c = new CompoundTag();
+				c.putString("Name", id);
+				c.putLong("ID", data.id);
+				c.put("Tag", data.tag);
+				persistentData.add(c);
+			} catch(Throwable t) { LightmansCurrency.LogError("Error saving Persistent Data:", t); }
 		});
 		compound.put("PersistentData", persistentData);
 		
@@ -187,7 +196,7 @@ public class TraderSaveData extends SavedData {
 		if(this.persistentTraderData.containsKey(traderID))
 			this.persistentTraderData.get(traderID).id = id;
 		else
-			this.persistentTraderData.put(traderID, new PersistentData(id,new CompoundTag()));
+			this.persistentTraderData.put(traderID, new PersistentData(id, new CompoundTag()));
 		this.setDirty();
 	}
 	
@@ -215,9 +224,9 @@ public class TraderSaveData extends SavedData {
 	
 	private void putPersistentTag(String traderID, CompoundTag tag) {
 		if(this.persistentTraderData.containsKey(traderID))
-			this.persistentTraderData.get(traderID).tag = tag;
+			this.persistentTraderData.get(traderID).tag = tag == null ? new CompoundTag() : tag;
 		else
-			this.persistentTraderData.put(traderID, new PersistentData(-1, tag));
+			this.persistentTraderData.put(traderID, new PersistentData(-1, tag == null ? new CompoundTag() : tag));
 		this.setDirty();
 	}
 	
@@ -372,6 +381,7 @@ public class TraderSaveData extends SavedData {
 						id = this.getNextID();
 						this.putPersistentID(traderID, id);
 						this.setDirty();
+						LightmansCurrency.LogInfo("Generated new ID for persistent trader '" + traderID + "' (" + id + ")"); 
 					}
 					//Initialize the persistence (forces creative & terminal access)
 					data.makePersistent(id, traderID);
@@ -479,7 +489,7 @@ public class TraderSaveData extends SavedData {
 		return RegisterTrader(newTrader, null);
 	}
 	
-	public static long RegisterTrader(TraderData newTrader, @Nullable Player owner) {
+	public static long RegisterTrader(TraderData newTrader, @Nullable Player player) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
@@ -488,8 +498,8 @@ public class TraderSaveData extends SavedData {
 			tsd.traderData.put(newID, newTrader.allowMarkingDirty());
 			tsd.setDirty();
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(newTrader.save()));
-			if(newTrader.shouldAlwaysShowOnTerminal() && owner != null)
-				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, owner));
+			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
+				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
 		}
 		return -1;
@@ -506,7 +516,7 @@ public class TraderSaveData extends SavedData {
 				tsd.setDirty();
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
 				if(trader.shouldAlwaysShowOnTerminal())
-					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(trader.getID(), trader));
+					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
 				return trader;
 			}
 		}
@@ -646,7 +656,7 @@ public class TraderSaveData extends SavedData {
 		public long id;
 		public CompoundTag tag;
 		
-		public PersistentData(long id, CompoundTag tag) { this.id = id; this.tag = tag; }
+		public PersistentData(long id, CompoundTag tag) { this.id = id; this.tag = tag == null ? new CompoundTag() : tag; }
 		
 	}
 	

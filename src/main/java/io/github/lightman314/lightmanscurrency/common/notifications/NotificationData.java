@@ -47,16 +47,11 @@ public class NotificationData {
 	
 	public void addNotification(Notification newNotification) {
 		boolean shouldAdd = true;
-		for(int i = 0; i < notifications.size() && shouldAdd; ++i)
+		if(this.notifications.size() > 0)
 		{
-			Notification n = notifications.get(i);
-			if(n.onNewNotification(newNotification))
-			{
-				//If new notification was stacked, move it to the top
-				this.notifications.remove(n);
-				this.notifications.add(0, n);
+			Notification mostRecent = this.notifications.get(0);
+			if(mostRecent.onNewNotification(newNotification))
 				shouldAdd = false;
-			}
 		}
 		if(shouldAdd)
 			this.notifications.add(0, newNotification);

@@ -39,7 +39,7 @@ public class BankTransferNotification extends Notification {
 
 	@Override
 	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.bank.transfer", this.player.lastKnownName(), this.amount.getComponent(), new TranslatableComponent(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
+		return new TranslatableComponent("log.bank.transfer", this.player.getName(true), this.amount.getComponent(), new TranslatableComponent(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
 	}
 
 	@Override

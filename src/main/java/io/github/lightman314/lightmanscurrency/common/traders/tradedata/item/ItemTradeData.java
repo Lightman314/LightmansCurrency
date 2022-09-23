@@ -36,6 +36,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class ItemTradeData extends TradeData implements IBarterTrade {
 	
+	public ItemTradeData(boolean validateRules) { super(validateRules); }
+	
 	public enum ItemTradeType { SALE(0,1), PURCHASE(1,2), BARTER(2,0);
 		public final int index;
 		private final int nextIndex;
@@ -319,28 +321,25 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return nbt;
 	}
 	
-	public static ItemTradeData loadData(CompoundTag nbt) {
-		ItemTradeData trade = new ItemTradeData();
-		trade.loadFromNBT(nbt);
+	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules) {
+		ItemTradeData trade = new ItemTradeData(validateRules);
+		trade.loadFromNBT(compound);
 		return trade;
 	}
 	
-	public static List<ItemTradeData> loadAllData(CompoundTag nbt)
+	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules)
 	{
-		return loadAllData(DEFAULT_KEY, nbt);
+		return loadAllData(DEFAULT_KEY, nbt, validateRules);
 	}
 	
-	public static List<ItemTradeData> loadAllData(String key, CompoundTag nbt)
+	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules)
 	{
-		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
+		List<ItemTradeData> data = new ArrayList<>();
 		
-		List<ItemTradeData> data = listOfSize(listNBT.size());
+		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
 		
 		for(int i = 0; i < listNBT.size(); i++)
-		{
-			//CompoundNBT compoundNBT = listNBT.getCompound(i);
-			data.get(i).loadFromNBT(listNBT.getCompound(i));
-		}
+			data.add(loadData(listNBT.getCompound(i), validateRules));
 		
 		return data;
 	}
@@ -370,7 +369,6 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			else
 				this.items.setItem(2, ItemStack.EMPTY);
 		}
-		
 		
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
@@ -404,11 +402,11 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return value;
 	}
 	
-	public static List<ItemTradeData> listOfSize(int tradeCount)
+	public static List<ItemTradeData> listOfSize(int tradeCount, boolean validateRules)
 	{
 		List<ItemTradeData> data = Lists.newArrayList();
 		while(data.size() < tradeCount)
-			data.add(new ItemTradeData());
+			data.add(new ItemTradeData(validateRules));
 		return data;
 	}
 	
@@ -580,7 +578,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!customName.isEmpty() && (this.isSale() || this.isBarter()))
 		{
 			originalName = tooltips.get(0);
-			tooltips.set(0, new TranslatableComponent(customName).withStyle(ChatFormatting.GOLD));
+			tooltips.set(0, new TextComponent(customName).withStyle(ChatFormatting.GOLD));
 		}
 		//Stop here if this is in storage mode, and there's no custom name
 		if(context.isStorageMode && originalName == null)
@@ -643,10 +641,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 	
 	@Override
-	public List<AlertData> getAlertData(TradeContext context) {
-		if(context.isStorageMode)
-			return null;
-		List<AlertData> alerts = new ArrayList<>();
+	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
 		if(context.hasTrader() && context.getTrader() instanceof ItemTraderData)
 		{
 			
@@ -665,8 +660,6 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford")));
 			
 		}
-		this.addTradeRuleAlertData(alerts, context);
-		return alerts;
 	}
 
 	@Override

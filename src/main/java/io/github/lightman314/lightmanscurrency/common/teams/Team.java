@@ -125,7 +125,7 @@ public class Team {
 	
 	public void changeAny(Player requestor, String playerName, String category)
 	{
-		PlayerReference player = PlayerReference.of(playerName);
+		PlayerReference player = PlayerReference.of(this.isClient, playerName);
 		if(player == null)
 			return;
 		if(category.contentEquals(CATEGORY_MEMBER) && this.isAdmin(requestor))

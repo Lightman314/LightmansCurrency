@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
@@ -55,11 +54,11 @@ public class TeamMemberListTab extends TeamTab {
 		if(team != null)
 		{
 			//List Owner
-			list.add(new TextComponent(team.getOwner().lastKnownName()).withStyle(ChatFormatting.GREEN));
+			list.add(team.getOwner().getNameComponent(true).withStyle(ChatFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(new TextComponent(admin.lastKnownName()).withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(admin.getNameComponent(true).withStyle(ChatFormatting.DARK_GREEN)));
 			//List members
-			team.getMembers().forEach(member -> list.add(new TextComponent(member.lastKnownName())));
+			team.getMembers().forEach(member -> list.add(member.getNameComponent(true)));
 		}
 		
 		return list;

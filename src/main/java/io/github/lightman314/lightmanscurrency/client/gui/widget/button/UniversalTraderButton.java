@@ -70,7 +70,7 @@ public class UniversalTraderButton extends Button{
 		//Draw the name & owner of the trader
 		Style style = this.data.isCreative() ? Style.EMPTY.applyFormat(ChatFormatting.GREEN) : Style.EMPTY;
 		this.font.draw(poseStack, TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), this.x + 24f, this.y + 6f, 0x404040);
-		this.font.draw(poseStack, TextRenderUtil.fitString(this.data.getOwner().getOwnerName(), this.width - 26), this.x + 24f, this.y + 16f, 0x404040);
+		this.font.draw(poseStack, TextRenderUtil.fitString(this.data.getOwner().getOwnerName(true), this.width - 26), this.x + 24f, this.y + 16f, 0x404040);
 		
 	}
 

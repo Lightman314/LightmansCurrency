@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
-import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
@@ -130,10 +129,6 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageCreateTeamBankAccount.class, MessageCreateTeamBankAccount::encode, MessageCreateTeamBankAccount::decode, MessageCreateTeamBankAccount::handle);
 		register(MessageSetTeamBankLimit.class, MessageSetTeamBankLimit::encode, MessageSetTeamBankLimit::decode, MessageSetTeamBankLimit::handle);
 		
-		//Logger
-		//register(MessageClearLogger.class, MessageClearLogger::encode, MessageClearLogger::decode, MessageClearLogger::handle);
-		//register(MessageClearUniversalLogger.class, MessageClearUniversalLogger::encode, MessageClearUniversalLogger::decode, MessageClearUniversalLogger::handle);
-		
 		//Notifications
 		register(MessageUpdateClientNotifications.class, MessageUpdateClientNotifications::encode, MessageUpdateClientNotifications::decode, MessageUpdateClientNotifications::handle);
 		register(MessageFlagNotificationsSeen.class, MessageFlagNotificationsSeen::encode, MessageFlagNotificationsSeen::decode, MessageFlagNotificationsSeen::handle);
@@ -145,6 +140,7 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Command/Admin
 		register(MessageSyncAdminList.class, MessageSyncAdminList::encode, MessageSyncAdminList::decode, MessageSyncAdminList::handle);
+		register(MessageDebugTrader.class, MessageDebugTrader::encode, MessageDebugTrader::decode, MessageDebugTrader::handle);
 		
 		//Money Data
 		register(MoneyData.class, MoneyData::encode, MoneyData::decode, MoneyData::handle);
@@ -154,10 +150,6 @@ public class LightmansCurrencyPacketHandler {
 		
 		//Enchantments
 		register(SPacketMoneyMendingClink.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(SPacketMoneyMendingClink::new), SPacketMoneyMendingClink::handle);
-		
-		//Player List
-		register(CPacketRequestPlayerList.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketRequestPlayerList::new), CPacketRequestPlayerList::handle);
-		register(SPacketSendPlayerList.class, SPacketSendPlayerList::encode, SPacketSendPlayerList::decode, SPacketSendPlayerList::handle);
 		
 		//Persistent Data
 		register(MessageAddPersistentTrader.class, MessageAddPersistentTrader::encode, MessageAddPersistentTrader::decode, MessageAddPersistentTrader::handle);

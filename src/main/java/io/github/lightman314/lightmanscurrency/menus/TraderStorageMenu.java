@@ -63,9 +63,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
 	public TraderStorageMenu(int windowID, Inventory inventory, long traderID) {
-		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () ->{
-			return TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID);
-		});
+		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
 	}
 	
 	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource) {

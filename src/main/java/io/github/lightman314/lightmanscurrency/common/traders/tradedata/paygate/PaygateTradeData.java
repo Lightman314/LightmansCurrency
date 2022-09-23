@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +30,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class PaygateTradeData extends TradeData {
 
+	public PaygateTradeData() { super(true); }
+	
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
 	public void setDuration(int duration) { this.duration = Math.max(duration, PaygateTraderData.DURATION_MIN); }
@@ -271,10 +272,7 @@ public class PaygateTradeData extends TradeData {
 	}
 
 	@Override
-	public List<AlertData> getAlertData(TradeContext context) {
-		if(context.isStorageMode)
-			return null;
-		List<AlertData> alerts = new ArrayList<>();
+	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
 		if(context.hasTrader() && context.getTrader() instanceof PaygateTraderData)
 		{
 			PaygateTraderData paygate = (PaygateTraderData)context.getTrader();
@@ -285,8 +283,6 @@ public class PaygateTradeData extends TradeData {
 			if(!this.canAfford(context))
 				alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford")));
 		}
-		this.addTradeRuleAlertData(alerts, context);
-		return alerts;
 	}
 
 	@Override

@@ -250,7 +250,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final MutableComponent getTitle() {
 		if(this.creative)
 			return this.getName();
-		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.owner.getOwnerName());
+		return new TranslatableComponent("gui.lightmanscurrency.trading.title", this.getName(), this.owner.getOwnerName(this.isClient));
 	}
 	
 	private Item traderBlock;
@@ -567,6 +567,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("ID", Tag.TAG_LONG))
 			this.setID(compound.getLong("ID"));
 		
+		//Load persistent trader id
+		if(compound.contains("PersistentTraderID"))
+			this.persistentID = compound.getString("PersistentTraderID");
+		
 		//Position
 		if(compound.contains("WorldPos"))
 		{
@@ -623,7 +627,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("RuleData"))
 		{
 			this.rules = TradeRule.loadRules(compound, "RuleData");
-			if(this.isServer())
+			if(!this.isPersistent())
 				TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 		}
 		
@@ -648,10 +652,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.notificationsToChat = compound.getBoolean("ChatNotifications");
 		if(compound.contains("TeamNotifications"))
 			this.teamNotificationLevel = compound.getInt("TeamNotifications");
-		
-		//Save persistent trader id
-		if(compound.contains("PersistentTraderID"))
-			this.persistentID = compound.getString("PersistentTraderID");
 		
 		//Load trader-specific data
 		this.loadAdditional(compound);
@@ -997,7 +997,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
 			{
-				PlayerReference newOwner = PlayerReference.of(message.getString("ChangePlayerOwner"));
+				PlayerReference newOwner = PlayerReference.of(this.isClient, message.getString("ChangePlayerOwner"));
 				if(newOwner != null && (this.owner.hasTeam() || !newOwner.is(this.owner.getPlayer())))
 				{
 					Team oldTeam = this.owner.getTeam();
@@ -1051,7 +1051,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
-				PlayerReference newAlly = PlayerReference.of(message.getString("AddAlly"));
+				PlayerReference newAlly = PlayerReference.of(this.isClient, message.getString("AddAlly"));
 				if(newAlly != null && !PlayerReference.listContains(this.allies, newAlly.id))
 				{
 					this.allies.add(newAlly);
@@ -1066,7 +1066,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			if(this.hasPermission(player, Permissions.ADD_REMOVE_ALLIES))
 			{
-				PlayerReference oldAlly = PlayerReference.of(message.getString("RemoveAlly"));
+				PlayerReference oldAlly = PlayerReference.of(this.isClient, message.getString("RemoveAlly"));
 				if(oldAlly != null && PlayerReference.removeFromList(this.allies, oldAlly.id))
 				{
 					this.markDirty(this::saveAllies);
