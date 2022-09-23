@@ -211,7 +211,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName(false) + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												String priceText = trade.getCost().getString();
@@ -229,7 +229,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName(false) + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												String priceText = trade.getCost().getString();
@@ -250,7 +250,7 @@ public class CurrencyListener extends SingleChannelListener{
 											{
 												if(firstTrade)
 												{
-													output.add("--" + itemTrader.getOwner().getOwnerName() + "'s **" + itemTrader.getName().getString() + "**--");
+													output.add("--" + itemTrader.getOwner().getOwnerName(false) + "'s **" + itemTrader.getName().getString() + "**--");
 													firstTrade = false;
 												}
 												output.add("Bartering " + getItemNamesAndCount(trade.getBarterItem(0), "", trade.getBarterItem(1), "") + " for " + getItemNamesAndCount(trade.getSellItem(0), trade.getCustomName(0), trade.getSellItem(1), trade.getCustomName(1)));
@@ -376,7 +376,7 @@ public class CurrencyListener extends SingleChannelListener{
 		else
 		{
 			PlayerReference owner = auction.getOwner();
-			String ownerName = owner != null ? owner.lastKnownName() : "NULL";
+			String ownerName = owner != null ? owner.getName(false) : "NULL";
 			this.sendTextMessage(CurrencyMessages.M_NEWAUCTION.format(ownerName, itemText, startingBid, minBid));
 		}
 		
@@ -402,7 +402,7 @@ public class CurrencyListener extends SingleChannelListener{
 		if(auction.getLastBidPlayer() == null)
 			return;
 		
-		String winner = auction.getLastBidPlayer().lastKnownName();
+		String winner = auction.getLastBidPlayer().getName(false);
 		String itemText = getItemNamesAndCounts(auction.getAuctionItems());
 		String price = auction.getLastBidAmount().getString();
 		
@@ -481,9 +481,9 @@ public class CurrencyListener extends SingleChannelListener{
 				if(trader == null) //Abort if the trader was removed.
 					return;
 				if(trader.hasCustomName())
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getOwnerName(), trader.getCustomName()));
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER_NAMED.format(trader.getOwner().getOwnerName(false), trader.getCustomName()));
 				else
-					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getOwnerName()));
+					cl.sendTextMessage(CurrencyMessages.M_NEWTRADER.format(trader.getOwner().getOwnerName(false)));
 			} catch(Exception e) { e.printStackTrace(); }
 		}
 		
@@ -496,7 +496,7 @@ public class CurrencyListener extends SingleChannelListener{
 		TRADE_BARTER(trade -> { if(trade instanceof IBarterTrade) return ((IBarterTrade)trade).isBarter(); return false; }),
 		TRADE_ANY(trade -> true),
 		
-		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getOwnerName().toLowerCase().contains(search)),
+		TRADER_OWNER((trader,search) -> search.isEmpty() || trader.getOwner().getOwnerName(false).toLowerCase().contains(search)),
 		TRADER_NAME((trader,search) -> search.isEmpty() || trader.getName().getString().toLowerCase().contains(search)),
 		TRADER_ANY((trader,search) -> true);
 		

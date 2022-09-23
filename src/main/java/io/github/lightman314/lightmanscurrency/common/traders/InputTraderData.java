@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTab;
+import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -52,10 +53,28 @@ public abstract class InputTraderData extends TraderData {
 		return this.inputSides.getOrDefault(side, false);
 	}
 	
+	public final boolean hasInputSide() {
+		for(Direction side : Direction.values())
+		{
+			if(this.allowInputSide(side))
+				return true;
+		}
+		return false;
+	}
+	
 	public boolean allowOutputSide(Direction side) {
 		if(this.ignoreSides.contains(side))
 			return false;
 		return this.outputSides.getOrDefault(side, false);
+	}
+	
+	public final boolean hasOutputSide() {
+		for(Direction side : Direction.values())
+		{
+			if(this.allowOutputSide(side))
+				return true;
+		}
+		return false;
 	}
 	
 	public void setInputSide(Player player, Direction side, boolean value) {
@@ -148,6 +167,10 @@ public abstract class InputTraderData extends TraderData {
 	public abstract MutableComponent inputSettingsTabTooltip();
 	@OnlyIn(Dist.CLIENT)
 	public abstract int inputSettingsTabColor();
+	@OnlyIn(Dist.CLIENT)
+	public abstract int inputSettingsTextColor();
+	@OnlyIn(Dist.CLIENT)
+	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 	
 	@Override
 	public void receiveNetworkMessage(Player player, CompoundTag message)

@@ -30,11 +30,11 @@ public class ChangeNameNotification extends Notification {
 	@Override
 	public MutableComponent getMessage() {
 		if(oldName.isBlank())
-			return Component.translatable("log.settings.changename.set", player.lastKnownName(), newName);
+			return Component.translatable("log.settings.changename.set", this.player.getName(true), this.newName);
 		else if(newName.isBlank())
-			return Component.translatable("log.settings.changename.reset", player.lastKnownName(), oldName);
+			return Component.translatable("log.settings.changename.reset", this.player.getName(true), this.oldName);
 		else
-			return Component.translatable("log.settings.changename", player.lastKnownName(), oldName, newName);
+			return Component.translatable("log.settings.changename", this.player.getName(true), this.oldName, this.newName);
 	}
 
 	@Override

@@ -49,7 +49,7 @@ public abstract class ChangeSettingNotification extends Notification {
 		protected ResourceLocation getType() { return ADVANCED_TYPE; }
 
 		@Override
-		public MutableComponent getMessage() { return Component.translatable("log.settings.change", this.player.lastKnownName(), this.setting, this.oldValue, this.newValue); }
+		public MutableComponent getMessage() { return Component.translatable("log.settings.change", this.player.getName(true), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(CompoundTag compound) {
@@ -90,7 +90,7 @@ public abstract class ChangeSettingNotification extends Notification {
 
 		@Override
 		public MutableComponent getMessage() {
-			return Component.translatable("log.settings.change.simple", this.player.lastKnownName(), this.setting, this.newValue);
+			return Component.translatable("log.settings.change.simple", this.player.getName(true), this.setting, this.newValue);
 		}
 		
 		@Override

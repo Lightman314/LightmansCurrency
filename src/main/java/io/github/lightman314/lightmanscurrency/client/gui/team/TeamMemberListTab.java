@@ -50,11 +50,11 @@ public class TeamMemberListTab extends TeamTab {
 		if(team != null)
 		{
 			//List Owner
-			list.add(team.getOwner().lastKnownNameComponent().withStyle(ChatFormatting.GREEN));
+			list.add(team.getOwner().getNameComponent(true).withStyle(ChatFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(admin.lastKnownNameComponent().withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(admin.getNameComponent(true).withStyle(ChatFormatting.DARK_GREEN)));
 			//List members
-			team.getMembers().forEach(member -> list.add(member.lastKnownNameComponent()));
+			team.getMembers().forEach(member -> list.add(member.getNameComponent(true)));
 		}
 		
 		return list;

@@ -32,7 +32,7 @@ public class MessageAddPersistentTrader {
 	
 	private JsonObject getTraderJson(TraderData trader, String id) throws Exception {
 		JsonObject traderJson = trader.saveToJson();
-		traderJson.addProperty("ID", this.id);
+		traderJson.addProperty("ID", id);
 		traderJson.addProperty("OwnerName", this.owner);
 		return traderJson;
 	}
@@ -69,7 +69,7 @@ public class MessageAddPersistentTrader {
 							for(int i = 0; i < persistentTraders.size(); ++i)
 							{
 								JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
-								if(traderData.has("id") && traderData.get("id").getAsString().equals(message.id))
+								if(traderData.has("ID") && traderData.get("ID").getAsString().equals(message.id) || traderData.has("id") && traderData.get("id").getAsString().equals(message.id))
 								{
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
@@ -97,6 +97,8 @@ public class MessageAddPersistentTrader {
 								JsonObject traderData = persistentTraders.get(i).getAsJsonObject();
 								if(traderData.has("id"))
 									knownIDs.add(traderData.get("id").getAsString());
+								if(traderData.has("ID"))
+									knownIDs.add(traderData.get("ID").getAsString());
 							}
 							
 							//Check trader_1 -> trader_2147483646 to find an available id

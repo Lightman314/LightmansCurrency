@@ -95,23 +95,6 @@ public class PlayerWhitelist extends TradeRule{
 					this.whitelistedPlayers.add(reference);
 			}
 		}
-		//Load player names (old method) and convert them to player references
-		if(compound.contains("WhitelistedPlayersNames", Tag.TAG_LIST))
-		{
-			this.whitelistedPlayers.clear();
-			ListTag playerNameList = compound.getList("WhitelistedPlayersNames", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerNameList.size(); i++)
-			{
-				CompoundTag thisCompound = playerNameList.getCompound(i);
-				if(thisCompound.contains("name", Tag.TAG_STRING))
-				{
-					PlayerReference reference = PlayerReference.of(thisCompound.getString("name"));
-					if(reference != null && !this.isWhitelisted(reference))
-						this.whitelistedPlayers.add(reference);
-				}
-					
-			}
-		}
 		
 	}
 	
@@ -123,7 +106,7 @@ public class PlayerWhitelist extends TradeRule{
 	{
 		boolean add = updateInfo.getBoolean("Add");
 		String name = updateInfo.getString("Name");
-		PlayerReference player = PlayerReference.of(name);
+		PlayerReference player = PlayerReference.of(false, name);
 		if(player == null)
 			return;
 		if(add && !this.isWhitelisted(player))
@@ -197,7 +180,7 @@ public class PlayerWhitelist extends TradeRule{
 			if(getWhitelistRule() == null)
 				return playerList;
 			for(PlayerReference player : getWhitelistRule().whitelistedPlayers)
-				playerList.add(player.lastKnownNameComponent());
+				playerList.add(player.getNameComponent(true));
 			return playerList;
 		}
 		
@@ -220,14 +203,6 @@ public class PlayerWhitelist extends TradeRule{
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(reference != null)
-				{
-					if(!getWhitelistRule().isWhitelisted(reference))
-					{
-						getWhitelistRule().whitelistedPlayers.add(reference);
-					}
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", true);
 				updateInfo.putString("Name", name);
@@ -241,22 +216,6 @@ public class PlayerWhitelist extends TradeRule{
 			if(name != "")
 			{
 				nameInput.setValue("");
-				PlayerReference reference = PlayerReference.of(name);
-				if(reference != null)
-				{
-					if(getWhitelistRule().isWhitelisted(reference))
-					{
-						boolean notFound = true;
-						for(int i = 0; notFound && i < getWhitelistRule().whitelistedPlayers.size(); ++i)
-						{
-							if(getWhitelistRule().whitelistedPlayers.get(i).is(reference))
-							{
-								notFound = false;
-								getWhitelistRule().whitelistedPlayers.remove(i);
-							}
-						}
-					}
-				}
 				CompoundTag updateInfo = new CompoundTag();
 				updateInfo.putBoolean("Add", false);
 				updateInfo.putString("Name", name);

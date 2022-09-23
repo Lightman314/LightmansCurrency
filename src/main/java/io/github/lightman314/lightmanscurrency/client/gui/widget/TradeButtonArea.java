@@ -203,7 +203,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	private int validTrades() { 
+	private int validTrades() {
 		ITraderSource ts = this.traderSource.get();
 		if(ts == null)
 			return 0;

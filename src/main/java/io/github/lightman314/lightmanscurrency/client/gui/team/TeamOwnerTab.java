@@ -67,7 +67,7 @@ public class TeamOwnerTab extends TeamTab{
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.team.owner", this.getActiveTeam().getOwner().lastKnownName()), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
+		this.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.team.owner", this.getActiveTeam().getOwner().getName(true)), screen.guiLeft() + 20, screen.guiTop() + 10, 0x404040);
 		
 	}
 

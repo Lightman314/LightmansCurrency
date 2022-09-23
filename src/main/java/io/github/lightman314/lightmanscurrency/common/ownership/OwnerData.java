@@ -101,7 +101,7 @@ public class OwnerData {
 		return player.is(this.playerOwner);
 	}
 	
-	public String getOwnerName()
+	public String getOwnerName(boolean isClient)
 	{
 		if(this.customOwner != null)
 			return this.customOwner.getString();
@@ -109,7 +109,7 @@ public class OwnerData {
 		if(team != null)
 			return team.getName();
 		if(this.playerOwner != null)
-			return this.playerOwner.lastKnownName();
+			return this.playerOwner.getName(isClient);
 		return "NULL";
 	}
 	

@@ -118,14 +118,15 @@ public class AuctionTradeData extends TradeData {
 		}
 	}
 	
-	public AuctionTradeData(Player owner) { this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
+	public AuctionTradeData(Player owner) { super(false); this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
 	
-	public AuctionTradeData(CompoundTag compound) { this.loadFromNBT(compound); }
+	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
 	
 	/**
 	 * Used to create an auction trade from persistent auction data
 	 */
 	public AuctionTradeData(PersistentAuctionData data) {
+		super(false);
 		this.persistentID = data.id;
 		this.setDuration(data.duration);
 		this.auctionItems = data.getAuctionItems();
@@ -400,7 +401,7 @@ public class AuctionTradeData extends TradeData {
 		else
 		{
 			//Last bid info
-			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.lastBidPlayer.lastKnownName()));
+			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.lastbidder", this.lastBidPlayer.getName(true)));
 			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.currentbid", this.lastBidAmount.getString()));
 			//Next bid info
 			bidInfo.add(Component.translatable("tooltip.lightmanscurrency.auction.minbid", this.getMinNextBid().getString()));
@@ -421,7 +422,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
-	public List<AlertData> getAlertData(TradeContext context) { return new ArrayList<>(); }
+	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { }
 
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab, clientHandler); }

@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -131,14 +130,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 		super.load(compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
-	}
-	
-	@Override
-	public AABB getRenderBoundingBox()
-	{
-		if(this.getBlockState() != null)
-			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
-		return super.getRenderBoundingBox();
 	}
 
 	@Override

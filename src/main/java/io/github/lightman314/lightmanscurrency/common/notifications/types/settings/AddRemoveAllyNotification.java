@@ -33,7 +33,7 @@ public class AddRemoveAllyNotification extends Notification {
 
 	@Override
 	public MutableComponent getMessage() {
-		return Component.translatable("log.settings.addremoveally", this.player.lastKnownName(), Component.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.ally.lastKnownName(), Component.translatable(this.isAdd ? "log.settings.to" : "log.settings.from"));
+		return Component.translatable("log.settings.addremoveally", this.player.getName(true), Component.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), this.ally.getName(true), Component.translatable(this.isAdd ? "log.settings.to" : "log.settings.from"));
 	}
 
 	@Override

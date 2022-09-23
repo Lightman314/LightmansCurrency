@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -201,10 +202,10 @@ public class CommandLCAdmin {
 		//Owner / Owner ID
 		else if(thisTrader.getOwner().hasPlayer())
 		{
-			source.sendSuccess(Component.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().lastKnownName(), thisTrader.getOwner().getPlayer().id.toString()), false);
+			source.sendSuccess(Component.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
 		}
 		else
-			source.sendSuccess(Component.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName()), false);
+			source.sendSuccess(Component.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
 		
 		if(!thisTrader.isPersistent())
 		{
@@ -243,6 +244,9 @@ public class CommandLCAdmin {
 		
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 		source.sendSuccess(Component.literal(trader.save().getAsString()), false);
+		
+		if(source.getPlayer() != null)
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(source.getPlayer()), new MessageDebugTrader(trader.getID()));
 		return 1;
 	}
 	

@@ -39,7 +39,7 @@ public class PaygateNotification extends Notification{
 		
 		this.duration = trade.getDuration();
 		
-		this.customer = customer.lastKnownName();
+		this.customer = customer.getName(false);
 		
 	}
 	

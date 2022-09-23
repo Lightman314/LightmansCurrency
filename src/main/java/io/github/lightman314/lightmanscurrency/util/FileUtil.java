@@ -29,7 +29,7 @@ public class FileUtil {
 		if(item.hasTag())
 		{
 			String tag = item.getTag().getAsString();
-			json.addProperty("tag", tag);
+			json.addProperty("Tag", tag);
 		}
 		return json;
 	}
