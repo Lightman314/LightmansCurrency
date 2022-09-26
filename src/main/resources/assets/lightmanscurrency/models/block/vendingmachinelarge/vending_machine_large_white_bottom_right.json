@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
 	"textures": {
 		"particle": "lightmanscurrency:blocks/vendingmachine2/largebase_white",
 		"base": "lightmanscurrency:blocks/vendingmachine2/largebase_white",

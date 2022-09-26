@@ -8,7 +8,6 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
@@ -18,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScr
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.FreezerTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
@@ -34,19 +34,15 @@ import io.github.lightman314.lightmanscurrency.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -61,27 +57,11 @@ public class ClientProxy extends CommonProxy{
 	
 	private long timeOffset = 0;
 	
-	@SuppressWarnings("removal")
 	@Override
 	public void setupClient() {
 		
 		//Set Render Layers
 		//Done in the model themselves since 1.19-41.0.64
-		//Or at least it's supposed to be, but I have no f-in clue how it's done cause lord knows they can't document anything...
-		try {
-			
-			ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
-			
-			this.setRenderLayer(ModBlocks.VENDING_MACHINE.getAll(), RenderType.cutout());
-			
-			this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
-	    	
-	    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
-	    	
-	    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
-	    	
-		} catch(Throwable t) { LightmansCurrency.LogError("Cannot set block render layers anymore apparently. Hopefully forge has finally made the tutorial on how to define that in the block model..."); }
-		
     	
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
@@ -105,11 +85,9 @@ public class ClientProxy extends CommonProxy{
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
     	
-	}
-	
-	@SuppressWarnings("removal")
-	private void setRenderLayer(List<Block> blocks, RenderType type) {
-		for(Block b : blocks) ItemBlockRenderTypes.setRenderLayer(b, type);
+    	//Initialize the item edit widgets item list
+    	ItemEditWidget.initItemList();
+    	
 	}
 	
 	@Override

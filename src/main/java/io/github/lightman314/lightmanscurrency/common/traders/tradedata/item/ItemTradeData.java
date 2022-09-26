@@ -619,24 +619,13 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public int tradeButtonWidth(TradeContext context) { return 94; }
 
 	@Override
-	public DisplayData inputDisplayArea(TradeContext context) {
-		return new DisplayData(1, 1, 34, 16);
-	}
+	public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
 	@Override
-	public DisplayData outputDisplayArea(TradeContext context) {
-		return new DisplayData(58, 1, 34, 16);
-	}
+	public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(59, 1, 34, 16); }
 	
 	@Override
-	public Pair<Integer,Integer> arrowPosition(TradeContext context) {
-		return Pair.of(36, 1);
-	}
-
-	@Override
-	public Pair<Integer,Integer> alertPosition(TradeContext context) {
-		return Pair.of(36, 1);
-	}
+	public Pair<Integer,Integer> arrowPosition(TradeContext context) { return Pair.of(36, 1); }
 	
 	@Override
 	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {

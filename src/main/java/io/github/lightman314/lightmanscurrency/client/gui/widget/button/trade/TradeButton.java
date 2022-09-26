@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,7 +36,6 @@ public class TradeButton extends Button{
 	public static  final int ARROW_HEIGHT = 18;
 	
 	public static  final int TEMPLATE_WIDTH = 212;
-	public static  final int TEMPLATE_HEIGHT = 100;
 	
 	public static final int BUTTON_HEIGHT = 18;
 	
@@ -79,12 +80,12 @@ public class TradeButton extends Button{
 		
 		this.renderBackground(pose, context.isStorageMode || this.displayOnly ? false : this.isHovered);
 		
-		if(trade.hasArrow(context))
-			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode || this.displayOnly ? false : this.isHovered);
-		
 		try {
 			trade.renderAdditional(this, pose, mouseX, mouseY, context);
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
+		
+		if(trade.hasArrow(context))
+			this.renderArrow(pose, trade.arrowPosition(context), context.isStorageMode || this.displayOnly ? false : this.isHovered);
 		
 		this.renderAlert(pose, trade.alertPosition(context), trade.getAlertData(context));
 		
@@ -99,63 +100,26 @@ public class TradeButton extends Button{
 			LightmansCurrency.LogError("Cannot render a trade button that is less than 8 pixels wide!");
 			return;
 		}
-		if(this.height < 8)
-		{
-			LightmansCurrency.LogError("Cannot render a trade button that is less than 8 pixels tall!");
-			return;
-		}
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		if(this.active)
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		
-		int vOffset = isHovered ? TEMPLATE_HEIGHT : 0;
+		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
 		
-		//Render the top-left
-		this.blit(pose, this.x, this.y, 0, vOffset, 4, 4);
-		//Render the top-middle
+		//Render the left
+		this.blit(pose, this.x, this.y, 0, vOffset, 4, BUTTON_HEIGHT);
+		//Render the middle
 		int xOff = 4;
 		while(xOff < this.width - 4)
 		{
 			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-			this.blit(pose, this.x + xOff, this.y, 4, vOffset, xRend, 4);
+			this.blit(pose, this.x + xOff, this.y, 4, vOffset, xRend, BUTTON_HEIGHT);
 			xOff += xRend;
 		}
-		//Render the top-right
-		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, 4);
-		//Render the middle
-		int yOff = 4;
-		while(yOff < this.height - 4)
-		{
-			int yRend = Math.min(this.height - 4 - yOff, TEMPLATE_HEIGHT - 8);
-			//Middle-left
-			this.blit(pose, this.x, this.y + yOff, 0, vOffset + 4, 4, yRend);
-			xOff = 4;
-			while(xOff < this.width - 4)
-			{
-				int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-				//Render the middle
-				this.blit(pose, this.x + xOff, this.y + yOff, 4, vOffset + 4, xRend, yRend);
-				xOff += xRend;
-			}
-			//Middle-right
-			this.blit(pose, this.x + this.width - 4, this.y + yOff, TEMPLATE_WIDTH - 4, vOffset + 4, 4, yRend);
-			yOff += yRend;
-		}
-		//Render the bottom - left
-		this.blit(pose, this.x, this.y + this.height - 4, 0, vOffset + TEMPLATE_HEIGHT - 4, 4, 4);
-		//Render the bottom-middle
-		xOff = 4;
-		while(xOff < this.width - 4)
-		{
-			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-			this.blit(pose, this.x + xOff, this.y + this.height - 4, 4, vOffset + TEMPLATE_HEIGHT - 4, xRend, 4);
-			xOff += xRend;
-		}
-		//Render the bottom-right
-		this.blit(pose, this.x + this.width - 4, this.y + this.height - 4, TEMPLATE_WIDTH - 4, vOffset + TEMPLATE_HEIGHT - 4, 4, 4);
-		
+		//Render the right
+		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
 	}
 	
 	private void renderArrow(PoseStack pose, Pair<Integer,Integer> position, boolean isHovered)
@@ -205,31 +169,45 @@ public class TradeButton extends Button{
 		
 		TradeContext context = this.getContext();
 		
+		List<Component> tooltips = new ArrayList<>();
+		
+		this.tryAddTooltip(tooltips, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
+		
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
 		{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
-			{
-				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
-				return;
-			}
+				this.tryAddTooltip(tooltips, display.getFirst().tooltip);
 		}
 		
 		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(trade, context))
 		{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
-				DrawTooltip(pose, mouseX, mouseY, display.getFirst().tooltip);
-				return;
+				this.tryAddTooltip(tooltips, display.getFirst().tooltip);
 			}
 		}
 		
 		if(this.isMouseOverAlert(mouseX, mouseY, trade, context) && trade.hasAlert(context))
-		{
-			DrawAlerts(pose, mouseX, mouseY, trade.getAlertData(context));
-		}
+			this.tryAddAlertTooltips(tooltips, trade.getAlertData(context));
 		
-		DrawTooltip(pose, mouseX, mouseY, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
+		DrawTooltip(pose, mouseX, mouseY, tooltips);
 		
+	}
+	
+	private void tryAddTooltip(List<Component> tooltips, @Nullable List<Component> add)
+	{
+		if(add == null)
+			return;
+		tooltips.addAll(add);
+	}
+	
+	private void tryAddAlertTooltips(List<Component> tooltips, @Nullable List<AlertData> alerts)
+	{
+		if(alerts == null)
+			return;
+		alerts.sort(AlertData::compare);
+		for(AlertData alert : alerts)
+			tooltips.add(alert.getFormattedMessage());
 	}
 	
 	public void onInteractionClick(int mouseX, int mouseY, int button, InteractionConsumer consumer)
@@ -276,17 +254,9 @@ public class TradeButton extends Button{
 			return;
 		
 		Minecraft mc = Minecraft.getInstance();
-		mc.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
+		if(mc != null)
+			mc.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 		
-	}
-	
-	private static void DrawAlerts(PoseStack pose, int mouseX, int mouseY, List<AlertData> alerts) {
-		if(alerts == null || alerts.size() <= 0)
-			return;
-		alerts.sort(AlertData::compare);
-		List<Component> tooltips = new ArrayList<>();
-		for(AlertData alert : alerts) tooltips.add(alert.getFormattedMessage());
-		DrawTooltip(pose, mouseX, mouseY, tooltips);
 	}
 	
 	public int isMouseOverInput(int mouseX, int mouseY)

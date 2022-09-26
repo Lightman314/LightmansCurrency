@@ -170,23 +170,9 @@ public class InputTab extends SettingsTab{
 	private void ToggleOutputSide(Direction side)
 	{
 		CompoundTag message = new CompoundTag();
-		message.putBoolean("SetOuputSide", !this.getInputSideValue(side));
+		message.putBoolean("SetOutputSide", !this.getOutputSideValue(side));
 		message.putInt("Side", side.get3DDataValue());
 		this.sendNetworkMessage(message);
 	}
-	
-	/*private void ToggleInputLimit(Button button)
-	{
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
-		CompoundTag updateInfo = settings.toggleInputLimit(this.getPlayer());
-		settings.sendToServer(updateInfo);
-	}
-	
-	private void ToggleOutputLimit(Button button)
-	{
-		ItemTraderSettings settings = this.getSetting(ItemTraderSettings.class);
-		CompoundTag updateInfo = settings.toggleOutputLimit(this.getPlayer());
-		settings.sendToServer(updateInfo);
-	}*/
 
 }

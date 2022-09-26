@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -676,12 +678,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	
 	@Override
+	@NotNull
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide){
-		if(cap == ForgeCapabilities.ITEM_HANDLER)
-		{
-			return LazyOptional.of(() -> this.getItemHandler(relativeSide)).cast();
-		}
-		return super.getCapability(cap, relativeSide);
+		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 	
 	@Override @Deprecated
