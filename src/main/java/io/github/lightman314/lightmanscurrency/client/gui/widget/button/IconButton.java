@@ -15,6 +15,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 @OnlyIn(Dist.CLIENT)
@@ -22,7 +23,7 @@ public class IconButton extends Button{
 	
 	public static final int SIZE = 20;
 	
-	private NonNullSupplier<IconData> iconSource;
+	private NonNullFunction<IconButton, IconData> iconSource;
 	
 	private NonNullSupplier<Boolean> activeCheck = () -> this.active;
 	private NonNullSupplier<Boolean> visibilityCheck = () -> this.visible;
@@ -48,6 +49,12 @@ public class IconButton extends Button{
 	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource, OnTooltip tooltip)
 	{
 		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
+		this.setIcon(iconSource);
+	}
+	
+	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullFunction<IconButton,IconData> iconSource, OnTooltip tooltip)
+	{
+		super(x,y,SIZE, SIZE, new TextComponent(""), pressable, tooltip);
 		this.setIcon(iconSource);
 	}
 	
@@ -77,15 +84,20 @@ public class IconButton extends Button{
 	@Deprecated
 	public void setResource(ResourceLocation iconResource, int resourceX, int resourceY)
 	{
-		this.iconSource = () -> IconData.of(iconResource, resourceX, resourceY);
+		this.iconSource = b -> IconData.of(iconResource, resourceX, resourceY);
 	}
 	
 	public void setIcon(@Nonnull IconData icon)
 	{
-		this.iconSource = () -> icon;
+		this.iconSource = b -> icon;
 	}
 	
 	public void setIcon(@Nonnull NonNullSupplier<IconData> iconSource) {
+		this.iconSource = b -> iconSource.get();
+	}
+	
+	public void setIcon(@Nonnull NonNullFunction<IconButton,IconData> iconSource)
+	{
 		this.iconSource = iconSource;
 	}
 	
@@ -114,7 +126,7 @@ public class IconButton extends Button{
         if(!this.active)
             RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         
-        this.iconSource.get().render(matrixStack, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
+        this.iconSource.apply(this).render(matrixStack, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
 		
 	}
 

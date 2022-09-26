@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.*;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule.GUIHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
@@ -61,15 +62,17 @@ public class TradeRuleScreen extends Screen{
 	
 	Button managerTab;
 	
-	List<Button> tabButtons = new ArrayList<>();
+	Map<Integer,Button> tabButtons = new HashMap<>();
 	
 	List<Button> toggleRuleButtons = new ArrayList<>();
 	
 	private List<TradeRule> getTradeRules() {
-		if(this.tradeIndex < 0)
-			return this.getTrader().getRules();
-		else
-			return this.getTrade().getRules();
+		try {
+			if(this.tradeIndex < 0)
+				return this.getTrader().getRules();
+			else
+				return this.getTrade().getRules();
+		} catch(Throwable t) { return new ArrayList<>(); }
 	}
 	TradeRule currentRule()
 	{
@@ -77,7 +80,7 @@ public class TradeRuleScreen extends Screen{
 			return this.getTradeRules().get(this.openTab);
 		return null;
 	}
-	GUIHandler currentGUIHandler = null;
+	TradeRule.GUIHandler currentGUIHandler = null;
 	
 	public TradeRuleScreen(long traderID, int tradeIndex)
 	{
@@ -92,7 +95,7 @@ public class TradeRuleScreen extends Screen{
 		
 		//Back button
 		this.addRenderableWidget(new IconButton(guiLeft() + this.xSize, guiTop(), this::PressBackButton, IconAndButtonUtil.ICON_BACK));
-		this.managerTab = this.addRenderableWidget(new IconButton(guiLeft(), guiTop() - 20, this::PressTabButton, IconAndButtonUtil.ICON_TRADE_RULES));
+		this.managerTab = this.addRenderableWidget(new IconButton(guiLeft(), guiTop() - 20, b -> this.PressTabButton(-1), IconAndButtonUtil.ICON_TRADE_RULES));
 		
 		this.refreshTabs();
 		
@@ -179,16 +182,11 @@ public class TradeRuleScreen extends Screen{
 		}
 		else
 		{
-			boolean hoverButton = true;
-			for(int i = 0; i < this.tabButtons.size() && i < this.getTradeRules().size() && hoverButton; i++)
-			{
-				Button thisTab = this.tabButtons.get(i);
-				if(thisTab.isMouseOver(mouseX, mouseY))
-				{
-					this.renderTooltip(poseStack, this.getTradeRules().get(i).getName(), mouseX, mouseY);
-					hoverButton = false;
-				}
-			}
+			final List<TradeRule> rules = this.getTradeRules();
+			this.tabButtons.forEach((ruleIndex,thisTab) -> {
+				if(thisTab.isMouseOver(mouseX, mouseY) && ruleIndex >= 0 && ruleIndex < rules.size())
+					this.renderTooltip(poseStack, rules.get(ruleIndex).getName(), mouseX, mouseY);
+			});
 		}
 	}
 	
@@ -199,7 +197,7 @@ public class TradeRuleScreen extends Screen{
 			this.minecraft.setScreen(null);
 			return;
 		}
-		if(currentGUIHandler != null)
+		if(this.currentGUIHandler != null)
 		{
 			this.currentGUIHandler.onScreenTick();
 		}
@@ -207,6 +205,7 @@ public class TradeRuleScreen extends Screen{
 		{
 			//Manager screen tick
 		}
+		this.validateTabs();
 	}
 	
 	void PressBackButton(Button button)
@@ -214,12 +213,12 @@ public class TradeRuleScreen extends Screen{
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.traderID));
 	}
 	
-	void PressTabButton(Button button)
+	void PressTabButton(int ruleIndex)
 	{
-		if(tabButtons.contains(button))
+		if(ruleIndex >= 0)
 		{
 			
-			if(this.openTab == tabButtons.indexOf(button))
+			if(this.openTab == ruleIndex)
 				return;
 			
 			if(this.currentGUIHandler != null)
@@ -230,7 +229,7 @@ public class TradeRuleScreen extends Screen{
 			else
 				this.closeManagerTab();
 			
-			this.openTab = tabButtons.indexOf(button);
+			this.openTab = ruleIndex;
 			
 			if(this.currentRule() != null)
 			{
@@ -238,7 +237,7 @@ public class TradeRuleScreen extends Screen{
 				this.currentGUIHandler.initTab();
 			}
 		}
-		else if(button == this.managerTab)
+		else
 		{
 			if(this.openTab < 0)
 				return;
@@ -269,27 +268,55 @@ public class TradeRuleScreen extends Screen{
 				updateInfo.putBoolean("SetActive", !rule.isActive());
 				this.sendUpdateMessage(rule, updateInfo);
 			}
+			this.refreshTabs();
 		}
 	}
 	
 	public void sendUpdateMessage(TradeRule rule, CompoundTag updateInfo) { if(rule != null) this.getTrader().sendTradeRuleMessage(this.tradeIndex, rule.type, updateInfo); }
 	
+	private void validateTabs()
+	{
+		List<TradeRule> rules = this.getTradeRules();
+		int activeCount = 0;
+		for(int i = 0; i < rules.size(); ++i)
+		{
+			TradeRule thisRule = rules.get(i);
+			if(thisRule.isActive())
+			{
+				activeCount++;
+				if(!this.tabButtons.containsKey(i))
+				{
+					this.refreshTabs();
+					return;
+				}
+			}
+		}
+		if(activeCount != this.tabButtons.values().size())
+			this.refreshTabs();
+	}
+	
 	public void refreshTabs()
 	{
 		
-		this.tabButtons.forEach(button -> this.removeWidget(button) );
+		this.tabButtons.values().forEach(button -> this.removeWidget(button));
 		this.tabButtons.clear();
 		
 		List<TradeRule> rules = this.getTradeRules();
+		int buttonPos = 0;
 		for(int i = 0; i < rules.size(); i++)
 		{
-			TradeRule thisRule = rules.get(i);
-			this.tabButtons.add(this.addRenderableWidget(new IconButton(guiLeft() + 20 + 20 * i, guiTop() - 20, this::PressTabButton, thisRule.getButtonIcon())));
+			final int ruleIndex = i;
+			TradeRule thisRule = rules.get(ruleIndex);
+			if(thisRule.isActive())
+			{
+				this.tabButtons.put(ruleIndex, this.addRenderableWidget(new IconButton(guiLeft() + 20 + 20 * buttonPos, guiTop() - 20, b -> this.PressTabButton(ruleIndex), thisRule.getButtonIcon())));
+				buttonPos++;
+			}	
 		}
 		
 	}
 	
-	//Public functions for easy traderule renderer access
+	//Public functions for easy trade rule renderer access
 	public Font getFont() { return this.font; }
 	
 	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)

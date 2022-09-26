@@ -219,17 +219,13 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
-			
 			Direction relativeSide = side;
 			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
 			{
 				IRotatableBlock block = (IRotatableBlock)this.getBlockState().getBlock();
 				relativeSide = IRotatableBlock.getRelativeSide(block.getFacing(this.getBlockState()), side);
 			}
-			LazyOptional<T> result = trader.getCapability(cap, relativeSide);
-			if(result != null)
-				return result;
-			
+			return trader.getCapability(cap, relativeSide);
 		}
 		
 		return super.getCapability(cap, side);

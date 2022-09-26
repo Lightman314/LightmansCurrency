@@ -522,6 +522,8 @@ public class Config {
 		//Discord Bot Options
 		public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
 		public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
+		public final ForgeConfigSpec.BooleanValue limitSearchToNetworkTraders;
+		
 		//Discord Bot Notification Options
 		public final ForgeConfigSpec.BooleanValue traderCreationNotifications;
 		public final ForgeConfigSpec.BooleanValue auctionHouseCreateNotifications;
@@ -684,6 +686,9 @@ public class Config {
 			this.currencyCommandPrefix = builder
 					.comment("Prefix for currency commands.")
 					.define("prefix", "!");
+			this.limitSearchToNetworkTraders = builder
+					.comment("Whether the !search command should limit its search results to only Network Traders, or if it should list all traders.")
+					.define("limitSearchToNetwork", true);
 			
 			builder.comment("Bot notification options.").push("notifications");
 			

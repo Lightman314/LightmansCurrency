@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class IconAndButtonUtil {
@@ -56,8 +57,11 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	public static final NonNullSupplier<IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
-		return () -> isCreative.get() ? ICON_CREATIVE_OFF : ICON_CREATIVE_ON;
+	public static final NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
+		return b -> {
+			boolean creative = b.isHoveredOrFocused() ? !isCreative.get() : isCreative.get();
+			return creative ? ICON_CREATIVE_ON : ICON_CREATIVE_OFF;
+		};
 	}
 	private static final IconData ICON_CREATIVE_ON = IconData.of(ICON_TEXTURE, 48, 16);
 	private static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
