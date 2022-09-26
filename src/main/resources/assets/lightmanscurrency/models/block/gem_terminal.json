@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "translucent",
 	"parent": "lightmanscurrency:block/block",
 	"texture_size": [32, 32],
 	"textures": {

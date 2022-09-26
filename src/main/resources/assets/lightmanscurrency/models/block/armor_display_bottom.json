@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
 	"textures": {
 		"main": "lightmanscurrency:blocks/armor_display",
 		"particle": "lightmanscurrency:blocks/armor_display"

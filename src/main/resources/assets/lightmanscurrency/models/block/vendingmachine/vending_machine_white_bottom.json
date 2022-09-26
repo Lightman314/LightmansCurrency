@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
 	"textures": {
         "shelves": "lightmanscurrency:blocks/vendingmachine1/shelves",
 		"base": "lightmanscurrency:blocks/vendingmachine1/base_white",

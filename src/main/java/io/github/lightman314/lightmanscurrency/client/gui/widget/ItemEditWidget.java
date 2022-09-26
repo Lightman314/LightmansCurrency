@@ -82,16 +82,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 		
-		//Load the item list from the item groups
-		this.initItemList();
-		//this.filteredResultItems = this.getFilteredItems();
-		
 		//Set the search to the default value to initialize the inventory
 		this.modifySearch("");
 		
 	}
 	
-	private void initItemList() {
+	public static final void initItemList() {
 		
 		if(allItems != null)
 			return;

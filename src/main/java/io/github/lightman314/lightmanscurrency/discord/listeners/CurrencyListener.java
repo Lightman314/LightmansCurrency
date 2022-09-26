@@ -188,7 +188,8 @@ public class CurrencyListener extends SingleChannelListener{
 				final SearchCategory searchType = type;
 				final String searchText = text;
 				List<String> output = new ArrayList<>();
-				TraderSaveData.GetAllTerminalTraders(false).forEach(trader -> {
+				List<TraderData> traderList = Config.SERVER.limitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
+				traderList.forEach(trader -> {
 					try {
 						if(trader instanceof ItemTraderData)
 						{

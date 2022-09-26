@@ -170,7 +170,7 @@ public class InputTab extends SettingsTab{
 	private void ToggleOutputSide(Direction side)
 	{
 		CompoundTag message = new CompoundTag();
-		message.putBoolean("SetOuputSide", !this.getInputSideValue(side));
+		message.putBoolean("SetOutputSide", !this.getInputSideValue(side));
 		message.putInt("Side", side.get3DDataValue());
 		this.sendNetworkMessage(message);
 	}

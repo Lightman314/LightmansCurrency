@@ -677,11 +677,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide){
-		if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-		{
-			return LazyOptional.of(() -> this.getItemHandler(relativeSide)).cast();
-		}
-		return super.getCapability(cap, relativeSide);
+		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 	
 	@Override @Deprecated

@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
     "parent": "lightmanscurrency:block/block",
 	"textures": {
 		"glass_sides": "lightmanscurrency:blocks/displaycase/display_sides",

@@ -10,6 +10,8 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -807,7 +809,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return event;
 	}
 	
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction relativeSide) { return null; }
+	@NotNull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction relativeSide) { return LazyOptional.empty(); }
 	
 	//Content drops
 	public final List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock) {
@@ -1153,7 +1156,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 						TradeData trade = this.getTradeData().get(tradeIndex);
 						if(trade != null)
 						{
-							TradeRule rule = TradeRule.getRule(type, this.rules);
+							TradeRule rule = TradeRule.getRule(type, trade.getRules());
 							if(rule != null)
 							{
 								rule.receiveUpdateMessage(updateData);

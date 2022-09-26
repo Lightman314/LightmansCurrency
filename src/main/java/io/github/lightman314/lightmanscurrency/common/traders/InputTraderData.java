@@ -101,7 +101,6 @@ public abstract class InputTraderData extends TraderData {
 			if(player != null)
 				this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Output-" + getFacingName(side).getString(), String.valueOf(this.allowOutputSide(side))));
 		}
-		
 	}
 	
 	@Override
