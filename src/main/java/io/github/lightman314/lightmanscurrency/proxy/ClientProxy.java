@@ -48,6 +48,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -100,9 +101,6 @@ public class ClientProxy extends CommonProxy{
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
-    	
-    	//Initialize the item edit widgets item list
-    	ItemEditWidget.initItemList();
     	
 	}
 	
@@ -266,6 +264,14 @@ public class ClientProxy extends CommonProxy{
 		Minecraft minecraft = Minecraft.getInstance();
 		if(minecraft != null)
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+	}
+	
+	@SubscribeEvent
+	public void onLogin(ClientPlayerNetworkEvent.LoggedInEvent event) {
+		
+		//Initialize the item edit widgets item list
+    	ItemEditWidget.initItemList();
+		
 	}
 	
 }
