@@ -43,6 +43,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
@@ -81,9 +82,6 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
-    	
-    	//Initialize the item edit widgets item list
-    	ItemEditWidget.initItemList();
     	
 	}
 	
@@ -252,6 +250,13 @@ public class ClientProxy extends CommonProxy{
 		Minecraft minecraft = Minecraft.getInstance();
 		if(minecraft != null)
 			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event)
+	{
+		//Initialize the item edit widgets item list
+    	ItemEditWidget.initItemList();
 	}
 	
 }
