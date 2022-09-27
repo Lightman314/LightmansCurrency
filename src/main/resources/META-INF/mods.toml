@@ -20,7 +20,7 @@ description="Adds a simple money & shop system to the game."
 [[dependencies.lightmanscurrency]]
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[41.0.94,)"
+    versionRange="[43.0.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.lightmanscurrency]]
