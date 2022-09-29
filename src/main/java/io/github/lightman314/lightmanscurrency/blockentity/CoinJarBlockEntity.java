@@ -161,8 +161,8 @@ public class CoinJarBlockEntity extends BlockEntity
     @NotNull
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
 		if(cap == ForgeCapabilities.ITEM_HANDLER)
-			return LazyOptional.of(() -> this.viewer).cast();
-		return super.getCapability(cap);
+			return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.viewer));
+		return super.getCapability(cap, side);
 	}
 	
 	private static class ItemViewer implements IItemHandler
