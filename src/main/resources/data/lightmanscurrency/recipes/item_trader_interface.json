@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:trader_interface_craftable"}],
   "type": "minecraft:crafting_shaped",
   "group": "trader_interface",
   "pattern":[

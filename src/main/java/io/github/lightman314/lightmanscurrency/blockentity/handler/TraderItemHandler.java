@@ -67,7 +67,7 @@ public class TraderItemHandler{
 		}
 		
 		public boolean allowExtraction(ItemStack stack) {
-			for(ItemTradeData trade : this.trader.getAllTrades())
+			for(ItemTradeData trade : this.trader.getTradeData())
 			{
 				if(trade.isSale() || trade.isBarter())
 				{

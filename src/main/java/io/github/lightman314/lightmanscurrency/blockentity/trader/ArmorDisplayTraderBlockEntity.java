@@ -131,7 +131,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 			ItemTraderData trader = this.getTraderData();
 			if(trader != null)
 			{
-				List<ItemTradeData> trades = trader.getAllTrades();
+				List<ItemTradeData> trades = trader.getTradeData();
 				for(int i = 0; i < 4 && i < trades.size(); i++)
 				{
 					ItemTradeData thisTrade = trades.get(i);

@@ -240,7 +240,7 @@ public class TimedSale extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(matrixStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(matrixStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
 			Component infoText = new TranslatableComponent("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
 			if(this.getRule().timerActive())

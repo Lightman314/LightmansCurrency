@@ -87,7 +87,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 			TraderData trader = this.getTrader();
 			if(trader instanceof ItemTraderData)
 			{
-				for(ItemTradeData trade : ((ItemTraderData) trader).getAllTrades())
+				for(ItemTradeData trade : ((ItemTraderData) trader).getTradeData())
 				{
 					if(trade.isSale() || trade.isBarter())
 					{
@@ -124,7 +124,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 			TraderData trader = this.getTrader();
 			if(trader instanceof ItemTraderData)
 			{
-				for(ItemTradeData trade : ((ItemTraderData) trader).getAllTrades())
+				for(ItemTradeData trade : ((ItemTraderData) trader).getTradeData())
 				{
 					if(trade.allowItemInStorage(item))
 						return true;
@@ -331,7 +331,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
 		for(Direction relativeSide : Direction.values())
 		{
-			if(this.itemHandler.getInputSides().get(relativeSide))
+			if(this.itemHandler.getInputSides().get(relativeSide) || this.itemHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
@@ -345,18 +345,47 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 				if(be != null)
 				{
 					be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, actualSide.getOpposite()).ifPresent(itemHandler -> {
-						boolean query = true;
-						for(int i = 0; query && i < itemHandler.getSlots(); ++i)
+						//Collect items from neighboring blocks
+						if(this.itemHandler.getInputSides().get(relativeSide))
 						{
-							ItemStack stack = itemHandler.getStackInSlot(i);
-							int fittableAmount = this.itemBuffer.getFittableAmount(stack);
-							if(fittableAmount > 0)
+							boolean query = true;
+							for(int i = 0; query && i < itemHandler.getSlots(); ++i)
 							{
-								query = false;
-								ItemStack result = itemHandler.extractItem(i, fittableAmount, false);
-								this.itemBuffer.forceAddItem(result);
-								markBufferDirty.set(true);
+								ItemStack stack = itemHandler.getStackInSlot(i);
+								int fittableAmount = this.itemBuffer.getFittableAmount(stack);
+								if(fittableAmount > 0)
+								{
+									query = false;
+									ItemStack result = itemHandler.extractItem(i, fittableAmount, false);
+									this.itemBuffer.forceAddItem(result);
+									markBufferDirty.set(true);
+								}
 							}
+						}
+						if(this.itemHandler.getOutputSides().get(relativeSide))
+						{
+							List<ItemStack> buffer = this.itemBuffer.getContents();
+							boolean query = true;
+							for(int i = 0; query && i < buffer.size(); ++i)
+							{
+								ItemStack stack = buffer.get(i).copy();
+								if(this.allowOutput(stack))
+								{
+									for(int slot = 0; query && slot < itemHandler.getSlots(); ++slot)
+									{
+										ItemStack result = itemHandler.insertItem(slot, stack.copy(), false);
+										int placed = stack.getCount() - result.getCount();
+										if(placed > 0)
+										{
+											query = false;
+											stack.setCount(placed);
+											this.itemBuffer.removeItem(stack);
+											markBufferDirty.set(true);
+										}
+									}
+								}
+							}
+							
 						}
 					});
 				}

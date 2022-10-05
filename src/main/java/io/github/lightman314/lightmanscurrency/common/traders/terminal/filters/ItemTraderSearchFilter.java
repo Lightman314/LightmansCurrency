@@ -17,7 +17,7 @@ public class ItemTraderSearchFilter extends TraderSearchFilter{
 		//Search the items being sold
 		if(data instanceof ItemTraderData)
 		{
-			List<ItemTradeData> trades = ((ItemTraderData)data).getAllTrades();
+			List<ItemTradeData> trades = ((ItemTraderData)data).getTradeData();
 			for(int i = 0; i < trades.size(); i++)
 			{
 				if(trades.get(i).isValid())

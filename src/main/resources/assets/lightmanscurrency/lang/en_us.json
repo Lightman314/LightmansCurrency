@@ -346,6 +346,8 @@
     "gui.button.lightmanscurrency.discount.remove": "Remove",
     "gui.button.lightmanscurrency.discount.set": "Set",
     "gui.lightmanscurrency.discount.tooltip": "% Discount",
+    "gui.lightmanscurrency.fluctuation.tooltip": "% Fluctuation",
+    "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit": "123",
     "gui.button.lightmanscurrency.playerlimit.info": "Players can do %s trade(s).",
     "gui.button.lightmanscurrency.playerlimit2": "1-3",
@@ -361,6 +363,7 @@
     "gui.button.lightmanscurrency.timed_sale.info.inactive": "Pending Duration: %s",
     "gui.button.lightmanscurrency.free_sample.reset": "Reset Free Samples",
     "gui.button.lightmanscurrency.free_sample.reset.tooltip": "Forgets who has received their free sample so that they may receive it again.",
+    "gui.button.lightmanscurrency.price_fluctuation.info": "Randomly increases or decreases the price by up to %1$s%% of the base price every %2$s.",
     
     "gui.button.lightmanscurrency.time_widget.settime": "Set Duration",
     "gui.widget.lightmanscurrency.time_widget.info": "%1$sh %2$sm %3$ss",
@@ -644,6 +647,7 @@
     "traderule.lightmanscurrency.timed_sale.info.purchase": "This item is on sale and will pay %1$s%% more for %2$s.",
     "traderule.lightmanscurrency.free_sample": "Free Sample",
     "traderule.lightmanscurrency.free_sample.alert": "Your first purchase is free!",
+    "traderule.lightmanscurrency.price_fluctuation": "Price Fluctuation",
     
     "command.lightmanscurrency.lcadmin.help.help": "%sDisplay sub-command info",
     "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mode: %s",

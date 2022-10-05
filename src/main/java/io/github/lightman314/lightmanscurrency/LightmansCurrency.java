@@ -49,6 +49,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.types.Player
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PriceFluctuation;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeLimit;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
@@ -57,6 +58,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.ModRegistries;
+import io.github.lightman314.lightmanscurrency.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.DiscordListenerRegistration;
 import io.github.lightman314.lightmanscurrency.enchantments.LCEnchantmentCategories;
@@ -74,6 +76,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -167,8 +170,11 @@ public class LightmansCurrency {
     private void doCommonStuff(final FMLCommonSetupEvent event)
     {
     	
-    	//LOGGER.info("PacketHandler init");
     	LightmansCurrencyPacketHandler.init();
+    	
+    	//Register Crafting Conditions
+    	CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
+    	CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
     	
     	//Initialize the UniversalTraderData deserializers
     	TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
@@ -190,6 +196,7 @@ public class LightmansCurrency {
     	TradeRule.RegisterDeserializer(TradeLimit.TYPE, TradeLimit::new);
     	TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, TradeLimit::new, true);
     	TradeRule.RegisterDeserializer(FreeSample.TYPE, FreeSample::new);
+    	TradeRule.RegisterDeserializer(PriceFluctuation.TYPE, PriceFluctuation::new);
     	
     	//Initialize the Notification deserializers
     	Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);

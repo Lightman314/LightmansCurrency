@@ -225,7 +225,7 @@ public abstract class TradeRule {
 		
 		public abstract void initTab();
 		
-		public abstract void renderTab(PoseStack postStack, int mouseX, int mouseY, float partialTicks);
+		public abstract void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
 		
 		public abstract void onTabClose();
 		

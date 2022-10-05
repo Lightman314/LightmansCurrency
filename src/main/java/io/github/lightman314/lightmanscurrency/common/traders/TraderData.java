@@ -960,6 +960,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	public abstract List<? extends TradeData> getTradeData();
 	
+	public int indexOfTrade(TradeData trade) { return this.getTradeData().indexOf(trade); }
+	
 	public abstract void addTrade(Player requestor);
 	
 	public abstract void removeTrade(Player requestor);
