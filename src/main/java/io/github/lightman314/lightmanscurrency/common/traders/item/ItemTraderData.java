@@ -210,9 +210,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		return this.trades.get(tradeSlot);
 	}
 	
-	public List<ItemTradeData> getAllTrades() { return new ArrayList<>(this.trades); }
-	
-	public void markTradesDirty() { this.markDirty(this::saveTrades); }
+	@Override
+	public List<ItemTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 	
 	public int getTradeStock(int tradeSlot)
 	{
@@ -413,9 +412,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		results.addAll(this.storage.getSplitContents());
 		
 	}
-
-	@Override
-	public List<? extends TradeData> getTradeData() { return new ArrayList<>(this.trades); }
 
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {

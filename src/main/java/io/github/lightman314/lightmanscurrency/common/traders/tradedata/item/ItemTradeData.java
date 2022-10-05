@@ -645,7 +645,6 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			//Check whether they can afford the cost
 			if(!this.canAfford(context))
 				alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.cannotafford")));
-			
 		}
 	}
 
@@ -654,7 +653,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
 			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
-			int tradeIndex = it.getAllTrades().indexOf(this);
+			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
 			if(this.isSale())
@@ -772,7 +771,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
 			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
-			int tradeIndex = it.getAllTrades().indexOf(this);
+			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
 			if((this.isSale() || this.isBarter()) && index >= 0 && index < 2)
@@ -819,7 +818,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
 			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
-			int tradeIndex = it.getAllTrades().indexOf(this);
+			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
 			CompoundTag extraData = new CompoundTag();

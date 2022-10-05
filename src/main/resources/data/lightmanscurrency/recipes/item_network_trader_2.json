@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:network_trader_craftable"}],
   "type": "minecraft:crafting_shaped",
   "group": "item_trader_server",
   "pattern":[
@@ -8,7 +9,7 @@
   ],
   "key": {
     "x": {
-      "item": "lightmanscurrency:item_trader_server_med"
+      "item": "lightmanscurrency:item_trader_server_sml"
     },
     "i": {
       "tag": "forge:ingots/iron"
@@ -18,6 +19,6 @@
     }
   },
   "result": {
-    "item": "lightmanscurrency:item_trader_server_lrg"
+    "item": "lightmanscurrency:item_trader_server_med"
   }
 }

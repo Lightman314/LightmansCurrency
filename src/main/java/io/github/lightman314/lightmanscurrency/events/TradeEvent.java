@@ -23,6 +23,7 @@ public abstract class TradeEvent extends Event{
 	public final Player getPlayer() { return this.player.getPlayer(); }
 	private final TradeData trade;
 	public final TradeData getTrade() { return this.trade; }
+	public final int getTradeIndex() { return this.trader.indexOfTrade(this.trade); }
 	private final TraderData trader;
 	public final TraderData getTrader() { return this.trader; }
 	

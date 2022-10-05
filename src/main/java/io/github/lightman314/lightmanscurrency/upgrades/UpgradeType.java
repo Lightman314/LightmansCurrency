@@ -188,7 +188,6 @@ public abstract class UpgradeType {
 		
 	}
 	
-	
 	public static boolean hasUpgrade(UpgradeType type, Container upgradeContainer) {
 		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
 		{
