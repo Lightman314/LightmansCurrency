@@ -11,7 +11,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -38,12 +37,6 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	public BlockState getStateForPlacement(BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
-	}
-	
-	@Override
-	public BlockState rotate(BlockState state, Rotation rotation)
-	{
-		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 	
 	@Override

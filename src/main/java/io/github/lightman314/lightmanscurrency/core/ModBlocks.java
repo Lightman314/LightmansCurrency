@@ -23,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
+import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModBlocks {
@@ -37,6 +38,8 @@ public class ModBlocks {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
 				properties.tab(tab);
+			else
+				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
 			return new BlockItem(block, properties);
 		};
 	}
@@ -45,6 +48,8 @@ public class ModBlocks {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
 				properties.tab(tab);
+			else
+				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
 			if(fireResistant)
 				properties.fireResistant();
 			return new CoinBlockItem(block, properties);
@@ -55,113 +60,115 @@ public class ModBlocks {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
 				properties.tab(tab);
+			else
+				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
 			return new CoinJarItem(block, properties);
 		};
 	}
 	
 	static {
 		//Coin Piles
-		COINPILE_COPPER = register("coinpile_copper", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_COPPER = register("coinpile_copper", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER::get
+				ModItems.COIN_COPPER
 				)
 		);
-		COINPILE_IRON = register("coinpile_iron", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_IRON = register("coinpile_iron", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_IRON::get
+				ModItems.COIN_IRON
 				)
 		);
-		COINPILE_GOLD = register("coinpile_gold", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_GOLD = register("coinpile_gold", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD::get
+				ModItems.COIN_GOLD
 				)
 		);
-		COINPILE_EMERALD = register("coinpile_emerald", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_EMERALD = register("coinpile_emerald", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD::get
+				ModItems.COIN_EMERALD
 				)
 		);
-		COINPILE_DIAMOND = register("coinpile_diamond", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
+		COINPILE_DIAMOND = register("coinpile_diamond", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND::get
+				ModItems.COIN_DIAMOND
 				)
 		);
-		COINPILE_NETHERITE = register("coinpile_netherite", LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinpileBlock(
+		COINPILE_NETHERITE = register("coinpile_netherite", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinpileBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE::get
+				ModItems.COIN_NETHERITE
 				)
 		);
 		
 		//Coin Blocks
-		COINBLOCK_COPPER = register("coinblock_copper", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_COPPER = register("coinblock_copper", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER::get
+				ModItems.COIN_COPPER
 				)
 		);
-		COINBLOCK_IRON = register("coinblock_iron", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_IRON = register("coinblock_iron", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_IRON::get
+				ModItems.COIN_IRON
 				)
 		);
-		COINBLOCK_GOLD = register("coinblock_gold", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_GOLD = register("coinblock_gold", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD::get
+				ModItems.COIN_GOLD
 				)
 		);
-		COINBLOCK_EMERALD = register("coinblock_emerald", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_EMERALD = register("coinblock_emerald", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD::get
+				ModItems.COIN_EMERALD
 				)
 		);
-		COINBLOCK_DIAMOND = register("coinblock_diamond", LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
+		COINBLOCK_DIAMOND = register("coinblock_diamond", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(false), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND::get
+				ModItems.COIN_DIAMOND
 				)
 		);
-		COINBLOCK_NETHERITE = register("coinblock_netherite", LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinBlock(
+		COINBLOCK_NETHERITE = register("coinblock_netherite", () -> LightmansCurrency.COIN_GROUP, getCoinGenerator(true), () -> new CoinBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE::get
+				ModItems.COIN_NETHERITE
 				)
 		);
 		
 		//Machines
-		MACHINE_ATM = register("atm", LightmansCurrency.MACHINE_GROUP, () -> new ATMBlock(
+		MACHINE_ATM = register("atm", () -> LightmansCurrency.MACHINE_GROUP, () -> new ATMBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.METAL)
 				)
 		);
-		MACHINE_MINT = register("coinmint", LightmansCurrency.MACHINE_GROUP, () -> new CoinMintBlock(
+		MACHINE_MINT = register("coinmint", () -> LightmansCurrency.MACHINE_GROUP, () -> new CoinMintBlock(
 			Block.Properties.of(Material.GLASS)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
 			)
 		);
-		CASH_REGISTER = register("cash_register", LightmansCurrency.MACHINE_GROUP, (block, tab) -> {
+		CASH_REGISTER = register("cash_register", () -> LightmansCurrency.MACHINE_GROUP, (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
 				properties.tab(tab);
@@ -177,7 +184,7 @@ public class ModBlocks {
 		
 		//Item Traders
 		//Display Case
-		DISPLAY_CASE = register("display_case", LightmansCurrency.TRADING_GROUP, () -> new DisplayCaseBlock(
+		DISPLAY_CASE = register("display_case", () -> LightmansCurrency.TRADING_GROUP, () -> new DisplayCaseBlock(
 			Block.Properties.of(Material.GLASS)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
@@ -185,7 +192,7 @@ public class ModBlocks {
 		);
 		
 		//Vending Machine
-		VENDING_MACHINE = registerColored("vending_machine", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
+		VENDING_MACHINE = registerColored("vending_machine", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
@@ -194,7 +201,7 @@ public class ModBlocks {
 		);
 		
 		//Large Vending Machine
-		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
+		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
 			Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
@@ -203,14 +210,14 @@ public class ModBlocks {
 		);
 		
 		//Shelves
-		SHELF = registerWooden("shelf", LightmansCurrency.TRADING_GROUP, () -> new ShelfBlock(
+		SHELF = registerWooden("shelf", () -> LightmansCurrency.TRADING_GROUP, () -> new ShelfBlock(
 				Block.Properties.of(Material.WOOD)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
 				)
 		);
 		
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", LightmansCurrency.TRADING_GROUP, () -> new CardDisplayBlock(
+		CARD_DISPLAY = registerWooden("card_display", () -> LightmansCurrency.TRADING_GROUP, () -> new CardDisplayBlock(
 				Block.Properties.of(Material.WOOD)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.WOOD)
@@ -218,7 +225,7 @@ public class ModBlocks {
 		);
 		
 		//Freezer
-		FREEZER = register("freezer", LightmansCurrency.TRADING_GROUP, () -> new FreezerBlock(
+		FREEZER = register("freezer", () -> LightmansCurrency.TRADING_GROUP, () -> new FreezerBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
@@ -226,7 +233,7 @@ public class ModBlocks {
 		);
 		
 		//Armor Display
-		ARMOR_DISPLAY = register("armor_display", LightmansCurrency.TRADING_GROUP, () -> new ArmorDisplayBlock(
+		ARMOR_DISPLAY = register("armor_display", () -> LightmansCurrency.TRADING_GROUP, () -> new ArmorDisplayBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
@@ -234,7 +241,7 @@ public class ModBlocks {
 		);
 		
 		//Ticket Kiosk
-		TICKET_KIOSK = register("ticket_kiosk",LightmansCurrency.TRADING_GROUP, () -> new TicketKioskBlock(
+		TICKET_KIOSK = register("ticket_kiosk", () -> LightmansCurrency.TRADING_GROUP, () -> new TicketKioskBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
@@ -244,28 +251,28 @@ public class ModBlocks {
 		
 		
 		//Network Traders
-		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_SMALL
 				)
 		);
-		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_MEDIUM
 				)
 		);
-		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_LARGE
 				)
 		);
-		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
+		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
@@ -274,7 +281,7 @@ public class ModBlocks {
 		);
 		
 		//Trader Interface
-		ITEM_TRADER_INTERFACE = register("item_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new ItemTraderInterfaceBlock(
+		ITEM_TRADER_INTERFACE = register("item_trader_interface", () -> LightmansCurrency.MACHINE_GROUP, () -> new ItemTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
@@ -282,7 +289,7 @@ public class ModBlocks {
 		);
 		
 		//Terminal
-		TERMINAL = register("terminal", LightmansCurrency.MACHINE_GROUP, () -> new TerminalBlock(
+		TERMINAL = register("terminal", () -> LightmansCurrency.MACHINE_GROUP, () -> new TerminalBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL),
@@ -291,7 +298,7 @@ public class ModBlocks {
 		);
 		
 		//Gem Terminal
-		GEM_TERMINAL = register("gem_terminal", LightmansCurrency.MACHINE_GROUP, () -> new TerminalBlock(
+		GEM_TERMINAL = register("gem_terminal", () -> LightmansCurrency.MACHINE_GROUP, () -> new TerminalBlock(
 				Block.Properties.of(Material.AMETHYST)
 				.strength(3.0f, 6.0f)
 				.sound(SoundType.AMETHYST_CLUSTER),
@@ -300,7 +307,7 @@ public class ModBlocks {
 		);
 		
 		//Paygate
-		PAYGATE = register("paygate", LightmansCurrency.MACHINE_GROUP, () -> new PaygateBlock(
+		PAYGATE = register("paygate", () -> LightmansCurrency.MACHINE_GROUP, () -> new PaygateBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
@@ -308,7 +315,7 @@ public class ModBlocks {
 		);
 		
 		//Ticket Machine
-		TICKET_MACHINE = register("ticket_machine", LightmansCurrency.MACHINE_GROUP, () -> new TicketMachineBlock(
+		TICKET_MACHINE = register("ticket_machine", () -> LightmansCurrency.MACHINE_GROUP, () -> new TicketMachineBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL)
@@ -316,14 +323,14 @@ public class ModBlocks {
 		);
 		
 		//Coin Jars
-		PIGGY_BANK = register("piggy_bank", CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
+		PIGGY_BANK = register("piggy_bank", () -> CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
 				Block.Properties.of(Material.STONE)
 					.strength(0.1f, 2.0f)
 					.sound(SoundType.STONE),
 					Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
-		COINJAR_BLUE = register("coinjar_blue", CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
+		COINJAR_BLUE = register("coinjar_blue", () -> CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
 				Block.Properties.of(Material.STONE)
 				.strength(0.1f, 2.0f)
 				.sound(SoundType.STONE),
@@ -409,28 +416,28 @@ public class ModBlocks {
 	/**
 	* Block Registration Code
 	*/
-	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> sup)
 	{
 		return register(name, itemGroup, getDefaultGenerator(), sup);
 	}
 	
-	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
 	{
 		RegistryObject<Block> block = ModRegistries.BLOCKS.register(name, sup);
 		if(block != null)
-			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get(), itemGroup));
+			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get(), itemGroup != null ? itemGroup.get() : null));
 		return block;
 	}
 	
 	/**
 	 * Colored block registration code
 	 */
-	private static RegistryObjectBundle<Block,Color> registerColored(String name, CreativeModeTab itemGroup, Supplier<Block> block, @Nullable Color dontNameThisColor)
+	private static RegistryObjectBundle<Block,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
 		return registerColored(name, itemGroup, getDefaultGenerator(), block, dontNameThisColor);
 	}
 	
-	private static RegistryObjectBundle<Block,Color> registerColored(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
+	private static RegistryObjectBundle<Block,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
 		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>();
 		for(Color color : Reference.Color.values())
@@ -447,12 +454,12 @@ public class ModBlocks {
 	/**
 	 * Wooden block registration code
 	 */
-	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, CreativeModeTab itemGroup, Supplier<Block> block)
+	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block)
 	{
 		return registerWooden(name, itemGroup, getDefaultGenerator(), block);
 	}
 	
-	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
+	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
 	{
 		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>();
 		for(WoodType woodType : WoodType.values())
