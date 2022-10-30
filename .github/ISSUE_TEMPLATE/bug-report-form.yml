@@ -1,4 +1,4 @@
-name: Bug Report Form
+name: Bug Report
 description: Report a bug or crash
 title: "BUG: "
 labels: [ "bug" ]
