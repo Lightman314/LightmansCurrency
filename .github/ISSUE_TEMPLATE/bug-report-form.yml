@@ -69,11 +69,12 @@ body:
           4. See error
       validations:
         required: true
-    - type: input
+    - type: textarea
       attributes:
         label: Screenshots/Logs/Crash Reports
         description: |
           If applicable, add screenshots to help explain your problem.
           You can find your minecraft logs in the *installation*/logs folder (ideally the latest.log file if you've not launched your game again since the error happened, and/or crash report if a crash happened)
+          Please either attach the log as a file directly in this field, or upload to a website such as Pastebin. Do **NOT** just copy/paste the log contents into this field.
       validations:
         required: true
