@@ -1,0 +1,79 @@
+name: Bug Report
+description: Report a bug or crash
+title: "BUG: "
+labels: [ "bug" ]
+assignees:
+  - Lightman314
+body:
+    - type: dropdown
+      attributes:
+        label: Minecraft Version
+        description: The version of Minecraft you are using.
+        options:
+          - "1.19.2"
+          - "1.18.2"
+          - "1.19.1"
+          - "1.19"
+          - "1.18.1"
+          - "1.18"
+          - "1.17.1"
+          - "1.17"
+          - "1.16.5"
+          - "1.16.4"
+      validations:
+        required: true
+    - type: input
+      attributes:
+        label: Forge Version
+        description: The version of Forge you are using.
+        placeholder: "ex. 40.1.84"
+      validations:
+        required: true
+    - type: input
+      attributes:
+        label: Lightman's Currency Version
+        description: The version of Lightman's Currency you are using. If it's not the latest version available, please try again on the latest version to confirm that this issue has not already been fixed.
+        placeholder: "ex. 1.2.3.4"
+      validations:
+        required: true
+    - type: dropdown
+      attributes:
+        label: Environment Type
+        description: The environment/connection type that the issue occurred in.
+        options:
+          - "Minecraft Client (Bug/crash happened in a single-player world or while the game was booting)"
+          - "Dedicated Server (Bug/crash happened while connected to a server or while the dedicated server was booting)"
+      validations:
+        required: true
+    - type: textarea
+      attributes:
+        label: Other relevant Mods
+        description: Other mods that you believe may be relevant to the issue (and their versions).
+        placeholder: "ex. LC Tech v1.0.1.0"
+      validations:
+        required: false
+    - type: textarea
+      attributes:
+        label: Describe the bug
+        description: A clear and concise description of what the bug is.
+      validations:
+        required: true
+    - type: textarea
+      attributes:
+        label: To Reproduce
+        description: Steps to reproduce the behavior:
+        placeholder: |
+          1. Go to '...'
+          2. Click on '....'
+          3. Scroll down to '....'
+          4. See error
+      validations:
+        required: true
+    - type: input
+      attributes:
+        label: Screenshots/Logs/Crash Reports
+        description: |
+          If applicable, add screenshots to help explain your problem.
+          You can find your minecraft logs in the *installation*/logs folder (ideally the latest.log file if you've not launched your game again since the error happened, and/or crash report if a crash happened)
+      validations:
+        required: true
