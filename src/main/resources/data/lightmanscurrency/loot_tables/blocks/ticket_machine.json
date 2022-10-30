@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "lightmanscurrency:paygate"
+          "name": "lightmanscurrency:ticket_machine"
         }
       ]
     }

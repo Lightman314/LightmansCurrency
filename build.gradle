@@ -86,6 +86,9 @@ dependencies {
     //Curios API
     compileOnly fg.deobf("curse.maven:curios-309927:3841948")
     runtimeOnly fg.deobf("curse.maven:curios-309927:3841948")
+
+    //Immersive Engineering
+    compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3964014")
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831233')

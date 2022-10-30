@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -102,13 +103,10 @@ public class LightmansCurrency {
 	
     private static final Logger LOGGER = LogManager.getLogger();
     
-    public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", () -> ModBlocks.COINPILE_GOLD.get());
-    public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", () -> ModBlocks.MACHINE_ATM.get());
-    public static final CustomCreativeTab UPGRADE_GROUP = new CustomCreativeTab(MODID + ".upgrades", () -> ModItems.ITEM_CAPACITY_UPGRADE_1.get());
-    public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", () -> ModBlocks.DISPLAY_CASE.get());
-    
-    private static boolean discordIntegrationLoaded = false;
-    public static boolean isDiscordIntegrationLoaded() { return discordIntegrationLoaded; }
+    public static final CustomCreativeTab COIN_GROUP = new CustomCreativeTab(MODID + ".coins", ModBlocks.COINPILE_GOLD::get);
+    public static final CustomCreativeTab MACHINE_GROUP = new CustomCreativeTab(MODID + ".machines", ModBlocks.MACHINE_ATM::get);
+    public static final CustomCreativeTab UPGRADE_GROUP = new CustomCreativeTab(MODID + ".upgrades", ModItems.ITEM_CAPACITY_UPGRADE_1::get);
+    public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", ModBlocks.DISPLAY_CASE::get);
     
     private static boolean curiosLoaded = false;
     /**
@@ -122,7 +120,7 @@ public class LightmansCurrency {
     	try {
     		if(curiosLoaded)
         		return LCCurios.hasWalletSlot(player);
-    	} catch(Throwable t) {}
+    	} catch(Throwable ignored) {}
     	return false;
     }
     
@@ -147,15 +145,19 @@ public class LightmansCurrency {
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
-        
-        discordIntegrationLoaded = ModList.get().isLoaded("lightmansdiscord");
+
         curiosLoaded = ModList.get().isLoaded("curios");
         
-        if(discordIntegrationLoaded)
+        if(ModList.get().isLoaded("lightmansdiscord"))
         {
         	MinecraftForge.EVENT_BUS.register(DiscordListenerRegistration.class);
         	CurrencyMessages.init();
         }
+
+		if(ModList.get().isLoaded("immersiveengineering"))
+		{
+			LCImmersive.registerRotationBlacklists();
+		}
         
     }
 	
@@ -353,7 +355,7 @@ public class LightmansCurrency {
     
     public static void LogInfo(String message)
     {
-    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 0)
+    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
     		LOGGER.debug("INFO: " + message);
     	else
     		LOGGER.info(message);
@@ -361,7 +363,7 @@ public class LightmansCurrency {
     
     public static void LogWarning(String message)
     {
-    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 1)
+    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 1)
     		LOGGER.debug("WARN: " + message);
     	else
     		LOGGER.warn(message);
@@ -369,7 +371,7 @@ public class LightmansCurrency {
     
     public static void LogError(String message, Object... objects)
     {
-    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 2)
+    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
     		LOGGER.debug("ERROR: " + message, objects);
     	else
     		LOGGER.error(message, objects);
@@ -377,7 +379,7 @@ public class LightmansCurrency {
     
     public static void LogError(String message)
     {
-    	if(Config.COMMON != null && Config.COMMON.debugLevel.get() > 2)
+    	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 2)
     		LOGGER.debug("ERROR: " + message);
     	else
     		LOGGER.error(message);
