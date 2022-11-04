@@ -73,7 +73,7 @@ body:
       attributes:
         label: Screenshots/Logs/Crash Reports
         description: |
-          If your game crashed, it is **100% required**that you attach the crash report, or your issue will be ignored. Crash reports can be found in the `*/crash-reports` folder.
+          If your game crashed, it is **100% required** that you attach the crash report, or your issue will be ignored. Crash reports can be found in the `*/crash-reports` folder.
           If the game did not crash, please attach the latest.log or debug.log file from the `*/logs` folder.
           Please either attach the log as a file directly in this field, or upload to a website such as Pastebin. Do **NOT** just copy/paste the log contents into this field.
           If you upload the log to a 3rd party site, do **NOT** just clip out the part of the log/crash report that you *think* is relevant. Include the entirety of the log/crash report file, as some past warnings that I have set up may give the additional context I need to figure out your problem.
