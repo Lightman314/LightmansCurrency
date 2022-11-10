@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.res
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
-
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
 	

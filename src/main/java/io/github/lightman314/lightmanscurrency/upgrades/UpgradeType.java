@@ -79,8 +79,10 @@ public abstract class UpgradeType {
 	
 	public static class UpgradeData
 	{
-		
-		private final Map<String,Object> data = Maps.newHashMap();
+
+		public static final UpgradeData EMPTY = new UpgradeData();
+
+		private final Map<String,Object> data = new HashMap<>();
 		
 		public Set<String> getKeys() { return data.keySet(); }
 		
@@ -88,7 +90,9 @@ public abstract class UpgradeType {
 		{
 			return this.getKeys().contains(tag);
 		}
-		
+
+		private UpgradeData() {}
+
 		public UpgradeData(UpgradeType upgrade)
 		{
 			for(String tag : upgrade.getDataTags())

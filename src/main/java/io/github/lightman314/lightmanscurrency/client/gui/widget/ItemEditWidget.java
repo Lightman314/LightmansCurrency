@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -34,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
@@ -44,18 +46,17 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	private int scroll = 0;
 	private int stackCount = 1;
 	
-	private int columns;
-	private int rows;
+	private final int columns;
+	private final int rows;
 	
 	public int searchOffX;
 	public int searchOffY;
 	
 	public int stackSizeOffX;
 	public int stackSizeOffY;
-	
-	private static List<ItemStack> allItems;
-	
-	//private List<ItemStack> filteredResultItems;
+
+	private static Map<ResourceLocation,List<ItemStack>> preFilteredItems;
+
 	private List<ItemStack> searchResultItems;
 	
 	private String searchString;
@@ -87,26 +88,26 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	public static final void initItemList() {
+	public static void initItemList() {
 		
-		if(allItems != null)
+		if(preFilteredItems != null)
 			return;
 		
-		allItems = new ArrayList<>();
+		List<ItemStack> allItems = new ArrayList<>();
 		
-		//Go through all of the item groups to avoid allowing sales of hidden items
+		//Go through all the item groups to avoid allowing sales of hidden items
 		for(CreativeModeTab group : CreativeModeTab.TABS)
 		{
 			if(!ITEM_GROUP_BLACKLIST.contains(group))
 			{
-				//Get all of the items in this group
+				//Get all the items in this group
 				NonNullList<ItemStack> items = NonNullList.create();
 				group.fillItemList(items);
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
 					
-					if(!itemListAlreadyContains(stack))
+					if(!itemListAlreadyContains(allItems, stack))
 						allItems.add(stack);
 					
 					if(stack.getItem() == Items.ENCHANTED_BOOK)
@@ -118,7 +119,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 							{
 								ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
 								EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-								if(!itemListAlreadyContains(newBook))
+								if(!itemListAlreadyContains(allItems, newBook))
 									allItems.add(newBook);
 							}
 						});
@@ -127,9 +128,14 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 				}
 			}
 		}
+
+		preFilteredItems = new HashMap<>();
+
+		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
+
 	}
 	
-	private static boolean itemListAlreadyContains(ItemStack stack)
+	private static boolean itemListAlreadyContains(List<ItemStack> allItems, ItemStack stack)
 	{
 		for(ItemStack s : allItems)
 		{
@@ -141,15 +147,30 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	
 	private List<ItemStack> getFilteredItems()
 	{
-		List<ItemStack> results = Lists.newArrayList();
-		ItemTradeData trade = this.listener.getTrade();
-		ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : this.listener.getTrade().getRestriction();
-		for(int i = 0; i < allItems.size(); ++i)
+		if(this.listener.restrictItemEditItems())
 		{
-			if(restriction.allowItemSelectItem(allItems.get(i)))
-				results.add(allItems.get(i));
+			ItemTradeData trade = this.listener.getTrade();
+			ItemTradeRestriction restriction = trade == null ? ItemTradeRestriction.NONE : trade.getRestriction();
+			return getFilteredItems(restriction);
 		}
-		return results;
+		return getFilteredItems(ItemTradeRestriction.NONE);
+	}
+
+	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
+	{
+		ResourceLocation type = ItemTradeRestriction.getId(restriction);
+		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
+		{
+			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");
+			return getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList());
+		}
+		if(preFilteredItems.containsKey(type))
+			return preFilteredItems.get(type);
+		else
+		{
+			LightmansCurrency.LogWarning("Item Trade Restriction of type '" + type + "' was registered AFTER the Player logged-in to the world. Please ensure that they're registered during the common setup phase so that filtering can be done at a less critical time.");
+			return preFilteredItems.put(type, getFilteredItems(ItemTradeRestriction.NONE).stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList()));
+		}
 	}
 	
 	public int getMaxScroll()
@@ -190,7 +211,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		if(this.searchString.length() > 0)
 		{
 			this.searchResultItems = new ArrayList<>();
-			List<ItemStack> validItems = this.listener.restrictItemEditItems() ? this.getFilteredItems() : allItems;
+			List<ItemStack> validItems = this.getFilteredItems();
 			for(ItemStack stack : validItems)
 			{
 				//Search the display name
@@ -221,7 +242,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		}
 		else //No search string, so the result is just the allItems list
 		{
-			this.searchResultItems = this.listener.restrictItemEditItems() ? this.getFilteredItems() : allItems;
+			this.searchResultItems = this.getFilteredItems();
 		}
 		
 		//Run refresh page code to validate the page # and repopulate the display inventory
@@ -241,7 +262,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
 		
@@ -328,14 +349,14 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	public interface IItemEditListener {
-		public ItemTradeData getTrade();
-		public boolean restrictItemEditItems();
-		public void onItemClicked(ItemStack item);
+		ItemTradeData getTrade();
+		boolean restrictItemEditItems();
+		void onItemClicked(ItemStack item);
 	}
 
 
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

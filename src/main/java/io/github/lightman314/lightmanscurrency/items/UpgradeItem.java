@@ -60,7 +60,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			}
 			return data;
 		}
-		return null;
+		return UpgradeData.EMPTY;
 	}
 	
 	public static void setUpgradeData(ItemStack stack, UpgradeData data)

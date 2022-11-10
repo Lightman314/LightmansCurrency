@@ -14,11 +14,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class EquipmentRestriction extends ItemTradeRestriction {
 
 	private final EquipmentSlot equipmentType;
-	
-	public EquipmentRestriction(EquipmentSlot type)
-	{
-		this.equipmentType = type;
-	}
+
+	public static final EquipmentRestriction HEAD = new EquipmentRestriction(EquipmentSlot.HEAD);
+	public static final EquipmentRestriction CHEST = new EquipmentRestriction(EquipmentSlot.CHEST);
+	public static final EquipmentRestriction LEGS = new EquipmentRestriction(EquipmentSlot.LEGS);
+	public static final EquipmentRestriction FEET = new EquipmentRestriction(EquipmentSlot.FEET);
+
+	protected EquipmentRestriction(EquipmentSlot type) { this.equipmentType = type; }
 	
 	public EquipmentSlot getEquipmentSlot() { return this.equipmentType; }
 	
@@ -49,19 +51,14 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
 	{
-		switch(this.equipmentType)
-		{
-		case HEAD:
-			return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
-		case CHEST:
-			return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
-		case LEGS:
-			return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
-		case FEET:
-			return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
-			default:
-				return null;
-		}
+		return switch (this.equipmentType) {
+			case HEAD -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
+			case CHEST -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
+			case LEGS -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
+			case FEET -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
+			case OFFHAND -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
+			default -> null;
+		};
 	}
 	
 }

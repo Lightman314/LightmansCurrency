@@ -22,7 +22,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class TicketKioskRestriction extends ItemTradeRestriction{
 
 	public static TicketKioskRestriction INSTANCE = new TicketKioskRestriction();
-	
 	private TicketKioskRestriction() {}
 	
 	@Override
