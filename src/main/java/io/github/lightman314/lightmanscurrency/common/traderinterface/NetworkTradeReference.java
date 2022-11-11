@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.traderinterface;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.traders.ITradeSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -11,7 +12,7 @@ import net.minecraft.nbt.Tag;
 
 public class NetworkTradeReference extends NetworkTraderReference{
 
-	private Function<CompoundTag,TradeData> tradeDeserializer;
+	private final Function<CompoundTag,TradeData> tradeDeserializer;
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
@@ -23,7 +24,10 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		this.tradeIndex = tradeIndex;
 		this.tradeData = copyTrade(this.getTrueTrade());
 		if(this.tradeData == null)
+		{
+			LightmansCurrency.LogWarning("Trade index of '" + this.tradeIndex + "' does not result in a valid trade. Resetting back to no trade selected.");
 			this.tradeIndex = -1;
+		}
 	}
 	
 	public void refreshTrade() {
@@ -49,11 +53,8 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		if(this.tradeIndex < 0)
 			return null;
 		TraderData trader = this.getTrader();
-		if(trader instanceof ITradeSource<?>)
-		{
-			ITradeSource<?> tradeSource = (ITradeSource<?>)trader;
+		if(trader instanceof ITradeSource<?> tradeSource)
 			return tradeSource.getTrade(this.tradeIndex);
-		}
 		return null;
 	}
 	

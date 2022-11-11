@@ -42,7 +42,7 @@ public abstract class UpgradeType {
 	protected abstract Object defaultTagValue(String tag);
 	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
-	
+
 	public UpgradeType setRegistryName(ResourceLocation name) {
 		this.type = name;
 		return this;
@@ -56,7 +56,7 @@ public abstract class UpgradeType {
 		return UpgradeType.class;
 	}
 	
-	private static final <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
+	private static <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
 	{
 		upgradeType.setRegistryName(type);
 		UPGRADE_TYPE_REGISTRY.put(type, upgradeType);
@@ -65,21 +65,23 @@ public abstract class UpgradeType {
 	
 	public interface IUpgradeable
 	{
-		public default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
-		public boolean allowUpgrade(UpgradeType type);
+		default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
+		boolean allowUpgrade(UpgradeType type);
 	}
 	
 	public interface IUpgradeItem
 	{
-		public UpgradeType getUpgradeType();
-		public UpgradeData getDefaultUpgradeData();
-		public default void onApplied(IUpgradeable target) { }
+		UpgradeType getUpgradeType();
+		UpgradeData getDefaultUpgradeData();
+		default void onApplied(IUpgradeable target) { }
 	}
 	
 	public static class UpgradeData
 	{
-		
-		private final Map<String,Object> data = Maps.newHashMap();
+
+		public static final UpgradeData EMPTY = new UpgradeData();
+
+		private final Map<String,Object> data = new HashMap<>();
 		
 		public Set<String> getKeys() { return data.keySet(); }
 		
@@ -87,7 +89,9 @@ public abstract class UpgradeType {
 		{
 			return this.getKeys().contains(tag);
 		}
-		
+
+		private UpgradeData() {}
+
 		public UpgradeData(UpgradeType upgrade)
 		{
 			for(String tag : upgrade.getDataTags())
@@ -112,25 +116,22 @@ public abstract class UpgradeType {
 		
 		public int getIntValue(String tag)
 		{
-			Object value = getValue(tag);
-			if(value instanceof Integer)
-				return (Integer)value;
+			if(getValue(tag) instanceof Integer i)
+				return i;
 			return 0;
 		}
 		
 		public float getFloatValue(String tag)
 		{
-			Object value = getValue(tag);
-			if(value instanceof Float)
-				return (Float)value;
+			if(getValue(tag) instanceof Float f)
+				return f;
 			return 0f;
 		}
 		
 		public String getStringValue(String tag)
 		{
-			Object value = getValue(tag);
-			if(value instanceof String)
-				return (String)value;
+			if(getValue(tag) instanceof String s)
+				return s;
 			return "";
 		}
 		

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -284,6 +285,9 @@ public class LightmansCurrency {
 			));
 		
 		ATMIconData.init();
+
+		//Initialize the Item Trade Restrictions
+		ItemTradeRestriction.init();
 		
     }
     

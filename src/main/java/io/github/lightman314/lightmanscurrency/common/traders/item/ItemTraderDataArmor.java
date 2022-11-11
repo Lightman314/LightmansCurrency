@@ -18,17 +18,12 @@ public class ItemTraderDataArmor extends ItemTraderData {
 	@Override
 	protected ItemTradeRestriction getTradeRestriction(int tradeIndex)
 	{
-		switch(tradeIndex % 4)
-		{
-		case 0:
-			return new EquipmentRestriction(EquipmentSlot.HEAD);
-		case 1:
-			return new EquipmentRestriction(EquipmentSlot.CHEST);
-		case 2:
-			return new EquipmentRestriction(EquipmentSlot.LEGS);
-		default:
-			return new EquipmentRestriction(EquipmentSlot.FEET);
-		}
+		return switch (tradeIndex % 4) {
+			case 0 -> EquipmentRestriction.HEAD;
+			case 1 -> EquipmentRestriction.CHEST;
+			case 2 -> EquipmentRestriction.FEET;
+			default -> EquipmentRestriction.LEGS;
+		};
 	}
 	
 	

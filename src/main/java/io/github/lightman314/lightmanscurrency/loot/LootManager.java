@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -65,21 +64,10 @@ public class LootManager {
 		
 		public final int level;
 		private final boolean requiresPlayerKill;
-		public final boolean requiresPlayerKill() { return this.requiresPlayerKill; }
 		
-		private PoolLevel(int level, boolean requiresPlayerKill) { this.level = level; this.requiresPlayerKill = requiresPlayerKill; }
+		PoolLevel(int level, boolean requiresPlayerKill) { this.level = level; this.requiresPlayerKill = requiresPlayerKill; }
 		
 	};
-	
-	public static boolean isValidSpawnReason(String reasonString)
-	{
-		for(MobSpawnType reason : MobSpawnType.values())
-		{
-			if(reason.toString() == reasonString)
-				return true;
-		}
-		return false;
-	}
 	
 	public static MobSpawnType deserializeSpawnReason(String reasonString)
 	{
@@ -95,28 +83,6 @@ public class LootManager {
 		}
 		LightmansCurrency.LogWarning("Reason string \"" + reasonString + "\" could not be properly deserialized. Returning the default spawn reason.");
 		return defaultReason;
-	}
-	
-	public static boolean containsReason(List<? extends String> reasonList, MobSpawnType reason)
-	{
-		for(int i = 0; i < reasonList.size(); ++i)
-		{
-			if(reason.toString().contentEquals(reasonList.get(i)))
-				return true;
-		}
-		return false;
-	}
-	
-	public static String getSpawnReasonList()
-	{
-		StringBuffer output = new StringBuffer();
-		for(MobSpawnType reason : MobSpawnType.values())
-		{
-			if(output.length() > 0)
-				output.append(", ");
-			output.append(reason);
-		}
-		return output.toString();
 	}
 	
 	private static final String ENTITY = "minecraft:";
@@ -205,7 +171,7 @@ public class LootManager {
 	}
 
 	private static String getValueList(ConfigValue<List<? extends String>> config) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		List<? extends String> list = config.get();
 		for(String value : list)
 		{
@@ -410,8 +376,7 @@ public class LootManager {
 	private static void validateDropList(ConfigValue<List<? extends String>> config)
 	{
 		List<? extends String> configList = config.get();
-		List<String> list = Lists.newArrayList();
-		configList.forEach(value -> list.add(value));
+		List<String> list = new ArrayList<>(configList);
 		boolean modified = false;
 		for(int i = 0; i < list.size(); ++i)
 		{
@@ -698,29 +663,16 @@ public class LootManager {
 		return lootPoolBuilder;
 		
 	}
-	
-	private static class ChestLootEntryData
-	{
-		public final Item item;
-		public final float minCount;
-		public final float maxCount;
-		public final int weight;
-		
-		public ChestLootEntryData(Item item, float minCount, float maxCount, int weight)
-		{
-			this.item = item;
-			this.minCount = minCount;
-			this.maxCount = maxCount;
-			this.weight = weight;
-		}
-		
+
+	private record ChestLootEntryData(Item item, float minCount, float maxCount, int weight) {
+
 		public static ChestLootEntryData COPPER = new ChestLootEntryData(ModItems.COIN_COPPER.get(), 1, 10, 1);
 		public static ChestLootEntryData IRON = new ChestLootEntryData(ModItems.COIN_IRON.get(), 1, 10, 2);
 		public static ChestLootEntryData GOLD = new ChestLootEntryData(ModItems.COIN_GOLD.get(), 1, 10, 3);
 		public static ChestLootEntryData EMERALD = new ChestLootEntryData(ModItems.COIN_EMERALD.get(), 1, 10, 4);
 		public static ChestLootEntryData DIAMOND = new ChestLootEntryData(ModItems.COIN_DIAMOND.get(), 1, 8, 5);
 		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(ModItems.COIN_NETHERITE.get(), 1, 3, 6);
-		
+
 	}
 	
 	

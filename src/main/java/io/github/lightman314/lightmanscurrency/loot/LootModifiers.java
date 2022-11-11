@@ -12,7 +12,7 @@ public class LootModifiers {
 	
 	static {
 		
-		COINS_IN_CHESTS = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("coins_in_chests", () -> new CoinsInChestsModifier.Serializer());
+		COINS_IN_CHESTS = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("coins_in_chests", CoinsInChestsModifier.Serializer::new);
 		
 	}
 	

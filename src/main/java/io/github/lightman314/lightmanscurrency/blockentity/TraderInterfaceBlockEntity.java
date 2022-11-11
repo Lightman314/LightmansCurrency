@@ -64,6 +64,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable, IClientTracker {
 	
@@ -254,7 +255,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	 * Whether the given player has owner-level permissions.
 	 * If owned by a team, this will return true for team admins & the team owner.
 	 */
-	public boolean isOwner(Player player) { return this.owner.isAdmin((Player)player); }
+	public boolean isOwner(Player player) { return this.owner.isAdmin(player); }
 	
 	protected TraderInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -287,7 +288,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		return TradeContext.createStorageMode(this.getTrader());
 	}
 	
-	public boolean isClient() { return this.level != null ? this.level.isClientSide : true; }
+	public boolean isClient() { return this.level == null || this.level.isClientSide; }
 	
 	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
 		handler.setParent(this);
@@ -296,10 +297,10 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
+	public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@NotNull CompoundTag compound) {
 		this.saveOwner(compound);
 		this.saveMode(compound);
 		this.saveOnlineMode(compound);
@@ -396,16 +397,16 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	}
 	
 	@Override
-	public <C> LazyOptional<C> getCapability(@Nonnull Capability<C> cap, @Nullable Direction side) {
+	public <C> @NotNull LazyOptional<C> getCapability(@Nonnull Capability<C> cap, @Nullable Direction side) {
 		Direction relativeSide = this.getRelativeSide(side);
-		for(int i = 0; i < this.handlers.size(); ++i) {
-			Object handler = this.handlers.get(i).getHandler(relativeSide);
-			if(cap == ForgeCapabilities.ITEM_HANDLER && handler instanceof IItemHandler)
-				return LazyOptional.of(() -> (IItemHandler)handler).cast();
-			if(cap == ForgeCapabilities.FLUID_HANDLER && handler instanceof IFluidHandler)
-				return LazyOptional.of(() -> (IFluidHandler)handler).cast();
-			else if(cap == ForgeCapabilities.ENERGY && handler instanceof IEnergyStorage)
-				return LazyOptional.of(() -> (IEnergyStorage)handler).cast();
+		for (SidedHandler<?> sidedHandler : this.handlers) {
+			Object handler = sidedHandler.getHandler(relativeSide);
+			if (cap == ForgeCapabilities.ITEM_HANDLER && handler instanceof IItemHandler)
+				return LazyOptional.of(() -> (IItemHandler) handler).cast();
+			if (cap == ForgeCapabilities.FLUID_HANDLER && handler instanceof IFluidHandler)
+				return LazyOptional.of(() -> (IFluidHandler) handler).cast();
+			else if (cap == ForgeCapabilities.ENERGY && handler instanceof IEnergyStorage)
+				return LazyOptional.of(() -> (IEnergyStorage) handler).cast();
 		}
 		return super.getCapability(cap, side);
 	}
@@ -425,9 +426,9 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 	public void receiveHandlerMessage(ResourceLocation type, Player player, CompoundTag message) {
 		if(!this.canAccess(player))
 			return;
-		for(int i = 0; i < this.handlers.size(); ++i) {
-			if(this.handlers.get(i).getType().equals(type))
-				this.handlers.get(i).receiveMessage(message);
+		for (SidedHandler<?> handler : this.handlers) {
+			if (handler.getType().equals(type))
+				handler.receiveMessage(message);
 		}
 	}
 	
@@ -568,7 +569,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
 		@Override
-		public Component getDisplayName() { return Component.empty(); }
+		public @NotNull Component getDisplayName() { return Component.empty(); }
 	}
 	
 	protected int getInteractionDelay() {
@@ -576,9 +577,8 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		for(int i = 0; i < this.upgradeSlots.getContainerSize() && delay > 1; ++i)
 		{
 			ItemStack stack = this.upgradeSlots.getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgrade)
 			{
-				UpgradeItem upgrade = (UpgradeItem)stack.getItem();
 				if(upgrade.getUpgradeType() instanceof SpeedUpgrade)
 					delay -= UpgradeItem.getUpgradeData(stack).getIntValue(SpeedUpgrade.DELAY_AMOUNT);
 			}
