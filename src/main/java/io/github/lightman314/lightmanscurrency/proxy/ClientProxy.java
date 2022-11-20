@@ -37,7 +37,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -46,6 +45,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -54,6 +54,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import javax.annotation.Nonnull;
 
 public class ClientProxy extends CommonProxy{
 	
@@ -195,12 +197,8 @@ public class ClientProxy extends CommonProxy{
 	public void createTeamResponse(long teamID)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		Screen openScreen = minecraft.screen;
-		if(openScreen instanceof TeamManagerScreen)
-		{
-			TeamManagerScreen screen = (TeamManagerScreen)openScreen;
+		if(minecraft.screen instanceof TeamManagerScreen screen)
 			screen.setActiveTeam(teamID);
-		}
 	}
 	
 	@Override
@@ -271,6 +269,17 @@ public class ClientProxy extends CommonProxy{
 		//Initialize the item edit widgets item list
     	ItemEditWidget.initItemList();
 		
+	}
+
+	@Override
+	@Nonnull
+	public Level safeGetDummyLevel() throws Exception{
+		Level level = this.getDummyLevelFromServer();
+		if(level == null)
+			level = Minecraft.getInstance().level;
+		if(level != null)
+			return level;
+		throw new Exception("Could not get dummy level from client, as there is no active level!");
 	}
 	
 }

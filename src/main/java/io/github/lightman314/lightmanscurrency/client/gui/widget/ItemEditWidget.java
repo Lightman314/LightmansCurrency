@@ -92,6 +92,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		
 		if(preFilteredItems != null)
 			return;
+
+		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 		
 		List<ItemStack> allItems = new ArrayList<>();
 		
