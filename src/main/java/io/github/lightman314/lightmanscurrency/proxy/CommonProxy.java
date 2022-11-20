@@ -7,6 +7,12 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountRe
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.server.ServerLifecycleHooks;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class CommonProxy {
 	
@@ -51,5 +57,21 @@ public class CommonProxy {
 	public void setTimeDesync(long currentTime) { }
 	
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
+
+	@Nonnull
+	public Level safeGetDummyLevel() throws Exception{
+		Level level = this.getDummyLevelFromServer();
+		if(level != null)
+			return level;
+		throw new Exception("Could not get dummy level from server, as there is no active server!");
+	}
+
+	@Nullable
+	protected final Level getDummyLevelFromServer() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.overworld();
+		return null;
+	}
 	
 }
