@@ -251,8 +251,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void playCoinSound() {
 		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft != null)
-			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 	}
 	
 	@SubscribeEvent

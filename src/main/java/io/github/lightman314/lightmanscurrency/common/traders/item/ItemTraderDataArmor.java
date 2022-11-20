@@ -21,8 +21,8 @@ public class ItemTraderDataArmor extends ItemTraderData {
 		return switch (tradeIndex % 4) {
 			case 0 -> EquipmentRestriction.HEAD;
 			case 1 -> EquipmentRestriction.CHEST;
-			case 2 -> EquipmentRestriction.FEET;
-			default -> EquipmentRestriction.LEGS;
+			case 2 -> EquipmentRestriction.LEGS;
+			default -> EquipmentRestriction.FEET;
 		};
 	}
 	
