@@ -2,14 +2,19 @@ package io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.re
 
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class EquipmentRestriction extends ItemTradeRestriction {
 
@@ -37,7 +42,7 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	}
 	
 	private boolean equippable(ItemStack item) {
-		try { return item.canEquip(this.equipmentType, new ArmorStand(null, 0d, 0d, 0d)) || this.vanillaEquippable(item); }
+		try { return item.canEquip(this.equipmentType, safeGetDummyArmorStand()) || this.vanillaEquippable(item); }
 		catch(Exception e) { return this.vanillaEquippable(item); }
 	}
 
@@ -59,6 +64,24 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 			case OFFHAND -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
 			default -> null;
 		};
+	}
+
+	private static ArmorStand safeGetDummyArmorStand() {
+		return new ArmorStand(safeGetDummyLevel(), 0d, 0d, 0d);
+	}
+
+	private static Level safeGetDummyLevel() {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server != null)
+			return server.overworld();
+		else
+		{
+			try{
+				return Minecraft.getInstance().level;
+			} catch (Throwable ignored) {}
+		}
+		LightmansCurrency.LogWarning("Cannot safely get a Level from which to make a dummy Armor Stand. Will resort to vanilla equippable methods.");
+		throw new RuntimeException("Cannot safely get a Level from which to make a dummy Armor Stand.");
 	}
 	
 }
