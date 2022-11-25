@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.2-2.0.0.5b'
+version = '1.19.2-2.0.0.6'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -87,7 +87,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3825214')
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831243')
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4111018')
     
 }
 
