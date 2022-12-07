@@ -33,6 +33,6 @@ description="Adds a simple money & shop system to the game."
 [[dependencies.lightmanscurrency]]
     modId="lightmansdiscord"
     mandatory=false
-    versionRange="[1.18-0.0.3.7,)"
+    versionRange="[1.18-0.1.0.0,)"
     ordering="NONE"
     side="SERVER"

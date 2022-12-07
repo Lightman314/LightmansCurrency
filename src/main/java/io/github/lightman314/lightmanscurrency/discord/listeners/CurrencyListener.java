@@ -37,10 +37,10 @@ import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionE
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.events.TraderEvent.CreateNetworkTraderEvent;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -60,7 +60,7 @@ public class CurrencyListener extends SingleChannelListener{
 	
 	public CurrencyListener(Supplier<String> consoleChannel)
 	{
-		super(consoleChannel, () -> LightmansDiscordIntegration.PROXY.getJDA());
+		super(consoleChannel, LightmansDiscordIntegration.PROXY::getJDA);
 		this.timer = new Timer();
 		this.timer.scheduleAtFixedRate(new NotifyTraderOwnerTask(this), 0, PENDING_MESSAGE_TIMER);
 	}
@@ -191,9 +191,8 @@ public class CurrencyListener extends SingleChannelListener{
 				List<TraderData> traderList = Config.SERVER.limitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
 				traderList.forEach(trader -> {
 					try {
-						if(trader instanceof ItemTraderData)
+						if(trader instanceof ItemTraderData itemTrader)
 						{
-							ItemTraderData itemTrader = (ItemTraderData)trader;
 							if(searchType.acceptTrader(itemTrader, searchText))
 							{
 								boolean showStock = !itemTrader.isCreative();
@@ -317,7 +316,7 @@ public class CurrencyListener extends SingleChannelListener{
 			}
 			else
 			{
-				StringBuffer buffer = new StringBuffer("");
+				StringBuilder buffer = new StringBuilder("");
 				for(int i = 0; i < itemEntries.size(); ++i)
 				{
 					if(i != 0)
@@ -349,7 +348,7 @@ public class CurrencyListener extends SingleChannelListener{
 			if(account != null)
 			{
 				User user = account.getUser();
-				if(user != null && AccountManager.currencyNotificationsEnabled(user))
+				if(AccountManager.currencyNotificationsEnabled(user))
 				{
 					this.addPendingMessage(user, event.getNotification().getGeneralMessage().getString());
 				}
@@ -420,7 +419,7 @@ public class CurrencyListener extends SingleChannelListener{
 	{
 		String userId = user.getId();
 		List<String> pendingMessages = this.pendingMessages.containsKey(userId) ? this.pendingMessages.get(userId) : Lists.newArrayList();
-		messages.forEach(message -> pendingMessages.add(message));
+		pendingMessages.addAll(messages);
 		this.pendingMessages.put(userId, pendingMessages);
 	}
 	

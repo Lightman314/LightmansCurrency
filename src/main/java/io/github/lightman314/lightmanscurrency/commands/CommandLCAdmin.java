@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -104,15 +103,14 @@ public class CommandLCAdmin {
 		Level level = source.getLevel();
 		
 		BlockState state = level.getBlockState(pos);
-		BlockEntity be = null;
+		BlockEntity be;
 		if(state.getBlock() instanceof ITraderBlock)
 			be = ((ITraderBlock)state.getBlock()).getBlockEntity(state, level, pos);
 		else
 			be = level.getBlockEntity(pos);
 		
-		if(be instanceof TraderBlockEntity<?>)
+		if(be instanceof TraderBlockEntity<?> t)
 		{
-			TraderBlockEntity<?> t = (TraderBlockEntity<?>)be;
 			t.saveCurrentTraderAsCustomTrader();
 			source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
 			return 1;
@@ -157,7 +155,7 @@ public class CommandLCAdmin {
 		
 		String searchText = MessageArgument.getMessage(commandContext, "searchText").getString();
 		
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderSearchFilter.CheckFilters(trader, searchText)).collect(Collectors.toList());
+		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderSearchFilter.CheckFilters(trader, searchText)).toList();
 		if(results.size() > 0)
 		{
 			
@@ -259,9 +257,8 @@ public class CommandLCAdmin {
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 		
 		TradeRule rule = TradeRule.getRule(PlayerWhitelist.TYPE, trader.getRules());
-		if(rule instanceof PlayerWhitelist)
+		if(rule instanceof PlayerWhitelist whitelist)
 		{
-			PlayerWhitelist whitelist = (PlayerWhitelist)rule;
 			Collection<ServerPlayer> players = EntityArgument.getPlayers(commandContext, "player");
 			int count = 0;
 			for(ServerPlayer player : players)
@@ -292,24 +289,11 @@ public class CommandLCAdmin {
 	private static void ToggleAdminPlayer(ServerPlayer player) {
 		UUID playerID = player.getUUID();
 		if(adminPlayers.contains(playerID))
-		{
 			adminPlayers.remove(playerID);
-			if(!player.level.isClientSide)
-			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
-			}
-		}
 		else
-		{
 			adminPlayers.add(playerID);
-			if(!player.level.isClientSide)
-			{
-				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), getAdminSyncMessage());
-			}
-		}
+		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageSyncAdminList(adminPlayers));
 	}
-	
-	public static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
 	
 	public static void loadAdminPlayers(List<UUID> serverAdminList) { adminPlayers = serverAdminList; }
 	

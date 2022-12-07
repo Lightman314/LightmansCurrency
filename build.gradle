@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-2.0.0.5b'
+version = '1.18.2-2.0.0.6'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -91,7 +91,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3964014")
     
     compileOnly fg.deobf('curse.maven:inventory-profiles-next-495267:3639042')
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3831233')
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4111017')
     
 }
 
