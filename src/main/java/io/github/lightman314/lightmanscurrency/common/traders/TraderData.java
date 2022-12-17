@@ -918,12 +918,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(level != null && level.isLoaded(this.pos))
 		{
 			BlockEntity be = level.getBlockEntity(this.pos);
-			if(be instanceof TraderBlockEntity<?>)
-			{
-				TraderBlockEntity<?> tbe = (TraderBlockEntity<?>)be;
-				if(tbe.getTraderID() == this.id)
-					return false;
-			}
+			if(be instanceof TraderBlockEntity<?> tbe)
+				return tbe.getTraderID() != this.id;
 			return true;
 		}
 		return false;

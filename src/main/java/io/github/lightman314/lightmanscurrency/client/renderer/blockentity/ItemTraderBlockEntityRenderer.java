@@ -19,13 +19,14 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 	
-	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context dispatcher) { }
+	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
-	public void render(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
+	public void render(@NotNull ItemTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
@@ -65,7 +66,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				//Get scale
 				float scale = blockEntity.GetStackRenderScale(tradeSlot);
 
-				for(int pos = 0; pos < Config.CLIENT.traderRenderType.get().renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < Config.CLIENT.itemRenderLimit.get() && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 				{
 					
 					pose.pushPose();

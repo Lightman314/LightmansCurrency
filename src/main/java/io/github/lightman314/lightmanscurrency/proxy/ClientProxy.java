@@ -25,12 +25,14 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinData;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
@@ -83,6 +85,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
+
+		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
@@ -268,6 +272,13 @@ public class ClientProxy extends CommonProxy{
 		if(level != null)
 			return level;
 		throw new Exception("Could not get dummy level from client, as there is no active level!");
+	}
+
+	@Override
+	public void loadPlayerTrade(ClientPlayerTrade trade) {
+		Minecraft mc = Minecraft.getInstance();
+		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)
+			menu.reloadTrade(trade);
 	}
 	
 }

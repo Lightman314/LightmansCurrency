@@ -7,8 +7,10 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageClearClientTraders {
 
+	private void init() {}
+
 	public static void handle(MessageClearClientTraders message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.clearClientTraders());
+		supplier.get().enqueueWork(LightmansCurrency.PROXY::clearClientTraders);
 		supplier.get().setPacketHandled(true);
 	}
 	

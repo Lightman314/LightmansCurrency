@@ -23,7 +23,6 @@ import net.minecraft.network.chat.Component;
 public class TraderArgument implements ArgumentType<TraderData>{
 
 	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(Component.translatable("command.argument.trader.notfound"));
-	
 	private final boolean acceptPersistentIDs;
 	private TraderArgument(boolean acceptPersistentIDs) { this.acceptPersistentIDs = acceptPersistentIDs; }
 	

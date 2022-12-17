@@ -10,6 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
 public class MintMenu extends AbstractContainerMenu{
 
 	public final CoinMintBlockEntity tileEntity;
@@ -39,26 +41,26 @@ public class MintMenu extends AbstractContainerMenu{
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn)
+	public boolean stillValid(@NotNull Player playerIn)
 	{
 		return true;
 	}
 	
 	@Override
-	public void removed(Player playerIn)
+	public void removed(@NotNull Player playerIn)
 	{
 		super.removed(playerIn);
 	}
 	
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
 		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.hasItem())
+		if(slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();

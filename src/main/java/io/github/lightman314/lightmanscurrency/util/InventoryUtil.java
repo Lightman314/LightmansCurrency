@@ -10,6 +10,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
+import org.anti_ad.mc.ipnext.item.rule.natives.NbtComparatorRule;
 
 public class InventoryUtil {
 
@@ -449,19 +451,38 @@ public class InventoryUtil {
 			}
 		}
 	}
-    
+
+	public static void saveAllItems(String key, CompoundTag compound, Container inventory)
+	{
+		ItemStackHelper.saveAllItems(key, compound, buildList(inventory));
+	}
+
     public static SimpleContainer loadAllItems(String key, CompoundTag compound, int inventorySize)
     {
     	NonNullList<ItemStack> tempInventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     	ItemStackHelper.loadAllItems(key, compound, tempInventory);
     	return buildInventory(tempInventory);
     }
-    
-    public static void saveAllItems(String key, CompoundTag compound, Container inventory)
-    {
-    	ItemStackHelper.saveAllItems(key, compound, buildList(inventory));
-    }
-    
+
+	public static void encodeItems(Container inventory, FriendlyByteBuf buffer) {
+		CompoundTag tag = new CompoundTag();
+		saveAllItems("ITEMS", tag, inventory);
+		buffer.writeInt(inventory.getContainerSize());
+		buffer.writeNbt(tag);
+	}
+
+	public static SimpleContainer decodeItems(FriendlyByteBuf buffer) {
+		int inventorySize = buffer.readInt();
+		return loadAllItems("ITEMS", buffer.readAnySizeNbt(), inventorySize);
+	}
+
+	public static SimpleContainer copy(Container inventory) {
+		SimpleContainer copy = new SimpleContainer(inventory.getContainerSize());
+		for(int i = 0; i < inventory.getContainerSize(); ++i)
+			copy.setItem(i, inventory.getItem(i).copy());
+		return copy;
+	}
+
     public static void dumpContents(Level level, BlockPos pos, Container inventory)
     {
     	if(level.isClientSide)

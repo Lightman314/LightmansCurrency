@@ -155,7 +155,6 @@ public class TradeContext {
 			funds += this.bankAccount.get().getCoinStorage().getRawValue();
 		if(this.hasPlayer())
 		{
-			
 			AtomicLong walletFunds = new AtomicLong(0);
 			WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
 				ItemStack wallet = walletHandler.getWallet();

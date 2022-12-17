@@ -35,6 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinValueInput extends AbstractWidget implements IScrollable{
 
@@ -91,7 +92,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		
 		this.font = parent.getFont();
 		this.onValueChanged = v -> parent.OnCoinValueChanged(this);
-		this.addWidget = w -> parent.addCustomWidget(w);
+		this.addWidget = parent::addCustomWidget;
 		
 		
 		if(this.inputType == ValueType.VALUE)
@@ -197,7 +198,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Match the buttons visibility to our visibility.
 		this.toggleFree.visible = this.allowFreeToggle && this.visible;
@@ -279,8 +280,8 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 				else
 					decreaseButtons.get(i).active = this.coinValue.getEntry(coinItems.get(i + this.scroll)) > 0 && !this.locked;
 			}
-			for(int i = 0; i < this.increaseButtons.size(); i++)
-				this.increaseButtons.get(i).active = !this.coinValue.isFree() && !this.locked;
+			for (Button increaseButton : this.increaseButtons)
+				increaseButton.active = !this.coinValue.isFree() && !this.locked;
 			
 			if(this.buttonLeft != null)
 				this.buttonLeft.visible = this.scroll > 0;
@@ -363,7 +364,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the decreasing button.");
 	}
 	
-	private final int getLargeIncreaseAmount(Item coinItem)
+	private int getLargeIncreaseAmount(Item coinItem)
 	{
 		Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(coinItem);
 		if(upwardConversion != null)
@@ -378,7 +379,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		}
 	}
 	
-	private final int getLargeAmount(Pair<Item,Integer> conversion)
+	private int getLargeAmount(Pair<Item,Integer> conversion)
 	{
 		if(conversion.getSecond() >= 64)
 			return 16;
@@ -419,12 +420,12 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 	
 	@Deprecated
-	public static interface ICoinValueInput
+	public interface ICoinValueInput
 	{
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button);
-		public int getWidth();
-		public Font getFont();
-		public void OnCoinValueChanged(CoinValueInput input);
+		<T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button);
+		int getWidth();
+		Font getFont();
+		void OnCoinValueChanged(CoinValueInput input);
 	}
 	
 	private void scrollLeft() {
@@ -438,7 +439,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 	
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return false; }

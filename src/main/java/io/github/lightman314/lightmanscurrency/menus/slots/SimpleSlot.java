@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.menus.slots;
 import java.util.List;
 import java.util.function.Function;
 
+import com.mojang.datafixers.types.Func;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleSlot extends Slot{
 
@@ -20,7 +22,7 @@ public class SimpleSlot extends Slot{
 	public boolean isActive() { return this.active; }
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean mayPlace(@NotNull ItemStack stack) {
 		if(this.locked)
 			return false;
 		return super.mayPlace(stack);
@@ -35,14 +37,14 @@ public class SimpleSlot extends Slot{
 	}*/
 	
 	@Override
-	public ItemStack remove(int amount) {
+	public @NotNull ItemStack remove(int amount) {
 		if(this.locked)
 			return ItemStack.EMPTY;
 		return super.remove(amount);
 	}
 	
 	@Override
-	public boolean mayPickup(Player player) {
+	public boolean mayPickup(@NotNull Player player) {
 		if(this.locked)
 			return false;
 		return super.mayPickup(player);
@@ -54,8 +56,7 @@ public class SimpleSlot extends Slot{
 	
 	public static void SetActive(AbstractContainerMenu menu, Function<SimpleSlot,Boolean> filter) {
 		menu.slots.forEach(slot -> {
-			if(slot instanceof SimpleSlot) {
-				SimpleSlot simpleSlot = (SimpleSlot)slot;
+			if(slot instanceof SimpleSlot simpleSlot) {
 				if(filter.apply(simpleSlot))
 					simpleSlot.active = true;
 			}
@@ -68,8 +69,7 @@ public class SimpleSlot extends Slot{
 	
 	public static void SetInactive(AbstractContainerMenu menu, Function<SimpleSlot,Boolean> filter) {
 		menu.slots.forEach(slot -> {
-			if(slot instanceof SimpleSlot) {
-				SimpleSlot simpleSlot = (SimpleSlot)slot;
+			if(slot instanceof SimpleSlot simpleSlot) {
 				if(filter.apply(simpleSlot))
 					simpleSlot.active = false;
 			}
@@ -84,5 +84,25 @@ public class SimpleSlot extends Slot{
 			slot.active = active;
 		}
 	}
+
+	public static void SetLocked(AbstractContainerMenu menu, boolean locked) { SetLocked(menu, locked, (slot) -> true); }
+
+	public static void SetLocked(AbstractContainerMenu menu, boolean locked, Function<SimpleSlot,Boolean> filter) {
+		menu.slots.forEach(slot -> {
+			if(slot instanceof  SimpleSlot simpleSlot)
+			{
+				if(filter.apply(simpleSlot))
+					simpleSlot.locked = true;
+			}
+		});
+	}
+
+	public static void Lock(AbstractContainerMenu menu) { SetLocked(menu, true); }
+
+	public static void Lock(AbstractContainerMenu menu, Function<SimpleSlot,Boolean> filter) { SetLocked(menu, true, filter); }
+
+	public static void Unlock(AbstractContainerMenu menu) { SetLocked(menu, false); }
+
+	public static void Unlock(AbstractContainerMenu menu, Function<SimpleSlot,Boolean> filter) { SetLocked(menu, false, filter); }
 	
 }

@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -215,9 +216,7 @@ public class LootManager {
 	public static void onEntitySpawned(LivingSpawnEvent.SpecialSpawn event)
 	{
 		LivingEntity entity = event.getEntity();
-		if(entity instanceof Player)
-			return;
-		
+
 		SpawnTrackerCapability.getSpawnerTracker(entity).ifPresent(spawnerTracker -> spawnerTracker.setSpawnReason(event.getSpawnReason()));
 		if(!SpawnTrackerCapability.getSpawnerTracker(entity).isPresent())
 			LightmansCurrency.LogWarning(entity.getName().getString() + " does not have a ISpawnerTracker attached. Unable to flag it's SpawnReason.");
@@ -259,8 +258,11 @@ public class LootManager {
 		{
 			//Assign the player that killed it
 			final Player player = event.getSource().getDirectEntity() instanceof Player ? (Player)event.getSource().getDirectEntity() : (Player)event.getSource().getEntity();
-			
-			
+
+			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
+			if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
+				return;
+
 			if(Config.COMMON.copperEntityDrops.get().contains(name))
 	    	{
 				DropEntityLoot(event.getEntity(), player, PoolLevel.COPPER);

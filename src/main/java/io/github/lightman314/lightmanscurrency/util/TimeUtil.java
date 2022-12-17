@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -18,16 +21,15 @@ public class TimeUtil {
 	/**
 	 * Gets the current system time in milliseconds
 	 */
-	public static long getCurrentTime()
-	{
-		return System.currentTimeMillis() + LightmansCurrency.PROXY.getTimeDesync();
-	}
-	
+	public static long getCurrentTime() { return System.currentTimeMillis() + LightmansCurrency.PROXY.getTimeDesync(); }
+
+	public static String formatTime(long timeStamp) { return new SimpleDateFormat(Config.CLIENT.timeFormat.get()).format(new Date(timeStamp - LightmansCurrency.PROXY.getTimeDesync())); }
+
 	/**
 	 * Calculates if the compareTime is less than the duration before the current time.
 	 * @param duration The duration of time (in milliseconds) 
-	 * @param compareTime
-	 * @return Returns true if the time is within the duration.
+	 * @param compareTime The
+	 * @return Returns true if the time is not within the duration.
 	 */
 	public static boolean compareTime(long duration, long compareTime)
 	{
@@ -79,24 +81,18 @@ public class TimeUtil {
 		}
 		
 		private long getUnitValue(TimeUnit unit) {
-			switch(unit) {
-			case DAY:
-				return this.days;
-			case HOUR:
-				return this.hours;
-			case MINUTE:
-				return this.minutes;
-			case SECOND:
-				return this.seconds;
-				default:
-					return 0;
-			}
+			return switch (unit) {
+				case DAY -> this.days;
+				case HOUR -> this.hours;
+				case MINUTE -> this.minutes;
+				case SECOND -> this.seconds;
+			};
 		}
 		
 		public String getUnitString(TimeUnit unit, boolean shortText) { return this.getUnitString(unit, shortText, true); }
 		
 		private String getUnitString(TimeUnit unit, boolean shortText, boolean force) {
-			StringBuffer text = new StringBuffer();
+			StringBuilder text = new StringBuilder();
 			long count = this.getUnitValue(unit);
 			if(count > 0 || force)
 				text.append(count).append(shortText ? unit.getShortText().getString() : (count != 1 ? unit.getPluralText().getString() : unit.getText().getString()));
@@ -109,7 +105,7 @@ public class TimeUtil {
 		public String getShortString(int maxCount) { return this.getString(true, maxCount); }
 		private String getString(boolean shortText, int maxCount)
 		{
-			StringBuffer text = new StringBuffer();
+			StringBuilder text = new StringBuilder();
 			int count = 0;
 			for(int i = 0; i < TimeUnit.UNITS_LARGE_TO_SMALL.size() && count < maxCount; ++i)
 			{

@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -155,6 +156,11 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 			this.saveWalletContents();
 		
 		return returnValue;
+	}
+
+	public static void OnWalletUpdated(Entity entity) {
+		if(entity instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
+			menu.reloadWalletContents();
 	}
 	
 	

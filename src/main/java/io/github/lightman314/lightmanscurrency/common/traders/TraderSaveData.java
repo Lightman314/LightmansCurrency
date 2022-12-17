@@ -2,10 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -46,6 +43,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class TraderSaveData extends SavedData {
@@ -61,7 +59,7 @@ public class TraderSaveData extends SavedData {
 	private static void cleanOldData(TraderSaveData newData)
 	{
 		if(lastData != null)
-			lastData.traderData.values().forEach(trader -> trader.onRemoved());
+			lastData.traderData.values().forEach(TraderData::onRemoved);
 		lastData = newData;
 	}
 	
@@ -98,7 +96,7 @@ public class TraderSaveData extends SavedData {
 	}
 	
 	private long nextID = 0;
-	private final long getNextID() {
+	private long getNextID() {
 		long id = nextID;
 		this.nextID++;
 		this.setDirty();
@@ -150,7 +148,7 @@ public class TraderSaveData extends SavedData {
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound) {
+	public @NotNull CompoundTag save(CompoundTag compound) {
 		
 		compound.putLong("NextID", this.nextID);
 		
@@ -236,7 +234,7 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			tsd.putPersistentTag(traderID, tag);
-			for(TraderData pt : tsd.traderData.values().stream().filter(trader -> trader.isPersistent() && trader.getPersistentID().equals(traderID)).collect(Collectors.toList()))
+			for(TraderData pt : tsd.traderData.values().stream().filter(trader -> trader.isPersistent() && trader.getPersistentID().equals(traderID)).toList())
 			{
 				pt.loadPersistentData(tsd.getPersistentTag(traderID));
 				MarkTraderDirty(pt.save());
@@ -422,7 +420,7 @@ public class TraderSaveData extends SavedData {
 		}
 		if(hadNone)
 			throw new Exception("Json Data has no 'Traders' or 'Auctions' entry.");
-	};
+	}
 	
 	private void savePersistentTraderJson(File ptf) {
 		File dir = new File(ptf.getParent());
@@ -564,12 +562,12 @@ public class TraderSaveData extends SavedData {
 	 * Clean up invalid traders
 	 */
 	@SubscribeEvent
-	public static void onTick(TickEvent.LevelTickEvent event)
+	public static void onTick(TickEvent.ServerTickEvent event)
 	{
 		if(event.phase != TickEvent.Phase.START || !event.side.isServer())
 			return;
 		
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		MinecraftServer server = event.getServer();
 		if(server != null)
 		{
 			TraderSaveData tsd = get();
@@ -588,7 +586,7 @@ public class TraderSaveData extends SavedData {
 									Level level = server.getLevel(traderData.getLevel());
 									BlockPos pos = traderData.getPos();
 									EjectionData e = EjectionData.create(level, pos, null, traderData, false);
-									EjectionSaveData.HandleEjectionData(level, pos, e);
+									EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
 								} catch(Throwable t) { t.printStackTrace(); }
 							}
 							LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderData.getID()));
@@ -599,7 +597,7 @@ public class TraderSaveData extends SavedData {
 				}
 				if(server.getTickCount() % 20 == 0 && tsd.persistentAuctionData.size() > 0)
 				{
-					List<TraderData> traders = tsd.traderData.values().stream().collect(Collectors.toList());
+					List<TraderData> traders = tsd.traderData.values().stream().toList();
 					AuctionHouseTrader ah = null;
 					for(int i = 0; i < traders.size() && ah == null; ++i)
 					{

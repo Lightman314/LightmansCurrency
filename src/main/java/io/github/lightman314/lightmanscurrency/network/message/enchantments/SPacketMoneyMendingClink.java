@@ -10,6 +10,8 @@ public class SPacketMoneyMendingClink {
 
 	private static long lastClink = 0;
 	private static final long CLINK_DELAY = 1000;
+
+	private void init() {}
 	
 	public static void handle(SPacketMoneyMendingClink message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->

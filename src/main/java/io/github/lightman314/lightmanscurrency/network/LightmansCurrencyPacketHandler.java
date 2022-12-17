@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.CMessagePlayerTradeInteraction;
+import io.github.lightman314.lightmanscurrency.network.message.playertrading.SMessageUpdatePlayerTrade;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
@@ -164,7 +166,12 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketChangeSelectedData.class, CPacketChangeSelectedData::encode, CPacketChangeSelectedData::decode, CPacketChangeSelectedData::handle);
 		register(SPacketChangeSelectedData.class, SPacketChangeSelectedData::encode, SPacketChangeSelectedData::decode, SPacketChangeSelectedData::handle);
 		register(CPacketOpenTraderRecovery.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(CPacketOpenTraderRecovery::new), CPacketOpenTraderRecovery::handle);
-		
+
+		//Player Trading
+		register(SMessageUpdatePlayerTrade.class, SMessageUpdatePlayerTrade::encode, SMessageUpdatePlayerTrade::decode, SMessageUpdatePlayerTrade::handle);
+		register(CMessagePlayerTradeInteraction.class, CMessagePlayerTradeInteraction::encode, CMessagePlayerTradeInteraction::decode, CMessagePlayerTradeInteraction::handle);
+
+
 	}
 
 	private static <T> void register(Class<T> clazz, IMessage<T> message)
