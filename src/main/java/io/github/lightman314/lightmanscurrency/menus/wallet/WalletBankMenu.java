@@ -6,6 +6,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 
@@ -30,7 +31,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@NotNull Player player) {
 		this.getBankAccountReference();
 		return super.stillValid(player) && this.hasBankAccess();
 	}

@@ -12,6 +12,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinSlot extends SimpleSlot{
 	
@@ -49,7 +50,7 @@ public class CoinSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean mayPlace(@NotNull ItemStack stack) {
 		if(lockInput)
 			return false;
 		if(acceptHiddenCoins)
@@ -66,14 +67,14 @@ public class CoinSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public ItemStack remove(int amount) {
+	public @NotNull ItemStack remove(int amount) {
 		if(this.lockOutput)
 			return ItemStack.EMPTY;
 		return super.remove(amount);
 	}
 	
 	@Override
-	public boolean mayPickup(Player player) {
+	public boolean mayPickup(@NotNull Player player) {
 		if(this.lockOutput)
 			return false;
 		return super.mayPickup(player);

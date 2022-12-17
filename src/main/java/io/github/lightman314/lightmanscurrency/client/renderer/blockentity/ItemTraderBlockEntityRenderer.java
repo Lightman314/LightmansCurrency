@@ -65,7 +65,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				//Get scale
 				float scale = blockEntity.GetStackRenderScale(tradeSlot);
 
-				for(int pos = 0; pos < Config.CLIENT.traderRenderType.get().renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
+				for(int pos = 0; pos < Config.CLIENT.itemRenderLimit.get() && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 				{
 					
 					pose.pushPose();

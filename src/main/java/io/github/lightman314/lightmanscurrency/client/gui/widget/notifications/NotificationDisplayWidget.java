@@ -19,6 +19,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 public class NotificationDisplayWidget extends AbstractWidget implements IScrollable {
 
@@ -32,7 +33,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	public boolean colorIfUnseen = false;
 	public int backgroundColor = 0xFFC6C6C6;
 	
-	public static final int CalculateHeight(int rowCount) { return rowCount * HEIGHT_PER_ROW; }
+	public static int CalculateHeight(int rowCount) { return rowCount * HEIGHT_PER_ROW; }
 	
 	private List<Notification> getNotifications() { return this.notificationSource.get(); }
 	
@@ -46,7 +47,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	}
 
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.validateScroll();
 		
 		this.tooltip = null;
@@ -102,8 +103,18 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 			{
 				for(int l = 0; l < lines.size() && l < 2; ++l)
 					this.font.draw(pose, lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
-				if(lines.size() > 2 && this.tooltip == null && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= yPos && mouseY < yPos + HEIGHT_PER_ROW)
-					this.tooltip = message;
+				if(this.tooltip == null && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= yPos && mouseY < yPos + HEIGHT_PER_ROW)
+				{
+					if(lines.size() > 2)
+					{
+						if(n.hasTimeStamp())
+							this.tooltip = new TextComponent("").append(n.getTimeStampMessage()).append(new TextComponent("\n")).append(message);
+						else
+							this.tooltip = message;
+					}
+					else if(n.hasTimeStamp())
+						this.tooltip = n.getTimeStampMessage();
+				}
 			}
 			
 		}
@@ -136,7 +147,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	public int getMaxScroll() { return Math.max(0, this.getNotifications().size() - this.rowCount); }
 	
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
@@ -147,6 +158,6 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 		return true;
 	}
 	
-	public void playDownSound(SoundManager manager) {}
+	public void playDownSound(@NotNull SoundManager manager) {}
 	
 }

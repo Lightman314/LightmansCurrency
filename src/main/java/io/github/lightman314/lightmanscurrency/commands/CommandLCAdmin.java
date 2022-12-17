@@ -294,7 +294,9 @@ public class CommandLCAdmin {
 			adminPlayers.add(playerID);
 		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageSyncAdminList(adminPlayers));
 	}
-	
+
+	public static MessageSyncAdminList getAdminSyncMessage() { return new MessageSyncAdminList(adminPlayers); }
+
 	public static void loadAdminPlayers(List<UUID> serverAdminList) { adminPlayers = serverAdminList; }
 	
 }

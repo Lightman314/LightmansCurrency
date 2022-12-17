@@ -168,13 +168,11 @@ public class Config {
 	public static class Client
 	{
 		
-		public enum TraderRenderType { FULL(Integer.MAX_VALUE), PARTIAL(1), NONE(0);
-			public final int renderLimit;
-			TraderRenderType(int renderLimit) { this.renderLimit = renderLimit; } 
-		}
-		
 		//Render Options
-		public final ForgeConfigSpec.EnumValue<TraderRenderType> traderRenderType;
+		public final ForgeConfigSpec.IntValue itemRenderLimit;
+
+		//Timestamp Formatting Options
+		public final ForgeConfigSpec.ConfigValue<String> timeFormat;
 		
 		//Wallet Button Options
 		public final ForgeConfigSpec.IntValue walletSlotX;
@@ -201,15 +199,21 @@ public class Config {
 		{
 			builder.comment("Client configuration settings").push("client");
 			
-			builder.comment("Quality Settings").push("settings");
+			builder.comment("Quality Settings").push("quality");
+
+			this.itemRenderLimit = builder
+					.comment("Maximum number of items each Item Trader can render (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
+							"Setting to 0 will disable item rendering entirely, so use with caution.")
+					.defineInRange("itemTraderRenderLimit", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
 			
-			this.traderRenderType = builder
-					.comment("How many items the traders should render as stock. Useful to avoid lag in trader-rich areas.",
-							"FULL: Renders all items based on stock as intended.",
-							"PARTIAL: Renders only 1 item per trade slot regardless of stock.",
-							"NONE: Traders do not render items.")
-					.defineEnum("traderRenderType", TraderRenderType.FULL);
-			
+			builder.pop();
+
+			builder.comment("Time Formatting Settings").push("time");
+
+			this.timeFormat = builder
+					.comment("How Notification Timestamps are displayed.","Follows SimpleDateFormat formatting: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html")
+					.define("timeFormatting","MM/dd/yy hh:mmaa");
+
 			builder.pop();
 			
 			builder.comment("Wallet Slot Settings").push("wallet_slot");
@@ -298,6 +302,7 @@ public class Config {
 		//Entity Loot
 		public final ForgeConfigSpec.BooleanValue enableEntityDrops;
 		public final ForgeConfigSpec.BooleanValue enableSpawnerEntityDrops;
+		public final ForgeConfigSpec.BooleanValue allowFakePlayerCoinDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> copperEntityDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> ironEntityDrops;
 		public final ForgeConfigSpec.ConfigValue<List <? extends String>> goldEntityDrops;
@@ -404,7 +409,12 @@ public class Config {
 			this.enableSpawnerEntityDrops = builder
 					.comment("Whether coins can be dropped by entities that were spawned by the vanilla spawner.")
 					.define("enableSpawnerEntityDrops", false);
-			
+			//Fake Player loot drops
+			this.allowFakePlayerCoinDrops = builder
+					.comment("Whether modded machines that emulate player behaviour can trigger coin drops from entities.",
+							"Set to false to help prevent coin farming.")
+					.define("allowFakePlayerTrigger", true);
+
 			//Copper
 			this.copperEntityDrops = builder
 					.comment("Entities that will occasionally drop copper coins.")

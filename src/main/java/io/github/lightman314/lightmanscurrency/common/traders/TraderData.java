@@ -155,7 +155,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	private final Map<String,Integer> allyPermissions = this.getDefaultAllyPermissions();
 	
-	private final Map<String,Integer> getDefaultAllyPermissions() {
+	private Map<String,Integer> getDefaultAllyPermissions() {
 		Map<String,Integer> defaultValues = new HashMap<>();
 		defaultValues.put(Permissions.OPEN_STORAGE, 1);
 		defaultValues.put(Permissions.EDIT_TRADES, 1);
@@ -194,7 +194,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 	}
 	
-	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.containsKey(permission) ? this.allyPermissions.get(permission) : 0; }
+	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.getOrDefault(permission, 0); }
 	public void setAllyPermissionLevel(Player player, String permission, int level) {
 		if(this.hasPermission(player, Permissions.EDIT_PERMISSIONS) && this.getAllyPermissionLevel(permission) != level)
 		{
@@ -358,7 +358,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return null;
 	}
 	
-	private SimpleContainer upgrades = new SimpleContainer(5);
+	private SimpleContainer upgrades;
 	public Container getUpgrades() { return this.upgrades; }
 	public final boolean allowUpgrade(UpgradeType type) {
 		if(!this.showOnTerminal() && this.canShowOnTerminal() && type == UpgradeType.NETWORK)
@@ -412,7 +412,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this(type);
 		this.level = level == null ? Level.OVERWORLD : level.dimension();
 		this.pos = pos == null ? new BlockPos(0,0,0) : pos;
-		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(pos).getBlock().asItem();
+		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(this.pos).getBlock().asItem();
 	}
 	
 	private String persistentID = "";
@@ -488,7 +488,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			compound.putString("Level", this.level.location().toString());
 	}
 	
-	private final void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
+	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
 	
 	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
 	
@@ -586,7 +586,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			try {
 				this.traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
-			}catch (Throwable t) {}
+			}catch (Throwable ignored) {}
 		}
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
@@ -921,9 +921,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(level != null && level.isLoaded(this.pos))
 		{
 			BlockEntity be = level.getBlockEntity(this.pos);
-			if(be instanceof TraderBlockEntity<?>)
+			if(be instanceof TraderBlockEntity<?> tbe)
 			{
-				TraderBlockEntity<?> tbe = (TraderBlockEntity<?>)be;
 				if(tbe.getTraderID() == this.id)
 					return false;
 			}

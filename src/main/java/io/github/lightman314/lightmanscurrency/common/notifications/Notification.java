@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -17,7 +18,7 @@ public abstract class Notification {
 
 	private static final Map<String,Function<CompoundTag,Notification>> DESERIALIZERS = new HashMap<>();
 	
-	public static final void register(ResourceLocation type, Supplier<Notification> deserializer) {
+	public static void register(ResourceLocation type, Supplier<Notification> deserializer) {
 		register(type, c -> {
 			Notification n = deserializer.get();
 			n.load(c);
@@ -25,7 +26,7 @@ public abstract class Notification {
 		});
 	}
 	
-	public static final void register(ResourceLocation type, Function<CompoundTag,Notification> deserializer) {
+	public static void register(ResourceLocation type, Function<CompoundTag,Notification> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
 		{
@@ -40,7 +41,7 @@ public abstract class Notification {
 		DESERIALIZERS.put(t, deserializer);
 	}
 	
-	public static final Notification deserialize(CompoundTag compound) {
+	public static Notification deserialize(CompoundTag compound) {
 		if(compound.contains("Type") || compound.contains("type"))
 		{
 			String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
@@ -60,13 +61,19 @@ public abstract class Notification {
 			return null;
 		}
 	}
-	
+
+	private long timeStamp;
+	public long getTimeStamp() { return this.timeStamp; }
+	public final boolean hasTimeStamp() { return this.getTimeStamp() > 0; }
+
 	private boolean seen = false;
 	public boolean wasSeen() { return this.seen; }
 	public void setSeen() { this.seen = true; }
 	
 	private int count = 1;
 	public int getCount() { return this.count; }
+
+	protected Notification() { this.timeStamp = TimeUtil.getCurrentTime(); }
 	
 	protected abstract ResourceLocation getType();
 	
@@ -83,6 +90,8 @@ public abstract class Notification {
 				new TranslatableComponent("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
 				this.getMessage());
 	}
+
+	public MutableComponent getTimeStampMessage() { return new TranslatableComponent("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
 	
 	public final CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
@@ -90,6 +99,8 @@ public abstract class Notification {
 			compound.putBoolean("Seen", true);
 		compound.putInt("Count", this.count);
 		compound.putString("Type", this.getType().toString());
+		if(this.timeStamp > 0)
+			compound.putLong("TimeStamp", this.timeStamp);
 		this.saveAdditional(compound);
 		return compound;
 	}
@@ -101,6 +112,10 @@ public abstract class Notification {
 			this.seen = true;
 		if(compound.contains("Count", Tag.TAG_INT))
 			this.count = compound.getInt("Count");
+		if(compound.contains("TimeStamp", Tag.TAG_LONG))
+			this.timeStamp = compound.getLong("TimeStamp");
+		else
+			this.timeStamp = 0;
 		this.loadAdditional(compound);
 	}
 	
@@ -116,6 +131,7 @@ public abstract class Notification {
 		{
 			this.count++;
 			this.seen = false;
+			this.timeStamp = TimeUtil.getCurrentTime();
 			return true;
 		}
 		return false;

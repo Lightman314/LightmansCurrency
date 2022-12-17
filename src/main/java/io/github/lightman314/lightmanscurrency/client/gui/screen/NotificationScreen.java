@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -28,6 +27,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.NotNull;
 
 public class NotificationScreen extends Screen implements IScrollable{
 
@@ -62,7 +62,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
-		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).collect(Collectors.toList()));
+		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).toList());
 		return categories;
 	}
 	
@@ -132,7 +132,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		
@@ -185,8 +185,18 @@ public class NotificationScreen extends Screen implements IScrollable{
 				for(int l = 0; l < lines.size() && l < 2; ++l)
 					this.font.draw(pose, lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
 				//Set the message as a tooltip if it's too large to fit and the mouse is hovering over the notification
-				if(lines.size() > 2 && tooltip == null && mouseX >= screenLeft + 15 && mouseX < screenLeft + 185 && mouseY >= yPos && mouseY < yPos + NOTIFICATION_HEIGHT)
-					tooltip = message;
+				if(tooltip == null && mouseX >= screenLeft + 15 && mouseX < screenLeft + 185 && mouseY >= yPos && mouseY < yPos + NOTIFICATION_HEIGHT)
+				{
+					if(lines.size() > 2)
+					{
+						if(not.hasTimeStamp())
+							tooltip = new TextComponent("").append(not.getTimeStampMessage()).append(new TextComponent("\n")).append(message);
+						else
+							tooltip = message;
+					}
+					else if(not.hasTimeStamp())
+						tooltip = not.getTimeStampMessage();
+				}
 			}
 		}
 		

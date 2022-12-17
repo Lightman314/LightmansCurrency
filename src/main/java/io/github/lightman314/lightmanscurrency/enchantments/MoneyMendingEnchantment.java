@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.enchantments;
 
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
@@ -22,13 +23,14 @@ import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("removal")
 public class MoneyMendingEnchantment extends Enchantment {
 
 	public MoneyMendingEnchantment(Rarity rarity, EquipmentSlot... slots) { super(rarity, EnchantmentCategory.BREAKABLE, slots); }
-	
+
 	public int getMinCost(int level) { return level * 25; }
 
 	public int getMaxCost(int level) { return this.getMinCost(level) + 50; }
@@ -36,15 +38,17 @@ public class MoneyMendingEnchantment extends Enchantment {
 	public boolean isTreasureOnly() { return true; }
 
 	public int getMaxLevel() { return 1; }
-	
-	protected boolean checkCompatibility(Enchantment otherEnchant) {
+
+	protected boolean checkCompatibility(@NotNull Enchantment otherEnchant) {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
-	
+
 	public static long getRepairCost() { return MoneyUtil.getValue(Config.getMoneyMendingCoinItem()); }
-	
+
 	public static void runEntityTick(LivingEntity entity)
 	{
+
+
 		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler -> {
 			ItemStack wallet = walletHandler.getWallet();
 			if(WalletItem.isWallet(wallet))
@@ -68,46 +72,40 @@ public class MoneyMendingEnchantment extends Enchantment {
 					SimpleContainer newWalletInventory = new SimpleContainer(walletInventory.size());
 					for(ItemStack coinStack : MoneyUtil.getCoinsOfValue(currentWalletValue))
 					{
-						ItemStack leftovers = InventoryUtil.TryPutItemStack(newWalletInventory, coinStack);
-						if(!leftovers.isEmpty())
+						AtomicReference<ItemStack> leftovers = new AtomicReference<>(InventoryUtil.TryPutItemStack(newWalletInventory, coinStack));
+						if(!leftovers.get().isEmpty())
 						{
 							if(entity instanceof Player)
 							{
 								//Force the extra coins into the players inventory
-								ItemHandlerHelper.giveItemToPlayer((Player)entity, leftovers);
+								ItemHandlerHelper.giveItemToPlayer((Player)entity, leftovers.get());
 							}
 							else
 							{
 								//Put the extra coins in the entities inventory
-								IItemHandler entityInventory = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null);
-								if(entityInventory != null)
-								{
-									leftovers = ItemHandlerHelper.insertItemStacked(entityInventory, leftovers, false);
-								}
+								entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(entityInventory -> leftovers.set(ItemHandlerHelper.insertItemStacked(entityInventory, leftovers.get(), false)));
 								//If no inventory, or not enough room, force the extra coins into the world
-								if(!leftovers.isEmpty())
-									InventoryUtil.dumpContents(entity.level, entity.blockPosition(), leftovers);
+								if(!leftovers.get().isEmpty())
+									InventoryUtil.dumpContents(entity.level, entity.blockPosition(), leftovers.get());
 							}
 						}
-						
+
 					}
 					WalletItem.putWalletInventory(wallet, InventoryUtil.buildList(newWalletInventory));
 					walletHandler.setWallet(wallet);
-					
-					if(entity instanceof Player)
+					if(entity instanceof Player player)
 					{
-						Player player = (Player)entity;
 						//Reload the wallets contents if the wallet menu is open.
 						if(player.containerMenu instanceof WalletMenuBase)
 							((WalletMenuBase)player.containerMenu).reloadWalletContents();
-						
+
 						//Send Money Mending clink message
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketMoneyMendingClink());
-						
+
 					}
 				}
 			}
 		});
 	}
-	
+
 }

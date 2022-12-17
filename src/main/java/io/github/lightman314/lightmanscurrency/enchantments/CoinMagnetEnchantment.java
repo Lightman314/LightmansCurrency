@@ -18,7 +18,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -56,11 +55,9 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			//Calculate the search radius
 			float range = getCollectionRange(enchantLevel);
 			Level level = entity.level;
-			if(level == null)
-				return;
 			AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
 			boolean updateWallet = false;
-			for(Entity e : level.getEntities(entity, searchBox, e -> e instanceof ItemEntity && MoneyUtil.isCoin(((ItemEntity)e).getItem(), false)))
+			for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
 			{
 				ItemEntity ie = (ItemEntity)e;
 				ItemStack coinStack = ie.getItem();
@@ -78,14 +75,15 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 			if(updateWallet)
 			{
 				walletHandler.setWallet(wallet);
-				if(entity instanceof Player)
-				{
-					Player player = (Player)entity;
-					if(player.containerMenu instanceof WalletMenuBase)
-						((WalletMenuBase)player.containerMenu).reloadWalletContents();
-				}
+				WalletMenuBase.OnWalletUpdated(entity);
 			}
 		});
+	}
+
+	public static boolean coinMagnetEntityFilter(Entity entity) {
+		if(entity instanceof ItemEntity item)
+			return !item.hasPickUpDelay() && MoneyUtil.isCoin(item.getItem(), false);
+		return false;
 	}
 	
 	public static float getCollectionRange(int enchantLevel) {

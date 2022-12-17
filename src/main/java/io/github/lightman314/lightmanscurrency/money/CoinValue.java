@@ -18,6 +18,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -86,11 +87,9 @@ public class CoinValue
 		this.coinValues = new ArrayList<>();
 		for(CoinValuePair value : priceValues)
 		{
-			for(int i = 0; i < this.coinValues.size(); i++)
-			{
-				if(this.coinValues.get(i).coin == value.coin)
-				{
-					this.coinValues.get(i).amount += value.amount;
+			for (CoinValuePair coinValue : this.coinValues) {
+				if (coinValue.coin == value.coin) {
+					coinValue.amount += value.amount;
 					value.amount = 0;
 				}
 			}
@@ -108,8 +107,7 @@ public class CoinValue
 		if(validateChain)
 		{
 			this.coinValues = new ArrayList<>();
-			for(int i = 0; i < priceValues.size(); ++i)
-				this.addValue(priceValues.get(i).coin, priceValues.get(i).amount);
+			for (CoinValuePair priceValue : priceValues) this.addValue(priceValue.coin, priceValue.amount);
 		}
 		else
 		{
@@ -156,17 +154,14 @@ public class CoinValue
 		{
 			//Read full value
 			ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
-    		if(listNBT != null)
-    		{
-    			this.coinValues.clear();
-    			for(int i = 0; i < listNBT.size(); i++)
-    			{
-    				CompoundTag thisCompound = listNBT.getCompound(i);
-					Item priceCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(thisCompound.getString("id")));
-    				int amount = thisCompound.getInt("amount");
-    				this.coinValues.add(new CoinValuePair(priceCoin,amount));
-    			}
-    		}
+			this.coinValues.clear();
+			for(int i = 0; i < listNBT.size(); i++)
+			{
+				CompoundTag thisCompound = listNBT.getCompound(i);
+				Item priceCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(thisCompound.getString("id")));
+				int amount = thisCompound.getInt("amount");
+				this.coinValues.add(new CoinValuePair(priceCoin,amount));
+			}
 		}
 		else if(compound.contains(key))
 		{
@@ -174,6 +169,12 @@ public class CoinValue
 			this.setFree(compound.getBoolean(key));
 		}
 		
+	}
+
+	public static CoinValue from(CompoundTag compound, String key) {
+		CoinValue val = new CoinValue();
+		val.load(compound, key);
+		return val;
 	}
 	
 	public void loadFromOldValue(long oldPrice)
@@ -184,11 +185,9 @@ public class CoinValue
 		{
 			Item coinItem = stack.getItem();
 			int amount = stack.getCount();
-			for(int i = 0; i < this.coinValues.size(); i++)
-			{
-				if(this.coinValues.get(i).coin == coinItem)
-				{
-					this.coinValues.get(i).amount += amount;
+			for (CoinValuePair coinValue : this.coinValues) {
+				if (coinValue.coin == coinItem) {
+					coinValue.amount += amount;
 					amount = 0;
 				}
 			}
@@ -199,6 +198,10 @@ public class CoinValue
 		}
 		
 	}
+
+	public final void encode(FriendlyByteBuf buffer) { buffer.writeNbt(this.save(new CompoundTag(), DEFAULT_KEY)); }
+
+	public static CoinValue decode(FriendlyByteBuf buffer) { return from(buffer.readAnySizeNbt(), DEFAULT_KEY); }
 	
 	public void addValue(CoinValue other)
 	{
@@ -308,10 +311,7 @@ public class CoinValue
 			newList.add(this.coinValues.get(largestIndex));
 			this.coinValues.remove(largestIndex);
 		}
-		for(int i = 0; i < newList.size(); i++)
-		{
-			this.coinValues.add(newList.get(i));
-		}
+		this.coinValues.addAll(newList);
 	}
 	
 	private boolean needsRounding()
@@ -330,8 +330,7 @@ public class CoinValue
 		Pair<Item,Integer> conversion = MoneyUtil.getUpwardConversion(pair.coin);
 		if(conversion != null)
 		{
-			if(pair.amount >= conversion.getSecond())
-				return true;
+			return pair.amount >= conversion.getSecond();
 		}
 		return false;
 	}
@@ -358,12 +357,9 @@ public class CoinValue
 	public double getDisplayValue()
 	{
 		double totalValue = 0d;
-		for(int i = 0; i < this.coinValues.size(); ++i)
-		{
-			CoinValuePair pricePair = this.coinValues.get(i);
+		for (CoinValuePair pricePair : this.coinValues) {
 			CoinData coinData = MoneyUtil.getData(pricePair.coin);
-			if(coinData != null)
-			{
+			if (coinData != null) {
 				totalValue += coinData.getDisplayValue() * pricePair.amount;
 			}
 		}
@@ -381,20 +377,17 @@ public class CoinValue
 		switch(Config.SERVER.coinValueType.get())
 		{
 		case DEFAULT:
-			String string = "";
-        	for(int i = 0; i < this.coinValues.size(); i++)
-        	{
-        		CoinValuePair pricePair = this.coinValues.get(i);
-        		CoinData coinData = MoneyUtil.getData(pricePair.coin);
-        		if(coinData != null)
-        		{
-        			string += String.valueOf(pricePair.amount);
-        			string += coinData.getInitial().getString();
-        		}
-        	}
-        	if(string.isBlank())
+			StringBuilder string = new StringBuilder();
+			for (CoinValuePair pricePair : this.coinValues) {
+				CoinData coinData = MoneyUtil.getData(pricePair.coin);
+				if (coinData != null) {
+					string.append(pricePair.amount);
+					string.append(coinData.getInitial().getString());
+				}
+			}
+        	if(string.toString().isBlank())
         		return emptyFiller;
-        	return string;
+        	return string.toString();
 		case VALUE:
         	return Config.formatValueDisplay(this.getDisplayValue());
         	default:
@@ -432,23 +425,21 @@ public class CoinValue
 			return multipliedValue;
 		}
 		costMultiplier = MathUtil.clamp(costMultiplier, 0d, 10d);
-		
-		for(int i = 0; i < this.coinValues.size(); i++)
-		{
-			int amount = this.coinValues.get(i).amount;
-			Item coin = this.coinValues.get(i).coin;
+
+		for (CoinValuePair coinValue : this.coinValues) {
+			int amount = coinValue.amount;
+			Item coin = coinValue.coin;
 			double newAmount = amount * costMultiplier;
 			double leftoverAmount = newAmount % 1d;
-			multipliedValue.addValue(coin, (int)newAmount);
+			multipliedValue.addValue(coin, (int) newAmount);
 			CoinData coinData = MoneyUtil.getData(coin);
-			while(coinData != null && coinData.convertsDownwards() && leftoverAmount > 0d)
-			{
-				Pair<Item,Integer> conversion = coinData.getDownwardConversion();
+			while (coinData != null && coinData.convertsDownwards() && leftoverAmount > 0d) {
+				Pair<Item, Integer> conversion = coinData.getDownwardConversion();
 				coin = conversion.getFirst();
 				coinData = MoneyUtil.getData(coin);
 				newAmount = leftoverAmount * conversion.getSecond();
 				leftoverAmount = newAmount % 1d;
-				multipliedValue.addValue(coin, (int)newAmount);
+				multipliedValue.addValue(coin, (int) newAmount);
 			}
 		}
 		if(multipliedValue.getRawValue() <= 0) //If it became free, flag the result as free.
@@ -500,7 +491,7 @@ public class CoinValue
 	{
 		
 		public final Item coin;
-		public int amount = 0;
+		public int amount;
 		
 		public CoinValuePair(Item coin, int amount)
 		{
@@ -576,7 +567,7 @@ public class CoinValue
 				else
 					pairs.add(new CoinValuePair(coinItem, quantity));
 			}
-			if(pairs.size() <= 0)
+			if(pairs.size() == 0)
 				throw new Exception("Coin Value entry has no valid coin/count entries to parse.");
 			return new CoinValue(pairs, true);
 		}
@@ -585,14 +576,12 @@ public class CoinValue
 	
 	public JsonElement toJson() {
 		if(this.isFree)
-			return new JsonPrimitive(this.isFree);
+			return new JsonPrimitive(true);
 		else
 		{
 			JsonArray array = new JsonArray();
-			for(int i = 0; i < this.coinValues.size(); ++i)
-			{
+			for (CoinValuePair pair : this.coinValues) {
 				JsonObject entry = new JsonObject();
-				CoinValuePair pair = this.coinValues.get(i);
 				entry.addProperty("Coin", ForgeRegistries.ITEMS.getKey(pair.coin).toString());
 				entry.addProperty("Count", pair.amount);
 				array.add(entry);
@@ -610,11 +599,10 @@ public class CoinValue
 	public boolean equals(Object other) {
 		if(this == other)
 			return true;
-		else if(!(other instanceof CoinValue))
+		else if(!(other instanceof CoinValue coinValue))
 			return false;
 		else
 		{
-			CoinValue coinValue = (CoinValue)other;
 			if(coinValue.isFree && this.isFree)
 				return true;
 			else

@@ -7,6 +7,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
@@ -23,10 +25,22 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class WalletCapability {
 	
 	public static LazyOptional<IWalletHandler> getWalletHandler(@Nonnull final Entity entity) {
 		return entity.getCapability(CurrencyCapabilities.WALLET);
+	}
+
+	public static CoinValue getWalletMoney(@Nonnull final Entity entity) {
+		final AtomicLong walletFunds = new AtomicLong(0);
+		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler ->{
+			ItemStack wallet = walletHandler.getWallet();
+			if(WalletItem.isWallet(wallet.getItem()))
+				walletFunds.set(MoneyUtil.getValue(WalletItem.getWalletInventory(wallet)));
+		});
+		return new CoinValue(walletFunds.get());
 	}
 	
 	public static ICapabilityProvider createProvider(final Player playerEntity)
@@ -119,9 +133,8 @@ public class WalletCapability {
 		@Override
 		public void readTag(Tag tag)
 		{
-			if(tag instanceof CompoundTag)
+			if(tag instanceof CompoundTag compound)
 			{
-				CompoundTag compound = (CompoundTag)tag;
 				this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
 				if(compound.contains("Visible"))
 					this.visible = compound.getBoolean("Visible");
@@ -178,8 +191,6 @@ public class WalletCapability {
 		
 		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
 		AbstractContainerMenu menu = player.containerMenu;
-		if(menu == null)
-			return;
 		boolean creative = player.isCreative() && !player.level.isClientSide;
 		if(!creative)
 			heldItem = menu.getCarried();
@@ -192,10 +203,10 @@ public class WalletCapability {
 		if(clickedSlot < 0)
 		{
 			//Wallet slot clicked
+			ItemStack wallet = walletHandler.getWallet();
 			if(heldShift)
 			{
 				//Quick-move the wallet to the players inventory
-				ItemStack wallet = walletHandler.getWallet();
 				if(wallet.isEmpty())
 					return;
 				//If we were able to move the wallet into the players inventory, empty the wallet slot
@@ -210,7 +221,6 @@ public class WalletCapability {
 			else
 			{
 				//Swap the held item with the wallet item
-				ItemStack wallet = walletHandler.getWallet();
 				if(wallet.isEmpty() && heldItem.isEmpty())
 					return;
 				if(WalletSlot.isValidWallet(heldItem) || heldItem.isEmpty())
@@ -231,8 +241,6 @@ public class WalletCapability {
 				return;
 			}	
 			ItemStack slotItem = inventory.getItem(clickedSlot);
-			//LightmansCurrency.LogInfo("Clicked on slot " + clickedSlot + " of " + inventory.getContainerSize() + " on the " + DebugUtil.getSideText(player));
-			//LightmansCurrency.LogInfo("Slot had " + slotItem.getCount() + "x " + slotItem.getItem().getRegistryName().toString());
 			if(WalletSlot.isValidWallet(slotItem) && walletHandler.getWallet().isEmpty())
 			{
 				//Remove the item from inventory

@@ -10,6 +10,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class UpgradeInputSlot extends SimpleSlot{
 
@@ -28,7 +29,7 @@ public class UpgradeInputSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack)
+	public boolean mayPlace(@NotNull ItemStack stack)
 	{
 		Item item = stack.getItem();
 		if(item instanceof UpgradeItem)

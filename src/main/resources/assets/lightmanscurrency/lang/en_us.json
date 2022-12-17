@@ -394,6 +394,7 @@
     "tooltip.button.notification": "Open Notifications",
     "tooltip.button.team_manager": "Open Team Manager",
     "notifications.source.general" : "General",
+    "notifications.timestamp" : "%s",
     "notifications.source.general.format": "%1$s: %2$s",
     "notifications.chat.format": "%1$s %2$s",
     "notifications.chat.format.title": "[%s]",
@@ -648,6 +649,18 @@
     "traderule.lightmanscurrency.free_sample": "Free Sample",
     "traderule.lightmanscurrency.free_sample.alert": "Your first purchase is free!",
     "traderule.lightmanscurrency.price_fluctuation": "Price Fluctuation",
+	
+	"gui.lightmanscurrency.button.player_trading.propose": "Propose",
+	"gui.lightmanscurrency.button.player_trading.accept": "Accept",
+	"gui.lightmanscurrency.button.player_trading.cancel": "Cancel",
+	
+	"command.lightmanscurrency.lctrade.host.notify": "Trade request has been sent to %s.",
+	"command.lightmanscurrency.lctrade.guest.notify": "%1$s has requested to trade with you. Click [%2$s] to accept.",
+	"command.lightmanscurrency.lctrade.guest.notify.here": "here",
+	"command.lightmanscurrency.lctrade.self": "You cannot request a trade with yourself.",
+	"command.lightmanscurrency.lctradeaccept.notfound": "No valid trade request with that tradeID.",
+	"command.lightmanscurrency.lctradeaccept.error": "An unexpected error occurred when accepting the trade request.",
+	"Command.argument.tradeid.invalid": "Trade ID is not a valid numerical value.",
     
     "command.lightmanscurrency.lcadmin.help.help": "%sDisplay sub-command info",
     "command.lightmanscurrency.lcadmin.toggleadmin": "LC Admin Mode: %s",

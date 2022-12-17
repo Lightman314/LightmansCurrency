@@ -6,6 +6,7 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -73,5 +74,7 @@ public class CommonProxy {
 			return server.overworld();
 		return null;
 	}
+
+	public void loadPlayerTrade(ClientPlayerTrade trade) { }
 
 }

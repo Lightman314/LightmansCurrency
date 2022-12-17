@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.core;
 
+import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.menus.*;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletBankMenu;
@@ -25,29 +26,17 @@ public class ModMenus {
 			return new MintMenu(id, playerInventory, tileEntity);
 		}));
 		
-		TRADER = ModRegistries.MENUS.register("trader", () -> new MenuType<>((IContainerFactory<TraderMenu>)(id, playerInventory,data) ->{
-			return new TraderMenu(id, playerInventory, data.readLong());
-		}));
+		TRADER = ModRegistries.MENUS.register("trader", () -> new MenuType<>((IContainerFactory<TraderMenu>)(id, playerInventory,data) -> new TraderMenu(id, playerInventory, data.readLong())));
 		
-		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> new MenuType<>((IContainerFactory<TraderMenuBlockSource>)(id, playerInventory, data) ->{
-			return new TraderMenuBlockSource(id, playerInventory, data.readBlockPos());
-		}));
+		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> new MenuType<>((IContainerFactory<TraderMenuBlockSource>)(id, playerInventory, data) -> new TraderMenuBlockSource(id, playerInventory, data.readBlockPos())));
 		
-		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> new MenuType<>((IContainerFactory<TraderMenuAllNetwork>)(id, playerInventory,data) ->{
-			return new TraderMenuAllNetwork(id, playerInventory);
-		}));
+		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> new MenuType<>((IContainerFactory<TraderMenuAllNetwork>)(id, playerInventory,data) -> new TraderMenuAllNetwork(id, playerInventory)));
 		
-		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> new MenuType<>((IContainerFactory<TraderStorageMenu>)(id, playerInventory,data) ->{
-			return new TraderStorageMenu(id, playerInventory, data.readLong());
-		}));
+		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> new MenuType<>((IContainerFactory<TraderStorageMenu>)(id, playerInventory,data) -> new TraderStorageMenu(id, playerInventory, data.readLong())));
 		
-		WALLET = ModRegistries.MENUS.register("wallet", () -> new MenuType<>((IContainerFactory<WalletMenu>)(id, playerInventory, data) ->{
-			return new WalletMenu(id, playerInventory, data.readInt());
-		}));
+		WALLET = ModRegistries.MENUS.register("wallet", () -> new MenuType<>((IContainerFactory<WalletMenu>)(id, playerInventory, data) -> new WalletMenu(id, playerInventory, data.readInt())));
 		
-		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> new MenuType<>((IContainerFactory<WalletBankMenu>)(id, playerInventory, data) ->{
-			return new WalletBankMenu(id, playerInventory, data.readInt());
-		}));
+		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> new MenuType<>((IContainerFactory<WalletBankMenu>)(id, playerInventory, data) -> new WalletBankMenu(id, playerInventory, data.readInt())));
 		
 		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> new MenuType<>((IContainerFactory<TicketMachineMenu>)(id, playerInventory, data)->{
 			TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
@@ -59,10 +48,10 @@ public class ModMenus {
 			return new TraderInterfaceMenu(id, playerInventory, blockEntity);
 		}));
 		
-		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> new MenuType<>((IContainerFactory<TraderRecoveryMenu>)(id, playerInventory, data) -> {
-			return new TraderRecoveryMenu(id, playerInventory);
-		}));
-		
+		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> new MenuType<>((IContainerFactory<TraderRecoveryMenu>)(id, playerInventory, data) -> new TraderRecoveryMenu(id, playerInventory)));
+
+		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> new MenuType<>((IContainerFactory<PlayerTradeMenu>)(id, playerInventory, data) -> new PlayerTradeMenu(id, playerInventory, data.readInt(), ClientPlayerTrade.decode(data))));
+
 	}
 	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
@@ -85,5 +74,7 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
 	
 	public static final RegistryObject<MenuType<TraderRecoveryMenu>> TRADER_RECOVERY;
+
+	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
 	
 }
