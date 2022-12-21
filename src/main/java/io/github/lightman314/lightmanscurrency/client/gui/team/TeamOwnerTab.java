@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamOwnerTab extends TeamTab{
 
@@ -23,7 +24,7 @@ public class TeamOwnerTab extends TeamTab{
 	private TeamOwnerTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.owner"); }
@@ -52,10 +53,10 @@ public class TeamOwnerTab extends TeamTab{
 		this.newOwnerName = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.empty()));
 		this.newOwnerName.setMaxLength(16);
 		
-		this.buttonChangeOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setNewOwner));
+		this.buttonChangeOwner = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setNewOwner).pos(screen.guiLeft() + 20, screen.guiTop() + 45).size(160, 20).build());
 		this.buttonChangeOwner.active = false;
 		
-		this.buttonDisbandTeam = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 160, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.disband"), this::disbandTeam));
+		this.buttonDisbandTeam = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.disband"), this::disbandTeam).pos(screen.guiLeft() + 20, screen.guiTop() + 160).size(160, 20).build());
 		
 	}
 

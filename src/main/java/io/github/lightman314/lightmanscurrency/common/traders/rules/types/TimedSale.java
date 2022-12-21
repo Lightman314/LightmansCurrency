@@ -35,8 +35,6 @@ public class TimedSale extends TradeRule {
 	boolean timerActive() { return this.startTime != 0; }
 	long duration = 0;
 	int discount = 10;
-	public int getDiscountPercent() { return this.discount; }
-	public void setDiscountPercent(int percent) { this.discount = MathUtil.clamp(percent, 0, 100); }
 	private double getDiscountMult() { return 1d - ((double)discount/100d); }
 	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
 	
@@ -47,15 +45,12 @@ public class TimedSale extends TradeRule {
 	{
 		if(this.timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
-			switch(event.getTrade().getTradeDirection())
-			{
-			case SALE:
-				event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().getString()));
-				break;
-			case PURCHASE:
-				event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().getString()));
-				break;
-				default: //Nothing if direction is NONE
+			switch (event.getTrade().getTradeDirection()) {
+				case SALE ->
+						event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().getString()));
+				case PURCHASE ->
+						event.addHelpful(Component.translatable("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().getString()));
+				default -> { } //Nothing if direction is NONE
 			}
 		}
 	}
@@ -65,15 +60,10 @@ public class TimedSale extends TradeRule {
 	{
 		if(timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
-			switch(event.getTrade().getTradeDirection())
-			{
-			case SALE:
-				event.applyCostMultiplier(this.getDiscountMult());
-				break;
-			case PURCHASE:
-				event.applyCostMultiplier(this.getIncreaseMult());
-				break;
-				default: //Nothing if direction is NONE
+			switch (event.getTrade().getTradeDirection()) {
+				case SALE -> event.applyCostMultiplier(this.getDiscountMult());
+				case PURCHASE -> event.applyCostMultiplier(this.getIncreaseMult());
+				default -> {} //Nothing if direction is NONE
 			}
 		}
 	}
@@ -222,10 +212,12 @@ public class TimedSale extends TradeRule {
 			
 			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
 			this.discountInput.setMaxLength(2);
-			this.discountInput.setValue(Integer.toString(this.getRule().discount));
-			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+			TimedSale rule = this.getRule();
+			if(rule != null)
+				this.discountInput.setValue(Integer.toString(rule.discount));
+			this.buttonSetDiscount = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton).pos(screen.guiLeft() + 110, screen.guiTop() + 10).size(50, 20).build());
 			
-			this.buttonStartSale = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 45, 156, 20, this.getButtonText(), this::PressStartButton));
+			this.buttonStartSale = this.addCustomRenderable(Button.builder(this.getButtonText(), this::PressStartButton).pos(screen.guiLeft() + 10, screen.guiTop() + 45).size(156, 20).build());
 			
 			this.durationInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 75, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
 			this.durationInput.setTime(this.getRule().duration);
@@ -238,7 +230,7 @@ public class TimedSale extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.getX() + this.discountInput.getWidth() + 4, this.discountInput.getY() + 3, 0xFFFFFF);
 			
 			Component infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
 			if(this.getRule().timerActive())
@@ -257,19 +249,22 @@ public class TimedSale extends TradeRule {
 		public void onScreenTick()
 		{
 			this.buttonStartSale.setMessage(getButtonText());
-			this.buttonStartSale.active = this.getRule().timerActive() || (this.getRule().duration > 0 && this.getRule().isActive());
+			TimedSale rule = this.getRule();
+			this.buttonStartSale.active = rule != null && (rule.timerActive() || (rule.duration > 0 && rule.isActive()));
 			TextInputUtil.whitelistInteger(this.discountInput, 0, 99);
 			
 		}
 		
 		private Component getButtonText()
 		{
-			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start"));
+			TimedSale rule = this.getRule();
+			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start"));
 		}
 		
 		private Component getButtonTooltip()
 		{
-			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start") + ".tooltip");
+			TimedSale rule = this.getRule();
+			return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start") + ".tooltip");
 		}
 		
 		@Override
@@ -285,7 +280,9 @@ public class TimedSale extends TradeRule {
 		void PressSetDiscountButton(Button button)
 		{
 			int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
-			this.getRule().discount = discount;
+			TimedSale rule = this.getRule();
+			if(rule != null)
+				rule.discount = discount;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putInt("Discount", discount);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -293,7 +290,8 @@ public class TimedSale extends TradeRule {
 		
 		void PressStartButton(Button button)
 		{
-			boolean setActive = !this.getRule().timerActive();
+			TimedSale rule = this.getRule();
+			boolean setActive = rule != null && !rule.timerActive();
 			this.getRule().startTime = this.getRule().timerActive() ? 0 : TimeUtil.getCurrentTime();
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putBoolean("StartSale", setActive);
@@ -302,7 +300,9 @@ public class TimedSale extends TradeRule {
 		
 		public void onTimeSet(TimeData newTime)
 		{
-			this.getRule().duration = newTime.miliseconds;
+			TimedSale rule = this.getRule();
+			if(rule != null)
+				rule.duration = newTime.miliseconds;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putLong("Duration", newTime.miliseconds);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

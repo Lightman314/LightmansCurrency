@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamSelectWidget extends AbstractWidget {
 
@@ -25,7 +26,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	private final Supplier<List<Team>> teamSource;
 	private final Supplier<Team> selectedTeam;
 	private final Consumer<Integer> onPress;
-	private List<TeamButton> teamButtons = Lists.newArrayList();
+	private final List<TeamButton> teamButtons = new ArrayList<>();
 	
 	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
 		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
@@ -45,19 +46,19 @@ public class TeamSelectWidget extends AbstractWidget {
 		for(int i = 0; i < this.rows; ++i)
 		{
 			int index = i;
-			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
+			TeamButton button = new TeamButton(this.getX(), this.getY() + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
 			this.teamButtons.add(button);
 			addButton.accept(button);
 		}
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
 			return;
-		fill(pose, x, y, x + this.width, y + this.height, 0xFF000000);
+		fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF000000);
 	}
 
 	private int scroll = 0;
@@ -126,14 +127,14 @@ public class TeamSelectWidget extends AbstractWidget {
 			return;
 		this.onPress.accept(this.scroll + index);
 	}
-	
+
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
-	
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+
 	@Override
 	protected boolean isValidClickButton(int button) { return false; }
 	
 	@Override
-	public void playDownSound(SoundManager soundManager) { }
+	public void playDownSound(@NotNull SoundManager soundManager) { }
 	
 }

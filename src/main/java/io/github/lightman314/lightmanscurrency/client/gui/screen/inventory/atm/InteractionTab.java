@@ -11,13 +11,14 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.Container;
+import org.jetbrains.annotations.NotNull;
 
 public class InteractionTab extends ATMTab implements IBankAccountWidget{
 
@@ -26,7 +27,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	BankAccountWidget accountWidget;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.interact"); }
@@ -58,7 +59,7 @@ public class InteractionTab extends ATMTab implements IBankAccountWidget{
 	public void onClose() { }
 
 	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
+	public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T button) {
 		if(button instanceof AbstractWidget)
 			this.screen.addRenderableTabWidget((AbstractWidget)button);
 		return button;

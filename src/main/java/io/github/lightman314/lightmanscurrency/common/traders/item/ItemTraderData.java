@@ -675,7 +675,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	@Override
 	@NotNull
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide){
+	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide){
 		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 	

@@ -2,12 +2,11 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces;
 
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public interface IItemTraderBlock extends ITraderBlock {
 	
@@ -21,7 +20,7 @@ public interface IItemTraderBlock extends ITraderBlock {
 	 * Gets the item display render rotation for the trade at the given tradeSlot.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state);
+	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state);
 	
 	/**
 	 * Gets the item display render scale for the trade at the given tradeSlot.

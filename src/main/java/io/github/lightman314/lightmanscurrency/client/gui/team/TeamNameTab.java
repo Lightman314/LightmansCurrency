@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamNameTab extends TeamTab {
 
@@ -20,7 +21,7 @@ public class TeamNameTab extends TeamTab {
 	private TeamNameTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Component.translatable("gui.button.lightmanscurrency.changename")); }
+	public @NotNull IconData getIcon() { return IconData.of(Component.translatable("gui.button.lightmanscurrency.changename")); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.name"); }
@@ -42,7 +43,7 @@ public class TeamNameTab extends TeamTab {
 		this.nameInput.setMaxLength(Team.MAX_NAME_LENGTH);
 		this.nameInput.setValue(this.getActiveTeam().getName());
 		
-		this.buttonChangeName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName));
+		this.buttonChangeName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName).pos(screen.guiLeft() + 20, screen.guiTop() + 45).size(160, 20).build());
 		this.buttonChangeName.active = false;
 	}
 

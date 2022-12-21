@@ -47,9 +47,8 @@ public class PlayerWhitelist extends TradeRule{
 	
 	public boolean isWhitelisted(PlayerReference player)
 	{
-		for(int i = 0; i < this.whitelistedPlayers.size(); ++i)
-		{
-			if(this.whitelistedPlayers.get(i).is(player))
+		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers) {
+			if (whitelistedPlayer.is(player))
 				return true;
 		}
 		return false;
@@ -70,10 +69,8 @@ public class PlayerWhitelist extends TradeRule{
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player names
 		ListTag playerNameList = new ListTag();
-		for(int i = 0; i < this.whitelistedPlayers.size(); i++)
-		{
-			playerNameList.add(this.whitelistedPlayers.get(i).save());
-		}
+		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers)
+			playerNameList.add(whitelistedPlayer.save());
 		compound.put("WhitelistedPlayers", playerNameList);
 	}
 	
@@ -165,8 +162,8 @@ public class PlayerWhitelist extends TradeRule{
 			
 			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
-			this.buttonRemovePlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
+			this.buttonAddPlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(78, 20).build());
+			this.buttonRemovePlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30).size(78, 20).build());
 			
 			//Player list display
 			this.playerDisplay = this.screen.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));
@@ -200,7 +197,7 @@ public class PlayerWhitelist extends TradeRule{
 		void PressWhitelistButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isBlank())
 			{
 				nameInput.setValue("");
 				CompoundTag updateInfo = new CompoundTag();
@@ -213,7 +210,7 @@ public class PlayerWhitelist extends TradeRule{
 		void PressForgetButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isBlank())
 			{
 				nameInput.setValue("");
 				CompoundTag updateInfo = new CompoundTag();

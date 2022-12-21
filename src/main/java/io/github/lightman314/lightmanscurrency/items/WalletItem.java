@@ -29,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -41,10 +42,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletItem extends Item{
 	
-	private static final SoundEvent emptyOpenSound = new SoundEvent(new ResourceLocation("minecraft","item.armor.equip_leather"));
+	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER;
 	private final ResourceLocation MODEL_TEXTURE;
 	
 	private final int level;
@@ -69,12 +71,10 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public int getEnchantmentValue() {
-		return 10;
-	}
+	public int getEnchantmentValue() { return 10; }
 	
 	@Override
-	public boolean isEnchantable(ItemStack stack) { return true; }
+	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
 	
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
@@ -152,7 +152,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
@@ -187,7 +187,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
+	public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand)
 	{
 		
 		//CurrencyMod.LOGGER.info("Wallet was used.");
@@ -358,7 +358,7 @@ public class WalletItem extends Item{
 			CompoundTag thisCompound = invList.getCompound(i);
 			ItemStack thisStack = ItemStack.of(thisCompound);
 			int j = (int)thisCompound.getByte("Slot") & 255;
-			if(j >= 0 && j < value.size())
+			if(j < value.size())
 				value.set(j, thisStack);
 		}
 		
@@ -415,13 +415,11 @@ public class WalletItem extends Item{
 	 */
 	public static void CopyWalletContents(ItemStack walletIn, ItemStack walletOut)
 	{
-		if(!(walletIn.getItem() instanceof WalletItem && walletIn.getItem() instanceof WalletItem))
+		if(!(walletIn.getItem() instanceof WalletItem walletItemIn && walletOut.getItem() instanceof WalletItem walletItemOut))
 		{
 			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
 			return;
 		}
-		WalletItem walletItemIn = (WalletItem)walletIn.getItem();
-		WalletItem walletItemOut = (WalletItem)walletOut.getItem();
 		NonNullList<ItemStack> walletInventory1 = getWalletInventory(walletIn);
 		NonNullList<ItemStack> walletInventory2 = getWalletInventory(walletOut);
 		if(walletInventory1.size() > walletInventory2.size())
@@ -454,7 +452,7 @@ public class WalletItem extends Item{
 	public static class DataWriter implements Consumer<FriendlyByteBuf>
 	{
 
-		private int slotIndex;
+		private final int slotIndex;
 		
 		public DataWriter(int slotIndex)
 		{

@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/coins_copper"
+    "layer0": "lightmanscurrency:item/coins_copper"
   }
 }

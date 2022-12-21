@@ -24,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener {
 
@@ -37,7 +38,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 	
 	@Override
-	public IconData getIcon() { return IconData.BLANK; }
+	public @NotNull IconData getIcon() { return IconData.BLANK; }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.empty(); }
@@ -87,7 +88,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, Component.empty(), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
 		
 	}
 	
@@ -183,9 +184,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof ItemTradeData)
+		if(trade instanceof ItemTradeData t)
 		{
-			ItemTradeData t = (ItemTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
@@ -209,9 +209,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof ItemTradeData)
+		if(trade instanceof ItemTradeData t)
 		{
-			ItemTradeData t = (ItemTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale() || t.isBarter())
 			{

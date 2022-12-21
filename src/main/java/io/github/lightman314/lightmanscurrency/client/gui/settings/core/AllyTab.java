@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class AllyTab extends SettingsTab {
 
@@ -34,10 +35,8 @@ public class AllyTab extends SettingsTab {
 	
 	ScrollTextDisplay display;
 	
-	int scroll = 0;
-	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.ally"); }
@@ -53,8 +52,8 @@ public class AllyTab extends SettingsTab {
 		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, Component.empty()));
 		this.nameInput.setMaxLength(16);
 		
-		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
-		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
+		this.buttonAddAlly = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly).pos(screen.guiLeft() + 20, screen.guiTop() + 35).size(74, 20).build());
+		this.buttonRemoveAlly = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly).pos(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35).size(74, 20).build());
 		
 		this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 60, 190, 135, screen.getFont(), this::getAllyList));
 		this.display.setColumnCount(2);

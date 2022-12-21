@@ -3,21 +3,14 @@ package io.github.lightman314.lightmanscurrency.client;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.ticket.TicketSlot;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -30,9 +23,10 @@ public class ClientModEvents {
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
 	}
-	
-	@SubscribeEvent
-	public static void stitchTextures(TextureStitchEvent.Pre event) {
+
+	//Not needed any more apparently
+	/*@SubscribeEvent
+	public static void stitchTextures(TextureStitchEvent event) {
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add coin/wallet slot backgrounds
 			//LightmansCurrency.LogInfo("Adding empty slot sprites to the texture atlas.");
@@ -42,7 +36,7 @@ public class ClientModEvents {
 			event.addSprite(ItemRenderUtil.EMPTY_SLOT_BG);
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 		}
-	}
+	}*/
 	
 	@SubscribeEvent
 	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
@@ -61,9 +55,7 @@ public class ClientModEvents {
 	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
-		if(renderer instanceof LivingEntityRenderer)
-		{
-			LivingEntityRenderer livingRenderer = (LivingEntityRenderer)renderer;
+		if(renderer instanceof LivingEntityRenderer livingRenderer) {
 			livingRenderer.addLayer(new WalletLayer<>(livingRenderer));
 		}
 	}

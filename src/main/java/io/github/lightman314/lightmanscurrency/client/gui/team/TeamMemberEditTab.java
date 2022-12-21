@@ -18,6 +18,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamMemberEditTab extends TeamTab {
 
@@ -26,7 +27,7 @@ public class TeamMemberEditTab extends TeamTab {
 	private TeamMemberEditTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
+	public @NotNull IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.member_edit"); }
@@ -50,9 +51,9 @@ public class TeamMemberEditTab extends TeamTab {
 		this.memberNameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 11, screen.guiTop() + 9, 178, 20, Component.empty()));
 		this.memberNameInput.setMaxLength(16);
 		
-		this.buttonAddMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember));
-		this.buttonPromoteMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 70, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin));
-		this.buttonRemoveMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 130, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember));
+		this.buttonAddMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(60, 20).build());
+		this.buttonPromoteMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin).pos(screen.guiLeft() + 70, screen.guiTop() + 30).size(60, 20).build());
+		this.buttonRemoveMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember).pos(screen.guiLeft() + 130, screen.guiTop() + 30).size(60, 20).build());
 		this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 		
 		this.memberDisplay = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 10, screen.guiTop() + 55, screen.xSize - 20, screen.ySize - 65, this.getFont(), this::getMemberList));
@@ -97,7 +98,7 @@ public class TeamMemberEditTab extends TeamTab {
 		else
 		{
 			this.buttonAddMember.active = this.buttonPromoteMember.active = false;
-			this.buttonRemoveMember.active = this.getPlayer().getGameProfile().getName().toLowerCase().equals(this.memberNameInput.getValue().toLowerCase());
+			this.buttonRemoveMember.active = this.getPlayer().getGameProfile().getName().equalsIgnoreCase(this.memberNameInput.getValue());
 		}
 		
 	}

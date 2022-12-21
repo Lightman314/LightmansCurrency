@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class NullCategory extends NotificationCategory {
 
@@ -18,7 +19,7 @@ public class NullCategory extends NotificationCategory {
 	private NullCategory() {}
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.BARRIER); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.BARRIER); }
 
 	@Override
 	public MutableComponent getName() { return Component.literal("NULL"); }

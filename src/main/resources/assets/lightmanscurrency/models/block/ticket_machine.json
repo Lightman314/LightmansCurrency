@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"main": "lightmanscurrency:blocks/ticket_machine",
-		"particle": "lightmanscurrency:blocks/ticket_machine"
+		"main": "lightmanscurrency:block/ticket_machine",
+		"particle": "lightmanscurrency:block/ticket_machine"
 	},
 	"elements": [
 		{

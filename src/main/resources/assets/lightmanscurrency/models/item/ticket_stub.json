@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/ticket_stub"
+    "layer0": "lightmanscurrency:item/ticket_stub"
   }
 }

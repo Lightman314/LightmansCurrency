@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.atm.ATMConversionButtonDat
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class ATMConversionButton extends Button {
 	
@@ -19,12 +20,12 @@ public class ATMConversionButton extends Button {
 	private final ATMConversionButtonData data;
 	
 	public ATMConversionButton(int left, int top, ATMConversionButtonData data, Consumer<String> commandHandler) {
-		super(left + data.xPos, top + data.yPos, data.width, HEIGHT, Component.empty(), b -> commandHandler.accept(data.command));
+		super(left + data.xPos, top + data.yPos, data.width, HEIGHT, Component.empty(), b -> commandHandler.accept(data.command), Button.DEFAULT_NARRATION);
 		this.data = data;
 	}
 	
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Render background to width
 		int yOffset = this.isHovered ? HEIGHT : 0;
@@ -34,24 +35,23 @@ public class ATMConversionButton extends Button {
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		//Draw the left edge
-		this.blit(pose, this.x, this.y, 0, yOffset, 2, HEIGHT);
+		this.blit(pose, this.getX(), this.getY(), 0, yOffset, 2, HEIGHT);
 		//Draw the middle portions
 		int xPos = 2;
 		while(xPos < this.width - 2)
 		{
 			int xSize = Math.min(this.width - 2 - xPos, 252);
-			this.blit(pose, this.x + xPos, this.y, 2, yOffset, xSize, HEIGHT);
+			this.blit(pose, this.getX() + xPos, this.getY(), 2, yOffset, xSize, HEIGHT);
 			xPos += xSize;
 		}
 		//Draw the right edge
-		this.blit(pose, this.x + this.width - 2, this.y, 254, yOffset, 2, HEIGHT);
+		this.blit(pose, this.getX() + this.width - 2, this.getY(), 254, yOffset, 2, HEIGHT);
 		
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())
 		{
-			try {
-				icon.render(this, pose, this.isHovered);
-			} catch(Exception e) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", e); }
+			try { icon.render(this, pose, this.isHovered);
+			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
 		}
 		
 	}

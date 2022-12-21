@@ -29,6 +29,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
@@ -44,7 +45,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	Button acceptChangesButton;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.info"); }
@@ -124,7 +125,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		
 		//Trader name
 		TraderData trader = this.menu.getBE().getTrader();
-		Component infoText = null;
+		Component infoText;
 		if(trader != null)
 			infoText = trader.getTitle();
 		else
@@ -193,7 +194,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		this.newTradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, List.of(this.acceptChangesButton));
+		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, List.of(this.acceptChangesButton));
 		
 	}
 

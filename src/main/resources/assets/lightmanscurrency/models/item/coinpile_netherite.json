@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/coins_netherite_stack"
+    "layer0": "lightmanscurrency:item/coins_netherite_stack"
   }
 }

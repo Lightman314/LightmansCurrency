@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockE
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ITooltipRenderable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -23,10 +24,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -56,9 +59,9 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	public static final NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
+	public static NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
 		return b -> {
-			boolean creative = b.isHoveredOrFocused() ? !isCreative.get() : isCreative.get();
+			boolean creative = b.isHoveredOrFocused() != isCreative.get();
 			return creative ? ICON_CREATIVE_ON : ICON_CREATIVE_OFF;
 		};
 	}
@@ -70,7 +73,7 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
 	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
-	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
+	public static NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
 		return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
 	}
 	private static final IconData ICON_INTERFACE_ON = IconData.of(Items.REDSTONE_TORCH);
@@ -95,19 +98,13 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE_TORCH);
 	public static final IconData ICON_MODE_ALWAYS_ON = IconData.of(Items.REDSTONE_BLOCK);
 	
-	public static final IconData GetIcon(ActiveMode mode) { 
-		switch(mode) {
-		case DISABLED:
-			return ICON_MODE_DISABLED;
-		case REDSTONE_OFF:
-			return ICON_MODE_REDSTONE_OFF;
-		case REDSTONE_ONLY:
-			return ICON_MODE_REDSTONE;
-		case ALWAYS_ON:
-			return ICON_MODE_ALWAYS_ON;
-			default:
-				return IconData.of(Items.ROTTEN_FLESH);
-		}
+	public static IconData GetIcon(ActiveMode mode) {
+		return switch (mode) {
+			case DISABLED -> ICON_MODE_DISABLED;
+			case REDSTONE_OFF -> ICON_MODE_REDSTONE_OFF;
+			case REDSTONE_ONLY -> ICON_MODE_REDSTONE;
+			case ALWAYS_ON -> ICON_MODE_ALWAYS_ON;
+		};
 	}
 	
 	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
@@ -208,31 +205,16 @@ public class IconAndButtonUtil {
 			options.add(InteractionType.fromIndex(i).getDisplayText());
 		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, (index) ->  !blacklist.contains(InteractionType.fromIndex(index)), addButton, options);
 	}
-	
-	
-	public static void renderButtonTooltips(PoseStack pose, int mouseX, int mouseY, List<Widget> widgets)
-	{
-		for(Widget w : widgets)
-		{
-			if(w instanceof Button && ((Button) w).isMouseOver(mouseX, mouseY))
-				((Button)w).renderToolTip(pose, mouseX, mouseY);
-		}
-	}
-	
-	private static abstract class BaseTooltip implements Button.OnTooltip
-	{
-		
+
+	private static abstract class BaseTooltip implements Supplier<Tooltip> {
+
 		protected abstract Component getTooltip();
-		
+
 		@Override
-		public void onTooltip(Button button, PoseStack pose, int mouseX, int mouseY) {
-			if(!button.visible || !button.active)
-				return;
-			Minecraft mc = Minecraft.getInstance();
-			mc.screen.renderTooltip(pose, this.getTooltip(), mouseX, mouseY);
-		}
+		public Tooltip get() { return Tooltip.create(this.getTooltip()); }
+
 	}
-	
+
 	public static class SimpleTooltip extends BaseTooltip
 	{
 		private final Component tooltip;
@@ -240,7 +222,7 @@ public class IconAndButtonUtil {
 		@Override
 		protected Component getTooltip() { return this.tooltip; }
 	}
-	
+
 	public static class SuppliedTooltip extends BaseTooltip
 	{
 		private final NonNullSupplier<Component> tooltipSource;
@@ -248,7 +230,7 @@ public class IconAndButtonUtil {
 		@Override
 		protected Component getTooltip() { return this.tooltipSource.get(); }
 	}
-	
+
 	public static class AdditiveTooltip extends BaseTooltip
 	{
 		private final String translationKey;
@@ -257,7 +239,7 @@ public class IconAndButtonUtil {
 		@Override
 		protected Component getTooltip() { return Component.translatable(translationKey, inputSource.get()); }
 	}
-	
+
 	public static class ToggleTooltip extends BaseTooltip
 	{
 		private final NonNullSupplier<Boolean> toggleSource;
@@ -271,7 +253,7 @@ public class IconAndButtonUtil {
 		@Override
 		protected Component getTooltip() { return this.toggleSource.get() ? this.trueTooltip : this.falseTooltip; }
 	}
-	
+
 	public static class ChangingTooltip extends BaseTooltip
 	{
 		private final Supplier<Integer> indicator;
@@ -281,12 +263,22 @@ public class IconAndButtonUtil {
 			this.indicator = indicator;
 			this.tooltips = Lists.newArrayList(tooltips);
 		}
-		
+
 		@Override
 		protected Component getTooltip() {
 			int index = this.indicator.get();
 			return this.tooltips.get(MathUtil.clamp(index, 0, this.tooltips.size() - 1));
 		}
-		
+
+	}
+
+	public static void ManuallyRenderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY, List<Renderable> widgets) {
+		for(Renderable widget : widgets)
+		{
+			if(widget instanceof AbstractWidget w && widget instanceof ITooltipRenderable tr && w.isMouseOver(mouseX, mouseY)) {
+				Tooltip tooltip = tr.getTooltip();
+				screen.renderTooltip(pose, tooltip.toCharSequence(screen.getMinecraft()), mouseX, mouseY);
+			}
+		}
 	}
 }

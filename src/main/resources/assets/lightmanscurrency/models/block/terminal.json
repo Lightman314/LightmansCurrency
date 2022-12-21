@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lightmanscurrency:blocks/terminal",
-		"main": "lightmanscurrency:blocks/terminal"
+		"particle": "lightmanscurrency:block/terminal",
+		"main": "lightmanscurrency:block/terminal"
 	},
 	"elements": [
 		{

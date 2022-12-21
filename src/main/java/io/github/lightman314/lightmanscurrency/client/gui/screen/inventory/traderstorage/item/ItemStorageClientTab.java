@@ -24,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
 
@@ -39,7 +40,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	ScrollBarWidget scrollBar;
 	
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
+	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }

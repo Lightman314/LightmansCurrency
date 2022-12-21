@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class PlainButton extends Button{
@@ -25,7 +26,7 @@ public class PlainButton extends Button{
 	
 	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, NonNullSupplier<Pair<Integer, Integer>> resourceSource)
 	{
-		super(x, y, sizeX, sizeY, Component.empty(), pressable);
+		super(x, y, sizeX, sizeY, Component.empty(), pressable, Button.DEFAULT_NARRATION);
 		this.buttonResource = buttonResource;
 		this.resourceSource = resourceSource;
 	}
@@ -39,7 +40,7 @@ public class PlainButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.buttonResource);
@@ -48,7 +49,7 @@ public class PlainButton extends Button{
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         Pair<Integer,Integer> resource = this.resourceSource.get();
-        this.blit(poseStack, this.x, this.y, resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
+        this.blit(pose, this.getX(), this.getY(), resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
 		
 	}
 

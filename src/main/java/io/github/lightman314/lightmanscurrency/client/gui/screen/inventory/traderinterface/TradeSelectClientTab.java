@@ -15,13 +15,14 @@ import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInter
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TradeSelectTab;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTab> {
 
 	public TradeSelectClientTab(TraderInterfaceScreen screen, TradeSelectTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.trade"); }
@@ -37,7 +38,7 @@ public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTa
 	@Override
 	public void onOpen() {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.getBE()::getTrader, trader -> this.menu.getBE().getTradeContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, this::SelectTrade, TradeButtonArea.FILTER_VALID));		
+		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.getBE()::getTrader, trader -> this.menu.getBE().getTradeContext(), this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, this::SelectTrade, TradeButtonArea.FILTER_VALID));
 		this.tradeDisplay.init();
 		this.tradeDisplay.setSelectionDefinition(this::isTradeSelected);
 		

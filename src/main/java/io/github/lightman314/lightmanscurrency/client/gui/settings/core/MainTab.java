@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
@@ -21,6 +20,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class MainTab extends SettingsTab{
 
@@ -54,13 +54,15 @@ public class MainTab extends SettingsTab{
 		TraderSettingsScreen screen = this.getScreen();
 		
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		
 		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 25, 160, 20, Component.empty()));
 		this.nameInput.setMaxLength(32);
 		this.nameInput.setValue(trader.getCustomName());
 		
-		this.buttonSetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 50, 74, 20, Component.translatable("gui.lightmanscurrency.changename"), this::SetName));
-		this.buttonResetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50, 74, 20, Component.translatable("gui.lightmanscurrency.resetname"), this::ResetName));
+		this.buttonSetName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.lightmanscurrency.changename"), this::SetName).pos(screen.guiLeft() + 20, screen.guiTop() + 50).size(74, 20).build());
+		this.buttonResetName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.lightmanscurrency.resetname"), this::ResetName).pos(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50).size(74, 20).build());
 		
 		//Creative Toggle
 		this.buttonToggleCreative = screen.addRenderableTabWidget(IconAndButtonUtil.creativeToggleButton(screen.guiLeft() + 176, screen.guiTop() + screen.ySize - 30, this::ToggleCreative, () -> this.getTrader().isCreative()));
@@ -119,7 +121,7 @@ public class MainTab extends SettingsTab{
 	public void postRender(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
 		TraderSettingsScreen screen = this.getScreen();
 		
-		IconAndButtonUtil.renderButtonTooltips(matrix, mouseX, mouseY, Lists.newArrayList(this.buttonToggleCreative, this.buttonSavePersistentTrader));
+		//IconAndButtonUtil.renderButtonTooltips(matrix, mouseX, mouseY, Lists.newArrayList(this.buttonToggleCreative, this.buttonSavePersistentTrader));
 		
 		//Render button tooltips
 		if(this.buttonAddTrade.isMouseOver(mouseX, mouseY))
@@ -141,6 +143,8 @@ public class MainTab extends SettingsTab{
 		this.nameInput.tick();
 		
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		
 		this.buttonSetName.active = !this.nameInput.getValue().contentEquals(trader.getCustomName());
 		this.buttonSetName.visible = canChangeName;
@@ -198,7 +202,7 @@ public class MainTab extends SettingsTab{
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.name"); }
@@ -206,6 +210,8 @@ public class MainTab extends SettingsTab{
 	private void SetName(Button button)
 	{
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		String customName = trader.getCustomName();
 		if(!customName.contentEquals(this.nameInput.getValue()))
 		{
@@ -225,6 +231,8 @@ public class MainTab extends SettingsTab{
 	private void ToggleCreative(Button button)
 	{
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		CompoundTag message = new CompoundTag();
 		message.putBoolean("MakeCreative", !trader.isCreative());
 		this.sendNetworkMessage(message);
@@ -233,6 +241,8 @@ public class MainTab extends SettingsTab{
 	private void ToggleBankLink(Button button)
 	{
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		CompoundTag message = new CompoundTag();
 		message.putBoolean("LinkToBankAccount", !trader.getLinkedToBank());
 		this.sendNetworkMessage(message);
@@ -240,17 +250,23 @@ public class MainTab extends SettingsTab{
 	
 	private void AddTrade(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.getTrader().getID(), true));
+		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(trader.getID(), true));
 	}
 	
 	private void RemoveTrade(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.getTrader().getID(), false));
+		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(trader.getID(), false));
 	}
 	
 	private void SavePersistentTraderData(Button button)
 	{
-		TraderData trader = this.getScreen().getTrader();
+		TraderData trader = this.getTrader();
 		if(trader != null && trader.canMakePersistent()) 
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddPersistentTrader(trader.getID(), this.persistentTraderIDInput.getValue(), this.persistentTraderOwnerInput.getValue()));
 	}

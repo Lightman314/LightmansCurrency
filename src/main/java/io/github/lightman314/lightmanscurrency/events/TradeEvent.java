@@ -53,7 +53,6 @@ public abstract class TradeEvent extends Event{
 		
 		/**
 		 * Adds an alert to the trade display.
-		 * 
 		 * Use addHelpful, addWarning, addError, or addDenial for easier to use templates if you don't wish to add any special formatting to your alert.
 		 * @param cancelTrade Whether to also cancel the trade/event.
 		 */
@@ -117,7 +116,7 @@ public abstract class TradeEvent extends Event{
 		public void setCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(newCostMultiplier, 0d, 2d); }
 		
 		CoinValue currentCost;
-		public CoinValue getBaseCost() { return this.currentCost; }
+		public CoinValue getBaseCost() { return this.currentCost.copy(); }
 		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
 		
 		public TradeCostEvent(PlayerReference player, TradeData trade, TraderData trader)
@@ -133,7 +132,7 @@ public abstract class TradeEvent extends Event{
 		
 		private boolean isDirty = false;
 		private final CoinValue pricePaid;
-		public CoinValue getPricePaid() { return this.pricePaid; }
+		public CoinValue getPricePaid() { return this.pricePaid.copy(); }
 		
 		public PostTradeEvent(PlayerReference player, TradeData trade, TraderData trader, CoinValue pricePaid)
 		{

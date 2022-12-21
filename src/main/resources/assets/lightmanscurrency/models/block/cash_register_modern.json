@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lightmanscurrency:blocks/cash_register",
-		"base": "lightmanscurrency:blocks/cash_register"
+		"particle": "lightmanscurrency:block/cash_register",
+		"base": "lightmanscurrency:block/cash_register"
 	},
 	"elements": [
 		{

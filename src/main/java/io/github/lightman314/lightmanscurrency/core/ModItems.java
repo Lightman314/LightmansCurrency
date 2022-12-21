@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.core;
 import io.github.lightman314.lightmanscurrency.items.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.RegistryObject;
@@ -18,51 +17,51 @@ public class ModItems {
 	//Register the items
 	static {
 		//Coins
-		COIN_COPPER = ModRegistries.ITEMS.register("coin_copper", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		COIN_IRON = ModRegistries.ITEMS.register("coin_iron", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		COIN_EMERALD = ModRegistries.ITEMS.register("coin_emerald", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		COIN_DIAMOND = ModRegistries.ITEMS.register("coin_diamond", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		COIN_NETHERITE = ModRegistries.ITEMS.register("coin_netherite", () -> new CoinItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP).fireResistant()));
+		COIN_COPPER = ModRegistries.ITEMS.register("coin_copper", () -> new CoinItem(new Item.Properties()));
+		COIN_IRON = ModRegistries.ITEMS.register("coin_iron", () -> new CoinItem(new Item.Properties()));
+		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new CoinItem(new Item.Properties()));
+		COIN_EMERALD = ModRegistries.ITEMS.register("coin_emerald", () -> new CoinItem(new Item.Properties()));
+		COIN_DIAMOND = ModRegistries.ITEMS.register("coin_diamond", () -> new CoinItem(new Item.Properties()));
+		COIN_NETHERITE = ModRegistries.ITEMS.register("coin_netherite", () -> new CoinItem(new Item.Properties().fireResistant()));
 		
 		//Misc
-		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
+		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties()));
 		
 		//Ticket
-		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE).stacksTo(1)));
-		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
+		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties()));
+		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1)));
+		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties()));
 		
 		//Wallets
-		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, "wallet_iron", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, "wallet_gold", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, "wallet_emerald", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, "wallet_diamond", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().tab(LightmansCurrency.COIN_GROUP).fireResistant()));
+		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties()));
+		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, "wallet_iron", new Item.Properties()));
+		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, "wallet_gold", new Item.Properties()));
+		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, "wallet_emerald", new Item.Properties()));
+		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, "wallet_diamond", new Item.Properties()));
+		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, "wallet_netherite", new Item.Properties().fireResistant()));
 		
 		//Portable Blocks
-		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		PORTABLE_GEM_TERMINAL = ModRegistries.ITEMS.register("portable_gem_terminal", () -> new PortableTerminalItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		PORTABLE_ATM = ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		PORTABLE_TERMINAL = ModRegistries.ITEMS.register("portable_terminal", () -> new PortableTerminalItem(new Item.Properties()));
+		PORTABLE_GEM_TERMINAL = ModRegistries.ITEMS.register("portable_gem_terminal", () -> new PortableTerminalItem(new Item.Properties()));
+		PORTABLE_ATM = ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties()));
 		
 		//Item Capacity Upgrades
-		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1, new Item.Properties()));
+		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2, new Item.Properties()));
+		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3, new Item.Properties()));
 		
 		//Speed Upgrades
-		SPEED_UPGRADE_1 = ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		SPEED_UPGRADE_2 = ModRegistries.ITEMS.register("speed_upgrade_2", () -> new SpeedUpgradeItem(8, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		SPEED_UPGRADE_3 = ModRegistries.ITEMS.register("speed_upgrade_3", () -> new SpeedUpgradeItem(12, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		SPEED_UPGRADE_4 = ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		SPEED_UPGRADE_1 = ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties()));
+		SPEED_UPGRADE_2 = ModRegistries.ITEMS.register("speed_upgrade_2", () -> new SpeedUpgradeItem(8, new Item.Properties()));
+		SPEED_UPGRADE_3 = ModRegistries.ITEMS.register("speed_upgrade_3", () -> new SpeedUpgradeItem(12, new Item.Properties()));
+		SPEED_UPGRADE_4 = ModRegistries.ITEMS.register("speed_upgrade_4", () -> new SpeedUpgradeItem(16, new Item.Properties()));
+		SPEED_UPGRADE_5 = ModRegistries.ITEMS.register("speed_upgrade_5", () -> new SpeedUpgradeItem(20, new Item.Properties()));
 		
 		//Network Upgrade
-		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(UpgradeType.NETWORK, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		NETWORK_UPGRADE = ModRegistries.ITEMS.register("network_upgrade", () -> new UpgradeItem.Simple(UpgradeType.NETWORK, new Item.Properties()));
 		
 		//Hopper Upgrade
-		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(UpgradeType.HOPPER, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(UpgradeType.HOPPER, new Item.Properties()));
 		
 		//Freezer Door(s)
 		FREEZER_DOOR = ModRegistries.ITEMS.register("freezer_door", () -> new Item(new Item.Properties()));

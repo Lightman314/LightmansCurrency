@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
@@ -20,6 +18,8 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 	
@@ -61,7 +61,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
 				
 				//Get rotation
-				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
+				List<Quaternionf> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
 				
 				//Get scale
 				float scale = blockEntity.GetStackRenderScale(tradeSlot);
@@ -75,7 +75,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 					
 					//Translate, rotate, and scale the matrix stack
 					pose.translate(position.x(), position.y(), position.z());
-					for(Quaternion rot : rotation)
+					for(Quaternionf rot : rotation)
 					{
 						pose.mulPose(rot);
 					}

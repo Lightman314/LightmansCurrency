@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamMemberListTab extends TeamTab {
 
@@ -22,7 +23,7 @@ public class TeamMemberListTab extends TeamTab {
 	private TeamMemberListTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.members"); }

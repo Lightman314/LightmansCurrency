@@ -11,7 +11,7 @@ public class ModSounds {
 	
 	static {
 		
-		COINS_CLINKING = ModRegistries.SOUND_EVENTS.register("coins_clinking", () -> new SoundEvent(new ResourceLocation(LightmansCurrency.MODID, "coins_clinking")));
+		COINS_CLINKING = ModRegistries.SOUND_EVENTS.register("coins_clinking", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(LightmansCurrency.MODID, "coins_clinking")));
 		
 	}
 	

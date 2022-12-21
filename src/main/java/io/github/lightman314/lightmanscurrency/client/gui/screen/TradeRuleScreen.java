@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpe
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -318,7 +318,7 @@ public class TradeRuleScreen extends Screen{
 	//Public functions for easy trade rule renderer access
 	public Font getFont() { return this.font; }
 	
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
+	public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomRenderable(T widget)
 	{
 		if(widget != null)
 			this.addRenderableWidget(widget);

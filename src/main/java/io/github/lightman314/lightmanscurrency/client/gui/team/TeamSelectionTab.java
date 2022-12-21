@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamSelectionTab extends TeamTab {
 	
@@ -26,7 +27,7 @@ public class TeamSelectionTab extends TeamTab {
 	private TeamSelectionTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.selection"); }
@@ -47,13 +48,13 @@ public class TeamSelectionTab extends TeamTab {
 		
 		this.refreshTeamList();
 		
-		this.teamSelection = screen.addRenderableTabWidget(new TeamSelectWidget(screen.guiLeft() + 10, screen.guiTop() + 20, 5, () -> this.teamList, () -> this.getActiveTeam(), this::selectTeamButton));
+		this.teamSelection = screen.addRenderableTabWidget(new TeamSelectWidget(screen.guiLeft() + 10, screen.guiTop() + 20, 5, () -> this.teamList, this::getActiveTeam, this::selectTeamButton));
 		this.teamSelection.init(screen::addRenderableTabWidget, this.getFont());
 		
 		this.newTeamName = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 140, 160, 20, Component.empty()));
 		this.newTeamName.setMaxLength(32);
 		
-		this.buttonCreateTeam = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 120, screen.guiTop() + 165, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam));
+		this.buttonCreateTeam = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam).pos(screen.guiLeft() + 120, screen.guiTop() + 165).size(60, 20).build());
 		this.buttonCreateTeam.active = false;
 		
 	}

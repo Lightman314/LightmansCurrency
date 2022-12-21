@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.minecraft.client.gui.components.Renderable;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
@@ -24,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInter
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +32,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 @IPNIgnore
 public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfaceMenu> implements IClientMessage {
@@ -89,7 +90,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -107,14 +108,14 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY) {
 		
 		this.font.draw(pose, this.playerInventoryTitle, TraderInterfaceMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -123,8 +124,6 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		try {
 			this.currentTab().renderTooltips(pose, mouseX, mouseY);
 		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), e); }
-		
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
 		
 		this.tabButtons.forEach((key, button) -> {
 			if(button.isMouseOver(mouseX, mouseY))
@@ -178,6 +177,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 			return true;
 		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
 		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+		assert this.minecraft != null;
 		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
 			return true;
 		}
@@ -243,7 +243,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		return widget;
 	}
 	
-	public <T extends Widget> void removeRenderableTabWidget(T widget) {
+	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
 	}
 	
@@ -257,12 +257,11 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	@Override
-	public List<? extends GuiEventListener> children()
+	public @NotNull List<? extends GuiEventListener> children()
 	{
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);
 		return listeners;

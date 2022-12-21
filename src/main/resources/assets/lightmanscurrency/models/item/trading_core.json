@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/trading_core"
+    "layer0": "lightmanscurrency:item/trading_core"
   }
 }

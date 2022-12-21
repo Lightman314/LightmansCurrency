@@ -36,7 +36,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ContainerScreenEvent;
@@ -57,7 +56,7 @@ public class ClientEvents {
 	public static void onKeyInput(InputEvent.Key event)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.screen instanceof WalletScreen)
+		if(minecraft.screen instanceof WalletScreen && minecraft.player != null)
 		{
 			if(event.getAction() == GLFW.GLFW_PRESS && event.getKey() == KEY_WALLET.getKey().getValue())
 			{
@@ -145,11 +144,8 @@ public class ClientEvents {
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
-			if(screen instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)screen;
-				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
-					return;
-			}
+			if(screen instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+				return;
 			
 			IWalletHandler walletHandler = getWalletHandler(); 
 			if(walletHandler == null)
@@ -184,11 +180,8 @@ public class ClientEvents {
 			if(!gui.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
 				return;
 			
-			if(gui instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)gui;
-				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
-					return;
-			}
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+				return;
 			
 			Minecraft mc = Minecraft.getInstance();
 			if(!LightmansCurrency.isCuriosValid(mc.player))
@@ -225,11 +218,8 @@ public class ClientEvents {
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			if(gui instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)gui;
-				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
-					return;
-			}
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+				return;
 			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			
 			
@@ -281,6 +271,7 @@ public class ClientEvents {
 	
 	private static IWalletHandler getWalletHandler() {
 		Minecraft mc = Minecraft.getInstance();
+		assert mc.player != null;
 		return WalletCapability.getWalletHandler(mc.player).orElse(null);
 	}
 	

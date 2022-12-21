@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class NotificationCategory implements ITab
 {
@@ -68,7 +69,7 @@ public abstract class NotificationCategory implements ITab
 	
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
 		@Override
-		public IconData getIcon() { return IconData.of(Items.CHEST); }
+		public @NotNull IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Override
 		public MutableComponent getName() { return Component.translatable("notifications.source.general"); }
 		@Override

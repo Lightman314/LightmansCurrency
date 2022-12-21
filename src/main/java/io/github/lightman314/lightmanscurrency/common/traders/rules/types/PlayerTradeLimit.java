@@ -46,7 +46,6 @@ public class PlayerTradeLimit extends TradeRule{
 	private long timeLimit = 0;
 	private boolean enforceTimeLimit() { return this.timeLimit > 0; }
 	public long getTimeLimit() { return this.timeLimit; }
-	public void setTimeLimit(int newValue) { this.timeLimit = newValue; }
 	
 	Map<UUID,List<Long>> memory = new HashMap<>();
 	public void resetMemory() { this.memory.clear(); }
@@ -108,7 +107,7 @@ public class PlayerTradeLimit extends TradeRule{
 					i--;
 				}
 			}
-			if(eventTimes.size() <= 0)
+			if(eventTimes.size() == 0)
 				emptyEntries.add(id);
 		});
 		emptyEntries.forEach(id -> this.memory.remove(id));
@@ -122,9 +121,8 @@ public class PlayerTradeLimit extends TradeRule{
 			List<Long> eventTimes = this.memory.get(playerID);
 			if(!this.enforceTimeLimit())
 				return eventTimes.size();
-			for(int i = 0; i < eventTimes.size(); i++)
-			{
-				if(TimeUtil.compareTime(this.timeLimit, eventTimes.get(i)))
+			for (Long eventTime : eventTimes) {
+				if (TimeUtil.compareTime(this.timeLimit, eventTime))
 					count++;
 			}
 		}
@@ -175,7 +173,7 @@ public class PlayerTradeLimit extends TradeRule{
 					int count = thisMemory.getInt("count");
 					for(int z = 0; z < count; z++)
 					{
-						eventTimes.add(0l);
+						eventTimes.add(0L);
 					}
 				}
 				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))
@@ -241,7 +239,7 @@ public class PlayerTradeLimit extends TradeRule{
 					int count = thisMemory.getInt("count");
 					for(int z = 0; z < count; z++)
 					{
-						eventTimes.add(0l);
+						eventTimes.add(0L);
 					}
 				}
 				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))
@@ -278,7 +276,7 @@ public class PlayerTradeLimit extends TradeRule{
 	private static class GUIHandler extends TradeRule.GUIHandler
 	{
 		
-		private final PlayerTradeLimit getRule()
+		private PlayerTradeLimit getRule()
 		{
 			if(getRuleRaw() instanceof PlayerTradeLimit)
 				return (PlayerTradeLimit)getRuleRaw();
@@ -301,10 +299,12 @@ public class PlayerTradeLimit extends TradeRule{
 			
 			this.limitInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 19, 30, 20, Component.empty()));
 			this.limitInput.setMaxLength(3);
-			this.limitInput.setValue(Integer.toString(this.getRule().limit));
+			PlayerTradeLimit rule = this.getRule();
+			if(rule != null)
+				this.limitInput.setValue(Integer.toString(rule.limit));
 			
-			this.buttonSetLimit = this.addCustomRenderable(new Button(screen.guiLeft() + 41, screen.guiTop() + 19, 40, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton));
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton));
+			this.buttonSetLimit = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton).pos(screen.guiLeft() + 41, screen.guiTop() + 19).size(40, 20).build());
+			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
 			
 			this.timeInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 87, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
 			this.timeInput.setTime(this.getRule().timeLimit);
@@ -313,8 +313,10 @@ public class PlayerTradeLimit extends TradeRule{
 
 		@Override
 		public void renderTab(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-			
-			screen.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", this.getRule().limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
+
+			PlayerTradeLimit rule = this.getRule();
+			if(rule != null)
+				screen.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", rule.limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
 			
 			Component text = this.getRule().timeLimit > 0 ? Component.translatable("gui.widget.lightmanscurrency.playerlimit.duration", new TimeData(this.getRule().timeLimit).getShortString()) : Component.translatable("gui.widget.lightmanscurrency.playerlimit.noduration");
 			TextRenderUtil.drawCenteredText(pose, text, this.screen.guiLeft() + this.screen.xSize / 2, this.screen.guiTop() + 75, 0xFFFFFF);
@@ -346,7 +348,9 @@ public class PlayerTradeLimit extends TradeRule{
 		void PressSetLimitButton(Button button)
 		{
 			int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
-			this.getRule().limit = limit;
+			PlayerTradeLimit rule = this.getRule();
+			if(rule != null)
+				rule.limit = limit;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putInt("Limit", limit);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -354,7 +358,9 @@ public class PlayerTradeLimit extends TradeRule{
 		
 		void PressClearMemoryButton(Button button)
 		{
-			this.getRule().memory.clear();
+			PlayerTradeLimit rule = this.getRule();
+			if(rule != null)
+				rule.memory.clear();
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putBoolean("ClearMemory", true);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -362,7 +368,9 @@ public class PlayerTradeLimit extends TradeRule{
 
 		public void onTimeSet(TimeData newTime) {
 			long timeLimit = MathUtil.clamp(newTime.miliseconds, 0, Long.MAX_VALUE);
-			this.getRule().timeLimit = timeLimit;
+			PlayerTradeLimit rule = this.getRule();
+			if(rule != null)
+				rule.timeLimit = timeLimit;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putLong("TimeLimit", timeLimit);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

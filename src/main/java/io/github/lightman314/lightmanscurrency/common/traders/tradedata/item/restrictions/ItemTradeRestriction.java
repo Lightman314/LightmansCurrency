@@ -55,7 +55,7 @@ public class ItemTradeRestriction {
 
 	public static void forEach(BiConsumer<ResourceLocation,ItemTradeRestriction> consumer) { registeredRestrictions.forEach(consumer); }
 
-	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "item/empty_item_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, DEFAULT_BACKGROUND);
 
 	public static final ItemTradeRestriction NONE = new ItemTradeRestriction();

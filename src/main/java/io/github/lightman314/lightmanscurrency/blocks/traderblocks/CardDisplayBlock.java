@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
@@ -23,6 +21,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class CardDisplayBlock extends TraderBlockRotatable implements IItemTraderBlock{
 	
@@ -49,7 +49,7 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 		//Define directions for easy positional handling
 		Vector3f forward = IRotatableBlock.getForwardVect(facing);
 		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
+		Vector3f up = MathUtil.getYP();
 		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 		
 		Vector3f firstPosition = null;
@@ -99,12 +99,12 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
+	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
-		List<Quaternion> rotation = new ArrayList<>();
+		List<Quaternionf> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
-		rotation.add(Vector3f.XP.rotationDegrees(90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getXP(), 90f));
 		return rotation;
 	}
 

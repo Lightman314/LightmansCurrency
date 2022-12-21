@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.option
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class PermissionsTab extends SettingsTab{
 
@@ -33,7 +34,7 @@ public class PermissionsTab extends SettingsTab{
 	public int getColor() { return 0xFFFFFF; }
 
 	@Override
-	public IconData getIcon() { return IconData.of(Items.BOOKSHELF); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.BOOKSHELF); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.allyperms"); }

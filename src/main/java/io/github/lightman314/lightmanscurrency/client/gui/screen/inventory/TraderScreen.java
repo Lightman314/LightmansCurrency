@@ -27,13 +27,14 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCol
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
 @IPNIgnore
 public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements IScreen {
@@ -99,7 +100,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -125,7 +126,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY) {
 		
 		this.font.draw(pose, this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
@@ -136,7 +137,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -146,7 +147,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 			this.currentTab.renderTooltips(pose, mouseX, mouseY);
 		} catch (Throwable t) { LightmansCurrency.LogError("Error rendering trader tab tooltips " + this.currentTab.getClass().getName(), t); }
 		
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
 		
 	}
 	
@@ -178,7 +179,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
 	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
 	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
-	      if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab.blockInventoryClosing()) {
+		assert this.minecraft != null;
+		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab.blockInventoryClosing()) {
 	    	  return true;
 	      }
 	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
@@ -189,7 +191,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		return widget;
 	}
 	
-	public <T extends Widget> void removeRenderableTabWidget(T widget) {
+	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
 	}
 	
@@ -203,12 +205,11 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 	
 	@Override
-	public List<? extends GuiEventListener> children()
+	public @NotNull List<? extends GuiEventListener> children()
 	{
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);
 		return listeners;
@@ -219,7 +220,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		try {
 			if(this.currentTab.mouseClicked(mouseX, mouseY, button))
 				return true;
-		} catch(Throwable t) {}
+		} catch(Throwable ignored) {}
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
@@ -228,7 +229,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		try {
 			if(this.currentTab.mouseReleased(mouseX, mouseY, button))
 				return true;
-		} catch(Throwable t) {}
+		} catch(Throwable ignored) {}
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	
@@ -236,5 +237,5 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	public void addTickListener(Runnable r) {
 		this.tickListeners.add(r);
 	}
-	
+
 }

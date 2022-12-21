@@ -26,6 +26,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStorageTab> implements IScrollListener, IScrollable {
 
@@ -45,7 +46,7 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	IconButton buttonCollectMoney;
 	
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
+	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.auction.storage"); }

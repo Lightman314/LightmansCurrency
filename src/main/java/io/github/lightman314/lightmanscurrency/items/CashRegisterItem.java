@@ -15,8 +15,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -26,10 +26,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class CashRegisterItem extends BlockItem{
 		
-	private static final SoundEvent soundEffect = new SoundEvent(new ResourceLocation("minecraft","entity.experience_orb.pickup"));
+	private static final SoundEvent soundEffect = SoundEvents.EXPERIENCE_ORB_PICKUP;
 	
 	public CashRegisterItem(Block block, Properties properties)
 	{
@@ -37,38 +38,34 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public InteractionResult useOn(UseOnContext context) {
+	public @NotNull InteractionResult useOn(UseOnContext context) {
 		
 		BlockPos lookPos = context.getClickedPos();
 		Level level = context.getLevel();
-		if(lookPos != null)
+		if(level.getBlockState(lookPos).getBlock() instanceof ITraderBlock block)
 		{
-			if(level.getBlockState(lookPos).getBlock() instanceof ITraderBlock)
+			BlockEntity blockEntity = block.getBlockEntity(level.getBlockState(lookPos), level, lookPos);
+			if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderBlockEntity)
 			{
-				ITraderBlock block = (ITraderBlock)level.getBlockState(lookPos).getBlock();
-				BlockEntity blockEntity = block.getBlockEntity(level.getBlockState(lookPos), level, lookPos);
-				if(!HasEntity(context.getItemInHand(), blockEntity) && blockEntity instanceof TraderBlockEntity)
+				AddEntity(context.getItemInHand(), blockEntity);
+
+				if(level.isClientSide)
 				{
-					AddEntity(context.getItemInHand(), blockEntity);
-					
-					if(level.isClientSide)
-					{
-						level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 0f);
-					}
-					
-					return InteractionResult.SUCCESS;
+					level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 0f);
 				}
-				else if(blockEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
+
+				return InteractionResult.SUCCESS;
+			}
+			else if(blockEntity instanceof TraderBlockEntity) //Return even if we have the entity to prevent any accidental placements.
+			{
+				if(level.isClientSide)
 				{
-					if(level.isClientSide)
-					{
-						level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 1.35f);
-					}
-					return InteractionResult.SUCCESS;
+					level.playSound(context.getPlayer(), blockEntity.getBlockPos(), soundEffect, SoundSource.NEUTRAL, 1f, 1.35f);
 				}
+				return InteractionResult.SUCCESS;
 			}
 		}
-		
+
 		return super.useOn(context);
 		
 	}
@@ -81,7 +78,8 @@ public class CashRegisterItem extends BlockItem{
 			return false;
 		
 		CompoundTag tag = stack.getTag();
-		
+
+		assert tag != null;
 		if(!tag.contains("TraderPos"))
 			return false;
 		
@@ -104,11 +102,9 @@ public class CashRegisterItem extends BlockItem{
 	private void AddEntity(ItemStack stack, BlockEntity blockEntity)
 	{
 		//Get the tag
-		if(!stack.hasTag())
-			stack.setTag(new CompoundTag());
-		CompoundTag tag = stack.getTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		
-		//If the tag contains the TraderPos list, get it. Otherwise create a new list
+		//If the tag contains the TraderPos list, get it, otherwise create a new list
 		ListTag storageList;
 		if(tag.contains("TraderPos"))
 			storageList = tag.getList("TraderPos", Tag.TAG_COMPOUND);
@@ -131,13 +127,14 @@ public class CashRegisterItem extends BlockItem{
 	
 	private List<BlockPos> readNBT(ItemStack stack)
 	{
-		List<BlockPos> positions = new ArrayList<BlockPos>();
+		List<BlockPos> positions = new ArrayList<>();
 		
 		//Get the tag
 		if(!stack.hasTag())
 			return positions;
 		
 		CompoundTag tag = stack.getTag();
+		assert tag != null;
 		if(tag.contains("TraderPos"))
 		{
 			ListTag list = tag.getList("TraderPos", Tag.TAG_COMPOUND);
@@ -156,7 +153,7 @@ public class CashRegisterItem extends BlockItem{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<BlockPos> data = this.readNBT(stack);
@@ -165,7 +162,7 @@ public class CashRegisterItem extends BlockItem{
 		
 		tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register", data.size()));
 		
-		if(!Screen.hasShiftDown() || data.size() <= 0)
+		if(!Screen.hasShiftDown() || data.size() == 0)
 		{
 			tooltip.add(Component.translatable("tooptip.lightmanscurrency.cash_register.instructions"));
 		}

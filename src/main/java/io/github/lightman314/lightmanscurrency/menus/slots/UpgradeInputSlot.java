@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class UpgradeInputSlot extends SimpleSlot{
 
-	public static final ResourceLocation EMPTY_UPGRADE_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_upgrade_slot");
+	public static final ResourceLocation EMPTY_UPGRADE_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_upgrade_slot");
 	
 	private final IUpgradeable machine;
 	private final IMessage onModified;

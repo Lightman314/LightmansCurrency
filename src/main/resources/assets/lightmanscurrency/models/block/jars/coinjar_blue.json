@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/jars/jarblock",
 	"textures": {
-		"main": "lightmanscurrency:blocks/jars/coinjar_blue",
+		"main": "lightmanscurrency:block/jars/coinjar_blue",
 		"particle": "#main"
 	},
 	"elements": [

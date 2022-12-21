@@ -3,9 +3,6 @@ package io.github.lightman314.lightmanscurrency.blockentity.trader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
@@ -17,6 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	
@@ -66,25 +65,25 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, float partialTicks)
+	public List<Quaternionf> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock)
 		{
 			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
-			List<Quaternion> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
+			List<Quaternionf> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
 			//If null received. Rotate item based on world time
 			if(rotation == null)
 			{
 				rotation = new ArrayList<>();
-				rotation.add(Vector3f.YP.rotationDegrees((this.rotationTime + partialTicks) * 2.0F));
+				rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (this.rotationTime + partialTicks) * 2.0F));
 			}
 			return rotation;
 		}
 		else
 		{
-			List<Quaternion> rotation = new ArrayList<>();
-			rotation.add(Vector3f.YP.rotationDegrees(0f));
+			List<Quaternionf> rotation = new ArrayList<>();
+			rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f,1f,0f), 0f));
 			return rotation;
 		}
 			

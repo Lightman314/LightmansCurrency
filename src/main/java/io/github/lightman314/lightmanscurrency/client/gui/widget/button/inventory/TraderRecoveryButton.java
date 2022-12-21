@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderRecoveryButton extends PlainButton {
 	
@@ -27,11 +27,9 @@ public class TraderRecoveryButton extends PlainButton {
 	public static final int OFFSET = -10;
 	
 	private final AbstractContainerScreen<?> screen;
-	private final Player getPlayer() {
-			Minecraft mc = this.screen.getMinecraft();
-			if(mc != null)
-				return mc.player;
-			return null;
+	private Player getPlayer() {
+		Minecraft mc = this.screen.getMinecraft();
+		return mc.player;
 	}
 	
 	public TraderRecoveryButton(AbstractContainerScreen<?> screen) {
@@ -49,17 +47,16 @@ public class TraderRecoveryButton extends PlainButton {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.x = getXPosition(this.screen);
-		this.y = getYPosition(this.screen);
-		
+		this.setPosition(getXPosition(this.screen),getYPosition(this.screen));
+
 		if(EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0)
 		{
 			this.visible = true;
 			//Change visibility based on whether the correct tab is open
-			if(this.screen instanceof CreativeModeInventoryScreen)
-				this.visible = ((CreativeModeInventoryScreen)this.screen).getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
+			if(this.screen instanceof CreativeModeInventoryScreen cs)
+				this.visible = cs.isInventoryOpen();
 			super.render(pose, mouseX, mouseY, partialTicks);
 		}
 		else

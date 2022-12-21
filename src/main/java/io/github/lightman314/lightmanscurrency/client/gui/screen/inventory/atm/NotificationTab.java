@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSetBa
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class NotificationTab extends ATMTab {
 
@@ -22,7 +23,7 @@ public class NotificationTab extends ATMTab {
 	CoinValueInput notificationSelection;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.notification"); }

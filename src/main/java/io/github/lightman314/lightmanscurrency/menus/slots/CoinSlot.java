@@ -12,12 +12,13 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinSlot extends SimpleSlot{
 	
-	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_coin_slot");
+	public static final ResourceLocation EMPTY_COIN_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_coin_slot");
 	
-	private boolean acceptHiddenCoins;
+	private final boolean acceptHiddenCoins;
 	
 	private boolean lockInput = false;
 	public void LockInput() { this.lockInput = true; }
@@ -28,7 +29,7 @@ public class CoinSlot extends SimpleSlot{
 	public void Lock() { this.lockInput = this.lockOutput = true; }
 	public void Unlock() { this.lockInput = this.lockOutput = false; }
 	
-	private List<ICoinSlotListener> listeners = Lists.newArrayList();
+	private final List<ICoinSlotListener> listeners = Lists.newArrayList();
 	
 	public CoinSlot(Container inventory, int index, int x, int y)
 	{
@@ -49,7 +50,7 @@ public class CoinSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean mayPlace(@NotNull ItemStack stack) {
 		if(lockInput)
 			return false;
 		if(acceptHiddenCoins)
@@ -59,21 +60,21 @@ public class CoinSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public void set(ItemStack stack) {
+	public void set(@NotNull ItemStack stack) {
 		if(this.lockInput && !stack.isEmpty())
 			return;
 		super.set(stack);
 	}
 	
 	@Override
-	public ItemStack remove(int amount) {
+	public @NotNull ItemStack remove(int amount) {
 		if(this.lockOutput)
 			return ItemStack.EMPTY;
 		return super.remove(amount);
 	}
 	
 	@Override
-	public boolean mayPickup(Player player) {
+	public boolean mayPickup(@NotNull Player player) {
 		if(this.lockOutput)
 			return false;
 		return super.mayPickup(player);
@@ -86,11 +87,11 @@ public class CoinSlot extends SimpleSlot{
 	
 	public void setChanged() {
 		super.setChanged();
-		this.listeners.forEach(listener -> listener.onCoinSlotChanged());
+		this.listeners.forEach(ICoinSlotListener::onCoinSlotChanged);
 	}
 	
 	public interface ICoinSlotListener {
-		public void onCoinSlotChanged();
+		void onCoinSlotChanged();
 	}
 
 }

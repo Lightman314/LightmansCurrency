@@ -3,12 +3,11 @@ package io.github.lightman314.lightmanscurrency.blocks.util;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3f;
 
 public class LazyShapes {
 
@@ -57,7 +56,7 @@ public class LazyShapes {
 	public static final TriFunction<Direction,Boolean,Boolean,VoxelShape> TALL_WIDE_BOX_SHAPE = lazyTallWideDirectionalShape(TALL_WIDE_BOX_NORTH,TALL_WIDE_BOX_EAST,TALL_WIDE_BOX_SOUTH,TALL_WIDE_BOX_WEST);
 	public static final TriFunction<Direction,Boolean,Boolean,VoxelShape> TALL_WIDE_BOX_SHAPE_T = lazyTallWideDirectionalShape(TALL_WIDE_BOX_NORTH_T,TALL_WIDE_BOX_EAST_T,TALL_WIDE_BOX_SOUTH_T,TALL_WIDE_BOX_WEST_T);
 	
-	public static final VoxelShape moveDown(VoxelShape shape) { return shape.move(0f, -1d, 0d); }
+	public static VoxelShape moveDown(VoxelShape shape) { return shape.move(0f, -1d, 0d); }
 	
 	protected static class LazyDirectionShapeHandler implements Function<Direction, VoxelShape>
 	{
@@ -76,16 +75,12 @@ public class LazyShapes {
 		
 		@Override
 		public VoxelShape apply(Direction facing) {
-			switch(facing) {
-			case EAST:
-				return east;
-			case SOUTH:
-				return south;
-			case WEST:
-				return west;
-			default:
-				return north;
-			}
+			return switch (facing) {
+				case EAST -> east;
+				case SOUTH -> south;
+				case WEST -> west;
+				default -> north;
+			};
 		}
 	}
 	
@@ -160,6 +155,6 @@ public class LazyShapes {
 		
 	}
 	
-	public static interface TriFunction<T,U,V,W> { public W apply(T t, U u, V v); }
+	public interface TriFunction<T,U,V,W> { W apply(T t, U u, V v); }
 	
 }

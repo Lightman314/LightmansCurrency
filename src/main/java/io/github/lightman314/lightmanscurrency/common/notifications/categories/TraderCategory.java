@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderCategory extends NotificationCategory {
 
@@ -47,7 +48,7 @@ public class TraderCategory extends NotificationCategory {
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(this.trader); }
+	public @NotNull IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override
 	public MutableComponent getName() { return this.traderName; }

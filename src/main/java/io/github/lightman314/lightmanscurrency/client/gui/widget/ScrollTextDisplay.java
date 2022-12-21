@@ -11,16 +11,16 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class ScrollTextDisplay extends AbstractWidget{
 
-	private Font font;
+	private final Font font;
 	private final Supplier<List<? extends Component>> textSource;
 	public boolean invertText = false;
 	public int backgroundColor = 0xFF000000;
 	public int textColor = 0xFFFFFF;
 	private int columnCount = 1;
-	public int getColumnCount() { return this.columnCount; }
 	public void setColumnCount(int columnCount) { this.columnCount = MathUtil.clamp(columnCount, 1, Integer.MAX_VALUE); }
 	
 	public ScrollTextDisplay(int x, int y, int width, int height, Font font, Supplier<List<? extends Component>> textSource)
@@ -34,14 +34,14 @@ public class ScrollTextDisplay extends AbstractWidget{
 	private int scroll = 0;
 	
 	@Override
-	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		if(!this.visible)
 			return;
 		
 		//Render the background
-		Screen.fill(matrix, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
+		Screen.fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.backgroundColor);
 		
 		//Start rendering the text
 		List<? extends Component> text = this.textSource.get();
@@ -49,8 +49,8 @@ public class ScrollTextDisplay extends AbstractWidget{
 		this.validateScroll(text.size());
 		int i = this.getStartingIndex(text.size());
 		int columnWidth = this.getColumnWidth();
-		int bottom = this.y + this.height;
-		for(int yPos = this.y + 2; yPos < bottom && i >= 0 && i < text.size();)
+		int bottom = this.getY() + this.height;
+		for(int yPos = this.getY() + 2; yPos < bottom && i >= 0 && i < text.size();)
 		{
 			int rowHeight = 0;
 			for(int col = 0; col < this.columnCount && i >= 0 && i < text.size(); ++col)
@@ -91,7 +91,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	private int getXPos(int column)
 	{
 		int columnSpacing = this.width / this.columnCount;
-		return this.x + 2 + column * columnSpacing;
+		return this.getX() + 2 + column * columnSpacing;
 	}
 	
 	private boolean canScrollDown()
@@ -125,11 +125,9 @@ public class ScrollTextDisplay extends AbstractWidget{
 		
 		return true;
 	}
-	
+
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) {
-		
-	}
-	
-	
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+
+
 }

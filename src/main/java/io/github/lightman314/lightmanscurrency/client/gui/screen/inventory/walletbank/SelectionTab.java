@@ -20,6 +20,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class SelectionTab extends WalletBankTab {
 
@@ -29,7 +30,7 @@ public class SelectionTab extends WalletBankTab {
 	TeamSelectWidget teamSelection;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.selection"); }
@@ -40,7 +41,7 @@ public class SelectionTab extends WalletBankTab {
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 5, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
-		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
+		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount).pos(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15).size(70, 20).build());
 		
 		this.tick();
 		
@@ -81,7 +82,7 @@ public class SelectionTab extends WalletBankTab {
 				return;
 			AccountReference account = BankAccount.GenerateReference(true, team);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
-		} catch(Exception e) { }
+		} catch(Throwable ignored) { }
 	}
 	
 	private void PressPersonalAccount(Button button)
@@ -101,7 +102,7 @@ public class SelectionTab extends WalletBankTab {
 	public void postRender(PoseStack pose, int mouseX, int mouseY) {
 		//Render text in front of selection background
 		if(this.getTeamList().size() == 0)
-			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, Component.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.x + 1, Size.NARROW.width - 2, this.teamSelection.y + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, Component.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.getX() + 1, Size.NARROW.width - 2, this.teamSelection.getY() + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 	}
 	
 	@Override

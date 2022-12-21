@@ -1,8 +1,17 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import com.mojang.math.Vector3f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class MathUtil {
+
+	public static Vector3f getXP() { return new Vector3f(1f, 0f, 0f); }
+	public static Vector3f getYP() { return new Vector3f(0f, 1f, 0f); }
+	public static Vector3f getZP() { return new Vector3f(0f, 0f, 1f); }
+
+
+	public static Quaternionf fromAxisAngleDegree(Vector3f axis, float degree) { return new Quaternionf().fromAxisAngleDeg(axis, degree); }
+
 
 	/**
 	 * Multiplies all parts of a Vector3f by a float
@@ -33,10 +42,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts an integer between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static int clamp(int value, int min, int max)
 	{
@@ -55,10 +60,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a float between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static float clamp(float value, float min, float max)
 	{
@@ -77,10 +78,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a double between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static double clamp(double value, double min, double max)
 	{
@@ -99,10 +96,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a long between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static long clamp(long value, long min, long max)
 	{

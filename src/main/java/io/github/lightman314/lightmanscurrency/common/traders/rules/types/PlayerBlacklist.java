@@ -44,9 +44,8 @@ public class PlayerBlacklist extends TradeRule{
 
 	public boolean isBlacklisted(PlayerReference player)
 	{
-		for(int i = 0; i < this.bannedPlayers.size(); ++i)
-		{
-			if(this.bannedPlayers.get(i).is(player))
+		for (PlayerReference bannedPlayer : this.bannedPlayers) {
+			if (bannedPlayer.is(player))
 				return true;
 		}
 		return false;
@@ -56,20 +55,16 @@ public class PlayerBlacklist extends TradeRule{
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player
 		ListTag playerNameList = new ListTag();
-		for(int i = 0; i < this.bannedPlayers.size(); i++)
-		{
-			playerNameList.add(this.bannedPlayers.get(i).save());
-		}
+		for (PlayerReference bannedPlayer : this.bannedPlayers)
+			playerNameList.add(bannedPlayer.save());
 		compound.put("BannedPlayers", playerNameList);
 	}
 	
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		JsonArray blacklist = new JsonArray();
-		for(int i = 0; i < this.bannedPlayers.size(); ++i)
-		{
-			blacklist.add(this.bannedPlayers.get(i).saveAsJson());
-		}
+		for (PlayerReference bannedPlayer : this.bannedPlayers)
+			blacklist.add(bannedPlayer.saveAsJson());
 		json.add("BannedPlayers", blacklist);
 		return json;
 	}
@@ -165,8 +160,8 @@ public class PlayerBlacklist extends TradeRule{
 			
 			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
-			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
+			this.buttonAddPlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(78, 20).build());
+			this.buttonRemovePlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30).size(78, 20).build());
 			
 			this.playerDisplay = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getBlacklistedPlayers));
 			this.playerDisplay.setColumnCount(2);
@@ -199,7 +194,7 @@ public class PlayerBlacklist extends TradeRule{
 		void PressBlacklistButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isBlank())
 			{
 				nameInput.setValue("");
 				CompoundTag updateInfo = new CompoundTag();
@@ -212,7 +207,7 @@ public class PlayerBlacklist extends TradeRule{
 		void PressForgiveButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isBlank())
 			{
 				nameInput.setValue("");
 				CompoundTag updateInfo = new CompoundTag();

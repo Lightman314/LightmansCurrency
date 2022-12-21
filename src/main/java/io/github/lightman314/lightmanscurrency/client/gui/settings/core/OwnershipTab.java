@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class OwnershipTab extends SettingsTab{
 
@@ -30,7 +31,7 @@ public class OwnershipTab extends SettingsTab{
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
+	public @NotNull IconData getIcon() { return IconData.of(ItemRenderUtil.getAlexHead()); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.owner"); }
@@ -56,13 +57,13 @@ public class OwnershipTab extends SettingsTab{
 		this.newOwnerInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.empty()));
 		this.newOwnerInput.setMaxLength(16);
 		
-		this.buttonSetOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 41, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner));
+		this.buttonSetOwner = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner).pos(screen.guiLeft() + 20, screen.guiTop() + 41).size(160, 20).build());
 		this.buttonSetOwner.active = false;
 		
 		this.teamSelection = screen.addRenderableTabWidget(new TeamSelectWidget(screen.guiLeft() + 10, screen.guiTop() + 65, 5, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
 		this.teamSelection.init(screen::addRenderableTabWidget, this.getFont());
 		
-		this.buttonSetTeamOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 170, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner));
+		this.buttonSetTeamOwner = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner).pos(screen.guiLeft() + 20, screen.guiTop() + 170).size(160, 20).build());
 		this.buttonSetTeamOwner.active = false;
 		
 	}

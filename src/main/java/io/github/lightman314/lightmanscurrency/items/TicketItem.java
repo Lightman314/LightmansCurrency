@@ -25,7 +25,9 @@ public class TicketItem extends Item{
 	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
 	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
 	public static final TagKey<Item> TICKET_MATERIAL_KEY = TagKey.create(ForgeRegistries.Keys.ITEMS, TICKET_MATERIAL_TAG);
-	
+
+	public static final UUID CREATIVE_TICKET_ID = new UUID(0,0);
+
 	public TicketItem(Properties properties)
 	{
 		super(properties);

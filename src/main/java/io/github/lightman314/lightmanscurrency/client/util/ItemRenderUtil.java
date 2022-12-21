@@ -39,7 +39,7 @@ public class ItemRenderUtil {
 	{
 		if(alexHead != null)
 			return alexHead;
-		ItemStack alexHead = new ItemStack(Items.PLAYER_HEAD);
+		alexHead = new ItemStack(Items.PLAYER_HEAD);
 		CompoundTag headData = new CompoundTag();
 		CompoundTag skullOwner = new CompoundTag();
 		skullOwner.putIntArray("Id", new int[] {-731408145, -304985227, -1778597514, 158507129 });
@@ -85,8 +85,9 @@ public class ItemRenderUtil {
 		itemRenderer.blitOffset = ITEM_BLIT_OFFSET;
 		
 		RenderSystem.enableDepthTest();
-		
-        itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
+
+		assert player != null;
+		itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
         itemRenderer.renderGuiItemDecorations(font, stack, x, y, customCount);
         
         itemRenderer.blitOffset = 0.0F;
@@ -103,7 +104,7 @@ public class ItemRenderUtil {
 			return;
 		Minecraft minecraft = Minecraft.getInstance();
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
-		RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
+		RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
         Screen.blit(matrixStack, x, y, ITEM_BLIT_OFFSET, 16, 16, textureatlassprite);
 	}
 	

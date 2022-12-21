@@ -14,10 +14,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class TimeInputWidget extends AbstractWidget {
 
-	
 	private final List<TimeUnit> relevantUnits;
 	private final int spacing;
 	public long maxDuration = Long.MAX_VALUE;
@@ -31,7 +31,7 @@ public class TimeInputWidget extends AbstractWidget {
 	
 	public TimeData getTime() { return new TimeData(this.days, this.hours, this.minutes, this.seconds); }
 	
-	private List<Button> buttons = new ArrayList<>();
+	private final List<Button> buttons = new ArrayList<>();
 	
 	public TimeInputWidget(int x, int y, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<AbstractWidget> widgetAdder, Consumer<TimeData> timeConsumer) {
 		super(x, y, 0, 0, Component.empty());
@@ -43,9 +43,9 @@ public class TimeInputWidget extends AbstractWidget {
 		{
 			final TimeUnit unit = this.relevantUnits.get(i);
 			
-			int xPos = this.x + ((20 + this.spacing) * i);
-			PlainButton addButton = new PlainButton(xPos, this.y, 20, 10, b -> this.addTime(unit), CoinValueInput.GUI_TEXTURE, 0, CoinValueInput.HEIGHT);
-			PlainButton removeButton = new PlainButton(xPos, this.y + 23, 20, 10, b -> this.removeTime(unit), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT);
+			int xPos = this.getX() + ((20 + this.spacing) * i);
+			PlainButton addButton = new PlainButton(xPos, this.getY(), 20, 10, b -> this.addTime(unit), CoinValueInput.GUI_TEXTURE, 0, CoinValueInput.HEIGHT);
+			PlainButton removeButton = new PlainButton(xPos, this.getY() + 23, 20, 10, b -> this.removeTime(unit), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT);
 			widgetAdder.accept(addButton);
 			widgetAdder.accept(removeButton);
 			this.buttons.add(addButton);
@@ -103,35 +103,29 @@ public class TimeInputWidget extends AbstractWidget {
 	private boolean validUnit(TimeUnit unit) { return this.relevantUnits.contains(unit); }
 	
 	private void addTime(TimeUnit unit) {
-		switch(unit)
-		{
-		case DAY:
-			this.days++;
-			break;
-		case HOUR:
-			this.hours++;
-			if(this.hours >= 24 && this.validUnit(TimeUnit.DAY))
-			{
-				this.days += this.hours / 24;
-				this.hours = this.hours % 24;
+		switch (unit) {
+			case DAY -> this.days++;
+			case HOUR -> {
+				this.hours++;
+				if (this.hours >= 24 && this.validUnit(TimeUnit.DAY)) {
+					this.days += this.hours / 24;
+					this.hours = this.hours % 24;
+				}
 			}
-			break;
-		case MINUTE:
-			this.minutes++;
-			if(this.minutes >= 60 && this.validUnit(TimeUnit.HOUR))
-			{
-				this.hours += this.minutes / 60;
-				this.minutes = this.minutes % 60;
+			case MINUTE -> {
+				this.minutes++;
+				if (this.minutes >= 60 && this.validUnit(TimeUnit.HOUR)) {
+					this.hours += this.minutes / 60;
+					this.minutes = this.minutes % 60;
+				}
 			}
-			break;
-		case SECOND:
-			this.seconds++;
-			if(this.seconds >= 60 && this.validUnit(TimeUnit.SECOND))
-			{
-				this.minutes += this.seconds / 60;
-				this.seconds = this.seconds % 60;
+			case SECOND -> {
+				this.seconds++;
+				if (this.seconds >= 60 && this.validUnit(TimeUnit.SECOND)) {
+					this.minutes += this.seconds / 60;
+					this.seconds = this.seconds % 60;
+				}
 			}
-			break;
 		}
 		this.validateTime();
 		this.timeConsumer.accept(this.getTime());
@@ -144,38 +138,31 @@ public class TimeInputWidget extends AbstractWidget {
 	}
 	
 	private void removeTimeInternal(TimeUnit unit) {
-		switch(unit) {
-		case DAY:
-			this.days = Math.max(0, this.days - 1);
-			break;
-		case HOUR:
-			this.hours--;
-			if(this.hours < 0 && this.days > 0)
-			{
-				this.removeTimeInternal(TimeUnit.DAY);
-				this.hours += 24;
+		switch (unit) {
+			case DAY -> this.days = Math.max(0, this.days - 1);
+			case HOUR -> {
+				this.hours--;
+				if (this.hours < 0 && this.days > 0) {
+					this.removeTimeInternal(TimeUnit.DAY);
+					this.hours += 24;
+				} else
+					this.hours = 0;
 			}
-			else
-				this.hours = 0;
-			break;
-		case MINUTE:
-			this.minutes--;
-			if(this.minutes < 0 && (this.hours > 0 || this.days > 0))
-			{
-				this.removeTimeInternal(TimeUnit.HOUR);
-				this.minutes += 60;
+			case MINUTE -> {
+				this.minutes--;
+				if (this.minutes < 0 && (this.hours > 0 || this.days > 0)) {
+					this.removeTimeInternal(TimeUnit.HOUR);
+					this.minutes += 60;
+				} else
+					this.minutes = 0;
 			}
-			else
-				this.minutes = 0;
-			break;
-		case SECOND:
-			this.seconds--;
-			if(this.seconds < 0 && (this.minutes > 0 || this.hours > 0 || this.days > 0))
-			{
-				this.removeTimeInternal(TimeUnit.MINUTE);
-				this.seconds += 60;
+			case SECOND -> {
+				this.seconds--;
+				if (this.seconds < 0 && (this.minutes > 0 || this.hours > 0 || this.days > 0)) {
+					this.removeTimeInternal(TimeUnit.MINUTE);
+					this.seconds += 60;
+				}
 			}
-			break;
 		}
 	}
 	
@@ -187,7 +174,7 @@ public class TimeInputWidget extends AbstractWidget {
 			this.setTimeInternal(this.minDuration);
 	}
 	
-	private final List<TimeUnit> getRelevantUnits(TimeUnit largestUnit, TimeUnit smallestUnit) {
+	private List<TimeUnit> getRelevantUnits(TimeUnit largestUnit, TimeUnit smallestUnit) {
 		List<TimeUnit> results = new ArrayList<>();
 		List<TimeUnit> units = TimeUnit.UNITS_LARGE_TO_SMALL;
 		int startIndex = units.indexOf(largestUnit);
@@ -204,7 +191,7 @@ public class TimeInputWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		for(Button b : this.buttons)
 		{
 			b.active = this.active;
@@ -213,7 +200,7 @@ public class TimeInputWidget extends AbstractWidget {
 		
 		for(int i = 0; i < this.relevantUnits.size(); ++i)
 		{
-			TextRenderUtil.drawCenteredText(pose, this.getTime().getUnitString(this.relevantUnits.get(i), true), this.x + ((20 + this.spacing) * i) + 10, this.y + 12, 0xFFFFFF);
+			TextRenderUtil.drawCenteredText(pose, this.getTime().getUnitString(this.relevantUnits.get(i), true), this.getX() + ((20 + this.spacing) * i) + 10, this.getY() + 12, 0xFFFFFF);
 		}
 
 	}
@@ -221,6 +208,6 @@ public class TimeInputWidget extends AbstractWidget {
 	public void removeChildren(Consumer<AbstractWidget> remover) { for(Button b : this.buttons) remover.accept(b); }
 	
 	@Override
-	public void updateNarration(NarrationElementOutput p_169152_) {}
-	
+	public void updateWidgetNarration(@NotNull NarrationElementOutput narrator) {}
+
 }

@@ -52,12 +52,12 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 public class AuctionTradeData extends TradeData {
 
-	public static final long GetMinimumDuration() {
+	public static long GetMinimumDuration() {
 		if(Config.SERVER.minAuctionDuration.get() > 0)
 			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
 		return TimeUtil.DURATION_HOUR;
 	}
-	public static final long GetDefaultDuration() {
+	public static long GetDefaultDuration() {
 		if(Config.SERVER.minAuctionDuration.get() > 0)
 			return TimeUtil.DURATION_DAY * Config.SERVER.minAuctionDuration.get();
 		return TimeUtil.DURATION_DAY;
@@ -140,15 +140,13 @@ public class AuctionTradeData extends TradeData {
 	public boolean isValid() {
 		if(this.cancelled)
 			return false;
-		if(this.auctionItems.size() <= 0)
+		if(this.auctionItems.size() == 0)
 			return false;
 		if(this.isActive() && this.hasExpired(TimeUtil.getCurrentTime()))
 			return false;
 		if(this.minBidDifference.getRawValue() <= 0)
 			return false;
-		if(this.lastBidAmount.getRawValue() <= 0)
-			return false;
-		return true;
+		return this.lastBidAmount.getRawValue() > 0;
 	}
 	
 	public void startTimer() {
@@ -215,8 +213,7 @@ public class AuctionTradeData extends TradeData {
 			AuctionPlayerStorage buyerStorage = trader.getStorage(this.lastBidPlayer);
 			List<ItemStack> rewards = event.getItems();
 			//Reward the items to the last bidder
-			for(int i = 0; i < rewards.size(); ++i)
-				buyerStorage.giveItem(rewards.get(i));
+			for (ItemStack reward : rewards) buyerStorage.giveItem(reward);
 			//Give the bid money to the trades owner
 			if(this.tradeOwner != null)
 			{
@@ -238,8 +235,7 @@ public class AuctionTradeData extends TradeData {
 			{
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 				List<ItemStack> items = event.getItems();
-				for(int i = 0; i < items.size(); ++i)
-					sellerStorage.giveItem(items.get(i));
+				for (ItemStack item : items) sellerStorage.giveItem(item);
 				
 				//Post notification to the auction owner
 				NotificationSaveData.PushNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
@@ -275,7 +271,7 @@ public class AuctionTradeData extends TradeData {
 			//Return items to the trader owners storage. Ignore the player
 			if(this.tradeOwner != null)
 			{
-				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner != null ? this.tradeOwner : PlayerReference.of(player));
+				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
 				for(ItemStack stack : this.auctionItems) sellerStorage.giveItem(stack);
 			}
 		}
@@ -290,9 +286,8 @@ public class AuctionTradeData extends TradeData {
 		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
 		CompoundTag compound = new CompoundTag();
 		ListTag itemList = new ListTag();
-		for(int i = 0; i < this.auctionItems.size(); ++i)
-		{
-			itemList.add(this.auctionItems.get(i).save(new CompoundTag()));
+		for (ItemStack auctionItem : this.auctionItems) {
+			itemList.add(auctionItem.save(new CompoundTag()));
 		}
 		compound.put("SellItems", itemList);
 		this.lastBidAmount.save(compound, "LastBid");
@@ -318,7 +313,7 @@ public class AuctionTradeData extends TradeData {
 	public JsonObject saveToJson(JsonObject json) {
 		
 		for(int i = 0; i < this.auctionItems.size(); ++i)
-			json.add("Item" + String.valueOf(i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
+			json.add("Item" + (i + 1), FileUtil.convertItemStack(this.auctionItems.get(i)));
 		
 		json.addProperty("Duration", this.duration);
 		
@@ -412,10 +407,8 @@ public class AuctionTradeData extends TradeData {
 	@Override
 	public List<DisplayEntry> getOutputDisplays(TradeContext context) {
 		List<DisplayEntry> entries = new ArrayList<>();
-		for(int i = 0; i < this.auctionItems.size(); ++i)
-		{
-			ItemStack item = this.auctionItems.get(i);
-			if(!item.isEmpty())
+		for (ItemStack item : this.auctionItems) {
+			if (!item.isEmpty())
 				entries.add(DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
 		}
 		return entries;
@@ -425,20 +418,19 @@ public class AuctionTradeData extends TradeData {
 	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab, clientHandler); }
+	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab, clientHandler); }
+	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab, clientHandler); }
+	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 	
-	private void openCancelAuctionTab(BasicTradeEditTab tab, IClientMessage clientHandler) {
+	private void openCancelAuctionTab(BasicTradeEditTab tab) {
 		
 		TraderData t = tab.menu.getTrader();
-		if(t instanceof AuctionHouseTrader)
+		if(t instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			int tradeIndex = trader.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
@@ -456,7 +448,7 @@ public class AuctionTradeData extends TradeData {
 	public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
 		//Draw remaining time
 		TimeData time = new TimeData(this.getRemainingTime(TimeUtil.getCurrentTime()));
-		TextRenderUtil.drawCenteredText(pose, time.getShortString(1), button.x + button.getWidth() / 2, button.y + button.getHeight() - 9, this.getTextColor(time));
+		TextRenderUtil.drawCenteredText(pose, time.getShortString(1), button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() - 9, this.getTextColor(time));
 	}
 	
 	public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {

@@ -30,12 +30,11 @@ public class BlockEntityBlockHelper {
 				Block b = blockSource.get();
 				if(b != null)
 					result.add(b);
-			} catch(Throwable t) {}
+			} catch(Throwable ignored) {}
 		}
-		return result.toArray(new Block[result.size()]);
+		return result.toArray(new Block[0]);
 	}
-	
-	public static void addBlockToBlockEntity(ResourceLocation beType, RegistryObject<Block> block) { addBlockToBlockEntity(beType, block::get); }
+
 	public static void addBlockToBlockEntity(ResourceLocation beType, Supplier<Block> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }
 	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<Block,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	@SafeVarargs
@@ -44,7 +43,7 @@ public class BlockEntityBlockHelper {
 		for(RegistryObject<Block> block : blocks)
 		{
 			if(block != null)
-				blockSources.add(block::get);
+				blockSources.add(block);
 		}
 		addBlocksToBlockEntity(beType, blockSources);
 	}

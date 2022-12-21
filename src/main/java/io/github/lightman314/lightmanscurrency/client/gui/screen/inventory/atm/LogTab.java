@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class LogTab extends ATMTab{
 
@@ -22,7 +23,7 @@ public class LogTab extends ATMTab{
 	NotificationDisplayWidget logWidget;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.log"); }

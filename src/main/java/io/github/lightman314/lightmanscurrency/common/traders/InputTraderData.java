@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class InputTraderData extends TraderData {
 
@@ -172,7 +173,7 @@ public abstract class InputTraderData extends TraderData {
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 	
 	@Override
-	public void receiveNetworkMessage(Player player, CompoundTag message)
+	public void receiveNetworkMessage(@NotNull Player player, @NotNull CompoundTag message)
 	{
 		super.receiveNetworkMessage(player, message);
 		

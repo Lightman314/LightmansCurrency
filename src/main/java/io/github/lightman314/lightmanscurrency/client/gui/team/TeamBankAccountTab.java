@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamBankAccountTab extends TeamTab {
 
@@ -21,7 +22,7 @@ public class TeamBankAccountTab extends TeamTab {
 	private TeamBankAccountTab() { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.team.bank"); }
@@ -41,14 +42,10 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
+		this.buttonCreateBankAccount = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount).pos(screen.guiLeft() + 20, screen.guiTop() + 20).size(160, 20).build());
 		
-		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, Component.empty(), this::toggleBankLimit));
+		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(Button.builder(Component.empty(), this::toggleBankLimit).pos(screen.guiLeft() + 20, screen.guiTop() + 60).size(160, 20).build());
 		this.updateBankLimitText();
-		
-		//this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
-		//this.logWidget.invertText = true;
-		//this.logWidget.visible = screen.getActiveTeam().hasBankAccount();
 		
 	}
 
@@ -76,16 +73,8 @@ public class TeamBankAccountTab extends TeamTab {
 			return;
 		
 		this.buttonCreateBankAccount.active = !this.getActiveTeam().hasBankAccount();
-		//this.logWidget.visible = this.getScreen().getActiveTeam().hasBankAccount();
 		
 	}
-	
-	/*private List<MutableComponent> getAccountLog() {
-		//if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
-		//	return new ArrayList<>();
-		//return this.getActiveTeam().getBankAccount().getLogs().logText;
-		return new ArrayList<>();
-	}*/
 
 	@Override
 	public void closeTab() {

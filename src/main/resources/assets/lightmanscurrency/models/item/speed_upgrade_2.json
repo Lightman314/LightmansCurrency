@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/speed_upgrade_2"
+    "layer0": "lightmanscurrency:item/speed_upgrade_2"
   }
 }

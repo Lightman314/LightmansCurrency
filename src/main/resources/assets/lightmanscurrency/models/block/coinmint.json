@@ -2,13 +2,13 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lightmanscurrency:blocks/coinmint/mnt_sides",
-		"sides": "lightmanscurrency:blocks/coinmint/mnt_sides",
-		"top": "lightmanscurrency:blocks/coinmint/mnt_top",
-		"bottom": "lightmanscurrency:blocks/coinmint/mnt_bottom",
-		"face": "lightmanscurrency:blocks/coinmint/mnt_face",
-		"metal1": "lightmanscurrency:blocks/coinmint/mnt_metal",
-		"metal2": "lightmanscurrency:blocks/coinmint/mnt_metal2"
+		"particle": "lightmanscurrency:block/coinmint/mnt_sides",
+		"sides": "lightmanscurrency:block/coinmint/mnt_sides",
+		"top": "lightmanscurrency:block/coinmint/mnt_top",
+		"bottom": "lightmanscurrency:block/coinmint/mnt_bottom",
+		"face": "lightmanscurrency:block/coinmint/mnt_face",
+		"metal1": "lightmanscurrency:block/coinmint/mnt_metal",
+		"metal2": "lightmanscurrency:block/coinmint/mnt_metal2"
 	},
 	"elements": [
 		{

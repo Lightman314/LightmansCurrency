@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class DropdownWidget extends AbstractWidget {
 	
@@ -56,7 +57,7 @@ public class DropdownWidget extends AbstractWidget {
 		this.currentlySelected = MathUtil.clamp(selected, 0, this.options.size() - 1);
 		this.onSelect = onSelect;
 		this.optionActive = optionActive;
-		//Init the buttons before this, so that they get pressed before this closes them on a offset click
+		//Init the buttons before this, so that they get pressed before this closes them on an offset click
 		this.init(addButton);
 	}
 	
@@ -65,15 +66,15 @@ public class DropdownWidget extends AbstractWidget {
 		
 		for(int i = 0; i < this.options.size(); ++i)
 		{
-			int yPos = this.y + HEIGHT + (i * HEIGHT);
-			this.optionButtons.add(addButton.apply(new DropdownButton(this.x, yPos, this.width, this.font, this.options.get(i), this::OnSelect)));
+			int yPos = this.getY() + HEIGHT + (i * HEIGHT);
+			this.optionButtons.add(addButton.apply(new DropdownButton(this.getX(), yPos, this.width, this.font, this.options.get(i), this::OnSelect)));
 			this.optionButtons.get(i).visible = this.open;
 		}
 		
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Draw the background
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -81,18 +82,18 @@ public class DropdownWidget extends AbstractWidget {
         int offset = this.isHovered ? this.height : 0;
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(pose, this.x, this.y, 0, offset, 2, DropdownWidget.HEIGHT);
+        this.blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 14)
         {
         	int xPart = Math.min(this.width - 14 - xOffset, 244);
-        	this.blit(pose, this.x + 2 + xOffset, this.y, 2, offset, xPart, DropdownWidget.HEIGHT);
+        	this.blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
         	xOffset += xPart;
         }
-        this.blit(pose, this.x + this.width - 12, this.y, 244, offset, 12, DropdownWidget.HEIGHT);
+        this.blit(pose, this.getX() + this.width - 12, this.getY(), 244, offset, 12, DropdownWidget.HEIGHT);
 		
         //Draw the option text
-        this.font.draw(pose, this.fitString(this.options.get(this.currentlySelected).getString()), this.x + 2, this.y + 2, 0x404040);
+        this.font.draw(pose, this.fitString(this.options.get(this.currentlySelected).getString()), this.getX() + 2, this.getY() + 2, 0x404040);
         
 		//Confirm the option buttons active state
 		if(this.open)
@@ -118,10 +119,8 @@ public class DropdownWidget extends AbstractWidget {
             	this.open = false;
             	this.optionButtons.forEach(button -> button.visible = false);
             }
-			return false;
-		} else {
-			return false;
 		}
+		return false;
 	}
 	
 	private void OnSelect(Button button) {
@@ -135,8 +134,8 @@ public class DropdownWidget extends AbstractWidget {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
-	
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+
 	private String fitString(String text) {
 		if(this.font.width(text) <= this.width - 14)
 			return text;

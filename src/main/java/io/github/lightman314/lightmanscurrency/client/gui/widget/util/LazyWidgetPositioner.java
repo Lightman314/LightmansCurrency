@@ -11,13 +11,9 @@ import net.minecraft.client.gui.components.AbstractWidget;
 
 public class LazyWidgetPositioner {
 
-	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_TOPDOWN = positioner -> {
-		return Pair.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
-	};
+	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_TOPDOWN = positioner -> Pair.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
 	
-	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_BOTTOMUP = positioner -> {
-		return Pair.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
-	};
+	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_BOTTOMUP = positioner -> Pair.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
 	
 	private final IScreen screen;
 	private final Function<LazyWidgetPositioner,Pair<Integer,Integer>> mode;
@@ -48,21 +44,17 @@ public class LazyWidgetPositioner {
 		for(AbstractWidget w : widgets) this.addWidget(w);
 	}
 	
-	public <T extends AbstractWidget> T addWidget(T widget) {
+	public <T extends AbstractWidget> void addWidget(T widget) {
 		if(widget != null && !this.widgetList.contains(widget))
 			this.widgetList.add(widget);
-		return widget;
 	}
 	
 	public void reposition() {
 		this.posIndex = 0;
-		for(int i = 0; i < this.widgetList.size(); ++i) {
-			AbstractWidget w = this.widgetList.get(i);
-			if(w.visible)
-			{
-				Pair<Integer,Integer> pos = this.mode.apply(this);
-				w.x = pos.getFirst();
-				w.y = pos.getSecond();
+		for (AbstractWidget w : this.widgetList) {
+			if (w.visible) {
+				Pair<Integer, Integer> pos = this.mode.apply(this);
+				w.setPosition(pos.getFirst(), pos.getSecond());
 				this.posIndex++;
 			}
 		}

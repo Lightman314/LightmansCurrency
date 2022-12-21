@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
@@ -35,13 +34,11 @@ public class PriceFluctuation extends TradeRule {
 	
 	long duration = TimeUtil.DURATION_DAY;
 	int fluctuation = 10;
-	public int getFluctuation() { return this.fluctuation; }
-	public void setFluctuation(int percent) { this.fluctuation = MathUtil.clamp(percent, 0, 100); }
 	
 	public PriceFluctuation() { super(TYPE); }
 	
-	private static List<Long> debuggedSeeds = new ArrayList<>();
-	private static List<Long> debuggedTraderFactors = new ArrayList<>();
+	private static final List<Long> debuggedSeeds = new ArrayList<>();
+	private static final List<Long> debuggedTraderFactors = new ArrayList<>();
 	
 	private static void debugTraderFactor(long factor, long traderID, int tradeIndex)
 	{
@@ -160,9 +157,11 @@ public class PriceFluctuation extends TradeRule {
 		public void initTab() {
 			this.fluctuationInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
 			this.fluctuationInput.setMaxLength(2);
-			this.fluctuationInput.setValue(Integer.toString(this.getRule().fluctuation));
+			PriceFluctuation rule = this.getRule();
+			if(rule != null)
+				this.fluctuationInput.setValue(Integer.toString(rule.fluctuation));
 			
-			this.buttonSetFluctuation = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton));
+			this.buttonSetFluctuation = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton).pos(screen.guiLeft() + 110, screen.guiTop() + 10).size(50, 20).build());
 			
 			this.durationInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 75, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
 			this.durationInput.setTime(this.getRule().duration);
@@ -174,7 +173,7 @@ public class PriceFluctuation extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.x + this.fluctuationInput.getWidth() + 4, this.fluctuationInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.getX() + this.fluctuationInput.getWidth() + 4, this.fluctuationInput.getY() + 3, 0xFFFFFF);
 			
 			TextRenderUtil.drawCenteredMultilineText(poseStack, Component.translatable("gui.button.lightmanscurrency.price_fluctuation.info", this.getRule().fluctuation, new TimeData(this.getRule().duration).getShortString()), this.screen.guiLeft() + 10, this.screen.xSize - 20, this.screen.guiTop() + 35, 0xFFFFFF);
 			
@@ -198,7 +197,9 @@ public class PriceFluctuation extends TradeRule {
 		void PressSetFluctuationButton(Button button)
 		{
 			int fluctuation = TextInputUtil.getIntegerValue(this.fluctuationInput, 1);
-			this.getRule().fluctuation = fluctuation;
+			PriceFluctuation rule = this.getRule();
+			if(rule != null)
+				rule.fluctuation = fluctuation;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putInt("Fluctuation", fluctuation);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -206,7 +207,9 @@ public class PriceFluctuation extends TradeRule {
 		
 		public void onTimeSet(TimeData newTime)
 		{
-			this.getRule().duration = newTime.miliseconds;
+			PriceFluctuation rule = this.getRule();
+			if(rule != null)
+				rule.duration = newTime.miliseconds;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putLong("Duration", newTime.miliseconds);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

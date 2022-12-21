@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
@@ -18,6 +16,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
@@ -50,7 +50,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 		//Calculate the hinge position
 		Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
 		
-		Quaternion rotation = Vector3f.YP.rotationDegrees(facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
+		Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
 		
 		poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 		poseStack.mulPose(rotation);

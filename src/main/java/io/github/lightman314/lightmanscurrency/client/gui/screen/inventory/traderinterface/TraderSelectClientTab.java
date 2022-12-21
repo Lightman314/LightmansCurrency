@@ -26,13 +26,14 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
 
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.trader"); }

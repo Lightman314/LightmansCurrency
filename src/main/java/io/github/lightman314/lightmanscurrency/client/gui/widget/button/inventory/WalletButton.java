@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.WalletCapabilit
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletButton extends PlainButton{
 	
@@ -25,33 +25,25 @@ public class WalletButton extends PlainButton{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		if(shouldHide())
 			return;
 		
 		//Reposition the button based on the containers top/left most position
-		this.x = this.parent.getGuiLeft() + this.xOffset;
-		this.y = this.parent.getGuiTop() + this.yOffset;
+		this.setPosition(this.parent.getGuiLeft() + this.xOffset, this.parent.getGuiTop() + this.yOffset);
 		
-		if(this.parent instanceof CreativeModeInventoryScreen) {
-			CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)this.parent;
-			boolean isInventoryTab = creativeScreen.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
-			this.active = isInventoryTab;
-			
-			//Hide if we're not in the inventory tab of the creative screen
-			if(!isInventoryTab) {
-				return;
-			}
-		}
+		if(this.parent instanceof CreativeModeInventoryScreen cs)
+			this.visible = cs.isInventoryOpen();
 		
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+		super.render(pose, mouseX, mouseY, partialTicks);
 		
 	}
 	
 	private static boolean shouldHide() {
 		Minecraft mc = Minecraft.getInstance();
+		assert mc.player != null;
 		IWalletHandler walletHandler = WalletCapability.getWalletHandler(mc.player).orElse(null);
 		return walletHandler == null || walletHandler.getWallet().isEmpty();
 	}

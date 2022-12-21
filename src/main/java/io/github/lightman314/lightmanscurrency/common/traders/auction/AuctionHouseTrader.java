@@ -1,10 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import com.google.gson.JsonObject;
@@ -21,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.AuctionBidEvent;
 import io.github.lightman314.lightmanscurrency.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
@@ -43,7 +38,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
@@ -162,14 +156,14 @@ public class AuctionHouseTrader extends TraderData {
 	
 	@Override
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
 	
 	@Override
 	public int getPermissionLevel(Player player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
@@ -184,18 +178,16 @@ public class AuctionHouseTrader extends TraderData {
 	
 	protected final void saveTrades(CompoundTag compound) {
 		ListTag list = new ListTag();
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
-			list.add(this.trades.get(i).getAsNBT());
+		for (AuctionTradeData trade : this.trades) {
+			list.add(trade.getAsNBT());
 		}
 		compound.put("Trades", list);
 	}
 	
-	protected final CompoundTag saveStorage(CompoundTag compound) {
+	protected final void saveStorage(CompoundTag compound) {
 		ListTag list = new ListTag();
 		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundTag())));
 		compound.put("StorageData", list);
-		return compound;
 	}
 	
 	@Override
@@ -267,17 +259,17 @@ public class AuctionHouseTrader extends TraderData {
 		}
 	}
 	
-	public boolean makeBid(Player player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
+	public void makeBid(Player player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
 		
 		AuctionTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null)
-			return false;
+			return;
 		if(trade.hasExpired(System.currentTimeMillis()))
-			return false;
+			return;
 		
 		AuctionBidEvent.Pre e1 = new AuctionBidEvent.Pre(this, trade, player, bidAmount);
 		if(MinecraftForge.EVENT_BUS.post(e1))
-			return false;
+			return;
 		
 		bidAmount = e1.getBidAmount();
 		
@@ -286,7 +278,7 @@ public class AuctionHouseTrader extends TraderData {
 		if(!wallet.isEmpty())
 			inventoryValue += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
     	if(inventoryValue < bidAmount.getRawValue())
-    		return false;
+    		return;
 		if(trade.tryMakeBid(this, player, bidAmount))
 		{
 			//Take money from the coin slots & players wallet second
@@ -297,17 +289,12 @@ public class AuctionHouseTrader extends TraderData {
 			
 			AuctionBidEvent.Post e2 = new AuctionBidEvent.Post(this, trade, player, bidAmount);
 			MinecraftForge.EVENT_BUS.post(e2);
-			return true;
 		}
-		return false;
-		
+
 	}
 
 	@Override
 	public List<? extends TradeData> getTradeData() { return this.trades; }
-
-	@Override
-	public ItemLike getCategoryItem() { return ModItems.TRADING_CORE.get(); }
 
 	@Override
 	public IconData getIcon() { return ICON; }
@@ -323,15 +310,7 @@ public class AuctionHouseTrader extends TraderData {
 
 	@Override
 	public Function<TradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) {
-		return trade -> {
-			if(trade instanceof AuctionTradeData)
-			{
-				AuctionTradeData at = (AuctionTradeData)trade;
-				//Only display if the trade owner is owned by the player.
-				return at.isOwner(menu.player) && at.isValid();
-			}
-			return false;
-		};
+		return trade -> trade instanceof AuctionTradeData at && at.isOwner(menu.player) && at.isValid();
 	}
 	
 	@Override

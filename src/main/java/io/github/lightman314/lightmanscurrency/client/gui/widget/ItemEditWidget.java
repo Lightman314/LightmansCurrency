@@ -1,9 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,10 +23,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -41,7 +38,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
-	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
+	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH);
 
 	private int scroll = 0;
 	private int stackCount = 1;
@@ -98,13 +95,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
-		for(CreativeModeTab group : CreativeModeTab.TABS)
+		for(CreativeModeTab group : CreativeModeTabs.allTabs())
 		{
 			if(!ITEM_GROUP_BLACKLIST.contains(group))
 			{
 				//Get all the items in this group
-				NonNullList<ItemStack> items = NonNullList.create();
-				group.fillItemList(items);
+				Collection<ItemStack> items = group.getDisplayItems();
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
@@ -254,12 +250,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
 
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = addWidget.apply(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 
-		this.stackScrollListener = addListener.apply(new ScrollListener(this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 18, 18, this::stackCountScroll));
+		this.stackScrollListener = addListener.apply(new ScrollListener(this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 18, 18, this::stackCountScroll));
 
 	}
 
@@ -277,11 +273,11 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultItems.size(); ++y)
 		{
-			int yPos = this.y + y * 18;
+			int yPos = this.getY() + y * 18;
 			for(int x = 0; x < this.columns && index < this.searchResultItems.size(); ++x)
 			{
 				//Get the slot position
-				int xPos = this.x + x * 18;
+				int xPos = this.getX() + x * 18;
 				//Render the slot background
 				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -295,10 +291,10 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		//Render the search field
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
+		this.blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
-		this.blit(pose, this.x + this.stackSizeOffX, this.y + this.stackSizeOffY, 108, 0, 18, 18);
+		this.blit(pose, this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 108, 0, 18, 18);
 
 	}
 
@@ -327,7 +323,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	}
 
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {
-		return mouseX >= this.x + this.stackSizeOffX && mouseX < this.x + this.stackSizeOffX + 18 && mouseY >= this.y + this.stackSizeOffY && mouseY < this.y + this.stackSizeOffY + 18;
+		return mouseX >= this.getX() + this.stackSizeOffX && mouseX < this.getX() + this.stackSizeOffX + 18 && mouseY >= this.getY() + this.stackSizeOffY && mouseY < this.getY() + this.stackSizeOffY + 18;
 	}
 
 	private int isMouseOverSlot(double mouseX, double mouseY) {
@@ -337,12 +333,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
-			if(mouseX >= this.x + x * 18 && mouseX < this.x + (x * 18) + 18)
+			if(mouseX >= this.getX() + x * 18 && mouseX < this.getX() + (x * 18) + 18)
 				foundColumn = x;
 		}
 		for(int y = 0; y < this.rows && foundRow < 0; ++y)
 		{
-			if(mouseY >= this.y + y * 18 && mouseY < this.y + (y * 18) + 18)
+			if(mouseY >= this.getY() + y * 18 && mouseY < this.getY() + (y * 18) + 18)
 				foundRow = y;
 		}
 		if(foundColumn < 0 || foundRow < 0)
@@ -358,7 +354,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 
 	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class InputTab extends SettingsTab{
 
@@ -74,7 +75,7 @@ public class InputTab extends SettingsTab{
 	}
 
 	@Override
-	public IconData getIcon() {
+	public @NotNull IconData getIcon() {
 		InputTraderData trader = this.getInputTrader();
 		if(trader != null)
 			return trader.inputSettingsTabIcon();

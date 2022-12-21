@@ -24,6 +24,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTradeEditTab> implements InteractionConsumer {
 	
@@ -32,7 +33,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.empty(); }

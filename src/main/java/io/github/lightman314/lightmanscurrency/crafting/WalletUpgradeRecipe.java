@@ -6,7 +6,6 @@ import com.google.gson.JsonParseException;
 
 import io.github.lightman314.lightmanscurrency.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -14,11 +13,9 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
@@ -37,19 +34,17 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public ResourceLocation getId() {
-		return this.id;
-	}
+	public @NotNull ResourceLocation getId() { return this.id; }
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public @NotNull RecipeSerializer<?> getSerializer() {
 		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**
 	 * Recipes with equal group are combined into one button in the recipe book
 	 */
-	public String getGroup() {
+	public @NotNull String getGroup() {
 		return this.group;
 	}
 
@@ -58,12 +53,12 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
 	 */
 	@Override
-	public ItemStack getResultItem() {
+	public @NotNull ItemStack getResultItem() {
 		return this.recipeOutput;
 	}
 
 	@Override
-	public NonNullList<Ingredient> getIngredients() {
+	public @NotNull NonNullList<Ingredient> getIngredients() {
 		return this.ingredients;
 	}
 
@@ -71,7 +66,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * Used to check if a recipe matches current crafting inventory
 	 */
 	@Override
-	public boolean matches(CraftingContainer container, Level level) {
+	public boolean matches(CraftingContainer container, @NotNull Level level) {
 	      StackedContents stackedcontents = new StackedContents();
 	      java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
 	      int i = 0;
@@ -86,14 +81,14 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	         }
 	      }
 
-	      return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, (IntList)null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
+	      return i == this.ingredients.size() && (isSimple ? stackedcontents.canCraft(this, null) : net.minecraftforge.common.util.RecipeMatcher.findMatches(inputs,  this.ingredients) != null);
 	   }
 	
 	/**
 	 * Returns an Item that is the result of this recipe
 	 */
 	@Override
-	public ItemStack assemble(CraftingContainer inv) {
+	public @NotNull ItemStack assemble(@NotNull CraftingContainer inv) {
 		ItemStack output = this.recipeOutput.copy();
 		ItemStack walletStack = this.getWalletStack(inv);
 		if(!walletStack.isEmpty())
@@ -118,12 +113,15 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	public boolean canCraftInDimensions(int width, int height) {
 		return width * height >= this.ingredients.size();
 	}
-	
+
+	@Override
+	public @NotNull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
+
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
 	    
 		
 		@Override
-		public WalletUpgradeRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
+		public @NotNull WalletUpgradeRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
 			String s = GsonHelper.getAsString(json, "group", "");
 			NonNullList<Ingredient> nonnulllist = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 			if (nonnulllist.isEmpty()) {
@@ -150,14 +148,12 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		}
 
 		@Override
-    	public WalletUpgradeRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+    	public WalletUpgradeRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
     		String s = buffer.readUtf(32767);
     		int i = buffer.readVarInt();
     		NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i, Ingredient.EMPTY);
 
-    		for(int j = 0; j < nonnulllist.size(); ++j) {
-    			nonnulllist.set(j, Ingredient.fromNetwork(buffer));
-    		}
+			nonnulllist.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
 
     		ItemStack itemstack = buffer.readItem();
     		return new WalletUpgradeRecipe(recipeId, s, itemstack, nonnulllist);

@@ -3,9 +3,6 @@ package io.github.lightman314.lightmanscurrency.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -24,6 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock{
 	
@@ -52,7 +51,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 		//Define directions for easy positional handling
 		Vector3f forward = IRotatableBlock.getForwardVect(facing);
 		Vector3f right = IRotatableBlock.getRightVect(facing);
-		Vector3f up = Vector3f.YP;
+		Vector3f up = MathUtil.getYP();
 		Vector3f offset = IRotatableBlock.getOffsetVect(facing);
 		
 		Vector3f forwardOffset = MathUtil.VectorMult(forward, 6f/16f);
@@ -126,11 +125,11 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
+	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
-		List<Quaternion> rotation = new ArrayList<>();
+		List<Quaternionf> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
-		rotation.add(Vector3f.YP.rotationDegrees(facing * -90f));
+		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
 		return rotation;
 	}
 

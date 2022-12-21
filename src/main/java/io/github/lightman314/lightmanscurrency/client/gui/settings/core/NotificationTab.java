@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class NotificationTab extends SettingsTab{
 
@@ -23,7 +24,7 @@ public class NotificationTab extends SettingsTab{
 	public int getColor() { return 0xFFFFFF; }
 
 	@Override
-	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.notifications"); }
@@ -46,7 +47,7 @@ public class NotificationTab extends SettingsTab{
 		
 		this.buttonToggleChatNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 55, 10, 10, this::ToggleChatNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
-		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 80, screen.xSize - 40, 20, Component.empty(), this::ToggleTeamNotificationLevel));
+		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTeamNotificationLevel).pos(screen.guiLeft() + 20, screen.guiTop() + 80).size(screen.xSize - 40, 20).build());
 		
 		this.tick();
 		
@@ -57,6 +58,8 @@ public class NotificationTab extends SettingsTab{
 		
 		TraderSettingsScreen screen = this.getScreen();
 		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		
 		//Render the enable notification test
 		this.getFont().draw(pose, Component.translatable("gui.lightmanscurrency.notifications.enabled"), screen.guiLeft() + 32, screen.guiTop() + 35, 0x404040);
@@ -92,20 +95,29 @@ public class NotificationTab extends SettingsTab{
 	public void closeTab() { }
 	
 	private void ToggleNotifications(Button button) {
+		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		CompoundTag message = new CompoundTag();
-		message.putBoolean("Notifications", !this.getTrader().notificationsEnabled());
+		message.putBoolean("Notifications", !trader.notificationsEnabled());
 		this.getTrader().sendNetworkMessage(message);
 	}
 	
 	private void ToggleChatNotifications(Button button) {
+		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		CompoundTag message = new CompoundTag();
-		message.putBoolean("NotificationsToChat", !this.getTrader().notificationsToChat());
+		message.putBoolean("NotificationsToChat", !trader.notificationsToChat());
 		this.getTrader().sendNetworkMessage(message);
 	}
 	
 	private void ToggleTeamNotificationLevel(Button button) {
+		TraderData trader = this.getTrader();
+		if(trader == null)
+			return;
 		CompoundTag message = new CompoundTag();
-		message.putInt("TeamNotificationLevel", Team.NextBankLimit(this.getTrader().teamNotificationLevel()));
+		message.putInt("TeamNotificationLevel", Team.NextBankLimit(trader.teamNotificationLevel()));
 		this.getTrader().sendNetworkMessage(message);
 	}
 	

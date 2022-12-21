@@ -27,6 +27,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class SelectionTab extends ATMTab{
 
@@ -44,7 +45,7 @@ public class SelectionTab extends ATMTab{
 	boolean adminMode = false;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.selection"); }
@@ -60,7 +61,7 @@ public class SelectionTab extends ATMTab{
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 6, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
-		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
+		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount).pos(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15).size(70, 20).build());
 		
 		this.buttonToggleAdminMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize(), this.screen.getGuiTop(), this::ToggleAdminMode, IconData.of(Items.COMMAND_BLOCK)));
 		this.buttonToggleAdminMode.visible = CommandLCAdmin.isAdminPlayer(this.screen.getMenu().getPlayer());
@@ -68,7 +69,7 @@ public class SelectionTab extends ATMTab{
 		this.playerAccountSelect = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 20, 162, 20, Component.empty()));
 		this.playerAccountSelect.visible = false;
 		
-		this.buttonSelectPlayerAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 45, 162, 20, Component.translatable("gui.button.bank.admin.playeraccount"), this::PressSelectPlayerAccount));
+		this.buttonSelectPlayerAccount = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.bank.admin.playeraccount"), this::PressSelectPlayerAccount).pos(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 45).size(162, 20).build());
 		this.buttonSelectPlayerAccount.visible = false;
 		
 		this.tick();
@@ -110,7 +111,7 @@ public class SelectionTab extends ATMTab{
 				return;
 			AccountReference account = BankAccount.GenerateReference(true, team);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
-		} catch(Exception e) { }
+		} catch(Throwable ignored) { }
 	}
 	
 	private void PressPersonalAccount(Button button)
@@ -159,7 +160,7 @@ public class SelectionTab extends ATMTab{
 	public void postRender(PoseStack pose, int mouseX, int mouseY) {
 		//Render text in front of selection background
 		if(this.getTeamList().size() == 0)
-			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, Component.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.x + 1, Size.NARROW.width - 2, this.teamSelection.y + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, Component.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.getX() + 1, Size.NARROW.width - 2, this.teamSelection.getY() + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 	}
 	
 	@Override

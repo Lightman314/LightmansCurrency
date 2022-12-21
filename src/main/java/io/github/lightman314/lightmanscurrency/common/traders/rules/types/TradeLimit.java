@@ -126,7 +126,7 @@ public class TradeLimit extends TradeRule{
 	private static class GUIHandler extends TradeRule.GUIHandler
 	{
 		
-		private final TradeLimit getRule()
+		private TradeLimit getRule()
 		{
 			if(getRuleRaw() instanceof TradeLimit)
 				return (TradeLimit)getRuleRaw();
@@ -147,16 +147,20 @@ public class TradeLimit extends TradeRule{
 			
 			this.limitInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 19, 30, 20, Component.empty()));
 			this.limitInput.setMaxLength(3);
-			this.limitInput.setValue(Integer.toString(this.getRule().limit));
+			TradeLimit rule = this.getRule();
+			if(rule != null)
+				this.limitInput.setValue(Integer.toString(rule.limit));
 			
-			this.buttonSetLimit = this.addCustomRenderable(new Button(screen.guiLeft() + 41, screen.guiTop() + 19, 40, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton));
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton));
+			this.buttonSetLimit = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton).pos(screen.guiLeft() + 41, screen.guiTop() + 19).size(40, 20).build());
+			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
 		}
 
 		@Override
 		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-			
-			screen.getFont().draw(poseStack, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", this.getRule().limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
+
+			TradeLimit rule = this.getRule();
+			if(rule != null)
+				screen.getFont().draw(poseStack, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", rule.limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
 			
 			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
 				screen.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip"), mouseX, mouseY);
@@ -182,7 +186,9 @@ public class TradeLimit extends TradeRule{
 		void PressSetLimitButton(Button button)
 		{
 			int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
-			this.getRule().limit = limit;
+			TradeLimit rule = this.getRule();
+			if(rule != null)
+				rule.limit = limit;
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putInt("Limit", limit);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -190,7 +196,9 @@ public class TradeLimit extends TradeRule{
 		
 		void PressClearMemoryButton(Button button)
 		{
-			this.getRule().resetCount();
+			TradeLimit rule = this.getRule();
+			if(rule != null)
+				rule.resetCount();
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putBoolean("ClearMemory", true);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

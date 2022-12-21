@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
@@ -68,7 +69,6 @@ import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -88,7 +88,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -153,7 +152,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	private final Map<String,Integer> allyPermissions = this.getDefaultAllyPermissions();
 	
-	private final Map<String,Integer> getDefaultAllyPermissions() {
+	private Map<String,Integer> getDefaultAllyPermissions() {
 		Map<String,Integer> defaultValues = new HashMap<>();
 		defaultValues.put(Permissions.OPEN_STORAGE, 1);
 		defaultValues.put(Permissions.EDIT_TRADES, 1);
@@ -192,7 +191,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 	}
 	
-	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.containsKey(permission) ? this.allyPermissions.get(permission) : 0; }
+	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.getOrDefault(permission, 0); }
 	public void setAllyPermissionLevel(Player player, String permission, int level) {
 		if(this.hasPermission(player, Permissions.EDIT_PERMISSIONS) && this.getAllyPermissionLevel(permission) != level)
 		{
@@ -356,7 +355,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return null;
 	}
 	
-	private SimpleContainer upgrades = new SimpleContainer(5);
+	private SimpleContainer upgrades;
 	public Container getUpgrades() { return this.upgrades; }
 	public final boolean allowUpgrade(UpgradeType type) {
 		if(!this.showOnTerminal() && this.canShowOnTerminal() && type == UpgradeType.NETWORK)
@@ -410,7 +409,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this(type);
 		this.level = level == null ? Level.OVERWORLD : level.dimension();
 		this.pos = pos == null ? new BlockPos(0,0,0) : pos;
-		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(pos).getBlock().asItem();
+		this.traderBlock = level == null ? ModItems.TRADING_CORE.get() : level.getBlockState(this.pos).getBlock().asItem();
 	}
 	
 	private String persistentID = "";
@@ -485,7 +484,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			compound.putString("Level", this.level.location().toString());
 	}
 	
-	private final void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
+	private void saveTraderItem(CompoundTag compound) { if(this.traderBlock != null) compound.putString("TraderBlock", ForgeRegistries.ITEMS.getKey(this.traderBlock).toString()); }
 	
 	protected final void saveOwner(CompoundTag compound) { compound.put("OwnerData", this.owner.save()); }
 	
@@ -577,13 +576,13 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
 		}
 		if(compound.contains("Level"))
-			this.level = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(compound.getString("Level")));
+			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("Level")));
 		
 		if(compound.contains("TraderBlock"))
 		{
 			try {
 				this.traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
-			}catch (Throwable t) {}
+			}catch (Throwable ignored) {}
 		}
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
@@ -703,19 +702,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	protected MenuProvider getTraderMenuProvider() { return new TraderMenuProvider(this.id); }
-	
-	private static class TraderMenuProvider implements MenuProvider
-	{
 
-		private final long traderID;
-		public TraderMenuProvider(long traderID) { this.traderID = traderID; }
-		
-		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
+	private record TraderMenuProvider(long traderID) implements MenuProvider {
 
 		@Override
-		public Component getDisplayName() { return Component.empty(); }
-		
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
+
+		@Override
+		public @NotNull Component getDisplayName() { return Component.empty(); }
+
 	}
 	
 	public void openStorageMenu(Player player) {
@@ -726,19 +721,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	protected MenuProvider getTraderStorageMenuProvider()  { return new TraderStorageMenuProvider(this.id); }
-	
-	private static class TraderStorageMenuProvider implements MenuProvider
-	{
 
-		private final long traderID;
-		public TraderStorageMenuProvider(long traderID) { this.traderID = traderID; }
-		
-		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
+	private record TraderStorageMenuProvider(long traderID) implements MenuProvider {
 
 		@Override
-		public Component getDisplayName() { return Component.empty(); }
-		
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
+
+		@Override
+		public @NotNull Component getDisplayName() { return Component.empty(); }
+
 	}
 	
 	public Consumer<FriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
@@ -783,7 +774,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return event;
 	}
 	
-	public PostTradeEvent runPostTradeEvent(PlayerReference player, TradeData trade, CoinValue cost)
+	public void runPostTradeEvent(PlayerReference player, TradeData trade, CoinValue cost)
 	{
 		PostTradeEvent event = new PostTradeEvent(player, trade, this, cost);
 		
@@ -805,8 +796,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		
 		//Public posting
 		MinecraftForge.EVENT_BUS.post(event);
-		
-		return event;
 	}
 	
 	@NotNull
@@ -819,11 +808,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			Block block = state != null ? state.getBlock() : null;
 			ItemStack blockStack = block != null ? new ItemStack(block.asItem()) : ItemStack.EMPTY;
-			if(block instanceof ITraderBlock)
-			{
-				ITraderBlock b = (ITraderBlock)block;
+			if(block instanceof ITraderBlock b)
 				blockStack = b.getDropBlockItem(level, pos, state);
-			}
 			if(!blockStack.isEmpty())
 				results.add(blockStack);
 			else
@@ -857,7 +843,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected abstract void getAdditionalContents(List<ItemStack> results);
 	
 	//Static deserializer/registration
-	private static Map<String,NonNullSupplier<TraderData>> deserializers = new HashMap<>();
+	private static final Map<String,NonNullSupplier<TraderData>> deserializers = new HashMap<>();
 	
 	public static void register(ResourceLocation type, @Nonnull NonNullSupplier<TraderData> source)
 	{
@@ -929,7 +915,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	//User data
 	private int userCount = 0;
-	private List<Player> currentUsers = new ArrayList<>();
+	private final List<Player> currentUsers = new ArrayList<>();
 	public List<Player> getUsers() { return new ArrayList<>(this.currentUsers); }
 	public int getUserCount() { return this.userCount; }
 	
@@ -948,8 +934,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient)
 			this.userCount = userCount;
 	}
-	
-	public ItemLike getCategoryItem() { return this.traderBlock == null ? ModItems.TRADING_CORE.get() : this.traderBlock; }
 	
 	public abstract List<? extends TradeData> getTradeData();
 	
@@ -989,7 +973,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageTraderMessage(this.id, message));
 	}
 	
-	public void receiveNetworkMessage(Player player, CompoundTag message)
+	public void receiveNetworkMessage(@NotNull Player player, @NotNull CompoundTag message)
 	{
 		if(message.contains("ChangePlayerOwner"))
 		{
@@ -1007,14 +991,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 						this.linkedToBank = false;
 						this.markDirty(this::saveLinkedBankAccount);
 					}
-					
-					if(player != null)
-					{
-						if(oldTeam != null)
-							this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldTeam));
-						else if(oldPlayer != null)
-							this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldPlayer));
-					}
+
+					if(oldTeam != null)
+						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldTeam));
+					else if(oldPlayer != null)
+						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldPlayer));
 				}
 			}
 		}
@@ -1034,14 +1015,11 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 						this.linkedToBank = false;
 						this.markDirty(this::saveLinkedBankAccount);
 					}
-					
-					if(player != null)
-					{
-						if(oldTeam != null)
-							this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldTeam));
-						else if(oldPlayer != null)
-							this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldPlayer));
-					}
+
+					if(oldTeam != null)
+						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldTeam));
+					else if(oldPlayer != null)
+						this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), team, oldPlayer));
 				}
 			}
 		}
@@ -1054,9 +1032,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				{
 					this.allies.add(newAlly);
 					this.markDirty(this::saveAllies);
-					
-					if(player != null)
-						this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), true, newAlly));
+
+					this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), true, newAlly));
 				}
 			}
 		}
@@ -1068,9 +1045,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				if(oldAlly != null && PlayerReference.removeFromList(this.allies, oldAlly.id))
 				{
 					this.markDirty(this::saveAllies);
-					
-					if(player != null)
-						this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), false, oldAlly));
+
+					this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), false, oldAlly));
 				}
 			}
 		}
@@ -1105,9 +1081,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				{
 					this.notificationsEnabled = enable;
 					this.markDirty(this::saveNotificationData);
-					
-					if(player != null)
-						this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Notifications", String.valueOf(this.notificationsEnabled)));
+
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "Notifications", String.valueOf(this.notificationsEnabled)));
 				}
 			}
 		}
@@ -1120,9 +1095,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				{
 					this.notificationsToChat = enable;
 					this.markDirty(this::saveNotificationData);
-					
-					if(player != null)
-						this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "NotificationsToChat", String.valueOf(this.notificationsToChat)));
+
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "NotificationsToChat", String.valueOf(this.notificationsToChat)));
 				}
 			}
 		}
@@ -1135,9 +1109,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				{
 					this.teamNotificationLevel = level;
 					this.markDirty(this::saveNotificationData);
-					
-					if(player != null)
-						this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "TeamNotificationLevel", String.valueOf(this.teamNotificationLevel)));
+
+					this.pushLocalNotification(new ChangeSettingNotification.Simple(PlayerReference.of(player), "TeamNotificationLevel", String.valueOf(this.teamNotificationLevel)));
 				}
 			}
 		}
@@ -1261,21 +1234,19 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return new TraderCategory(this.traderBlock != null ? this.traderBlock : ModItems.TRADING_CORE.get(), this.getName(), this.id);
 	}
 	
-	public final List<TraderData> getTraders() { return Lists.newArrayList(this); }
+	public final @NotNull List<TraderData> getTraders() { return Lists.newArrayList(this); }
 	public final boolean isSingleTrader() { return true; }
 	
 	public static MenuProvider getTraderMenuProvider(BlockPos traderSourcePosition) { return new TraderMenuProviderBlock(traderSourcePosition); }
-	
-	private static class TraderMenuProviderBlock implements MenuProvider
-	{
-		
-		private final BlockPos traderSourcePosition;
-		public TraderMenuProviderBlock(BlockPos traderSourcePosition) { this.traderSourcePosition = traderSourcePosition; }
+
+	private record TraderMenuProviderBlock(BlockPos traderSourcePosition) implements MenuProvider {
+
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
+
 		@Override
-		public Component getDisplayName() { return Component.empty(); }
-		
+		public @NotNull Component getDisplayName() { return Component.empty(); }
+
 	}
 	
 	@Deprecated /** @deprecated Use to load old UniversalTraderData data. */
@@ -1289,7 +1260,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("x") && compound.contains("y") && compound.contains("z"))
 			this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
 		if(compound.contains("World"))
-			this.level = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(compound.getString("World")));
+			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("World")));
+
 		//Stored Money
 		if(compound.contains("StoredMoney"))
 			this.storedMoney.load(compound, "StoredMoney");
@@ -1298,7 +1270,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	@Deprecated
-	private final void loadOldCoreSettingData(CompoundTag compound) {
+	private void loadOldCoreSettingData(CompoundTag compound) {
 		if(compound.contains("Owner",Tag.TAG_COMPOUND))
 			this.owner.SetOwner(PlayerReference.load(compound.getCompound("Owner")));
 		if(compound.contains("CustomOwnerName", Tag.TAG_STRING))

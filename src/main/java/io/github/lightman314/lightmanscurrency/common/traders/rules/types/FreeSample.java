@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.google.common.base.Supplier;
@@ -32,7 +33,6 @@ public class FreeSample extends TradeRule{
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
 	
 	List<UUID> memory = new ArrayList<>();
-	public void resetMemory() { this.memory.clear(); }
 	
 	public FreeSample() { super(TYPE); }
 	
@@ -163,7 +163,7 @@ public class FreeSample extends TradeRule{
 	private static class GUIHandler extends TradeRule.GUIHandler
 	{
 		
-		private final FreeSample getRule()
+		private FreeSample getRule()
 		{
 			if(getRuleRaw() instanceof FreeSample)
 				return (FreeSample)getRuleRaw();
@@ -180,7 +180,7 @@ public class FreeSample extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
+			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
 			
 		}
 
@@ -202,7 +202,10 @@ public class FreeSample extends TradeRule{
 		
 		void PressClearMemoryButton(Button button)
 		{
-			this.getRule().memory.clear();
+			FreeSample rule = this.getRule();
+			if(rule == null)
+				return;
+			rule.memory.clear();
 			CompoundTag updateInfo = new CompoundTag();
 			updateInfo.putBoolean("ClearData", true);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

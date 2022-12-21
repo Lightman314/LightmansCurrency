@@ -28,6 +28,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public class TransferTab extends ATMTab {
 
@@ -51,7 +52,7 @@ public class TransferTab extends ATMTab {
 	boolean playerMode = true;
 	
 	@Override
-	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
+	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.transfer"); }
@@ -78,7 +79,7 @@ public class TransferTab extends ATMTab {
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126, this.screen.getXSize() - 20, 20, Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
+		this.buttonTransfer = this.screen.addRenderableTabWidget(Button.builder(Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126).size(this.screen.getXSize() - 20, 20).build());
 		this.buttonTransfer.active = false;
 		
 	}
@@ -112,7 +113,7 @@ public class TransferTab extends ATMTab {
 			if(team.getID() == this.selectedTeam)
 				return;
 			this.selectedTeam = team.getID();
-		} catch(Exception e) { }
+		} catch(Throwable ignored) { }
 	}
 	
 	private void PressTransfer(Button button)
@@ -159,7 +160,7 @@ public class TransferTab extends ATMTab {
 
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) {
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonToggleMode));
+		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonToggleMode));
 	}
 	
 	@Override

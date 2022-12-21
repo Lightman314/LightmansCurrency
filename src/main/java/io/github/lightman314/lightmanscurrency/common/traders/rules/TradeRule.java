@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
@@ -86,24 +86,21 @@ public abstract class TradeRule {
 	public static CompoundTag saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
 		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); i++)
-			ruleData.add(rules.get(i).save());
+		for (TradeRule rule : rules) ruleData.add(rule.save());
 		compound.put(tag, ruleData);
 		return compound;
 	}
 	
 	public static boolean savePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
 		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			CompoundTag thisRuleData = rules.get(i).savePersistentData();
-			if(thisRuleData != null)
-			{
-				thisRuleData.putString("Type", rules.get(i).type.toString());
+		for (TradeRule rule : rules) {
+			CompoundTag thisRuleData = rule.savePersistentData();
+			if (thisRuleData != null) {
+				thisRuleData.putString("Type", rule.type.toString());
 				ruleData.add(thisRuleData);
 			}
 		}
-		if(ruleData.size() <= 0)
+		if(ruleData.size() == 0)
 			return false;
 		compound.put(tag, ruleData);
 		return true;
@@ -111,14 +108,11 @@ public abstract class TradeRule {
 	
 	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
 		JsonArray ruleData = new JsonArray();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			if(rules.get(i).isActive)
-			{
-				JsonObject thisRuleData = rules.get(i).saveToJson(new JsonObject());
-				if(thisRuleData != null)
-				{
-					thisRuleData.addProperty("Type", rules.get(i).type.toString());
+		for (TradeRule rule : rules) {
+			if (rule.isActive) {
+				JsonObject thisRuleData = rule.saveToJson(new JsonObject());
+				if (thisRuleData != null) {
+					thisRuleData.addProperty("Type", rule.type.toString());
 					ruleData.add(thisRuleData);
 				}
 			}
@@ -157,6 +151,7 @@ public abstract class TradeRule {
 					if(tradeRules.get(r).type.toString().contentEquals(thisRuleData.getString("Type")))
 					{
 						tradeRules.get(r).loadPersistentData(thisRuleData);
+						query = false;
 					}
 				}
 			}
@@ -171,8 +166,7 @@ public abstract class TradeRule {
 			try {
 				JsonObject thisRuleData = tradeRuleData.get(i).getAsJsonObject();
 				TradeRule thisRule = Deserialize(thisRuleData);
-				if(thisRule != null)
-					rules.add(thisRule);
+				rules.add(thisRule);
 			}
 			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
 		}
@@ -231,7 +225,7 @@ public abstract class TradeRule {
 		
 		public void onScreenTick() { }
 		
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
+		public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomRenderable(T widget)
 		{
 			return screen.addCustomRenderable(widget);
 		}
@@ -329,10 +323,10 @@ public abstract class TradeRule {
 		return null;
 	}
 	
-	public static final CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
-	public static final CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
+	public static CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
+	public static CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
 	
-	public static final boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
-	public static final boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
+	public static boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
+	public static boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
 	
 }

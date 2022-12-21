@@ -26,7 +26,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -152,7 +152,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	
 	public void init()
 	{
-		this.toggleFree = new PlainButton(this.x + this.width - 14, this.y + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT);
+		this.toggleFree = new PlainButton(this.getX() + this.width - 14, this.getY() + 4, 10, 10, this::ToggleFree, GUI_TEXTURE, 40, HEIGHT);
 		this.addWidget.accept(this.toggleFree);
 		this.increaseButtons = new ArrayList<>();
 		this.decreaseButtons = new ArrayList<>();
@@ -163,20 +163,20 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			if(buttonCount > MAX_BUTTON_COUNT)
 			{
 				buttonCount = MAX_BUTTON_COUNT;
-				this.buttonLeft = new PlainButton(this.x + 4, this.y + 29, 10, 20, b -> this.scrollLeft(), GUI_TEXTURE, 50, HEIGHT);
+				this.buttonLeft = new PlainButton(this.getX() + 4, this.getY() + 29, 10, 20, b -> this.scrollLeft(), GUI_TEXTURE, 50, HEIGHT);
 				this.buttonLeft.visible = false;
 				this.addWidget.accept(this.buttonLeft);
-				this.buttonRight = new PlainButton(this.x + this.width - 14, this.y + 29, 10, 20, b -> this.scrollRight(), GUI_TEXTURE, 60, HEIGHT);
+				this.buttonRight = new PlainButton(this.getX() + this.width - 14, this.getY() + 29, 10, 20, b -> this.scrollRight(), GUI_TEXTURE, 60, HEIGHT);
 				this.addWidget.accept(this.buttonRight);
 			}
 			int startX = this.getStartX();
 			for(int x = 0; x < buttonCount; x++)
 			{
-				Button newButton = new PlainButton(startX + (x * SEGMENT_TOTAL), this.y + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT);
+				Button newButton = new PlainButton(startX + (x * SEGMENT_TOTAL), this.getY() + 15, 20, 10, this::IncreaseButtonHit, GUI_TEXTURE, 0, HEIGHT);
 				this.addWidget.accept(newButton);
 				newButton.active = true;
 				increaseButtons.add(newButton);
-				newButton = new PlainButton(startX + (x * SEGMENT_TOTAL), this.y + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT);
+				newButton = new PlainButton(startX + (x * SEGMENT_TOTAL), this.getY() + 53, 20, 10, this::DecreaseButtonHit, GUI_TEXTURE, 20, HEIGHT);
 				this.addWidget.accept(newButton);
 				newButton.active = false;
 				decreaseButtons.add(newButton);
@@ -191,7 +191,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			int postfixWidth = this.font.width(this.postfix);
 			if(postfixWidth > 0)
 				postfixWidth += 2;
-			this.valueInput = new EditBox(this.font, this.x + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, Component.empty());
+			this.valueInput = new EditBox(this.font, this.getX() + 10 + prefixWidth, this.getY() + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, Component.empty());
 			this.addWidget.accept(this.valueInput);
 		}
 		this.tick();
@@ -215,7 +215,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		if(this.drawBG)
 		{
 			//Render the background
-			this.blit(poseStack, this.x, this.y, 0, 0, DISPLAY_WIDTH, HEIGHT);
+			this.blit(poseStack, this.getX(), this.getY(), 0, 0, DISPLAY_WIDTH, HEIGHT);
 		}
 		
 		if(this.inputType == ValueType.DEFAULT)
@@ -230,11 +230,11 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this, this.font, new ItemStack(this.coinData.get(x + this.scroll).coinItem), startX + (x * SEGMENT_TOTAL) + 2, this.y + 26);
+				ItemRenderUtil.drawItemStack(this, this.font, new ItemStack(this.coinData.get(x + this.scroll).coinItem), startX + (x * SEGMENT_TOTAL) + 2, this.getY() + 26);
 				//Draw string
 				String countString = String.valueOf(this.coinValue.getEntry(this.coinData.get(x + this.scroll).coinItem));
 				int width = this.font.width(countString);
-				this.font.draw(poseStack, countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), this.y + 43, 0x404040);
+				this.font.draw(poseStack, countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), this.getY() + 43, 0x404040);
 				
 			}
 		}
@@ -243,27 +243,27 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		{
 			
 			//Draw the prefix and postfix
-			this.font.draw(poseStack, this.prefix, this.x + 10, this.y + 26, 0xFFFFFF);
+			this.font.draw(poseStack, this.prefix, this.getX() + 10, this.getY() + 26, 0xFFFFFF);
 			int postfixWidth = this.font.width(this.postfix);
-			this.font.draw(poseStack, this.postfix, this.x + DISPLAY_WIDTH - 10 - postfixWidth, this.y + 26, 0xFFFFFF);
+			this.font.draw(poseStack, this.postfix, this.getX() + DISPLAY_WIDTH - 10 - postfixWidth, this.getY() + 26, 0xFFFFFF);
 			
 		}
 		
 		//Render the current price in the top-right corner
 		int priceWidth = this.font.width(this.coinValue.getString());
 		int freeButtonOffset = this.allowFreeToggle ? 15 : 5;
-		this.font.draw(poseStack, this.coinValue.getString(), this.x + this.width - freeButtonOffset - priceWidth, this.y + 5F, 0x404040);
+		this.font.draw(poseStack, this.coinValue.getString(), this.getX() + this.width - freeButtonOffset - priceWidth, this.getY() + 5F, 0x404040);
 		
 		//Render the title
 		int titleWidth = this.width - 7 - freeButtonOffset - priceWidth;
-		this.font.draw(poseStack, TextRenderUtil.fitString(this.title, titleWidth), this.x + 8F, this.y + 5F, 0x404040);
+		this.font.draw(poseStack, TextRenderUtil.fitString(this.title, titleWidth), this.getX() + 8F, this.getY() + 5F, 0x404040);
 		
 	}
 	
 	private int getStartX() {
 		int buttonCount = Math.min(this.coinData.size(), MAX_BUTTON_COUNT);
 		int space = this.width - (buttonCount * SEGMENT_TOTAL) + SEGMENT_SPACING;
-		return this.x + space / 2;
+		return this.getX() + space / 2;
 	}
 	
 	public void tick()
@@ -422,7 +422,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	@Deprecated
 	public interface ICoinValueInput
 	{
-		<T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button);
+		<T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T button);
 		int getWidth();
 		Font getFont();
 		void OnCoinValueChanged(CoinValueInput input);
@@ -439,8 +439,8 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
-	
+	protected void updateWidgetNarration(NarrationElementOutput narrator) { }
+
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return false; }
 	

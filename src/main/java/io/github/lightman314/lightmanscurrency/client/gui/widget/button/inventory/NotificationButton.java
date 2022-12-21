@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class NotificationButton extends PlainButton {
 	
@@ -37,16 +37,15 @@ public class NotificationButton extends PlainButton {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.x = getXPosition(this.screen);
-		this.y = getYPosition(this.screen);
+		this.setPosition(getXPosition(this.screen), getYPosition(this.screen));
 		
 		//Change icon based on whether there's an active notification or not.
 		this.setResource(NotificationScreen.GUI_TEXTURE, ClientNotificationData.GetNotifications().unseenNotification() ? 200 + SIZE : 200, 0);
 		//Change visibility based on whether the correct tab is open
-		if(this.screen instanceof CreativeModeInventoryScreen)
-			this.visible = ((CreativeModeInventoryScreen)this.screen).getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
+		if(this.screen instanceof CreativeModeInventoryScreen cs)
+			this.visible = cs.isInventoryOpen();
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 	

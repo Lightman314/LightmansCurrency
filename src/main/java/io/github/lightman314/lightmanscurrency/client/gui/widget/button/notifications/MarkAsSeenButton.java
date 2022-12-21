@@ -10,19 +10,20 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 public class MarkAsSeenButton extends Button {
 
 	public static final int HEIGHT = 11;
 	
 	public MarkAsSeenButton(int rightPos, int yPos, Component text, OnPress onPress) {
-		super(rightPos - getWidth(text), yPos, getWidth(text), HEIGHT, text, onPress);
+		super(rightPos - getWidth(text), yPos, getWidth(text), HEIGHT, text, onPress, Button.DEFAULT_NARRATION);
 	}
 	
 	private static int getWidth(Component text) { return TextRenderUtil.getFont().width(text) + 4; }
 	
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		Minecraft minecraft = Minecraft.getInstance();
 		Font font = minecraft.font;
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -36,13 +37,13 @@ public class MarkAsSeenButton extends Button {
 		int bottomSize = topSize;
 		if(this.height % 2 != 0)
 			bottomSize++;
-		this.blit(pose, this.x, this.y, 0, 46 + i * 20, this.width / 2, topSize);
-		this.blit(pose, this.x, this.y + topSize, 0, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
-		this.blit(pose, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height / 2);
-		this.blit(pose, this.x + this.width / 2, this.y + topSize, 200 - this.width / 2, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
+		this.blit(pose, this.getX(), this.getY(), 0, 46 + i * 20, this.width / 2, topSize);
+		this.blit(pose, this.getX(), this.getY() + topSize, 0, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
+		this.blit(pose, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height / 2);
+		this.blit(pose, this.getX() + this.width / 2, this.getY() + topSize, 200 - this.width / 2, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
 		this.renderBg(pose, minecraft, mouseX, mouseY);
 		int j = getFGColor();
-		drawCenteredString(pose, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
+		drawCenteredString(pose, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
 	}
 	
 }

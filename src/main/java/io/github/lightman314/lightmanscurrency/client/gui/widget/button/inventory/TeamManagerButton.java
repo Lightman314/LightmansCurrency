@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class TeamManagerButton extends PlainButton {
 	
@@ -36,14 +36,13 @@ public class TeamManagerButton extends PlainButton {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.x = getXPosition(this.screen);
-		this.y = getYPosition(this.screen);
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+
+		this.setPosition(getXPosition(this.screen), getYPosition(this.screen));
 		
 		//Change visibility based on whether the correct tab is open
-		if(this.screen instanceof CreativeModeInventoryScreen)
-			this.visible = ((CreativeModeInventoryScreen)this.screen).getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
+		if(this.screen instanceof CreativeModeInventoryScreen cs)
+			this.visible = cs.isInventoryOpen();
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 	
