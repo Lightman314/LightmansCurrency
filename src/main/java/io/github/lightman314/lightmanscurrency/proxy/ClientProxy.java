@@ -166,6 +166,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		
 		Minecraft mc = Minecraft.getInstance();
+		assert mc.player != null;
 		if(MinecraftForge.EVENT_BUS.post(new NotificationEvent.NotificationReceivedOnClient(mc.player.getUUID(), ClientNotificationData.GetNotifications(), notification)))
 			return;
 		
@@ -260,7 +261,7 @@ public class ClientProxy extends CommonProxy{
 	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event)
 	{
 		//Initialize the item edit widgets item list
-    	ItemEditWidget.initItemList();
+    	ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures());
 	}
 
 	@Override

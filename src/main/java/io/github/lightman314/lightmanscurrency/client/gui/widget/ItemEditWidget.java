@@ -25,6 +25,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +39,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
-	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH);
+	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
 
 	private int scroll = 0;
 	private int stackCount = 1;
@@ -85,27 +86,27 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public static void initItemList() {
-
-		if(preFilteredItems != null)
-			return;
+	public static void initItemList(FeatureFlagSet flagSet) {
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
+
+		//Force Creative Tab content rebuild
+		CreativeModeTabs.tryRebuildTabContents(flagSet, false);
 
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
-		for(CreativeModeTab group : CreativeModeTabs.allTabs())
+		for(CreativeModeTab creativeTab : CreativeModeTabs.allTabs())
 		{
-			if(!ITEM_GROUP_BLACKLIST.contains(group))
+			if(!ITEM_GROUP_BLACKLIST.contains(creativeTab))
 			{
-				//Get all the items in this group
-				Collection<ItemStack> items = group.getDisplayItems();
+				//Get all the items in this creative tab
+				Collection<ItemStack> items = creativeTab.getDisplayItems();
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
 
-					if(!itemListAlreadyContains(allItems, stack))
+					if(notYetInList(allItems, stack))
 						allItems.add(stack);
 
 					if(stack.getItem() == Items.ENCHANTED_BOOK)
@@ -117,31 +118,22 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 							{
 								ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
 								EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-								if(!itemListAlreadyContains(allItems, newBook))
+								if(notYetInList(allItems, newBook))
 									allItems.add(newBook);
 							}
 						});
 					}
-
 				}
 			}
 		}
 
 		preFilteredItems = new HashMap<>();
 
-		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
+		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).toList()));
 
 	}
 
-	private static boolean itemListAlreadyContains(List<ItemStack> allItems, ItemStack stack)
-	{
-		for(ItemStack s : allItems)
-		{
-			if(InventoryUtil.ItemMatches(s, stack))
-				return true;
-		}
-		return false;
-	}
+	private static boolean notYetInList(List<ItemStack> allItems, ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
 
 	private List<ItemStack> getFilteredItems()
 	{
