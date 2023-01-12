@@ -76,6 +76,7 @@ public class TradeContext {
 		 * Trade failed as the trader was null
 		 */
 		FAIL_NULL("lightmanscurrency.remotetrade.fail.null");
+		public boolean isSuccess() { return this.failMessage == null; }
 		public boolean hasMessage() { return this.failMessage != null; }
 		public final Component failMessage;
 		TradeResult(String message) { this.failMessage = message == null ? null : Component.translatable(message); }

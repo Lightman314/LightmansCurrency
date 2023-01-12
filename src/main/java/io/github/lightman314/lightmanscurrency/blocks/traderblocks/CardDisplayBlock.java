@@ -121,5 +121,5 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
-	
+
 }

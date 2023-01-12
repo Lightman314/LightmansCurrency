@@ -55,7 +55,7 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state));
 	}

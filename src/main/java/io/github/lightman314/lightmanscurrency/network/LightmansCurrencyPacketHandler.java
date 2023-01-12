@@ -90,7 +90,7 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageSendArmorStandID.class, MessageSendArmorStandID::encode, MessageSendArmorStandID::decode, MessageSendArmorStandID::handle);
 		
 		//Wallet
-		register(MessagePlayPickupSound.class, new MessagePlayPickupSound());
+		register(MessagePlayPickupSound.class, MessagePlayPickupSound::encode, MessagePlayPickupSound::decode, MessagePlayPickupSound::handle);
 		register(MessageWalletConvertCoins.class, MessageWalletConvertCoins::encode, MessageWalletConvertCoins::decode, MessageWalletConvertCoins::handle);
 		register(MessageWalletToggleAutoConvert.class, MessageWalletToggleAutoConvert::encode, MessageWalletToggleAutoConvert::decode, MessageWalletToggleAutoConvert::handle);
 		register(MessageOpenWallet.class, MessageOpenWallet::encode, MessageOpenWallet::decode, MessageOpenWallet::handle);
@@ -172,11 +172,6 @@ public class LightmansCurrencyPacketHandler {
 		register(CMessagePlayerTradeInteraction.class, CMessagePlayerTradeInteraction::encode, CMessagePlayerTradeInteraction::decode, CMessagePlayerTradeInteraction::handle);
 
 
-	}
-
-	private static <T> void register(Class<T> clazz, IMessage<T> message)
-	{
-		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
 	}
 	
 	private static <T> void register(Class<T> clazz, BiConsumer<T,FriendlyByteBuf> encoder, Function<FriendlyByteBuf,T> decoder, BiConsumer<T,Supplier<Context>> handler)

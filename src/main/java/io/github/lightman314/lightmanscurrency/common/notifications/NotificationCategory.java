@@ -88,5 +88,7 @@ public abstract class NotificationCategory implements ITab
 	}
 	
 	protected abstract void saveAdditional(CompoundTag compound);
+
+	public final boolean notGeneral() { return this != GENERAL; }
 	
 }

@@ -42,7 +42,7 @@ public class CommonProxy {
 	public void receiveNotification(Notification notification) {}
 	
 	public void receiveSelectedBankAccount(AccountReference selectedAccount) {}
-	
+
 	public void openTerminalScreen() {}
 	
 	public void openNotificationScreen() {}

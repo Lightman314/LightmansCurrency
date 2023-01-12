@@ -177,13 +177,13 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	
 	@Override
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
-	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+		InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
 		assert this.minecraft != null;
 		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab.blockInventoryClosing()) {
-	    	  return true;
-	      }
-	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
+		  	return true;
+		}
+		return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 	
 	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {

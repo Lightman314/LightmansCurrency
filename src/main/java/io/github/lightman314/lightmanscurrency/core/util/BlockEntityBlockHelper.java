@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -37,6 +38,7 @@ public class BlockEntityBlockHelper {
 
 	public static void addBlockToBlockEntity(ResourceLocation beType, Supplier<Block> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }
 	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<Block,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
+	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBiBundle<Block,?,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	@SafeVarargs
 	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObject<Block>... blocks) {
 		List<Supplier<Block>> blockSources = new ArrayList<>();

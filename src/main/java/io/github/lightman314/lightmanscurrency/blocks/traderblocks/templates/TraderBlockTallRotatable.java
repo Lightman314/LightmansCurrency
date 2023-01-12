@@ -29,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
@@ -60,7 +61,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state); }
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
@@ -85,7 +86,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
 	{
 		if(this.getReplacable(level, pos.above(), state, player, stack))
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -118,7 +119,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
 	{
 		
 		//Run base functionality first to prevent the removal of the block containing the block entity

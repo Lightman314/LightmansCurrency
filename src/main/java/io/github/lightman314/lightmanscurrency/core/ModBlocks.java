@@ -9,13 +9,13 @@ import com.google.common.base.Supplier;
 import io.github.lightman314.lightmanscurrency.blocks.*;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
+import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
-import io.github.lightman314.lightmanscurrency.Reference;
-import io.github.lightman314.lightmanscurrency.Reference.Color;
-import io.github.lightman314.lightmanscurrency.Reference.WoodType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -148,9 +148,9 @@ public class ModBlocks {
 				)
 		);
 		MACHINE_MINT = register("coinmint", () -> new CoinMintBlock(
-			Block.Properties.of(Material.GLASS)
+			Block.Properties.of(Material.METAL)
 				.strength(2.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.GLASS)
+				.sound(SoundType.METAL)
 			)
 		);
 		CASH_REGISTER = register("cash_register", block -> new CashRegisterItem(block, new Item.Properties()),
@@ -420,7 +420,7 @@ public class ModBlocks {
 	private static RegistryObjectBundle<Block,Color> registerColored(String name, Function<Block,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
 		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>();
-		for(Color color : Reference.Color.values())
+		for(Color color : Color.values())
 		{
 			String thisName = name;
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
@@ -450,5 +450,28 @@ public class ModBlocks {
 		}
 		return bundle.lock();
 	}
-	
+
+	/**
+	 * Wooden and colored block registration code
+	 */
+	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, Supplier<Block> block)
+	{
+		return registerWoodenAndColored(name, getDefaultGenerator(), block);
+	}
+
+	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, Supplier<Block> block)
+	{
+		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>();
+		for(WoodType woodType: WoodType.values())
+		{
+			for(Color color : Color.values())
+			{
+				String thisName = name + "_" + woodType.toString().toLowerCase() + "_" + color.toString().toLowerCase();
+				//Register the block normally
+				bundle.put(woodType, color, register(thisName, itemGenerator, block));
+			}
+		}
+		return bundle.lock();
+	}
+
 }

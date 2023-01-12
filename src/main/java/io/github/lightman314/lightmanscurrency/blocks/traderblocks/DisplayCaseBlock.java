@@ -40,7 +40,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override @SuppressWarnings("deprecation")
 	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
-	
+
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {

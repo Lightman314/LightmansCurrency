@@ -3,6 +3,6 @@
 	"textures": {
 		"side": "lightmanscurrency:block/coins_copper_block",
 		"top": "lightmanscurrency:block/coins_copper_blocktop",
-		"particle": "lightmanscurrency:items/coins_copper"
+		"particle": "lightmanscurrency:item/coins_copper"
 	}
 }

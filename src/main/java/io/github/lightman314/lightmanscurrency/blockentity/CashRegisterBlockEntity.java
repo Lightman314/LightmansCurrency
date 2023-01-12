@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
 	
@@ -53,15 +54,13 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	public boolean isSingleTrader() { return false; }
 	
 	@Override
-	public List<TraderData> getTraders() { 
+	public @NotNull List<TraderData> getTraders() {
 		List<TraderData> traders = new ArrayList<>();
-		for(int i = 0; i < this.positions.size(); ++i)
-		{
-			BlockEntity be = this.level.getBlockEntity(this.positions.get(i));
-			if(be instanceof TraderBlockEntity<?>)
-			{
-				TraderData trader = ((TraderBlockEntity<?>)be).getTraderData();
-				if(trader != null)
+		for (BlockPos position : this.positions) {
+			BlockEntity be = this.level.getBlockEntity(position);
+			if (be instanceof TraderBlockEntity<?>) {
+				TraderData trader = ((TraderBlockEntity<?>) be).getTraderData();
+				if (trader != null)
 					traders.add(trader);
 			}
 		}
@@ -69,14 +68,12 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		
 		ListTag storageList = new ListTag();
-		for(int i = 0; i < positions.size(); i++)
-		{
+		for (BlockPos thisPos : positions) {
 			CompoundTag thisEntry = new CompoundTag();
-			BlockPos thisPos = positions.get(i);
 			thisEntry.putInt("x", thisPos.getX());
 			thisEntry.putInt("y", thisPos.getY());
 			thisEntry.putInt("z", thisPos.getZ());
@@ -92,10 +89,10 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		
-		readPositions(compound);
+		this.readPositions(compound);
 		
 		super.load(compound);
 		
@@ -120,6 +117,6 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
+	public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 }

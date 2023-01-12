@@ -9,26 +9,28 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public interface IItemTraderBlock extends ITraderBlock {
-	
+
+
+
 	/**
 	 * Gets the item display render transform/position for the trade at the given tradeSlot.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade);
+	List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade);
 	
 	/**
 	 * Gets the item display render rotation for the trade at the given tradeSlot.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state);
+	List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state);
 	
 	/**
 	 * Gets the item display render scale for the trade at the given tradeSlot.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public float GetStackRenderScale(int tradeSlot, BlockState state);
+	float GetStackRenderScale(int tradeSlot, BlockState state);
 	
 	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex();
+	int maxRenderIndex();
 	
 }

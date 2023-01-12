@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -10,10 +11,9 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -33,17 +33,16 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class TraderBlockBase extends Block implements ITraderBlock, EntityBlock {
+public abstract class TraderBlockBase extends Block implements ITraderBlock, IEasyEntityBlock {
 
 	private final VoxelShape shape;
 	
@@ -59,46 +58,31 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
-	{
-		return this.shape;
-	}
+	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
 	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapabilityInterfaceBlockEntity(pos, state); }
 	protected abstract BlockEntityType<?> traderType();
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(this.traderType()); }
-	
-	@Nullable @Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
-	{
-		for(BlockEntityType<?> validType : this.validTraderTypes())
-		{
-			BlockEntityTicker<T> ticker = TickerUtil.createTickerHelper(type, validType, TickableBlockEntity::tickHandler);
-			if(ticker != null)
-				return ticker;
-		}
-		return null;
-	}
-	
+
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
+	public Collection<BlockEntityType<?>> getAllowedTypes() { return this.validTraderTypes(); }
+
+	@Override
+	public final BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
 		return this.makeDummy(pos, state);
 	}
-	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity<?>)
+			if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 			{
-				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
 				TraderData trader = traderSource.getTraderData();
 				if(trader == null)
 				{
@@ -121,20 +105,19 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
 	{
 		this.setPlacedByBase(level, pos, state, player, stack);
 	}
 	
-	public final void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public final void setPlacedByBase(Level level, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack)
 	{
-		if(!level.isClientSide && player instanceof Player)
+		if(!level.isClientSide && entity instanceof Player player)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity<?>)
+			if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 			{
-				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
-				traderSource.initialize((Player)player, stack);
+				traderSource.initialize(player, stack);
 			}
 			else
 			{
@@ -144,7 +127,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	}
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
 	{
 		this.playerWillDestroyBase(level, pos, state, player);
 	}
@@ -152,9 +135,8 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	public final void playerWillDestroyBase(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity<?>)
+		if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 		{
-			TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
 			if(!traderSource.canBreak(player))
 				return;
 			else
@@ -175,7 +157,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
@@ -184,9 +166,8 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 		if(!level.isClientSide)
 		{
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-			if(blockEntity instanceof TraderBlockEntity<?>)
+			if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 			{
-				TraderBlockEntity<?> traderSource = (TraderBlockEntity<?>)blockEntity;
 				if(!traderSource.legitimateBreak())
 				{
 					traderSource.flagAsLegitBreak();
@@ -220,14 +201,12 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, Ent
 	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 	
 	@Override
-	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) {
-		return level == null ? null : level.getBlockEntity(pos);
-	}
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos) { return level == null ? null : level.getBlockEntity(pos); }
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return () -> new ArrayList<>(); }
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);

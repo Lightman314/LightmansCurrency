@@ -21,7 +21,7 @@ public class RegistryObjectBundle<T,L> {
 		}
 		if(this.values.containsKey(key))
 		{
-			LightmansCurrency.LogWarning("Attempted to put a second object with key " + key.toString() + " into the registry bundle.");
+			LightmansCurrency.LogWarning("Attempted to put a second object with key '" + key.toString() + "' into the registry bundle.");
 			return;
 		}
 		this.values.put(key,value);
@@ -35,8 +35,9 @@ public class RegistryObjectBundle<T,L> {
 	}
 	
 	public T get(L key) {
-		if(this.values.containsKey(key))
-			return this.values.get(key).get();
+		RegistryObject<T> obj = this.getRegistryObject(key);
+		if(obj != null)
+			return obj.get();
 		return null;
 	}
 	
@@ -45,6 +46,14 @@ public class RegistryObjectBundle<T,L> {
 		List<T> values = new ArrayList<>();
 		for(RegistryObject<T> value : this.getAllRegistryObjects())
 			values.add(value.get());
+		return values;
+	}
+
+	@SafeVarargs
+	public final List<T> getSome(L... keys) {
+		List<T> values = new ArrayList<>();
+		for(L key : keys)
+			values.add(this.get(key));
 		return values;
 	}
 
@@ -59,7 +68,7 @@ public class RegistryObjectBundle<T,L> {
 		}
 		return result;
 	}
-	
+
 	public List<Supplier<T>> getSupplier() {
 		List<Supplier<T>> result = new ArrayList<>();
 		for(L key : this.values.keySet())

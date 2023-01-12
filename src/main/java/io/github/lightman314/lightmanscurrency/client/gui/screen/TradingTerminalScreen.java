@@ -26,6 +26,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
@@ -34,9 +35,9 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
 	public static final Comparator<TraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
-	
-	private int xSize = 176;
-	private int ySize = 187;
+
+	private final int xSize = 176;
+	private final int ySize = 187;
 	
 	private EditBox searchField;
 	private static int scroll = 0;
@@ -68,7 +69,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int guiTop = (this.height - this.ySize) / 2;
 		
 		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, Component.translatable("gui.lightmanscurrency.terminal.search")));
-		this.searchField.setBordered(false);;
+		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
@@ -105,7 +106,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		if(this.minecraft == null)
 			this.minecraft = Minecraft.getInstance();
@@ -223,45 +224,34 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				this.traderButtons.get(i).SetData(null);
 		}
 	}
-	
-	private static class TraderSorter implements Comparator<TraderData>
-	{
-		
-		private final boolean creativeAtTop;
-		private final boolean emptyAtBottom;
-		private final boolean auctionHousePriority;
 
-		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; this.auctionHousePriority = auctionHousePriority; }
+	private record TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) implements Comparator<TraderData> {
 
 		@Override
 		public int compare(TraderData a, TraderData b) {
-			
 			try {
-				
-				if(this.auctionHousePriority)
-				{
+
+				if (this.auctionHousePriority) {
 					boolean ahA = a instanceof AuctionHouseTrader;
 					boolean ahB = b instanceof AuctionHouseTrader;
-					if(ahA && !ahB)
+					if (ahA && !ahB)
 						return -1;
-					else if(ahB && !ahA)
+					else if (ahB && !ahA)
 						return 1;
 				}
-				
-				if(this.emptyAtBottom)
-				{
+
+				if (this.emptyAtBottom) {
 					boolean emptyA = !a.hasValidTrade();
 					boolean emptyB = !b.hasValidTrade();
-					if(emptyA != emptyB)
+					if (emptyA != emptyB)
 						return emptyA ? 1 : -1;
 				}
 
-				if(this.creativeAtTop)
-				{
+				if (this.creativeAtTop) {
 					//Prioritize creative traders at the top of the list
-					if(a.isCreative() && !b.isCreative())
+					if (a.isCreative() && !b.isCreative())
 						return -1;
-					else if(b.isCreative() && !a.isCreative())
+					else if (b.isCreative() && !a.isCreative())
 						return 1;
 					//If both or neither are creative, sort by name.
 				}
@@ -269,14 +259,13 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				//Sort by trader name
 				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
 				//Sort by owner name if trader name is equal
-				if(sort == 0)
+				if (sort == 0)
 					sort = a.getOwner().getOwnerName(true).compareToIgnoreCase(b.getOwner().getOwnerName(true));
 
 				return sort;
-			
-			} catch(Throwable t) { return 0; }
+
+			} catch (Throwable t) { return 0; }
 		}
-		
 	}
 
 	private void validateScroll() { scroll = Math.min(scroll, this.getMaxScroll()); }

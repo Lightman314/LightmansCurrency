@@ -7,6 +7,6 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public interface IOwnableBlock {
 
-	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state);
+	boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state);
 	
 }

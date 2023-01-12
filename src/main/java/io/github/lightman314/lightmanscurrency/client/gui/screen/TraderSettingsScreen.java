@@ -26,11 +26,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
-public class TraderSettingsScreen extends Screen{
+public class TraderSettingsScreen extends Screen {
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/tradersettings.png");
-	
+
 	public Player getPlayer() { return this.minecraft.player; }
 	private final Supplier<TraderData> trader;
 	public TraderData getTrader() { return this.trader.get(); }
@@ -57,7 +58,7 @@ public class TraderSettingsScreen extends Screen{
 	public TraderSettingsScreen(Supplier<TraderData> trader)
 	{
 		super(Component.empty());
-		
+
 		this.trader = trader;
 		
 		//Collect the Settings Tabs
@@ -126,11 +127,8 @@ public class TraderSettingsScreen extends Screen{
 	private void positionTabButtons()
 	{
 		int index = 0;
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			TabButton thisButton = this.tabButtons.get(i);
-			if(thisButton.visible)
-			{
+		for (TabButton thisButton : this.tabButtons) {
+			if (thisButton.visible) {
 				thisButton.reposition(this.getTabPosX(index), this.getTabPosY(index), this.getTabRotation(index));
 				index++;
 			}
@@ -138,32 +136,31 @@ public class TraderSettingsScreen extends Screen{
 	}
 	
 	@Override
-	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		this.renderBackground(matrix);
+		this.renderBackground(pose);
 		//Render the background
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		this.setColor(this.currentTab().getColor());
-		this.blit(matrix, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
+		this.blit(pose, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
 		//Render the tab buttons
-		super.render(matrix, mouseX, mouseY, partialTicks);
+		super.render(pose, mouseX, mouseY, partialTicks);
 		//Pre-render the tab
 		try {
-			this.currentTab().preRender(matrix, mouseX, mouseY, partialTicks);
+			this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab pre-render.", t); }
 		//Render the renderables
-		this.tabWidgets.forEach(widget -> widget.render(matrix, mouseX, mouseY, partialTicks));
+		this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 		//Post-render the tab
 		try {
-			this.currentTab().postRender(matrix, mouseX, mouseY, partialTicks);
+			this.currentTab().postRender(pose, mouseX, mouseY, partialTicks);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error in Settings Tab post-render.", t); }
 		
 		//Render the tab button tooltips
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
-				this.renderTooltip(matrix, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		for (TabButton tabButton : this.tabButtons) {
+			if (tabButton.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(pose, tabButton.tab.getTooltip(), mouseX, mouseY);
 		}
 		
 	}
@@ -235,9 +232,8 @@ public class TraderSettingsScreen extends Screen{
 	
 	public boolean hasPermissions(List<String> permissions)
 	{
-		for(int i = 0; i < permissions.size(); ++i)
-		{
-			if(!this.hasPermission(permissions.get(i)))
+		for (String permission : permissions) {
+			if (!this.hasPermission(permission))
 				return false;
 		}
 		return true;
@@ -251,8 +247,7 @@ public class TraderSettingsScreen extends Screen{
 	
 	public void removeRenderableTabWidget(AbstractWidget widget)
 	{
-		if(this.tabWidgets.contains(widget))
-			this.tabWidgets.remove(widget);
+		this.tabWidgets.remove(widget);
 	}
 	
 	public <T extends GuiEventListener> T addTabListener(T listener)
@@ -263,8 +258,7 @@ public class TraderSettingsScreen extends Screen{
 	
 	public void removeTabListener(GuiEventListener listener)
 	{
-		if(this.tabListeners.contains(listener))
-			this.tabListeners.remove(listener);
+		this.tabListeners.remove(listener);
 	}
 	
 	private void clickedOnTab(Button tab)
@@ -300,12 +294,11 @@ public class TraderSettingsScreen extends Screen{
 	}
 	
 	@Override
-	public List<? extends GuiEventListener> children()
+	public @NotNull List<? extends GuiEventListener> children()
 	{
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabWidgets);
 		listeners.addAll(this.tabListeners);
 		return listeners;

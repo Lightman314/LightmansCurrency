@@ -11,7 +11,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageRequestNBT {
 
-	private BlockPos pos;
+	private final BlockPos pos;
 	
 	public MessageRequestNBT(BlockEntity tileEntity)
 	{
@@ -23,9 +23,7 @@ public class MessageRequestNBT {
 		this.pos = pos;
 	}
 	
-	public static void encode(MessageRequestNBT message, FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(message.pos);
-	}
+	public static void encode(MessageRequestNBT message, FriendlyByteBuf buffer) { buffer.writeBlockPos(message.pos); }
 
 	public static MessageRequestNBT decode(FriendlyByteBuf buffer) {
 		return new MessageRequestNBT(buffer.readBlockPos());

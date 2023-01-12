@@ -7,6 +7,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class PortableTerminalItem extends TooltipItem {
 
@@ -16,7 +17,7 @@ public class PortableTerminalItem extends TooltipItem {
 	}
 	
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
+	public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand)
 	{
 		LightmansCurrency.PROXY.openTerminalScreen();
 		return InteractionResultHolder.success(player.getItemInHand(hand));

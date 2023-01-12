@@ -35,7 +35,6 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageSto
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.nbt.CompoundTag;
@@ -304,7 +303,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		return widget;
 	}
 	
-	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
+	public <T extends AbstractWidget> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
 	}
 	

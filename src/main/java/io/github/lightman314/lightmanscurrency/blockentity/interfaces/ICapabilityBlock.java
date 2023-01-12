@@ -7,5 +7,5 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public interface ICapabilityBlock
 {
-	public BlockEntity getCapabilityBlockEntity(BlockState state, Level level, BlockPos pos);
+	BlockEntity getCapabilityBlockEntity(BlockState state, Level level, BlockPos pos);
 }

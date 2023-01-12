@@ -44,7 +44,8 @@ public class ModBlockEntities {
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 		
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
-		
+
+		//Remove in 1.20
 		OLD_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(OldItemTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.ITEM_TRADER_TYPE)).build(null));
 		
 		UNIVERSAL_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new,
@@ -83,13 +84,15 @@ public class ModBlockEntities {
 	
 	//Coin Jars
 	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
-	
+
 	//Old Item Trader ID
 	@Deprecated
 	public static final RegistryObject<BlockEntityType<OldItemTraderBlockEntity>> OLD_ITEM_TRADER;
 	//Network Item Trader (for conversion)
 	@Deprecated
 	public static final RegistryObject<BlockEntityType<UniversalItemTraderBlockEntity>> UNIVERSAL_ITEM_TRADER;
+
+
 	
 	
 }

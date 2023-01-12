@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.blockentity.trader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
@@ -14,14 +16,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
+public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> implements IClientTicker {
 	
 	protected long rotationTime = 0;
 	protected int tradeCount;
-	protected boolean networkTrader = false;
+	protected boolean networkTrader;
 	
 	public ItemTraderBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.ITEM_TRADER.get(), pos, state, 1, false); }
 	
@@ -51,26 +54,18 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, boolean isDoubleTrade)
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock)
-		{
-			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
+		if(block instanceof IItemTraderBlock traderBlock)
 			return traderBlock.GetStackRenderPos(tradeSlot, this.getBlockState(), isDoubleTrade);
-		}
 		else
-		{
-			List<Vector3f> posList = new ArrayList<>();
-			posList.add(new Vector3f(0.0f, 0.0f, 0.0f));
-			return posList;
-		}
+			return Lists.newArrayList(new Vector3f(0.0f, 0.0f, 0.0f));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public List<Quaternionf> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock)
+		if(block instanceof IItemTraderBlock traderBlock)
 		{
-			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
 			List<Quaternionf> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
 			//If null received. Rotate item based on world time
 			if(rotation == null)
@@ -93,11 +88,8 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	public float GetStackRenderScale(int tradeSlot)
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock)
-		{
-			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
+		if(block instanceof IItemTraderBlock traderBlock)
 			return traderBlock.GetStackRenderScale(tradeSlot, this.getBlockState());
-		}
 		else
 			return 0f;
 	}
@@ -106,17 +98,14 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	public int maxRenderIndex()
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof IItemTraderBlock)
-		{
-			IItemTraderBlock traderBlock = (IItemTraderBlock)block;
+		if(block instanceof IItemTraderBlock traderBlock)
 			return traderBlock.maxRenderIndex();
-		}
 		else
 			return 0;
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		super.saveAdditional(compound);
 		compound.putInt("TradeCount", this.tradeCount);
@@ -124,7 +113,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
 		this.tradeCount = compound.getInt("TradeCount");
@@ -133,8 +122,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData>{
 
 	@Override
 	public void clientTick() {
-		
-		super.clientTick();
+
 		this.rotationTime++;
 		
 	}

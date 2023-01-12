@@ -19,6 +19,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class NetworkItemTraderBlock extends TraderBlockRotatable {
 
@@ -41,7 +42,7 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.UNIVERSAL_ITEM_TRADER.get()); }
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.ITEM_NETWORK_TRADER);
 		super.appendHoverText(stack, level, tooltip, flagIn);

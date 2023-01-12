@@ -695,10 +695,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	protected abstract void loadAdditionalPersistentData(CompoundTag compound);
-	
+
 	public void openTraderMenu(Player player) {
-		if(player instanceof ServerPlayer)
-			NetworkHooks.openScreen((ServerPlayer)player, this.getTraderMenuProvider(), this.getMenuDataWriter());
+		if(player instanceof ServerPlayer sp)
+			NetworkHooks.openScreen(sp, this.getTraderMenuProvider(), this.getMenuDataWriter());
 	}
 	
 	protected MenuProvider getTraderMenuProvider() { return new TraderMenuProvider(this.id); }
@@ -712,12 +712,12 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		public @NotNull Component getDisplayName() { return Component.empty(); }
 
 	}
-	
+
 	public void openStorageMenu(Player player) {
 		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
 			return;
-		if(player instanceof ServerPlayer)
-			NetworkHooks.openScreen((ServerPlayer)player, this.getTraderStorageMenuProvider(), this.getMenuDataWriter());
+		if(player instanceof ServerPlayer sp)
+			NetworkHooks.openScreen(sp, this.getTraderStorageMenuProvider(), this.getMenuDataWriter());
 	}
 	
 	protected MenuProvider getTraderStorageMenuProvider()  { return new TraderStorageMenuProvider(this.id); }
@@ -731,7 +731,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		public @NotNull Component getDisplayName() { return Component.empty(); }
 
 	}
-	
+
 	public Consumer<FriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
 	
 	public PreTradeEvent runPreTradeEvent(PlayerReference player, TradeData trade)
@@ -910,8 +910,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		return false;
 	}
-	
-	public void onRemoved() {}
 
 	//User data
 	private int userCount = 0;
@@ -1249,7 +1247,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 	}
 	
-	@Deprecated /** @deprecated Use to load old UniversalTraderData data. */
+	@Deprecated
 	public final void loadOldUniversalTraderData(CompoundTag compound) {
 		
 		//Core Settings
@@ -1267,6 +1265,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.storedMoney.load(compound, "StoredMoney");
 		
 		this.loadExtraOldUniversalTraderData(compound);
+
 	}
 	
 	@Deprecated
@@ -1314,7 +1313,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		//Not going to bother loading the settings logger. I think this is something not worth fighting over.
 	}
 	
-	@Deprecated /** Only use to load the upgrade inventory from old UniversalTraderData. */
+	@Deprecated
 	protected final void loadOldUpgradeData(Container upgradeInventory) {
 		this.upgrades.clearContent();
 		for(int i = 0; i < this.upgrades.getContainerSize() && i < upgradeInventory.getContainerSize(); ++i)
@@ -1330,10 +1329,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 	}
 	
-	@Deprecated /** Only use to load old UniversalTraderData into it's TraderData counterpart. */
+	@Deprecated
 	protected abstract void loadExtraOldUniversalTraderData(CompoundTag compound);
 	
-	@Deprecated /** @deprecated Use to load old TraderBlockEntity data. */
+	@Deprecated
 	public final void loadOldBlockEntityData(CompoundTag compound) {
 		if(compound.contains("CoreSettings"))
 			this.loadOldCoreSettingData(compound.getCompound("CoreSettings"));
@@ -1343,7 +1342,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.loadExtraOldBlockEntityData(compound);
 	}
 	
-	@Deprecated /** Only use to load old TraderBlockEntity data into it's TraderData counterpart. */
+	@Deprecated
 	protected abstract void loadExtraOldBlockEntityData(CompoundTag compound);
 	
 }

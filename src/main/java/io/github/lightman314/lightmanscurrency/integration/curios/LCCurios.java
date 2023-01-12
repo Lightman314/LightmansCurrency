@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -22,12 +23,17 @@ import top.theillusivec4.curios.common.capability.CurioItemCapability;
 public class LCCurios {
 	
 	public static final String WALLET_SLOT = "wallet";
-	
+
+	private static ICuriosItemHandler lazyGetCuriosHelper(LivingEntity entity) {
+		LazyOptional<ICuriosItemHandler> optional = CuriosApi.getCuriosHelper().getCuriosHandler(entity);
+		return optional.isPresent() ? optional.orElseGet(() -> { throw new RuntimeException("Unexpected error occurred!"); }) : null;
+	}
+
 	public static boolean hasWalletSlot(LivingEntity entity) {
 		if(entity == null)
 			return false;
 		try {
-			ICuriosItemHandler curiosHelper = CuriosApi.getCuriosHelper().getCuriosHandler(entity).orElse(null);
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
 			if(curiosHelper != null)
 			{
 				ICurioStacksHandler stacksHandler = curiosHelper.getStacksHandler(WALLET_SLOT).orElse(null);
@@ -39,7 +45,7 @@ public class LCCurios {
 	
 	public static ItemStack getCuriosWalletContents(LivingEntity entity) {
 		try {
-			ICuriosItemHandler curiosHelper = CuriosApi.getCuriosHelper().getCuriosHandler(entity).orElse(null);
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
 			if(curiosHelper != null)
 			{
 				ICurioStacksHandler stacksHandler = curiosHelper.getStacksHandler(WALLET_SLOT).orElse(null);
@@ -52,7 +58,7 @@ public class LCCurios {
 	
 	public static void setCuriosWalletContents(LivingEntity entity, ItemStack wallet) {
 		try {
-			ICuriosItemHandler curiosHelper = CuriosApi.getCuriosHelper().getCuriosHandler(entity).orElse(null);
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
 			if(curiosHelper != null)
 			{
 				ICurioStacksHandler stacksHandler = curiosHelper.getStacksHandler(WALLET_SLOT).orElse(null);
@@ -64,7 +70,7 @@ public class LCCurios {
 	
 	public static boolean getCuriosWalletVisibility(LivingEntity entity) {
 		try {
-			ICuriosItemHandler curiosHelper = CuriosApi.getCuriosHelper().getCuriosHandler(entity).orElse(null);
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
 			if(curiosHelper != null)
 			{
 				ICurioStacksHandler stacksHandler = curiosHelper.getStacksHandler(WALLET_SLOT).orElse(null);
@@ -100,12 +106,10 @@ public class LCCurios {
 			
 			@Override
 			public boolean canUnequip(SlotContext context) {
-				if(context.entity() instanceof Player)
+				if(context.entity() instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
 				{
-					Player player = (Player)context.entity();
 					//Prevent unequipping if the wallet is open in the menu.
-					if(player.containerMenu instanceof WalletMenuBase)
-						return !((WalletMenuBase)player.containerMenu).isEquippedWallet();
+					return !menu.isEquippedWallet();
 				}
 				return true;
 			}

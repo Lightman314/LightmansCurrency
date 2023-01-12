@@ -9,7 +9,7 @@ public class LCEnchantmentCategories {
 			item -> item instanceof WalletItem);
 	
 	public static final EnchantmentCategory WALLET_PICKUP_CATEGORY = EnchantmentCategory.create("WALLET_PICKUP",
-			item -> item instanceof WalletItem && WalletItem.CanPickup((WalletItem)item)
+			item -> item instanceof WalletItem walletItem && WalletItem.CanPickup(walletItem)
 		);
 	
 }

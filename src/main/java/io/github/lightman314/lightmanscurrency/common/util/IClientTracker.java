@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.util;
 
 public interface IClientTracker {
 
-	public boolean isClient();
-	public default boolean isServer() { return !this.isClient(); }
+	boolean isClient();
+	default boolean isServer() { return !this.isClient(); }
 	
 }

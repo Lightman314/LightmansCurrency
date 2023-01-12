@@ -2,7 +2,10 @@ package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -101,11 +104,11 @@ public class ModCreativeGroups {
                 .icon(() -> new ItemStack(ModBlocks.DISPLAY_CASE.get()))
                 .displayItems((enabledFlags, p, hasPermissions) -> {
                     //Item Traders (normal)
-                    ezPop(p, ModBlocks.SHELF, Reference::sortByWood);
+                    ezPop(p, ModBlocks.SHELF, WoodType::sortByWood);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
-                    ezPop(p, ModBlocks.CARD_DISPLAY, Reference::sortByWood);
-                    ezPop(p, ModBlocks.VENDING_MACHINE, Reference::sortByColor);
-                    ezPop(p, ModBlocks.VENDING_MACHINE_LARGE, Reference::sortByColor);
+                    ezPop(p, ModBlocks.CARD_DISPLAY, WoodType::sortByWood);
+                    ezPop(p, ModBlocks.VENDING_MACHINE, Color::sortByColor);
+                    ezPop(p, ModBlocks.VENDING_MACHINE_LARGE, Color::sortByColor);
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
@@ -148,13 +151,14 @@ public class ModCreativeGroups {
         }
         if(event.getTab() == CreativeModeTabs.COLORED_BLOCKS)
         {
-            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted(Reference::sortByColor)));
-            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted(Reference::sortByColor)));
+            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted(Color::sortByColor)));
+            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted(Color::sortByColor)));
         }
     }
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static <L> void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike, L> bundle, Comparator<L> sorter) { bundle.getAllSorted(sorter).forEach(populator::accept); }
+    public static <L,M> void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike, L,M> bundle, Comparator<L> sorter1, Comparator<M> sorter2) { bundle.getAllSorted(sorter1, sorter2).forEach(populator::accept); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();

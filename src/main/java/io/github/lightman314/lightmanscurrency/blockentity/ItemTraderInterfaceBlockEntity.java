@@ -33,12 +33,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
-
-	public static final int BUFFER_SIZE = 9;
 	
-	private TraderItemStorage itemBuffer = new TraderItemStorage(this);
+	private final TraderItemStorage itemBuffer = new TraderItemStorage(this);
 	public TraderItemStorage getItemBuffer() { return this.itemBuffer; }
 	
 	ItemInterfaceHandler itemHandler;
@@ -59,9 +58,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		{
 			//Check trade for barter items to restock
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof ItemTradeData)
+			if(t instanceof ItemTradeData trade)
 			{
-				ItemTradeData trade = (ItemTradeData)t;
 				if(trade.isBarter())
 				{
 					for(int i = 0; i < 2; ++i)
@@ -79,11 +77,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					}
 				}
 			}
-			return false;
 		}
 		else
 		{
-			//Scan all trades for sell items to restock
+			//Scan all trades for sale items to restock
 			TraderData trader = this.getTrader();
 			if(trader instanceof ItemTraderData)
 			{
@@ -99,8 +96,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					}
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean allowOutput(ItemStack item) {
@@ -112,12 +109,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		if(this.getInteractionType().trades)
 		{
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof ItemTradeData)
+			if(t instanceof ItemTradeData trade)
 			{
-				ItemTradeData trade = (ItemTradeData)t;
 				return trade.allowItemInStorage(item);
 			}
-			return false;
 		}
 		else
 		{
@@ -130,8 +125,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 						return true;
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	@Override
@@ -140,9 +135,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -159,7 +153,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	protected ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, false); } 
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@NotNull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveItemBuffer(compound);
 	}
@@ -288,9 +282,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof ItemTradeData)
+		if(t instanceof ItemTradeData trade)
 		{
-			ItemTradeData trade = (ItemTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -334,9 +327,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 			if(this.itemHandler.getInputSides().get(relativeSide) || this.itemHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 				{
-					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				}
 				

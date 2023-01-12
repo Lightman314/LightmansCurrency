@@ -1,0 +1,7 @@
+{
+	"parent": "lightmanscurrency:block/vending_machine/base_top",
+	"textures": {
+		"exterior": "lightmanscurrency:block/vending_machine/light_blue_exterior",
+		"interior": "lightmanscurrency:block/vending_machine/light_blue_interior"
+	}
+}

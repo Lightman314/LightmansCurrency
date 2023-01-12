@@ -4,6 +4,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -128,7 +129,7 @@ public class LazyShapes {
 		
 	}
 	
-	protected static class LazyDirectionTallWideShapeHandler implements TriFunction<Direction,Boolean,Boolean,VoxelShape>{
+	protected static class LazyDirectionTallWideShapeHandler implements TriFunction<Direction,Boolean,Boolean,VoxelShape> {
 		
 		private final BiFunction<Direction,Boolean,VoxelShape> lazyShape;
 		
@@ -154,7 +155,5 @@ public class LazyShapes {
 		}
 		
 	}
-	
-	public interface TriFunction<T,U,V,W> { W apply(T t, U u, V v); }
 	
 }

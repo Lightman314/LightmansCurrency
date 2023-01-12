@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
+import org.jetbrains.annotations.NotNull;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 
@@ -214,7 +215,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		this.writeArmorStandData(compound);
 		
@@ -229,7 +230,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))

@@ -1,16 +1,17 @@
 package io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.items.TooltipItem;
@@ -27,26 +28,19 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class TraderInterfaceBlock extends RotatableBlock implements EntityBlock, IOwnableBlock {
+public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
 	
-	@Nullable 
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
-	{
-		return TickerUtil.createTickerHelper(type, this.interfaceType(), TickableBlockEntity::tickHandler);
-	}
-	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -62,7 +56,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -75,7 +69,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	}
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
 	{
 		TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 		if(blockEntity != null)
@@ -90,7 +84,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
@@ -132,31 +126,34 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements Ent
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
 		return this.createBlockEntity(pos, state);
 	}
 	
 	protected abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 	protected abstract BlockEntityType<?> interfaceType();
-	
+
+	@Override
+	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(this.interfaceType()); }
+
 	protected final TraderInterfaceBlockEntity getBlockEntity(LevelAccessor level, BlockPos pos, BlockState state) {
 		BlockEntity be = level.getBlockEntity(pos);
-		if(be instanceof TraderInterfaceBlockEntity)
-			return (TraderInterfaceBlockEntity)be;
+		if(be instanceof TraderInterfaceBlockEntity tibe)
+			return tibe;
 		return null;
 	}
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return () -> new ArrayList<>(); }
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
 	@Override
-	public boolean isSignalSource(BlockState state) { return true; }
+	public boolean isSignalSource(@NotNull BlockState state) { return true; }
 	
 	public ItemStack getDropBlockItem(BlockState state, TraderInterfaceBlockEntity traderInterface) { return new ItemStack(state.getBlock()); }
 	

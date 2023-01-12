@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class PaygateBlock extends TraderBlockRotatable {
 	
@@ -44,7 +45,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -91,7 +92,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.PAYGATE);
 		super.appendHoverText(stack, level, tooltip, flagIn);

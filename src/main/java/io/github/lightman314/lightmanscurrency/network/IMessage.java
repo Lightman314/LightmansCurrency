@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public interface IMessage<T> {
 
 	public void encode(T message, FriendlyByteBuf buffer);

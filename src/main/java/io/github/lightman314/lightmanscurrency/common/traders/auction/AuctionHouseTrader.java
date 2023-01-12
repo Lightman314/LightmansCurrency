@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -39,11 +40,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class AuctionHouseTrader extends TraderData {
+public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house");
 	
@@ -61,12 +59,6 @@ public class AuctionHouseTrader extends TraderData {
 	public AuctionHouseTrader() {
 		super(TYPE);
 		this.getOwner().SetCustomOwner(Component.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-	
-	@Override
-	public void onRemoved() {
-		MinecraftForge.EVENT_BUS.unregister(this);
 	}
 	
 	@Override
@@ -116,41 +108,37 @@ public class AuctionHouseTrader extends TraderData {
 	public void markStorageDirty() {
 		this.markDirty(this::saveStorage);
 	}
-	
-	@SubscribeEvent
-	public void onWorldTick(ServerTickEvent event) {
-		//Only run on server, never run on client, as the client doesn't know who has the trader open.
-		if(event.phase == Phase.END && event.side.isServer())
+
+	@Override
+	public void tick() {
+		//Check if any trades have expired
+		long currentTime = System.currentTimeMillis();
+		boolean changed = false;
+		//Can only delete trades if no player is currently using the trader, as we don't want to delete trades and mess up a trade index.
+		boolean canDelete = this.getUserCount() <= 0;
+		for(int i = 0; i < this.trades.size(); ++i)
 		{
-			//Check if any trades have expired
-			long currentTime = System.currentTimeMillis();
-			boolean changed = false;
-			//Can only delete trades if no player is currently using the trader, as we don't want to delete trades and mess up a trade index.
-			boolean canDelete = this.getUserCount() <= 0;
-			for(int i = 0; i < this.trades.size(); ++i)
+			AuctionTradeData trade = this.trades.get(i);
+			//Check if the auction has timed out and should be executed
+			if(trade.hasExpired(currentTime))
 			{
-				AuctionTradeData trade = this.trades.get(i);
-				//Check if the auction has timed out and should be executed
-				if(trade.hasExpired(currentTime))
-				{
-					//Execute the trade if the time has run out
-					//Includes sending notifications and payment to the relevant players storage
-					trade.ExecuteTrade(this);
-					changed = true;
-				}
-				//Check if the trade should be deleted
-				if(canDelete && !trade.isValid())
-				{
-					//Delete the trade if it's no longer valid
-					this.trades.remove(i);
-					i--;
-				}
+				//Execute the trade if the time has run out
+				//Includes sending notifications and payment to the relevant players storage
+				trade.ExecuteTrade(this);
+				changed = true;
 			}
-			if(changed) //Mark both trades and storage dirty
+			//Check if the trade should be deleted
+			if(canDelete && !trade.isValid())
 			{
-				this.markDirty(this::saveTrades);
-				this.markDirty(this::saveStorage);
+				//Delete the trade if it's no longer valid
+				this.trades.remove(i);
+				i--;
 			}
+		}
+		if(changed) //Mark both trades and storage dirty
+		{
+			this.markDirty(this::saveTrades);
+			this.markDirty(this::saveStorage);
 		}
 	}
 	

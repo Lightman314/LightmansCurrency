@@ -18,8 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScre
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
-import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.FreezerTraderBlockEntityRenderer;
-import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -55,7 +54,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import javax.annotation.Nonnull;
 
 public class ClientProxy extends CommonProxy{
-	
+
 	boolean openTerminal = false;
 	boolean openTeamManager = false;
 	boolean openNotifications = false;
@@ -177,7 +176,7 @@ public class ClientProxy extends CommonProxy{
 	
 	@Override
 	public void receiveSelectedBankAccount(AccountReference selectedAccount) { ClientBankData.UpdateLastSelectedAccount(selectedAccount); }
-	
+
 	@Override
 	public void openTerminalScreen() { this.openTerminal = true; }
 	

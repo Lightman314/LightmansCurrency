@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -39,7 +40,7 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
 	{
 		
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
@@ -54,7 +55,7 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
 			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
