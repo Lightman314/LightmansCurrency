@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/jars/jarblock",
 	"textures": {
-		"main": "lightmanscurrency:blocks/jars/piggy_bank",
+		"main": "lightmanscurrency:block/jars/piggy_bank",
 		"particle": "#main"
 	},
 	"elements": [

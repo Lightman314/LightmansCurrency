@@ -25,11 +25,7 @@ public class ClientTraderData {
 		return null;
 	}
 	
-	public static void ClearTraders()
-	{ 
-		loadedTraders.forEach((id,trader) -> trader.onRemoved());
-		loadedTraders.clear();
-	}
+	public static void ClearTraders() { loadedTraders.clear(); }
 	
 	public static void UpdateTrader(CompoundTag compound)
 	{
@@ -48,11 +44,7 @@ public class ClientTraderData {
 	
 	public static void RemoveTrader(long traderID)
 	{
-		if(loadedTraders.containsKey(traderID))
-		{
-			loadedTraders.get(traderID).onRemoved();
-			loadedTraders.remove(traderID);
-		}
+		loadedTraders.remove(traderID);
 	}
 	
 	@SubscribeEvent

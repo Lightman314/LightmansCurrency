@@ -29,9 +29,9 @@ public class ModItems {
 		TRADING_CORE = ModRegistries.ITEMS.register("trading_core", () -> new Item(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
 		
 		//Ticket
-		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
-		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.COIN_GROUP).rarity(Rarity.RARE).stacksTo(1)));
-		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));
+		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP).rarity(Rarity.RARE).stacksTo(1)));
+		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		
 		//Wallets
 		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, "wallet_copper", new Item.Properties().tab(LightmansCurrency.COIN_GROUP)));

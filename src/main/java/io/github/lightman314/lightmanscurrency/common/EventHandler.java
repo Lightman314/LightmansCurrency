@@ -34,7 +34,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -67,12 +66,9 @@ public class EventHandler {
 		WalletMenuBase activeContainer = null;
 		
 		//Check if the open container is a wallet WalletMenuBase is pickup capable
-		if(player.containerMenu instanceof WalletMenuBase)
+		if(player.containerMenu instanceof WalletMenuBase container && container.isEquippedWallet())
 		{
-			//CurrencyMod.LOGGER.info("Wallet Menu was open. Adding to the wallet using this method.");
-			WalletMenuBase container = (WalletMenuBase)player.containerMenu;
-			if(container.isEquippedWallet())
-				activeContainer = container;
+			activeContainer = container;
 		}
 		
 		boolean cancelEvent = false;
@@ -99,7 +95,7 @@ public class EventHandler {
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
 			if(!player.level.isClientSide)
-				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessagePlayPickupSound());
+				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), MessagePlayPickupSound.INSTANCE);
 			event.setCanceled(true);
 			
 		}
@@ -110,13 +106,12 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onBlockBreak(BreakEvent event)
 	{
-		
+
 		LevelAccessor world = event.getWorld();
-		BlockState state = world.getBlockState(event.getPos());
-		
-		if(state.getBlock() instanceof IOwnableBlock)
+		BlockState state = event.getState();
+
+		if(event.getState().getBlock() instanceof IOwnableBlock block)
 		{
-			IOwnableBlock block = (IOwnableBlock)state.getBlock();
 			if(!block.canBreak(event.getPlayer(), world, event.getPos(), state))
 			{
 				//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
@@ -164,13 +159,13 @@ public class EventHandler {
 		
 		Player oldPlayer = event.getOriginal();
 		oldPlayer.revive();
-		LazyOptional<IWalletHandler> oldHandler = WalletCapability.getWalletHandler(oldPlayer);
-		LazyOptional<IWalletHandler> newHandler = WalletCapability.getWalletHandler(player);
-		
-		oldHandler.ifPresent(oldWallet -> newHandler.ifPresent(newWallet ->{
-			newWallet.setWallet(oldWallet.getWallet());
-			newWallet.setVisible(oldWallet.visible());
-		}));
+		IWalletHandler oldHandler = WalletCapability.lazyGetWalletHandler(oldPlayer);
+		IWalletHandler newHandler = WalletCapability.lazyGetWalletHandler(player);
+
+		if (oldHandler != null && newHandler != null) {
+			newHandler.setWallet(oldHandler.getWallet());
+			newHandler.setVisible(oldHandler.visible());
+		}
 		
 		//Invalidate the capabilities now that the reason is no longer needed
 		oldPlayer.invalidateCaps();
@@ -188,9 +183,9 @@ public class EventHandler {
 	private static void sendWalletUpdatePacket(Entity entity, PacketTarget target) {
 		if(entity.level.isClientSide)
 			return;
-		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler -> {
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+		if(walletHandler != null)
 			LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()));
-		});
 		
 	}
 	
@@ -204,8 +199,10 @@ public class EventHandler {
 		
 		if(!livingEntity.isSpectator())
 		{
-			
-			WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
+
+			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
+			if(walletHandler != null)
+			{
 				
 				ItemStack walletStack = walletHandler.getWallet();
 				
@@ -213,7 +210,7 @@ public class EventHandler {
 					return;
 				
 				Collection<ItemEntity> walletDrops = Lists.newArrayList();
-				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise it always drops the wallet.
+				if(livingEntity instanceof Player) //Only worry about gamerules on players, otherwise it always drops the wallet.
 				{
 					
 					boolean keepWallet = true;
@@ -221,7 +218,7 @@ public class EventHandler {
 					{
 						boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
 						GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
-						keepWallet = (keepWalletVal == null ? false : keepWalletVal.get()) || keepInventory;
+						keepWallet = (keepWalletVal != null && keepWalletVal.get()) || keepInventory;
 					}
 					
 					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
@@ -267,8 +264,7 @@ public class EventHandler {
 				
 				event.getDrops().addAll(walletDrops);
 				
-			});
-			
+			}
 		}
 	}
 	
@@ -295,12 +291,11 @@ public class EventHandler {
 		if(extra < 0)
 		{
 			List<ItemStack> extraCoins = MoneyUtil.getCoinsOfValue(-extra);
-			for(int i = 0; i < extraCoins.size(); i++)
-			{
-				ItemStack coinStack = InventoryUtil.TryPutItemStack(walletInventory, extraCoins.get(i));
+			for (ItemStack extraCoin : extraCoins) {
+				ItemStack coinStack = InventoryUtil.TryPutItemStack(walletInventory, extraCoin);
 				//Drop anything that wasn't able to fit back into the wallet
-				if(!coinStack.isEmpty())
-					drops.add(getDrop(entity,coinStack));
+				if (!coinStack.isEmpty())
+					drops.add(getDrop(entity, coinStack));
 			}
 		}
 		
@@ -318,14 +313,11 @@ public class EventHandler {
 	{
 		List<ItemEntity> drops = Lists.newArrayList();
 		List<ItemStack> coinsOfValue = MoneyUtil.getCoinsOfValue(coinValue);
-		for(int i = 0; i < coinsOfValue.size(); i++)
-		{
-			ItemStack coinStack = coinsOfValue.get(i);
-			for(int count = 0; count < coinStack.getCount(); count++)
-			{
+		for (ItemStack coinStack : coinsOfValue) {
+			for (int count = 0; count < coinStack.getCount(); count++) {
 				ItemStack coin = coinStack.copy();
 				coin.setCount(1);
-				drops.add(getDrop(entity,coin));
+				drops.add(getDrop(entity, coin));
 			}
 		}
 		return drops;
@@ -337,15 +329,17 @@ public class EventHandler {
 		LivingEntity livingEntity = event.getEntityLiving();
 		if(livingEntity.level.isClientSide) //Do nothing client side
 			return;
-		
-		WalletCapability.getWalletHandler(livingEntity).ifPresent(walletHandler ->{
+
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
+		if(walletHandler != null)
+		{
 			walletHandler.tick();
 			if(walletHandler.isDirty())
 			{
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> livingEntity), new SPacketSyncWallet(livingEntity.getId(), walletHandler.getWallet(), walletHandler.visible()));
 				walletHandler.clean();
 			}
-		});
+		}
 	}
 	
 }

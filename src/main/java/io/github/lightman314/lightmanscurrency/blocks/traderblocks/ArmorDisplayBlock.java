@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -21,10 +20,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock{
-	
-	public static final int TRADECOUNT = 4;
 	
 	public ArmorDisplayBlock(Properties properties)
 	{
@@ -42,26 +40,10 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
-	{
-		
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
-		{
-			ArmorDisplayTraderBlockEntity trader = (ArmorDisplayTraderBlockEntity)blockEntity;
-			if(trader.canBreak(player))
-				trader.destroyArmorStand();
-		}
-		
-		super.playerWillDestroy(level, pos, state, player);
-		
-	}
-	
-	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
-			((ArmorDisplayTraderBlockEntity)blockEntity).destroyArmorStand();
+		if(blockEntity instanceof ArmorDisplayTraderBlockEntity trader)
+			trader.destroyArmorStand();
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 	

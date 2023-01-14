@@ -34,6 +34,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderStorageMenu extends AbstractContainerMenu {
 
@@ -56,7 +57,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
 	
-	private List<Consumer<CompoundTag>> listeners = new ArrayList<>();
+	private final List<Consumer<CompoundTag>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
 	
@@ -111,7 +112,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	}
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@NotNull Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coinSlotContainer);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
@@ -127,7 +128,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
+	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
 	
 	public void validateCoinSlots() {
 		boolean canAddCoins = this.hasCoinSlotAccess();
@@ -136,11 +137,11 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	
 	private boolean hasCoinSlotAccess() {
 		TraderData trader = this.getTrader();
-		return trader == null ? false : trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.hasBankAccount();
+		return trader != null && trader.hasPermission(this.player, Permissions.STORE_COINS) && !trader.hasBankAccount();
 	}
 	
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -198,12 +199,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 		
 	}
 	
-	public boolean hasPermission(String permission) { 
-		TraderData trader = this.getTrader();
-		if(trader != null)
-			return trader.hasPermission(this.player, permission);
-		return false;
-	}
+	public boolean hasPermission(String permission) { return this.getPermissionLevel(permission) > 0; }
 	
 	public int getPermissionLevel(String permission) {
 		TraderData trader = this.getTrader();
@@ -261,9 +257,9 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 		if(message.contains("SetCoinSlotsActive"))
 			SimpleSlot.SetActive(this.coinSlots, message.getBoolean("SetCoinSlotsActive"));
 		try { this.getCurrentTab().receiveMessage(message); }
-		catch(Throwable t) { }
+		catch(Throwable ignored) { }
 		for(Consumer<CompoundTag> listener : this.listeners)
-			try { listener.accept(message); } catch(Throwable t) {}
+			try { listener.accept(message); } catch(Throwable ignored) {}
 	}
 	
 	public void addMessageListener(Consumer<CompoundTag> listener) {
@@ -272,7 +268,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	}
 	
 	public interface IClientMessage {
-		public void selfMessage(CompoundTag message);
+		void selfMessage(CompoundTag message);
 	}
 	
 	public boolean HasCoinsToAdd() { return MoneyUtil.getValue(this.coinSlotContainer) > 0; }

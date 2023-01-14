@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
 
 public class CapabilityInterfaceBlockEntity extends BlockEntity{
 	
@@ -19,12 +20,11 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity{
 	
 	//Item capability for hopper and item automation
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side)
+	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side)
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof ICapabilityBlock)
+		if(block instanceof ICapabilityBlock handlerBlock)
 		{
-			ICapabilityBlock handlerBlock = (ICapabilityBlock)block;
 			BlockEntity blockEntity = handlerBlock.getCapabilityBlockEntity(this.getBlockState(), this.level, this.worldPosition);
 			if(blockEntity != null)
 				return blockEntity.getCapability(cap, side);

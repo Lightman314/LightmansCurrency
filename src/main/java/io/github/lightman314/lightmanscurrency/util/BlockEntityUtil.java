@@ -47,11 +47,9 @@ public class BlockEntityUtil
 
     private static void sendUpdatePacket(Level world, BlockPos pos, ClientboundBlockEntityDataPacket packet)
     {
-        if(world instanceof ServerLevel)
+        if(world instanceof ServerLevel server)
         {
         	//CurrencyMod.LOGGER.info("Sending Tile Entity Update Packet to the connected clients.");
-            ServerLevel server = (ServerLevel) world;
-            @SuppressWarnings("resource")
             List<ServerPlayer> players = server.getChunkSource().chunkMap.getPlayers(new ChunkPos(pos), false);
             players.forEach(player -> player.connection.send(packet));
         }

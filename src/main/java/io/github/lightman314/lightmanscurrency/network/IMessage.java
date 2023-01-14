@@ -5,12 +5,13 @@ import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public interface IMessage<T> {
 
-	public void encode(T message, FriendlyByteBuf buffer);
+	void encode(T message, FriendlyByteBuf buffer);
 	
-	public T decode(FriendlyByteBuf buffer);
+	T decode(FriendlyByteBuf buffer);
 	
-	public void handle(T message, Supplier<Context> supplier);
+	void handle(T message, Supplier<Context> supplier);
 	
 }

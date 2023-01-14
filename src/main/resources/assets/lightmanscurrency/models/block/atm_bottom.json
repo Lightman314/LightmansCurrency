@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "lightmanscurrency:blocks/atm",
-		"base": "lightmanscurrency:blocks/atm"
+		"particle": "lightmanscurrency:block/atm",
+		"base": "lightmanscurrency:block/atm"
 	},
 	"elements": [
 		{

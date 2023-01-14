@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class TicketSlot extends Slot{
 	
-	public static final ResourceLocation EMPTY_TICKET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "items/empty_ticket_slot");
+	public static final ResourceLocation EMPTY_TICKET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_ticket_slot");
 	
 	public TicketSlot(Container inventory, int index, int x, int y)
 	{

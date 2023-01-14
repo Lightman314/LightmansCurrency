@@ -1,10 +1,11 @@
 {
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
+    "render_type": "translucent",
 	"texture_size": [32, 32],
 	"textures": {
         "particle": "#1",
-		"1": "lightmanscurrency:blocks/gem_terminal"
+		"1": "lightmanscurrency:block/gem_terminal"
 	},
 	"elements": [
 		{

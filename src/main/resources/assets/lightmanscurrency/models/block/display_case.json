@@ -1,10 +1,11 @@
 {
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/block",
+    "render_type": "cutout",
 	"textures": {
-		"glass_sides": "lightmanscurrency:blocks/displaycase/display_sides",
-        "glass_bottom": "lightmanscurrency:blocks/displaycase/display_bottom",
-		"mount": "lightmanscurrency:blocks/displaycase/displaycase_mount",
+		"glass_sides": "lightmanscurrency:block/displaycase/display_sides",
+        "glass_bottom": "lightmanscurrency:block/displaycase/display_bottom",
+		"mount": "lightmanscurrency:block/displaycase/displaycase_mount",
 		"wool": "block/white_wool",
 		"particle": "block/glass"
 	},

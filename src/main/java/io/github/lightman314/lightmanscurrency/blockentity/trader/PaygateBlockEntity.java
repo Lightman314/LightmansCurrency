@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
@@ -29,7 +30,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(@NotNull CompoundTag compound) {
 		
 		super.saveAdditional(compound);
 		
@@ -43,7 +44,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
+	public void load(@NotNull CompoundTag compound) {
 		
 		//Load the timer
 		if(compound.contains("Timer", Tag.TAG_INT))

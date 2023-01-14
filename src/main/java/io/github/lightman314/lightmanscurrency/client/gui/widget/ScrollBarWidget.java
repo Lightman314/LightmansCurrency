@@ -4,14 +4,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
-public class ScrollBarWidget extends AbstractWidget {
+public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/scroll.png");
 	
@@ -35,14 +37,14 @@ public class ScrollBarWidget extends AbstractWidget {
 	public boolean visible() { return this.visible && this.scrollable.getMaxScroll() > this.scrollable.getMinScroll(); }
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(!this.visible() && this.isDragging)
 			this.isDragging = false;
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(!this.visible())
 			return;
@@ -90,11 +92,11 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 	
 	public interface IScrollable {
-		public int currentScroll();
-		public void setScroll(int newScroll);
-		public default int getMinScroll() { return 0; }
-		public int getMaxScroll();
-		public default boolean handleScrollWheel(double delta) {
+		int currentScroll();
+		void setScroll(int newScroll);
+		default int getMinScroll() { return 0; }
+		int getMaxScroll();
+		default boolean handleScrollWheel(double delta) {
 			int scroll = this.currentScroll();
 			if(delta < 0)
 			{			
@@ -114,7 +116,7 @@ public class ScrollBarWidget extends AbstractWidget {
 			}
 			return false;
 		}
-		public static int calculateMaxScroll(int visibleCount, int totalCount) { return Math.max(0, totalCount - visibleCount); }
+		static int calculateMaxScroll(int visibleCount, int totalCount) { return Math.max(0, totalCount - visibleCount); }
 	}
 
 	@Override
@@ -170,7 +172,7 @@ public class ScrollBarWidget extends AbstractWidget {
 	@Deprecated
 	public void onMouseDragged(double mouseX, double mouseY, int button) { }
 	
-	public void onMouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		this.isDragging = false;
 		if(this.isMouseOver(mouseX, mouseY) && this.visible() && button == 0)
 		{
@@ -178,9 +180,10 @@ public class ScrollBarWidget extends AbstractWidget {
 			this.isDragging = true;
 			this.dragKnob(mouseY);
 		}
+		return false;
 	}
 	
-	public void onMouseReleased(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 		if(this.isDragging && this.visible() && button == 0)
 		{
 			//One last drag calculation
@@ -188,8 +191,9 @@ public class ScrollBarWidget extends AbstractWidget {
 			this.isDragging = false;
 			LightmansCurrency.LogInfo("Stopped dragging.");
 		}
+		return false;
 	}
 	
-	public void playDownSound(SoundManager soundManager) { }
+	public void playDownSound(@NotNull SoundManager soundManager) { }
 
 }

@@ -1,6 +1,6 @@
 {
-	"parent": "item/generated",
-    "textures": {
-        "layer0": "lightmanscurrency:items/portable_gem_terminal"
-    }
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "lightmanscurrency:item/portable_gem_terminal"
+  }
 }

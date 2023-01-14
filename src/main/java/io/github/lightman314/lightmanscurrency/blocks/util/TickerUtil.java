@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+@Deprecated //Replaced by TickableBlockEntity#createTicker, and implemented by IEasyEntityBlock
 public class TickerUtil {
 
 	@SuppressWarnings("unchecked")

@@ -60,11 +60,8 @@ public class ClientModEvents {
 	private static void addWalletLayer(EntityRenderersEvent.AddLayers event, String skin)
 	{
 		EntityRenderer<? extends Player> renderer = event.getSkin(skin);
-		if(renderer instanceof LivingEntityRenderer)
-		{
-			LivingEntityRenderer livingRenderer = (LivingEntityRenderer)renderer;
+		if(renderer instanceof LivingEntityRenderer livingRenderer)
 			livingRenderer.addLayer(new WalletLayer<>(livingRenderer));
-		}
 	}
 	
 }

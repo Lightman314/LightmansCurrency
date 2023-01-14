@@ -9,14 +9,14 @@ import com.google.common.base.Supplier;
 import io.github.lightman314.lightmanscurrency.blocks.*;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
+import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.core.variants.*;
 import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.Reference;
-import io.github.lightman314.lightmanscurrency.Reference.Color;
-import io.github.lightman314.lightmanscurrency.Reference.WoodType;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -307,7 +307,7 @@ public class ModBlocks {
 		);
 
 		//Paygate
-		PAYGATE = register("paygate", () -> LightmansCurrency.MACHINE_GROUP, () -> new PaygateBlock(
+		PAYGATE = register("paygate", () -> LightmansCurrency.TRADING_GROUP, () -> new PaygateBlock(
 						Block.Properties.of(Material.METAL)
 								.strength(3.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
@@ -323,14 +323,14 @@ public class ModBlocks {
 		);
 
 		//Coin Jars
-		PIGGY_BANK = register("piggy_bank", () -> CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
+		PIGGY_BANK = register("piggy_bank", () -> LightmansCurrency.MACHINE_GROUP, getCoinJarGenerator(), () -> new CoinJarBlock(
 						Block.Properties.of(Material.STONE)
 								.strength(0.1f, 2.0f)
 								.sound(SoundType.STONE),
 						Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
-		COINJAR_BLUE = register("coinjar_blue", () -> CreativeModeTab.TAB_DECORATIONS, getCoinJarGenerator(), () -> new CoinJarBlock(
+		COINJAR_BLUE = register("coinjar_blue", () -> LightmansCurrency.MACHINE_GROUP, getCoinJarGenerator(), () -> new CoinJarBlock(
 						Block.Properties.of(Material.STONE)
 								.strength(0.1f, 2.0f)
 								.sound(SoundType.STONE),
@@ -439,8 +439,8 @@ public class ModBlocks {
 
 	private static RegistryObjectBundle<Block,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
-		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>();
-		for(Color color : Reference.Color.values())
+		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
+		for(Color color : Color.values())
 		{
 			String thisName = name;
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
@@ -461,12 +461,35 @@ public class ModBlocks {
 
 	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
 	{
-		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>();
+		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.values())
 		{
 			String thisName = name + "_" + woodType.toString().toLowerCase();
 			//Register the block normally
 			bundle.put(woodType, register(thisName, itemGroup, itemGenerator, block));
+		}
+		return bundle.lock();
+	}
+
+	/**
+	 * Wooden and colored block registration code
+	 */
+	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block)
+	{
+		return registerWoodenAndColored(name, itemGroup, getDefaultGenerator(), block);
+	}
+
+	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
+	{
+		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
+		for(WoodType woodType: WoodType.values())
+		{
+			for(Color color : Color.values())
+			{
+				String thisName = name + "_" + woodType.toString().toLowerCase() + "_" + color.toString().toLowerCase();
+				//Register the block normally
+				bundle.put(woodType, color, register(thisName, itemGroup, itemGenerator, block));
+			}
 		}
 		return bundle.lock();
 	}

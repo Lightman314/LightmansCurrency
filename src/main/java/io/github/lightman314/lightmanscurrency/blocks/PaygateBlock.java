@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class PaygateBlock extends TraderBlockRotatable {
 	
@@ -44,15 +45,14 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
 			//Get the item in the players hand
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof PaygateBlockEntity)
+			if(tileEntity instanceof PaygateBlockEntity paygate)
 			{
-				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
 				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
 				if(tradeIndex >= 0)
 				{
@@ -69,20 +69,20 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
 	@Override
-	public boolean isSignalSource(BlockState state)
+	public boolean isSignalSource(@NotNull BlockState state)
 	{
 		return true;
 	}
 	
 	@Override
-	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
+	public int getSignal(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction dir) {
 		
 		if(state.getValue(POWERED))
 			return 15;
@@ -91,7 +91,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.PAYGATE);
 		super.appendHoverText(stack, level, tooltip, flagIn);

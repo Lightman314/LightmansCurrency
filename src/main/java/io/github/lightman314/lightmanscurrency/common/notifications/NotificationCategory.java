@@ -12,6 +12,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class NotificationCategory implements ITab
 {
@@ -20,7 +21,7 @@ public abstract class NotificationCategory implements ITab
 	
 	private static final Map<String,Function<CompoundTag,NotificationCategory>> DESERIALIZERS = new HashMap<>();
 	
-	public static final void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
+	public static void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
 		{
@@ -35,7 +36,7 @@ public abstract class NotificationCategory implements ITab
 		DESERIALIZERS.put(t, deserializer);
 	}
 	
-	public static final NotificationCategory deserialize(CompoundTag compound) {
+	public static NotificationCategory deserialize(CompoundTag compound) {
 		if(compound.contains("type"))
 		{
 			String type = compound.getString("type");
@@ -68,7 +69,7 @@ public abstract class NotificationCategory implements ITab
 	
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
 		@Override
-		public IconData getIcon() { return IconData.of(Items.CHEST); }
+		public @NotNull IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Override
 		public MutableComponent getName() { return new TranslatableComponent("notifications.source.general"); }
 		@Override
@@ -87,5 +88,7 @@ public abstract class NotificationCategory implements ITab
 	}
 	
 	protected abstract void saveAdditional(CompoundTag compound);
+
+	public final boolean notGeneral() { return this != GENERAL; }
 	
 }

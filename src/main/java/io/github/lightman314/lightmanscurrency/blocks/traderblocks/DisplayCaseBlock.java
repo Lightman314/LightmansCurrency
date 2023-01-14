@@ -44,7 +44,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
-		List<Vector3f> posList = new ArrayList<Vector3f>(1);
+		List<Vector3f> posList = new ArrayList<>(1);
 		posList.add(new Vector3f(0.5F, 0.5F + 2F/16F, 0.5F));
 		return posList;
 	}

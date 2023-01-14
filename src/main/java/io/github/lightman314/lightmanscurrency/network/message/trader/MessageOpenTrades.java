@@ -10,7 +10,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageOpenTrades {
 	
-	long traderID;
+	private final long traderID;
 	
 	public MessageOpenTrades(long traderID)
 	{

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
@@ -26,8 +27,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
+import org.jetbrains.annotations.NotNull;
 
-public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
+public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
 	
@@ -50,9 +52,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	@Override
 	public void clientTick() {
-
-		super.clientTick();
-
 		if(this.getArmorStand() == null)
 		{
 			if(this.requestTimer <= 0)
@@ -78,6 +77,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		{
 			this.updateTimer = TICK_DELAY;
 			this.validateArmorStand();
+			this.validateArmorStandValues();
 			this.updateArmorStandArmor();
 			this.killIntrudingArmorStands();
 		}
@@ -137,9 +137,8 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 					//Trade restrictions shall determine the slot type
 					ItemTradeRestriction r = thisTrade.getRestriction();
 					EquipmentSlot slot = null;
-					if(r instanceof EquipmentRestriction)
+					if(r instanceof EquipmentRestriction er)
 					{
-						EquipmentRestriction er = (EquipmentRestriction)r;
 						slot = er.getEquipmentSlot();
 					}
 					if(slot != null)
@@ -213,22 +212,21 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		this.writeArmorStandData(compound);
 		
 		super.saveAdditional(compound);
 	}
 	
-	protected CompoundTag writeArmorStandData(CompoundTag compound)
+	protected void writeArmorStandData(CompoundTag compound)
 	{
 		if(this.armorStandID != null)
 			compound.putUUID("ArmorStand", this.armorStandID);
-		return compound;
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))

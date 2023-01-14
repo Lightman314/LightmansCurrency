@@ -10,7 +10,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageOpenStorage {
 	
-	long traderID;
+	private final long traderID;
 	
 	public MessageOpenStorage(long traderID)
 	{

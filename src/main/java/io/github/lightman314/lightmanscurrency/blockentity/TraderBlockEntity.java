@@ -1,12 +1,8 @@
 package io.github.lightman314.lightmanscurrency.blockentity;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IServerTicker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.interfaces.IOwnableBlockEntity;
@@ -20,8 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,7 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
-public abstract class TraderBlockEntity<D extends TraderData> extends TickableBlockEntity implements IOwnableBlockEntity {
+public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker {
 
 	private long traderID = -1;
 	public long getTraderID() { return this.traderID; }
@@ -46,13 +40,11 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
 	public boolean legitimateBreak() { return this.legitimateBreak; }
 	
-	public final boolean isClient() { return this.level == null ? false : this.level.isClientSide; }
-	
 	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 	
-	private final D buildTrader(Player owner, ItemStack placementStack)
+	private D buildTrader(Player owner, ItemStack placementStack)
 	{
 		if(this.customTrader != null)
 		{
@@ -130,14 +122,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(@NotNull CompoundTag compound) {
 		super.saveAdditional(compound);
 		compound.putLong("TraderID", this.traderID);
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
 	}
 	
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
 		if(compound.contains("TraderID", Tag.TAG_LONG))
@@ -210,19 +202,15 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 	}
 	
 	@Override
-	public CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
-	
-	@Override
-	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
+	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
 		
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
 			Direction relativeSide = side;
-			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+			if(this.getBlockState().getBlock() instanceof IRotatableBlock block)
 			{
-				IRotatableBlock block = (IRotatableBlock)this.getBlockState().getBlock();
 				relativeSide = IRotatableBlock.getRelativeSide(block.getFacing(this.getBlockState()), side);
 			}
 			return trader.getCapability(cap, relativeSide);
@@ -230,21 +218,6 @@ public abstract class TraderBlockEntity<D extends TraderData> extends TickableBl
 		
 		return super.getCapability(cap, side);
     }
-	
-	
-	/**
-	 * Deletes the trader from the registry, and returns the traders contents to be dropped.
-	 */
-	public Pair<MutableComponent,List<ItemStack>> onBlockBreak(boolean dropBlock) {
-		TraderData trader = TraderSaveData.DeleteTrader(this.traderID);
-		if(trader != null)
-		{
-			List<ItemStack> contents = trader.getContents(this.level, this.worldPosition, this.getBlockState(), dropBlock);
-			return Pair.of(trader.getName(), contents);
-		}
-		else
-			return Pair.of(new TextComponent("NULL"), new ArrayList<>());
-	}
 	
 	public boolean canBreak(Player player)
 	{

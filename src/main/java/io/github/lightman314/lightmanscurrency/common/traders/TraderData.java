@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
@@ -90,7 +91,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -701,47 +701,42 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected abstract void loadAdditionalPersistentData(CompoundTag compound);
 	
 	public void openTraderMenu(Player player) {
-		if(player instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)player, this.getTraderMenuProvider(), this.getMenuDataWriter());
+		if(player instanceof ServerPlayer sp)
+			NetworkHooks.openGui(sp, this.getTraderMenuProvider(), this.getMenuDataWriter());
 	}
 	
 	protected MenuProvider getTraderMenuProvider() { return new TraderMenuProvider(this.id); }
-	
-	private static class TraderMenuProvider implements MenuProvider
-	{
 
-		private final long traderID;
-		public TraderMenuProvider(long traderID) { this.traderID = traderID; }
-		
-		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
+	private record TraderMenuProvider(long traderID) implements MenuProvider {
 
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
-		
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) {
+			return new TraderMenu(windowID, inventory, this.traderID);
+		}
+
+		@Override
+		public @NotNull Component getDisplayName() { return EasyText.empty(); }
 	}
 	
 	public void openStorageMenu(Player player) {
 		if(!this.hasPermission(player, Permissions.OPEN_STORAGE))
 			return;
-		if(player instanceof ServerPlayer)
-			NetworkHooks.openGui((ServerPlayer)player, this.getTraderStorageMenuProvider(), this.getMenuDataWriter());
+		if(player instanceof ServerPlayer sp)
+			NetworkHooks.openGui(sp, this.getTraderStorageMenuProvider(), this.getMenuDataWriter());
 	}
 	
 	protected MenuProvider getTraderStorageMenuProvider()  { return new TraderStorageMenuProvider(this.id); }
-	
-	private static class TraderStorageMenuProvider implements MenuProvider
-	{
 
-		private final long traderID;
-		public TraderStorageMenuProvider(long traderID) { this.traderID = traderID; }
-		
-		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
+	private record TraderStorageMenuProvider(long traderID) implements MenuProvider {
 
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
-		
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) {
+			return new TraderStorageMenu(windowID, inventory, this.traderID);
+		}
+
+		@Override
+		public @NotNull Component getDisplayName() { return EasyText.empty(); }
+
 	}
 	
 	public Consumer<FriendlyByteBuf> getMenuDataWriter() { return b -> b.writeLong(this.id); }
@@ -822,9 +817,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		{
 			Block block = state != null ? state.getBlock() : null;
 			ItemStack blockStack = block != null ? new ItemStack(block.asItem()) : ItemStack.EMPTY;
-			if(block instanceof ITraderBlock)
+			if(block instanceof ITraderBlock b)
 			{
-				ITraderBlock b = (ITraderBlock)block;
 				blockStack = b.getDropBlockItem(level, pos, state);
 			}
 			if(!blockStack.isEmpty())
@@ -860,7 +854,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected abstract void getAdditionalContents(List<ItemStack> results);
 	
 	//Static deserializer/registration
-	private static Map<String,NonNullSupplier<TraderData>> deserializers = new HashMap<>();
+	private static final Map<String,NonNullSupplier<TraderData>> deserializers = new HashMap<>();
 	
 	public static void register(ResourceLocation type, @Nonnull NonNullSupplier<TraderData> source)
 	{
@@ -923,19 +917,16 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			BlockEntity be = level.getBlockEntity(this.pos);
 			if(be instanceof TraderBlockEntity<?> tbe)
 			{
-				if(tbe.getTraderID() == this.id)
-					return false;
+				return tbe.getTraderID() != this.id;
 			}
 			return true;
 		}
 		return false;
 	}
-	
-	public void onRemoved() {}
 
 	//User data
 	private int userCount = 0;
-	private List<Player> currentUsers = new ArrayList<>();
+	private final List<Player> currentUsers = new ArrayList<>();
 	public List<Player> getUsers() { return new ArrayList<>(this.currentUsers); }
 	public int getUserCount() { return this.userCount; }
 	
@@ -954,9 +945,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient)
 			this.userCount = userCount;
 	}
-	
-	public ItemLike getCategoryItem() { return this.traderBlock == null ? ModItems.TRADING_CORE.get() : this.traderBlock; }
-	
+
 	public abstract List<? extends TradeData> getTradeData();
 	
 	public int indexOfTrade(TradeData trade) { return this.getTradeData().indexOf(trade); }
@@ -1267,24 +1256,24 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return new TraderCategory(this.traderBlock != null ? this.traderBlock : ModItems.TRADING_CORE.get(), this.getName(), this.id);
 	}
 	
-	public final List<TraderData> getTraders() { return Lists.newArrayList(this); }
+	public final @NotNull List<TraderData> getTraders() { return Lists.newArrayList(this); }
 	public final boolean isSingleTrader() { return true; }
 	
 	public static MenuProvider getTraderMenuProvider(BlockPos traderSourcePosition) { return new TraderMenuProviderBlock(traderSourcePosition); }
-	
-	private static class TraderMenuProviderBlock implements MenuProvider
-	{
-		
-		private final BlockPos traderSourcePosition;
-		public TraderMenuProviderBlock(BlockPos traderSourcePosition) { this.traderSourcePosition = traderSourcePosition; }
+
+	private record TraderMenuProviderBlock(BlockPos traderSourcePosition) implements MenuProvider {
+
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) {
+			return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition);
+		}
+
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
-		
+		public @NotNull Component getDisplayName() { return EasyText.empty(); }
+
 	}
 	
-	@Deprecated /** @deprecated Use to load old UniversalTraderData data. */
+	@Deprecated
 	public final void loadOldUniversalTraderData(CompoundTag compound) {
 		
 		//Core Settings
@@ -1304,7 +1293,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	@Deprecated
-	private final void loadOldCoreSettingData(CompoundTag compound) {
+	private void loadOldCoreSettingData(CompoundTag compound) {
 		if(compound.contains("Owner",Tag.TAG_COMPOUND))
 			this.owner.SetOwner(PlayerReference.load(compound.getCompound("Owner")));
 		if(compound.contains("CustomOwnerName", Tag.TAG_STRING))
@@ -1348,7 +1337,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		//Not going to bother loading the settings logger. I think this is something not worth fighting over.
 	}
 	
-	@Deprecated /** Only use to load the upgrade inventory from old UniversalTraderData. */
+	@Deprecated
 	protected final void loadOldUpgradeData(Container upgradeInventory) {
 		this.upgrades.clearContent();
 		for(int i = 0; i < this.upgrades.getContainerSize() && i < upgradeInventory.getContainerSize(); ++i)
@@ -1364,10 +1353,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 	}
 	
-	@Deprecated /** Only use to load old UniversalTraderData into it's TraderData counterpart. */
+	@Deprecated
 	protected abstract void loadExtraOldUniversalTraderData(CompoundTag compound);
 	
-	@Deprecated /** @deprecated Use to load old TraderBlockEntity data. */
+	@Deprecated
 	public final void loadOldBlockEntityData(CompoundTag compound) {
 		if(compound.contains("CoreSettings"))
 			this.loadOldCoreSettingData(compound.getCompound("CoreSettings"));
@@ -1377,7 +1366,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.loadExtraOldBlockEntityData(compound);
 	}
 	
-	@Deprecated /** Only use to load old TraderBlockEntity data into it's TraderData counterpart. */
+	@Deprecated
 	protected abstract void loadExtraOldBlockEntityData(CompoundTag compound);
 	
 }

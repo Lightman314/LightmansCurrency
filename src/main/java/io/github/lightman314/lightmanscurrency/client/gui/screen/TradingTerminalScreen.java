@@ -26,6 +26,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
@@ -35,8 +36,8 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
 	public static final Comparator<TraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
 	
-	private int xSize = 176;
-	private int ySize = 187;
+	private final int xSize = 176;
+	private final int ySize = 187;
 	
 	private EditBox searchField;
 	private static int scroll = 0;
@@ -68,7 +69,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int guiTop = (this.height - this.ySize) / 2;
 		
 		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
-		this.searchField.setBordered(false);;
+		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
@@ -105,12 +106,12 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		if(this.minecraft == null)
 			this.minecraft = Minecraft.getInstance();
 		
-		this.renderBackground(poseStack);
+		this.renderBackground(pose);
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -119,11 +120,11 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
 		//Render the background
-		this.blit(poseStack, startX, startY, 0, 0, this.xSize, this.ySize);
+		this.blit(pose, startX, startY, 0, 0, this.xSize, this.ySize);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+		super.render(pose, mouseX, mouseY, partialTicks);
 		
 	}
 	
@@ -223,60 +224,49 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 				this.traderButtons.get(i).SetData(null);
 		}
 	}
-	
-	private static class TraderSorter implements Comparator<TraderData>
-	{
-		
-		private final boolean creativeAtTop;
-		private final boolean emptyAtBottom;
-		private final boolean auctionHousePriority;
 
-		private TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) { this.creativeAtTop = creativeAtTop; this.emptyAtBottom = emptyAtBottom; this.auctionHousePriority = auctionHousePriority; }
+	private record TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) implements Comparator<TraderData> {
 
 		@Override
 		public int compare(TraderData a, TraderData b) {
-			
 			try {
-				
-				if(this.auctionHousePriority)
-				{
-					boolean ahA = a instanceof AuctionHouseTrader;
-					boolean ahB = b instanceof AuctionHouseTrader;
-					if(ahA && !ahB)
-						return -1;
-					else if(ahB && !ahA)
-						return 1;
-				}
-				
-				if(this.emptyAtBottom)
-				{
-					boolean emptyA = !a.hasValidTrade();
-					boolean emptyB = !b.hasValidTrade();
-					if(emptyA != emptyB)
-						return emptyA ? 1 : -1;
-				}
+				if (this.auctionHousePriority) {
+						boolean ahA = a instanceof AuctionHouseTrader;
+						boolean ahB = b instanceof AuctionHouseTrader;
+						if (ahA && !ahB)
+							return -1;
+						else if (ahB && !ahA)
+							return 1;
+					}
 
-				if(this.creativeAtTop)
-				{
-					//Prioritize creative traders at the top of the list
-					if(a.isCreative() && !b.isCreative())
-						return -1;
-					else if(b.isCreative() && !a.isCreative())
-						return 1;
-					//If both or neither are creative, sort by name.
-				}
+				if (this.emptyAtBottom) {
+						boolean emptyA = !a.hasValidTrade();
+						boolean emptyB = !b.hasValidTrade();
+						if (emptyA != emptyB)
+							return emptyA ? 1 : -1;
+					}
 
-				//Sort by trader name
-				int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
-				//Sort by owner name if trader name is equal
-				if(sort == 0)
-					sort = a.getOwner().getOwnerName(true).compareToIgnoreCase(b.getOwner().getOwnerName(true));
+					if (this.creativeAtTop) {
+						//Prioritize creative traders at the top of the list
+						if (a.isCreative() && !b.isCreative())
+							return -1;
+						else if (b.isCreative() && !a.isCreative())
+							return 1;
+						//If both or neither are creative, sort by name.
+					}
 
-				return sort;
-			
-			} catch(Throwable t) { return 0; }
+					//Sort by trader name
+					int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
+					//Sort by owner name if trader name is equal
+					if (sort == 0)
+						sort = a.getOwner().getOwnerName(true).compareToIgnoreCase(b.getOwner().getOwnerName(true));
+
+					return sort;
+
+			} catch (Throwable t) {
+				return 0;
+			}
 		}
-		
 	}
 
 	private void validateScroll() { scroll = Math.min(scroll, this.getMaxScroll()); }

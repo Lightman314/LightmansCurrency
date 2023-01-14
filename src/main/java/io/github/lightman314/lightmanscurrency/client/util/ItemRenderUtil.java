@@ -28,7 +28,7 @@ import net.minecraft.world.item.TooltipFlag;
 
 public class ItemRenderUtil {
 
-	public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
+	public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "item/empty_item_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
 	
 	public static final int ITEM_BLIT_OFFSET = 100;

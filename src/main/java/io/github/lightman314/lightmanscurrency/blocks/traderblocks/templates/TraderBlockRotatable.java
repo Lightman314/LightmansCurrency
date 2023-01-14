@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockRotatable extends TraderBlockBase implements IRotatableBlock{
 
@@ -35,26 +36,26 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	}
 	
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
+	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
 	}
 	
 	@Override
-	public BlockState rotate(BlockState state, Rotation rotation)
+	public @NotNull BlockState rotate(BlockState state, Rotation rotation)
 	{
 		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 	
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+	protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
 	{
 		super.createBlockStateDefinition(builder);
 		builder.add(FACING);
 	}
 	
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state));
 	}

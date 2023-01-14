@@ -57,6 +57,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter, ITradeSource<ItemTradeData> {
 
@@ -673,7 +674,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide){
+	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide){
 		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 	

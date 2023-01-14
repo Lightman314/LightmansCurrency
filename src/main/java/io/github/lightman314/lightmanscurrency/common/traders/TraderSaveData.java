@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
+import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
@@ -52,17 +53,7 @@ public class TraderSaveData extends SavedData {
 	
 	public static final String PERSISTENT_TRADER_SECTION = "Traders";
 	public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
-	
-	
-	private static TraderSaveData lastData = null;
-	
-	private static void cleanOldData(TraderSaveData newData)
-	{
-		if(lastData != null)
-			lastData.traderData.values().forEach(TraderData::onRemoved);
-		lastData = newData;
-	}
-	
+
 	private void validateAuctionHouse() {
 		if(!Config.SERVER.enableAuctionHouse.get())
 		{
@@ -107,14 +98,14 @@ public class TraderSaveData extends SavedData {
 	//Persistent Data
 	private final Map<String,PersistentData> persistentTraderData = new HashMap<>();
 	private final List<PersistentAuctionData> persistentAuctionData = new ArrayList<>();
+	private final List<IEasyTickable> tickers = new ArrayList<>();
 
 	private JsonObject persistentTraderJson = new JsonObject();
 	
-	public TraderSaveData() { cleanOldData(this); this.validateAuctionHouse(); this.loadPersistentTraders(); }
+	public TraderSaveData() { this.validateAuctionHouse(); this.loadPersistentTraders(); }
 	
 	public TraderSaveData(CompoundTag compound) {
-		cleanOldData(this);
-		
+
 		this.nextID = compound.getLong("NextID");
 		LightmansCurrency.LogInfo("Loaded NextID (" + this.nextID + ") from tag.");
 		
@@ -125,7 +116,11 @@ public class TraderSaveData extends SavedData {
 				CompoundTag traderTag = traderData.getCompound(i);
 				TraderData trader = TraderData.Deserialize(false, traderTag);
 				if(trader != null)
+				{
 					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
+					if(trader instanceof IEasyTickable t)
+						this.tickers.add(t);
+				}
 				else
 					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading TraderData", t); }
@@ -198,7 +193,7 @@ public class TraderSaveData extends SavedData {
 		this.setDirty();
 	}
 	
-	@Deprecated /** @deprecated Use only to check for persistent ids from the old Trading Office. */
+	@Deprecated
 	public static long CheckOldPersistentID(String traderID) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -228,7 +223,7 @@ public class TraderSaveData extends SavedData {
 		this.setDirty();
 	}
 	
-	@Deprecated /** @deprecated Use only to give persistent data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldPersistentTag(String traderID, CompoundTag tag) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -340,7 +335,8 @@ public class TraderSaveData extends SavedData {
 			this.traderData.forEach((id,trader) -> {
 				if(trader.isPersistent())
 				{
-					trader.onRemoved();
+					if(trader instanceof IEasyTickable t)
+						this.tickers.remove(t);
 					//Save persistent tag
 					this.putPersistentTag(trader.getPersistentID(), trader.savePersistentData());
 					removeTraderList.add(id);
@@ -385,6 +381,8 @@ public class TraderSaveData extends SavedData {
 					data.makePersistent(id, traderID);
 					
 					this.traderData.put(id, data);
+					if(data instanceof IEasyTickable t)
+						this.tickers.add(t);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					
@@ -511,6 +509,8 @@ public class TraderSaveData extends SavedData {
 			{
 				TraderData trader = tsd.traderData.get(traderID);
 				tsd.traderData.remove(traderID);
+				if(trader instanceof IEasyTickable t)
+					tsd.tickers.remove(t);
 				tsd.setDirty();
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
 				if(trader.shouldAlwaysShowOnTerminal())
@@ -538,7 +538,7 @@ public class TraderSaveData extends SavedData {
 	
 	public static List<TraderData> GetAllTerminalTraders(boolean isClient)
 	{
-		return GetAllTraders(isClient).stream().filter(trader -> trader.showOnTerminal()).collect(Collectors.toList());
+		return GetAllTraders(isClient).stream().filter(TraderData::showOnTerminal).collect(Collectors.toList());
 	}
 	
 	public static TraderData GetTrader(boolean isClient, long traderID) {
@@ -578,7 +578,8 @@ public class TraderSaveData extends SavedData {
 					tsd.traderData.values().removeIf(traderData -> {
 						if(!traderData.isPersistent() && traderData.shouldRemove(server))
 						{
-							traderData.onRemoved();
+							if(traderData instanceof IEasyTickable t)
+								tsd.tickers.remove(t);
 							if(Config.SERVER.safelyEjectIllegalBreaks.get())
 							{
 								try {
@@ -619,6 +620,7 @@ public class TraderSaveData extends SavedData {
 						}
 					}
 				}
+				tsd.tickers.forEach(IEasyTickable::tick);
 			}
 		}
 	}

@@ -11,7 +11,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageRequestNBT {
 
-	private BlockPos pos;
+	private final BlockPos pos;
 	
 	public MessageRequestNBT(BlockEntity tileEntity)
 	{

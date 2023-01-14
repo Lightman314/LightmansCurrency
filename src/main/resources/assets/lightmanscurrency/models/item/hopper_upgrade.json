@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lightmanscurrency:items/hopper_upgrade"
+    "layer0": "lightmanscurrency:item/hopper_upgrade"
   }
 }

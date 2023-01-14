@@ -27,7 +27,7 @@ public class PlayerReference {
 	
 	public final UUID id;
 	private boolean forceName = false;
-	private String name = "";
+	private final String name;
 	public String getName(boolean isClient)
 	{
 		if(isClient || this.forceName)
@@ -138,9 +138,8 @@ public class PlayerReference {
 	public static void saveList(CompoundTag compound, List<PlayerReference> playerList, String tag)
 	{
 		ListTag list = new ListTag();
-		for(int i = 0; i < playerList.size(); ++i)
-		{
-			CompoundTag thisCompound = playerList.get(i).save();
+		for (PlayerReference playerReference : playerList) {
+			CompoundTag thisCompound = playerReference.save();
 			list.add(thisCompound);
 		}
 		compound.put(tag, list);
@@ -190,7 +189,7 @@ public class PlayerReference {
 	
 	public static PlayerReference of(boolean isClient, String playerName)
 	{
-		if(playerName.isBlank() || isClient)
+		if(playerName.isBlank())
 			return null;
 		if(isClient)
 		{

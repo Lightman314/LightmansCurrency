@@ -31,6 +31,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class TradeRuleScreen extends Screen{
 	
@@ -127,9 +128,9 @@ public class TradeRuleScreen extends Screen{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
-		this.renderBackground(poseStack);
+		this.renderBackground(pose);
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -146,13 +147,13 @@ public class TradeRuleScreen extends Screen{
 		
 		
 		//Render the background
-		this.blit(poseStack, guiLeft(), guiTop(), 0, 0, this.xSize, this.ySize);
+		this.blit(pose, guiLeft(), guiTop(), 0, 0, this.xSize, this.ySize);
 		
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		//Render the current rule
 		if(this.currentGUIHandler!= null)
 		{
-			this.currentGUIHandler.renderTab(poseStack, mouseX, mouseY, partialTicks);
+			this.currentGUIHandler.renderTab(pose, mouseX, mouseY, partialTicks);
 		}
 		else
 		{
@@ -161,31 +162,31 @@ public class TradeRuleScreen extends Screen{
 			if(this.openTab >= 0)
 				this.openTab = -1;
 			
-			this.font.draw(poseStack, new TranslatableComponent("traderule.list.blurb").withStyle(ChatFormatting.BOLD), guiLeft() + 20, guiTop() + 10, 0xFFFFFF);
+			this.font.draw(pose, new TranslatableComponent("traderule.list.blurb").withStyle(ChatFormatting.BOLD), guiLeft() + 20, guiTop() + 10, 0xFFFFFF);
 			
 			List<TradeRule> rules = this.getTradeRules();
 			for(int i = 0; i < this.getTradeRules().size(); ++i)
 			{
 				TradeRule rule = rules.get(i);
 				MutableComponent name = rule.getName().withStyle(rule.isActive() ? ChatFormatting.GREEN : ChatFormatting.RED).withStyle(ChatFormatting.BOLD);
-				this.font.draw(poseStack, name, guiLeft() + 32, guiTop() + 26 + (12 * i), 0xFFFFFF);
+				this.font.draw(pose, name, guiLeft() + 32, guiTop() + 26 + (12 * i), 0xFFFFFF);
 			}
 			
 		}
 		
 		//Render the buttons, etc
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+		super.render(pose, mouseX, mouseY, partialTicks);
 		
 		if(this.managerTab.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.manager"), mouseX, mouseY);
+			this.renderTooltip(pose, new TranslatableComponent("gui.button.lightmanscurrency.manager"), mouseX, mouseY);
 		}
 		else
 		{
 			final List<TradeRule> rules = this.getTradeRules();
 			this.tabButtons.forEach((ruleIndex,thisTab) -> {
 				if(thisTab.isMouseOver(mouseX, mouseY) && ruleIndex >= 0 && ruleIndex < rules.size())
-					this.renderTooltip(poseStack, rules.get(ruleIndex).getName(), mouseX, mouseY);
+					this.renderTooltip(pose, rules.get(ruleIndex).getName(), mouseX, mouseY);
 			});
 		}
 	}
@@ -233,7 +234,7 @@ public class TradeRuleScreen extends Screen{
 			
 			if(this.currentRule() != null)
 			{
-				this.currentGUIHandler = this.currentRule().createHandler(this, () -> this.currentRule());
+				this.currentGUIHandler = this.currentRule().createHandler(this, this::currentRule);
 				this.currentGUIHandler.initTab();
 			}
 		}
@@ -298,7 +299,7 @@ public class TradeRuleScreen extends Screen{
 	public void refreshTabs()
 	{
 		
-		this.tabButtons.values().forEach(button -> this.removeWidget(button));
+		this.tabButtons.values().forEach(this::removeWidget);
 		this.tabButtons.clear();
 		
 		List<TradeRule> rules = this.getTradeRules();

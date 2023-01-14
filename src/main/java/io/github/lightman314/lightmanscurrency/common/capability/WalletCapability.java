@@ -28,9 +28,18 @@ import net.minecraftforge.common.util.LazyOptional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class WalletCapability {
-	
+
+	@Deprecated
 	public static LazyOptional<IWalletHandler> getWalletHandler(@Nonnull final Entity entity) {
 		return entity.getCapability(CurrencyCapabilities.WALLET);
+	}
+
+	@Nullable
+	public static IWalletHandler lazyGetWalletHandler(@Nonnull final Entity entity) {
+		LazyOptional<IWalletHandler> optional = getWalletHandler(entity);
+		if(optional.isPresent())
+			return optional.orElseGet(() -> {throw new RuntimeException("Unexpected error occurred!");});
+		return null;
 	}
 
 	public static CoinValue getWalletMoney(@Nonnull final Entity entity) {

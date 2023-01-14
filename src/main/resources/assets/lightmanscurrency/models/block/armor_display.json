@@ -2,9 +2,9 @@
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/block1_2",
 	"textures": {
-		"main": "lightmanscurrency:blocks/armor_display",
+		"main": "lightmanscurrency:block/armor_display",
 		"wood": "block/oak_planks",
-		"particle": "lightmanscurrency:blocks/armor_display"
+		"particle": "lightmanscurrency:block/armor_display"
 	},
 	"elements": [
 		{

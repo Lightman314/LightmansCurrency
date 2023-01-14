@@ -1,8 +1,7 @@
 {
-	"parent": "lightmanscurrency:item/vending_machine",
+	"parent": "lightmanscurrency:block/vending_machine/base_item",
 	"textures": {
-		"shelves": "lightmanscurrency:blocks/vendingmachine1/shelves",
-		"particle": "lightmanscurrency:blocks/vendingmachine1/base_purple",
-		"base": "lightmanscurrency:blocks/vendingmachine1/base_purple"
+		"exterior": "lightmanscurrency:block/vending_machine/purple_exterior",
+		"interior": "lightmanscurrency:block/vending_machine/purple_interior"
 	}
 }

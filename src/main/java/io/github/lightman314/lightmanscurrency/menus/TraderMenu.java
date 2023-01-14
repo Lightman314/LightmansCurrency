@@ -26,6 +26,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderMenu extends AbstractContainerMenu {
 
@@ -50,7 +51,7 @@ public class TraderMenu extends AbstractContainerMenu {
 		super(type, windowID);
 		this.player = inventory.player;
 		this.traderSource = traderSource;
-		this.init(this.player, inventory);
+		this.init(inventory);
 		for(TraderData trader : this.traderSource.get().getTraders()) {
 			if(trader != null) trader.userOpen(this.player);
 		}
@@ -60,7 +61,7 @@ public class TraderMenu extends AbstractContainerMenu {
 		return TradeContext.create(trader, this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).build();
 	}
 
-	protected void init(Player player, Inventory inventory) {
+	protected void init(Inventory inventory) {
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -92,10 +93,10 @@ public class TraderMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
+	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@NotNull Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coins);
 		this.clearContainer(player, this.interactionSlot.container);
@@ -150,7 +151,7 @@ public class TraderMenu extends AbstractContainerMenu {
 	}
 	
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

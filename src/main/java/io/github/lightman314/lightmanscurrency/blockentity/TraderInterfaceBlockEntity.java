@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
@@ -25,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -70,7 +70,7 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity implements IUpgradeable, IDumpable, IClientTracker {
+public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity implements IUpgradeable, IDumpable, IServerTicker {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -90,8 +90,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		public final boolean trades;
 		public final int index;
 		public final Component getDisplayText() { return new TranslatableComponent("gui.lightmanscurrency.interface.type." + this.name().toLowerCase()); }
-		
-		public final InteractionType getNext() { return fromIndex(this.index + 1); }
+
 		InteractionType(boolean requiresPermissions, boolean restocks, boolean drains, boolean trades, int index) {
 			this.requiresPermissions =  requiresPermissions;
 			this.restocks = restocks;
@@ -291,8 +290,6 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
 		return TradeContext.createStorageMode(this.getTrader());
 	}
-	
-	public boolean isClient() { return this.level == null || this.level.isClientSide; }
 	
 	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
 		handler.setParent(this);
@@ -569,7 +566,7 @@ public abstract class TraderInterfaceBlockEntity extends TickableBlockEntity imp
 		private final TraderInterfaceBlockEntity blockEntity;
 		public InterfaceMenuProvider(TraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; }
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) {
+		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) {
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
 		@Override

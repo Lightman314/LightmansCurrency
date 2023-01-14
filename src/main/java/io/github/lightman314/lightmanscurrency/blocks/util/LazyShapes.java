@@ -6,6 +6,7 @@ import java.util.function.Function;
 import com.mojang.math.Vector3f;
 
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -159,7 +160,5 @@ public class LazyShapes {
 		}
 		
 	}
-	
-	public static interface TriFunction<T,U,V,W> { public W apply(T t, U u, V v); }
 	
 }

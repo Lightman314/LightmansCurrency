@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
@@ -222,7 +223,7 @@ public class MoneyUtil {
 	
     /**
      * Checks if the given item is in the master coin list.
-     * By default allows hidden coins
+     * By default, allows hidden coins
      * @param item The item to check.
      */
     public static boolean isCoin(Item item)
@@ -318,10 +319,8 @@ public class MoneyUtil {
     public static long getValue(NonNullList<ItemStack> inventory)
 	{
     	long value = 0;
-		for(int i = 0; i < inventory.size(); i++)
-		{
-			value += getValue(inventory.get(i));
-		}
+		for (ItemStack itemStack : inventory)
+			value += getValue(itemStack);
 		return value;
 	}
     
@@ -513,7 +512,7 @@ public class MoneyUtil {
     
     /**
      * Process a payment from the given coin slot inventory & player.
-     * @param inventory An inventory that may or may not contain coins that payment can be taken from. Can be null, but then payment will only be taken from the players wallet.
+     * @param inventory An inventory that may or may not contain coins that payment can be taken from. Can be null, but then payment will only be taken from the players' wallet.
      * @param player The player making the payment. Required for item overflow, and wallet aquisition.
      * @param price The price of the payment that we are attempting to process.
      * @return Whether the payment went through. If false is returned, no money was taken from the wallet nor the inventory.
@@ -525,7 +524,7 @@ public class MoneyUtil {
     
     /**
      * Process a payment from the given coin slot inventory & player.
-     * @param inventory An inventory that may or may not contain coins that payment can be taken from. Can be null, but then payment will only be taken from the players wallet.
+     * @param inventory An inventory that may or may not contain coins that payment can be taken from. Can be null, but then payment will only be taken from the players' wallet.
      * @param player The player making the payment. Required for item overflow, and wallet aquisition.
      * @param price The price of the payment that we are attempting to process.
      * @param ignoreWallet Whether we should ignore the players wallet in terms of taking payment or giving change.
@@ -568,6 +567,7 @@ public class MoneyUtil {
     			if(!wallet.isEmpty())
     			{
     				coinStack = WalletItem.PickupCoin(wallet, coinStack);
+					WalletMenuBase.OnWalletUpdated(player);
     			}
     			if(!coinStack.isEmpty() && inventory != null)
     			{
@@ -587,9 +587,9 @@ public class MoneyUtil {
     
     /**
      * Put money into the coin slot inventory & player.
-     * @param inventory An inventory in which to give the coins to by default should the player not have an equipped wallet. Can be null, but then payment will only be given to the players wallet/inventory.
+     * @param inventory An inventory in which to give the coins to by default should the player not have an equipped wallet. Can be null, but then payment will only be given to the players' wallet/inventory.
      * @param player The player receiving the money. Required for item overflow, and wallet aquisition.
-     * @param price The amount of money we're attempting to give.
+     * @param change The amount of money we're attempting to give.
      */
     public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change)
     {
@@ -608,6 +608,7 @@ public class MoneyUtil {
 			if(!wallet.isEmpty())
 			{
 				coinStack = WalletItem.PickupCoin(wallet, coinStack);
+				WalletMenuBase.OnWalletUpdated(player);
 			}
 			if(!coinStack.isEmpty() && inventory != null)
 			{
@@ -637,9 +638,7 @@ public class MoneyUtil {
     	if(moneyData == null)
     		return value;
 		//Check to ensure that the inventory has enough 'value' to remove
-		if(MoneyUtil.getValue(inventory) < value && !forceTake)
-			return value;
-		else
+		if(MoneyUtil.getValue(inventory) >= value || forceTake)
 		{
 			List<CoinData> coinList = moneyData.getSortedCoinList();
 			//Remove objects from the inventory.
@@ -693,9 +692,9 @@ public class MoneyUtil {
 			}
 			
 			//Inform the user if we were exact, or if too many items were taken and a refund is required via the getObjectsOfValue function
-			return value; 
-			
+
 		}
+		return value;
 	}
     
     private static long takeObjectsOfValue(long value, NonNullList<ItemStack> inventory)
@@ -716,9 +715,7 @@ public class MoneyUtil {
     	if(moneyData == null)
     		return value;
 		//Check to ensure that the inventory has enough 'value' to remove
-		if(MoneyUtil.getValue(inventory) < value && !forceTake)
-			return value;
-		else
+		if(MoneyUtil.getValue(inventory) >= value || forceTake)
 		{
 			//Remove objects from the inventory.
 			List<CoinData> coinList = moneyData.getSortedCoinList();
@@ -771,10 +768,9 @@ public class MoneyUtil {
 				}
 			}
 			
-			//Inform the user if we were exact, or if too many items were taken and a refund is required via the getObjectsOfValue function
-			return value; 
-			
 		}
+		//Inform the user if we were exact, or if too many items were taken and a refund is required via the getObjectsOfValue function
+		return value;
 	}
     
     /**
@@ -791,23 +787,19 @@ public class MoneyUtil {
 		
 		//Search through each coin in the coinList
 		List<CoinData> coinList = moneyData.getSortedCoinList(MAIN_CHAIN);
-		for(int i = 0; i < coinList.size(); i++)
-		{
-			if(!coinList.get(i).isHidden)
-			{
-				Item coin = coinList.get(i).coinItem;
+		for (CoinData coinData : coinList) {
+			if (!coinData.isHidden) {
+				Item coin = coinData.coinItem;
 				int coinsToGive = 0;
-				long coinValue = coinList.get(i).getValue();
-				while(coinValue <= value)
-				{
+				long coinValue = coinData.getValue();
+				while (coinValue <= value) {
 					value -= coinValue;
 					coinsToGive++;
 				}
-				while(coinsToGive > 0)
-				{
+				while (coinsToGive > 0) {
 					int giveCount = coinsToGive;
 					ItemStack newStack = new ItemStack(coin);
-					if(giveCount > newStack.getMaxStackSize())
+					if (giveCount > newStack.getMaxStackSize())
 						giveCount = newStack.getMaxStackSize();
 					coinsToGive -= giveCount;
 					newStack.setCount(giveCount);
@@ -843,7 +835,7 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a short display string for the given monetary value in the format of '1n2d..'
+     * Gets a short display string for the given monetary value in the format of '1n2d...'
      * @param value The amount of monetary value to display.
      */
     public static String getStringOfValue(long value)
@@ -862,7 +854,7 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a list of all of the registered coin items
+     * Gets a list of all the registered coin items
      * By default, hidden coins will not be included in this list.
      */
     public static List<Item> getAllCoins()
@@ -871,8 +863,8 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a list of all of the registered coin items
-     * @param Whether hidden coins will be included in the list.
+     * Gets a list of all the registered coin items
+     * @param includeHidden Whether hidden coins will be included in the list.
      */
     public static List<Item> getAllCoins(boolean includeHidden)
     {
@@ -880,16 +872,15 @@ public class MoneyUtil {
     		return new ArrayList<>();
     	List<Item> coinItems = new ArrayList<>();
     	List<CoinData> coinList = moneyData.getSortedCoinList();
-    	for(int i = 0; i < coinList.size(); i++)
-    	{
-    		if(!coinList.get(i).isHidden || includeHidden)
-    			coinItems.add(coinList.get(i).coinItem);
-    	}
+		for (CoinData coinData : coinList) {
+			if (!coinData.isHidden || includeHidden)
+				coinItems.add(coinData.coinItem);
+		}
     	return coinItems;
     }
     
     /**
-     * Gets a list of all of the registered coin items
+     * Gets a list of all the registered coin items
      * By default, hidden coins will not be included in this list.
      * @param chain The coin chain to receive coins from
      */
@@ -899,7 +890,7 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a list of all of the registered coin items
+     * Gets a list of all the registered coin items
      * @param chain The coin chain to receive coins from
      * @param includeHidden Whether hidden coins will be included in the list.
      */
@@ -909,16 +900,15 @@ public class MoneyUtil {
     		return new ArrayList<>();
     	List<Item> coinItems = new ArrayList<>();
     	List<CoinData> coinList = moneyData.getSortedCoinList();
-    	for(int i = 0; i < coinList.size(); i++)
-    	{
-    		if(coinList.get(i).chain.contentEquals(chain) && (!coinList.get(i).isHidden || includeHidden))
-    			coinItems.add(coinList.get(i).coinItem);
-    	}
+		for (CoinData coinData : coinList) {
+			if (coinData.chain.contentEquals(chain) && (!coinData.isHidden || includeHidden))
+				coinItems.add(coinData.coinItem);
+		}
     	return coinItems;
     }
     
     /**
-     * Gets a sorted list of all of the coin data
+     * Gets a sorted list of all the coin data
      * By default CoinData for hidden coins will not be included in this list.
      */
     public static List<CoinData> getAllData()
@@ -927,7 +917,7 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a sorted list of all of the coin data
+     * Gets a sorted list of all the coin data
      * @param includeHidden Whether hidden CoinData will be included in the list.
      */
     public static List<CoinData> getAllData(boolean includeHidden)
@@ -938,16 +928,15 @@ public class MoneyUtil {
     	if(includeHidden)
     		return coinList;
     	List<CoinData> publicCoinList = new ArrayList<>();
-    	for(int i = 0; i < coinList.size(); ++i)
-    	{
-    		if(!coinList.get(i).isHidden)
-    			publicCoinList.add(coinList.get(i));
-    	}
+		for (CoinData coinData : coinList) {
+			if (!coinData.isHidden)
+				publicCoinList.add(coinData);
+		}
     	return publicCoinList;
     }
     
     /**
-     * Gets a sorted list of all of the coin data in the given chain
+     * Gets a sorted list of all the coin data in the given chain
      * By default CoinData for hidden coins will not be included in this list.
      * @param chain The coin chain to receive coins from
      */
@@ -957,7 +946,7 @@ public class MoneyUtil {
     }
     
     /**
-     * Gets a sorted list of all of the coin data
+     * Gets a sorted list of all the coin data
      * @param chain The coin chain to receive coins from
      * @param includeHidden Whether hidden CoinData will be included in the list.
      */
@@ -969,11 +958,10 @@ public class MoneyUtil {
     	if(includeHidden)
     		return coinList;
     	List<CoinData> publicCoinList = new ArrayList<>();
-    	for(int i = 0; i < coinList.size(); ++i)
-    	{
-    		if(!coinList.get(i).isHidden)
-    			publicCoinList.add(coinList.get(i));
-    	}
+		for (CoinData coinData : coinList) {
+			if (!coinData.isHidden)
+				publicCoinList.add(coinData);
+		}
     	return publicCoinList;
     }
     
@@ -997,7 +985,7 @@ public class MoneyUtil {
     		}
     	}
     	if(largeCoin != null)
-    		return new Pair<Item,Integer>(largeCoin, amount);
+    		return new Pair<>(largeCoin, amount);
     	return null;
     }
     

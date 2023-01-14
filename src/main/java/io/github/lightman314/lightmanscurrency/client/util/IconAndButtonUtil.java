@@ -53,6 +53,8 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_BACK = IconData.of(ICON_TEXTURE, 0, 16);
 	public static final IconData ICON_LEFT = IconData.of(ICON_TEXTURE, 16, 16);
 	public static final IconData ICON_RIGHT = IconData.of(ICON_TEXTURE, 32, 16);
+	public static final IconData ICON_UP = IconData.of(ICON_TEXTURE, 112, 16);
+	public static final IconData ICON_DOWN = IconData.of(ICON_TEXTURE, 128, 16);
 	
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));

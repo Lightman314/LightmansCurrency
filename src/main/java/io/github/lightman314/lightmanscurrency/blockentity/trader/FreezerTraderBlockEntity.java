@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
+public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
 
 	/** The current angle of the door (between 0 and 1) */
 	private float doorAngle;
@@ -34,9 +35,6 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
 	@Override
 	public void clientTick()
 	{
-		
-		super.clientTick();
-		
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
@@ -63,9 +61,7 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity{
 				this.doorAngle = 1f;
 			else if(this.doorAngle < 0f)
 				this.doorAngle = 0f;
-			
 		}
-		
 	}
 
 }

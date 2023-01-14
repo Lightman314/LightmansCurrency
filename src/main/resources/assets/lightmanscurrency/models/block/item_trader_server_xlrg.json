@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"main": "lightmanscurrency:blocks/item_trader_server",
-		"particle": "lightmanscurrency:blocks/item_trader_server"
+		"main": "lightmanscurrency:block/item_trader_server",
+		"particle": "lightmanscurrency:block/item_trader_server"
 	},
 	"elements": [
 		{
