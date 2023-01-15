@@ -23,7 +23,7 @@ Lightman's Currency is a forge mod that adds a simple currency system of 6 diffe
 - Team Owners can create a team bank account and define what level of member is allowed to access it via the ATM account selection.
 #### Traders
 - Various craftable & grief-proof traders that can be used to set up stores from which you can buy or sell items to other players.
-- Multiple trade types, from sales (sell item for $$), purchases (buy item for $$), and barters (trade item for another item), each customizable on a per-trade basis.
+- Multiple trade types, from sales (sell items for money), purchases (buy items for money), and barters (trade items for other items), each customizable on a per-trade basis.
 - Team system, with which you can create a group of friends to moderate your traders together.
 - Trader permission system, from which you can define what your friends can & can't do to your traders.
 - Trade Rule system, from which you can set up time-limited sales, give discounts to your friends, or limit the number of purchases allowed to be made within a certain time period.
