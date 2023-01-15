@@ -163,9 +163,9 @@ public class ModBlocks {
 				)
 		);
 		MACHINE_MINT = register("coinmint", () -> LightmansCurrency.MACHINE_GROUP, () -> new CoinMintBlock(
-						Block.Properties.of(Material.GLASS)
+						Block.Properties.of(Material.METAL)
 								.strength(2.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.GLASS)
+								.sound(SoundType.METAL)
 				)
 		);
 		CASH_REGISTER = register("cash_register", () -> LightmansCurrency.MACHINE_GROUP, (block, tab) -> {
