@@ -108,7 +108,7 @@ public class EventHandler {
 	{
 		
 		LevelAccessor world = event.getLevel();
-		BlockState state = world.getBlockState(event.getPos());
+		BlockState state = event.getState();
 		
 		if(state.getBlock() instanceof IOwnableBlock block)
 		{

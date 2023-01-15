@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,6 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
@@ -84,11 +82,15 @@ public class ModCreativeGroups {
                     //ATM
                     ezPop(p, ModBlocks.MACHINE_ATM);
                     ezPop(p, ModItems.PORTABLE_ATM);
+                    //Cash Register
+                    ezPop(p, ModBlocks.CASH_REGISTER);
                     //Terminal
                     ezPop(p, ModBlocks.TERMINAL);
                     ezPop(p, ModBlocks.GEM_TERMINAL);
                     ezPop(p, ModItems.PORTABLE_TERMINAL);
                     ezPop(p, ModItems.PORTABLE_GEM_TERMINAL);
+                    //Trader Interface
+                    ezPop(p, ModBlocks.ITEM_TRADER_INTERFACE);
                     //Ticket Machine
                     ezPop(p, ModBlocks.TICKET_MACHINE);
                     //Tickets (with a creative default UUID)
@@ -96,6 +98,9 @@ public class ModCreativeGroups {
                     p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID));
                     //Ticket Stub
                     ezPop(p, ModItems.TICKET_STUB);
+                    //Coin Jars
+                    ezPop(p, ModBlocks.PIGGY_BANK);
+                    ezPop(p, ModBlocks.COINJAR_BLUE);
             }));
 
         //Trader Creative Tab
@@ -104,11 +109,12 @@ public class ModCreativeGroups {
                 .icon(() -> new ItemStack(ModBlocks.DISPLAY_CASE.get()))
                 .displayItems((enabledFlags, p, hasPermissions) -> {
                     //Item Traders (normal)
-                    ezPop(p, ModBlocks.SHELF, WoodType::sortByWood);
+                    ezPop(p, ModBlocks.SHELF);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
-                    ezPop(p, ModBlocks.CARD_DISPLAY, WoodType::sortByWood);
-                    ezPop(p, ModBlocks.VENDING_MACHINE, Color::sortByColor);
-                    ezPop(p, ModBlocks.VENDING_MACHINE_LARGE, Color::sortByColor);
+                    ezPop(p, ModBlocks.CARD_DISPLAY);
+                    ezPop(p, ModBlocks.VENDING_MACHINE);
+                    ezPop(p, ModBlocks.FREEZER);
+                    ezPop(p, ModBlocks.VENDING_MACHINE_LARGE);
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
@@ -157,8 +163,8 @@ public class ModCreativeGroups {
     }
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
-    public static <L> void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike, L> bundle, Comparator<L> sorter) { bundle.getAllSorted(sorter).forEach(populator::accept); }
-    public static <L,M> void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike, L,M> bundle, Comparator<L> sorter1, Comparator<M> sorter2) { bundle.getAllSorted(sorter1, sorter2).forEach(populator::accept); }
+    public static <L> void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike, L> bundle) { bundle.getAllSorted().forEach(populator::accept); }
+    public static <L,M> void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike, L,M> bundle) { bundle.getAllSorted().forEach(populator::accept); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();

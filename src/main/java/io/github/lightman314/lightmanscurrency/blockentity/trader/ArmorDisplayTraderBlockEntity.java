@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
@@ -28,7 +29,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.res
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 import org.jetbrains.annotations.NotNull;
 
-public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
+public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
 
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
@@ -52,8 +53,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	@Override
 	public void clientTick() {
-
-		super.clientTick();
 
 		if(this.getArmorStand() == null)
 		{
@@ -80,6 +79,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity{
 		{
 			this.updateTimer = TICK_DELAY;
 			this.validateArmorStand();
+			this.validateArmorStandValues();
 			this.updateArmorStandArmor();
 			this.killIntrudingArmorStands();
 		}

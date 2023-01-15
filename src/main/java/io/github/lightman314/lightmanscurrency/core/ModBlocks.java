@@ -419,7 +419,7 @@ public class ModBlocks {
 	
 	private static RegistryObjectBundle<Block,Color> registerColored(String name, Function<Block,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
 	{
-		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>();
+		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.values())
 		{
 			String thisName = name;
@@ -441,7 +441,7 @@ public class ModBlocks {
 	
 	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, Function<Block,Item> itemGenerator, Supplier<Block> block)
 	{
-		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>();
+		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.values())
 		{
 			String thisName = name + "_" + woodType.toString().toLowerCase();
@@ -461,7 +461,7 @@ public class ModBlocks {
 
 	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, Supplier<Block> block)
 	{
-		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>();
+		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
 		for(WoodType woodType: WoodType.values())
 		{
 			for(Color color : Color.values())

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.proxy.CommonProxy;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.VillagerTradeManager;
-import io.github.lightman314.lightmanscurrency.integration.jeiplugin.immersiveengineering.LCImmersive;
+import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -118,9 +118,7 @@ public class LightmansCurrency {
         }
 
 		if(ModList.get().isLoaded("immersiveengineering"))
-		{
 			LCImmersive.registerRotationBlacklists();
-		}
         
     }
 	

@@ -17,10 +17,15 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+@Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
 	
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
@@ -116,6 +121,15 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			}
 			
 		}
+	}
+
+	private static long rotationTime = 0;
+	public static long getRotationTime() { return rotationTime; }
+
+	@SubscribeEvent
+	public static void onClientTick(TickEvent.ClientTickEvent event) {
+		if(event.phase == TickEvent.Phase.START)
+			rotationTime++;
 	}
 
 	

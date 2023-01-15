@@ -40,21 +40,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
-	{
-		
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity trader)
-		{
-			if(trader.canBreak(player))
-				trader.destroyArmorStand();
-		}
-		
-		super.playerWillDestroy(level, pos, state, player);
-		
-	}
-	
-	@Override
 	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)

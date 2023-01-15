@@ -8,9 +8,13 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class RegistryObjectBundle<T,L> {
 
+	private final Comparator<L> sorter;
+
 	private boolean locked = false;
 	public RegistryObjectBundle<T,L> lock() { this.locked = true; return this; }
-	
+
+	public RegistryObjectBundle(Comparator<L> sorter) { this.sorter = sorter; }
+
 	private final Map<L,RegistryObject<T>> values = new HashMap<>();
 	
 	public void put(L key, RegistryObject<T> value) {
@@ -56,6 +60,8 @@ public class RegistryObjectBundle<T,L> {
 			values.add(this.get(key));
 		return values;
 	}
+
+	public List<T> getAllSorted() { return this.getAllSorted(this.sorter); }
 
 	public List<T> getAllSorted(Comparator<L> sorter)
 	{

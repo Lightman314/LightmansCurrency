@@ -382,6 +382,8 @@ public class TraderSaveData extends SavedData {
 					data.makePersistent(id, traderID);
 					
 					this.traderData.put(id, data);
+					if(data instanceof IEasyTickable t)
+						this.tickers.add(t);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					

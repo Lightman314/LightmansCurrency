@@ -8,8 +8,13 @@ import java.util.function.Supplier;
 
 public class RegistryObjectBiBundle<T,L,M> {
 
+    private final Comparator<L> sorter1;
+    private final Comparator<M> sorter2;
+
     private boolean locked = false;
     public RegistryObjectBiBundle<T,L,M> lock() { this.locked = true; return this; }
+
+    public RegistryObjectBiBundle(Comparator<L> sorter1, Comparator<M> sorter2) { this.sorter1 = sorter1; this.sorter2 = sorter2; }
 
     private final Map<L, Map<M,RegistryObject<T>>> values = new HashMap<>();
 
@@ -58,6 +63,8 @@ public class RegistryObjectBiBundle<T,L,M> {
             values.add(value.get());
         return values;
     }
+
+    public List<T> getAllSorted() { return this.getAllSorted(this.sorter1, this.sorter2); }
 
     public List<T> getAllSorted(Comparator<L> sorter1, Comparator<M> sorter2)
     {

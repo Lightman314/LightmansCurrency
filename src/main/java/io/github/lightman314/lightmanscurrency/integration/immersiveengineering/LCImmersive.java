@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.integration.jeiplugin.immersiveengineering;
+package io.github.lightman314.lightmanscurrency.integration.immersiveengineering;
 
 import blusunrize.immersiveengineering.common.util.orientation.RotationUtil;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;

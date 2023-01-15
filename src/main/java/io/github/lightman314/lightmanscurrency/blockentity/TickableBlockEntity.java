@@ -66,13 +66,12 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 	}
 
 	@Deprecated
-	public static <T extends BlockEntity> void tickHandler(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
-		if(level.isClientSide && blockEntity instanceof IClientTicker ct)
-			ct.clientTick();
-		else if(!level.isClientSide && blockEntity instanceof IServerTicker st)
-			st.serverTick();
-		if(blockEntity instanceof IEasyTickable et)
-			et.tick();
+	public static void tickHandler(Level level, BlockPos ignored1, BlockState ignored2, TickableBlockEntity blockEntity) {
+		if(level.isClientSide)
+			blockEntity.clientTick();
+		else
+			blockEntity.serverTick();
+		blockEntity.tick();
 	}
 
 	@Override

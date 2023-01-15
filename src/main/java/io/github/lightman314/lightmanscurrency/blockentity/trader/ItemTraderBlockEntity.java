@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.blockentity.interfaces.tickable.IClientTicker;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
@@ -20,9 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> implements IClientTicker {
-	
-	protected long rotationTime = 0;
+public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
+
 	protected int tradeCount;
 	protected boolean networkTrader;
 	
@@ -71,7 +70,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> imp
 			if(rotation == null)
 			{
 				rotation = new ArrayList<>();
-				rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (this.rotationTime + partialTicks) * 2.0F));
+				rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F));
 			}
 			return rotation;
 		}
@@ -118,13 +117,6 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> imp
 		super.load(compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
-	}
-
-	@Override
-	public void clientTick() {
-
-		this.rotationTime++;
-		
 	}
 
 	@Override @Deprecated

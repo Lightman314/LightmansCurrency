@@ -40,8 +40,6 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
 	public boolean legitimateBreak() { return this.legitimateBreak; }
 	
-	public final boolean isClient() { return this.level != null && this.level.isClientSide; }
-	
 	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
