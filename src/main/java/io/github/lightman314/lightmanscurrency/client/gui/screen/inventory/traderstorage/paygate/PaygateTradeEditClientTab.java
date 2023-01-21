@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate;
 
-import java.util.UUID;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -16,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTra
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -24,6 +21,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTradeEditTab> implements InteractionConsumer {
@@ -115,20 +113,12 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof PaygateTradeData)
+		if(trade instanceof PaygateTradeData t)
 		{
-			PaygateTradeData t = (PaygateTradeData)trade;
 			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER.get())
-			{
-				UUID ticketID = TicketItem.GetTicketID(this.menu.getCarried());
-				this.commonTab.setTicket(ticketID);
-				return;
-			}
+				this.commonTab.setTicket(this.menu.getCarried());
 			else if(t.isTicketTrade())
-			{
-				this.commonTab.setTicket(null);
-				return;
-			}
+				this.commonTab.setTicket(ItemStack.EMPTY);
 		}
 	}
 	

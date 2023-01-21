@@ -94,8 +94,8 @@ public class ModCreativeGroups {
                     //Ticket Machine
                     ezPop(p, ModBlocks.TICKET_MACHINE);
                     //Tickets (with a creative default UUID)
-                    p.accept(TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID));
-                    p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID));
+                    p.accept(TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
+                    p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
                     //Ticket Stub
                     ezPop(p, ModItems.TICKET_STUB);
                     //Coin Jars

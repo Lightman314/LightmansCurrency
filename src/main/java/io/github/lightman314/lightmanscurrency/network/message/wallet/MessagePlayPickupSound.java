@@ -20,7 +20,6 @@ public class MessagePlayPickupSound {
 		return INSTANCE;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static void handle(MessagePlayPickupSound message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(LightmansCurrency.PROXY::playCoinSound);
 		supplier.get().setPacketHandled(true);

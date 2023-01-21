@@ -70,14 +70,14 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISLEFT);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
+	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISLEFT,true);
 	}

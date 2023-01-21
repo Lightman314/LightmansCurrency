@@ -10,8 +10,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-public class UpgradeInputSlot extends SimpleSlot{
+public class UpgradeInputSlot extends SimpleSlot {
 
 	public static final ResourceLocation EMPTY_UPGRADE_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_upgrade_slot");
 	
@@ -28,7 +29,7 @@ public class UpgradeInputSlot extends SimpleSlot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack)
+	public boolean mayPlace(@NotNull ItemStack stack)
 	{
 		Item item = stack.getItem();
 		if(item instanceof UpgradeItem)

@@ -25,7 +25,7 @@ public class CommandReloadData {
 		
 	}
 	
-	static int execute(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
+	static int execute(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
 		
 		TraderSaveData.ReloadPersistentTraders();
 		MoneyUtil.reloadMoneyData();

@@ -10,6 +10,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class TicketSlot extends Slot{
 	
@@ -21,9 +22,7 @@ public class TicketSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
-		return InventoryUtil.ItemHasTag(stack, TicketItem.TICKET_TAG);
-	}
+	public boolean mayPlace(@NotNull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, TicketItem.TICKET_TAG); }
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {

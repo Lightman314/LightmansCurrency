@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.menus.slots;
 import java.util.List;
 import java.util.function.Function;
 
-import com.mojang.datafixers.types.Func;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -11,7 +10,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class SimpleSlot extends Slot{
+public class SimpleSlot extends Slot {
 
 	public boolean active = true;
 	public boolean locked = false;
@@ -27,14 +26,6 @@ public class SimpleSlot extends Slot{
 			return false;
 		return super.mayPlace(stack);
 	}
-	
-	//Don't override set as it's used for server-client sync
-	/*@Override
-	public void set(ItemStack stack) {
-		if(this.locked)
-			return;
-		super.set(stack);
-	}*/
 	
 	@Override
 	public @NotNull ItemStack remove(int amount) {

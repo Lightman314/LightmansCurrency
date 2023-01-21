@@ -19,6 +19,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderArgument implements ArgumentType<TraderData>{
 
@@ -46,7 +47,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 					if(t != null)
 						return t;
 				}
-			} catch(Throwable t) {}
+			} catch(Throwable ignored) {}
 		}
 		if(this.acceptPersistentIDs)
 		{
@@ -92,13 +93,13 @@ public class TraderArgument implements ArgumentType<TraderData>{
 		public void serializeToNetwork(Template template, FriendlyByteBuf buffer) { buffer.writeBoolean(template.acceptPersistentIDs); }
 
 		@Override
-		public Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean()); }
+		public @NotNull Template deserializeFromNetwork(FriendlyByteBuf buffer) { return new Template(buffer.readBoolean()); }
 
 		@Override
 		public void serializeToJson(Template template, JsonObject json) { json.addProperty("acceptPersistentIDs", template.acceptPersistentIDs); }
 
 		@Override
-		public Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs); }
+		public @NotNull Template unpack(TraderArgument argument) { return new Template(argument.acceptPersistentIDs); }
 		
 		public final class Template implements ArgumentTypeInfo.Template<TraderArgument>
 		{
@@ -107,10 +108,10 @@ public class TraderArgument implements ArgumentType<TraderData>{
 			Template(boolean checkPersistentIDs) { this.acceptPersistentIDs = checkPersistentIDs; }
 
 			@Override
-			public TraderArgument instantiate(CommandBuildContext p_235378_) { return new TraderArgument(this.acceptPersistentIDs); }
+			public @NotNull TraderArgument instantiate(@NotNull CommandBuildContext context) { return new TraderArgument(this.acceptPersistentIDs); }
 
 			@Override
-			public ArgumentTypeInfo<TraderArgument, ?> type() { return Info.this; }
+			public @NotNull ArgumentTypeInfo<TraderArgument, ?> type() { return Info.this; }
 			
 		}
 		
