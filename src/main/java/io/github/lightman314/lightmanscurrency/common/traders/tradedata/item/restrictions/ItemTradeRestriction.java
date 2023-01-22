@@ -8,12 +8,11 @@ import java.util.function.BiConsumer;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -56,7 +55,6 @@ public class ItemTradeRestriction {
 
 	public static void forEach(BiConsumer<ResourceLocation,ItemTradeRestriction> consumer) { registeredRestrictions.forEach(consumer); }
 
-	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, ItemRenderUtil.EMPTY_SLOT_BG);
 	
 	public static final ItemTradeRestriction NONE = new ItemTradeRestriction();
 
@@ -100,6 +98,6 @@ public class ItemTradeRestriction {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return BACKGROUND; }
+	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return EasySlot.BACKGROUND; }
 	
 }
