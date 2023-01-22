@@ -320,7 +320,7 @@ public class TradeContext {
 	/**
 	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
 	 */
-	public boolean hasTicket(UUID ticketID) {
+	public boolean hasTicket(long ticketID) {
 		if(this.hasItemHandler())
 		{
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
@@ -328,8 +328,8 @@ public class TradeContext {
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
 				if(stack.getItem() == ModItems.TICKET.get())
 				{
-					UUID id = TicketItem.GetTicketID(stack);
-					if(id != null && id.equals(ticketID))
+					long id = TicketItem.GetTicketID(stack);
+					if(id == ticketID)
 					{
 						ItemStack copyStack = stack.copy();
 						copyStack.setCount(1);
@@ -347,8 +347,8 @@ public class TradeContext {
 				ItemStack stack = inventory.getItem(i);
 				if(stack.getItem() == ModItems.TICKET.get())
 				{
-					UUID id = TicketItem.GetTicketID(stack);
-					if(id != null && id.equals(ticketID))
+					long id = TicketItem.GetTicketID(stack);
+					if(id == ticketID)
 						return true;
 				}
 			}
@@ -384,7 +384,7 @@ public class TradeContext {
 	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
 	 * 
 	 */
-	public boolean collectTicket(UUID ticketID) {
+	public boolean collectTicket(long ticketID) {
 		if(this.hasTicket(ticketID))
 		{
 			if(this.hasItemHandler())
@@ -393,8 +393,8 @@ public class TradeContext {
 					ItemStack stack = this.itemHandler.getStackInSlot(i);
 					if(stack.getItem() == ModItems.TICKET.get())
 					{
-						UUID id = TicketItem.GetTicketID(stack);
-						if(id != null && id.equals(ticketID))
+						long id = TicketItem.GetTicketID(stack);
+						if(id == ticketID)
 						{
 							ItemStack extractStack = stack.copy();
 							extractStack.setCount(1);
@@ -412,8 +412,8 @@ public class TradeContext {
 					ItemStack stack = inventory.getItem(i);
 					if(stack.getItem() == ModItems.TICKET.get())
 					{
-						UUID id = TicketItem.GetTicketID(stack);
-						if(id != null && id.equals(ticketID))
+						long id = TicketItem.GetTicketID(stack);
+						if(id == ticketID)
 						{
 							inventory.removeItem(i, 1);
 							inventory.setChanged();

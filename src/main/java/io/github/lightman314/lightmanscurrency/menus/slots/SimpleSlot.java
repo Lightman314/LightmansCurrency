@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class SimpleSlot extends Slot{
+public class SimpleSlot extends Slot {
 
 	public boolean active = true;
 	public boolean locked = false;

@@ -537,7 +537,7 @@ public class InventoryUtil {
 	}
 
 	public static boolean ItemHasTag(ItemStack item, ResourceLocation tag) {
-		for(TagKey<Item> itemTag : item.getTags().collect(Collectors.toList()))
+		for(TagKey<Item> itemTag : item.getTags().toList())
 		{
 			if(itemTag.location().equals(tag))
 				return true;

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -11,6 +10,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Al
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -35,10 +36,11 @@ public class PaygateTradeData extends TradeData {
 	int duration = PaygateTraderData.DURATION_MIN;
 	public int getDuration() { return Math.max(this.duration, PaygateTraderData.DURATION_MIN); }
 	public void setDuration(int duration) { this.duration = Math.max(duration, PaygateTraderData.DURATION_MIN); }
-	UUID ticketID = null;
-	public boolean isTicketTrade() { return this.ticketID != null; }
-	public UUID getTicketID() { return this.ticketID; }
-	public void setTicketID(UUID ticketID) { this.ticketID = ticketID; }
+	long ticketID = Long.MIN_VALUE;
+	int ticketColor = 0xFFFFFF;
+	public boolean isTicketTrade() { return this.ticketID >= -1; }
+	public long getTicketID() { return this.ticketID; }
+	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); }
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
@@ -63,11 +65,9 @@ public class PaygateTradeData extends TradeData {
 	public static CompoundTag saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key)
 	{
 		ListTag listNBT = new ListTag();
-		
-		for(int i = 0; i < data.size(); i++)
-		{
-			listNBT.add(data.get(i).getAsNBT());
-		}
+
+		for (PaygateTradeData datum : data)
+			listNBT.add(datum.getAsNBT());
 		
 		if(listNBT.size() > 0)
 			nbt.put(key, listNBT);
@@ -94,7 +94,6 @@ public class PaygateTradeData extends TradeData {
 		
 		for(int i = 0; i < listNBT.size(); i++)
 		{
-			//CompoundNBT compoundNBT = listNBT.getCompound(i);
 			data.get(i).loadFromNBT(listNBT.getCompound(i));
 		}
 		
@@ -114,8 +113,8 @@ public class PaygateTradeData extends TradeData {
 		CompoundTag compound = super.getAsNBT();
 		
 		compound.putInt("Duration", this.getDuration());
-		if(this.ticketID != null)
-			compound.putUUID("Ticket", this.ticketID);
+		if(this.ticketID >= -1)
+			compound.putLong("TicketID", this.ticketID);
 		
 		return compound;
 	}
@@ -125,11 +124,13 @@ public class PaygateTradeData extends TradeData {
 		super.loadFromNBT(compound);
 		
 		this.duration = compound.getInt("Duration");
-		
-		if(compound.contains("Ticket"))
-			this.ticketID = compound.getUUID("Ticket");
+
+		if(compound.contains("TicketID"))
+			this.ticketID = compound.getLong("TicketID");
+		else if(compound.contains("Ticket"))
+			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else
-			this.ticketID = null;
+			this.ticketID = Long.MIN_VALUE;
 		
 	}
 	
@@ -177,7 +178,7 @@ public class PaygateTradeData extends TradeData {
 	@Override
 	public List<DisplayEntry> getInputDisplays(TradeContext context) {
 		if(this.isTicketTrade())
-			return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.ticketID), 1, Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.ticket.id", this.ticketID))));
+			return Lists.newArrayList(DisplayEntry.of(TicketItem.CreateTicket(this.ticketID, this.ticketColor), 1, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", this.ticketID))));
 		else
 			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.price_edit")) : null));
 	}
@@ -287,15 +288,14 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof PaygateTraderData)
+		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			PaygateTraderData paygate = (PaygateTraderData)tab.menu.getTrader();
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
 			{
-				this.setTicketID(TicketItem.GetTicketID(heldItem));
+				this.setTicket(heldItem);
 				//Only send message on client, otherwise we get an infinite loop
 				if(tab.menu.isClient())
 					tab.sendInputInteractionMessage(tradeIndex, 0, button, heldItem);

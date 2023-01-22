@@ -171,92 +171,87 @@ public class LightmansCurrency {
     
     private void doCommonStuff(final FMLCommonSetupEvent event)
     {
+		LightmansCurrencyPacketHandler.init();
 
-		event.enqueueWork(() -> {
-			LightmansCurrencyPacketHandler.init();
+		//Register Crafting Conditions
+		CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
 
-			//Register Crafting Conditions
-			CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
-			CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
+		//Initialize the UniversalTraderData deserializers
+		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
+		TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
+		TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
+		TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
+		TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
 
-			//Initialize the UniversalTraderData deserializers
-			TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
-			TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
-			TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
-			TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
-			TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
+		//Register the custom game rules
+		ModGameRules.registerRules();
 
-			//Register the custom game rules
-			ModGameRules.registerRules();
+		//Initialize the Trade Rule deserializers
+		TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist::new);
+		TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist::new);
+		TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit::new);
+		TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, PlayerTradeLimit::new, true);
+		TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, PlayerDiscounts::new);
+		TradeRule.RegisterDeserializer(TimedSale.TYPE, TimedSale::new);
+		TradeRule.RegisterDeserializer(TradeLimit.TYPE, TradeLimit::new);
+		TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, TradeLimit::new, true);
+		TradeRule.RegisterDeserializer(FreeSample.TYPE, FreeSample::new);
+		TradeRule.RegisterDeserializer(PriceFluctuation.TYPE, PriceFluctuation::new);
 
-			//Initialize the Trade Rule deserializers
-			TradeRule.RegisterDeserializer(PlayerWhitelist.TYPE, PlayerWhitelist::new);
-			TradeRule.RegisterDeserializer(PlayerBlacklist.TYPE, PlayerBlacklist::new);
-			TradeRule.RegisterDeserializer(PlayerTradeLimit.TYPE, PlayerTradeLimit::new);
-			TradeRule.RegisterDeserializer(PlayerTradeLimit.OLD_TYPE, PlayerTradeLimit::new, true);
-			TradeRule.RegisterDeserializer(PlayerDiscounts.TYPE, PlayerDiscounts::new);
-			TradeRule.RegisterDeserializer(TimedSale.TYPE, TimedSale::new);
-			TradeRule.RegisterDeserializer(TradeLimit.TYPE, TradeLimit::new);
-			TradeRule.RegisterDeserializer(TradeLimit.OLD_TYPE, TradeLimit::new, true);
-			TradeRule.RegisterDeserializer(FreeSample.TYPE, FreeSample::new);
-			TradeRule.RegisterDeserializer(PriceFluctuation.TYPE, PriceFluctuation::new);
+		//Initialize the Notification deserializers
+		Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
+		Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
+		Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
+		Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
+		Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);
+		Notification.register(AuctionHouseBuyerNotification.TYPE, AuctionHouseBuyerNotification::new);
+		Notification.register(AuctionHouseSellerNobidNotification.TYPE, AuctionHouseSellerNobidNotification::new);
+		Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
+		Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
+		Notification.register(TextNotification.TYPE, TextNotification::new);
+		Notification.register(AddRemoveAllyNotification.TYPE, AddRemoveAllyNotification::new);
+		Notification.register(AddRemoveTradeNotification.TYPE, AddRemoveTradeNotification::new);
+		Notification.register(ChangeAllyPermissionNotification.TYPE, ChangeAllyPermissionNotification::new);
+		Notification.register(ChangeCreativeNotification.TYPE, ChangeCreativeNotification::new);
+		Notification.register(ChangeNameNotification.TYPE, ChangeNameNotification::new);
+		Notification.register(ChangeOwnerNotification.TYPE, ChangeOwnerNotification::new);
+		Notification.register(ChangeSettingNotification.SIMPLE_TYPE, ChangeSettingNotification.Simple::new);
+		Notification.register(ChangeSettingNotification.ADVANCED_TYPE, ChangeSettingNotification.Advanced::new);
+		Notification.register(DepositWithdrawNotification.PLAYER_TYPE, DepositWithdrawNotification.Player::new);
+		Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
+		Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
 
-			//Initialize the Notification deserializers
-			Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
-			Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
-			Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
-			Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
-			Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);
-			Notification.register(AuctionHouseBuyerNotification.TYPE, AuctionHouseBuyerNotification::new);
-			Notification.register(AuctionHouseSellerNobidNotification.TYPE, AuctionHouseSellerNobidNotification::new);
-			Notification.register(AuctionHouseBidNotification.TYPE, AuctionHouseBidNotification::new);
-			Notification.register(AuctionHouseCancelNotification.TYPE, AuctionHouseCancelNotification::new);
-			Notification.register(TextNotification.TYPE, TextNotification::new);
-			Notification.register(AddRemoveAllyNotification.TYPE, AddRemoveAllyNotification::new);
-			Notification.register(AddRemoveTradeNotification.TYPE, AddRemoveTradeNotification::new);
-			Notification.register(ChangeAllyPermissionNotification.TYPE, ChangeAllyPermissionNotification::new);
-			Notification.register(ChangeCreativeNotification.TYPE, ChangeCreativeNotification::new);
-			Notification.register(ChangeNameNotification.TYPE, ChangeNameNotification::new);
-			Notification.register(ChangeOwnerNotification.TYPE, ChangeOwnerNotification::new);
-			Notification.register(ChangeSettingNotification.SIMPLE_TYPE, ChangeSettingNotification.Simple::new);
-			Notification.register(ChangeSettingNotification.ADVANCED_TYPE, ChangeSettingNotification.Advanced::new);
-			Notification.register(DepositWithdrawNotification.PLAYER_TYPE, DepositWithdrawNotification.Player::new);
-			Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
-			Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
+		//Initialize the Notification Category deserializers
+		NotificationCategory.register(NotificationCategory.GENERAL_TYPE, c -> NotificationCategory.GENERAL);
+		NotificationCategory.register(NullCategory.TYPE, c -> NullCategory.INSTANCE);
+		NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
+		NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
+		NotificationCategory.register(AuctionHouseCategory.TYPE, c -> AuctionHouseCategory.INSTANCE);
 
-			//Initialize the Notification Category deserializers
-			NotificationCategory.register(NotificationCategory.GENERAL_TYPE, c -> NotificationCategory.GENERAL);
-			NotificationCategory.register(NullCategory.TYPE, c -> NullCategory.INSTANCE);
-			NotificationCategory.register(TraderCategory.TYPE, TraderCategory::new);
-			NotificationCategory.register(BankCategory.TYPE, BankCategory::new);
-			NotificationCategory.register(AuctionHouseCategory.TYPE, c -> AuctionHouseCategory.INSTANCE);
+		//Register Trader Search Filters
+		TraderSearchFilter.addFilter(new BasicSearchFilter());
+		TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
 
-			//Register Trader Search Filters
-			TraderSearchFilter.addFilter(new BasicSearchFilter());
-			TraderSearchFilter.addFilter(new ItemTraderSearchFilter());
+		//Register Upgrade Types
+		MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());
 
-			//Register Upgrade Types
-			MinecraftForge.EVENT_BUS.post(new UpgradeType.RegisterUpgradeTypeEvent());
-
-			//Initialized the sorting lists
-			ModCreativeGroups.setupCreativeTabs();
+		//Initialized the sorting lists
+		ModCreativeGroups.setupCreativeTabs();
 
 
-			ATMIconData.init();
+		ATMIconData.init();
 
-			//Initialize the Item Trade Restrictions
-			ItemTradeRestriction.init();
+		//Initialize the Item Trade Restrictions
+		ItemTradeRestriction.init();
 
-			//TODO
-			//Villager Trades
-			VillagerTradeManager.registerDefaultTrades();
-			ItemListingSerializer.registerDefaultSerializers();
-
-		});
+		//Villager Trades
+		VillagerTradeManager.registerDefaultTrades();
+		ItemListingSerializer.registerDefaultSerializers();
     }
     
     private void doClientStuff(final FMLClientSetupEvent event) {
-    	event.enqueueWork(PROXY::setupClient);
+    	PROXY.setupClient();
     }
     
     private void onConfigLoad(ModConfigEvent event)

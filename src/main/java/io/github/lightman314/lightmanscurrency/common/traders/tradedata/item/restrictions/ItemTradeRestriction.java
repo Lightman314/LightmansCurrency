@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -55,8 +56,7 @@ public class ItemTradeRestriction {
 
 	public static void forEach(BiConsumer<ResourceLocation,ItemTradeRestriction> consumer) { registeredRestrictions.forEach(consumer); }
 
-	public static final ResourceLocation DEFAULT_BACKGROUND = new ResourceLocation(LightmansCurrency.MODID, "items/empty_item_slot");
-	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, DEFAULT_BACKGROUND);
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, ItemRenderUtil.EMPTY_SLOT_BG);
 	
 	public static final ItemTradeRestriction NONE = new ItemTradeRestriction();
 

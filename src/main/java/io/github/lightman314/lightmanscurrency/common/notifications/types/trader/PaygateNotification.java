@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
-import java.util.UUID;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.paygate.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +19,7 @@ public class PaygateNotification extends Notification{
 	
 	TraderCategory traderData;
 	
-	UUID ticketID = null;
+	long ticketID = Long.MIN_VALUE;
 	CoinValue cost = new CoinValue();
 	
 	int duration = 0;
@@ -54,8 +53,8 @@ public class PaygateNotification extends Notification{
 	@Override
 	public MutableComponent getMessage() {
 		
-		if(this.ticketID != null)
-			return new TranslatableComponent("notifications.message.paygate_trade.ticket", this.customer, this.ticketID.toString(), PaygateTradeData.formatDurationShort(this.duration));
+		if(this.ticketID >= -1)
+			return new TranslatableComponent("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 		else
 			return new TranslatableComponent("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
 		
@@ -66,8 +65,8 @@ public class PaygateNotification extends Notification{
 		
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("Duration", this.duration);
-		if(this.ticketID != null)
-			compound.putUUID("Ticket", this.ticketID);
+		if(this.ticketID >= -1)
+			compound.putLong("TicketID", this.ticketID);
 		else
 			this.cost.save(compound, "Price");
 		compound.putString("Customer", this.customer);
@@ -79,8 +78,10 @@ public class PaygateNotification extends Notification{
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.duration = compound.getInt("Duration");
-		if(compound.contains("Ticket"))
-			this.ticketID = compound.getUUID("Ticket");
+		if(compound.contains("TicketID"))
+			this.ticketID = compound.getLong("TicketID");
+		else if(compound.contains("Ticket"))
+			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else if(compound.contains("Price"))
 			this.cost.load(compound, "Price");
 		this.customer = compound.getString("Customer");
@@ -89,14 +90,11 @@ public class PaygateNotification extends Notification{
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof PaygateNotification)
+		if(other instanceof PaygateNotification pn)
 		{
-			PaygateNotification pn = (PaygateNotification)other;
 			if(!pn.traderData.matches(this.traderData))
 				return false;
-			if((pn.ticketID == null) != (this.ticketID == null))
-				return false;
-			if(pn.ticketID != null && !pn.ticketID.equals(this.ticketID))
+			if(pn.ticketID != this.ticketID)
 				return false;
 			if(pn.duration != this.duration)
 				return false;

@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.blockentity.trader;
 
-import java.util.UUID;
-
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -87,13 +85,13 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		PaygateTraderData trader = this.getTraderData();
 		if(heldItem.getItem() == ModItems.TICKET.get())
 		{
-			UUID ticketID = TicketItem.GetTicketID(heldItem);
-			if(ticketID != null)
+			long ticketID = TicketItem.GetTicketID(heldItem);
+			if(ticketID >= -1)
 			{
 				for(int i = 0; i < trader.getTradeCount(); ++i)
 				{
 					PaygateTradeData trade = trader.getTrade(i);
-					if(trade.isTicketTrade() && trade.getTicketID().equals(ticketID))
+					if(trade.isTicketTrade() && trade.getTicketID() == ticketID)
 					{
 						//Confirm that the player is allowed to access the trade
 						if(!trader.runPreTradeEvent(PlayerReference.of(player), trade).isCanceled())

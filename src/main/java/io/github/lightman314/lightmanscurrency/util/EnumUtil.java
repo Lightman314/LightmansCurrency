@@ -6,7 +6,7 @@ public class EnumUtil {
 	{
 		for(T val : allValues)
 		{
-			if(val.toString().contentEquals(string))
+			if(val.toString().equalsIgnoreCase(string))
 				return val;
 		}
 		return defaultValue;

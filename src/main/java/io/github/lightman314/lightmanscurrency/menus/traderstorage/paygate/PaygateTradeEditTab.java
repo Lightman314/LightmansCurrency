@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -32,9 +33,8 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public PaygateTradeData getTrade() { 
-		if(this.menu.getTrader() instanceof PaygateTraderData)
+		if(this.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			PaygateTraderData paygate = (PaygateTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= paygate.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -72,18 +72,18 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 		}
 	}
 	
-	public void setTicket(UUID ticketID) {
+	public void setTicket(ItemStack ticket) {
 		PaygateTradeData trade = this.getTrade();
 		if(trade != null)
 		{
-			trade.setTicketID(ticketID);
+			trade.setTicket(ticket);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
 				message.putBoolean("NewTicket", true);
-				if(ticketID != null)
-					message.putUUID("TicketID", ticketID);
+				if(ticket != null)
+					message.put("Ticket", ticket.save(new CompoundTag()));
 				this.menu.sendMessage(message);
 			}
 		}
@@ -118,10 +118,10 @@ public class PaygateTradeEditTab extends TraderStorageTab{
 		}
 		else if(message.contains("NewTicket"))
 		{
-			UUID ticketID = null;
-			if(message.contains("TicketID"))
-				ticketID = message.getUUID("TicketID");
-			this.setTicket(ticketID);
+			ItemStack ticket = ItemStack.EMPTY;
+			if(message.contains("Ticket"))
+				ticket = ItemStack.of(message.getCompound("Ticket"));
+			this.setTicket(ticket);
 		}
 		else if(message.contains("NewDuration"))
 		{

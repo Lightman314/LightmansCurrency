@@ -15,6 +15,7 @@ public class CommandLoader {
 		CommandReloadData.register(event.getDispatcher());
 		CommandBalTop.register(event.getDispatcher());
 		CommandPlayerTrading.register(event.getDispatcher());
+		CommandTicket.register(event.getDispatcher());
 	}
 	
 }

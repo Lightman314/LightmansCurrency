@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.menus.slots.easy.EasyMultiBGSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
@@ -15,8 +16,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
-public class InteractionSlot extends Slot{
+public class InteractionSlot extends EasyMultiBGSlot {
 	
 	public final List<InteractionSlotData> slotData;
 	
@@ -41,11 +43,12 @@ public class InteractionSlot extends Slot{
 	public int getMaxStackSize() { return 1; }
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean mayPlace(@NotNull ItemStack stack) {
 		return InteractionSlotData.allowItemInSlot(this.slotData, stack);
 	}
-	
-	public List<Pair<ResourceLocation,ResourceLocation>> getPossibleNoItemIcons() {
+
+	@Override
+	protected List<Pair<ResourceLocation,ResourceLocation>> getPossibleNoItemIcons() {
 		List<Pair<ResourceLocation,ResourceLocation>> possibleBGs = new ArrayList<>();
 		for(InteractionSlotData slot : this.slotData)
 		{
@@ -54,17 +57,6 @@ public class InteractionSlot extends Slot{
 				possibleBGs.add(bg);
 		}
 		return possibleBGs;
-	}
-	
-	@Override
-	@Nullable
-	@OnlyIn(Dist.CLIENT)
-	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
-		Minecraft mc = Minecraft.getInstance();
-		//Use the game time as a timer. Divide by 20 ticks to make the timer change the index once a second.
-		int timer = (int)(mc.level.getGameTime() / 20);
-		List<Pair<ResourceLocation,ResourceLocation>> bgs = this.getPossibleNoItemIcons();
-		return bgs.get(timer % bgs.size());
 	}
 	
 }

@@ -18,6 +18,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderArgument implements ArgumentType<TraderData>{
 
@@ -46,7 +47,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 					if(t != null)
 						return t;
 				}
-			} catch(Throwable t) {}
+			} catch(Throwable ignored) {}
 		}
 		if(this.acceptPersistentIDs)
 		{
@@ -92,7 +93,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 		public void serializeToNetwork(TraderArgument argument, FriendlyByteBuf buffer) { buffer.writeBoolean(argument.acceptPersistentIDs); }
 
 		@Override
-		public TraderArgument deserializeFromNetwork(FriendlyByteBuf buffer) { return new TraderArgument(buffer.readBoolean()); }
+		public @NotNull TraderArgument deserializeFromNetwork(FriendlyByteBuf buffer) { return new TraderArgument(buffer.readBoolean()); }
 
 		@Override
 		public void serializeToJson(TraderArgument argument, JsonObject json) { json.addProperty("acceptPersistentIDs", argument.acceptPersistentIDs); }

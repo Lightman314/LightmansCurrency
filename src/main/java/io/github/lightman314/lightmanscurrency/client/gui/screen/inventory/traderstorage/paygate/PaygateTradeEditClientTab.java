@@ -25,6 +25,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTradeEditTab> implements InteractionConsumer {
 	
@@ -33,7 +35,7 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 	}
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override
 	public MutableComponent getTooltip() { return new TextComponent(""); }
@@ -115,19 +117,15 @@ public class PaygateTradeEditClientTab extends TraderStorageClientTab<PaygateTra
 
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof PaygateTradeData)
+		if(trade instanceof PaygateTradeData t)
 		{
-			PaygateTradeData t = (PaygateTradeData)trade;
 			if(this.menu.getCarried().getItem() == ModItems.TICKET_MASTER.get())
 			{
-				UUID ticketID = TicketItem.GetTicketID(this.menu.getCarried());
-				this.commonTab.setTicket(ticketID);
-				return;
+				this.commonTab.setTicket(this.menu.getCarried());
 			}
 			else if(t.isTicketTrade())
 			{
-				this.commonTab.setTicket(null);
-				return;
+				this.commonTab.setTicket(ItemStack.EMPTY);
 			}
 		}
 	}
