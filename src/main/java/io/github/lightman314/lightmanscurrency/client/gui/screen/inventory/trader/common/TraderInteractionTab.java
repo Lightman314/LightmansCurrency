@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 
 public class TraderInteractionTab extends TraderClientTab {
 
@@ -58,11 +59,18 @@ public class TraderInteractionTab extends TraderClientTab {
 		return false;
 	}
 
+	private static long lastPress = 0;
+
 	private void OnButtonPress(TraderData trader, TradeData trade) {
 		
 		if(trader == null || trade == null)
 			return;
-		
+
+		//Force 10ms between trades because for some odd reason the Trade Buttons are triggering twice...
+		if(TimeUtil.compareTime(10, lastPress))
+			return;
+		lastPress = TimeUtil.getCurrentTime();
+
 		ITraderSource ts = this.menu.traderSource.get();
 		if(ts == null)
 		{

@@ -28,8 +28,8 @@ public class TimeUtil {
 	/**
 	 * Calculates if the compareTime is less than the duration before the current time.
 	 * @param duration The duration of time (in milliseconds) 
-	 * @param compareTime The
-	 * @return Returns true if the time is not within the duration.
+	 * @param compareTime The time to compare to.
+	 * @return Returns true if the time is within the duration. If the duration has passed, false will be returned.
 	 */
 	public static boolean compareTime(long duration, long compareTime)
 	{
