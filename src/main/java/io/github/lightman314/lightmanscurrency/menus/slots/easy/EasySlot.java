@@ -3,14 +3,21 @@ package io.github.lightman314.lightmanscurrency.menus.slots.easy;
 import java.util.List;
 import java.util.function.Function;
 
+import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class EasySlot extends Slot {
+
+    public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "item/empty_item_slot");
+    public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
 
     public boolean active = true;
     public boolean locked = false;
@@ -83,7 +90,7 @@ public class EasySlot extends Slot {
             if(slot instanceof  EasySlot simpleSlot)
             {
                 if(filter.apply(simpleSlot))
-                    simpleSlot.locked = true;
+                    simpleSlot.locked = locked;
             }
         });
     }

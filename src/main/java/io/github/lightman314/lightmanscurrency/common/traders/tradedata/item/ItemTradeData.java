@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeDat
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeComparisonResult.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
+import io.github.lightman314.lightmanscurrency.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
@@ -610,7 +611,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			if(!item.isEmpty())
 				entries.add(DisplayEntry.of(item, item.getCount(), ItemRenderUtil.getTooltipFromItem(item)));
 			else if(context.isStorageMode)
-				entries.add(DisplayEntry.of(ItemRenderUtil.BACKGROUND, Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
+				entries.add(DisplayEntry.of(EasySlot.BACKGROUND, Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
 		}
 		return entries;
 	}

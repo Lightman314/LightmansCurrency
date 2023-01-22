@@ -83,7 +83,7 @@ public class SimpleSlot extends Slot {
 			if(slot instanceof  SimpleSlot simpleSlot)
 			{
 				if(filter.apply(simpleSlot))
-					simpleSlot.locked = true;
+					simpleSlot.locked = locked;
 			}
 		});
 	}
