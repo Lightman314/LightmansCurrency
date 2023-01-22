@@ -45,7 +45,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	public ItemStack filterSellItem(ItemStack itemStack)
 	{
 		if(TicketItem.isMasterTicket(itemStack))
-			return TicketItem.CreateTicket(TicketItem.GetTicketID(itemStack), 1);
+			return TicketItem.CreateTicket(itemStack);
 		else if(InventoryUtil.ItemHasTag(itemStack, TicketItem.TICKET_MATERIAL_TAG) && itemStack.getItem() != ModItems.TICKET.get())
 			return itemStack;
 		else

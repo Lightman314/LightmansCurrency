@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.variants.Color;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -95,6 +94,13 @@ public class TicketItem extends Item{
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);
 		return ticket;
+	}
+
+	public static ItemStack CreateTicket(ItemStack master)
+	{
+		if(master.getItem() == ModItems.TICKET_MASTER.get())
+			return CreateTicket(GetTicketID(master), GetTicketColor(master));
+		return ItemStack.EMPTY;
 	}
 	
 	public static ItemStack CreateTicket(long ticketID, int color)

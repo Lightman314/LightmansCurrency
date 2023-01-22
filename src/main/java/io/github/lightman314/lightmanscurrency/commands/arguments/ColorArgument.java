@@ -6,12 +6,14 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 public class ColorArgument implements ArgumentType<Integer> {
 
@@ -38,13 +40,8 @@ public class ColorArgument implements ArgumentType<Integer> {
             //Read Raw Integer
             return Integer.parseInt(color);
         }
-        //Manually check for light blue/gray underscore variants
-        if(color.equalsIgnoreCase("light_blue"))
-            return Color.LIGHTBLUE.hexColor;
-        if(color.equalsIgnoreCase("light_gray"))
-            return Color.LIGHTGRAY.hexColor;
         //Read the rest from the color enum list
-        Color c = EnumUtil.enumFromString(color, Color.values(), null);
+        Color c = Color.getFromPrettyName(color);
         if(c != null)
             return c.hexColor;
         throw ERROR_NOT_VALID.createWithContext(reader);
@@ -60,6 +57,15 @@ public class ColorArgument implements ArgumentType<Integer> {
         return true;
     }
 
+    @Override
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        for(Color c : Color.values())
+            builder.suggest(c.getPrettyName());
+        builder.suggest("0xFFFFFF");
+        return builder.buildFuture();
+    }
+
+    @Override
     public Collection<String> getExamples() { return ImmutableList.of("0xFFFFFF", "16777215", "WHITE"); }
 
 }
