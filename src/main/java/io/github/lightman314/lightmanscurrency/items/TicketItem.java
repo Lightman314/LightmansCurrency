@@ -97,6 +97,13 @@ public class TicketItem extends Item{
 		return ticket;
 	}
 
+	public static ItemStack CreateTicket(ItemStack master)
+	{
+		if(master.getItem() == ModItems.TICKET_MASTER.get())
+			return CreateTicket(GetTicketID(master), GetTicketColor(master));
+		return ItemStack.EMPTY;
+	}
+
 	public static ItemStack CreateTicket(long ticketID, int color)
 	{
 		return CreateTicket(ticketID, color,1);
