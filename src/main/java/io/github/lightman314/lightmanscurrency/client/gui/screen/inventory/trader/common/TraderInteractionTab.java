@@ -25,7 +25,7 @@ public class TraderInteractionTab extends TraderClientTab {
 	@Override
 	public void onOpen() {
 		//Trade Button Display
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, 2, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
+		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButtonArea(this.menu.traderSource, this.menu::getContext, this.screen.getGuiLeft() + 3, this.screen.getGuiTop() + 17, this.screen.getXSize() - 6, 100, this.screen::addRenderableTabWidget, this.screen::removeRenderableTabWidget, this::OnButtonPress, TradeButtonArea.FILTER_VALID));
 		this.tradeDisplay.init();
 	}
 

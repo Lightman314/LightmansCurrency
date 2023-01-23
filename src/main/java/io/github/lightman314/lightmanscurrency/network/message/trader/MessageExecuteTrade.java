@@ -9,8 +9,8 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageExecuteTrade {
 
-	private int trader;
-	private int tradeIndex;
+	private final int trader;
+	private final int tradeIndex;
 	
 	public MessageExecuteTrade(int trader, int tradeIndex)
 	{
@@ -33,11 +33,8 @@ public class MessageExecuteTrade {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof TraderMenu)
-				{
-					TraderMenu menu = (TraderMenu) player.containerMenu;
+				if(player.containerMenu instanceof TraderMenu menu)
 					menu.ExecuteTrade(message.trader, message.tradeIndex);
-				}
 			}
 		});
 		supplier.get().setPacketHandled(true);
