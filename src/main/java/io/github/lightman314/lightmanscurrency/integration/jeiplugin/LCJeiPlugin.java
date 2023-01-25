@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 @JeiPlugin
 public class LCJeiPlugin implements IModPlugin{
@@ -31,7 +32,7 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final RecipeType<CoinMintRecipe> COIN_MINT_TYPE = RecipeType.create(LightmansCurrency.MODID, "coin_mint", CoinMintRecipe.class);
 	
 	@Override
-	public ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
+	public @NotNull ResourceLocation getPluginUid() { return new ResourceLocation(LightmansCurrency.MODID, LightmansCurrency.MODID); }
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry)
@@ -41,7 +42,6 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 	
 	@Override
-	@SuppressWarnings("resource")
 	public void registerRecipes(IRecipeRegistration registration)
 	{
 		Results recipes = RecipeValidator.getValidRecipes(Minecraft.getInstance().level);
@@ -58,7 +58,7 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 	
 	@Override
-	public void registerGuiHandlers(IGuiHandlerRegistration registration)
+	public void registerGuiHandlers(@NotNull IGuiHandlerRegistration registration)
 	{
 		
 	}

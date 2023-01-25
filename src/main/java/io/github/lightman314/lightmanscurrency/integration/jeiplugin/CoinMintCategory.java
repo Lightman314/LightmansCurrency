@@ -17,6 +17,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 
@@ -30,19 +31,19 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	}
 	
 	@Override
-	public RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
+	public @NotNull RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
 
 	@Override
-	public IDrawable getBackground() { return this.background; }
+	public @NotNull IDrawable getBackground() { return this.background; }
 	
 	@Override
-	public IDrawable getIcon() { return this.icon; }
+	public @NotNull IDrawable getIcon() { return this.icon; }
 
 	@Override
-	public Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
+	public @NotNull Component getTitle() { return Component.translatable("gui.lightmanscurrency.coinmint.title"); }
 	
 	@Override
-	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, IFocusGroup focus) {
+	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @NotNull IFocusGroup focus) {
 		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
 		inputSlot.addIngredients(VanillaTypes.ITEM_STACK, Lists.newArrayList(recipe.getIngredient().getItems()));
 		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);
