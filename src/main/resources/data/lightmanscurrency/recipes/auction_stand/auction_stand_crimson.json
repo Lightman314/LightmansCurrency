@@ -1,0 +1,24 @@
+{
+  "conditions":[{"type":"lightmanscurrency:auction_stand_craftable"}],
+  "type": "minecraft:crafting_shaped",
+  "group": "auction_stand",
+  "pattern":[
+    "g",
+    "x",
+    "l"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "l": {
+      "item": "minecraft:crimson_stem"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:auction_stand_crimson"
+  }
+}

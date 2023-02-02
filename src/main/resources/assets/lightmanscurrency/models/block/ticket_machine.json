@@ -1,36 +1,119 @@
 {
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
+	"texture_size": [64, 64],
 	"textures": {
 		"main": "lightmanscurrency:block/ticket_machine",
-		"particle": "lightmanscurrency:block/ticket_machine"
+		"particle": "#main"
 	},
 	"elements": [
 		{
-			"name": "Top",
-			"from": [4, 8, 0],
-			"to": [12, 16, 8],
-			"rotation": {"angle": 0, "axis": "y", "origin": [15, 8, 13]},
+			"name": "Base",
+			"from": [0, 0, 0],
+			"to": [16, 8, 16],
 			"faces": {
-				"north": {"uv": [4, 8, 8, 12], "texture": "#main"},
-				"east": {"uv": [12, 8, 16, 12], "texture": "#main"},
-				"south": {"uv": [0, 8, 4, 12], "texture": "#main"},
-				"west": {"uv": [8, 8, 12, 12], "texture": "#main"},
+				"north": {"uv": [4, 6, 8, 8], "texture": "#main"},
+				"east": {"uv": [8, 6, 12, 8], "texture": "#main"},
+				"south": {"uv": [12, 6, 16, 8], "texture": "#main"},
+				"west": {"uv": [0, 6, 4, 8], "texture": "#main"},
 				"up": {"uv": [4, 0, 8, 4], "texture": "#main"},
 				"down": {"uv": [0, 0, 4, 4], "texture": "#main"}
 			}
 		},
 		{
-			"name": "Base",
-			"from": [4, 0, 0],
-			"to": [12, 8, 6],
-			"rotation": {"angle": 0, "axis": "y", "origin": [15, 8, 12]},
+			"name": "Back",
+			"from": [0, 8, 0],
+			"to": [16, 14, 1],
 			"faces": {
-				"north": {"uv": [4, 12, 8, 16], "texture": "#main"},
-				"east": {"uv": [13, 12, 16, 16], "texture": "#main"},
-				"south": {"uv": [0, 12, 4, 16], "texture": "#main"},
-				"west": {"uv": [8, 12, 11, 16], "texture": "#main"},
-				"down": {"uv": [0, 1, 4, 4], "texture": "#main"}
+				"north": {"uv": [4, 4.5, 8, 6], "texture": "#main"},
+				"east": {"uv": [11.75, 4.5, 12, 6], "texture": "#main"},
+				"south": {"uv": [12, 4.5, 16, 6], "texture": "#main"},
+				"west": {"uv": [0, 4.5, 0.25, 6], "texture": "#main"},
+				"up": {"uv": [4, 3.75, 8, 4], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Printer-Base",
+			"from": [11, 8, 1],
+			"to": [15, 9, 7],
+			"faces": {
+				"north": {"uv": [11, 2, 12, 2.25], "texture": "#main"},
+				"east": {"uv": [11, 2.25, 12.5, 2.5], "texture": "#main"},
+				"south": {"uv": [11, 1.5, 12, 1.75], "texture": "#main"},
+				"west": {"uv": [11, 1.75, 12.5, 2], "texture": "#main"},
+				"up": {"uv": [11, 0, 12, 1.5], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Printer-Body",
+			"from": [11, 9, 2],
+			"to": [15, 12, 6],
+			"faces": {
+				"north": {"uv": [14, 0, 15, 0.75], "texture": "#main"},
+				"east": {"uv": [12, 0.75, 13, 1.5], "texture": "#main"},
+				"south": {"uv": [12, 0, 13, 0.75], "texture": "#main"},
+				"west": {"uv": [13, 0, 14, 0.75], "texture": "#main"},
+				"up": {"uv": [13, 0.75, 14, 1.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Printer-Top",
+			"from": [12, 12, 2],
+			"to": [14, 13, 6],
+			"faces": {
+				"north": {"uv": [15.5, 0.5, 16, 0.75], "texture": "#main"},
+				"east": {"uv": [15, 0.75, 16, 1], "texture": "#main"},
+				"south": {"uv": [15.5, 0, 16, 0.25], "texture": "#main"},
+				"west": {"uv": [15, 0.25, 16, 0.5], "texture": "#main"},
+				"up": {"uv": [15.5, 1, 16, 2], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Printer-Knob",
+			"from": [12, 13, 4],
+			"to": [13, 14, 5],
+			"faces": {
+				"north": {"uv": [15, 1.25, 15.25, 1.5], "texture": "#main"},
+				"east": {"uv": [15.25, 1.25, 15.5, 1.5], "texture": "#main"},
+				"south": {"uv": [15, 1, 15.25, 1.25], "texture": "#main"},
+				"west": {"uv": [15.25, 1, 15.5, 1.25], "texture": "#main"},
+				"up": {"uv": [15.25, 1.5, 15.5, 1.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Inkpot",
+			"from": [1, 8, 2],
+			"to": [4, 10, 5],
+			"faces": {
+				"north": {"uv": [9.5, 0, 10.25, 0.5], "texture": "#main"},
+				"east": {"uv": [10.25, 0, 11, 0.5], "texture": "#main"},
+				"south": {"uv": [8, 0, 8.75, 0.5], "texture": "#main"},
+				"west": {"uv": [8.75, 0, 9.5, 0.5], "texture": "#main"},
+				"up": {"uv": [8, 0.5, 8.75, 1.25], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Quill-1",
+			"from": [2, 10, 3],
+			"to": [3, 15, 4],
+			"faces": {
+				"north": {"uv": [8.5, 1.25, 8.75, 2.5], "texture": "#main"},
+				"east": {"uv": [8.75, 1.25, 9, 2.5], "texture": "#main"},
+				"south": {"uv": [8, 1.25, 8.25, 2.5], "texture": "#main"},
+				"west": {"uv": [8.25, 1.25, 8.5, 2.5], "texture": "#main"},
+				"up": {"uv": [8, 2.5, 8.25, 2.75], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Quill-2",
+			"from": [2, 12, 2],
+			"to": [3, 15, 3],
+			"faces": {
+				"north": {"uv": [9.25, 1.25, 9.5, 2], "texture": "#main"},
+				"east": {"uv": [9.5, 1.25, 9.75, 2], "texture": "#main"},
+				"west": {"uv": [9, 1.25, 9.25, 2], "texture": "#main"},
+				"up": {"uv": [9, 2, 9.25, 2.25], "texture": "#main"},
+				"down": {"uv": [9.25, 2, 9.5, 2.25], "texture": "#main"}
 			}
 		}
 	]

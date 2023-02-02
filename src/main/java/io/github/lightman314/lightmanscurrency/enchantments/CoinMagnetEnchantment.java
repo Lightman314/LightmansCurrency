@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.enchantments;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.core.ModSounds;
@@ -38,7 +39,11 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	public int getMaxLevel() { return MAX_LEVEL; }
 	
 	public static void runEntityTick(LivingEntity entity) {
-		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler ->{
+		if(entity.isSpectator())
+			return;
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+		if(walletHandler != null)
+		{
 			ItemStack wallet = walletHandler.getWallet();
 			//Don't do anything if the stack is not a waller
 			//Or if the wallet cannot pick up coins
@@ -75,7 +80,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 				walletHandler.setWallet(wallet);
 				WalletMenuBase.OnWalletUpdated(entity);
 			}
-		});
+		}
 	}
 
 	public static boolean coinMagnetEntityFilter(Entity entity) {

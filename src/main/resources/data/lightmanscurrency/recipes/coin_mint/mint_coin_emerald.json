@@ -4,5 +4,5 @@
   "ingredient": {
     "tag": "forge:gems/emerald"
   },
-  "result": "lightmanscurrency:coin_emerald"
+  "result": { "item":"lightmanscurrency:coin_emerald" }
 }

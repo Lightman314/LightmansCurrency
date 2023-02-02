@@ -2,7 +2,7 @@
   "type": "lightmanscurrency:coin_mint",
   "mintType": "MELT",
   "ingredient": {
-    "item": "lightmanscurrency:coin_copper"
+    "item": "lightmanscurrency:coin_emerald"
   },
-  "result": "minecraft:copper_ingot"
+  "result": { "item": "minecraft:emerald" }
 }

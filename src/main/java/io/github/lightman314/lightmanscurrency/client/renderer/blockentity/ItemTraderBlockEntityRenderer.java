@@ -27,7 +27,7 @@ import org.joml.Vector3f;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
-	
+
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
@@ -59,7 +59,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			List<ItemStack> renderItems = GetRenderItems(trade);
 			if(renderItems.size() > 0)
 			{
-				
+
 				ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 				
 				//Get positions
@@ -115,9 +115,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
 				
 					pose.popPose();
-					
 				}
-				
 			}
 			
 		}
@@ -125,6 +123,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }
+	public static Quaternionf getRotation(float partialTicks) { return new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
 
 	@SubscribeEvent
 	public static void onClientTick(TickEvent.ClientTickEvent event) {

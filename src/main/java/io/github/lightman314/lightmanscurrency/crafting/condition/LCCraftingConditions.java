@@ -29,13 +29,28 @@ public class LCCraftingConditions {
 		private static final TraderInterface INSTANCE = new TraderInterface();
 		public static final IConditionSerializer<TraderInterface> SERIALIZER = new Serializer();
 		private TraderInterface() { super(TYPE, Config.COMMON.canCraftTraderInterfaces); }
-		public static class Serializer implements IConditionSerializer<TraderInterface> {
+		private static class Serializer implements IConditionSerializer<TraderInterface> {
 			@Override
 			public void write(JsonObject json, TraderInterface value) {}
 			@Override
 			public TraderInterface read(JsonObject json) { return INSTANCE; }
 			@Override
 			public ResourceLocation getID() { return TYPE;}
+		}
+	}
+
+	public static class AuctionStand extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand_craftable");
+		private static final AuctionStand INSTANCE = new AuctionStand();
+		public static final IConditionSerializer<AuctionStand> SERIALIZER = new Serializer();
+		private AuctionStand() { super(TYPE, Config.COMMON.canCraftAuctionStands); }
+		private static class Serializer implements IConditionSerializer<AuctionStand> {
+			@Override
+			public void write(JsonObject json, AuctionStand value) {}
+			@Override
+			public AuctionStand read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
 		}
 	}
 	

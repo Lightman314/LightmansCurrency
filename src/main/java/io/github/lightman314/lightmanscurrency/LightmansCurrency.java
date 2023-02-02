@@ -138,6 +138,7 @@ public class LightmansCurrency {
 		//Register Crafting Conditions
 		CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
 		CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.AuctionStand.SERIALIZER);
 
 		//Initialize the UniversalTraderData deserializers
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
@@ -262,7 +263,6 @@ public class LightmansCurrency {
 			return ItemStack.EMPTY;
     	}
     	return wallet;
-
     }
 
 

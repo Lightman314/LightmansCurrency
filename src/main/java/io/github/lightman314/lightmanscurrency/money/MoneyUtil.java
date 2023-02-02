@@ -34,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -63,8 +64,9 @@ public class MoneyUtil {
 			return Component.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
 		return Component.translatable(defaultPlural);
 	}
-	
-	@SubscribeEvent
+
+	//Make high priority so that it runs before other "server start" events that may end up loading traders
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onServerStart(ServerStartedEvent event) {
 		LightmansCurrency.LogInfo("Setting up Money System for server.");
 		reloadMoneyData();

@@ -4,5 +4,5 @@
   "ingredient": {
     "item": "lightmanscurrency:coin_iron"
   },
-  "result": "minecraft:iron_ingot"
+  "result": { "item": "minecraft:iron_ingot" }
 }

@@ -77,14 +77,14 @@ public class TradeButton extends Button{
 		this.recalculateSize();
 		
 		this.renderBackground(pose, !context.isStorageMode && !this.displayOnly && this.isHovered);
-		
-		try {
-			trade.renderAdditional(this, pose, mouseX, mouseY, context);
-		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
-		
+
 		if(trade.hasArrow(context))
 			this.renderArrow(pose, trade.arrowPosition(context), !context.isStorageMode && !this.displayOnly && this.isHovered);
-		
+
+		//Render custom display stuff in front of the arrow, not behind it.
+		try { trade.renderAdditional(this, pose, mouseX, mouseY, context);
+		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
+
 		this.renderAlert(pose, trade.alertPosition(context), trade.getAlertData(context));
 		
 		this.renderDisplays(pose, trade, context);

@@ -14,16 +14,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class MintMenu extends AbstractContainerMenu{
 
-	public final CoinMintBlockEntity tileEntity;
+	public final CoinMintBlockEntity blockEntity;
 	
-	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity tileEntity)
+	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity blockEntity)
 	{
 		super(ModMenus.MINT.get(), windowId);
-		this.tileEntity = tileEntity;
+		this.blockEntity = blockEntity;
 		
 		//Slots
-		this.addSlot(new MintSlot(this.tileEntity.getStorage(), 0, 56, 21, this.tileEntity));
-		this.addSlot(new OutputSlot(this.tileEntity.getStorage(), 1, 116, 21));
+		this.addSlot(new MintSlot(this.blockEntity.getStorage(), 0, 56, 21, this.blockEntity));
+		this.addSlot(new OutputSlot(this.blockEntity.getStorage(), 1, 116, 21));
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -64,14 +64,14 @@ public class MintMenu extends AbstractContainerMenu{
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.tileEntity.getStorage().getContainerSize())
+			if(index < this.blockEntity.getStorage().getContainerSize())
 			{
-				if(!this.moveItemStackTo(slotStack, this.tileEntity.getStorage().getContainerSize(), this.slots.size(), true))
+				if(!this.moveItemStackTo(slotStack, this.blockEntity.getStorage().getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.tileEntity.getStorage().getContainerSize() - 1, false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.blockEntity.getStorage().getContainerSize() - 1, false))
 			{
 				return ItemStack.EMPTY;
 			}
@@ -92,7 +92,7 @@ public class MintMenu extends AbstractContainerMenu{
 	
 	public boolean isMeltInput()
 	{
-		return MoneyUtil.isCoin(this.tileEntity.getStorage().getItem(0));
+		return MoneyUtil.isCoin(this.blockEntity.getStorage().getItem(0));
 	}
 	
 }

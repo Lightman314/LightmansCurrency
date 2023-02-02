@@ -20,7 +20,8 @@ public class BlockEntityBlockHelper {
 
 	public static final ResourceLocation ITEM_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = new ResourceLocation(LightmansCurrency.MODID, "capability_interface");
-	
+	public static final ResourceLocation AUCTION_STAND_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand");
+
 	private static final Map<ResourceLocation,List<Supplier<Block>>> blockList = new HashMap<>();
 	
 	public static Block[] getBlocksForBlockEntity(ResourceLocation beType) {
@@ -69,6 +70,10 @@ public class BlockEntityBlockHelper {
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE);
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE_LARGE);
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.ARMOR_DISPLAY, ModBlocks.FREEZER);
+
+		//External Trader Blocks
+		addBlocksToBlockEntity(AUCTION_STAND_TYPE, ModBlocks.AUCTION_STAND);
+
 		
 	}
 	

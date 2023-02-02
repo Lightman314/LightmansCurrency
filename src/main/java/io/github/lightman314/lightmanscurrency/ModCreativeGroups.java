@@ -91,8 +91,10 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.PORTABLE_GEM_TERMINAL);
                     //Trader Interface
                     ezPop(p, ModBlocks.ITEM_TRADER_INTERFACE);
+                    //Auction Stands
+                    ezPop(p, ModBlocks.AUCTION_STAND);
                     //Ticket Machine
-                    ezPop(p, ModBlocks.TICKET_MACHINE);
+                    ezPop(p, ModBlocks.TICKET_STATION);
                     //Tickets (with a creative default UUID)
                     p.accept(TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
                     p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));

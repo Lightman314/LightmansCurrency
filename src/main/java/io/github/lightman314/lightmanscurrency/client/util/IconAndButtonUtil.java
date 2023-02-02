@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ITooltipRendera
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -71,9 +72,6 @@ public class IconAndButtonUtil {
 	private static final IconData ICON_CREATIVE_OFF = IconData.of(ICON_TEXTURE, 64, 16);
 	
 	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
-	
-	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
-	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
 	
 	public static NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
 		return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
@@ -139,11 +137,7 @@ public class IconAndButtonUtil {
 	
 	public static final SimpleTooltip TOOLTIP_PERSISTENT_TRADER = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.persistent.add.trader"));
 	public static final SimpleTooltip TOOLTIP_PERSISTENT_AUCTION = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.persistent.add.auction"));
-	
-	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.paygate.setticket"));
-	
-	public static final SimpleTooltip TOOLTIP_PAYGATE_ACTIVATE = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.paygate.paybutton"));
-	
+
 	public static IconButton traderButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADER, TOOLTIP_TRADER); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORAGE, TOOLTIP_STORAGE); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visiblityCheck) {
@@ -153,7 +147,19 @@ public class IconAndButtonUtil {
 	}
 	
 	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<TraderData> traderSource) {
-		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() }));
+		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS,
+				new ToggleTooltip2(() -> {
+					TraderData trader = traderSource.get();
+					return trader == null || trader.getStoredMoney().getRawValue() <= 0;
+				},new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> {
+					TraderData trader = traderSource.get();
+					if(trader != null)
+						return new Object[] { trader.getStoredMoney().getString() };
+					else
+						return new Object[] {};
+				}),
+				new SimpleTooltip(EasyText.empty()))
+		);
 		button.setVisiblityCheck(() -> {
 			TraderData trader = traderSource.get();
 			if(trader == null)
@@ -173,7 +179,7 @@ public class IconAndButtonUtil {
 	
 	public static IconButton leftButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }
 	public static IconButton rightButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
-	
+
 	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable) { return new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL); }
 	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visibilityCheck) {
 		IconButton button = new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL);
@@ -254,6 +260,20 @@ public class IconAndButtonUtil {
 		}
 		@Override
 		protected Component getTooltip() { return this.toggleSource.get() ? this.trueTooltip : this.falseTooltip; }
+	}
+
+	public static class ToggleTooltip2 implements Supplier<Tooltip>
+	{
+		private final NonNullSupplier<Boolean> toggleSource;
+		private final Supplier<Tooltip> trueTooltip;
+		private final Supplier<Tooltip> falseTooltip;
+		public ToggleTooltip2(NonNullSupplier<Boolean> toggleSource, Supplier<Tooltip> trueTooltip, Supplier<Tooltip>  falseTooltip) {
+			this.toggleSource = toggleSource;
+			this.trueTooltip = trueTooltip;
+			this.falseTooltip = falseTooltip;
+		}
+		@Override
+		public Tooltip get() { return this.toggleSource.get() ? this.trueTooltip.get() : this.falseTooltip.get(); }
 	}
 
 	public static class ChangingTooltip extends BaseTooltip

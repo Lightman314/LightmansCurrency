@@ -70,7 +70,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 			if(rotation == null)
 			{
 				rotation = new ArrayList<>();
-				rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F));
+				rotation.add(ItemTraderBlockEntityRenderer.getRotation(partialTicks));
 			}
 			return rotation;
 		}

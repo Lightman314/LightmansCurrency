@@ -79,7 +79,7 @@ public class VillagerTradeManager {
 						//Sell first 4 shelves
 						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), ModBlocks.SHELF.getSome(WoodType.OAK, WoodType.BIRCH, WoodType.SPRUCE, WoodType.JUNGLE), 12, 5, 0.05f),
 						//Sell 4 "rare" shelves
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), ModBlocks.SHELF.getSome(WoodType.ACACIA, WoodType.DARK_OAK, WoodType.CRIMSON, WoodType.WARPED), 12, 5, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 6), ModBlocks.SHELF.getSome(WoodType.ACACIA, WoodType.DARK_OAK, WoodType.MANGROVE, WoodType.CRIMSON, WoodType.WARPED), 12, 5, 0.05f),
 						//Sell display case
 						new SimpleTrade(5, ModItems.COIN_IRON.get(), 10, ModBlocks.DISPLAY_CASE.get())
 				),
@@ -88,7 +88,7 @@ public class VillagerTradeManager {
 						//Sell first 4 card displays
 						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 15), ModBlocks.CARD_DISPLAY.getSome(WoodType.OAK, WoodType.BIRCH, WoodType.SPRUCE, WoodType.JUNGLE), 12, 10, 0.05f),
 						//Sell second 4 card displays
-						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 15), ModBlocks.CARD_DISPLAY.getSome(WoodType.ACACIA, WoodType.DARK_OAK, WoodType.CRIMSON, WoodType.WARPED), 12, 10, 0.05f),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 15), ModBlocks.CARD_DISPLAY.getSome(WoodType.ACACIA, WoodType.DARK_OAK, WoodType.MANGROVE, WoodType.CRIMSON, WoodType.WARPED), 12, 10, 0.05f),
 						//Sell armor display
 						new SimpleTrade(10, ModItems.COIN_IRON.get(), 20, ModBlocks.ARMOR_DISPLAY.get()),
 						//Sell small trader server

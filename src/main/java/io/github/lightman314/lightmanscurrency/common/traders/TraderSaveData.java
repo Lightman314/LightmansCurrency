@@ -306,8 +306,9 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderJson = generateDefaultPersistentTraderJson();
 			this.savePersistentTraderJson(ptf);
 		}
-		try { 
+		try {
 			this.persistentTraderJson = GsonHelper.parse(Files.readString(ptf.toPath()));
+			LightmansCurrency.LogDebug("Loading PersistentTraders.json\n" +  FileUtil.GSON.toJson(this.persistentTraderJson));
 			this.loadPersistentTrader(this.persistentTraderJson);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Persistent Traders.", e);
@@ -435,7 +436,7 @@ public class TraderSaveData extends SavedData {
 				
 				FileUtil.writeStringToFile(ptf, jsonString);
 				
-				LightmansCurrency.LogInfo("persistentTraders.json does not exist. Creating a fresh copy.");
+				LightmansCurrency.LogInfo("PersistentTraders.json does not exist. Creating a fresh copy.");
 				
 			} catch(Throwable e) { LightmansCurrency.LogError("Error attempting to create 'persistentTraders.json' file.", e); }
 		}
@@ -551,12 +552,45 @@ public class TraderSaveData extends SavedData {
 		{
 			TraderSaveData tsd = get();
 			if(tsd != null)
-			{
-				if(tsd.traderData.containsKey(traderID))
-					return tsd.traderData.get(traderID);
-			}
-			return null;
+				return tsd.traderData.get(traderID);
 		}
+		return null;
+	}
+
+	public static TraderData GetTrader(boolean isClient, String persistentTraderID) {
+		if(isClient)
+		{
+			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t.getPersistentID().equals(persistentTraderID)).toList();
+			if(validTraders.size() > 0)
+				return validTraders.get(0);
+		}
+		else
+		{
+			TraderSaveData tsd = get();
+			if(tsd != null)
+				return tsd.traderData.get(tsd.getPersistentID(persistentTraderID));
+		}
+		return null;
+	}
+
+	public static TraderData GetAuctionHouse(boolean isClient) {
+		if(isClient)
+		{
+			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
+			if(validTraders.size() > 0)
+				return validTraders.get(0);
+		}
+		else
+		{
+			TraderSaveData tsd = get();
+			if(tsd != null)
+			{
+				List<TraderData> validTraders = tsd.traderData.values().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
+				if(validTraders.size() > 0)
+					return validTraders.get(0);
+			}
+		}
+		return null;
 	}
 	
 	/**

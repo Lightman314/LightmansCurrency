@@ -113,6 +113,7 @@ public class LightmansCurrencyPacketHandler {
 		//Auction House
 		register(MessageStartBid.class, MessageStartBid::encode, MessageStartBid::decode, MessageStartBid::handle);
 		register(MessageSubmitBid.class, MessageSubmitBid::encode, MessageSubmitBid::decode, MessageSubmitBid::handle);
+		register(SMessageSyncAuctionStandDisplay.class, SMessageSyncAuctionStandDisplay::encode, SMessageSyncAuctionStandDisplay::decode, SMessageSyncAuctionStandDisplay::handle);
 		
 		//Trader Interfaces
 		register(MessageHandlerMessage.class, MessageHandlerMessage::encode, MessageHandlerMessage::decode, MessageHandlerMessage::handle);

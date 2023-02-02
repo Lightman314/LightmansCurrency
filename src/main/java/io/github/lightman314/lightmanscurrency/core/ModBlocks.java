@@ -9,6 +9,7 @@ import com.google.common.base.Supplier;
 import io.github.lightman314.lightmanscurrency.blocks.*;
 import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.reference.AuctionStandBlock;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.core.variants.Color;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -295,7 +297,7 @@ public class ModBlocks {
 		);
 		
 		//Ticket Machine
-		TICKET_MACHINE = register("ticket_machine", () -> new TicketMachineBlock(
+		TICKET_STATION = register("ticket_machine", () -> new TicketMachineBlock(
 				Block.Properties.of(Material.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL)
@@ -316,6 +318,11 @@ public class ModBlocks {
 				.sound(SoundType.STONE),
 				Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
+		);
+
+		//Auction Stand
+		AUCTION_STAND = registerWooden("auction_stand", () ->
+			new AuctionStandBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(2.0f))
 		);
 		
 	}
@@ -386,11 +393,14 @@ public class ModBlocks {
 	public static final RegistryObject<Block> TICKET_KIOSK;
 	
 	//Ticket Machine
-	public static final RegistryObject<Block> TICKET_MACHINE;
+	public static final RegistryObject<Block> TICKET_STATION;
 	
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
+
+	//Auciton Stants
+	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
 	
 	
 	/**

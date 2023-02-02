@@ -87,7 +87,7 @@ public class Config {
 		try{
 			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(SERVER.valueBaseCoin.get()));
 		} catch(Exception e) { e.printStackTrace(); }
-		if(coinItem != null && MoneyUtil.isCoin(coinItem))
+		if(MoneyUtil.isCoin(coinItem))
 			return coinItem;
 		return ModItems.COIN_GOLD.get();
 	}
@@ -97,7 +97,7 @@ public class Config {
 		try {
 			coinItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(SERVER.moneyMendingCoinCost.get()));
 		} catch(Exception e) { e.printStackTrace(); }
-		if(coinItem != null && MoneyUtil.isCoin(coinItem))
+		if(MoneyUtil.isCoin(coinItem))
 			return coinItem;
 		return ModItems.COIN_COPPER.get();
 	}
@@ -136,7 +136,7 @@ public class Config {
 				traderOverrides.put(villagerType.toString(), item);
 				LightmansCurrency.LogInfo("Trader Override loaded: " + villagerType + " -> " + itemType);
 				
-			} catch(Throwable t) { LightmansCurrency.LogError("Error parsing trader override input " + String.valueOf(i + 1) + ".", t); }
+			} catch(Throwable t) { LightmansCurrency.LogError("Error parsing trader override input " + (i + 1) + ".", t); }
 		}
 	}
 	
@@ -167,11 +167,6 @@ public class Config {
 	
 	public static class Client
 	{
-		
-		public enum TraderRenderType { FULL(Integer.MAX_VALUE), PARTIAL(1), NONE(0);
-			public final int renderLimit;
-			TraderRenderType(int renderLimit) { this.renderLimit = renderLimit; } 
-		}
 		
 		//Render Options
 		public final ForgeConfigSpec.IntValue itemRenderLimit;
@@ -286,11 +281,12 @@ public class Config {
 	
 	public static class Common
 	{
-		
+
 		//Crafting Options
 		public final ForgeConfigSpec.BooleanValue canCraftNetworkTraders;
 		public final ForgeConfigSpec.BooleanValue canCraftTraderInterfaces;
-		
+		public final ForgeConfigSpec.BooleanValue canCraftAuctionStands;
+
 		//Custom trades
 		public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
 		public final ForgeConfigSpec.BooleanValue addBankerVillager;
@@ -334,22 +330,27 @@ public class Config {
 		{
 			
 			builder.comment("Common configuration settings").push("common");
-			
+
 			builder.comment("Crafting Settings.").push("crafting");
-			
+
 			this.canCraftNetworkTraders = builder.comment("Whether Network Traders can be crafted.",
-					"Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
-					"Disabling does NOT disable the recipes of Network Upgrades or the Trading Terminals.",
-					"/reload required for changes to take effect.")
+							"Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
+							"Disabling does NOT disable the recipes of Network Upgrades or the Trading Terminals.",
+							"/reload required for changes to take effect.")
 					.define("allowNetworkTraderCrafting", true);
-			
+
 			this.canCraftTraderInterfaces = builder.comment("Whether Trader Interface blocks can be crafted.",
-					"Disabling will not remove any existing Trader Interfaces from the world, nor prevent their use.",
-					"/reload required for changes to take effect.")
+							"Disabling will not remove any existing Trader Interfaces from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
 					.define("allowTraderInterfaceCrafting", true);
-			
+
+			this.canCraftAuctionStands = builder.comment("Whether Auction Stand blocks can be crafted.",
+							"Disabling will not remove any existing Auction Stands from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.define("allowAuctionStandCrafting", true);
+
 			builder.pop();
-			
+
 			builder.comment("Villager Related Settings.","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
 			
 			this.addCustomWanderingTrades = builder
@@ -550,6 +551,7 @@ public class Config {
 		
 		//Auction House Options
 		public final ForgeConfigSpec.BooleanValue enableAuctionHouse;
+		public final ForgeConfigSpec.BooleanValue auctionHouseOnTerminal;
 		public final ForgeConfigSpec.IntValue maxAuctionDuration;
 		public final ForgeConfigSpec.IntValue minAuctionDuration;
 		
@@ -585,7 +587,7 @@ public class Config {
 					.comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
 							"If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.")
 					.define("ejectIllegalBreaks", true);
-			
+
 			this.allowCoinMinting = builder
 					.comment("Determines whether or not coins should be craftable via the Coin Minting Machine.")
 					.translation("lightmanscurrency.configgui.canMintCoins")
@@ -700,10 +702,15 @@ public class Config {
 			
 			builder.comment("Auction House Settings").push("auction_house");
 			
-			this.enableAuctionHouse = builder.comment("Whether the Auction House will appear on the trader list.",
-					"If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.")
+			this.enableAuctionHouse = builder.comment("Whether the Auction House will be automatically generated and accessible.",
+					"If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.",
+					"If disabled, it is highly recommended that you also disable the 'crafting.allowAuctionStandCrafting' option in the common config.")
 					.define("enabled", true);
-			
+
+			this.auctionHouseOnTerminal = builder.comment("Whether the Auction House will appear in the trading terminal.",
+					"If false, you will only be able to access the Auction House from an Auction Stand.")
+					.define("visibleOnTerminal", true);
+
 			this.minAuctionDuration = builder.comment("The minimum number of days an auction can be carried out.")
 					.defineInRange("minDuration", 0, 0, Integer.MAX_VALUE);
 			
