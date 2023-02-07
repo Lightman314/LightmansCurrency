@@ -34,6 +34,8 @@ public class ModCreativeGroups {
                 ModBlocks.GEM_TERMINAL, ModItems.PORTABLE_GEM_TERMINAL,
                 //Trader Interface
                 ModBlocks.ITEM_TRADER_INTERFACE,
+                //Auction Stands
+                ModBlocks.AUCTION_STAND,
                 //Ticket Machine
                 ModBlocks.TICKET_STATION,
                 //Tickets
