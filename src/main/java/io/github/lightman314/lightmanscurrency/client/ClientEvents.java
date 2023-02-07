@@ -122,7 +122,7 @@ public class ClientEvents {
 	private static void toggleVisibility(Button button) {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
-		IWalletHandler handler = WalletCapability.getWalletHandler(player).orElse(null);
+		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
 		if(handler != null)
 		{
 			boolean nowVisible = !handler.visible();
@@ -272,7 +272,7 @@ public class ClientEvents {
 	private static IWalletHandler getWalletHandler() {
 		Minecraft mc = Minecraft.getInstance();
 		assert mc.player != null;
-		return WalletCapability.getWalletHandler(mc.player).orElse(null);
+		return WalletCapability.lazyGetWalletHandler(mc.player);
 	}
 	
 	private static Player getPlayer() {

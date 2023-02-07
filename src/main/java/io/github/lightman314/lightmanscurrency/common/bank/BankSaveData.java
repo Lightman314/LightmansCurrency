@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class BankSaveData extends SavedData {
@@ -52,7 +53,7 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public CompoundTag save(CompoundTag compound) {
+	public @NotNull CompoundTag save(CompoundTag compound) {
 		
 		ListTag bankData = new ListTag();
 		this.playerBankData.forEach((player,data) -> {
@@ -127,8 +128,9 @@ public class BankSaveData extends SavedData {
 			return null;
 		}
 	}
-	
-	@Deprecated /** @deprecated Only use to transfer bank account data from the old Trading Office. */
+
+	/** @deprecated Only use to transfer bank account data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldBankAccount(UUID player, BankAccount account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
@@ -183,8 +185,9 @@ public class BankSaveData extends SavedData {
 		}
 		return BankAccount.GenerateReference(player);
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer selected bank account from old Trading Office. */
+
+	/** @deprecated Use only to transfer selected bank account from old Trading Office. */
+	@Deprecated
 	public static void GiveOldSelectedBankAccount(UUID player, AccountReference account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
@@ -232,7 +235,7 @@ public class BankSaveData extends SavedData {
 				bsd.setDirty();
 				try {
 					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncSelectedBankAccount(account));
-				} catch(Throwable t) {}
+				} catch(Throwable ignored) {}
 			}
 		}
 	}

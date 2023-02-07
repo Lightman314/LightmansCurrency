@@ -24,34 +24,34 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletLayer<T extends Player, M extends HumanoidModel<T>> extends RenderLayer<T,M>{
 
-	private ModelWallet<T> model;
+	private final ModelWallet<T> model;
 	
 	public WalletLayer(RenderLayerParent<T,M> renderer)
 	{
 		super(renderer);
-		this.model = new ModelWallet<T>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
+		this.model = new ModelWallet<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModLayerDefinitions.WALLET));
 	}
 
 	@Override
-	public void render(PoseStack poseStack, MultiBufferSource bufferSource, int light, T entity, float limbSwing,
-			float limbSwingAmount,
-			float partialTicks,
-			float ageInTicks,
-			float netHeadYaw,
-			float headPitch) {
+	public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, @NotNull T entity, float limbSwing,
+					   float limbSwingAmount,
+					   float partialTicks,
+					   float ageInTicks,
+					   float netHeadYaw,
+					   float headPitch) {
 		
-		IWalletHandler handler = WalletCapability.getWalletHandler(entity).orElse(null);
+		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(entity);
 		if(handler == null || !handler.visible())
 			return;
 		
 		ItemStack wallet = handler.getWallet();
-		if(wallet.getItem() instanceof WalletItem)
+		if(wallet.getItem() instanceof WalletItem walletItem)
 		{
-			
-			WalletItem walletItem = (WalletItem)wallet.getItem();
+
 			this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
 			this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 			this.getParentModel().copyPropertiesTo(this.model);

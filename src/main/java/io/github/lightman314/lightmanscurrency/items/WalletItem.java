@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.items;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -207,8 +207,10 @@ public class WalletItem extends Item{
 				
 				if(player.isCrouching() && (!LightmansCurrency.isCuriosValid(player)))
 				{
-					AtomicBoolean equippedWallet = new AtomicBoolean(false);
-					WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+					boolean equippedWallet = false;
+					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+					if(walletHandler != null)
+					{
 						if(walletHandler.getWallet().isEmpty())
 						{
 							walletHandler.setWallet(wallet);
@@ -217,10 +219,10 @@ public class WalletItem extends Item{
 							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
-							equippedWallet.set(true);
+							equippedWallet = true;
 						}
-					});
-					if(equippedWallet.get())
+					}
+					if(equippedWallet)
 						walletSlot = -1;
 				}
 				NetworkHooks.openScreen((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));

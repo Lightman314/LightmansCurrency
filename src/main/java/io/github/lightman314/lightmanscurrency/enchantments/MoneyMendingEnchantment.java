@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
@@ -43,13 +44,14 @@ public class MoneyMendingEnchantment extends Enchantment {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
 	
-	public static long getRepairCost() { return MoneyUtil.getValue(Config.getMoneyMendingCoinItem()); }
+	public static long getRepairCost() { return MoneyUtil.getValue(Config.SERVER.moneyMendingCoinCost.get()); }
 	
 	public static void runEntityTick(LivingEntity entity)
 	{
 
-
-		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler -> {
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+		if(walletHandler != null)
+		{
 			ItemStack wallet = walletHandler.getWallet();
 			if(WalletItem.isWallet(wallet))
 			{
@@ -105,7 +107,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 					}
 				}
 			}
-		});
+		}
 	}
 	
 }

@@ -183,6 +183,7 @@ public class LightmansCurrency {
 		Notification.register(ChangeSettingNotification.ADVANCED_TYPE, ChangeSettingNotification.Advanced::new);
 		Notification.register(DepositWithdrawNotification.PLAYER_TYPE, DepositWithdrawNotification.Player::new);
 		Notification.register(DepositWithdrawNotification.TRADER_TYPE, DepositWithdrawNotification.Trader::new);
+		Notification.register(DepositWithdrawNotification.SERVER_TYPE, DepositWithdrawNotification.Server::new);
 		Notification.register(BankTransferNotification.TYPE, BankTransferNotification::new);
 
 		//Initialize the Notification Category deserializers
@@ -218,8 +219,12 @@ public class LightmansCurrency {
     		//Have the loot manager validate the entity loot contents
     		LootManager.validateEntityDropList();
     		LootManager.debugLootConfigs();
-    		if(event instanceof ModConfigEvent.Loading)
-    			Config.reloadVillagerOverrides();
+
+			//Regenerate the loot tables so that any itemLoot entries being changed will be reflected in-game.
+			LootManager.regenerateLootTables();
+
+			//Only reload villager overrides on the initial load, as it's impossible to change the values after the villager trades have been loaded.
+			Config.reloadVillagerOverrides();
     	}
     }
     

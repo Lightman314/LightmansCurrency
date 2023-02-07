@@ -7,7 +7,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.chat.Component;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -75,7 +75,7 @@ public class CoinData
 	public double getDisplayValue()
 	{
 		double coreValue = this.getValue();
-		double baseValue = MoneyUtil.getValue(Config.getBaseCoinItem());
+		double baseValue = MoneyUtil.getValue(Config.SERVER.valueBaseCoin.get());
 		//LightmansCurrency.LogInfo("Core Value of " + this.getCoinItem().getRegistryName() + "=" + coreValue + "\nBase Value of " + Config.getBaseCoinItem().getRegistryName() + "=" + baseValue + "\nDisplay Value: " + coreValue/baseValue);
 		return coreValue / baseValue;
 	}
@@ -93,15 +93,15 @@ public class CoinData
 	public MutableComponent getInitial()
 	{
 		if(this.initialTranslation != null && !this.initialTranslation.isBlank())
-			return Component.translatable(this.initialTranslation);
+			return EasyText.translatable(this.initialTranslation);
 		//LightmansCurrency.LogWarning("No initial found for the coin '" + this.coinItem.getRegistryName().toString() + "'.");
-		return Component.literal(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
+		return EasyText.literal(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
 	}
 	
 	public MutableComponent getPlural() {
 		//Get plural form
 		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
-			return Component.translatable(this.pluralTranslation);
+			return EasyText.translatable(this.pluralTranslation);
 		return MoneyUtil.getDefaultPlural(this.coinItem);
 	}
 	
@@ -198,7 +198,7 @@ public class CoinData
 		}
 		
 		/**
-		 * Defines the coins initial used in displaying the short form of an price/value;
+		 * Defines the coins initial used in displaying the short form of a price/value;
 		 */
 		public Builder defineInitial(String translationString)
 		{

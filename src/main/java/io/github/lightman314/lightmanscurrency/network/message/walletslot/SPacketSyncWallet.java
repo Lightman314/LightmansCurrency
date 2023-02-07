@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -40,12 +41,14 @@ public class SPacketSyncWallet {
 			if(minecraft != null)
 			{
 				Entity entity = minecraft.level.getEntity(message.entityID);
-				if(entity instanceof LivingEntity)
+				if(entity instanceof LivingEntity livingEntity)
 				{
-					WalletCapability.getWalletHandler((LivingEntity)entity).ifPresent(walletHandler ->{
+					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
+					if(walletHandler != null)
+					{
 						walletHandler.syncWallet(message.walletItem);
 						walletHandler.setVisible(message.visible);
-					});
+					}
 				}
 			}
 		});

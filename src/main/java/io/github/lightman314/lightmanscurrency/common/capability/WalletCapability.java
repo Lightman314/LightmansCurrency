@@ -25,8 +25,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class WalletCapability {
 
 	@Deprecated
@@ -36,20 +34,21 @@ public class WalletCapability {
 
 	@Nullable
 	public static IWalletHandler lazyGetWalletHandler(@Nonnull final Entity entity) {
-		LazyOptional<IWalletHandler> optional = getWalletHandler(entity);
+		LazyOptional<IWalletHandler> optional = entity.getCapability(CurrencyCapabilities.WALLET);
 		if(optional.isPresent())
-			return optional.orElseGet(() -> {throw new RuntimeException("Unexpected error occurred!");});
+			return optional.orElseGet(() -> { throw new RuntimeException("Unexpected error occurred!"); });
 		return null;
 	}
 
 	public static CoinValue getWalletMoney(@Nonnull final Entity entity) {
-		final AtomicLong walletFunds = new AtomicLong(0);
-		WalletCapability.getWalletHandler(entity).ifPresent(walletHandler ->{
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+		if(walletHandler != null)
+		{
 			ItemStack wallet = walletHandler.getWallet();
 			if(WalletItem.isWallet(wallet.getItem()))
-				walletFunds.set(MoneyUtil.getValue(WalletItem.getWalletInventory(wallet)));
-		});
-		return new CoinValue(walletFunds.get());
+				return MoneyUtil.getCoinValue(WalletItem.getWalletInventory(wallet));
+		}
+		return CoinValue.EMPTY;
 	}
 
 	public static ICapabilityProvider createProvider(final Player playerEntity)
@@ -131,7 +130,7 @@ public class WalletCapability {
 		}
 		
 		@Override
-		public Tag writeTag() {
+		public CompoundTag save() {
 			CompoundTag compound = new CompoundTag();
 			CompoundTag walletItem = this.walletItem.save(new CompoundTag());
 			compound.put("Wallet", walletItem);
@@ -140,21 +139,17 @@ public class WalletCapability {
 		}
 		
 		@Override
-		public void readTag(Tag tag)
+		public void load(CompoundTag compound)
 		{
-			if(tag instanceof CompoundTag compound)
-			{
-				this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
-				if(compound.contains("Visible"))
-					this.visible = compound.getBoolean("Visible");
-				
-				this.clean();
-			}
+			this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
+			if(compound.contains("Visible"))
+				this.visible = compound.getBoolean("Visible");
+
+			this.clean();
 		}
 		
 		@Override
 		public void tick() {
-			
 			if(LightmansCurrency.isCuriosValid(this.entity) && !this.walletItem.isEmpty())
 			{
 				LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
@@ -165,7 +160,7 @@ public class WalletCapability {
 		
 	}
 	
-	public static class Provider implements ICapabilitySerializable<Tag>{
+	private static class Provider implements ICapabilitySerializable<Tag>{
 		final LazyOptional<IWalletHandler> optional;
 		final IWalletHandler handler;
 		Provider(final Player playerEntity)
@@ -182,12 +177,13 @@ public class WalletCapability {
 
 		@Override
 		public Tag serializeNBT() {
-			return handler.writeTag();
+			return this.handler.save();
 		}
 
 		@Override
 		public void deserializeNBT(Tag tag) {
-			handler.readTag(tag);
+			if(tag instanceof CompoundTag compound)
+				this.handler.load(compound);
 		}
 		
 	}

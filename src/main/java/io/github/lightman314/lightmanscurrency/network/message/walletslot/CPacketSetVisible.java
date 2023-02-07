@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,9 +35,9 @@ public class CPacketSetVisible {
 			Entity entity = player.level.getEntity(message.entityID);
 			if(entity != null)
 			{
-				WalletCapability.getWalletHandler(entity).ifPresent(walletHandler -> {
+				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+				if(walletHandler != null)
 					walletHandler.setVisible(message.visible);
-				});
 			}
 		});
 		supplier.get().setPacketHandled(true);

@@ -1,35 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.client.gui.components.EditBox;
 
 public class TextInputUtil {
 
 	private static final String INTEGER_WHITELIST = "0123456789";
 	private static final String FLOAT_WHITELIST = "0123456789.";
-	
-	public static boolean isInteger(EditBox textInput)
-	{
-		if(textInput == null)
-			return false;
-		return isInteger(textInput.getValue());
-	}
-	
-	public static boolean isInteger(String text)
-	{
-		if(text == null)
-			return false;
-		try
-		{
-			@SuppressWarnings("unused")
-			int i = Integer.parseInt(text);
-		} 
-		catch(NumberFormatException nfe)
-		{
-			return false;
-		}
-		return true;
-	}
 	
 	public static int getIntegerValue(EditBox textInput)
 	{
@@ -38,9 +16,7 @@ public class TextInputUtil {
 	
 	public static int getIntegerValue(EditBox textInput, int defaultValue)
 	{
-		if(isInteger(textInput))
-			return Integer.parseInt(textInput.getValue());
-		return defaultValue;
+		return NumberUtil.GetIntegerValue(textInput.getValue(), defaultValue);
 	}
 	
 	public static boolean isLong(EditBox textInput)

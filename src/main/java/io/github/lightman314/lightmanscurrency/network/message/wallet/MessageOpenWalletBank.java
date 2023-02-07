@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.items.WalletItem.DataWriter;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletBankMenuProvider;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,11 +26,7 @@ public class MessageOpenWalletBank {
 		{
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
-			{
-				IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
-				if(walletHandler != null && !walletHandler.getWallet().isEmpty())
-					NetworkHooks.openScreen(player, new WalletBankMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
-			}
+				NetworkHooks.openScreen(player, new WalletBankMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
 		});
 		supplier.get().setPacketHandled(true);
 	}

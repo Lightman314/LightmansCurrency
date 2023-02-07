@@ -33,8 +33,8 @@ public class VisibilityToggleButton extends PlainButton {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
 		assert player != null;
-		IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
-		return walletHandler == null ? false : walletHandler.visible();
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+		return walletHandler != null && walletHandler.visible();
 	}
 	
 	@Override

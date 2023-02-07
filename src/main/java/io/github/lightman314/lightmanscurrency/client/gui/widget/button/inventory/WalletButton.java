@@ -44,7 +44,7 @@ public class WalletButton extends PlainButton{
 	private static boolean shouldHide() {
 		Minecraft mc = Minecraft.getInstance();
 		assert mc.player != null;
-		IWalletHandler walletHandler = WalletCapability.getWalletHandler(mc.player).orElse(null);
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(mc.player);
 		return walletHandler == null || walletHandler.getWallet().isEmpty();
 	}
 

@@ -14,6 +14,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.events.GetDefaultMoneyDataEvent;
@@ -25,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
@@ -60,9 +60,9 @@ public class MoneyUtil {
 	public static MutableComponent getDefaultPlural(Item coin) {
 		//If no plural form defined, attempt to find one.
 		String defaultPlural = coin.getDescriptionId() + ".plural";
-		if(Component.translatable(defaultPlural).getString().equals(defaultPlural))
-			return Component.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
-		return Component.translatable(defaultPlural);
+		if(EasyText.translatable(defaultPlural).getString().equals(defaultPlural))
+			return EasyText.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
+		return EasyText.translatable(defaultPlural);
 	}
 
 	//Make high priority so that it runs before other "server start" events that may end up loading traders
@@ -247,6 +247,8 @@ public class MoneyUtil {
     		return false;
     	return allowHidden || !data.isHidden;
     }
+
+	public static boolean isVisibleCoin(Item item) { return isCoin(item, false); }
     
     /**
      * Checks if the given item is both a coin & that the coin is considered hidden.
@@ -1008,7 +1010,7 @@ public class MoneyUtil {
     
     public static long displayValueToLong(double displayValue)
     {
-    	long baseCoinValue = getValue(Config.getBaseCoinItem());
+    	long baseCoinValue = getValue(Config.SERVER.valueBaseCoin.get());
     	double totalValue = displayValue * baseCoinValue;
     	long value = (long)totalValue;
     	return totalValue % 1d >= 0.5d ? value + 1 : value;

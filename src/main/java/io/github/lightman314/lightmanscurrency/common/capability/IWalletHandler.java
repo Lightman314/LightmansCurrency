@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.capability;
 
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,15 +60,15 @@ public interface IWalletHandler{
 	 * Run every server tick.
 	 */
 	void tick();
-	
+
 	/**
 	 * Save the nbt data to file
 	 */
-	public Tag writeTag();
-	
+	CompoundTag save();
+
 	/**
 	 * Load the nbt data from file
 	 */
-	public void readTag(Tag tag);
+	void load(CompoundTag tag);
 	
 }
