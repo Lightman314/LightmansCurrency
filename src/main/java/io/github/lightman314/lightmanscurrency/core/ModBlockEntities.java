@@ -39,12 +39,14 @@ public class ModBlockEntities {
 		
 		COIN_MINT = ModRegistries.BLOCK_ENTITIES.register("coin_mint", () -> BlockEntityType.Builder.of(CoinMintBlockEntity::new, ModBlocks.MACHINE_MINT.get()).build(null));
 		
-		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_MACHINE.get()).build(null));
+		TICKET_MACHINE = ModRegistries.BLOCK_ENTITIES.register("ticket_machine", () -> BlockEntityType.Builder.of(TicketMachineBlockEntity::new, ModBlocks.TICKET_STATION.get()).build(null));
 		
 		PAYGATE = ModRegistries.BLOCK_ENTITIES.register("paygate", () -> BlockEntityType.Builder.of(PaygateBlockEntity::new, ModBlocks.PAYGATE.get()).build(null));
 		
 		COIN_JAR = ModRegistries.BLOCK_ENTITIES.register("coin_jar", () -> BlockEntityType.Builder.of(CoinJarBlockEntity::new, ModBlocks.PIGGY_BANK.get(), ModBlocks.COINJAR_BLUE.get()).build(null));
-		
+
+		AUCTION_STAND = ModRegistries.BLOCK_ENTITIES.register("auction_stand", () -> BlockEntityType.Builder.of(AuctionStandBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.AUCTION_STAND_TYPE)).build(null));
+
 		OLD_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(OldItemTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.ITEM_TRADER_TYPE)).build(null));
 		
 		UNIVERSAL_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("universal_item_trader", () -> BlockEntityType.Builder.of(UniversalItemTraderBlockEntity::new,
@@ -83,6 +85,9 @@ public class ModBlockEntities {
 	
 	//Coin Jars
 	public static final RegistryObject<BlockEntityType<CoinJarBlockEntity>> COIN_JAR;
+
+	//Auction Stand
+	public static final RegistryObject<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
 	
 	//Old Item Trader ID
 	@Deprecated

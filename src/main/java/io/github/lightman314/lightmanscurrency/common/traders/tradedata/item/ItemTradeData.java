@@ -354,6 +354,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
 		{
 			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
+			
 		}
 		else //Load from old format back when only 1 sell & barter item were allowed
 		{

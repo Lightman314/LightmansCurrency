@@ -78,6 +78,7 @@ public class ClientProxy extends CommonProxy{
 		this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
     	
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
+		this.setRenderLayer(ModBlocks.AUCTION_STAND.getAll(), RenderType.cutout());
     	
     	ItemBlockRenderTypes.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
     	
@@ -104,6 +105,7 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);

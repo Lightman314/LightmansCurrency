@@ -37,7 +37,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		
 		if(lootLevel != null)
 		{
-			LightmansCurrency.LogDebug("Loot table '" + lootTable + "' has " + lootLevel.toString() + " level chest loot. Adding coins to the spawned loot.");
+			LightmansCurrency.LogDebug("Loot table '" + lootTable + "' has " + lootLevel + " level chest loot. Adding coins to the spawned loot.");
 			List<ItemStack> coinLoot = LootManager.GetRandomChestLoot(lootLevel, context);
 			for(ItemStack coin : coinLoot) {
 				LightmansCurrency.LogDebug("Adding " + coin.getCount() + "x " + ForgeRegistries.ITEMS.getKey(coin.getItem()).toString() + " to the chest loot.");

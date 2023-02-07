@@ -23,9 +23,7 @@ public class SPacketSyncSelectedBankAccount {
 	}
 	
 	public static void handle(SPacketSyncSelectedBankAccount message, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(() -> {
-			LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount);
-		});
+		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.receiveSelectedBankAccount(message.selectedAccount));
 		supplier.get().setPacketHandled(true);
 	}
 	

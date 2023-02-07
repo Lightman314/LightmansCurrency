@@ -34,9 +34,9 @@ public class BankAccount {
 		
 		public final int id;
 		
-		private AccountType(int id) { this.id = id; }
+		AccountType(int id) { this.id = id; }
 		
-		public static final AccountType fromID(int id) {
+		public static AccountType fromID(int id) {
 			for(AccountType type : AccountType.values())
 				if(type.id == id)
 					return type;
@@ -68,19 +68,18 @@ public class BankAccount {
 	}
 	
 	public static Consumer<NonNullSupplier<Notification>> generateNotificationAcceptor(UUID playerID) {
-		return (notification) -> {
-			NotificationSaveData.PushNotification(playerID, notification.get());
-		};
+		return (notification) -> NotificationSaveData.PushNotification(playerID, notification.get());
 	}
 	
-	private NotificationData logger = new NotificationData();
+	private final NotificationData logger = new NotificationData();
 	public List<Notification> getNotifications() { return this.logger.getNotifications(); }
 	
 	private String ownerName = "Unknown";
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
 	public MutableComponent getName() { return new TranslatableComponent("lightmanscurrency.bankaccount", this.ownerName); }
-	
+
+
 	public void depositCoins(CoinValue depositAmount) {
 		this.coinStorage = new CoinValue(this.coinStorage.getRawValue() + depositAmount.getRawValue());
 		this.markDirty();
@@ -139,6 +138,16 @@ public class BankAccount {
 		account.LogInteraction(player, amount, true);
 		
 	}
+
+	public static void GiftCoinsFromServer(BankAccount account, CoinValue amount)
+	{
+		if(account == null || !amount.hasAny())
+			return;
+
+		account.depositCoins(amount);
+		account.pushNotification(() -> new DepositWithdrawNotification.Server(account.getName(), true, amount.copy()));
+
+	}
 	
 	public static void WithdrawCoins(IBankAccountMenu menu, CoinValue amount)
 	{
@@ -156,14 +165,11 @@ public class BankAccount {
 		
 		List<ItemStack> coins = MoneyUtil.getCoinsOfValue(withdrawnAmount);
 		//Attempt to fill the coins into the coin slots
-		for(int i = 0; i < coins.size(); ++i)
-		{
-			ItemStack remainder = InventoryUtil.TryPutItemStack(coinOutput, coins.get(i));
-			if(!remainder.isEmpty())
-			{
+		for (ItemStack coin : coins) {
+			ItemStack remainder = InventoryUtil.TryPutItemStack(coinOutput, coin);
+			if (!remainder.isEmpty()) {
 				//Attempt to give it to the player directly
-				if(!player.addItem(remainder))
-				{
+				if (!player.addItem(remainder)) {
 					//Drop the remainder on the ground
 					InventoryUtil.dumpContents(player.level, player.blockPosition(), remainder);
 				}
@@ -323,18 +329,18 @@ public class BankAccount {
 		
 	}
 	
-	public interface IMarkDirty { public void markDirty(); }
+	public interface IMarkDirty { void markDirty(); }
 	
 	public interface IBankAccountMenu
 	{
-		public Player getPlayer();
-		public Container getCoinInput();
-		public default void onDepositOrWithdraw() {}
-		public boolean isClient();
-		public default AccountReference getBankAccountReference() {
+		Player getPlayer();
+		Container getCoinInput();
+		default void onDepositOrWithdraw() {}
+		boolean isClient();
+		default AccountReference getBankAccountReference() {
 			return this.isClient() ? ClientBankData.GetLastSelectedAccount() : BankSaveData.GetSelectedBankAccount(this.getPlayer());
 		}
-		public default BankAccount getBankAccount() {
+		default BankAccount getBankAccount() {
 			AccountReference reference = this.getBankAccountReference();
 			return reference == null ? null : reference.get();
 		}
@@ -342,8 +348,8 @@ public class BankAccount {
 	
 	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
-		public void setTransferMessage(MutableComponent component);
-		public default void setNotificationLevel(CoinValue amount) {
+		void setTransferMessage(MutableComponent component);
+		default void setNotificationLevel(CoinValue amount) {
 			BankAccount account = this.getBankAccount();
 			if(account != null)
 				account.setNotificationValue(amount);

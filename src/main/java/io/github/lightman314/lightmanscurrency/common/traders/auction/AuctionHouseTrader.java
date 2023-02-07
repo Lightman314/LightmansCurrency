@@ -9,9 +9,11 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
@@ -59,19 +61,22 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	List<AuctionTradeData> trades = new ArrayList<>();
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
+
+	public static boolean isEnabled() { return Config.SERVER.enableAuctionHouse.get(); }
+	public static boolean shouldShowOnTerminal() { return isEnabled() && Config.SERVER.auctionHouseOnTerminal.get(); }
 	
 	@Override
-	public boolean showOnTerminal() { return true; }
+	public boolean showOnTerminal() { return shouldShowOnTerminal(); }
 	@Override
 	public boolean isCreative() { return true; }
 	
 	public AuctionHouseTrader() {
 		super(TYPE);
-		this.getOwner().SetCustomOwner(new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction.owner"));
+		this.getOwner().SetCustomOwner(EasyText.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
 	}
 	
 	@Override
-	public MutableComponent getName() { return new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction"); }
+	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }

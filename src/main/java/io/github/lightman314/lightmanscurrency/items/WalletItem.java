@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.items;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -43,6 +43,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletItem extends Item{
 	
@@ -76,7 +77,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public boolean isEnchantable(ItemStack stack) { return true; }
+	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
 	
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
@@ -154,7 +155,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
 		
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
@@ -189,7 +190,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
+	public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand)
 	{
 		
 		//CurrencyMod.LOGGER.info("Wallet was used.");
@@ -209,8 +210,10 @@ public class WalletItem extends Item{
 				
 				if(player.isCrouching() && !LightmansCurrency.isCuriosValid(player))
 				{
-					AtomicBoolean equippedWallet = new AtomicBoolean(false);
-					WalletCapability.getWalletHandler(player).ifPresent(walletHandler ->{
+					boolean equippedWallet = false;
+					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+					if(walletHandler != null)
+					{
 						if(walletHandler.getWallet().isEmpty())
 						{
 							walletHandler.setWallet(wallet);
@@ -219,10 +222,10 @@ public class WalletItem extends Item{
 							LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncWallet(player.getId(), walletHandler.getWallet(), walletHandler.visible()));
 							walletHandler.clean();
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
-							equippedWallet.set(true);
+							equippedWallet = true;
 						}
-					});
-					if(equippedWallet.get())
+					}
+					if(equippedWallet)
 						walletSlot = -1;
 				}
 				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
@@ -417,13 +420,11 @@ public class WalletItem extends Item{
 	 */
 	public static void CopyWalletContents(ItemStack walletIn, ItemStack walletOut)
 	{
-		if(!(walletIn.getItem() instanceof WalletItem && walletIn.getItem() instanceof WalletItem))
+		if(!(walletIn.getItem() instanceof WalletItem walletItemIn && walletOut.getItem() instanceof WalletItem walletItemOut))
 		{
 			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
 			return;
 		}
-		WalletItem walletItemIn = (WalletItem)walletIn.getItem();
-		WalletItem walletItemOut = (WalletItem)walletOut.getItem();
 		NonNullList<ItemStack> walletInventory1 = getWalletInventory(walletIn);
 		NonNullList<ItemStack> walletInventory2 = getWalletInventory(walletOut);
 		if(walletInventory1.size() > walletInventory2.size())
@@ -456,7 +457,7 @@ public class WalletItem extends Item{
 	public static class DataWriter implements Consumer<FriendlyByteBuf>
 	{
 
-		private int slotIndex;
+		private final int slotIndex;
 		
 		public DataWriter(int slotIndex)
 		{
@@ -464,11 +465,7 @@ public class WalletItem extends Item{
 		}
 		
 		@Override
-		public void accept(FriendlyByteBuf buffer) {
-			
-			buffer.writeInt(this.slotIndex);
-			
-		}
+		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.slotIndex); }
 		
 	}
 	

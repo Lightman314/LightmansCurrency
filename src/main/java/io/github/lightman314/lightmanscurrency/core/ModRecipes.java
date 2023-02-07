@@ -13,9 +13,9 @@ public class ModRecipes {
 	
 	static {
 		
-		WALLET_UPGRADE = ModRegistries.RECIPE_SERIALIZERS.register("crafting_wallet_upgrade", () -> new WalletUpgradeRecipe.Serializer());
+		WALLET_UPGRADE = ModRegistries.RECIPE_SERIALIZERS.register("crafting_wallet_upgrade", WalletUpgradeRecipe.Serializer::new);
 		
-		COIN_MINT = ModRegistries.RECIPE_SERIALIZERS.register("coin_mint", () -> new CoinMintRecipeSerializer());
+		COIN_MINT = ModRegistries.RECIPE_SERIALIZERS.register("coin_mint", CoinMintRecipeSerializer::new);
 		
 	}
 	

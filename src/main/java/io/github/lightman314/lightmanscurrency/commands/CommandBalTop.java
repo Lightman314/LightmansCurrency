@@ -46,7 +46,7 @@ public class CommandBalTop {
 		
 		CommandSourceStack source = commandContext.getSource();
 		
-		//Get and sort all of the bank accounts
+		//Get and sort all the bank accounts
 		//Get player bank accounts
 		List<AccountReference> allAccounts = BankSaveData.GetPlayerBankAccounts();
 		//Get team bank accounts
@@ -79,7 +79,7 @@ public class CommandBalTop {
 				Component name = account.getName();
 				String amount = account.getCoinStorage().getString("0");
 				source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
-			} catch(Exception e) { }
+			} catch(Exception ignored) { }
 		}
 		
 		return 1;

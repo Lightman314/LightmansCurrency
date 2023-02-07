@@ -113,24 +113,26 @@
     "block.lightmanscurrency.vending_machine_large_pink" : "Large Pink Vending Machine",
 	
     "block.lightmanscurrency.shelf_oak": "Oak Shelf",
+	"block.lightmanscurrency.shelf_spruce": "Spruce Shelf",
     "block.lightmanscurrency.shelf_birch": "Birch Shelf",
-    "block.lightmanscurrency.shelf_spruce": "Spruce Shelf",
     "block.lightmanscurrency.shelf_jungle": "Jungle Shelf",
     "block.lightmanscurrency.shelf_acacia": "Acacia Shelf",
     "block.lightmanscurrency.shelf_dark_oak": "Dark Oak Shelf",
+	"block.lightmanscurrency.shelf_mangrove": "Mangrove Shelf",
     "block.lightmanscurrency.shelf_crimson": "Crimson Shelf",
     "block.lightmanscurrency.shelf_warped": "Warped Shelf",
-    "block.lightmanscurrency.shelf_mangrove": "Mangrove Shelf",
+	
     "block.lightmanscurrency.card_display_oak": "Oak Card Display",
+	"block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
     "block.lightmanscurrency.card_display_birch": "Birch Card Display",
-    "block.lightmanscurrency.card_display_spruce": "Spruce Card Display",
     "block.lightmanscurrency.card_display_jungle": "Jungle Card Display",
     "block.lightmanscurrency.card_display_acacia": "Acacia Card Display",
     "block.lightmanscurrency.card_display_dark_oak": "Dark Oak Card Display",
+	"block.lightmanscurrency.card_display_mangrove": "Mangrove Card Display",
     "block.lightmanscurrency.card_display_crimson": "Crimson Card Display",
     "block.lightmanscurrency.card_display_warped": "Warped Card Display",
-    "block.lightmanscurrency.card_display_mangrove": "Mangrove Card Display",
-    "block.lightmanscurrency.ticket_machine": "Ticket Machine",
+   
+    "block.lightmanscurrency.ticket_machine": "Ticket Station",
     "block.lightmanscurrency.paygate": "Paygate",
     "block.lightmanscurrency.armor_display": "Armor Display",
     "block.lightmanscurrency.freezer": "Freezer",
@@ -144,6 +146,16 @@
     "block.lightmanscurrency.coinjar_blue": "Coin Jar",
     "block.lightmanscurrency.ticket_kiosk": "Ticket Kiosk",
     "block.lightmanscurrency.item_trader_interface": "Item Trader Interface Terminal",
+	
+    "block.lightmanscurrency.auction_stand_oak": "Oak Auction Stand",
+    "block.lightmanscurrency.auction_stand_spruce": "Spruce Auction Stand",
+    "block.lightmanscurrency.auction_stand_birch": "Birch Auction Stand",
+    "block.lightmanscurrency.auction_stand_jungle": "Jungle Auction Stand",
+    "block.lightmanscurrency.auction_stand_acacia": "Acacia Auction Stand",
+    "block.lightmanscurrency.auction_stand_dark_oak": "Dark Oak Auction Stand",
+    "block.lightmanscurrency.auction_stand_mangrove": "Mangrove Auction Stand",
+    "block.lightmanscurrency.auction_stand_crimson": "Crimson Auction Stand",
+    "block.lightmanscurrency.auction_stand_warped": "Warped Auction Stand",
     
     "enchantment.lightmanscurrency.money_mending": "Money Mending",
     "enchantment.lightmanscurrency.money_mending.desc": "Repairs the item using money from your wallet.",
@@ -245,7 +257,7 @@
     "gui.lightmanscurrency.customname": "Name:",
     "gui.lightmanscurrency.duration": "Duration:",
     "gui.lightmanscurrency.duration.unit": "ticks",
-    "gui.lightmanscurrency.ticket_machine.title" : "Ticket Machine",
+    "gui.lightmanscurrency.ticket_machine.title" : "Ticket Station",
     "gui.lightmanscurrency.item_edit.title" : "Item Selection",
     "gui.lightmanscurrency.item_edit.search": "Search Items",
     "tooltip.lightmanscurrency.coinworth.down": "Worth %1$s %2$s",
@@ -570,6 +582,7 @@
     "log.bank.transfer": "%1$s transferred %2$s %3$s %4$s",
     "log.bank.withdraw": "withdrew",
     "log.bank.deposit": "deposited",
+    "notifications.bank.server": "An admin",
     "log.bank.transfer.to": "to",
     "log.bank.transfer.from": "from",
     
@@ -692,6 +705,8 @@
     "command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success": "Added %1$s players to %2$s's whitelist.",
     "command.lightmanscurrency.lcreload": "Reloading Lightman's Currency data.",
     "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
+    "command.lightmanscurrency.lcadmin.giftBankAccounts.success": "Gave %1$s to %2$s bank accounts!",
+    "command.lightmanscurrency.lcadmin.giftBankAccounts.fail": "No bank accounts received your gift!",
     
     
     "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",
@@ -701,9 +716,11 @@
     
     "command.argument.trader.notfound": "Could not find a trader with the given ID.",
     "command.trader.block.notfound": "No trader block at the given position.",
+	"command.argument.coinvalue.notacoin": "'%s' is not a valid coin!",
+	"command.argument.coinvalue.novalue": "Value parsed was empty!",
     
-    "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Machine using a printed Master Ticket and a valid ticket material.",
-    "lightmanscurrency.jei.info.ticket_master": "Crafted in the Ticket Machine using a valid ticket material. Each Master Ticket will have a unique id to prevent illegal ticket copying, and must be used to define ticket interactions.",
+    "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Station using a printed Master Ticket and a valid ticket material.",
+    "lightmanscurrency.jei.info.ticket_master": "Crafted in the Ticket Station using a valid ticket material. Each Master Ticket will have a unique id to prevent illegal ticket copying, and must be used to define ticket interactions.",
     "lightmanscurrency.jei.info.ticket_stub": "A broken ticket returned to the customer when a ticket is used on a Paygate.",
     "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials:%s",
     

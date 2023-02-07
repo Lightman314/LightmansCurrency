@@ -6,28 +6,27 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.core.ModRecipes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinMintRecipe implements Recipe<Container>{
 
 	public enum MintType { MINT, MELT, OTHER }
-	
-	
+
+
 	public static MintType readType(JsonElement json)
 	{
 		try {
 			return readType(json.getAsString());
 		} catch(Exception e) { e.printStackTrace(); return MintType.OTHER; }
 	}
-	
+
 	public static MintType readType(String typeName)
 	{
 		for(MintType type : MintType.values())
@@ -37,29 +36,30 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		return MintType.OTHER;
 	}
-	
-	private ResourceLocation id;
-	private MintType type;
-	private Ingredient ingredient;
-	private Item result;
-	
-	public CoinMintRecipe(ResourceLocation id, MintType type, Ingredient ingredient, ItemLike result)
+
+	private final ResourceLocation id;
+	private final MintType type;
+	private final Ingredient ingredient;
+	public final int ingredientCount;
+	private final ItemStack result;
+
+	public CoinMintRecipe(ResourceLocation id, MintType type, Ingredient ingredient, int ingredientCount, ItemStack result)
 	{
 		this.id = id;
 		this.type = type;
 		this.ingredient = ingredient;
-		this.result = result.asItem();
+		this.ingredientCount = Math.max(ingredientCount,1); //Force count to be > 0
+		this.result = result;
 	}
-	
+
 	public Ingredient getIngredient() { return this.ingredient; }
-	public ItemStack getResult() { if(this.isValid()) return new ItemStack(this.result); return ItemStack.EMPTY; }
 	public MintType getMintType() { return this.type; }
-	
+
 	public boolean allowed()
 	{
 		if(this.type == MintType.MINT)
 		{
-			return Config.SERVER.allowCoinMinting.get() && Config.canMint(this.result);
+			return Config.SERVER.allowCoinMinting.get() && Config.canMint(this.result.getItem());
 		}
 		else if(this.type == MintType.MELT)
 		{
@@ -69,50 +69,37 @@ public class CoinMintRecipe implements Recipe<Container>{
 		}
 		return true;
 	}
-	
+
 	public boolean isValid()
 	{
-		if(this.ingredient.isEmpty() || this.result.asItem() == Items.AIR || !this.allowed())
-			return false;
-		return true;
+		return !this.ingredient.isEmpty() && this.result.getItem() != Items.AIR && this.allowed();
 	}
-	
+
 	@Override
-	public boolean matches(Container inventory, Level level) {
+	public boolean matches(@NotNull Container inventory, @NotNull Level level) {
 		if(!this.isValid())
 			return false;
 		ItemStack firstStack = inventory.getItem(0);
-		if(this.ingredient.test(firstStack))
-			return true;
-		return false;
+		return this.ingredient.test(firstStack);
 	}
-	
+
 	@Override
-	public ItemStack assemble(Container inventory) {
-		return this.getResult();
+	public @NotNull ItemStack assemble(@NotNull Container inventory) {
+		return this.getResultItem();
 	}
-	
+
 	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return true;
-	}
-	
+	public boolean canCraftInDimensions(int width, int height) { return true; }
+
 	@Override
-	public ItemStack getResultItem() {
-		return this.getResult();
-	}
-	
+	public @NotNull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+
 	@Override
-	public ResourceLocation getId() {
-		return this.id;
-	}
+	public @NotNull ResourceLocation getId() { return this.id; }
+
 	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return ModRecipes.COIN_MINT.get();
-	}
+	public @NotNull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
-	public RecipeType<?> getType() {
-		return RecipeTypes.COIN_MINT;
-	}
-	
+	public @NotNull RecipeType<?> getType() { return RecipeTypes.COIN_MINT; }
+
 }

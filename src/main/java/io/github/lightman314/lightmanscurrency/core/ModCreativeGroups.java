@@ -35,7 +35,7 @@ public class ModCreativeGroups {
                 //Trader Interface
                 ModBlocks.ITEM_TRADER_INTERFACE,
                 //Ticket Machine
-                ModBlocks.TICKET_MACHINE,
+                ModBlocks.TICKET_STATION,
                 //Tickets
                 ModItems.TICKET_MASTER,
                 ModItems.TICKET,

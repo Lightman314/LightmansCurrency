@@ -2,14 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -156,14 +154,13 @@ public class TradeContext {
 			funds += this.bankAccount.get().getCoinStorage().getRawValue();
 		if(this.hasPlayer())
 		{
-			
-			AtomicLong walletFunds = new AtomicLong(0);
-			WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
+			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
+			if(walletHandler != null)
+			{
 				ItemStack wallet = walletHandler.getWallet();
 				if(WalletItem.isWallet(wallet.getItem()))
-					walletFunds.set(MoneyUtil.getValue(WalletItem.getWalletInventory(wallet)));
-			});
-			funds += walletFunds.get();
+					funds += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
+			}
 		}
 		if(this.hasStoredMoney())
 			funds += this.storedMoney.getRawValue();
@@ -210,13 +207,14 @@ public class TradeContext {
 			}
 			if(this.hasPlayer() && amountToWithdraw > 0)
 			{
-				AtomicLong withdrawAmount = new AtomicLong(amountToWithdraw);
-				WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
+				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
+				if(walletHandler != null)
+				{
 					ItemStack wallet = walletHandler.getWallet();
 					if(WalletItem.isWallet(wallet.getItem()))
 					{
 						NonNullList<ItemStack> walletInventory = WalletItem.getWalletInventory(wallet);
-						long change = MoneyUtil.takeObjectsOfValue(withdrawAmount.get(), walletInventory, true);
+						long change = MoneyUtil.takeObjectsOfValue(amountToWithdraw, walletInventory, true);
 						WalletItem.putWalletInventory(wallet, walletInventory);
 						if(change < 0)
 						{
@@ -226,12 +224,9 @@ public class TradeContext {
 								if(!c.isEmpty())
 									ItemHandlerHelper.giveItemToPlayer(this.player, c);
 							}
-							change = 0;
 						}
-						withdrawAmount.set(change);
 					}
-				});
-				amountToWithdraw = withdrawAmount.get();
+				}
 			}
 			return true;
 		}
@@ -257,34 +252,33 @@ public class TradeContext {
 		else if(this.hasPlayer())
 		{
 			List<ItemStack> coins = MoneyUtil.getCoinsOfValue(price);
-			AtomicReference<List<ItemStack>> change = new AtomicReference<>(coins);
-			WalletCapability.getWalletHandler(this.player).ifPresent(walletHandler ->{
+			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
+			if(walletHandler != null)
+			{
 				ItemStack wallet = walletHandler.getWallet();
 				if(WalletItem.isWallet(wallet.getItem()))
 				{
-					change.set(new ArrayList<>());
-					for(int i = 0; i < coins.size(); ++i)
-					{
-						ItemStack coin = WalletItem.PickupCoin(wallet, coins.get(i));
-						if(!coin.isEmpty())
-							change.get().add(coin);
+					List<ItemStack> change = new ArrayList<>();
+					for (ItemStack itemStack : coins) {
+						ItemStack coin = WalletItem.PickupCoin(wallet, itemStack);
+						if (!coin.isEmpty())
+							change.add(coin);
 					}
+					coins = change;
 				}
-			});
-			if(this.hasCoinSlots() && change.get().size() > 0)
+			}
+			if(this.hasCoinSlots() && coins.size() > 0)
 			{
-				for(int i = 0; i < change.get().size(); ++i)
-				{
-					ItemStack remainder = InventoryUtil.TryPutItemStack(this.coinSlots, change.get().get(i));
-					if(!remainder.isEmpty())
+				for (ItemStack coin : coins) {
+					ItemStack remainder = InventoryUtil.TryPutItemStack(this.coinSlots, coin);
+					if (!remainder.isEmpty())
 						ItemHandlerHelper.giveItemToPlayer(this.player, remainder);
 				}
 			}
-			else if(change.get().size() > 0)
+			else if(coins.size() > 0)
 			{
-				for(int i = 0; i < change.get().size(); ++i)
-				{
-					ItemHandlerHelper.giveItemToPlayer(this.player, change.get().get(i));
+				for (ItemStack coin : coins) {
+					ItemHandlerHelper.giveItemToPlayer(this.player, coin);
 				}
 			}
 			return true;
@@ -432,9 +426,7 @@ public class TradeContext {
 			return true;
 		if(this.hasItemHandler())
 			return ItemHandlerHelper.insertItemStacked(this.itemHandler, item, true).isEmpty();
-		if(this.hasPlayer())
-			return true;
-		return false;
+		return this.hasPlayer();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -443,7 +435,7 @@ public class TradeContext {
 		if(this.hasItemHandler())
 		{
 			IItemHandler original = this.itemHandler;
-			IItemHandler copy = null;
+			IItemHandler copy;
 			if(original instanceof ICanCopy<?>)
 			{
 				copy = ((ICanCopy<? extends IItemHandler>)original).copy();
@@ -463,9 +455,7 @@ public class TradeContext {
 			}
 			return true;
 		}
-		if(this.hasPlayer())
-			return true;
-		return false;
+		return this.hasPlayer();
 	}
 	
 	public boolean putItem(ItemStack item)
@@ -501,9 +491,7 @@ public class TradeContext {
 		if(this.hasFluidTank())
 		{
 			FluidStack result = this.fluidTank.drain(fluid, FluidAction.SIMULATE);
-			if(result.isEmpty() || result.getAmount() < fluid.getAmount())
-				return false;
-			return true;
+			return !result.isEmpty() && result.getAmount() >= fluid.getAmount();
 		}
 		if(this.hasInteractionSlot(InteractionSlotData.FLUID_TYPE))
 		{

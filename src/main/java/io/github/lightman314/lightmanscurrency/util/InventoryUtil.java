@@ -574,4 +574,8 @@ public class InventoryUtil {
 			return 0;
 	}
 
+	public static void OnItemsLoaded(Container items) {
+
+	}
+
 }

@@ -125,6 +125,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }
+	public static Quaternion getRotation(float partialTicks) { return Vector3f.YP.rotationDegrees( (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
 
 	@SubscribeEvent
 	public static void onClientTick(TickEvent.ClientTickEvent event) {

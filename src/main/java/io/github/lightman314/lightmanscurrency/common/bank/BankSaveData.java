@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class BankSaveData extends SavedData {
@@ -52,7 +53,7 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public CompoundTag save(CompoundTag compound) {
+	public @NotNull CompoundTag save(CompoundTag compound) {
 		
 		ListTag bankData = new ListTag();
 		this.playerBankData.forEach((player,data) -> {
@@ -232,7 +233,7 @@ public class BankSaveData extends SavedData {
 				bsd.setDirty();
 				try {
 					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketSyncSelectedBankAccount(account));
-				} catch(Throwable t) {}
+				} catch(Throwable ignored) {}
 			}
 		}
 	}

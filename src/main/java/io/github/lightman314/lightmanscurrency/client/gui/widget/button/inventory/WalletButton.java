@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletButton extends PlainButton{
 	
@@ -25,7 +26,7 @@ public class WalletButton extends PlainButton{
 	}
 	
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		if(shouldHide())
@@ -35,8 +36,7 @@ public class WalletButton extends PlainButton{
 		this.x = this.parent.getGuiLeft() + this.xOffset;
 		this.y = this.parent.getGuiTop() + this.yOffset;
 		
-		if(this.parent instanceof CreativeModeInventoryScreen) {
-			CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)this.parent;
+		if(this.parent instanceof CreativeModeInventoryScreen creativeScreen) {
 			boolean isInventoryTab = creativeScreen.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
 			this.active = isInventoryTab;
 			
@@ -46,13 +46,13 @@ public class WalletButton extends PlainButton{
 			}
 		}
 		
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+		super.render(pose, mouseX, mouseY, partialTicks);
 		
 	}
 	
 	private static boolean shouldHide() {
 		Minecraft mc = Minecraft.getInstance();
-		IWalletHandler walletHandler = WalletCapability.getWalletHandler(mc.player).orElse(null);
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(mc.player);
 		return walletHandler == null || walletHandler.getWallet().isEmpty();
 	}
 

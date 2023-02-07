@@ -68,7 +68,7 @@ public class MintScreen extends AbstractContainerScreen<MintMenu>{
 	public void containerTick()
 	{
 		
-		this.buttonMint.visible = this.menu.tileEntity.validMintInput();
+		this.buttonMint.visible = this.menu.blockEntity.validMintInput();
 		
 	}
 	
@@ -91,7 +91,7 @@ public class MintScreen extends AbstractContainerScreen<MintMenu>{
 	
 	private void mintCoin(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown(), this.menu.tileEntity.getBlockPos()));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageMintCoin(Screen.hasShiftDown(), this.menu.blockEntity.getBlockPos()));
 	}
 	
 }

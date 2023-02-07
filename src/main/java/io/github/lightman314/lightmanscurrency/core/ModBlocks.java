@@ -7,8 +7,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Supplier;
 
 import io.github.lightman314.lightmanscurrency.blocks.*;
-import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.ItemTraderInterfaceBlock;
+import io.github.lightman314.lightmanscurrency.blocks.tradeinterface.*;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.*;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.reference.*;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.core.variants.*;
@@ -16,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -315,7 +315,7 @@ public class ModBlocks {
 		);
 
 		//Ticket Machine
-		TICKET_MACHINE = register("ticket_machine", () -> LightmansCurrency.MACHINE_GROUP, () -> new TicketMachineBlock(
+		TICKET_STATION = register("ticket_machine", () -> LightmansCurrency.MACHINE_GROUP, () -> new TicketMachineBlock(
 						Block.Properties.of(Material.METAL)
 								.strength(3.0f, 6.0f)
 								.sound(SoundType.METAL)
@@ -336,6 +336,11 @@ public class ModBlocks {
 								.sound(SoundType.STONE),
 						Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
+		);
+
+		//Auction Stand
+		AUCTION_STAND = registerWooden("auction_stand", () -> LightmansCurrency.MACHINE_GROUP, () ->
+				new AuctionStandBlock(Block.Properties.of(Material.WOOD).strength(2.0f))
 		);
 
 	}
@@ -406,11 +411,14 @@ public class ModBlocks {
 	public static final RegistryObject<Block> TICKET_KIOSK;
 
 	//Ticket Machine
-	public static final RegistryObject<Block> TICKET_MACHINE;
+	public static final RegistryObject<Block> TICKET_STATION;
 
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
+
+	//Auciton Stands
+	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
 
 
 	/**

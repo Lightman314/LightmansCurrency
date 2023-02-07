@@ -8,4 +8,5 @@ public class ListUtil {
     public static <T> List<T> convertList(List<? extends T> list) {
         return new ArrayList<>(list);
     }
+
 }

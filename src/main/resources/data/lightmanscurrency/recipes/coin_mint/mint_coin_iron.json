@@ -1,0 +1,8 @@
+{
+  "type": "lightmanscurrency:coin_mint",
+  "mintType": "MINT",
+  "ingredient": {
+    "tag": "forge:ingots/iron"
+  },
+  "result": { "item":"lightmanscurrency:coin_iron" }
+}

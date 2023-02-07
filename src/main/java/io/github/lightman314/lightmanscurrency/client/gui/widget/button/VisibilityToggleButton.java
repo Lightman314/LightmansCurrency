@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
 
 public class VisibilityToggleButton extends PlainButton {
 	
@@ -32,24 +33,18 @@ public class VisibilityToggleButton extends PlainButton {
 	private static boolean isWalletVisible() {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
-		IWalletHandler walletHandler = WalletCapability.getWalletHandler(player).orElse(null);
-		return walletHandler == null ? false : walletHandler.visible();
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
+		return walletHandler != null && walletHandler.visible();
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.setResource(ClientEvents.WALLET_SLOT_TEXTURE, U_OFFSET + (isWalletVisible() ? SIZE : 0), V_OFFSET);
 		this.x = this.parent.getGuiLeft() + this.xOffset;
 		this.y = this.parent.getGuiTop() + this.yOffset;
-		if(this.parent instanceof CreativeModeInventoryScreen) {
-			CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)this.parent;
+		if(this.parent instanceof CreativeModeInventoryScreen creativeScreen) {
 			boolean isInventoryTab = creativeScreen.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
-			this.active = isInventoryTab;
-			
-			//Hide if we're not in the inventory tab of the creative screen
-			if(!isInventoryTab) {
-				return;
-			}
+			this.active = this.visible = isInventoryTab;
 		}
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}

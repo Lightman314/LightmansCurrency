@@ -8,7 +8,6 @@ import java.util.Objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
@@ -48,7 +47,8 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	private List<TraderData> traderList(){
 		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
-		traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
+		//No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
+		//traderList.removeIf(d -> d instanceof AuctionHouseTrader && !Config.SERVER.enableAuctionHouse.get());
 		traderList.sort(TERMINAL_SORTER);
 		return traderList;
 	}

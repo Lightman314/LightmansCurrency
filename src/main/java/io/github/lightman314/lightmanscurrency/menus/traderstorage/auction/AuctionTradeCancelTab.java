@@ -30,9 +30,8 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public AuctionTradeData getTrade() { 
-		if(this.menu.getTrader() instanceof AuctionHouseTrader)
+		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -57,9 +56,8 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	
 	public void cancelAuction(boolean giveToPlayer) {
 		TraderData t = this.menu.getTrader();
-		if(t instanceof AuctionHouseTrader)
+		if(t instanceof AuctionHouseTrader trader)
 		{
-			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			AuctionTradeData trade = trader.getTrade(this.tradeIndex);
 			if(this.menu.isClient())
 			{

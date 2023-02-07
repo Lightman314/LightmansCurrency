@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
@@ -37,6 +38,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 public class IconAndButtonUtil {
 	
@@ -59,9 +61,9 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_SHOW_LOGGER = IconData.of(Items.WRITABLE_BOOK);
 	public static final IconData ICON_CLEAR_LOGGER = IconData.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER));
 	
-	public static final NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
+	public static NonNullFunction<IconButton,IconData> ICON_CREATIVE(NonNullSupplier<Boolean> isCreative) {
 		return b -> {
-			boolean creative = b.isHoveredOrFocused() ? !isCreative.get() : isCreative.get();
+			boolean creative = b.isHoveredOrFocused() != isCreative.get();
 			return creative ? ICON_CREATIVE_ON : ICON_CREATIVE_OFF;
 		};
 	}
@@ -70,10 +72,7 @@ public class IconAndButtonUtil {
 	
 	public static final IconData ICON_PERSISTENT_DATA = IconData.of(ICON_TEXTURE, 80, 16);
 	
-	public static final IconData ICON_TICKET = IconData.of(ModItems.TICKET_MASTER);
-	public static final IconData ICON_PAYGATE_ACTIVATE = IconData.of(Items.REDSTONE);
-	
-	public static final NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
+	public static NonNullSupplier<IconData> ICON_INTERFACE_ACTIVE(NonNullSupplier<Boolean> isActive) {
 		return () -> isActive.get() ? ICON_INTERFACE_ON : ICON_INTERFACE_OFF;
 	}
 	private static final IconData ICON_INTERFACE_ON = IconData.of(Items.REDSTONE_TORCH);
@@ -98,19 +97,13 @@ public class IconAndButtonUtil {
 	public static final IconData ICON_MODE_REDSTONE = IconData.of(Items.REDSTONE_TORCH);
 	public static final IconData ICON_MODE_ALWAYS_ON = IconData.of(Items.REDSTONE_BLOCK);
 	
-	public static final IconData GetIcon(ActiveMode mode) { 
-		switch(mode) {
-		case DISABLED:
-			return ICON_MODE_DISABLED;
-		case REDSTONE_OFF:
-			return ICON_MODE_REDSTONE_OFF;
-		case REDSTONE_ONLY:
-			return ICON_MODE_REDSTONE;
-		case ALWAYS_ON:
-			return ICON_MODE_ALWAYS_ON;
-			default:
-				return IconData.of(Items.ROTTEN_FLESH);
-		}
+	public static IconData GetIcon(ActiveMode mode) {
+		return switch (mode) {
+			case DISABLED -> ICON_MODE_DISABLED;
+			case REDSTONE_OFF -> ICON_MODE_REDSTONE_OFF;
+			case REDSTONE_ONLY -> ICON_MODE_REDSTONE;
+			case ALWAYS_ON -> ICON_MODE_ALWAYS_ON;
+		};
 	}
 	
 	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
@@ -143,11 +136,7 @@ public class IconAndButtonUtil {
 	
 	public static final SimpleTooltip TOOLTIP_PERSISTENT_TRADER = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistent.add.trader"));
 	public static final SimpleTooltip TOOLTIP_PERSISTENT_AUCTION = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.persistent.add.auction"));
-	
-	public static final SimpleTooltip TOOLTIP_PAIR_TICKET = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.setticket"));
-	
-	public static final SimpleTooltip TOOLTIP_PAYGATE_ACTIVATE = new SimpleTooltip(new TranslatableComponent("tooltip.lightmanscurrency.paygate.paybutton"));
-	
+
 	public static IconButton traderButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADER, TOOLTIP_TRADER); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORAGE, TOOLTIP_STORAGE); }
 	public static IconButton storageButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visiblityCheck) {
@@ -157,7 +146,19 @@ public class IconAndButtonUtil {
 	}
 	
 	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<TraderData> traderSource) {
-		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { traderSource.get().getStoredMoney().getString() }));
+		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS,
+				new ToggleTooltip2(() -> {
+					TraderData trader = traderSource.get();
+					return trader == null || trader.getStoredMoney().getRawValue() <= 0;
+				},new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> {
+					TraderData trader = traderSource.get();
+					if(trader != null)
+						return new Object[] { trader.getStoredMoney().getString() };
+					else
+						return new Object[] {};
+				}),
+					new SimpleTooltip(EasyText.empty()))
+		);
 		button.setVisiblityCheck(() -> {
 			TraderData trader = traderSource.get();
 			if(trader == null)
@@ -228,7 +229,7 @@ public class IconAndButtonUtil {
 		protected abstract Component getTooltip();
 		
 		@Override
-		public void onTooltip(Button button, PoseStack pose, int mouseX, int mouseY) {
+		public void onTooltip(Button button, @NotNull PoseStack pose, int mouseX, int mouseY) {
 			if(!button.visible || !button.active)
 				return;
 			Minecraft mc = Minecraft.getInstance();
@@ -273,6 +274,26 @@ public class IconAndButtonUtil {
 		}
 		@Override
 		protected Component getTooltip() { return this.toggleSource.get() ? this.trueTooltip : this.falseTooltip; }
+	}
+
+	public static class ToggleTooltip2 implements Button.OnTooltip
+	{
+		private final NonNullSupplier<Boolean> toggleSource;
+		private final Button.OnTooltip trueTooltip;
+		private final Button.OnTooltip falseTooltip;
+		public ToggleTooltip2(NonNullSupplier<Boolean> toggleSource, Button.OnTooltip trueTooltip, Button.OnTooltip falseTooltip) {
+			this.toggleSource = toggleSource;
+			this.trueTooltip = trueTooltip;
+			this.falseTooltip = falseTooltip;
+		}
+
+		@Override
+		public void onTooltip(@NotNull Button button, @NotNull PoseStack pose, int mouseX, int mouseY) {
+			if(this.toggleSource.get())
+				this.trueTooltip.onTooltip(button, pose, mouseX, mouseY);
+			else
+				this.falseTooltip.onTooltip(button, pose, mouseX, mouseY);
+		}
 	}
 	
 	public static class ChangingTooltip extends BaseTooltip

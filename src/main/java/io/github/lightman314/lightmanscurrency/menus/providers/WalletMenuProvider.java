@@ -7,6 +7,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import org.jetbrains.annotations.NotNull;
 
 public class WalletMenuProvider implements MenuProvider{
 
@@ -17,12 +18,12 @@ public class WalletMenuProvider implements MenuProvider{
 		this.walletItemIndex = walletItemIndex;
 	}
 	
-	public Component getDisplayName()
+	public @NotNull Component getDisplayName()
 	{
 		return new TranslatableComponent("");
 	}
 	
-	public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
+	public AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory, @NotNull Player entity)
 	{
 		return new WalletMenu(id, inventory, this.walletItemIndex);
 	}

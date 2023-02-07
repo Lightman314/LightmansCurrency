@@ -16,11 +16,15 @@ public class LazyShapes {
 	//Functions for directional only
 	public static Function<Direction,VoxelShape> lazySingleShape(VoxelShape shape) { return (facing) -> shape; }
 	public static Function<Direction,VoxelShape> lazyDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionShapeHandler(north,east,south,west); }
+	public static Function<Direction,VoxelShape> lazyDirectionalShape(VoxelShape northSouth, VoxelShape eastWest) { return new LazyDirectionShapeHandler(northSouth,eastWest,northSouth,eastWest); }
+
 	//BiFunctions for tall only
 	public static BiFunction<Direction,Boolean,VoxelShape> lazyTallSingleShape(VoxelShape shape) { return (facing,isBottom) -> { if(isBottom) return shape; return moveDown(shape);}; }
 	public static BiFunction<Direction,Boolean,VoxelShape> lazyTallDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionTallShapeHandler(north,east,south,west); }
+
 	//BiFunctions for wide only (Wide must interface with direction, so no lazySingleShape variant for it)
 	public static BiFunction<Direction,Boolean,VoxelShape> lazyWideDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionWideShapeHandler(north,east,south,west); }
+
 	//TriFunctions for tall and wide (Wide must interface with direction, so no lazySingleShape variant for it)
 	public static TriFunction<Direction,Boolean,Boolean,VoxelShape> lazyTallWideDirectionalShape(BiFunction<Direction,Boolean,VoxelShape> tallShape) { return new LazyDirectionTallWideShapeHandler(tallShape); }
 	public static TriFunction<Direction,Boolean,Boolean,VoxelShape> lazyTallWideDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionTallWideShapeHandler(north,east,south,west); }

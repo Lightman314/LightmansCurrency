@@ -71,7 +71,7 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 			if(rotation == null)
 			{
 				rotation = new ArrayList<>();
-				rotation.add(Vector3f.YP.rotationDegrees((ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F));
+				rotation.add(ItemTraderBlockEntityRenderer.getRotation(partialTicks));
 			}
 			return rotation;
 		}

@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 
@@ -32,29 +33,36 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	}
 	
 	@Override
-	public RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
+	public @NotNull RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
 
 	@Override
-	public IDrawable getBackground() { return this.background; }
+	public @NotNull IDrawable getBackground() { return this.background; }
 
 	@Override
-	public IDrawable getIcon() { return this.icon; }
+	public @NotNull IDrawable getIcon() { return this.icon; }
 
 	@Override
-	public Class<? extends CoinMintRecipe> getRecipeClass() { return CoinMintRecipe.class; }
+	public @NotNull Class<? extends CoinMintRecipe> getRecipeClass() { return CoinMintRecipe.class; }
 
 	@Override
-	public Component getTitle() { return new TranslatableComponent("gui.lightmanscurrency.coinmint.title"); }
+	public @NotNull Component getTitle() { return new TranslatableComponent("gui.lightmanscurrency.coinmint.title"); }
 	
 	@Override
-	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, IFocusGroup focus) {
+	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @NotNull IFocusGroup focus) {
 		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
-		inputSlot.addIngredients(VanillaTypes.ITEM, Lists.newArrayList(recipe.getIngredient().getItems()));
+		inputSlot.addIngredients(VanillaTypes.ITEM, Lists.newArrayList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
 		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);
-		outputSlot.addIngredient(VanillaTypes.ITEM, recipe.getResult());
+		outputSlot.addIngredient(VanillaTypes.ITEM, recipe.getResultItem());
+	}
+
+	private static ItemStack[] SetStackCount(ItemStack[] results, int count)
+	{
+		for(ItemStack stack : results)
+			stack.setCount(count);
+		return results;
 	}
 
 	@Override
-	public ResourceLocation getUid() { return LCJeiPlugin.COIN_MINT_UID; }
+	public @NotNull ResourceLocation getUid() { return LCJeiPlugin.COIN_MINT_UID; }
 	
 }

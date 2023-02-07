@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -356,7 +357,7 @@ public class VillagerTradeManager {
 
 	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
 
-		Item replacementItem = Config.getEmeraldReplacementItem(trader);
+		Supplier<Item> replacementSupplier = () -> Config.getEmeraldReplacementItem(trader);
 
 		for(int i = 1; i <= 5; ++i)
 		{
@@ -367,7 +368,7 @@ public class VillagerTradeManager {
 			for(ItemListing trade : tradeList)
 			{
 				if(trade != null)
-					newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementItem));
+					newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementSupplier));
 			}
 
 			trades.put(i, newList);
@@ -397,12 +398,10 @@ public class VillagerTradeManager {
 
 	private static void replaceExistingTrades(List<ItemListing> tradeList) {
 
-		Item replacementItem = Config.getDefaultEmeraldReplacementItem();
-
 		for(int i = 0; i < tradeList.size(); ++i)
 		{
 			if(tradeList.get(i) != null)
-				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, replacementItem));
+				tradeList.set(i, new ConvertedTrade(tradeList.get(i), Items.EMERALD, Config.COMMON.defaultTraderCoin));
 		}
 
 	}
@@ -412,7 +411,10 @@ public class VillagerTradeManager {
 
 		final ItemListing tradeSource;
 		final ItemLike oldItem;
-		final ItemLike newItem;
+		final Supplier<Item> newItem;
+
+		@Deprecated(forRemoval = true, since = "2.0.1.4")
+		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Item newItem) { this(tradeSource, oldItem, () -> newItem); }
 
 		/**
 		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
@@ -422,7 +424,7 @@ public class VillagerTradeManager {
 		 * @param oldItem The Item to replace.
 		 * @param newItem The Item to replace the oldItem with.
 		 */
-		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, ItemLike newItem) {
+		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Supplier<Item> newItem) {
 			this.tradeSource = tradeSource;
 			this.oldItem = oldItem;
 			this.newItem = newItem;
@@ -457,11 +459,11 @@ public class VillagerTradeManager {
 				ItemStack itemB = offer.getCostB();
 				ItemStack itemC = offer.getResult();
 				if(itemA.getItem() == this.oldItem)
-					itemA = new ItemStack(this.newItem, itemA.getCount());
+					itemA = new ItemStack(this.newItem.get(), itemA.getCount());
 				if(itemB.getItem() == this.oldItem)
-					itemB = new ItemStack(this.newItem, itemB.getCount());
+					itemB = new ItemStack(this.newItem.get(), itemB.getCount());
 				if(itemC.getItem() == this.oldItem)
-					itemC = new ItemStack(this.newItem, itemC.getCount());
+					itemC = new ItemStack(this.newItem.get(), itemC.getCount());
 
 				return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
 			} catch(Throwable t) {

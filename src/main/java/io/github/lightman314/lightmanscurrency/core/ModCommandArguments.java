@@ -13,6 +13,7 @@ public class ModCommandArguments {
 		ArgumentTypes.register("lightmanscurrency:trader_argument", TraderArgument.class, new TraderArgument.Info());
 		ArgumentTypes.register("lightmanscurrency:trade_id_argument", TradeIDArgument.class, new EmptyArgumentSerializer<>(TradeIDArgument::argument));
 		ArgumentTypes.register("lightmanscurrency:color_argument", ColorArgument.class, new EmptyArgumentSerializer<>(ColorArgument::argument));
+		ArgumentTypes.register("lightmanscurrency:coinvalue_argument", CoinValueArgument.class, new EmptyArgumentSerializer<>(CoinValueArgument::argument));
 
 	}
 	

@@ -13,13 +13,20 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.commands.arguments.CoinValueArgument;
 import io.github.lightman314.lightmanscurrency.commands.arguments.TraderArgument;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
@@ -74,7 +81,18 @@ public class CommandLCAdmin {
 												.executes(CommandLCAdmin::addToTraderWhitelist)))))
 				.then(Commands.literal("prepareForStructure")
 						.then(Commands.argument("traderPos", BlockPosArgument.blockPos())
-								.executes(CommandLCAdmin::setCustomTrader)));
+								.executes(CommandLCAdmin::setCustomTrader)))
+				.then(Commands.literal("giveMoneyToBankAccounts")
+						.then(Commands.literal("allPlayers")
+								.then(Commands.argument("amount", CoinValueArgument.argument())
+										.executes(CommandLCAdmin::giveBankAccountsMoneyAllPlayers)))
+						.then(Commands.literal("allTeams")
+								.then(Commands.argument("amount", CoinValueArgument.argument())
+										.executes(CommandLCAdmin::giveBankAccountsMoneyAllTeams)))
+						.then(Commands.literal("players")
+								.then(Commands.argument("players", EntityArgument.players())
+										.then(Commands.argument("amount", CoinValueArgument.argument())
+											.executes(CommandLCAdmin::giveBankAccountsMoneyPlayers)))));
 		
 		dispatcher.register(lcAdminCommand);
 		
@@ -280,7 +298,56 @@ public class CommandLCAdmin {
 		}
 		
 	}
-	
+
+	static int giveBankAccountsMoneyAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+		int count = 0;
+		for(BankAccount.AccountReference account : BankSaveData.GetPlayerBankAccounts())
+		{
+			BankAccount.GiftCoinsFromServer(account.get(), amount.copy());
+			count++;
+		}
+		if(count < 1)
+			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
+		else
+			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+		return count;
+	}
+
+	static int giveBankAccountsMoneyAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+		int count = 0;
+		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
+		{
+			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount.copy());
+			count++;
+		}
+
+		if(count < 1)
+			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
+		else
+			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+
+		return count;
+	}
+
+	static int giveBankAccountsMoneyPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
+		int count = 0;
+		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
+		{
+			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount.copy());
+			count++;
+		}
+		if(count < 1)
+			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
+		else
+			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+		return count;
+	}
 	
 	
 	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }

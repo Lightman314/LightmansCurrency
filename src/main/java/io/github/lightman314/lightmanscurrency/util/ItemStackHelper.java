@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -35,7 +36,12 @@ public class ItemStackHelper {
 			int index = slotCompound.getByte("Slot") & 255;
 			if(index < list.size())
 			{
-				list.set(index, ItemStack.of(slotCompound));
+				ItemStack stack = ItemStack.of(slotCompound);
+				//Manual override to force tickets to be converted on load
+				if(stack.getItem() instanceof TicketItem)
+					TicketItem.GetTicketID(stack);
+				//Normal operations
+				list.set(index, stack);
 			}
 		}
 	}

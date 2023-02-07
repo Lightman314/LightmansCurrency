@@ -123,7 +123,7 @@ public class ClientEvents {
 	private static void toggleVisibility(Button button) {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
-		IWalletHandler handler = WalletCapability.getWalletHandler(player).orElse(null);
+		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
 		if(handler != null)
 		{
 			boolean nowVisible = !handler.visible();
@@ -145,8 +145,7 @@ public class ClientEvents {
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
-			if(screen instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)screen;
+			if(screen instanceof CreativeModeInventoryScreen creativeScreen) {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
@@ -184,8 +183,7 @@ public class ClientEvents {
 			if(!gui.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
 				return;
 			
-			if(gui instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)gui;
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen) {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
@@ -225,8 +223,7 @@ public class ClientEvents {
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			if(gui instanceof CreativeModeInventoryScreen) {
-				CreativeModeInventoryScreen creativeScreen = (CreativeModeInventoryScreen)gui;
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen) {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
@@ -281,7 +278,7 @@ public class ClientEvents {
 	
 	private static IWalletHandler getWalletHandler() {
 		Minecraft mc = Minecraft.getInstance();
-		return WalletCapability.getWalletHandler(mc.player).orElse(null);
+		return WalletCapability.lazyGetWalletHandler(mc.player);
 	}
 	
 	private static Player getPlayer() {

@@ -31,6 +31,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
@@ -102,32 +103,45 @@ public class EventHandler {
 		
 	}
 	
-	//Block break event for trader protection functionality
+	//Block break event for trader protection functionality.
+	//Redundant with the addition of the BreakSpeed event listener, but I'm keeping it in just to be safe.
 	@SubscribeEvent
 	public static void onBlockBreak(BreakEvent event)
 	{
-
-		LevelAccessor world = event.getWorld();
+		LevelAccessor level = event.getWorld();
 		BlockState state = event.getState();
-
 		if(event.getState().getBlock() instanceof IOwnableBlock block)
 		{
-			if(!block.canBreak(event.getPlayer(), world, event.getPos(), state))
+			if(!block.canBreak(event.getPlayer(), level, event.getPos(), state))
 			{
 				//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
 				event.setCanceled(true);
 			}
 		}
-		
+	}
+
+	//Cancel the block break speed events if the block is owned and not breakable by this player.
+	@SubscribeEvent
+	public static void blockBreakSpeed(PlayerEvent.BreakSpeed event)
+	{
+
+		Level level = event.getPlayer().level;
+		BlockState state = event.getState();
+
+		if(event.getState().getBlock() instanceof IOwnableBlock block)
+		{
+			if(!block.canBreak(event.getPlayer(), level, event.getPos(), state))
+				event.setCanceled(true);
+		}
 	}
 	
 	//Adds the wallet capability to the player
 	@SubscribeEvent
 	public static void attachEntitiesCapabilities(AttachCapabilitiesEvent<Entity> event)
 	{
-		if(event.getObject() instanceof Player)
+		if(event.getObject() instanceof Player player)
 		{
-			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider((Player)event.getObject()));
+			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider(player));
 		}
 	}
 	

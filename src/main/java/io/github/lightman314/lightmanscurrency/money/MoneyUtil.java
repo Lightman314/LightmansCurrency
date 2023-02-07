@@ -34,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -63,8 +64,9 @@ public class MoneyUtil {
 			return new TranslatableComponent("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
 		return new TranslatableComponent(defaultPlural);
 	}
-	
-	@SubscribeEvent
+
+	//Make high priority so that it runs before other "server start" events that may end up loading traders
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onServerStart(ServerStartedEvent event) {
 		LightmansCurrency.LogInfo("Setting up Money System for server.");
 		reloadMoneyData();
@@ -245,6 +247,8 @@ public class MoneyUtil {
     		return false;
     	return allowHidden || !data.isHidden;
     }
+
+	public static boolean isVisibleCoin(Item item) { return isCoin(item, false); }
     
     /**
      * Checks if the given item is both a coin & that the coin is considered hidden.
@@ -1003,7 +1007,7 @@ public class MoneyUtil {
     
     public static long displayValueToLong(double displayValue)
     {
-    	long baseCoinValue = getValue(Config.getBaseCoinItem());
+    	long baseCoinValue = getValue(Config.SERVER.valueBaseCoin.get());
     	double totalValue = displayValue * baseCoinValue;
     	long value = (long)totalValue;
     	return totalValue % 1d >= 0.5d ? value + 1 : value;
