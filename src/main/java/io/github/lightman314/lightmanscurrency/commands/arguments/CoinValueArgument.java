@@ -15,6 +15,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collection;
@@ -29,6 +30,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     private CoinValueArgument(HolderLookup<Item> items) { this.items = items; }
 
     public static CoinValueArgument argument(CommandBuildContext context) { return new CoinValueArgument(context.holderLookup(ForgeRegistries.ITEMS.getRegistryKey())); }
+    public static CoinValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
     public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) {
         return commandContext.getArgument(name, CoinValue.class);

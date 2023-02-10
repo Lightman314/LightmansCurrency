@@ -499,7 +499,7 @@ public class Config {
 					.comment("Chests that will occasionally spawn T1 -> T4 loot.")
 					.defineList("chestListT4", LootManager.CHEST_DROPLIST_T4, o -> o instanceof String);
 			this.chestDropsT5 = builder
-					.comment("Chests that will occasionally spawn T1 -> T25loot.")
+					.comment("Chests that will occasionally spawn T1 -> T5 loot.")
 					.defineList("chestListT5", LootManager.CHEST_DROPLIST_T5, o -> o instanceof String);
 			this.chestDropsT6 = builder
 					.comment("Chests that will occasionally spawn T1 -> T6 loot.")

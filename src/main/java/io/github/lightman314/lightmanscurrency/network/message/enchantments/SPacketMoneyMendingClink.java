@@ -9,7 +9,10 @@ import net.minecraftforge.network.NetworkEvent.Context;
 public class SPacketMoneyMendingClink {
 
 	public static void handle(SPacketMoneyMendingClink ignored, Supplier<Context> supplier) {
-		supplier.get().enqueueWork(LightmansCurrency.PROXY::playCoinSound);
+		supplier.get().enqueueWork(() -> {
+			if(Config.CLIENT.moneyMendingClink.get())
+				LightmansCurrency.PROXY.playCoinSound();
+		});
 		supplier.get().setPacketHandled(true);
 	}
 	
