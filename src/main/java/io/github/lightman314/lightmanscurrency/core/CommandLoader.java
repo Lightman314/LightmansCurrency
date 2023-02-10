@@ -11,7 +11,7 @@ public class CommandLoader {
 	@SubscribeEvent
 	public static void onCommandLoading(RegisterCommandsEvent event)
 	{
-		CommandLCAdmin.register(event.getDispatcher());
+		CommandLCAdmin.register(event.getDispatcher(), event.getBuildContext());
 		CommandReloadData.register(event.getDispatcher());
 		CommandBalTop.register(event.getDispatcher());
 		CommandPlayerTrading.register(event.getDispatcher());

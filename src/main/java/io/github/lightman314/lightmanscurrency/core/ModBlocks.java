@@ -452,7 +452,7 @@ public class ModBlocks {
 	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, Function<Block,Item> itemGenerator, Supplier<Block> block)
 	{
 		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
-		for(WoodType woodType : WoodType.values())
+		for(WoodType woodType : WoodType.validValues())
 		{
 			String thisName = name + "_" + woodType.toString().toLowerCase();
 			//Register the block normally
@@ -472,7 +472,7 @@ public class ModBlocks {
 	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, Supplier<Block> block)
 	{
 		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
-		for(WoodType woodType: WoodType.values())
+		for(WoodType woodType: WoodType.validValues())
 		{
 			for(Color color : Color.values())
 			{

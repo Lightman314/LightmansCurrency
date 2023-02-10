@@ -132,8 +132,10 @@ public class EventHandler {
 
 		if(event.getState().getBlock() instanceof IOwnableBlock block)
 		{
-			if(!block.canBreak(event.getEntity(), level, event.getPos(), state))
-				event.setCanceled(true);
+			event.getPosition().ifPresent(pos -> {
+				if(!block.canBreak(event.getEntity(), level, pos, state))
+					event.setCanceled(true);
+			});
 		}
 	}
 	

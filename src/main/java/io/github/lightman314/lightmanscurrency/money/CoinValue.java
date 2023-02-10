@@ -195,7 +195,7 @@ public class CoinValue
 				this.coinValues.add(new CoinValuePair(coinItem,amount));
 			}
 		}
-		
+		this.sortValue();
 	}
 
 	public final void encode(FriendlyByteBuf buffer) { buffer.writeNbt(this.save(new CompoundTag(), DEFAULT_KEY)); }
@@ -289,7 +289,6 @@ public class CoinValue
 				}
 			}
 		}
-		this.sortValue();
 	}
 	
 	private void sortValue()

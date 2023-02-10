@@ -31,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -53,7 +54,7 @@ public class CommandLCAdmin {
 
 	private static List<UUID> adminPlayers = new ArrayList<>();
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context)
 	{
 		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 				= Commands.literal("lcadmin")
@@ -82,14 +83,14 @@ public class CommandLCAdmin {
 								.executes(CommandLCAdmin::setCustomTrader)))
 				.then(Commands.literal("giveMoneyToBankAccounts")
 						.then(Commands.literal("allPlayers")
-								.then(Commands.argument("amount", CoinValueArgument.argument())
+								.then(Commands.argument("amount", CoinValueArgument.argument(context))
 										.executes(CommandLCAdmin::giveBankAccountsMoneyAllPlayers)))
 						.then(Commands.literal("allTeams")
-								.then(Commands.argument("amount", CoinValueArgument.argument())
+								.then(Commands.argument("amount", CoinValueArgument.argument(context))
 										.executes(CommandLCAdmin::giveBankAccountsMoneyAllTeams)))
 						.then(Commands.literal("players")
 								.then(Commands.argument("players", EntityArgument.players())
-										.then(Commands.argument("amount", CoinValueArgument.argument())
+										.then(Commands.argument("amount", CoinValueArgument.argument(context))
 												.executes(CommandLCAdmin::giveBankAccountsMoneyPlayers)))));
 
 		dispatcher.register(lcAdminCommand);
