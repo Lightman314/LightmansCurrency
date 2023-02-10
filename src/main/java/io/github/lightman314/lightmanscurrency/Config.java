@@ -4,8 +4,10 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.util.config.ItemValue;
+import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
+import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
@@ -90,7 +92,7 @@ public class Config {
 
     @Deprecated
     public static Item getMoneyMendingCoinItem() {
-        return Config.SERVER.moneyMendingCoinCost.get();
+        return Config.SERVER.moneyMendingCoinCost.get().getTradeItem().getItem();
     }
 
     private static Map<String,Item> traderOverrides = new HashMap<>();
@@ -147,6 +149,8 @@ public class Config {
 
     public static class Client
     {
+
+        private static final Supplier<ForgeConfigSpec> SPEC_SUPPLIER = () -> Config.clientSpec;
 
         //Render Options
         public final ForgeConfigSpec.IntValue itemRenderLimit;
@@ -262,6 +266,8 @@ public class Config {
     public static class Common
     {
 
+        private static final Supplier<ForgeConfigSpec> SPEC_SUPPLIER = () -> Config.commonSpec;
+
         //Crafting Options
         public final ForgeConfigSpec.BooleanValue canCraftNetworkTraders;
         public final ForgeConfigSpec.BooleanValue canCraftTraderInterfaces;
@@ -274,19 +280,19 @@ public class Config {
         public final ForgeConfigSpec.BooleanValue changeVanillaTrades;
         public final ForgeConfigSpec.BooleanValue changeModdedTrades;
         public final ForgeConfigSpec.BooleanValue changeWanderingTrades;
-        public final ItemValue defaultTraderCoin;
+        public final ItemValueConfig defaultTraderCoin;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> traderOverrides;
 
         //Debug
         public final ForgeConfigSpec.IntValue debugLevel;
 
         //Loot Coin Entries
-        public final ItemValue lootItem1;
-        public final ItemValue lootItem2;
-        public final ItemValue lootItem3;
-        public final ItemValue lootItem4;
-        public final ItemValue lootItem5;
-        public final ItemValue lootItem6;
+        public final ItemValueConfig lootItem1;
+        public final ItemValueConfig lootItem2;
+        public final ItemValueConfig lootItem3;
+        public final ItemValueConfig lootItem4;
+        public final ItemValueConfig lootItem5;
+        public final ItemValueConfig lootItem6;
 
         //Entity Loot
         public final ForgeConfigSpec.BooleanValue enableEntityDrops;
@@ -366,9 +372,10 @@ public class Config {
                     .comment("Whether the wandering trader should have the emeralds from their trades replaced with the default trader coin.")
                     .define("changeWanderingTrades", false);
 
-            this.defaultTraderCoin = ItemValue.define(builder
+            this.defaultTraderCoin = ItemValueConfig.define(builder
                     .comment("The default coin to replace a traders emeralds with.")
-                    ,"defaultTraderCoin", new ResourceLocation("lightmanscurrency","coin_emerald"));
+                    ,"defaultTraderCoin", new ResourceLocation("lightmanscurrency","coin_emerald"),
+                    SPEC_SUPPLIER);
 
             this.traderOverrides = builder
                     .comment("List of trader coin overrides.",
@@ -393,20 +400,21 @@ public class Config {
                     .comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")
                     .defineInRange("debugLevel", 0, 0, 3);
 
-            builder.comment("Loot item customization. Accepts item ids (i.e. lightmanscurrency:coin_copper).").push("loot_customization");
+            builder.comment("Loot item customization. Accepts item ids (i.e. lightmanscurrency:coin_copper).",
+                    "Input 'minecraft:air' to not spawn loot of that tier (so that you can use higher-tier spawn rates without the presence of lower-tier loot).").push("loot_customization");
 
-            this.lootItem1 = ItemValue.define(builder.comment("T1 loot item. Used for T1-T6 entity & chest loot drops."),
-                    "lootItemT1", new ResourceLocation("lightmanscurrency","coin_copper"));
-            this.lootItem2 = ItemValue.define(builder.comment("T2 loot item. Used for T2-T6 entity & chest loot drops."),
-                    "lootItemT2", new ResourceLocation("lightmanscurrency","coin_iron"));
-            this.lootItem3 = ItemValue.define(builder.comment("T3 loot item. Used for T3-T6 entity & chest loot drops."),
-                    "lootItemT3", new ResourceLocation("lightmanscurrency","coin_gold"));
-            this.lootItem4 = ItemValue.define(builder.comment("T4 loot item. Used for T4-T6 entity & chest loot drops."),
-                    "lootItemT4", new ResourceLocation("lightmanscurrency","coin_emerald"));
-            this.lootItem5 = ItemValue.define(builder.comment("T5 loot item. Used for T5-T6 entity & chest loot drops."),
-                    "lootItemT5", new ResourceLocation("lightmanscurrency","coin_diamond"));
-            this.lootItem6 = ItemValue.define(builder.comment("T6 loot item. Used for T6 entity & chest loot drops."),
-                    "lootItemT6", new ResourceLocation("lightmanscurrency","coin_netherite"));
+            this.lootItem1 = ItemValueConfig.define(builder.comment("T1 loot item. Used for T1-T6 entity & chest loot drops."),
+                    "lootItemT1", new ResourceLocation("lightmanscurrency","coin_copper"),SPEC_SUPPLIER);
+            this.lootItem2 = ItemValueConfig.define(builder.comment("T2 loot item. Used for T2-T6 entity & chest loot drops."),
+                    "lootItemT2", new ResourceLocation("lightmanscurrency","coin_iron"),SPEC_SUPPLIER);
+            this.lootItem3 = ItemValueConfig.define(builder.comment("T3 loot item. Used for T3-T6 entity & chest loot drops."),
+                    "lootItemT3", new ResourceLocation("lightmanscurrency","coin_gold"),SPEC_SUPPLIER);
+            this.lootItem4 = ItemValueConfig.define(builder.comment("T4 loot item. Used for T4-T6 entity & chest loot drops."),
+                    "lootItemT4", new ResourceLocation("lightmanscurrency","coin_emerald"),SPEC_SUPPLIER);
+            this.lootItem5 = ItemValueConfig.define(builder.comment("T5 loot item. Used for T5-T6 entity & chest loot drops."),
+                    "lootItemT5", new ResourceLocation("lightmanscurrency","coin_diamond"),SPEC_SUPPLIER);
+            this.lootItem6 = ItemValueConfig.define(builder.comment("T6 loot item. Used for T6 entity & chest loot drops."),
+                    "lootItemT6", new ResourceLocation("lightmanscurrency","coin_netherite"),SPEC_SUPPLIER);
 
             builder.pop();
 
@@ -479,23 +487,23 @@ public class Config {
                     .comment("Whether coins can spawn in chests Does not effect entity loot drops.")
                     .define("enableChestLoot", true);
             this.chestDropsT1 = builder
-                    .comment("Chests that will occasionally spawn copper coins.")
-                    .defineList("copper", LootManager.CHEST_DROPLIST_T1, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 loot.")
+                    .defineList("chestListT1", LootManager.CHEST_DROPLIST_T1, o -> o instanceof String);
             this.chestDropsT2 = builder
-                    .comment("Chests that will occasionally spawn copper -> iron coins.")
-                    .defineList("iron", LootManager.CHEST_DROPLIST_T2, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 -> T2 loot.")
+                    .defineList("chestListT2", LootManager.CHEST_DROPLIST_T2, o -> o instanceof String);
             this.chestDropsT3 = builder
-                    .comment("Chests that will occasionally spawn copper -> gold coins.")
-                    .defineList("gold", LootManager.CHEST_DROPLIST_T3, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 -> T3 loot.")
+                    .defineList("chestListT3", LootManager.CHEST_DROPLIST_T3, o -> o instanceof String);
             this.chestDropsT4 = builder
-                    .comment("Chests that will occasionally spawn copper -> emerald coins.")
-                    .defineList("emerald", LootManager.CHEST_DROPLIST_T4, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 -> T4 loot.")
+                    .defineList("chestListT4", LootManager.CHEST_DROPLIST_T4, o -> o instanceof String);
             this.chestDropsT5 = builder
-                    .comment("Chests that will occasionally spawn copper -> diamond coins.")
-                    .defineList("diamond", LootManager.CHEST_DROPLIST_T5, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 -> T5loot.")
+                    .defineList("chestListT5", LootManager.CHEST_DROPLIST_T5, o -> o instanceof String);
             this.chestDropsT6 = builder
-                    .comment("Chests that will occasionally spawn copper -> netherite coins.")
-                    .defineList("netherite", LootManager.CHEST_DROPLIST_T6, o -> o instanceof String);
+                    .comment("Chests that will occasionally spawn T1 -> T6 loot.")
+                    .defineList("chestListT6", LootManager.CHEST_DROPLIST_T6, o -> o instanceof String);
 
             builder.pop();
 
@@ -506,6 +514,8 @@ public class Config {
 
     public static class Server
     {
+
+        private static final Supplier<ForgeConfigSpec> SPEC_SUPPLIER = () -> Config.serverSpec;
 
         //Log Limit Option
         public final ForgeConfigSpec.IntValue logLimit;
@@ -542,7 +552,7 @@ public class Config {
         public final ForgeConfigSpec.EnumValue<CoinItem.CoinItemTooltipType> coinTooltipType;
         public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueType;
         public final ForgeConfigSpec.EnumValue<CoinValue.ValueType> coinValueInputType;
-        public final ItemValue valueBaseCoin;
+        public final ItemValueConfig valueBaseCoin;
         public final ForgeConfigSpec.ConfigValue<String> valueFormat;
 
         //Capacity Upgrade Options
@@ -551,7 +561,7 @@ public class Config {
         public final ForgeConfigSpec.IntValue itemUpgradeCapacity3;
 
         //Enchantment Options
-        public final ItemValue moneyMendingCoinCost;
+        public final CoinValueConfig moneyMendingCoinCost;
         public final ForgeConfigSpec.IntValue coinMagnetRangeBase;
         public final ForgeConfigSpec.IntValue coinMagnetRangeLevel;
 
@@ -670,9 +680,10 @@ public class Config {
                             "VALUE: Text box input for the coins display value.")
                     .defineEnum("coinValueInputType", CoinValue.ValueType.DEFAULT);
 
-            this.valueBaseCoin = ItemValue.define(builder
+            this.valueBaseCoin = ItemValueConfig.define(builder
                     .comment("Coin item defined as 1 value unit for display purposes. Any coins worth less than the base coin will have a decimal value.")
-                    ,"baseValueCoin", new ResourceLocation("lightmanscurrency","coin_copper"), MoneyUtil::isVisibleCoin);
+                    ,"baseValueCoin", new ResourceLocation("lightmanscurrency","coin_copper"), MoneyUtil::isVisibleCoin,
+                    SPEC_SUPPLIER);
 
             this.valueFormat = builder
                     .comment("Value display format. Used to add currency signs to coin value displays.",
@@ -695,8 +706,8 @@ public class Config {
 
             builder.comment("Enchantment Settings").push("enchantments");
 
-            this.moneyMendingCoinCost = ItemValue.define(builder.comment("The coin cost required to repair a single item durability point with the Money Mending enchantment.")
-                    ,"moneyMendingCoinCost", new ResourceLocation("lightmanscurrency","coin_copper"), MoneyUtil::isVisibleCoin);
+            this.moneyMendingCoinCost = CoinValueConfig.define(builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
+                    ,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", new CoinValue(1), SPEC_SUPPLIER);
 
             this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
                     .defineInRange("coinMagnetRangeBase", 5, 0, 50);

@@ -1,0 +1,14 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:auction_stand_oak",
+        "lightmanscurrency:auction_stand_spruce",
+        "lightmanscurrency:auction_stand_birch",
+        "lightmanscurrency:auction_stand_jungle",
+        "lightmanscurrency:auction_stand_acacia",
+        "lightmanscurrency:auction_stand_dark_oak",
+        "lightmanscurrency:auction_stand_mangrove",
+        "lightmanscurrency:auction_stand_crimson",
+        "lightmanscurrency:auction_stand_warped"
+    ]
+}

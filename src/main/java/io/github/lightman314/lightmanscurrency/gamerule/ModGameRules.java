@@ -66,7 +66,7 @@ public class ModGameRules {
 		if(ruleType == null)
 			return null;
 		GameRules.Key<T> ruleKey = new GameRules.Key<>(name, category);
-		RuleData<T> ruleData = new RuleData<T>(name, category, ruleType);
+		RuleData<T> ruleData = new RuleData<>(name, category, ruleType);
 		GAME_RULES.add(ruleData);
 		return ruleKey;
 	}
@@ -83,21 +83,8 @@ public class ModGameRules {
 		GAME_RULES.forEach(rule -> GameRules.register(rule.name, rule.category, rule.ruleType));
 		GAME_RULES.clear();
 	}
-	
-	private static class RuleData<T extends GameRules.Value<T>>
-	{
-		public final String name;
-		public final GameRules.Category category;
-		public final GameRules.Type<T> ruleType;
-		
-		public RuleData(String name, GameRules.Category category, GameRules.Type<T> ruleType)
-		{
-			this.name = name;
-			this.category = category;
-			this.ruleType = ruleType;
-		}
-		
-	}
+
+	private record RuleData<T extends GameRules.Value<T>>(String name, GameRules.Category category, GameRules.Type<T> ruleType) { }
 	
 	
 }

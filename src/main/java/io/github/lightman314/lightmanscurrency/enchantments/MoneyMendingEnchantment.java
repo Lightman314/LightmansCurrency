@@ -44,7 +44,7 @@ public class MoneyMendingEnchantment extends Enchantment {
 		return otherEnchant != Enchantments.MENDING && super.checkCompatibility(otherEnchant);
 	}
 
-	public static long getRepairCost() { return MoneyUtil.getValue(Config.SERVER.moneyMendingCoinCost.get()); }
+	public static long getRepairCost() { return Config.SERVER.moneyMendingCoinCost.get().getRawValue(); }
 
 	public static void runEntityTick(LivingEntity entity)
 	{
@@ -97,8 +97,8 @@ public class MoneyMendingEnchantment extends Enchantment {
 					if(entity instanceof Player player)
 					{
 						//Reload the wallets contents if the wallet menu is open.
-						if(player.containerMenu instanceof WalletMenuBase)
-							((WalletMenuBase)player.containerMenu).reloadWalletContents();
+						if(player.containerMenu instanceof WalletMenuBase menu)
+							menu.reloadWalletContents();
 
 						//Send Money Mending clink message
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new SPacketMoneyMendingClink());
