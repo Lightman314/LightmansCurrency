@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
@@ -15,9 +17,8 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -43,6 +44,12 @@ public class ClientModEvents {
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 			event.addSprite(TicketModifierSlot.EMPTY_DYE_SLOT);
 		}
+	}
+
+	@SubscribeEvent
+	public static void registerAdditionalModels(ModelRegistryEvent event) {
+		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
+			ForgeModelBakery.addSpecialModel(block.getDoorModel());
 	}
 	
 	@SubscribeEvent

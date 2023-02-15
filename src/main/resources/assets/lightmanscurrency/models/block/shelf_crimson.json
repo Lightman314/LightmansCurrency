@@ -1,6 +1,0 @@
-{
-    "parent": "lightmanscurrency:block/shelf_oak",
-	"textures": {
-		"main": "minecraft:block/crimson_planks"
-	}
-}

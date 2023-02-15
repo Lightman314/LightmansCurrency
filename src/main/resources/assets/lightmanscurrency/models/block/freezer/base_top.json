@@ -1,0 +1,86 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"freezer": "lightmanscurrency:block/freezer",
+		"particle": "#concrete"
+	},
+	"elements": [
+		{
+			"name": "LeftWall-Top",
+			"from": [0, 0, 0],
+			"to": [1, 16, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 24, 8]},
+			"faces": {
+				"north": {"uv": [15, 0, 16, 16], "texture": "#concrete"},
+				"east": {"uv": [10, 0, 16, 8], "texture": "#freezer"},
+				"south": {"uv": [0, 0, 1, 16], "texture": "#concrete"},
+				"west": {"uv": [0, 0, 12, 16], "texture": "#concrete"},
+				"up": {"uv": [0, 0, 1, 12], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "RightWall-Top",
+			"from": [15, 0, 0],
+			"to": [16, 16, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [23, 24, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 1, 16], "texture": "#concrete"},
+				"east": {"uv": [4, 0, 16, 16], "texture": "#concrete"},
+				"south": {"uv": [15, 0, 16, 16], "texture": "#concrete"},
+				"west": {"uv": [10, 0, 16, 8], "texture": "#freezer"},
+				"up": {"uv": [15, 0, 16, 12], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "Back-Top",
+			"from": [1, 0, 0],
+			"to": [15, 16, 1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [22, 24, 8]},
+			"faces": {
+				"north": {"uv": [1, 0, 15, 16], "texture": "#concrete"},
+				"south": {"uv": [8.5, 8, 15.5, 16], "texture": "#freezer"},
+				"up": {"uv": [1, 0, 15, 1], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "Top",
+			"from": [1, 15, 1],
+			"to": [15, 16, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 39, 9]},
+			"faces": {
+				"south": {"uv": [1, 0, 15, 1], "texture": "#concrete"},
+				"up": {"uv": [1, 1, 15, 12], "texture": "#concrete"},
+				"down": {"uv": [8.5, 8, 15.5, 13.5], "texture": "#freezer"}
+			}
+		},
+		{
+			"name": "Shelf-2",
+			"from": [1, 1, 1],
+			"to": [15, 2, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 25, 9]},
+			"faces": {
+				"south": {"uv": [8.5, 15.5, 15.5, 16], "texture": "#freezer"},
+				"up": {"uv": [8.5, 11, 15.5, 16], "texture": "#freezer"},
+				"down": {"uv": [8.5, 11, 15.5, 16], "texture": "#freezer"}
+			}
+		},
+		{
+			"name": "Shelf-3",
+			"from": [1, 8, 1],
+			"to": [15, 9, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 32, 9]},
+			"faces": {
+				"south": {"uv": [8.5, 15.5, 15.5, 16], "texture": "#freezer"},
+				"up": {"uv": [8.5, 11, 15.5, 16], "texture": "#freezer"},
+				"down": {"uv": [8.5, 11, 15.5, 16], "texture": "#freezer"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "Top",
+			"origin": [8, 24, 8],
+			"children": [0, 1, 2, 3, 4, 5]
+		}
+	]
+}

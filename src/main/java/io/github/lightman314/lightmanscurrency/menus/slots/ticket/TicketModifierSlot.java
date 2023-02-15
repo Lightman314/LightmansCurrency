@@ -43,7 +43,7 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("magenta")))
             return Color.MAGENTA;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("light_blue")))
-            return Color.LIGHTBLUE;
+            return Color.LIGHT_BLUE;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("yellow")))
             return Color.YELLOW;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("lime")))
@@ -53,7 +53,7 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("gray")))
             return Color.GRAY;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("light_gray")))
-            return Color.LIGHTGRAY;
+            return Color.LIGHT_GRAY;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("cyan")))
             return Color.CYAN;
         if(InventoryUtil.ItemHasTag(stack, getDyeTag("purple")))

@@ -109,6 +109,7 @@ public class ClientProxy extends CommonProxy{
     	
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
+		ClientRegistry.registerKeyBinding(ClientEvents.KEY_PORTABLE_TERMINAL);
     	
 	}
 	

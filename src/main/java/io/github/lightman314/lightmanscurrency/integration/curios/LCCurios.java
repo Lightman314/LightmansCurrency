@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
+import io.github.lightman314.lightmanscurrency.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -18,7 +19,10 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
+import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 import top.theillusivec4.curios.common.capability.CurioItemCapability;
+
+import java.util.Map;
 
 public class LCCurios {
 	
@@ -81,7 +85,30 @@ public class LCCurios {
 		} catch(Throwable t) { LightmansCurrency.LogError("Error getting wallet slot visibility from curios.", t); }
 		return false;
 	}
-	
+
+	public static boolean hasPortableTerminal(LivingEntity entity) {
+		try{
+			ICuriosItemHandler curiosHelper = lazyGetCuriosHelper(entity);
+			if(curiosHelper != null)
+			{
+				for(Map.Entry<String,ICurioStacksHandler> entry : curiosHelper.getCurios().entrySet())
+				{
+					ICurioStacksHandler stacksHandler = entry.getValue();
+					if(stacksHandler != null)
+					{
+						IDynamicStackHandler sh = stacksHandler.getStacks();
+						for(int i = 0; i < sh.getSlots(); ++i)
+						{
+							if(sh.getStackInSlot(i).getItem() instanceof PortableTerminalItem)
+								return true;
+						}
+					}
+				}
+			}
+		} catch(Throwable t) { LightmansCurrency.LogError("Error checking for Portable Terminal from curios.", t); }
+		return false;
+	}
+
 	public static ICapabilityProvider createWalletProvider(ItemStack stack)
 	{
 		return CurioItemCapability.createProvider(new ICurio()

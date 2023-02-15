@@ -1,0 +1,40 @@
+{
+	"credit": "Made with Blockbench",
+    "parent": "lightmanscurrency:block/block",
+	"textures": { "particle": "#main" },
+	"elements": [
+		{
+			"name": "Back Panel",
+			"from": [0, 0, 0],
+			"to": [16, 16, 1],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#main"},
+				"east": {"uv": [15, 0, 16, 16], "texture": "#main"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#main"},
+				"west": {"uv": [0, 0, 1, 16], "texture": "#main"},
+				"up": {"uv": [0, 0, 16, 1], "texture": "#main"},
+				"down": {"uv": [0, 15, 16, 16], "texture": "#main"}
+			}
+		},
+		{
+            "name": "Shelf",
+			"from": [0, 0, 1],
+			"to": [16, 2, 5],
+			"faces": {
+				"east": {"uv": [13, 14, 15, 16], "texture": "#main"},
+				"south": {"uv": [0, 14, 16, 16], "texture": "#main"},
+				"west": {"uv": [1, 14, 3, 16], "texture": "#main"},
+				"up": {"uv": [0, 1, 16, 5], "texture": "#main"},
+				"down": {"uv": [0, 11, 16, 15], "texture": "#main"}
+			}
+		}
+	],
+    "display":
+    {
+        "fixed": {
+            "rotation": [0, 180, 0],
+            "scale" : [0.5, 0.5, 0.5],
+            "translation": [0, 0, -3.5]
+        }
+    }
+}

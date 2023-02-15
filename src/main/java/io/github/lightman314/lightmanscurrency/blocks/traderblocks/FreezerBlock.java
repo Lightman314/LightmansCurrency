@@ -6,17 +6,20 @@ import java.util.List;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,10 +36,21 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public static final VoxelShape SHAPE_NORTH = box(0d,0d,0d,16d,32d,13d);
 	public static final VoxelShape SHAPE_EAST = box(3d,0d,0d,16d,32d,16d);
 	public static final VoxelShape SHAPE_WEST = box(0d,0d,0d,13d,32d,16d);
-	
-	public FreezerBlock(Properties properties)
+
+	private final ResourceLocation doorModel;
+
+	public FreezerBlock(Properties properties, ResourceLocation doorModel)
 	{
 		super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST));
+		this.doorModel = doorModel;
+	}
+
+	public ResourceLocation getDoorModel() { return this.doorModel; }
+
+	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
+
+	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
+		return new ResourceLocation(namespace, "block/freezer/doors/" + color.toString().toLowerCase());
 	}
 	
 	@Override

@@ -1,0 +1,4 @@
+{
+    "parent": "lightmanscurrency:block/shelf/base",
+	"textures": { "main": "minecraft:block/oak_planks" }
+}

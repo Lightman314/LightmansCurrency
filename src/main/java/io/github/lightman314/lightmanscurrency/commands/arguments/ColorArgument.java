@@ -60,7 +60,7 @@ public class ColorArgument implements ArgumentType<Integer> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         for(Color c : Color.values())
-            builder.suggest(c.getPrettyName());
+            builder.suggest(c.toString());
         builder.suggest("0xFFFFFF");
         return builder.buildFuture();
     }

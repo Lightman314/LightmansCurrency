@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -192,7 +193,7 @@ public class ModBlocks {
 		);
 
 		//Vending Machine
-		VENDING_MACHINE = registerColored("vending_machine", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
+		VENDING_MACHINE = registerColoredOldNames("vending_machine", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineBlock(
 						Block.Properties.of(Material.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
@@ -201,7 +202,7 @@ public class ModBlocks {
 		);
 
 		//Large Vending Machine
-		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
+		VENDING_MACHINE_LARGE = registerColoredOldNames("vending_machine_large", () -> LightmansCurrency.TRADING_GROUP, () -> new VendingMachineLargeBlock(
 						Block.Properties.of(Material.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
@@ -225,10 +226,12 @@ public class ModBlocks {
 		);
 
 		//Freezer
-		FREEZER = register("freezer", () -> LightmansCurrency.TRADING_GROUP, () -> new FreezerBlock(
+		FREEZER = registerFreezer("freezer", () -> LightmansCurrency.TRADING_GROUP, (c) -> new FreezerBlock(
 						Block.Properties.of(Material.METAL)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
+								.sound(SoundType.METAL),
+						FreezerBlock.GenerateDoorModel(c)
 				)
 		);
 
@@ -385,7 +388,7 @@ public class ModBlocks {
 	public static final RegistryObject<Block> ARMOR_DISPLAY;
 
 	//Freezer
-	public static final RegistryObject<Block> FREEZER;
+	public static final RegistryObjectBundle<FreezerBlock,Color> FREEZER;
 
 
 	//Network Traders
@@ -424,30 +427,47 @@ public class ModBlocks {
 	/**
 	 * Block Registration Code
 	 */
-	private static RegistryObject<Block> register(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> sup)
+	private static <T extends Block> RegistryObject<T>  register(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> sup)
 	{
 		return register(name, itemGroup, getDefaultGenerator(), sup);
 	}
 
-	private static RegistryObject<Block> register(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
+	private static<T extends Block> RegistryObject<T> register(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> sup)
 	{
-		RegistryObject<Block> block = ModRegistries.BLOCKS.register(name, sup);
+		RegistryObject<T> block = ModRegistries.BLOCKS.register(name, sup);
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get(), itemGroup != null ? itemGroup.get() : null));
 		return block;
 	}
 
-	/**
-	 * Colored block registration code
-	 */
-	private static RegistryObjectBundle<Block,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block, @Nullable Color dontNameThisColor)
+	// Colored block registration code
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColoredOldNames(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> block, @Nullable Color dontNameThisColor)
+	{
+		return registerColoredOldNames(name, itemGroup, getDefaultGenerator(), block, dontNameThisColor);
+	}
+
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColoredOldNames(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> block, @Nullable Color dontNameThisColor)
+	{
+		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
+		for(Color color : Color.values())
+		{
+			String thisName = name;
+			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
+				thisName += "_" + color.getOldName().toLowerCase();
+			//Register the block normally
+			bundle.put(color, register(thisName, itemGroup, itemGenerator, block));
+		}
+		return bundle.lock();
+	}
+
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> block, @Nullable Color dontNameThisColor)
 	{
 		return registerColored(name, itemGroup, getDefaultGenerator(), block, dontNameThisColor);
 	}
 
-	private static RegistryObjectBundle<Block,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block, @Nullable Color dontNameThisColor)
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> block, @Nullable Color dontNameThisColor)
 	{
-		RegistryObjectBundle<Block,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
+		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.values())
 		{
 			String thisName = name;
@@ -462,14 +482,14 @@ public class ModBlocks {
 	/**
 	 * Wooden block registration code
 	 */
-	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> block)
 	{
 		return registerWooden(name, itemGroup, getDefaultGenerator(), block);
 	}
 
-	private static RegistryObjectBundle<Block,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> block)
 	{
-		RegistryObjectBundle<Block,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
+		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
 			String thisName = name + "_" + woodType.toString().toLowerCase();
@@ -482,14 +502,14 @@ public class ModBlocks {
 	/**
 	 * Wooden and colored block registration code
 	 */
-	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<Block> block)
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, Supplier<T> block)
 	{
 		return registerWoodenAndColored(name, itemGroup, getDefaultGenerator(), block);
 	}
 
-	private static RegistryObjectBiBundle<Block,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> block)
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<T> block)
 	{
-		RegistryObjectBiBundle<Block,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
+		RegistryObjectBiBundle<T,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
 		for(WoodType woodType: WoodType.validValues())
 		{
 			for(Color color : Color.values())
@@ -501,5 +521,21 @@ public class ModBlocks {
 		}
 		return bundle.lock();
 	}
+
+	public static RegistryObjectBundle<FreezerBlock,Color> registerFreezer(String name, NonNullSupplier<CreativeModeTab> itemGroup, Function<Color,FreezerBlock> block) {
+		return registerFreezer(name, itemGroup, getDefaultGenerator(), block);
+	}
+	public static RegistryObjectBundle<FreezerBlock,Color> registerFreezer(String name, NonNullSupplier<CreativeModeTab> itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Function<Color,FreezerBlock> block) {
+		RegistryObjectBundle<FreezerBlock,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
+		for(Color color : Color.values())
+		{
+			String thisName = color == Color.BLACK ? name : name + "_" + color.toString().toLowerCase();
+			//Register the block normally
+			bundle.put(color, register(thisName, itemGroup, itemGenerator, () -> block.apply(color)));
+		}
+		return bundle.lock();
+	}
+
+
 
 }

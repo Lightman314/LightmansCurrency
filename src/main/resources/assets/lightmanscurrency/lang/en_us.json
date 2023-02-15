@@ -45,7 +45,6 @@
     "item.lightmanscurrency.speed_upgrade_5": "Speed Upgrade (Netherite)",
     "item.lightmanscurrency.network_upgrade": "Network Upgrade",
     "item.lightmanscurrency.hopper_upgrade": "Hopper Upgrade",
-    "item.lightmanscurrency.freezer_door": "Freezer Door (INTERNAL USE ONLY)",
     
     "item.lightmanscurrency.generic.plural": "%ss",
     
@@ -135,7 +134,24 @@
     "block.lightmanscurrency.ticket_machine": "Ticket Station",
     "block.lightmanscurrency.paygate": "Paygate",
     "block.lightmanscurrency.armor_display": "Armor Display",
-    "block.lightmanscurrency.freezer": "Freezer",
+    
+    "block.lightmanscurrency.freezer_white": "White Freezer",
+    "block.lightmanscurrency.freezer_light_gray": "Light Gray Freezer",
+    "block.lightmanscurrency.freezer_gray": "Gray Freezer",
+	"block.lightmanscurrency.freezer": "Black Freezer",
+    "block.lightmanscurrency.freezer_brown": "Brown Freezer",
+    "block.lightmanscurrency.freezer_red": "Red Freezer",
+    "block.lightmanscurrency.freezer_orange": "Orange Freezer",
+    "block.lightmanscurrency.freezer_yellow": "Yellow Freezer",
+    "block.lightmanscurrency.freezer_lime": "Lime Freezer",
+    "block.lightmanscurrency.freezer_green": "Green Freezer",
+    "block.lightmanscurrency.freezer_cyan": "Cyan Freezer",
+    "block.lightmanscurrency.freezer_light_blue": "Light Blue Freezer",
+    "block.lightmanscurrency.freezer_blue": "Blue Freezer",
+    "block.lightmanscurrency.freezer_purple": "Purple Freezer",
+    "block.lightmanscurrency.freezer_magenta": "Magenta Freezer",
+    "block.lightmanscurrency.freezer_pink": "Pink Freezer",
+	
     "block.lightmanscurrency.terminal": "Trading Terminal",
     "block.lightmanscurrency.gem_terminal": "Trading Terminal",
     "block.lightmanscurrency.item_trader_server_sml": "Item Network Trader T1",
@@ -392,7 +408,7 @@
     "gui.coinvalue.free": "Free",
     
     "key.wallet": "Open Wallet",
-    "key.team_settings": "Open Team Manager",
+    "key.portable_terminal": "Access Portable Terminal",
     
     "lightmanscurrency.subtitle.coins_clinking": "Coins Clinking",
     
