@@ -4,62 +4,63 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
-	public static final Item doorItem = ModItems.FREEZER_DOOR.get();
+	//public static final Item doorItem = ModItems.FREEZER_DOOR.get();
 	
-	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
+	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
-	public void render(FreezerTraderBlockEntity tileEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(@NotNull FreezerTraderBlockEntity tileEntity, float partialTicks, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
 		//Render the items using the default method
 		ItemTraderBlockEntityRenderer.renderItems(tileEntity, partialTicks, poseStack, bufferSource, lightLevel, id);
 		
 		//Render the door
-		poseStack.pushPose();
-		Vector3f corner = new Vector3f(0f,0f,0f);
-		Vector3f right = new Vector3f(1f, 0f, 0f);
-		Vector3f forward = new Vector3f(0f, 0f, 1f);
-		Block freezerBlock = tileEntity.getBlockState().getBlock();
-		Direction facing = Direction.SOUTH;
-		if(freezerBlock instanceof IRotatableBlock)
+
+		if(tileEntity.getBlockState().getBlock() instanceof FreezerBlock freezerBlock)
 		{
-			IRotatableBlock block = (IRotatableBlock)freezerBlock;
-			facing = block.getFacing(tileEntity.getBlockState());
-			corner = IRotatableBlock.getOffsetVect(facing);
-			right = IRotatableBlock.getRightVect(facing);
-			forward = IRotatableBlock.getForwardVect(facing);
+			poseStack.pushPose();
+
+			Direction facing = freezerBlock.getFacing(tileEntity.getBlockState());
+			Vector3f corner = IRotatableBlock.getOffsetVect(facing);
+			Vector3f right = IRotatableBlock.getRightVect(facing);
+			Vector3f forward = IRotatableBlock.getForwardVect(facing);
+
+			//Calculate the hinge position
+			Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
+
+			Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
+
+			poseStack.translate(hinge.x(), hinge.y(), hinge.z());
+			poseStack.mulPose(rotation);
+
+			//Attempt at rendering the door model without creating a freezer door item.
+			Minecraft mc = Minecraft.getInstance();
+			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
+			ItemRenderer itemRenderer = mc.getItemRenderer();
+			itemRenderer.render(new ItemStack(freezerBlock.asItem()), TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
+
+			poseStack.popPose();
 		}
-		//Calculate the hinge position
-		Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
-		
-		Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * tileEntity.getDoorAngle(partialTicks)));
-		
-		poseStack.translate(hinge.x(), hinge.y(), hinge.z());
-		poseStack.mulPose(rotation);
-		
-		ItemStack stack = new ItemStack(doorItem);
-		Minecraft.getInstance().getItemRenderer().renderStatic(stack, TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, id);
-		
-		poseStack.popPose();
-		
+
 	}
 	
 }

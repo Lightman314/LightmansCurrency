@@ -50,6 +50,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nonnull;
 
@@ -60,7 +61,7 @@ public class ClientProxy extends CommonProxy{
 	boolean openNotifications = false;
 	
 	private long timeOffset = 0;
-	
+
 	@Override
 	public void setupClient() {
 		
@@ -93,7 +94,7 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
     	
 	}
-	
+
 	@Override
 	public void clearClientTraders() { ClientTraderData.ClearTraders(); }
 	

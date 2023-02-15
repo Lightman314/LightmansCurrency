@@ -104,7 +104,7 @@ public class VillagerTradeManager {
 						//Sell medium trader server
 						new SimpleTrade(15, ModItems.COIN_IRON.get(), 30, ModBlocks.ITEM_NETWORK_TRADER_2.get()),
 						//Sell Freezer
-						new SimpleTrade(20, ModItems.COIN_IRON.get(), 30, ModBlocks.FREEZER.get()),
+						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), ModBlocks.FREEZER.getAll(), 12, 20, 0.05f),
 						//Sell Money Mending book
 						new SimpleTrade(20, ModItems.COIN_DIAMOND.get(), 15, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(), 1)))
 				),
@@ -476,7 +476,7 @@ public class VillagerTradeManager {
 				
 				return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
 			} catch(Throwable t) {
-				LightmansCurrency.LogError("Error converting trade:", t);
+				LightmansCurrency.LogDebug("Error converting trade:", t);
 				return null;
 			}
 		}

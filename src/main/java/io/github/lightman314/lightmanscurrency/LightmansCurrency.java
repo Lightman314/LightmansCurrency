@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.res
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.entity.merchant.villager.VillagerTradeManager;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
+import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -89,8 +90,8 @@ public class LightmansCurrency {
     
 	public LightmansCurrency() {
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::imc);
@@ -123,16 +124,19 @@ public class LightmansCurrency {
     }
 	
 	private void imc(InterModEnqueueEvent event) {
-
 		if(isCuriosLoaded())
-		{
-			//Add a wallet slot
-			InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder(LCCurios.WALLET_SLOT).icon(WalletSlot.EMPTY_WALLET_SLOT).size(1).build());
-		}
+			safeEnqueueWork(event, "Error during Inter-mod Communications!", this::curiosIMC);
+	}
+
+	private void curiosIMC() {
+		//Add a wallet slot
+		InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder(LCCurios.WALLET_SLOT).icon(WalletSlot.EMPTY_WALLET_SLOT).size(1).build());
+		InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () -> new SlotTypeMessage.Builder("charm").size(1).build());
 	}
     
-    private void doCommonStuff(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
+
+	private void commonSetupWork() {
 		LightmansCurrencyPacketHandler.init();
 
 		//Register Crafting Conditions
@@ -208,9 +212,9 @@ public class LightmansCurrency {
 		//Villager Trades
 		VillagerTradeManager.registerDefaultTrades();
 		ItemListingSerializer.registerDefaultSerializers();
-    }
+	}
     
-    private void doClientStuff(final FMLClientSetupEvent event) { PROXY.setupClient(); }
+    private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
     
     private void onConfigLoad(ModConfigEvent event)
     {
@@ -270,13 +274,9 @@ public class LightmansCurrency {
     	return wallet;
     }
 
+    public static void LogDebug(String message) { LOGGER.debug(message); }
+    public static void LogDebug(String message, Object... objects) { LOGGER.debug(message, objects); }
 
-    
-    public static void LogDebug(String message)
-    {
-    	LOGGER.debug(message);
-    }
-    
     public static void LogInfo(String message)
     {
     	if(Config.commonSpec.isLoaded() && Config.COMMON.debugLevel.get() > 0)
@@ -308,5 +308,15 @@ public class LightmansCurrency {
     	else
     		LOGGER.error(message);
     }
+
+	public static void safeEnqueueWork(ParallelDispatchEvent event, String errorMessage, Runnable work) {
+		event.enqueueWork(() -> {
+			try{
+				work.run();
+			} catch(Throwable t) {
+				LogError(errorMessage, work);
+			}
+		});
+	}
     
 }

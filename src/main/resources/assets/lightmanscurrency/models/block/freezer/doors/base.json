@@ -1,0 +1,142 @@
+{
+	"credit": "Made with Blockbench",
+    "parent": "lightmanscurrency:block/block1_2",
+	"textures": {
+		"particle": "#concrete",
+		"freezer": "lightmanscurrency:block/freezer"
+	},
+	"elements": [
+		{
+			"name": "DoorRight-Bottom",
+			"from": [15, 4, 12],
+			"to": [16, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [23, 12, 20]},
+			"faces": {
+				"north": {"uv": [15, 0, 16, 12], "texture": "#concrete"},
+				"east": {"uv": [3, 0, 4, 12], "texture": "#concrete"},
+				"south": {"uv": [15, 0, 16, 12], "texture": "#concrete"},
+				"west": {"uv": [15, 0, 16, 12], "texture": "#concrete"},
+				"down": {"uv": [15, 11, 16, 12], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "DoorRight-Top",
+			"from": [15, 16, 12],
+			"to": [16, 32, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [23, 28, 20]},
+			"faces": {
+				"north": {"uv": [15, 0, 16, 16], "texture": "#concrete"},
+				"east": {"uv": [3, 0, 4, 16], "texture": "#concrete"},
+				"south": {"uv": [15, 0, 16, 16], "texture": "#concrete"},
+				"west": {"uv": [15, 0, 16, 16], "texture": "#concrete"},
+				"up": {"uv": [15, 12, 16, 13], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "DoorLeft-Top",
+			"from": [0, 4, 12],
+			"to": [1, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 12, 20]},
+			"faces": {
+				"north": {"uv": [0, 0, 1, 12], "texture": "#concrete"},
+				"east": {"uv": [0, 0, 1, 12], "texture": "#concrete"},
+				"south": {"uv": [0, 0, 1, 12], "texture": "#concrete"},
+				"west": {"uv": [12, 0, 13, 12], "texture": "#concrete"},
+				"down": {"uv": [0, 11, 1, 12], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "DoorLeft-Top",
+			"from": [0, 16, 12],
+			"to": [1, 32, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 28, 20]},
+			"faces": {
+				"north": {"uv": [0, 0, 1, 16], "texture": "#concrete"},
+				"east": {"uv": [0, 0, 1, 16], "texture": "#concrete"},
+				"south": {"uv": [0, 0, 1, 16], "texture": "#concrete"},
+				"west": {"uv": [12, 0, 13, 16], "texture": "#concrete"},
+				"up": {"uv": [0, 12, 1, 13], "texture": "#concrete"}
+            }
+		},
+		{
+			"name": "DoorTop",
+			"from": [1, 31, 12],
+			"to": [15, 32, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 39, 20]},
+			"faces": {
+				"north": {"uv": [1, 0, 15, 1], "texture": "#concrete"},
+				"south": {"uv": [1, 0, 15, 1], "texture": "#concrete"},
+				"up": {"uv": [1, 12, 15, 13], "texture": "#concrete"},
+				"down": {"uv": [1, 0, 15, 1], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "DoorBottom",
+			"from": [1, 4, 12],
+			"to": [15, 5, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 12, 20]},
+			"faces": {
+				"north": {"uv": [1, 11, 15, 12], "texture": "#concrete"},
+				"south": {"uv": [1, 11, 15, 12], "texture": "#concrete"},
+				"up": {"uv": [1, 11, 15, 12], "texture": "#concrete"},
+				"down": {"uv": [1, 11, 15, 12], "texture": "#concrete"}
+			}
+		},
+		{
+			"name": "DoorGlass",
+			"from": [1, 5, 12],
+			"to": [15, 31, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 38, 20]},
+			"faces": {
+				"north": {"uv": [0.5, 0, 7.5, 13], "texture": "#freezer"},
+				"south": {"uv": [0.5, 0, 7.5, 13], "texture": "#freezer"}
+			}
+		},
+		{
+			"name": "Handle-Top",
+			"from": [0, 19, 13],
+			"to": [1, 20, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 27, 21]},
+			"faces": {
+				"east": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"south": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"west": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"up": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"down": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"}
+			}
+		},
+		{
+			"name": "Handle-Bottom",
+			"from": [0, 16, 13],
+			"to": [1, 17, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 24, 21]},
+			"faces": {
+				"east": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"south": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"west": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"up": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"down": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"}
+			}
+		},
+		{
+			"name": "Handle-Middle",
+			"from": [0, 17, 14],
+			"to": [1, 19, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 25, 22]},
+			"faces": {
+				"north": {"uv": [14, 6.5, 14.5, 7.5], "texture": "#freezer"},
+				"east": {"uv": [14, 6.5, 14.5, 7.5], "texture": "#freezer"},
+				"south": {"uv": [14, 6.5, 14.5, 7.5], "texture": "#freezer"},
+				"west": {"uv": [14, 6.5, 14.5, 7.5], "texture": "#freezer"},
+				"up": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"},
+				"down": {"uv": [14, 6.5, 14.5, 7], "texture": "#freezer"}
+			}
+		}
+	],
+    "display": {
+        "fixed": {
+            "rotation": [0, 180, 0],
+            "translation" : [7.5, 8, 4.5]
+        }
+    }
+}

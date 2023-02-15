@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
-import io.github.lightman314.lightmanscurrency.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.items.TicketItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -67,7 +66,6 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_EMERALD);
                     ezPop(p, ModItems.WALLET_DIAMOND);
                     ezPop(p, ModItems.WALLET_NETHERITE);
-
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
             }));
@@ -159,8 +157,9 @@ public class ModCreativeGroups {
         }
         if(event.getTab() == CreativeModeTabs.COLORED_BLOCKS)
         {
-            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted(Color::sortByColor)));
-            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted(Color::sortByColor)));
+            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted()));
+            event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
+            event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
         }
     }
 

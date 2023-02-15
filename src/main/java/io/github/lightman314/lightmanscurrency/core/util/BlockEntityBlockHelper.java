@@ -19,6 +19,7 @@ import net.minecraftforge.registries.RegistryObject;
 public class BlockEntityBlockHelper {
 
 	public static final ResourceLocation ITEM_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
+	public static final ResourceLocation FREEZER_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "freezer_trader");
 	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = new ResourceLocation(LightmansCurrency.MODID, "capability_interface");
 	public static final ResourceLocation AUCTION_STAND_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand");
 
@@ -37,23 +38,24 @@ public class BlockEntityBlockHelper {
 		return result.toArray(new Block[0]);
 	}
 
-	public static void addBlockToBlockEntity(ResourceLocation beType, Supplier<Block> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }
-	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<Block,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
-	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBiBundle<Block,?,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
+	public static <T extends Block> void addBlockToBlockEntity(ResourceLocation beType, Supplier<T> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBundle<T,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObjectBiBundle<T,?,?> blocks) { addBlocksToBlockEntity(beType, blocks.getSupplier()); }
 	@SafeVarargs
-	public static void addBlocksToBlockEntity(ResourceLocation beType, RegistryObject<Block>... blocks) {
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, RegistryObject<T>... blocks) {
 		List<Supplier<Block>> blockSources = new ArrayList<>();
-		for(RegistryObject<Block> block : blocks)
+		for(RegistryObject<T> block : blocks)
 		{
 			if(block != null)
-				blockSources.add(block);
+				blockSources.add(block::get);
 		}
 		addBlocksToBlockEntity(beType, blockSources);
 	}
-	public static void addBlocksToBlockEntity(ResourceLocation beType, List<Supplier<Block>> blockSources)
+	public static <T extends Block> void addBlocksToBlockEntity(ResourceLocation beType, List<Supplier<T>> blockSources)
 	{
 		List<Supplier<Block>> list = blockList.getOrDefault(beType, new ArrayList<>());
-		list.addAll(blockSources);
+		for(Supplier<? extends Block> s : blockSources)
+			list.add(s::get);
 		blockList.put(beType, list);
 	}
 	
@@ -65,11 +67,15 @@ public class BlockEntityBlockHelper {
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.VENDING_MACHINE_LARGE);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.SHELF);
 		addBlocksToBlockEntity(ITEM_TRADER_TYPE, ModBlocks.CARD_DISPLAY);
-		
+
+		//Freezer Blocks
+		addBlocksToBlockEntity(FREEZER_TRADER_TYPE, ModBlocks.FREEZER);
+
 		//Multi-block Capability Interface Blocks
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE);
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE_LARGE);
-		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.ARMOR_DISPLAY, ModBlocks.FREEZER);
+		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.FREEZER);
+		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.ARMOR_DISPLAY);
 
 		//External Trader Blocks
 		addBlocksToBlockEntity(AUCTION_STAND_TYPE, ModBlocks.AUCTION_STAND);

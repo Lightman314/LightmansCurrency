@@ -64,7 +64,7 @@ public class ModItems {
 		HOPPER_UPGRADE = ModRegistries.ITEMS.register("hopper_upgrade", () -> new UpgradeItem.Simple(UpgradeType.HOPPER, new Item.Properties()));
 		
 		//Freezer Door(s)
-		FREEZER_DOOR = ModRegistries.ITEMS.register("freezer_door", () -> new Item(new Item.Properties()));
+		//FREEZER_DOOR = ModRegistries.ITEMS.register("freezer_door", () -> new Item(new Item.Properties()));
 		
 	}
 	
@@ -107,6 +107,6 @@ public class ModItems {
 	public static final RegistryObject<Item> HOPPER_UPGRADE;
 	
 	//Hidden item(s)
-	public static final RegistryObject<Item> FREEZER_DOOR;
+	//public static final RegistryObject<Item> FREEZER_DOOR;
 	
 }

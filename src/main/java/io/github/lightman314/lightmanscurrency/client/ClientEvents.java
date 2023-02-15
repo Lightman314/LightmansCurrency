@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -50,6 +51,7 @@ public class ClientEvents {
 	public static final ResourceLocation WALLET_SLOT_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_slot.png");
 	
 	public static final KeyMapping KEY_WALLET = new KeyMapping("key.wallet", GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping("key.portable_terminal", GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
 	//public static final KeyMapping KEY_TEAM = new KeyMapping("key.team_settings", GLFW.GLFW_KEY_RIGHT_BRACKET, KeyMapping.CATEGORY_INTERFACE);
 	
 	@SubscribeEvent
@@ -81,6 +83,11 @@ public class ClientEvents {
 						minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
 				}
 			}
+		}
+		//Open portable terminal from curios slot
+		if(LightmansCurrency.isCuriosLoaded() && event.getAction() == GLFW.GLFW_PRESS && event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
+		{
+			LightmansCurrency.PROXY.openTerminalScreen();
 		}
 		
 	}

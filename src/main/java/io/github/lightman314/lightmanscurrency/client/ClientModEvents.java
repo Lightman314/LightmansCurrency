@@ -1,14 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +40,12 @@ public class ClientModEvents {
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 		}
 	}*/
+
+	@SubscribeEvent
+	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
+			event.register(block.getDoorModel());
+	}
 	
 	@SubscribeEvent
 	public static void registerLayers(final EntityRenderersEvent.RegisterLayerDefinitions event)
@@ -63,6 +72,8 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
 		event.register(ClientEvents.KEY_WALLET);
+		if(LightmansCurrency.isCuriosLoaded())
+			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
 	}
 	
 }
