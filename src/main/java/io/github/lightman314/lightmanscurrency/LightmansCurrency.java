@@ -314,7 +314,7 @@ public class LightmansCurrency {
 			try{
 				work.run();
 			} catch(Throwable t) {
-				LogError(errorMessage, work);
+				LogError(errorMessage, t);
 			}
 		});
 	}
