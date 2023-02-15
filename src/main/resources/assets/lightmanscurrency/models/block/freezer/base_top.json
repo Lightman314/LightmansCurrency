@@ -1,9 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"concrete": "block/black_concrete_powder",
 		"freezer": "lightmanscurrency:block/freezer",
-		"particle": "block/black_concrete_powder"
+		"particle": "#concrete"
 	},
 	"elements": [
 		{

@@ -56,7 +56,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			Minecraft mc = Minecraft.getInstance();
 			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 			ItemRenderer itemRenderer = mc.getItemRenderer();
-			itemRenderer.render(new ItemStack(freezerBlock.asItem()), TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
+			itemRenderer.render(new ItemStack(freezerBlock), TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
 
 			poseStack.popPose();
 		}

@@ -6,8 +6,6 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraftforge.registries.RegistryObject;
 
-import javax.annotation.Nullable;
-
 public class RegistryObjectBundle<T,L> {
 
 	private final Comparator<L> sorter;
@@ -44,15 +42,6 @@ public class RegistryObjectBundle<T,L> {
 		RegistryObject<T> obj = this.getRegistryObject(key);
 		if(obj != null)
 			return obj.get();
-		return null;
-	}
-
-	public @Nullable L getKey(T value) {
-		for(Map.Entry<L,RegistryObject<T>> entry : this.values.entrySet())
-		{
-			if(entry.getValue().get() == value)
-				return entry.getKey();
-		}
 		return null;
 	}
 	
