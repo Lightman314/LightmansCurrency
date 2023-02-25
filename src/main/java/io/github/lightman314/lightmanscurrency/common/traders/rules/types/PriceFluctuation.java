@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;

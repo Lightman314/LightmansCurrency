@@ -9,10 +9,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TradeSelectTab;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TradeSelectTab;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;

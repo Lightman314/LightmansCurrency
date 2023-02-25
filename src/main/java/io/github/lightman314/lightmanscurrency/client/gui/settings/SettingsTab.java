@@ -62,7 +62,6 @@ public abstract class SettingsTab implements ITab{
 	/**
 	 * Called when the tab is changed to another tab.
 	 * Used to remove any widgets that were added.
-	 * @param screen
 	 */
 	public abstract void closeTab();
 	

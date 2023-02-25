@@ -3,18 +3,20 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
@@ -26,20 +28,49 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
-	public static List<CreativeModeTab> ITEM_GROUP_BLACKLIST = ImmutableList.of(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
+	private static final List<CreativeModeTab> ITEM_GROUP_BLACKLIST = new ArrayList<>();
+
+	public static void BlacklistCreativeTabs(CreativeModeTab... tabs) {
+		for(CreativeModeTab tab : tabs)
+			BlacklistCreativeTab(tab);
+	}
+
+	public static void BlacklistCreativeTab(CreativeModeTab tab) {
+		if(!ITEM_GROUP_BLACKLIST.contains(tab))
+			ITEM_GROUP_BLACKLIST.add(tab);
+	}
+
+	private static final List<Predicate<ItemStack>> ITEM_BLACKLIST = Lists.newArrayList((s) -> s.getItem() instanceof TicketItem);
+
+	public static void BlacklistItem(RegistryObject<? extends ItemLike> item) { BlacklistItem(item.get()); }
+	public static void BlacklistItem(ItemLike item) { BlacklistItem((s) -> s.getItem() == item.asItem()); }
+
+	public static void BlacklistItem(Predicate<ItemStack> itemFilter) {
+		if(!ITEM_BLACKLIST.contains(itemFilter))
+			ITEM_BLACKLIST.add(itemFilter);
+	}
+
+	public static boolean isItemAllowed(ItemStack item) {
+		for(Predicate<ItemStack> blacklist : ITEM_BLACKLIST)
+		{
+			if(blacklist.test(item))
+				return false;
+		}
+		return true;
+	}
+
 
 	private int scroll = 0;
 	private int stackCount = 1;
@@ -86,12 +117,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public static void initItemList(FeatureFlagSet flagSet) {
+	public static void initItemList(FeatureFlagSet flagSet, boolean hasPermissions) {
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 
 		//Force Creative Tab content rebuild
-		CreativeModeTabs.tryRebuildTabContents(flagSet, false);
+		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions);
 
 		List<ItemStack> allItems = new ArrayList<>();
 
@@ -105,23 +136,25 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 				//Add them to the list after confirming we don't already have it in the list
 				for(ItemStack stack : items)
 				{
-
-					if(notYetInList(allItems, stack))
-						allItems.add(stack);
-
-					if(stack.getItem() == Items.ENCHANTED_BOOK)
+					if(isItemAllowed(stack))
 					{
-						//LightmansCurrency.LogInfo("Attempting to add lower levels of an enchanted book.");
-						Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
-						enchantments.forEach((enchantment, level) ->{
-							for(int newLevel = level - 1; newLevel > 0; newLevel--)
-							{
-								ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
-								EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-								if(notYetInList(allItems, newBook))
-									allItems.add(newBook);
-							}
-						});
+						if(notYetInList(allItems, stack))
+							allItems.add(stack);
+
+						if(stack.getItem() == Items.ENCHANTED_BOOK)
+						{
+							//LightmansCurrency.LogInfo("Attempting to add lower levels of an enchanted book.");
+							Map<Enchantment,Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+							enchantments.forEach((enchantment, level) ->{
+								for(int newLevel = level - 1; newLevel > 0; newLevel--)
+								{
+									ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
+									EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
+									if(notYetInList(allItems, newBook))
+										allItems.add(newBook);
+								}
+							});
+						}
 					}
 				}
 			}

@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon.ArrowType;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.world.level.ItemLike;
 
 public class ATMConversionButtonData {

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.coinmint;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.CoinMintBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

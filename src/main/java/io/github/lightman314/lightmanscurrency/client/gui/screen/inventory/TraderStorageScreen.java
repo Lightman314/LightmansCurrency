@@ -23,11 +23,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
-import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;

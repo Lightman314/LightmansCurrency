@@ -6,9 +6,9 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import io.github.lightman314.lightmanscurrency.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;

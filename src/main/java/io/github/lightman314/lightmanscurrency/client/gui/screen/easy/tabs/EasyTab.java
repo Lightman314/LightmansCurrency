@@ -3,13 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IEasyScreen;
-import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +26,7 @@ public abstract class EasyTab<T extends IEasyScreen> implements IEasyScreen {
     private final List<Object> tabObjects = new ArrayList<>();
 
     public final void openTab() {
-        if(this instanceof GuiEventListener l)
-            this.addGuiListener(l);
-        if(this instanceof IMouseListener l)
-            this.addMouseListener(l);
-        if(this instanceof ITooltipSource t)
-            this.addTooltipSource(t);
-        if(this instanceof IEasyTickable t)
-            this.addTicker(t::tick);
+        this.addChild(this);
         LightmansCurrency.LogInfo("Opening tab.");
         this.initializeTab();
     }
@@ -73,40 +61,13 @@ public abstract class EasyTab<T extends IEasyScreen> implements IEasyScreen {
     @Override
     public final Font getFont() { return this.screen.getFont(); }
     @Override
-    public final <W extends Renderable> @NotNull W addRenderableOnly(@NotNull W renderable) {
-        this.screen.addRenderableOnly(renderable);
-        this.tabObjects.add(renderable);
-        return renderable;
+    public final <W> @NotNull W addChild(@NotNull W child) {
+        this.screen.addChild(child);
+        this.tabObjects.add(child);
+        return child;
     }
     @Override
-    public final <W extends Renderable & GuiEventListener> @NotNull W addRenderableWidget(@NotNull W widget) {
-        this.screen.addRenderableWidget(widget);
-        this.tabObjects.add(widget);
-        return widget;
-    }
-    @Override
-    public final <W extends GuiEventListener> @NotNull W addGuiListener(@NotNull W listener) {
-        this.screen.addGuiListener(listener);
-        this.tabObjects.add(listener);
-        return listener;
-    }
-    @Override
-    public final void addMouseListener(@NotNull IMouseListener listener) {
-        this.screen.addMouseListener(listener);
-        this.tabObjects.add(listener);
-    }
-    @Override
-    public final void addTooltipSource(@NotNull ITooltipSource tooltipSource) {
-        this.screen.addTooltipSource(tooltipSource);
-        this.tabObjects.add(tooltipSource);
-    }
-    @Override
-    public final void addTicker(@NotNull Runnable ticker) {
-        this.screen.addTicker(ticker);
-        this.tabObjects.add(ticker);
-    }
-    @Override
-    public final void removeChild(@NotNull Object widget) {
+    public final <W> void removeChild(@NotNull W widget) {
         this.screen.removeChild(widget);
         this.tabObjects.remove(widget);
     }

@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
@@ -20,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -87,6 +89,16 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		this.addWidget.accept(this.scrollBar);
 		this.resetButtons();
 	}
+
+	@Nullable
+	public TradeButton getHoveredButton(int mouseX, int mouseY) {
+		for(TradeButton button : this.allButtons)
+		{
+			if(button.isMouseOver(mouseX, mouseY))
+				return button;
+		}
+		return null;
+	}
 	
 	public TraderData getTrader(int traderIndex) {
 		ITraderSource source = this.traderSource.get();
@@ -110,7 +122,8 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			List<? extends TradeData> trades = trader.getTradeData();
 			for (TradeData trade : trades) {
 				if (this.tradeFilter.apply(trade)) {
-					int tradeWidth = trade.tradeButtonWidth(context);
+					TradeRenderManager<?> trm = trade.getButtonRenderer();
+					int tradeWidth = trm.tradeButtonWidth(context);
 					if (currentRowWidth + tradeWidth > this.getMinAvailableWidth() && currentRow.size() > 0) {
 						//Start new row
 						result.add(currentRow);
@@ -242,7 +255,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 				if (trade.getFirst() != null && trade.getSecond() != null) {
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					visibleButtons++;
-					totalWidth += trade.getSecond().tradeButtonWidth(context);
+					totalWidth += trade.getSecond().getButtonRenderer().tradeButtonWidth(context);
 				}
 			}
 			//Position the buttons in this row
@@ -255,7 +268,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 					button.move(this.getX() + xOffset, this.getY() + yOffset);
 					button.visible = true;
 					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
-					xOffset += trade.getSecond().tradeButtonWidth(context) + spacing;
+					xOffset += trade.getSecond().getButtonRenderer().tradeButtonWidth(context) + spacing;
 
 				} else
 					button.visible = false;

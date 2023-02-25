@@ -8,9 +8,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;

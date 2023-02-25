@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traderinterface.handlers;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;

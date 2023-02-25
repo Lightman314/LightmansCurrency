@@ -271,6 +271,9 @@
     "gui.lightmanscurrency.notrades": "No Available Trades",
     
     "gui.lightmanscurrency.customname": "Name:",
+    "gui.lightmanscurrency.blurb.nbt": "Enforce NBT",
+    "gui.lightmanscurrency.warning.nbt.selling": "NBT is NOT enforced. Item may have unexpected NBT data.",
+    "gui.lightmanscurrency.warning.nbt.buying": "Accepts all NBT states.",
     "gui.lightmanscurrency.duration": "Duration:",
     "gui.lightmanscurrency.duration.unit": "ticks",
     "gui.lightmanscurrency.ticket_machine.title" : "Ticket Station",
@@ -320,6 +323,10 @@
     "tooltip.lightmanscurrency.paygate.duration.hours": "%s hours",
     "tooltip.lightmanscurrency.paygate.duration.hours.singular": "%s hour",
     "tooltip.lightmanscurrency.ticket.id": "TicketID: %s",
+    "tooltip.lightmanscurrency.trader.info.money.bank": "%s in your Bank Account",
+    "tooltip.lightmanscurrency.trader.info.money.slots": "%s in the Coin Slots",
+    "tooltip.lightmanscurrency.trader.info.money.wallet": "%s in your equipped wallet",
+    "tooltip.lightmanscurrency.trader.info.money.coin_storage": "%s in miscellaneous coin storage",
     "tooltip.lightmanscurrency.trader.openstorage": "Open Trader Storage",
     "tooltip.lightmanscurrency.trader.opentrades": "Return to Trades",
     "tooltip.lightmanscurrency.trader.collectcoins": "Collect Payment (%s)",
@@ -723,6 +730,7 @@
     "command.lightmanscurrency.lcadmin.setCustomTrader.success": "Saved current trader data to the block entity. Can now be copied to a structure or schematic safely.",
     "command.lightmanscurrency.lcadmin.giftBankAccounts.success": "Gave %1$s to %2$s bank accounts!",
     "command.lightmanscurrency.lcadmin.giftBankAccounts.fail": "No bank accounts received your gift!",
+    "command.lightmanscurrency.lcadmin.replaceWalletSlot.notawallet": "Item given was not a valid wallet item or air!",
     
     
     "command.lightmanscurrency.lcbaltop.title": "Top Bank Account Balances",

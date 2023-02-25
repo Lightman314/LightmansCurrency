@@ -1,8 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import org.jetbrains.annotations.NotNull;
 
 public class ScrollListener implements GuiEventListener, NarratableEntry {
 
@@ -13,7 +16,9 @@ public class ScrollListener implements GuiEventListener, NarratableEntry {
 	private final IScrollListener listener;
 	
 	public boolean active = true;
-	
+
+	public ScrollListener(ScreenPosition position, int width, int height, IScrollListener listener) { this(position.x, position.y, width, height, listener); }
+
 	public ScrollListener(int x, int y, int width, int height, IScrollListener listener) {
 		this.x = x;
 		this.y = y;
@@ -29,12 +34,10 @@ public class ScrollListener implements GuiEventListener, NarratableEntry {
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		return this.active && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
 	}
-	
-	public interface IScrollListener { public boolean mouseScrolled(double mouseX, double mouseY, double delta); }
 
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) {}
+	public void updateNarration(@NotNull NarrationElementOutput narrator) {}
 
 	@Override
-	public NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
+	public @NotNull NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
 }

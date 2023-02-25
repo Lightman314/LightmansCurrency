@@ -11,8 +11,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.ActiveMode;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
@@ -23,7 +23,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -151,14 +151,15 @@ public class IconAndButtonUtil {
 				new ToggleTooltip2(() -> {
 					TraderData trader = traderSource.get();
 					return trader == null || trader.getStoredMoney().getRawValue() <= 0;
-				},new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> {
+				},
+				new SimpleTooltip(EasyText.empty()),
+				new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> {
 					TraderData trader = traderSource.get();
 					if(trader != null)
 						return new Object[] { trader.getStoredMoney().getString() };
 					else
 						return new Object[] {};
-				}),
-				new SimpleTooltip(EasyText.empty()))
+				}))
 		);
 		button.setVisiblityCheck(() -> {
 			TraderData trader = traderSource.get();

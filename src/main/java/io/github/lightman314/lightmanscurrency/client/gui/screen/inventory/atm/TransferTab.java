@@ -18,8 +18,8 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountRe
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;

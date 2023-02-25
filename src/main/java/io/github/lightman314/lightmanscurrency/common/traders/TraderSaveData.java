@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,8 +20,8 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.events.TraderEvent;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageClearClientTraders;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
@@ -193,8 +194,9 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderData.put(traderID, new PersistentData(id, new CompoundTag()));
 		this.setDirty();
 	}
-	
-	@Deprecated /** @deprecated Use only to check for persistent ids from the old Trading Office. */
+
+	/** @deprecated Use only to check for persistent ids from the old Trading Office. */
+	@Deprecated
 	public static long CheckOldPersistentID(String traderID) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -223,8 +225,9 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderData.put(traderID, new PersistentData(-1, tag == null ? new CompoundTag() : tag));
 		this.setDirty();
 	}
-	
-	@Deprecated /** @deprecated Use only to give persistent data from the old Trading Office. */
+
+	/** @deprecated Use only to give persistent data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldPersistentTag(String traderID, CompoundTag tag) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -503,7 +506,7 @@ public class TraderSaveData extends SavedData {
 		return -1;
 	}
 	
-	public static TraderData DeleteTrader(long traderID) {
+	public static void DeleteTrader(long traderID) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
@@ -517,10 +520,8 @@ public class TraderSaveData extends SavedData {
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
 				if(trader.shouldAlwaysShowOnTerminal())
 					MinecraftForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
-				return trader;
 			}
 		}
-		return null;
 	}
 	
 	public static List<TraderData> GetAllTraders(boolean isClient)

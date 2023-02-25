@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated
 public class NotificationTab extends EasyTab<EasyNotificationScreen> implements ScrollBarWidget.IScrollable, GuiEventListener, ITooltipSource {
 
     public static final int NOTIFICATIONS_PER_PAGE = 8;
@@ -37,7 +36,7 @@ public class NotificationTab extends EasyTab<EasyNotificationScreen> implements 
 
     @Override
     protected void initializeTab() {
-        this.notificationScroller = this.addRenderableWidget(new ScrollBarWidget(this.guiLeft() + this.width() - 15, this.guiTop() + 15, NOTIFICATIONS_PER_PAGE * NOTIFICATION_HEIGHT, this));
+        this.notificationScroller = this.addChild(new ScrollBarWidget(this.guiLeft() + this.width() - 15, this.guiTop() + 15, NOTIFICATIONS_PER_PAGE * NOTIFICATION_HEIGHT, this));
     }
 
     private List<Component> tooltip = new ArrayList<>();

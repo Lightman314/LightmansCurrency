@@ -1,27 +1,32 @@
 package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
-import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.slots.InteractionSlot;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -168,6 +173,33 @@ public class TradeContext {
 			funds += MoneyUtil.getValue(this.coinSlots);
 		return funds;
 	}
+
+	public List<Component> getAvailableFundsDescription() {
+		List<Component> text = new ArrayList<>();
+		if(this.hasCoinSlots() && this.hasPlayer())
+			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.slots", MoneyUtil.getCoinValue(this.coinSlots));
+		if(this.hasStoredMoney())
+			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.coin_storage", this.storedMoney);
+		if(this.hasBankAccount())
+			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.bank", this.bankAccount.get().getCoinStorage());
+		if(this.hasPlayer())
+		{
+			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
+			if(walletHandler != null)
+			{
+				ItemStack wallet = walletHandler.getWallet();
+				if(WalletItem.isWallet(wallet))
+					this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.wallet", MoneyUtil.getCoinValue(WalletItem.getWalletInventory(wallet)));
+			}
+		}
+		return text;
+	}
+
+	private void addToFundsTooltip(List<Component> text, String translation, CoinValue value)
+	{
+		if(value.isValid())
+			text.add(EasyText.translatable(translation, value.getString()));
+	}
 	
 	public boolean getPayment(CoinValue price)
 	{
@@ -310,6 +342,33 @@ public class TradeContext {
 		}
 		return true;
 	}
+
+	/**
+	 * Whether the given item stacks are present in the item handler, and can be successfully removed without issue.
+	 */
+	public boolean hasItems(List<ItemStack> items)
+	{
+		if(items == null)
+			return false;
+		for(ItemStack item : InventoryUtil.combineQueryItems(items))
+		{
+			if(!hasItem(item))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Whether the given item stacks are present in the item handler, and can be successfully removed without issue.
+	 */
+	public boolean hasItems(ItemRequirement... requirements)
+	{
+		if(this.hasItemHandler())
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.itemHandler, requirements) != null;
+		else if(this.hasPlayer())
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.getInventory(), requirements) != null;
+		return false;
+	}
 	
 	/**
 	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
@@ -371,12 +430,66 @@ public class TradeContext {
 		}
 		return false;
 	}
-	
+
+	public boolean collectItems(List<ItemStack> items)
+	{
+		items = InventoryUtil.combineQueryItems(items);
+		for(ItemStack item : items)
+		{
+			if(!this.hasItem(item))
+				return false;
+		}
+		for(ItemStack item : items)
+			this.collectItem(item);
+		return true;
+	}
+
+	public List<ItemStack> getCollectableItems(ItemRequirement...requirements)
+	{
+		if(this.hasItemHandler())
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.itemHandler, requirements);
+		else if(this.hasPlayer())
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.getInventory(), requirements);
+		return null;
+	}
+
+	public void hightlightItems(List<ItemRequirement> requirements, NonNullList<Slot> slots, List<Integer> results) {
+		if(this.hasPlayer())
+		{
+			Map<Integer,Integer> inventoryConsumedCounts = new HashMap<>();
+			Container inventory = this.player.getInventory();
+			for(ItemRequirement requirement : requirements)
+			{
+				int amountToConsume = requirement.count;
+				for(int i = 0; i < inventory.getContainerSize() && amountToConsume > 0; ++i)
+				{
+					ItemStack stack = inventory.getItem(i);
+					if(requirement.test(stack) && !stack.isEmpty())
+					{
+						int alreadyConsumed = inventoryConsumedCounts.getOrDefault(i, 0);
+						int consumeCount = Math.min(amountToConsume, stack.getCount() - alreadyConsumed);
+						amountToConsume -= consumeCount;
+						alreadyConsumed += consumeCount;
+						if(alreadyConsumed > 0)
+							inventoryConsumedCounts.put(i, alreadyConsumed);
+					}
+				}
+			}
+			for(int relevantSlot : inventoryConsumedCounts.keySet())
+			{
+				for(int i = 0; i < slots.size(); ++i)
+				{
+					Slot slot = slots.get(i);
+					if(slot.container == inventory && slot.getContainerSlot() == relevantSlot)
+						results.add(i);
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Removes the given ticket from the item handler.
 	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
-	 * 
 	 */
 	public boolean collectTicket(long ticketID) {
 		if(this.hasTicket(ticketID))
@@ -441,6 +554,36 @@ public class TradeContext {
 				copy = ((ICanCopy<? extends IItemHandler>)original).copy();
 			}
 			else
+			{
+				//Assume a default item handler
+				NonNullList<ItemStack> inventory = NonNullList.withSize(original.getSlots(), ItemStack.EMPTY);
+				for(int i = 0; i < original.getSlots(); ++i)
+					inventory.set(i, original.getStackInSlot(i));
+				copy = new ItemStackHandler(inventory);
+			}
+			for(ItemStack item : items)
+			{
+				if(!ItemHandlerHelper.insertItemStacked(copy, item, false).isEmpty())
+					return false;
+			}
+			return true;
+		}
+		return this.hasPlayer();
+	}
+
+	public boolean canFitItems(List<ItemStack> items)
+	{
+		if(this.hasItemHandler())
+		{
+			IItemHandler original = this.itemHandler;
+			IItemHandler copy = null;
+			if(original instanceof ICanCopy<?>)
+			{
+				try{
+					copy = ((ICanCopy<? extends IItemHandler>)original).copy();
+				} catch(Throwable ignored) { }
+			}
+			if(copy == null)
 			{
 				//Assume a default item handler
 				NonNullList<ItemStack> inventory = NonNullList.withSize(original.getSlots(), ItemStack.EMPTY);

@@ -7,8 +7,8 @@ import java.util.Objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity.InteractionType;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
@@ -19,9 +19,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.base.TraderSelectTab;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;

@@ -5,18 +5,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import com.mojang.datafixers.util.Pair;
-
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.gui.components.AbstractWidget;
 
 public class LazyWidgetPositioner {
 
-	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_TOPDOWN = positioner -> Pair.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
+	public static final Function<LazyWidgetPositioner, ScreenPosition> MODE_TOPDOWN = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
 	
-	public static final Function<LazyWidgetPositioner,Pair<Integer,Integer>> MODE_BOTTOMUP = positioner -> Pair.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
+	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_BOTTOMUP = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
 	
 	private final IScreen screen;
-	private final Function<LazyWidgetPositioner,Pair<Integer,Integer>> mode;
+	private final Function<LazyWidgetPositioner,ScreenPosition> mode;
 	private final List<AbstractWidget> widgetList = new ArrayList<>();
 	
 	private final int x1;
@@ -29,12 +28,12 @@ public class LazyWidgetPositioner {
 	public int getPositionIndex() { return this.posIndex; }
 	
 	@SafeVarargs
-	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,Pair<Integer,Integer>> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
+	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
 		return new LazyWidgetPositioner(screen, mode, x1, y1, widgetSize, widgets);
 	}
 	
 	@SafeVarargs
-	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,Pair<Integer,Integer>> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
+	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
 		this.screen = Objects.requireNonNull(screen);
 		this.mode = Objects.requireNonNull(mode);
 		this.x1 = x1;
@@ -53,8 +52,8 @@ public class LazyWidgetPositioner {
 		this.posIndex = 0;
 		for (AbstractWidget w : this.widgetList) {
 			if (w.visible) {
-				Pair<Integer, Integer> pos = this.mode.apply(this);
-				w.setPosition(pos.getFirst(), pos.getSecond());
+				ScreenPosition pos = this.mode.apply(this);
+				w.setPosition(pos.x, pos.y);
 				this.posIndex++;
 			}
 		}

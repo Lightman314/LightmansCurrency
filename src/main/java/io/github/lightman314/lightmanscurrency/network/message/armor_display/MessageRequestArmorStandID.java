@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.armor_display;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.blockentity.trader.ArmorDisplayTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

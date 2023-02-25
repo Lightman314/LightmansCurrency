@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.blockentity.trader.FreezerTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;

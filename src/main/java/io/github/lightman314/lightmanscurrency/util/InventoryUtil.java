@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -96,12 +97,40 @@ public class InventoryUtil {
     	{
     		ItemStack stack = inventory.getItem(i);
     		if(ItemMatches(stack, item))
-    		{
     			count += stack.getCount();
-    		}
     	}
     	return count;
     }
+
+	/**
+	 * Gets the quantity of a specific item in the given inventory validating NBT data where applicable
+	 */
+	public static int GetItemCount(IItemHandler inventory, ItemStack item)
+	{
+		int count = 0;
+		for(int i = 0; i < inventory.getSlots(); i++)
+		{
+			ItemStack stack = inventory.getStackInSlot(i);
+			if(ItemMatches(stack, item))
+				count += stack.getCount();
+		}
+		return count;
+	}
+
+	/**
+	 * Gets the quantity of a matching item in the given inventory
+	 */
+	public static int GetItemCount(Container inventory, Predicate<ItemStack> filter)
+	{
+		int count = 0;
+		for(int i = 0; i < inventory.getContainerSize(); ++i)
+		{
+			ItemStack stack = inventory.getItem(i);
+			if(filter.test(stack))
+				count += stack.getCount();
+		}
+		return count;
+	}
     
     /**
      * Removes the quantity of a specific item in the given inventory
@@ -366,9 +395,6 @@ public class InventoryUtil {
     
     /**
      * Determines whether there is enough room in the inventory to place the requested item stacks
-     * @param inventory
-     * @param stack
-     * @return
      */
     public static boolean CanPutItemStack(Container inventory, ItemStack stack)
     {
@@ -419,7 +445,6 @@ public class InventoryUtil {
     
     /**
      * Merges item stacks of the same type together (e.g. 2 stacks of 32 cobblestone will become 1 stack of 64 cobblestone and an extra empty slot)
-     * @param inventory
      */
     public static void MergeStacks(Container inventory)
 	{
@@ -493,8 +518,8 @@ public class InventoryUtil {
     {
     	if(level.isClientSide)
     		return;
-    	for(int i = 0; i < inventory.size(); i++)
-    		dumpContents(level, pos, inventory.get(i));
+		for (ItemStack itemStack : inventory)
+			dumpContents(level, pos, itemStack);
     }
     
     public static void dumpContents(Level level, BlockPos pos, ItemStack stack)
@@ -524,6 +549,47 @@ public class InventoryUtil {
     	}
     	return itemList;
     }
+
+	public static List<ItemStack> combineQueryItems(List<ItemStack> items)
+	{
+		List<ItemStack> itemList = new ArrayList<>();
+		for(ItemStack item : items)
+		{
+			boolean addNew = true;
+			for(int i = 0; i < itemList.size() && addNew; ++i)
+			{
+				if(ItemMatches(item, itemList.get(i)))
+					itemList.get(i).grow(item.getCount());
+			}
+			if(addNew && !item.isEmpty())
+				itemList.add(item.copy());
+		}
+		return itemList;
+	}
+
+	public static List<ItemRequirement> combineRequirements(ItemRequirement... requirements)
+	{
+		List<ItemRequirement> list = new ArrayList<>();
+		for(ItemRequirement requirement : requirements)
+		{
+			boolean addNew = !requirement.isNull();
+			for(int i = 0; i < list.size() && addNew; ++i)
+			{
+				if(list.get(i).filter.equals(requirement.filter))
+				{
+					list.set(i, requirement.merge(list.get(i)));
+					addNew = false;
+				}
+			}
+			if(addNew)
+				list.add(requirement);
+		}
+		return list;
+	}
+
+
+
+
     
     /**
      * Determines whether the two item stacks are the same item/nbt. Ignores quantity of the items in the stack

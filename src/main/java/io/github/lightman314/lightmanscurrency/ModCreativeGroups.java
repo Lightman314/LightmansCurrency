@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency;
 
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
-import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;

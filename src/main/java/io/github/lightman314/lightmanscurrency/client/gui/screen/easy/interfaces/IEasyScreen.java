@@ -23,16 +23,10 @@ public interface IEasyScreen {
     Font getFont();
 
     //Add Widget Functions
-    <T extends Renderable> @NotNull T addRenderableOnly(@NotNull T renderable);
-    <T extends Renderable & GuiEventListener> @NotNull T addRenderableWidget(@NotNull T widget);
-    <T extends GuiEventListener> @NotNull T addGuiListener(@NotNull T listener);
-
-    void addMouseListener(@NotNull IMouseListener listener);
-    void addTooltipSource(@NotNull ITooltipSource tooltipSource);
-    void addTicker(@NotNull Runnable ticker);
+    <T> @NotNull T addChild(@NotNull T child);
 
     //Remove Widget Functions
-    void removeChild(@NotNull Object widget);
+    <T> void removeChild(@NotNull T child);
 
     @Nullable
     static Runnable CollectTicker(Object widget) {

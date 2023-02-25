@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 

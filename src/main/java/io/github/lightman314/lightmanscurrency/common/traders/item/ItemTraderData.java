@@ -10,9 +10,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
@@ -28,17 +28,17 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemSto
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -368,7 +368,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			} catch(Exception e) { LightmansCurrency.LogError("Error parsing item trade at index " + i, e); }
 		}
 		
-		if(this.trades.size() <= 0)
+		if(this.trades.size() == 0)
 			throw new Exception("Trader has no valid trades!");
 		
 		this.storage = new TraderItemStorage.LockedTraderStorage(this);
@@ -379,11 +379,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	protected void saveAdditionalPersistentData(CompoundTag compound) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
+		for (ItemTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			ItemTradeData trade = this.trades.get(i);
-			if(TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}
@@ -449,9 +447,12 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
+
+			//Randomize the items to be sold
+			List<ItemStack> soldItems = InventoryUtil.combineQueryItems(trade.getRandomSellItems(this.storage));
 			
 			//Abort if not enough room to put the sold item
-			if(!context.canFitItems(trade.getSellItem(0), trade.getSellItem(1)))
+			if(!context.canFitItems(soldItems))
 			{
 				LightmansCurrency.LogInfo("Not enough room for the output item. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
@@ -466,20 +467,18 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//We have enough money, and the trade is valid. Execute the trade
 			//Get the trade itemStack
 			//Give the trade item
-			if(!context.putItem(trade.getSellItem(0)))//If there's not enough room to give the item to the output item, abort the trade
+			for(int i = 0; i < soldItems.size(); ++i)
 			{
-				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
-				//Give a refund
-				context.givePayment(price);
-				return TradeResult.FAIL_NO_OUTPUT_SPACE;
-			}
-			if(!context.putItem(trade.getSellItem(1)))
-			{
-				LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
-				//Give a refund
-				context.collectItem(trade.getSellItem(0));
-				context.givePayment(price);
-				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+				if(!context.putItem(soldItems.get(i)))//If there's not enough room to give the item to the output item, abort the trade
+				{
+					LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
+					//Collect the items already given
+					for(int x = 0; x < i; ++x)
+						context.collectItem(soldItems.get(x));
+					//Give a refund
+					context.givePayment(price);
+					return TradeResult.FAIL_NO_OUTPUT_SPACE;
+				}
 			}
 			
 			//Push Notification
@@ -489,7 +488,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!this.isCreative())
 			{
 				//Remove the sold items from storage
-				trade.RemoveItemsFromStorage(this.getStorage());
+				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
 				this.markStorageDirty();
 				//Give the paid cost to storage
 				this.addStoredMoney(price);
@@ -509,15 +508,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a purchase
 		else if(trade.isPurchase())
 		{
+			List<ItemStack> collectableItems = context.getCollectableItems(trade.getItemRequirement(0), trade.getItemRequirement(1));
 			//Abort if not enough items in the item slots
-			if(!context.hasItems(trade.getSellItem(0), trade.getSellItem(1)))
+			if(!context.hasItems(collectableItems))
 			{
 				LightmansCurrency.LogDebug("Not enough items in the item slots to make the purchase.");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this) && !this.isCreative())
+			if(!trade.hasSpace(this, collectableItems) && !this.isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return TradeResult.FAIL_NO_INPUT_SPACE;
@@ -529,9 +529,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 			//Passed the checks. Take the item(s) from the input slot
-			context.collectItem(trade.getSellItem(0));
-			context.collectItem(trade.getSellItem(1));
-			//Put the payment in the purchasers wallet, coin slot, etc.
+			context.collectItems(collectableItems);
+			//Put the payment in the purchasers' wallet, coin slot, etc.
 			context.givePayment(price);
 			
 			//Push Notification
@@ -540,9 +539,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
 			{
-				//Put the item in storage
-				this.getStorage().forceAddItem(trade.getSellItem(0));
-				this.getStorage().forceAddItem(trade.getSellItem(1));
+				//Put the item(s) in storage
+				for(ItemStack item : collectableItems)
+					this.getStorage().forceAddItem(item);
 				this.markStorageDirty();
 				//Remove the coins from storage
 				this.removeStoredMoney(price);
@@ -562,45 +561,53 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a barter
 		else if(trade.isBarter())
 		{
+			//Collect items that will be taken from the customer.
+			List<ItemStack> collectableItems = context.getCollectableItems(trade.getItemRequirement(2), trade.getItemRequirement(3));
 			//Abort if not enough items in the item slots
-			if(!context.hasItems(trade.getBarterItem(0), trade.getBarterItem(1)))
+			if(collectableItems == null)
 			{
-				LightmansCurrency.LogDebug("Not enough items in the item slots to make the barter.");
+				LightmansCurrency.LogDebug("Collectable items returned a null list!");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
+
 			//Abort if not enough room to store the purchased items (unless we're creative)
-			if(!trade.hasSpace(this) && !this.isCreative())
+			if(!trade.hasSpace(this, collectableItems) && !this.isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough room in storage to store the purchased items.");
 				return TradeResult.FAIL_NO_INPUT_SPACE;
 			}
+
+			List<ItemStack> soldItems = trade.getRandomSellItems(this.storage);
 			//Abort if not enough items in inventory
 			if(!trade.hasStock(context) && !this.isCreative())
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
-			
-			//Passed the checks. Take the item(s) from the input slot
-			context.collectItem(trade.getBarterItem(0));
-			context.collectItem(trade.getBarterItem(1));
-			//Check if there's room for the new items
-			if(!context.putItem(trade.getSellItem(0)))
+
+			//Abort if no space to put the sold items
+			if(!context.canFitItems(soldItems))
 			{
-				//Abort if no room for the sold item
-				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
-				context.putItem(trade.getBarterItem(0));
-				context.putItem(trade.getBarterItem(1));
+				LightmansCurrency.LogDebug("Not enough space to store the purchased items.");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
 			}
-			if(!context.putItem(trade.getSellItem(1)))
+			
+			//Passed the checks. Take the item(s) from the input slot
+			context.collectItems(collectableItems);
+			//Check if there's room for the new items
+			for(int i = 0; i < soldItems.size(); ++i)
 			{
-				//Abort if no room for the sold item
-				LightmansCurrency.LogDebug("Not enough room for the output item. Aborting trade!");
-				context.collectItem(trade.getSellItem(0));
-				context.putItem(trade.getBarterItem(0));
-				context.putItem(trade.getBarterItem(1));
-				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+				//If there's not enough room to give the item to the output item, abort the trade
+				if(!context.putItem(soldItems.get(i)))
+				{
+					LightmansCurrency.LogError("Not enough room for the output item. Giving refund & aborting Trade!");
+					//Collect the items already given
+					for(int x = 0; x < i; ++x)
+						context.collectItem(soldItems.get(x));
+					//Give a refund
+					context.givePayment(price);
+					return TradeResult.FAIL_NO_OUTPUT_SPACE;
+				}
 			}
 			
 			//Push Notification
@@ -610,10 +617,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!this.isCreative())
 			{
 				//Put the item in storage
-				this.getStorage().forceAddItem(trade.getBarterItem(0));
-				this.getStorage().forceAddItem(trade.getBarterItem(1));
+				for(ItemStack item : collectableItems)
+					this.storage.forceAddItem(item);
 				//Remove the item from storage
-				trade.RemoveItemsFromStorage(this.getStorage());
+				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
 				this.markStorageDirty();
 				
 				//Push out of stock notification
@@ -662,9 +669,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 			}

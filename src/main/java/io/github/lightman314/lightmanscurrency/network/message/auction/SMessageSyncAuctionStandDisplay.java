@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.auction;
 
-import io.github.lightman314.lightmanscurrency.blockentity.AuctionStandBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;

@@ -10,14 +10,17 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.item.ItemTradeEditTab;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -60,6 +63,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	ScrollBarWidget itemEditScroll;
 	
 	Button buttonToggleTradeType;
+	PlainButton buttonToggleNBTEnforcement;
 	
 	private int selection = -1;
 	private int itemEditScrollValue = -1;
@@ -89,7 +93,15 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 		
 		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
-		
+		this.buttonToggleNBTEnforcement = this.screen.addRenderableTabWidget(IconAndButtonUtil.checkmarkButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 4, this::ToggleNBTEnforcement, this::getEnforceNBTState));
+
+	}
+
+	private boolean getEnforceNBTState() {
+		ItemTradeData trade = this.getTrade();
+		if(trade != null)
+			return trade.getEnforceNBT(this.selection);
+		return true;
 	}
 	
 	@Override
@@ -114,7 +126,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		
 		if(this.customNameInput.visible)
 			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.customname"), this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 42, 0x404040);
-		
+
+		if(this.isNBTButtonVisible())
+			this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.blurb.nbt"), this.screen.getGuiLeft() + 124, this.screen.getGuiTop() + 5, 0x404040);
+
 	}
 	
 	private int getArrowPosition() {
@@ -157,11 +172,21 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void tick() {
 		if(this.customNameInput.visible)
 			this.customNameInput.tick();
+		//Change NBT toggle button visibility
+		this.buttonToggleNBTEnforcement.visible = this.isNBTButtonVisible();
 		if(this.itemEdit.visible)
 		{
 			this.itemEdit.tick();
 			this.itemEditScrollValue = this.itemEdit.currentScroll();
 		}
+	}
+
+	private boolean isNBTButtonVisible() {
+		ItemTradeData trade = this.getTrade();
+		if(trade == null)
+			return false;
+		else
+			return this.selection >= 0 && !trade.alwaysEnforcesNBT();
 	}
 
 	@Override
@@ -264,6 +289,11 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	private void ToggleTradeType(Button button) {
 		if(this.getTrade() != null)
 			this.commonTab.setType(this.getTrade().getTradeType().next());
+	}
+
+	private void ToggleNBTEnforcement(Button button) {
+		if(this.getTrade() != null)
+			this.commonTab.setNBTEnforced(this.selection, !this.getTrade().getEnforceNBT(this.selection));
 	}
 	
 }

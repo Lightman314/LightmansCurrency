@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.client.gui.components.Button;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
@@ -20,13 +23,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.IScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -43,16 +44,20 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	
 	public static final int WIDTH = 206;
 	public static final int HEIGHT = 236;
+
+	private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(TraderMenu.SLOT_OFFSET + 160, HEIGHT - 96);
+
+	private final TraderClientTab DEFAULT_TAB = new TraderInteractionTab(this);
 	
 	IconButton buttonOpenStorage;
 	IconButton buttonCollectCoins;
+
+	IconButton buttonOpenTerminal;
 	
-	Button buttonOpenTerminal;
-	
-	List<AbstractWidget> tabRenderables = new ArrayList<>();
+	List<Renderable> tabRenderables = new ArrayList<>();
 	List<GuiEventListener> tabListeners = new ArrayList<>();
 	
-	TraderClientTab currentTab = new TraderInteractionTab(this);
+	TraderClientTab currentTab = DEFAULT_TAB;
 	public void setTab(@Nonnull TraderClientTab tab) {
 		//Close the old tab
 		this.currentTab.onClose();
@@ -62,12 +67,12 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		this.currentTab = tab;
 		this.currentTab.onOpen();
 	}
-	public void closeTab() { this.setTab(new TraderInteractionTab(this)); }
+	public void closeTab() { this.setTab(DEFAULT_TAB); }
 	
 	private final List<Runnable> tickListeners = new ArrayList<>();
 	
 	protected boolean forceShowTerminalButton() { return false; }
-	
+
 	public TraderScreen(TraderMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
 		this.imageWidth = WIDTH;
@@ -107,13 +112,17 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		
 		//Main BG
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-		
+
+		//Info widget
+		this.blit(pose, this.leftPos + INFO_WIDGET_POSITION.x, this.topPos + INFO_WIDGET_POSITION.y, this.imageWidth + 38, 0, 10, 10);
+
 		//Coin Slots
 		for(Slot slot : this.menu.getCoinSlots())
 		{
 			this.blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
 		}
-		
+
+
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
 			this.blit(pose, this.leftPos + this.menu.getInteractionSlot().x - 1, this.topPos + this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
@@ -132,7 +141,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		
 		//Moved to underneath the coin slots
 		String valueText = MoneyUtil.getStringOfValue(this.menu.getContext(null).getAvailableFunds());
-		font.draw(pose, valueText, TraderMenu.SLOT_OFFSET + 170 - this.font.width(valueText), this.imageHeight - 94, 0x404040);
+		font.draw(pose, valueText, TraderMenu.SLOT_OFFSET + 170 - this.font.width(valueText) - 10, this.imageHeight - 94, 0x404040);
 		
 	}
 	
@@ -146,8 +155,11 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		try {
 			this.currentTab.renderTooltips(pose, mouseX, mouseY);
 		} catch (Throwable t) { LightmansCurrency.LogError("Error rendering trader tab tooltips " + this.currentTab.getClass().getName(), t); }
-		
-		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+
+		if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(mouseX, mouseY, 10, 10))
+			this.renderComponentTooltip(pose, this.menu.getContext(null).getAvailableFundsDescription(), mouseX, mouseY);
+
+		ITooltipSource.renderTooltips(this, pose, mouseX, mouseY);
 		
 	}
 	
@@ -186,13 +198,17 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {
+	public <T extends Renderable> T addRenderableTabWidget(T widget) {
 		this.tabRenderables.add(widget);
+		if(widget instanceof GuiEventListener gl)
+			this.addTabListener(gl);
 		return widget;
 	}
 	
 	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
+		if(widget instanceof GuiEventListener gl)
+			this.removeTabListener(gl);
 	}
 	
 	public <T extends GuiEventListener> T addTabListener(T listener) {
@@ -210,7 +226,6 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
 		listeners.addAll(coreListeners);
-		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);
 		return listeners;
 	}

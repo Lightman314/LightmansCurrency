@@ -1,19 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.FreezerBlock;
+import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -27,8 +25,8 @@ public class ClientModEvents {
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
 	}
 
-	//Not needed any more apparently
-	/*@SubscribeEvent
+	/* Keeping for backport to 1.19.2
+	@SubscribeEvent
 	public static void stitchTextures(TextureStitchEvent event) {
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add coin/wallet slot backgrounds
@@ -74,6 +72,11 @@ public class ClientModEvents {
 		event.register(ClientEvents.KEY_WALLET);
 		if(LightmansCurrency.isCuriosLoaded())
 			event.register(ClientEvents.KEY_PORTABLE_TERMINAL);
+	}
+
+	@SubscribeEvent
+	public static void registerWalletGuiOverlay(RegisterGuiOverlaysEvent event) {
+		event.registerAboveAll("wallet_hud", WalletDisplayOverlay.INSTANCE);
 	}
 	
 }

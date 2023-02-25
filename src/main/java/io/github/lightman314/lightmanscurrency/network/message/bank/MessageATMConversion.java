@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.bank;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;

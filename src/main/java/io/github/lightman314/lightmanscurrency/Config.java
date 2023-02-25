@@ -6,17 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
+import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.loot.LootManager;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -159,12 +163,15 @@ public class Config {
 		public final ForgeConfigSpec.ConfigValue<String> timeFormat;
 
 		//Wallet Button Options
-		public final ForgeConfigSpec.IntValue walletSlotX;
-		public final ForgeConfigSpec.IntValue walletSlotY;
-		public final ForgeConfigSpec.IntValue walletSlotCreativeX;
-		public final ForgeConfigSpec.IntValue walletSlotCreativeY;
-		public final ForgeConfigSpec.IntValue walletButtonOffsetX;
-		public final ForgeConfigSpec.IntValue walletButtonOffsetY;
+		public final ScreenPositionConfig walletSlot;
+		public final ScreenPositionConfig walletSlotCreative;
+		public final ScreenPositionConfig walletButtonOffset;
+
+		//Wallet Overlay Options
+		public final ForgeConfigSpec.BooleanValue walletOverlayEnabled;
+		public final ForgeConfigSpec.EnumValue<ScreenCorner> walletOverlayCorner;
+		public final ScreenPositionConfig walletOverlayPosition;
+		public final ForgeConfigSpec.EnumValue<WalletDisplayOverlay.DisplayType> walletOverlayType;
 
 		//Notification Options
 		public final ForgeConfigSpec.BooleanValue pushNotificationsToChat;
@@ -202,26 +209,37 @@ public class Config {
 
 			builder.comment("Wallet Slot Settings").push("wallet_slot");
 
-			this.walletSlotX = builder
-					.comment("The x position that the wallet slot will be placed at in the players inventory.")
-					.defineInRange("slotX", 76, -255, 255);
-			this.walletSlotY = builder
-					.comment("The y position that the wallet slot will be placed at in the players inventory.")
-					.defineInRange("slotY", 43, -255, 255);
+			this.walletSlot = ScreenPositionConfig.define(builder
+					.comment("The position that the wallet slot will be placed at in the players inventory.")
+					,"slot", ScreenPosition.of(76, 43), SPEC_SUPPLIER);
 
-			this.walletSlotCreativeX = builder
-					.comment("The x position that the wallet slot will be placed at in the players creative inventory.")
-					.defineInRange("creativeSlotX", 126, -255, 255);
-			this.walletSlotCreativeY = builder
-					.comment("The y position that the wallet slot will be placed at in the players creative inventory.")
-					.defineInRange("creativeSlotY", 19, -255, 255);
+			this.walletSlotCreative = ScreenPositionConfig.define(builder
+					.comment("The position that the wallet slot will be placed at in the players creative inventory."),
+					"creativeSlot", ScreenPosition.of(126,19), SPEC_SUPPLIER);
 
-			this.walletButtonOffsetX = builder
-					.comment("The x offset that the wallet button should be placed at relative to the wallet slot position.")
-					.defineInRange("buttonX", 8, -255, 255);
-			this.walletButtonOffsetY = builder
-					.comment("The y offset that the wallet button should be placed at relative to the wallet slot position.")
-					.defineInRange("buttonY", -10, -255, 255);
+			this.walletButtonOffset = ScreenPositionConfig.define(builder
+					.comment("The offset that the wallet button should be placed at relative to the wallet slot position."),
+					"button", ScreenPosition.of(8,-10), SPEC_SUPPLIER);
+
+			builder.pop();
+
+			builder.comment("Wallet Overlay Settings").push("wallet_hud");
+
+			this.walletOverlayEnabled = builder
+					.comment("Whether an overlay should be drawn on your HUD displaying your wallets current money amount.")
+					.define("enabled", true);
+
+			this.walletOverlayCorner = builder
+					.comment("The corner of the screen that the overlay should be drawn on.")
+					.defineEnum("displayCorner", ScreenCorner.BOTTOM_LEFT);
+
+			this.walletOverlayPosition = ScreenPositionConfig.define(
+					builder.comment("The position offset from the defined corner."),
+					"displayOffset", ScreenPosition.of(5,-5), SPEC_SUPPLIER);
+
+			this.walletOverlayType = builder
+					.comment("Whether the wallets contents should be displayed as a coin item, or as value text.")
+					.defineEnum("displayType", WalletDisplayOverlay.DisplayType.ITEMS_WIDE);
 
 			builder.pop();
 

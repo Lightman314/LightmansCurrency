@@ -13,28 +13,27 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
-import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
-import io.github.lightman314.lightmanscurrency.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.money.CoinData;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
+import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
+import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
+import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
+import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.common.money.CoinData;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -42,6 +41,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -91,7 +91,12 @@ public class ClientProxy extends CommonProxy{
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
-    	
+
+		//Setup Item Edit blacklists
+		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
+		ItemEditWidget.BlacklistItem(ModItems.TICKET);
+		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
+
 	}
 
 	@Override
@@ -235,6 +240,7 @@ public class ClientProxy extends CommonProxy{
 			else if(this.openNotifications)
 			{
 				this.openNotifications = false;
+				//Open easy notification screen
 				Minecraft.getInstance().setScreen(new NotificationScreen());
 			}
 		}
@@ -261,7 +267,8 @@ public class ClientProxy extends CommonProxy{
 	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event)
 	{
 		//Initialize the item edit widgets item list
-    	ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures());
+		Minecraft mc = Minecraft.getInstance();
+    	ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks());
 	}
 
 	@Override

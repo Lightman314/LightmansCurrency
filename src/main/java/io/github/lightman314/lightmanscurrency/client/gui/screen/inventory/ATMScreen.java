@@ -8,19 +8,21 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
-import io.github.lightman314.lightmanscurrency.menus.ATMMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import org.jetbrains.annotations.NotNull;
 
 public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 
@@ -33,7 +35,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	List<AbstractWidget> tabWidgets = new ArrayList<>();
+	List<Renderable> tabWidgets = new ArrayList<>();
 	List<GuiEventListener> tabListeners = new ArrayList<>();
 	
 	List<TabButton> tabButtons = new ArrayList<>();
@@ -48,7 +50,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -63,9 +65,9 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
+	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY)
 	{
-		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -90,7 +92,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(pose);
 		
@@ -99,19 +101,18 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		
 		//Render the current tab
 		try {
-			//this.currentTab().preRender(pose, mouseX, mouseY, partialTicks);
-			//this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 			this.currentTab().postRender(pose, mouseX, mouseY);
 		} catch(Exception e) { if(logError) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); logError = false; } } 
 		
 		this.renderTooltip(pose, mouseX,  mouseY);
 		
 		//Render the tab button tooltips
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		for (TabButton tabButton : this.tabButtons) {
+			if (tabButton.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(pose, tabButton.tab.getTooltip(), mouseX, mouseY);
 		}
+
+		ITooltipSource.renderTooltips(this, pose, mouseX, mouseY);
 		
 	}
 
@@ -136,7 +137,9 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	
 	private void clickedOnTab(Button tab)
 	{
-		int tabIndex = this.tabButtons.indexOf(tab);
+		int tabIndex = -1;
+		if(tab instanceof TabButton)
+			tabIndex = this.tabButtons.indexOf(tab);
 		if(tabIndex < 0)
 			return;
 		this.changeTab(tabIndex);
@@ -147,16 +150,19 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		this.currentTab().tick();
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget)
+	public <T extends Renderable> T addRenderableTabWidget(T widget)
 	{
 		this.tabWidgets.add(widget);
+		if(widget instanceof GuiEventListener gl)
+			this.addTabListener(gl);
 		return widget;
 	}
 	
-	public void removeRenderableTabWidget(AbstractWidget widget)
+	public void removeRenderableTabWidget(Renderable widget)
 	{
-		if(this.tabWidgets.contains(widget))
-			this.tabWidgets.remove(widget);
+		this.tabWidgets.remove(widget);
+		if(widget instanceof GuiEventListener gl)
+			this.removeTabListener(gl);
 	}
 	
 	public <T extends GuiEventListener> T addTabListener(T listener)
@@ -167,8 +173,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	
 	public void removeTabListener(GuiEventListener listener)
 	{
-		if(this.tabListeners.contains(listener))
-			this.tabListeners.remove(listener);
+		this.tabListeners.remove(listener);
 	}
 	
 	public Font getFont() {
@@ -176,13 +181,11 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	public List<? extends GuiEventListener> children()
+	public @NotNull List<? extends GuiEventListener> children()
 	{
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
-		listeners.addAll(this.tabWidgets);
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabListeners);
 		return listeners;
 	}

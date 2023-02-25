@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.immersiveengineering;
 
 import blusunrize.immersiveengineering.common.util.orientation.RotationUtil;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.ITallBlock;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IWideBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.ITallBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IWideBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;

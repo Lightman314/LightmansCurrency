@@ -8,8 +8,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenu;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWalletBank;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import org.jetbrains.annotations.NotNull;
 
 @IPNIgnore
 public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
@@ -44,28 +45,28 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	}
 	
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Draw the top
-		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, 17);
+		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, 17);
 		//Draw the middle strips
 		for(int y = 0; y < this.menu.getRowCount(); y++)
 		{
-			this.blit(poseStack, this.leftPos, this.topPos + 17 + y * 18, 0, 17, this.imageWidth, 18);
+			this.blit(pose, this.leftPos, this.topPos + 17 + y * 18, 0, 17, this.imageWidth, 18);
 		}
 		//Draw the bottom
-		this.blit(poseStack, this.leftPos, this.topPos + 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
+		this.blit(pose, this.leftPos, this.topPos + 17 + this.menu.getRowCount() * 18, 0, 35, this.imageWidth, BASEHEIGHT - 17);
 		
 		//Draw the slots
 		for(int y = 0; y * 9 < this.menu.getSlotCount(); y++)
 		{
 			for(int x = 0; x < 9 && x + y * 9 < this.menu.getSlotCount(); x++)
 			{
-				this.blit(poseStack, this.leftPos + 7 + x * 18, this.topPos + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
+				this.blit(pose, this.leftPos + 7 + x * 18, this.topPos + 17 + y * 18, 0, BASEHEIGHT + 18, 18, 18);
 			}
 		}
 		
@@ -77,7 +78,7 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
+	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY)
 	{
 		this.font.draw(pose, this.getWalletName(), 8.0f, 6.0f, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
@@ -142,27 +143,27 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	}
 	
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		this.renderBackground(matrixStack);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderTooltip(matrixStack, mouseX,  mouseY);
+		this.renderBackground(pose);
+		super.render(pose, mouseX, mouseY, partialTicks);
+		this.renderTooltip(pose, mouseX,  mouseY);
 		
 		if(this.buttonConvert != null && this.buttonConvert.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
+			this.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
 		}
 		else if(this.buttonToggleAutoConvert != null && this.buttonToggleAutoConvert.isMouseOver(mouseX, mouseY))
 		{
 			if(this.autoConvert)
-				this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
+				this.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
+				this.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
 		}
 		else if(this.buttonOpenBank != null && this.buttonOpenBank.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, Component.translatable("tooltip.lightmanscurrency.wallet.openbank"), mouseX, mouseY); 
+			this.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.wallet.openbank"), mouseX, mouseY);
 		}
 	}
 	

@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.SMessageUpdatePlayerTrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;

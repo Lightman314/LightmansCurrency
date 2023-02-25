@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.discord.events;
 
 import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import net.minecraftforge.eventbus.api.Event;
 
 /**

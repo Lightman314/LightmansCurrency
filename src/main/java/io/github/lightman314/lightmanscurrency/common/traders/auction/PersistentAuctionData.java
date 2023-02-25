@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.auction.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.world.item.ItemStack;
 

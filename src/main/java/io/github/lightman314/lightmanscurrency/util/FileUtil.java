@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,10 +60,8 @@ public class FileUtil {
 	}
 	
 	public static void writeStringToFile(File file, String string) throws IOException {
-		
-		FileWriter fw = new FileWriter(file);
-		BufferedWriter bw = new BufferedWriter(fw);
-		PrintWriter writer = new PrintWriter(bw);
+
+		PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
 		
 		writer.print(string);
 		

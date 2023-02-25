@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.events.NotificationEvent;
+import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageClientNotification;

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.menus.TraderRecoveryMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderRecoveryMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketChangeSelectedData;
 import net.minecraft.client.gui.components.Button;
@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderRecoveryScreen extends AbstractContainerScreen<TraderRecoveryMenu> {
 
@@ -39,7 +40,7 @@ public class TraderRecoveryScreen extends AbstractContainerScreen<TraderRecovery
 	}
 	
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -56,13 +57,13 @@ public class TraderRecoveryScreen extends AbstractContainerScreen<TraderRecovery
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY) {
 		this.font.draw(pose, this.getTraderTitle(), this.titleLabelX, this.titleLabelY, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, this.inventoryLabelX, this.imageHeight - 94, 0x404040);
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
