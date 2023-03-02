@@ -103,17 +103,17 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			LightmansCurrency.LogError("Cannot define the item trades item at index " + index + ". Must be between 0-3!");
 	}
 
-	public final boolean alwaysEnforcesNBT() { return this.restriction.alwaysEnforceNBT(); }
+	public final boolean alwaysEnforcesNBT(int slot) { return this.restriction.alwaysEnforceNBT(slot); }
 
 	public boolean getEnforceNBT(int slot) {
 		if(slot >= 0 && slot < 4)
-			return this.enforceNBT.get(slot) || this.restriction.alwaysEnforceNBT();
+			return this.enforceNBT.get(slot) || this.alwaysEnforcesNBT(slot);
 		return true;
 	}
 
 	public void setEnforceNBT(int slot, boolean newValue) {
 		if(slot >= 0 && slot < 4)
-			this.enforceNBT.set(slot, newValue || this.alwaysEnforcesNBT());
+			this.enforceNBT.set(slot, newValue || this.alwaysEnforcesNBT(slot));
 	}
 
 	public ItemRequirement getItemRequirement(int slot) {

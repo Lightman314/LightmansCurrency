@@ -119,7 +119,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	}
 
 	@Override
-	public boolean alwaysEnforceNBT() { return true; }
+	public boolean alwaysEnforceNBT(int tradeSlot) { return tradeSlot < 2; }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

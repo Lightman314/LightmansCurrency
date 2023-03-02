@@ -138,15 +138,24 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
         if(context.hasTrader() && context.getTrader() instanceof ItemTraderData trader)
         {
-
             if(!trader.isCreative())
             {
                 //Check Stock
                 if(this.trade.stockCount(context) <= 0)
                     alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofstock")));
-                //Check Space
-                if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(0), this.trade.getItemRequirement(1))))
-                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+
+                //Check Space (Purchase)
+                if(this.trade.isPurchase())
+                {
+                    if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(0), this.trade.getItemRequirement(1))))
+                        alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+                }
+                //Check Space (Barter)
+                if(this.trade.isBarter())
+                {
+                    if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(2), this.trade.getItemRequirement(3))))
+                        alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+                }
             }
             //Check whether they can afford the cost
             if(!this.trade.canAfford(context))

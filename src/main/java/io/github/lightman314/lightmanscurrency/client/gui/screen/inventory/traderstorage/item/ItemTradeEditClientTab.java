@@ -185,7 +185,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(trade == null)
 			return false;
 		else
-			return this.selection >= 0 && !trade.alwaysEnforcesNBT();
+			return this.selection >= 0 && !trade.alwaysEnforcesNBT(this.selection);
 	}
 
 	@Override
