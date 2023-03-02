@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
-import io.github.lightman314.lightmanscurrency.menus.TicketMachineMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TicketMachineMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

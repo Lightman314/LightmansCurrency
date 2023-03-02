@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 

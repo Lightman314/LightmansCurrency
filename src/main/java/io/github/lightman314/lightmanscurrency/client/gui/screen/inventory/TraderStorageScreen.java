@@ -23,11 +23,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
-import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
@@ -42,6 +42,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+
+import javax.annotation.Nonnull;
 
 @IPNIgnore
 public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMenu> implements IClientMessage, IScreen {
@@ -137,7 +139,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	}
 
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -162,14 +164,14 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		this.font.draw(pose, this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(this.menu.getTrader() == null)
 		{
 			this.menu.player.closeContainer();
@@ -320,8 +322,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	{
 		List<? extends GuiEventListener> coreListeners = super.children();
 		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);
 		return listeners;
@@ -332,7 +333,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		try {
 			if(this.currentTab().mouseClicked(mouseX, mouseY, button))
 				return true;
-		} catch(Throwable t) {}
+		} catch(Throwable ignored) {}
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
@@ -341,7 +342,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		try {
 			if(this.currentTab().mouseReleased(mouseX, mouseY, button))
 				return true;
-		} catch(Throwable t) {}
+		} catch(Throwable ignored) {}
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	

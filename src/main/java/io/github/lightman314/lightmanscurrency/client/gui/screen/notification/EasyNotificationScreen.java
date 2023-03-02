@@ -3,13 +3,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.notification;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.EasyScreenTabbed;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.options.EasyScreenTabbedOptions;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs.EasyTabRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs.TabOverflowHandler;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tabs.EasyTabButton;
@@ -51,14 +51,7 @@ public class EasyNotificationScreen extends EasyScreenTabbed<EasyNotificationScr
     protected void initialize() {
         super.initialize();
         LightmansCurrency.LogInfo("Initializing notification screen.");
-        this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.width() - 15, this.guiTop() + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead));
-        this.addTicker(() -> {
-            NotificationTab tab = this.getOpenTab();
-            if(tab != null)
-                this.buttonMarkAsSeen.active = this.getNotifications().unseenNotification(tab.category);
-            else
-                this.buttonMarkAsSeen.active = false;
-        });
+        this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(this.guiLeft() + this.width() - 15, this.guiTop() + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead));
         LightmansCurrency.LogInfo("Finished initializing notification screen.");
     }
 
@@ -68,7 +61,7 @@ public class EasyNotificationScreen extends EasyScreenTabbed<EasyNotificationScr
     }
 
     @Override
-    protected @NotNull Pair<Integer, Integer> getTabButtonPosition(int displayIndex) { return Pair.of(this.guiLeft() - EasyTabButton.SIZE, this.guiTop() + (displayIndex * EasyTabButton.SIZE)); }
+    protected @NotNull ScreenPosition getTabButtonPosition(int displayIndex) { return ScreenPosition.of(- EasyTabButton.SIZE, displayIndex * EasyTabButton.SIZE).offset(this); }
     @Override
     protected @NotNull EasyTabRotation getTabButtonRotation(int displayIndex) { return EasyTabRotation.LEFT; }
 

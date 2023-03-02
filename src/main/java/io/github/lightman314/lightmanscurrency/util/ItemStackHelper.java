@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

@@ -14,12 +14,14 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.CoinValue.CoinValuePair;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue.CoinValuePair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -27,6 +29,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
 public class TradeButton extends Button{
@@ -43,6 +46,12 @@ public class TradeButton extends Button{
 
 	private final Supplier<TradeData> tradeSource;
 	public TradeData getTrade() { return this.tradeSource.get(); }
+	public TradeRenderManager<?> getTradeRenderer() {
+		TradeData trade = this.getTrade();
+		if(trade != null)
+			return trade.getButtonRenderer();
+		return null;
+	}
 	private final Supplier<TradeContext> contextSource;
 	public TradeContext getContext() { return this.contextSource.get(); }
 	public boolean displayOnly = false;
@@ -56,11 +65,11 @@ public class TradeButton extends Button{
 
 	private void recalculateSize()
 	{
-		TradeData trade = this.getTrade();
-		if(trade != null)
+		TradeRenderManager<?> tr = this.getTradeRenderer();
+		if(tr != null)
 		{
 			TradeContext context = this.getContext();
-			this.width = trade.tradeButtonWidth(context);
+			this.width = tr.tradeButtonWidth(context);
 		}
 	}
 
@@ -69,8 +78,8 @@ public class TradeButton extends Button{
 	@Override
 	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 
-		TradeData trade = this.getTrade();
-		if(trade == null)
+		TradeRenderManager<?> tr = this.getTradeRenderer();
+		if(tr == null)
 			return;
 
 		TradeContext context = this.getContext();
@@ -79,16 +88,17 @@ public class TradeButton extends Button{
 
 		this.renderBackground(pose, !context.isStorageMode && !this.displayOnly && this.isHovered);
 
-		if(trade.hasArrow(context))
-			this.renderArrow(pose, trade.arrowPosition(context), !context.isStorageMode && !this.displayOnly && this.isHovered);
+		LazyOptional<ScreenPosition> arrowPosOptional = tr.arrowPosition(context);
+		arrowPosOptional.ifPresent(arrowPos -> this.renderArrow(pose, arrowPos, !context.isStorageMode && !this.displayOnly && this.isHovered));
+
 
 		//Render custom display stuff in front of the arrow, not behind it.
-		try { trade.renderAdditional(this, pose, mouseX, mouseY, context);
+		try { tr.renderAdditional(this, pose, mouseX, mouseY, context);
 		} catch(Exception e) { LightmansCurrency.LogError("Error on additional Trade Button rendering.", e); }
 
-		this.renderAlert(pose, trade.alertPosition(context), trade.getAlertData(context));
+		this.renderAlert(pose, tr.alertPosition(context), tr.getAlertData(context));
 
-		this.renderDisplays(pose, trade, context);
+		this.renderDisplays(pose, tr, context);
 
 	}
 
@@ -121,7 +131,7 @@ public class TradeButton extends Button{
 		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
 	}
 
-	private void renderArrow(PoseStack pose, Pair<Integer,Integer> position, boolean isHovered)
+	private void renderArrow(PoseStack pose, ScreenPosition position, boolean isHovered)
 	{
 
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -132,11 +142,11 @@ public class TradeButton extends Button{
 
 		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 
-		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
+		this.blit(pose, this.x + position.x, this.y + position.y, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
 
 	}
 
-	private void renderAlert(PoseStack pose, Pair<Integer,Integer> position, List<AlertData> alerts)
+	private void renderAlert(PoseStack pose, ScreenPosition position, List<AlertData> alerts)
 	{
 
 		if(alerts == null || alerts.size() == 0)
@@ -145,15 +155,15 @@ public class TradeButton extends Button{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		alerts.get(0).setShaderColor(this.active ? 1f : 0.5f);
 
-		this.blit(pose, this.x + position.getFirst(), this.y + position.getSecond(), TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
+		this.blit(pose, this.x + position.x, this.y + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 
 	}
 
-	public void renderDisplays(PoseStack pose, TradeData trade, TradeContext context)
+	public void renderDisplays(PoseStack pose, TradeRenderManager<?> tr, TradeContext context)
 	{
-		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
+		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
 			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
-		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(trade, context))
+		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(tr, context))
 			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
 	}
 
@@ -162,23 +172,23 @@ public class TradeButton extends Button{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
 
-		TradeData trade = tradeSource.get();
-		if(trade == null)
+		TradeRenderManager<?> tr = this.getTradeRenderer();
+		if(tr == null)
 			return;
 
 		TradeContext context = this.getContext();
 
 		List<Component> tooltips = new ArrayList<>();
 
-		this.tryAddTooltip(tooltips, trade.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
+		this.tryAddTooltip(tooltips, tr.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
 
-		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(trade, context))
+		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
 		{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 				this.tryAddTooltip(tooltips, display.getFirst().tooltip);
 		}
 
-		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(trade, context))
+		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(tr, context))
 		{
 			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
@@ -186,8 +196,13 @@ public class TradeButton extends Button{
 			}
 		}
 
-		if(this.isMouseOverAlert(mouseX, mouseY, trade, context) && trade.hasAlert(context))
-			this.tryAddAlertTooltips(tooltips, trade.getAlertData(context));
+
+		if(this.isMouseOverAlert(mouseX, mouseY, tr, context))
+		{
+			List<AlertData> alerts = tr.getAlertData(context);
+			if(alerts != null && alerts.size() > 0)
+				this.tryAddAlertTooltips(tooltips, alerts);
+		}
 
 		DrawTooltip(pose, mouseX, mouseY, tooltips);
 
@@ -214,13 +229,16 @@ public class TradeButton extends Button{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
 
-		TradeData trade = tradeSource.get();
+		TradeData trade = this.getTrade();
 		if(trade == null)
+			return;
+		TradeRenderManager<?> tr = trade.getButtonRenderer();
+		if(tr == null)
 			return;
 
 		TradeContext context = this.getContext();
 
-		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(trade, context);
+		List<Pair<DisplayEntry,DisplayData>> inputDisplays = getInputDisplayData(tr, context);
 		for(int i = 0; i < inputDisplays.size(); ++i)
 		{
 			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
@@ -231,7 +249,7 @@ public class TradeButton extends Button{
 			}
 		}
 
-		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(trade, context);
+		List<Pair<DisplayEntry,DisplayData>> outputDisplays = getOutputDisplayData(tr, context);
 		for(int i = 0; i < outputDisplays.size(); ++i)
 		{
 			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
@@ -258,29 +276,29 @@ public class TradeButton extends Button{
 
 	}
 
-	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeData trade, TradeContext context)
+	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeRenderManager<?> tr, TradeContext context)
 	{
-		Pair<Integer,Integer> position = trade.alertPosition(context);
-		int left = this.x + position.getFirst();
-		int top = this.y + position.getSecond();
+		ScreenPosition position = tr.alertPosition(context);
+		int left = this.x + position.x;
+		int top = this.y + position.y;
 		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
 	}
 
-	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(TradeData trade, TradeContext context)
+	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(TradeRenderManager<?> tr, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
-		List<DisplayEntry> entries = trade.getInputDisplays(context);
-		List<DisplayData> display = trade.inputDisplayArea(context).divide(entries.size());
+		List<DisplayEntry> entries = tr.getInputDisplays(context);
+		List<DisplayData> display = tr.inputDisplayArea(context).divide(entries.size());
 		for(int i = 0; i < entries.size() && i < display.size(); ++i)
 			results.add(Pair.of(entries.get(i), display.get(i)));
 		return results;
 	}
 
-	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(TradeData trade, TradeContext context)
+	public static List<Pair<DisplayEntry,DisplayData>> getOutputDisplayData(TradeRenderManager<?> tr, TradeContext context)
 	{
 		List<Pair<DisplayEntry,DisplayData>> results = new ArrayList<>();
-		List<DisplayEntry> entries = trade.getOutputDisplays(context);
-		List<DisplayData> display = trade.outputDisplayArea(context).divide(entries.size());
+		List<DisplayEntry> entries = tr.getOutputDisplays(context);
+		List<DisplayData> display = tr.outputDisplayArea(context).divide(entries.size());
 		for(int i = 0; i < entries.size() && i < display.size(); ++i)
 			results.add(Pair.of(entries.get(i), display.get(i)));
 		return results;

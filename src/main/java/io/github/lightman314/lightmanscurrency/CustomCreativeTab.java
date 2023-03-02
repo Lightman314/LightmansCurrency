@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBiBundle;
-import io.github.lightman314.lightmanscurrency.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
+import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;

@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.interfacebe;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;

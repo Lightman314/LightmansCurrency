@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-
-import javax.annotation.Nonnull;
 
 public interface IPlayerTrade {
 

@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,7 +33,7 @@ public class FileUtil {
 		return json;
 	}
 	
-	public static ItemStack parseItemStack(JsonObject json) throws Exception{
+	public static ItemStack parseItemStack(JsonObject json) throws Exception {
 		String id = json.get("ID").getAsString();
 		int count = json.get("Count").getAsInt();
 		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);
@@ -59,10 +58,8 @@ public class FileUtil {
 	}
 	
 	public static void writeStringToFile(File file, String string) throws IOException {
-		
-		FileWriter fw = new FileWriter(file);
-		BufferedWriter bw = new BufferedWriter(fw);
-		PrintWriter writer = new PrintWriter(bw);
+
+		PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
 		
 		writer.print(string);
 		

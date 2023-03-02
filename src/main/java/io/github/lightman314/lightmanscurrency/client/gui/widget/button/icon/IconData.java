@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +20,7 @@ import net.minecraftforge.registries.RegistryObject;
 public abstract class IconData {
 	
 	@OnlyIn(Dist.CLIENT)
-	public abstract void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y);
+	public abstract void render(PoseStack pose, GuiComponent widget, Font font, int x, int y);
 	
 	private static class ItemIcon extends IconData
 	{
@@ -28,7 +28,7 @@ public abstract class IconData {
 		private ItemIcon(ItemStack iconStack) { this.iconStack = iconStack; }
 		
 		@Override
-		public void render(PoseStack matrixStack, AbstractWidget widget, Font font, int x, int y)
+		public void render(PoseStack matrixStack, GuiComponent widget, Font font, int x, int y)
 		{
 			ItemRenderUtil.drawItemStack(widget, font, this.iconStack, x, y);
 		}
@@ -47,7 +47,7 @@ public abstract class IconData {
 		}
 		
 		@Override
-		public void render(PoseStack matrixStack, AbstractWidget widget, Font font, int x, int y)
+		public void render(PoseStack matrixStack, GuiComponent widget, Font font, int x, int y)
 		{
 			RenderSystem.setShaderTexture(0, this.iconImage);
 			widget.blit(matrixStack, x, y, iconImageU, iconImageV, 16, 16);
@@ -65,7 +65,7 @@ public abstract class IconData {
 		}
 		
 		@Override
-		public void render(PoseStack matrixStack, AbstractWidget widget, Font font, int x, int y)
+		public void render(PoseStack matrixStack, GuiComponent widget, Font font, int x, int y)
 		{
 			int xPos = x + 8 - (font.width(iconText.getString())/2);
 			int yPos = y + ((16 - font.lineHeight) / 2);
@@ -78,13 +78,13 @@ public abstract class IconData {
 		private final List<IconData> icons;
 		private MultiIcon(List<IconData> icons) { this.icons = icons; }
 		@Override
-		public void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y) {
+		public void render(PoseStack pose, GuiComponent widget, Font font, int x, int y) {
 			for(IconData icon : this.icons)
 				icon.render(pose, widget, font, x, y);
 		}
 	}
 	
-	public static final IconData BLANK = new IconData() { public void render(PoseStack pose, AbstractWidget widget, Font font, int x, int y) {} };
+	public static final IconData BLANK = new IconData() { public void render(PoseStack pose, GuiComponent widget, Font font, int x, int y) {} };
 	
 	public static IconData of(RegistryObject<? extends ItemLike> item) { return of(item.get()); }
 	public static IconData of(ItemLike item) { return of(new ItemStack(item)); }

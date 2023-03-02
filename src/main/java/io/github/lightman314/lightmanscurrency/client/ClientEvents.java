@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
@@ -15,9 +16,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventor
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.slots.WalletSlot;
+import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWallet;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.CPacketSetVisible;
@@ -109,14 +110,13 @@ public class ClientEvents {
 			Minecraft mc = Minecraft.getInstance();
 			if(!LightmansCurrency.isCuriosValid(mc.player))
 			{
+
+				ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+				ScreenPosition buttonPosition = slotPosition.offset(Config.CLIENT.walletButtonOffset.get());
 				
-				Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-				int xPos = slotPosition.getFirst() + Config.CLIENT.walletButtonOffsetX.get();
-				int yPos = slotPosition.getSecond() + Config.CLIENT.walletButtonOffsetY.get();
+				event.addListener(new WalletButton(gui, buttonPosition.x, buttonPosition.y, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
 				
-				event.addListener(new WalletButton(gui, xPos, yPos, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
-				
-				event.addListener(new VisibilityToggleButton(gui, slotPosition.getFirst(), slotPosition.getSecond(), ClientEvents::toggleVisibility));
+				event.addListener(new VisibilityToggleButton(gui, slotPosition.x, slotPosition.y, ClientEvents::toggleVisibility));
 				
 			}
 			
@@ -161,20 +161,20 @@ public class ClientEvents {
 			IWalletHandler walletHandler = getWalletHandler(); 
 			if(walletHandler == null)
 				return;
-			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			RenderSystem.setShaderTexture(0, WALLET_SLOT_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			//Render slot background
-			screen.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst(), screen.getGuiTop() + slotPosition.getSecond(), 0, 0, 18, 18);
+			screen.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x, screen.getGuiTop() + slotPosition.y, 0, 0, 18, 18);
 			//Render slot item
 			ItemStack wallet = walletHandler.getWallet();
 			if(wallet.isEmpty())
-				ItemRenderUtil.drawSlotBackground(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1, WalletSlot.BACKGROUND);
+				ItemRenderUtil.drawSlotBackground(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, WalletSlot.BACKGROUND);
 			else
-				ItemRenderUtil.drawItemStack(screen, null, wallet, screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1);
+				ItemRenderUtil.drawItemStack(screen, null, wallet, screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1);
 			//Render slot highlight
 			if(isMouseOverWalletSlot(screen, event.getMouseX(), event.getMouseY(), slotPosition))
-				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.getFirst() + 1, screen.getGuiTop() + slotPosition.getSecond() + 1, screen.getBlitOffset());
+				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, screen.getBlitOffset());
 		}
 	}
 	
@@ -199,7 +199,7 @@ public class ClientEvents {
 			Minecraft mc = Minecraft.getInstance();
 			if(!LightmansCurrency.isCuriosValid(mc.player))
 			{
-				Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+				ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 				
 				if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
 				{
@@ -235,9 +235,9 @@ public class ClientEvents {
 				if(creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 					return;
 			}
-			Pair<Integer,Integer> slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			
-			
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+
+
 			//Wallet Slot click detection
 			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition) && !isMouseOverVisibilityButton(gui, event.getMouseX(), event.getMouseY(), slotPosition))
 			{
@@ -270,18 +270,14 @@ public class ClientEvents {
 		}
 	}
 	
-	private static boolean isMouseOverWalletSlot(AbstractContainerScreen<?> gui, double mouseX, double mouseY, Pair<Integer,Integer> slotPosition)
+	private static boolean isMouseOverWalletSlot(AbstractContainerScreen<?> gui, double mouseX, double mouseY, ScreenPosition slotPosition)
 	{
-		int leftEdge = slotPosition.getFirst() + gui.getGuiLeft();
-		int topEdge = slotPosition.getSecond() + gui.getGuiTop();
-		return mouseX >= leftEdge && mouseX < leftEdge + 18 && mouseY >= topEdge && mouseY < topEdge + 18;
+		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offset(gui), 18, 18);
 	}
 	
-	private static boolean isMouseOverVisibilityButton(AbstractContainerScreen<?> gui, double mouseX, double mouseY, Pair<Integer,Integer> slotPosition)
+	private static boolean isMouseOverVisibilityButton(AbstractContainerScreen<?> gui, double mouseX, double mouseY, ScreenPosition slotPosition)
 	{
-		int leftEdge = slotPosition.getFirst() + gui.getGuiLeft();
-		int topEdge = slotPosition.getSecond() + gui.getGuiTop();
-		return mouseX >= leftEdge && mouseX < leftEdge + VisibilityToggleButton.SIZE && mouseY >= topEdge && mouseY < topEdge + VisibilityToggleButton.SIZE;
+		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offset(gui), VisibilityToggleButton.SIZE, VisibilityToggleButton.SIZE);
 	}
 	
 	private static IWalletHandler getWalletHandler() {
@@ -294,8 +290,8 @@ public class ClientEvents {
 		return mc.player;
 	}
 	
-	private static Pair<Integer,Integer> getWalletSlotPosition(boolean isCreative) {
-		return isCreative ? Pair.of(Config.CLIENT.walletSlotCreativeX.get(), Config.CLIENT.walletSlotCreativeY.get()) : Pair.of(Config.CLIENT.walletSlotX.get(), Config.CLIENT.walletSlotY.get());
+	private static ScreenPosition getWalletSlotPosition(boolean isCreative) {
+		return isCreative ? Config.CLIENT.walletSlotCreative.get() : Config.CLIENT.walletSlot.get();
 	}
 	
 }

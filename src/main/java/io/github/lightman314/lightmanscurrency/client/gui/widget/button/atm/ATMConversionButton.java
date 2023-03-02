@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.TextComponent;
 
+import javax.annotation.Nonnull;
+
 public class ATMConversionButton extends Button {
 	
 	public static final int HEIGHT = 18;
@@ -24,7 +26,7 @@ public class ATMConversionButton extends Button {
 	}
 	
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Render background to width
 		int yOffset = this.isHovered ? HEIGHT : 0;

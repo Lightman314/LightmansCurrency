@@ -2,13 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.easy;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.options.IEasyScreenTabbedOptions;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs.EasyTabRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs.TabOverflowHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tabs.EasyTabButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -61,7 +61,7 @@ public abstract class EasyScreenTabbed<T extends EasyScreenTabbed<T,X>,X extends
         this.resettingTabs = true;
         //Remove existing tab buttons
         for(AbstractWidget tabButton : this.tabButtons)
-            this.removeWidget(tabButton);
+            this.removeChild(tabButton);
         //Collect tab list
         this.tabs = this.createTabs();
         LightmansCurrency.LogInfo("Tabbed screen generated " + this.tabs.size() + " tabs!");
@@ -70,7 +70,7 @@ public abstract class EasyScreenTabbed<T extends EasyScreenTabbed<T,X>,X extends
         {
             final int tabIndex = i;
             AbstractWidget button = this.createTabButton(this.tabs.get(i), b -> this.changeTab(tabIndex));
-            this.addRenderableWidget(button);
+            this.addChild(button);
             this.tabButtons.add(button);
         }
         this.resettingTabs = false;
@@ -82,7 +82,7 @@ public abstract class EasyScreenTabbed<T extends EasyScreenTabbed<T,X>,X extends
 
     protected abstract int getTabButtonLimit();
 
-    protected abstract @NotNull Pair<Integer,Integer> getTabButtonPosition(int displayIndex);
+    protected abstract @NotNull ScreenPosition getTabButtonPosition(int displayIndex);
     protected abstract @NotNull EasyTabRotation getTabButtonRotation(int displayIndex);
 
     public final void changeTab(int newTabIndex) {

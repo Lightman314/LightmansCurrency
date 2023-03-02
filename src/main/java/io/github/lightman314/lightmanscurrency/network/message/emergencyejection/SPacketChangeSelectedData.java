@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.emergencyejectio
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.menus.TraderRecoveryMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderRecoveryMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;

@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
-import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator;
-import io.github.lightman314.lightmanscurrency.crafting.RecipeValidator.Results;
-import io.github.lightman314.lightmanscurrency.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.menus.MintMenu;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
+import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator.Results;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;

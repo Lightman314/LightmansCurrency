@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
-import io.github.lightman314.lightmanscurrency.money.MoneyData;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyData;
 import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.MessageSyncClientTime;
 

@@ -8,9 +8,9 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.item.ItemTradeData.ItemTradeType;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -127,9 +127,8 @@ public class ItemTradeNotification extends Notification{
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof ItemTradeNotification)
+		if(other instanceof ItemTradeNotification itn)
 		{
-			ItemTradeNotification itn = (ItemTradeNotification)other;
 			if(!itn.traderData.matches(this.traderData))
 				return false;
 			if(itn.tradeType != this.tradeType)

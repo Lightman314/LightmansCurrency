@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
+import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

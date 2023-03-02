@@ -2,36 +2,34 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.blockentity.handler.ICanCopy;
+import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
 
 	private final ITraderItemFilter filter;
-	private List<ItemStack> storage = new ArrayList<>();
-	
+	private final List<ItemStack> storage = new ArrayList<>();
+
 	public TraderItemStorage(@Nonnull ITraderItemFilter filter) { this.filter = filter; }
-	
+
 	public CompoundTag save(CompoundTag compound, String tag) {
 		ListTag list = new ListTag();
-		for(int i = 0; i < this.storage.size(); ++i)
-		{
-			ItemStack item = this.storage.get(i);
-			if(!item.isEmpty())
-			{
+		for (ItemStack item : this.storage) {
+			if (!item.isEmpty()) {
 				CompoundTag itemTag = new CompoundTag();
 				item.save(itemTag);
 				itemTag.putInt("Count", item.getCount());
@@ -41,7 +39,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		compound.put(tag, list);
 		return compound;
 	}
-	
+
 	public void load(CompoundTag compound, String tag) {
 		if(compound.contains(tag, Tag.TAG_LIST))
 		{
@@ -57,15 +55,9 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			}
 		}
 	}
-	
-	public void loadFromContainer(Container container) {
-		this.storage.clear();
-		for(int i = 0; i < container.getContainerSize(); ++i)
-			this.forceAddItem(container.getItem(i));
-	}
-	
+
 	public List<ItemStack> getContents() { return this.storage; }
-	
+
 	public List<ItemStack> getSplitContents() {
 		List<ItemStack> contents = new ArrayList<>();
 		for(ItemStack s : this.storage)
@@ -79,9 +71,9 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return contents;
 	}
-	
+
 	public int getSlotCount() { return this.storage.size(); }
-	
+
 	/**
 	 * Returns whether the item storage has the given item.
 	 */
@@ -95,7 +87,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns whether the item storage has the given item.
 	 */
@@ -108,7 +100,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Returns whether the item storage is allowed to be given this item.
 	 */
@@ -117,18 +109,16 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			return false;
 		return this.filter.isItemRelevant(item);
 	}
-	
+
 	/**
 	 * Returns the maximum count of the given item that is allowed to be placed in storage.
 	 */
 	public int getMaxAmount() {
 		return this.filter.getStorageStackLimit();
 	}
-	
+
 	/**
 	 * Returns the amount of the given item within the storage.
-	 * @param item
-	 * @return
 	 */
 	public int getItemCount(ItemStack item) {
 		for(ItemStack stack : this.storage)
@@ -138,36 +128,49 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return 0;
 	}
-	
+
+	/**
+	 * Returns the amount of the given item within the storage.
+	 */
+	public int getItemCount(Predicate<ItemStack> filter) {
+		int count = 0;
+		for(ItemStack stack : this.storage)
+		{
+			if(filter.test(stack))
+				count += stack.getCount();
+		}
+		return count;
+	}
+
 	/**
 	 * Returns the amount of the given items containing the given item tag within the storage.
 	 * Ignores any items listed on the given blacklist.
 	 */
 	public int getItemTagCount(ResourceLocation itemTag, Item... blacklistItems) {
-		
+
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
 		int count = 0;
 		for(ItemStack stack : this.storage)
 		{
 			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
-    			count += stack.getCount();
+				count += stack.getCount();
 		}
 		return count;
 	}
-	
+
 	public int getFittableAmount(ItemStack item) {
 		if(!this.allowItem(item))
 			return 0;
 		return this.getMaxAmount() - this.getItemCount(item);
 	}
-	
+
 	/**
 	 * Returns the amount of the given item that this storage can fit.
 	 */
 	public boolean canFitItem(ItemStack item) {
 		return this.getFittableAmount(item) >= item.getCount();
 	}
-	
+
 	/**
 	 * Returns the amount of the given item that this storage can fit.
 	 */
@@ -179,7 +182,18 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return true;
 	}
-	
+
+	public boolean canFitItems(List<ItemStack> items) {
+		if(items == null)
+			return false;
+		for(ItemStack item : InventoryUtil.combineQueryItems(items))
+		{
+			if(!this.canFitItem(item))
+				return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Attempts to add the entire item stack to storage.
 	 * @return Whether the item was added. If false, no partial stack was added to storage.
@@ -190,7 +204,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		this.forceAddItem(item);
 		return true;
 	}
-	
+
 	/**
 	 * Attempts to add as much of the item stack to storage as possible.
 	 * The input item stack will be shrunk based on the amount that is added.
@@ -206,27 +220,23 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			this.forceAddItem(addStack);
 		}
 	}
-	
+
 	/**
 	 * Adds the item without performing any checks on maximum quantity or trade verification.
 	 * Used to add item to storage from older systems.
-	 * @param item
 	 */
 	public void forceAddItem(ItemStack item) {
 		if(item.isEmpty())
 			return;
-		for(int i = 0; i < this.storage.size(); ++i)
-		{
-			ItemStack stack = this.storage.get(i);
-			if(InventoryUtil.ItemMatches(stack, item))
-			{
+		for (ItemStack stack : this.storage) {
+			if (InventoryUtil.ItemMatches(stack, item)) {
 				stack.grow(item.getCount());
 				return;
 			}
 		}
 		this.storage.add(item.copy());
 	}
-	
+
 	/**
 	 * Removes the requested item from storage. Limits the amount removed by the stacks maximum stack size.
 	 * @return The item that was removed successfully.
@@ -248,11 +258,10 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return ItemStack.EMPTY;
 	}
-	
+
 	/**
 	 * Removes the requested amount of items with the given item tag from storage.
 	 * Ignores items within the given blacklist.
-	 * @return Whether the items were removed successfully.
 	 */
 	public void removeItemTagCount(ResourceLocation itemTag, int count, List<ItemStack> ignoreIfPossible, Item... blacklistItems) {
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
@@ -260,62 +269,62 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
-    		{
-    			int amountToTake = Math.min(count, stack.getCount());
-    			count-= amountToTake;
-    			stack.shrink(amountToTake);
-    			if(stack.isEmpty())
-    			{
-    				this.storage.remove(i);
-    				i--; 
-    			}
-    		}
+			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
+			{
+				int amountToTake = Math.min(count, stack.getCount());
+				count-= amountToTake;
+				stack.shrink(amountToTake);
+				if(stack.isEmpty())
+				{
+					this.storage.remove(i);
+					i--;
+				}
+			}
 		}
 		//Second pass, ignoring the "ignoreIfPossible" list
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-    		if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
-    		{
-    			int amountToTake = Math.min(count, stack.getCount());
-    			count-= amountToTake;
-    			stack.shrink(amountToTake);
-    			if(stack.isEmpty())
-    			{
-    				this.storage.remove(i);
-    				i--;
-    			}
-    		}
+			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
+			{
+				int amountToTake = Math.min(count, stack.getCount());
+				count-= amountToTake;
+				stack.shrink(amountToTake);
+				if(stack.isEmpty())
+				{
+					this.storage.remove(i);
+					i--;
+				}
+			}
 		}
-		
+
 	}
-	
+
 	private static boolean ListContains(List<ItemStack> list, ItemStack stack) {
-		for(ItemStack item : list) 
+		for(ItemStack item : list)
 		{
 			if(InventoryUtil.ItemMatches(item, stack))
 				return true;
 		}
 		return false;
 	}
-	
+
 	public static class LockedTraderStorage extends TraderItemStorage {
 
 		public LockedTraderStorage(ITraderItemFilter  filter) { super(filter); }
-		
+
 		@Override
 		public boolean allowItem(ItemStack item) { return false; }
-		
-	}
-	
-	public interface ITraderItemFilter
-	{
-		public boolean isItemRelevant(ItemStack item);
-		public int getStorageStackLimit();
+
 	}
 
-	
+	public interface ITraderItemFilter
+	{
+		boolean isItemRelevant(ItemStack item);
+		int getStorageStackLimit();
+	}
+
+
 	@Override
 	public TraderItemStorage copy() {
 		CompoundTag tag = this.save(new CompoundTag(), "copy");
@@ -330,14 +339,14 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot) {
+	public @NotNull ItemStack getStackInSlot(int slot) {
 		if(slot >= 0 && slot < this.storage.size())
 			return this.storage.get(slot);
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+	public @NotNull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		int amountToAdd = Math.min(stack.getCount(), this.getFittableAmount(stack));
 		ItemStack remainder = stack.copy();
 		if(amountToAdd >= stack.getCount())
@@ -355,7 +364,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
+	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack stackInSlot = this.getStackInSlot(slot);
 		int amountToRemove = Math.min(amount, stackInSlot.getCount());
 		ItemStack removedStack = stackInSlot.copy();
@@ -376,8 +385,6 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public boolean isItemValid(int slot, ItemStack stack) {
-		return this.allowItem(stack);
-	}
-	
+	public boolean isItemValid(int slot, @NotNull ItemStack stack) { return this.allowItem(stack); }
+
 }

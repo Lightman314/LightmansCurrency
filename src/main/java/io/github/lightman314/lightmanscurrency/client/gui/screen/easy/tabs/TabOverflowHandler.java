@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.easy.tabs;
 
-import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IEasyScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tabs.EasyTabButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.entity.player.Player;
@@ -23,13 +23,13 @@ public abstract class TabOverflowHandler {
     public static TabOverflowHandler CreateHorizontalButtonScrolling(int leftButtonX, int leftButtonY, int rightButtonX, int rightButtonY) { return new ScrollableButton(leftButtonX, leftButtonY, IconAndButtonUtil.ICON_LEFT, rightButtonX, rightButtonY, IconAndButtonUtil.ICON_RIGHT); }
 
     public abstract void addWidgets(IEasyScreen screen);
-    public abstract void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, Pair<Integer,Integer>> positionSource, Function<Integer,EasyTabRotation> rotationSource);
+    public abstract void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, ScreenPosition> positionSource, Function<Integer,EasyTabRotation> rotationSource);
 
     private static class None extends TabOverflowHandler {
         @Override
         public void addWidgets(IEasyScreen screen) {}
         @Override
-        public void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, Pair<Integer, Integer>> positionSource, Function<Integer,EasyTabRotation> rotationSource) {
+        public void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, ScreenPosition> positionSource, Function<Integer,EasyTabRotation> rotationSource) {
             int displayIndex = 0;
             for(int i = 0; i < tabButtons.size(); ++i)
             {
@@ -40,9 +40,8 @@ public abstract class TabOverflowHandler {
                     button.visible = tab.isTabVisible(player) && tab.canOpenTab(player);
                     if(button.visible)
                     {
-                        Pair<Integer,Integer> buttonPos = positionSource.apply(displayIndex);
-                        button.x = buttonPos.getFirst();
-                        button.y = buttonPos.getSecond();
+                        ScreenPosition buttonPos = positionSource.apply(displayIndex);
+                        buttonPos.setPosition(button);
                         if(button instanceof EasyTabButton b)
                             b.setRotation(rotationSource.apply(displayIndex));
                         displayIndex++;
@@ -70,7 +69,7 @@ public abstract class TabOverflowHandler {
         private int getMaxScroll(int buttonCount, int buttonLimit) { return Math.max(0, buttonCount - buttonLimit); }
 
         @Override
-        public final void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, Pair<Integer, Integer>> positionSource, Function<Integer,EasyTabRotation> rotationSource) {
+        public final void handleTabs(List<AbstractWidget> tabButtons, List<EasyTab<?>> tabs, Player player, int buttonLimit, Function<Integer, ScreenPosition> positionSource, Function<Integer,EasyTabRotation> rotationSource) {
 
             this.cachedButtonLimit = buttonLimit;
 
@@ -96,9 +95,8 @@ public abstract class TabOverflowHandler {
             for(int i = this.scroll; i < visibleButtons.size() && i < this.scroll + buttonLimit; ++i)
             {
                 AbstractWidget button = visibleButtons.get(i);
-                Pair<Integer,Integer> buttonPos = positionSource.apply(displayIndex);
-                button.x = buttonPos.getFirst();
-                button.y = buttonPos.getSecond();
+                ScreenPosition buttonPos = positionSource.apply(displayIndex);
+                buttonPos.setPosition(button);
                 if(button instanceof EasyTabButton b)
                     b.setRotation(rotationSource.apply(displayIndex));
                 displayIndex++;
@@ -120,7 +118,7 @@ public abstract class TabOverflowHandler {
 
     }
 
-    private static class ScrollableWheel extends Scrollable implements ScrollListener.IScrollListener
+    private static class ScrollableWheel extends Scrollable implements IScrollListener
     {
         private final int scrollX;
         private final int scrollY;
@@ -129,9 +127,7 @@ public abstract class TabOverflowHandler {
         private ScrollableWheel(int scrollX, int scrollY, int scrollWidth, int scrollHeight) { this.scrollX = scrollX; this.scrollY = scrollY; this.scrollWidth = scrollWidth; this.scrollHeight = scrollHeight; }
 
         @Override
-        public void addWidgets(IEasyScreen screen) {
-            screen.addGuiListener(new ScrollListener(screen.guiLeft() + this.scrollX, screen.guiTop() + this.scrollY, this.scrollWidth, this.scrollHeight, this));
-        }
+        public void addWidgets(IEasyScreen screen) {}
 
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
@@ -180,8 +176,8 @@ public abstract class TabOverflowHandler {
 
         @Override
         public void addWidgets(IEasyScreen screen) {
-            this.buttonDown = screen.addRenderableWidget(new IconButton(screen.guiLeft() + this.buttonDownX, screen.guiTop() + this.buttonDownY, b -> this.scrollDown(), this.buttonDownIcon));
-            this.buttonUp = screen.addRenderableWidget(new IconButton(screen.guiLeft() + this.buttonUpX, screen.guiTop() + this.buttonUpY, b -> this.scrollUp(), this.buttonUpIcon));
+            this.buttonDown = screen.addChild(new IconButton(screen.guiLeft() + this.buttonDownX, screen.guiTop() + this.buttonDownY, b -> this.scrollDown(), this.buttonDownIcon));
+            this.buttonUp = screen.addChild(new IconButton(screen.guiLeft() + this.buttonUpX, screen.guiTop() + this.buttonUpY, b -> this.scrollUp(), this.buttonUpIcon));
         }
 
         @Override

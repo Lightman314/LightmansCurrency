@@ -1,21 +1,21 @@
 package io.github.lightman314.lightmanscurrency.common;
 
-import io.github.lightman314.lightmanscurrency.blocks.interfaces.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import io.github.lightman314.lightmanscurrency.events.WalletDropEvent;
-import io.github.lightman314.lightmanscurrency.gamerule.ModGameRules;
-import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.common.events.WalletDropEvent;
+import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.money.CoinData;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.money.CoinData;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
 import java.util.Collection;
 import java.util.List;

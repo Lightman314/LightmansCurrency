@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMC
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMConversionButtonData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMConversion;
 import net.minecraft.network.chat.MutableComponent;

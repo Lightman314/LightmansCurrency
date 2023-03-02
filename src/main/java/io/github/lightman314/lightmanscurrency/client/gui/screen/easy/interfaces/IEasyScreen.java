@@ -4,8 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,16 +21,10 @@ public interface IEasyScreen {
     Font getFont();
 
     //Add Widget Functions
-    <T extends Widget> @NotNull T addRenderableOnly(@NotNull T renderable);
-    <T extends Widget & GuiEventListener> @NotNull T addRenderableWidget(@NotNull T widget);
-    <T extends GuiEventListener> @NotNull T addGuiListener(@NotNull T listener);
-
-    void addMouseListener(@NotNull IMouseListener listener);
-    void addTooltipSource(@NotNull ITooltipSource tooltipSource);
-    void addTicker(@NotNull Runnable ticker);
+    <T> @NotNull T addChild(@NotNull T child);
 
     //Remove Widget Functions
-    void removeChild(@NotNull Object widget);
+    <T> void removeChild(@NotNull T child);
 
     @Nullable
     static Runnable CollectTicker(Object widget) {

@@ -5,11 +5,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.options.IEasyScreenOptions;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -55,6 +57,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     private final List<Widget> renderables = new ArrayList<>();
     private final List<GuiEventListener> children = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
+    private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<ITooltipSource> tooltipSources = new ArrayList<>();
     private final List<Runnable> tickers = new ArrayList<>();
 
@@ -63,11 +66,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected final void init() {
         super.init();
         this.calculateEdges();
-        this.renderables.clear();
-        this.children.clear();
-        this.mouseListeners.clear();
-        this.tooltipSources.clear();
-        this.tickers.clear();
+        this.clearWidgets();
         LightmansCurrency.LogInfo("Initializing screen.");
         this.initialize();
         LightmansCurrency.LogInfo("Finished initializing screen.");
@@ -78,43 +77,22 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     protected abstract void initialize();
 
-    public final <T extends Widget> @NotNull T addRenderableOnly(@NotNull T renderable) {
-        if(!this.renderables.contains(renderable))
-            this.renderables.add(renderable);
-        this.widgetAddedCheck(renderable);
-        return renderable;
-    }
-
-    public final <T extends Widget & GuiEventListener> @NotNull T addRenderableWidget(@NotNull T widget) {
-        if(!this.renderables.contains(widget))
-            this.renderables.add(widget);
-        if(!this.children.contains(widget))
-            this.children.add(widget);
-        this.widgetAddedCheck(widget);
-        return widget;
-    }
-
-    public final <T extends GuiEventListener> @NotNull T addGuiListener(@NotNull T listener) {
-        if(!this.children.contains(listener))
-            this.children.add(listener);
-        this.widgetAddedCheck(listener);
-        return listener;
-    }
-
-    public final void addMouseListener(@NotNull IMouseListener listener) { if(!this.mouseListeners.contains(listener)) this.mouseListeners.add(listener); }
-
-    public final void addTooltipSource(@NotNull ITooltipSource tooltipSource) { if(!this.tooltipSources.contains(tooltipSource)) this.tooltipSources.add(tooltipSource); }
-
-    public final void addTicker(@NotNull Runnable ticker) { if(!this.tickers.contains(ticker)) this.tickers.add(ticker); }
-
-    protected final void widgetAddedCheck(@NotNull Object widget) {
-        Runnable ticker = IEasyScreen.CollectTicker(widget);
-        if(ticker != null)
-            this.addTicker(ticker);
-        if(widget instanceof ITooltipSource tooltipSource)
-            this.addTooltipSource(tooltipSource);
-        if(widget instanceof IMouseListener listener)
-            this.addMouseListener(listener);
+    @Override
+    public final <T> @NotNull T addChild(@NotNull T child) {
+        if(child instanceof Widget r && !this.renderables.contains(r))
+            this.renderables.add(r);
+        if(child instanceof GuiEventListener g && !this.children.contains(g))
+            this.children.add(g);
+        if(child instanceof IMouseListener m && !this.mouseListeners.contains(m))
+            this.mouseListeners.add(m);
+        if(child instanceof IScrollListener s && !this.scrollListeners.contains(s))
+            this.scrollListeners.add(s);
+        if(child instanceof ITooltipSource t && !this.tooltipSources.contains(t))
+            this.tooltipSources.add(t);
+        Runnable ticker = IEasyScreen.CollectTicker(child);
+        if(ticker != null && !this.tickers.contains(ticker))
+            this.tickers.add(ticker);
+        return child;
     }
 
     public final void removeChild(@NotNull Object widget) {
@@ -129,6 +107,16 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         Runnable ticker = IEasyScreen.CollectTicker(widget);
         if(ticker != null)
             this.tickers.remove(ticker);
+    }
+
+    @Override
+    public final void clearWidgets() {
+        this.renderables.clear();
+        this.children.clear();
+        this.mouseListeners.clear();
+        this.scrollListeners.clear();
+        this.tooltipSources.clear();
+        this.tickers.clear();
     }
 
     @Override
@@ -194,7 +182,10 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             if(t != this.tickers.get(i))
                 i--;
         }
+        this.onTick();
     }
+
+    protected void onTick() {}
 
     @Override
     public final @NotNull List<GuiEventListener> children() { return this.children; }
@@ -218,5 +209,36 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        for(IScrollListener sl : this.scrollListeners)
+        {
+            if(sl.mouseScrolled(mouseX, mouseY, delta))
+                return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    //Overrides of vanilla methods to redirect to EasyScreen versions
+    /** @deprecated Use EasyScreen.addChild */
+    @Override
+    @Deprecated
+    protected final <T extends GuiEventListener & Widget & NarratableEntry> @NotNull T addRenderableWidget(@NotNull T widget) { return this.addChild(widget); }
+
+    /** @deprecated Use EasyScreen.addChild */
+    @Override
+    @Deprecated
+    protected final <T extends Widget> @NotNull T addRenderableOnly(@NotNull T widget) { return this.addChild(widget); }
+
+    /** @deprecated Use EasyScreen.addChild */
+    @Override
+    @Deprecated
+    protected final <T extends GuiEventListener & NarratableEntry> @NotNull T addWidget(@NotNull T widget) { return this.addChild(widget); }
+
+    /** @deprecated Use EasyScreen.addChild */
+    @Override
+    @Deprecated
+    protected final void removeWidget(@NotNull GuiEventListener widget) { this.removeChild(widget); }
 
 }

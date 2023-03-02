@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.MintScreen;
-import io.github.lightman314.lightmanscurrency.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
