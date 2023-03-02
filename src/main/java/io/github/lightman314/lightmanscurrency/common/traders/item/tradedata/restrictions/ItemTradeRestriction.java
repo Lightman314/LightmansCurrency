@@ -74,7 +74,7 @@ public class ItemTradeRestriction {
 
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
 		int minStock = Integer.MAX_VALUE;
-		if(this.alwaysEnforceNBT())
+		if(this.alwaysEnforceNBT(0) && this.alwaysEnforceNBT(1))
 		{
 			//Search the old way (for safety)
 			for(ItemStack sellItem : InventoryUtil.combineQueryItems(trade.getSellItem(0), trade.getSellItem(1)))
@@ -91,7 +91,7 @@ public class ItemTradeRestriction {
 
 	public List<ItemStack> getRandomSellItems(TraderItemStorage storage, ItemTradeData trade)
 	{
-		if(this.alwaysEnforceNBT())
+		if(this.alwaysEnforceNBT(0) && this.alwaysEnforceNBT(1))
 			return this.getNBTEnforcedSellItems(trade);
 		return ItemRequirement.getRandomItemsMatchingRequirements(storage, trade.getItemRequirement(0), trade.getItemRequirement(1));
 	}
@@ -138,7 +138,7 @@ public class ItemTradeRestriction {
 		traderStorage.removeItem(sellItem);
 	}
 
-	public boolean alwaysEnforceNBT() { return false; }
+	public boolean alwaysEnforceNBT(int tradeSlot) { return false; }
 
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return EasySlot.BACKGROUND; }

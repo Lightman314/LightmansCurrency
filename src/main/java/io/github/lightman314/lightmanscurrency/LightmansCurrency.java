@@ -267,8 +267,8 @@ public class LightmansCurrency {
     	//Safety check to confirm that the Item Stack found is a valid wallet
     	if(!WalletItem.validWalletStack(wallet))
     	{
-    		LightmansCurrency.LogError(player.getName().getString() + "'s equipped wallet is not a valid WalletItem.");
-    		LightmansCurrency.LogError("Equipped wallet is of type " + wallet.getItem().getClass().getName());
+    		LightmansCurrency.LogDebug(player.getName().getString() + "'s equipped wallet is not a valid WalletItem.");
+    		LightmansCurrency.LogDebug("Equipped wallet is of type " + wallet.getItem().getClass().getName());
 			return ItemStack.EMPTY;
     	}
     	return wallet;

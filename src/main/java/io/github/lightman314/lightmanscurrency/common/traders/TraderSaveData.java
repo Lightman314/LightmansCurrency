@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
