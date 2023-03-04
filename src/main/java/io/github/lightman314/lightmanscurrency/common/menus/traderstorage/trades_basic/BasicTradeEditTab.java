@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -128,6 +129,8 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	public void receiveMessage(CompoundTag message) {
 		if(message.contains("TradeIndex",Tag.TAG_INT))
 		{
+			if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
+				return;
 			int tradeIndex = message.getInt("TradeIndex");
 			int interaction = message.getInt("InteractionType");
 			int interactionIndex = message.contains("InteractionIndex", Tag.TAG_INT) ? message.getInt("InteractionIndex") : 0;
@@ -136,21 +139,21 @@ public class BasicTradeEditTab extends TraderStorageTab {
 			int mouseY = message.contains("MouseY", Tag.TAG_INT) ? message.getInt("MouseY") : 0;
 			ItemStack heldItem = ItemStack.of(message.getCompound("HeldItem"));
 			TradeData trade = this.menu.getTrader().getTradeData().get(tradeIndex);
-			switch(interaction) {
-			case INTERACTION_INPUT:
-				trade.onInputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+			switch (interaction) {
+				case INTERACTION_INPUT ->
+						trade.onInputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+
 				//LightmansCurrency.LogInfo("Trade Input Interaction received.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-				break;
-			case INTERACTION_OUTPUT:
-				trade.onOutputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+				case INTERACTION_OUTPUT ->
+						trade.onOutputDisplayInteraction(this, this.clientHandler, interactionIndex, button, heldItem);
+
 				//LightmansCurrency.LogInfo("Trade Output Interaction received.\nIndex: " + tradeIndex + "\nInteractionIndex: " + interactionIndex + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-				break;
-			case INTERACTION_OTHER:
-				trade.onInteraction(this, this.clientHandler, mouseX, mouseY, button, heldItem);
+				case INTERACTION_OTHER ->
+						trade.onInteraction(this, this.clientHandler, mouseX, mouseY, button, heldItem);
+
 				//LightmansCurrency.LogInfo("Trade Misc Interaction received.\nIndex: " + tradeIndex + "\nMouse: " + mouseX + "," + mouseY + "\nButton: " + button + "\nHeld Item: " + heldItem.getCount() + "x " + heldItem.getItem().getRegistryName().toString());
-				break;
-				default:
-					LightmansCurrency.LogWarning("Interaction Type " + interaction + " is not a valid interaction.");
+				default ->
+						LightmansCurrency.LogWarning("Interaction Type " + interaction + " is not a valid interaction.");
 			}
 			this.menu.getTrader().markTradesDirty();
 		}

@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +33,7 @@ public class FileUtil {
 		return json;
 	}
 	
-	public static ItemStack parseItemStack(JsonObject json) throws Exception{
+	public static ItemStack parseItemStack(JsonObject json) {
 		String id = json.get("ID").getAsString();
 		int count = json.get("Count").getAsInt();
 		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);

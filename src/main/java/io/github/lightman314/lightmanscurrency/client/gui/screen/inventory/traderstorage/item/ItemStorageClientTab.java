@@ -30,7 +30,8 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
-	private static final int COLUMNS = 8;
+	private static final int COLUMNS_NORMAL = 8;
+	private static final int COLUMNS_PERSISTENT = 10;
 	private static final int ROWS = 5;
 	
 	public ItemStorageClientTab(TraderStorageScreen screen, ItemStorageTab commonTab) { super(screen, commonTab); }
@@ -38,7 +39,9 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
-	
+
+	int columns = COLUMNS_NORMAL;
+
 	@Override
 	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
@@ -53,13 +56,20 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Override
 	public void onOpen() {
-		
-		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
+
+		this.columns = COLUMNS_NORMAL;
+		if(this.menu.getTrader() instanceof ItemTraderData trader && trader.isPersistent())
+			this.columns = COLUMNS_PERSISTENT;
+
+		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * this.columns), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
-		
-		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(0)));
-		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(1)));
+
+		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
+		{
+			this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(0)));
+			this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(1)));
+		}
 		
 	}
 
@@ -75,13 +85,13 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			//Validate the scroll
 			this.validateScroll();
 			//Render each display slot
-			int index = this.scroll * COLUMNS;
+			int index = this.scroll * this.columns;
 			TraderItemStorage storage = ((ItemTraderData)this.menu.getTrader()).getStorage();
-			int hoverSlot = this.isMouseOverSlot(mouseX, mouseY) + (this.scroll * COLUMNS);
+			int hoverSlot = this.isMouseOverSlot(mouseX, mouseY) + (this.scroll * this.columns);
 			for(int y = 0; y < ROWS; ++y)
 			{
 				int yPos = this.screen.getGuiTop() + Y_OFFSET + y * 18;
-				for(int x = 0; x < COLUMNS; ++x)
+				for(int x = 0; x < this.columns; ++x)
 				{
 					//Get the slot position
 					int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
@@ -117,7 +127,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 		{
 			String countText = String.valueOf(count / 1000);
 			if((count % 1000) / 100 > 0)
-				countText += "." + String.valueOf((count % 1000) / 100);
+				countText += "." + ((count % 1000) / 100);
 			return countText + "k";
 		}
 		return String.valueOf(count);
@@ -131,7 +141,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)
 			{
-				hoveredSlot += scroll * COLUMNS;
+				hoveredSlot += scroll * this.columns;
 				TraderItemStorage storage = ((ItemTraderData)this.menu.getTrader()).getStorage();
 				if(hoveredSlot < storage.getContents().size())
 				{
@@ -165,7 +175,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 		
 		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET;
-		for(int x = 0; x < COLUMNS && foundColumn < 0; ++x)
+		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
 			if(mouseX >= leftEdge + x * 18 && mouseX < leftEdge + (x * 18) + 18)
 				foundColumn = x;
@@ -177,7 +187,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 		}
 		if(foundColumn < 0 || foundRow < 0)
 			return -1;
-		return (foundRow * COLUMNS) + foundColumn;
+		return (foundRow * this.columns) + foundColumn;
 	}
 	
 	private int totalStorageSlots() {
@@ -189,7 +199,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 	
 	private boolean canScrollDown() {
-		return this.totalStorageSlots() - this.scroll * COLUMNS > ROWS * COLUMNS;
+		return this.totalStorageSlots() - this.scroll * this.columns > ROWS * this.columns;
 	}
 	
 	@Override
@@ -219,7 +229,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)
 			{
-				hoveredSlot += this.scroll * COLUMNS;
+				hoveredSlot += this.scroll * this.columns;
 				this.commonTab.clickedOnSlot(hoveredSlot, Screen.hasShiftDown(), button == 0);
 				return true;
 			}
@@ -245,7 +255,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Override
 	public int getMaxScroll() {
-		return Math.max(((this.totalStorageSlots() - 1) / COLUMNS) - ROWS + 1, 0);
+		return Math.max(((this.totalStorageSlots() - 1) / this.columns) - ROWS + 1, 0);
 	}
 	
 }

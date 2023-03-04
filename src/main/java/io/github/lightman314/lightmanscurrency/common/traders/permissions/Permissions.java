@@ -29,9 +29,9 @@ public class Permissions {
 	public static final String ADMIN_MODE = "LC_ADMIN_MODE";
 	
 	
-	public static final void PermissionWarning(Player player, String action, String permission) { PermissionWarning(player, action, permission, 0, 1); }
+	public static void PermissionWarning(Player player, String action, String permission) { PermissionWarning(player, action, permission, 0, 1); }
 	
-	public static final void PermissionWarning(Player player, String action, String permission, int hasLevel, int requiredLevel)
+	public static void PermissionWarning(Player player, String action, String permission, int hasLevel, int requiredLevel)
 	{
 		LightmansCurrency.LogWarning(player.getName().getString() + " attempted to " + action + " without the appropriate permission level.\nHas " + permission + " level " + hasLevel + ". Level " + requiredLevel + " required.");
 	}

@@ -160,9 +160,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
-			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
 			Inventory inv = this.menu.player.getInventory();
 			boolean changed = false;

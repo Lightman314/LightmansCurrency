@@ -311,7 +311,12 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	
 	public static class LockedTraderStorage extends TraderItemStorage {
 
-		public LockedTraderStorage(ITraderItemFilter  filter) { super(filter); }
+		public LockedTraderStorage(ITraderItemFilter filter, List<ItemStack> startingInventory)
+		{
+			super(filter);
+			for(ItemStack item : startingInventory)
+				this.forceAddItem(item);
+		}
 		
 		@Override
 		public boolean allowItem(ItemStack item) { return false; }

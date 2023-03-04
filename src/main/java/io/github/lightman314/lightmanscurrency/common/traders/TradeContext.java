@@ -28,7 +28,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -717,7 +717,7 @@ public class TradeContext {
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
 			AtomicBoolean hasEnergy = new AtomicBoolean(false);
-			batteryStack.getCapability(CapabilityEnergy.ENERGY).ifPresent(energyHandler -> hasEnergy.set(energyHandler.extractEnergy(amount, true) == amount));
+			batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> hasEnergy.set(energyHandler.extractEnergy(amount, true) == amount));
 			return hasEnergy.get();
 		}
 		return false;
@@ -735,7 +735,7 @@ public class TradeContext {
 			if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 			{
 				ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-				batteryStack.getCapability(CapabilityEnergy.ENERGY).ifPresent(energyHandler -> energyHandler.extractEnergy(amount, false));
+				batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> energyHandler.extractEnergy(amount, false));
 				return true;
 			}
 		}
@@ -750,7 +750,7 @@ public class TradeContext {
 		{
 			ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
 			AtomicBoolean fitsEnergy = new AtomicBoolean(false);
-			batteryStack.getCapability(CapabilityEnergy.ENERGY).ifPresent(energyHandler -> fitsEnergy.set(energyHandler.receiveEnergy(amount, true) == amount));
+			batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> fitsEnergy.set(energyHandler.receiveEnergy(amount, true) == amount));
 			return fitsEnergy.get();
 		}
 		return false;
@@ -768,7 +768,7 @@ public class TradeContext {
 			else if(this.hasInteractionSlot(InteractionSlotData.ENERGY_TYPE))
 			{
 				ItemStack batteryStack = this.getInteractionSlot(InteractionSlotData.ENERGY_TYPE).getItem();
-				batteryStack.getCapability(CapabilityEnergy.ENERGY).ifPresent(energyHandler -> energyHandler.receiveEnergy(amount, false));
+				batteryStack.getCapability(ForgeCapabilities.ENERGY).ifPresent(energyHandler -> energyHandler.receiveEnergy(amount, false));
 				return true;
 			}
 		}

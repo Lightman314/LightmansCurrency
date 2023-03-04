@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
@@ -89,16 +90,20 @@ public class ItemTradeRestriction {
 		return minStock;
 	}
 
-	public List<ItemStack> getRandomSellItems(TraderItemStorage storage, ItemTradeData trade)
+	public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade)
 	{
 		if(this.alwaysEnforceNBT(0) && this.alwaysEnforceNBT(1))
 			return this.getNBTEnforcedSellItems(trade);
-		return ItemRequirement.getRandomItemsMatchingRequirements(storage, trade.getItemRequirement(0), trade.getItemRequirement(1));
+		List<ItemStack> randomItems = ItemRequirement.getRandomItemsMatchingRequirements(trader.getStorage(), trade.getItemRequirement(0), trade.getItemRequirement(1));
+		if(randomItems == null && trader.isCreative()) //If creative, return nbt enforced version if no random items are present in the inventory.
+			return this.getNBTEnforcedSellItems(trade);
+		return randomItems;
 	}
 
 	/**
 	 * Original method for getting the items being sold.
 	 * Used when this always enforces NBT.
+	 * Also used for creative traders when the items in storage could not be found.
 	 */
 	protected final List<ItemStack> getNBTEnforcedSellItems(ItemTradeData trade) {
 		List<ItemStack> results = new ArrayList<>();
