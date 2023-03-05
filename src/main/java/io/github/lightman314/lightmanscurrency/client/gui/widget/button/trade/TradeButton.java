@@ -358,16 +358,17 @@ public class TradeButton extends Button{
 		
 		public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null); }
 		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip) { return new ItemEntry(item, count, tooltip); }
+		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background) { return new ItemAndBackgroundEntry(item, count, tooltip, background, ScreenPosition.ZERO); }
+		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { return new ItemAndBackgroundEntry(item, count, tooltip, background, backgroundOffset); }
 		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background) { return new EmptySlotEntry(background, null); }
 		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background, List<Component> tooltip) { return new EmptySlotEntry(background, tooltip); }
-		
 		public static DisplayEntry of(Component text, TextFormatting format) { return new TextEntry(text, format, null); }
 		public static DisplayEntry of(Component text, TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip); }
 		
 		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price, null, false); }
 		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips) { return new PriceEntry(price, additionalTooltips, false); }
 		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return new PriceEntry(price, additionalTooltips, tooltipOverride); }
-		
+
 		private static class ItemEntry extends DisplayEntry
 		{
 			private final ItemStack item;
@@ -417,6 +418,36 @@ public class TradeButton extends Button{
 				return mouseX >= left && mouseX < left + 16 && mouseY >= top && mouseY < top + 16;
 			}
 			
+		}
+
+		private static class ItemAndBackgroundEntry extends DisplayEntry
+		{
+			private final ItemStack item;
+			private final Pair<ResourceLocation,ResourceLocation> background;
+			private final ScreenPosition backgroundOffset;
+
+			private ItemAndBackgroundEntry(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { super(tooltip); this.item = item.copy(); this.item.setCount(count); this.background = background; this.backgroundOffset = backgroundOffset; }
+
+			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
+
+			@Override
+			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+				if(this.item.isEmpty())
+					return;
+				Font font = this.getFont();
+				//Center the x & y positions
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
+				ItemRenderUtil.drawSlotBackground(pose, left + this.backgroundOffset.x, top + this.backgroundOffset.y, this.background);
+				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
+			}
+
+			@Override
+			public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
+				int left = getTopLeft(x + area.xOffset, area.width);
+				int top = getTopLeft(y + area.yOffset, area.height);
+				return mouseX >= left && mouseX < left + 16 && mouseY >= top && mouseY < top + 16;
+			}
 		}
 		
 		private static class TextEntry extends DisplayEntry

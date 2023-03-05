@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class InputTraderData extends TraderData {
 
-	public static final MutableComponent getFacingName(Direction side) { return Component.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
+	public static MutableComponent getFacingName(Direction side) { return Component.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final Map<Direction,Boolean> inputSides = new HashMap<>();

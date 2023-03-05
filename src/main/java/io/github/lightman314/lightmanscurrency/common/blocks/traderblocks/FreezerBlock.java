@@ -153,10 +153,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex()
-	{
-		return TRADECOUNT;
-	}
+	public int maxRenderIndex() { return TRADECOUNT; }
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }

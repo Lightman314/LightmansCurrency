@@ -185,7 +185,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 
 	public boolean canFitItems(List<ItemStack> items) {
 		if(items == null)
-			return false;
+			return true;
 		for(ItemStack item : InventoryUtil.combineQueryItems(items))
 		{
 			if(!this.canFitItem(item))
