@@ -52,26 +52,26 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		//Render the top
-		this.blit(pose, this.getX(), this.getY(), 0, 0, WIDTH, 8);
+		this.blit(pose, this.x, this.y, 0, 0, WIDTH, 8);
 		//Render the middle
 		int yOffset = 8;
 		while(yOffset < this.height - 8)
 		{
 			int yPart = Math.min(this.height - 8 - yOffset, 240);
-			this.blit(pose, this.getX(), this.getY() + yOffset, 0, 8, WIDTH, yPart);
+			this.blit(pose, this.x, this.y + yOffset, 0, 8, WIDTH, yPart);
 			yOffset += yPart;
 		}
 		//Render the bottom
-		this.blit(pose, this.getX(), this.getY() + this.height - 8, 0, 248, WIDTH, 8);
+		this.blit(pose, this.x, this.y + this.height - 8, 0, 248, WIDTH, 8);
 		
 		int knobPosition;
 		if(this.isDragging)
-			knobPosition = MathUtil.clamp(mouseY - this.getY() - (this.getKnobHeight() / 2), 0, this.height - this.getKnobHeight());
+			knobPosition = MathUtil.clamp(mouseY - this.y - (this.getKnobHeight() / 2), 0, this.height - this.getKnobHeight());
 		else
 			knobPosition = this.getNaturalKnobPosition();
 		
 		//Render the knob
-		this.blit(pose, this.getX(), this.getY() + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
+		this.blit(pose, this.x, this.y + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
 		
 	}
 	
@@ -120,7 +120,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	protected void dragKnob(double mouseY) {
 		//Cannot do anything if the scrollable cannot be scrolled
@@ -142,9 +142,9 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		
 		mouseY -= (double)this.getKnobHeight() / 2d;
 		//Check if the mouse is out of bounds, upon which return the max/min scroll respectively
-		if(mouseY <= this.getY())
+		if(mouseY <= this.y)
 			return this.scrollable.getMinScroll();
-		if(mouseY >= this.getY() + this.height - this.getKnobHeight())
+		if(mouseY >= this.y + this.height - this.getKnobHeight())
 			return this.scrollable.getMaxScroll();
 		
 		//Calculate the scroll based on the mouse position
@@ -153,7 +153,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 			return Integer.MIN_VALUE;
 		
 		double sectionHeight = (double)(this.height - this.getKnobHeight()) / (double)deltaScroll;
-		double yPos = (double)this.getY() - (sectionHeight / 2d);
+		double yPos = (double)this.y - (sectionHeight / 2d);
 		
 		for(int i = this.scrollable.getMinScroll(); i <= this.scrollable.getMaxScroll(); ++i)
 		{

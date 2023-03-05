@@ -181,7 +181,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		{
 			this.logWindow.render(pose, mouseX, mouseY, partialTicks);
 			this.buttonShowLog.render(pose, mouseX, mouseY, partialTicks);
-			IconAndButtonUtil.ManuallyRenderTooltips(this, pose, mouseX, mouseY, Lists.newArrayList(this.buttonShowLog));
+			IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonShowLog));
 			this.logWindow.tryRenderTooltip(pose, this, mouseX, mouseY);
 			return;
 		}

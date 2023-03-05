@@ -66,8 +66,8 @@ public class DropdownWidget extends AbstractWidget {
 		
 		for(int i = 0; i < this.options.size(); ++i)
 		{
-			int yPos = this.getY() + HEIGHT + (i * HEIGHT);
-			this.optionButtons.add(addButton.apply(new DropdownButton(this.getX(), yPos, this.width, this.font, this.options.get(i), this::OnSelect)));
+			int yPos = this.y + HEIGHT + (i * HEIGHT);
+			this.optionButtons.add(addButton.apply(new DropdownButton(this.x, yPos, this.width, this.font, this.options.get(i), this::OnSelect)));
 			this.optionButtons.get(i).visible = this.open;
 		}
 		
@@ -82,18 +82,18 @@ public class DropdownWidget extends AbstractWidget {
         int offset = this.isHovered ? this.height : 0;
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
+        this.blit(pose, this.x, this.y, 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 14)
         {
         	int xPart = Math.min(this.width - 14 - xOffset, 244);
-        	this.blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
+        	this.blit(pose, this.x + 2 + xOffset, this.y, 2, offset, xPart, DropdownWidget.HEIGHT);
         	xOffset += xPart;
         }
-        this.blit(pose, this.getX() + this.width - 12, this.getY(), 244, offset, 12, DropdownWidget.HEIGHT);
+        this.blit(pose, this.x + this.width - 12, this.y, 244, offset, 12, DropdownWidget.HEIGHT);
 		
         //Draw the option text
-        this.font.draw(pose, this.fitString(this.options.get(this.currentlySelected).getString()), this.getX() + 2, this.getY() + 2, 0x404040);
+        this.font.draw(pose, this.fitString(this.options.get(this.currentlySelected).getString()), this.x + 2, this.y + 2, 0x404040);
         
 		//Confirm the option buttons active state
 		if(this.open)
@@ -134,7 +134,7 @@ public class DropdownWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	private String fitString(String text) {
 		if(this.font.width(text) <= this.width - 14)

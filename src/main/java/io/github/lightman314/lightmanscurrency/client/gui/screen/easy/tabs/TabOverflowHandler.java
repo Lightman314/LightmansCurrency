@@ -41,7 +41,8 @@ public abstract class TabOverflowHandler {
                     if(button.visible)
                     {
                         ScreenPosition buttonPos = positionSource.apply(displayIndex);
-                        button.setPosition(buttonPos.x, buttonPos.y);
+                        button.x = buttonPos.x;
+                        button.y = buttonPos.y;
                         if(button instanceof EasyTabButton b)
                             b.setRotation(rotationSource.apply(displayIndex));
                         displayIndex++;
@@ -96,7 +97,8 @@ public abstract class TabOverflowHandler {
             {
                 AbstractWidget button = visibleButtons.get(i);
                 ScreenPosition buttonPos = positionSource.apply(displayIndex);
-                button.setPosition(buttonPos.x, buttonPos.y);
+                button.x = buttonPos.x;
+                button.y = buttonPos.y;
                 if(button instanceof EasyTabButton b)
                     b.setRotation(rotationSource.apply(displayIndex));
                 displayIndex++;

@@ -161,7 +161,7 @@ public class PriceFluctuation extends TradeRule {
 			if(rule != null)
 				this.fluctuationInput.setValue(Integer.toString(rule.fluctuation));
 			
-			this.buttonSetFluctuation = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton).pos(screen.guiLeft() + 110, screen.guiTop() + 10).size(50, 20).build());
+			this.buttonSetFluctuation = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton));
 			
 			this.durationInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 75, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
 			this.durationInput.setTime(this.getRule().duration);
@@ -173,7 +173,7 @@ public class PriceFluctuation extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.getX() + this.fluctuationInput.getWidth() + 4, this.fluctuationInput.getY() + 3, 0xFFFFFF);
+			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.x + this.fluctuationInput.getWidth() + 4, this.fluctuationInput.y + 3, 0xFFFFFF);
 			
 			TextRenderUtil.drawCenteredMultilineText(poseStack, Component.translatable("gui.button.lightmanscurrency.price_fluctuation.info", this.getRule().fluctuation, new TimeData(this.getRule().duration).getShortString()), this.screen.guiLeft() + 10, this.screen.xSize - 20, this.screen.guiTop() + 35, 0xFFFFFF);
 			

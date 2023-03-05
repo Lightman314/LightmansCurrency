@@ -67,7 +67,7 @@ public class ItemIcon extends ATMIconData {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
-		ItemRenderUtil.drawItemStack(button, null, this.item, button.getX() + this.xPos, button.getY() + this.yPos, "");
+		ItemRenderUtil.drawItemStack(button, null, this.item, button.x + this.xPos, button.y + this.yPos, "");
 	}
 	
 }

@@ -61,7 +61,7 @@ public class SpriteIcon extends ATMIconData {
 	@OnlyIn(Dist.CLIENT)
 	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
 		RenderSystem.setShaderTexture(0, this.texture);
-		button.blit(pose, button.getX() + this.xPos, button.getY() + this.yPos, this.u, this.v, this.width, this.height);
+		button.blit(pose, button.x + this.xPos, button.y + this.yPos, this.u, this.v, this.width, this.height);
 	}
 	
 }

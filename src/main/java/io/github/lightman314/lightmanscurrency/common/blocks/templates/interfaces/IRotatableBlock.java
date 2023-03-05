@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces;
 
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Vector3f;
 
 public interface IRotatableBlock {
 

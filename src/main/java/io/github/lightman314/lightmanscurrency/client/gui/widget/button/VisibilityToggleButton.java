@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.NotNull;
 
 public class VisibilityToggleButton extends PlainButton {
@@ -40,9 +41,10 @@ public class VisibilityToggleButton extends PlainButton {
 	@Override
 	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.setResource(ClientEvents.WALLET_SLOT_TEXTURE, U_OFFSET + (isWalletVisible() ? SIZE : 0), V_OFFSET);
-		this.setPosition(this.parent.getGuiLeft() + this.xOffset, this.parent.getGuiTop() + this.yOffset);
+		this.x = this.parent.getGuiLeft() + this.xOffset;
+		this.y = this.parent.getGuiTop() + this.yOffset;
 		if(this.parent instanceof CreativeModeInventoryScreen cs)
-			this.visible = cs.isInventoryOpen();
+			this.visible = cs.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 

@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;

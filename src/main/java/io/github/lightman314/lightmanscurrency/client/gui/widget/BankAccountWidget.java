@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankInteraction;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -48,8 +48,8 @@ public class BankAccountWidget {
 		this.amountSelection.allowFreeToggle = false;
 		this.amountSelection.init();
 		
-		this.buttonDeposit = this.parent.addCustomWidget(Button.builder(Component.translatable("gui.button.bank.deposit"), this::OnDeposit).pos(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing).size(BUTTON_WIDTH, 20).build());
-		this.buttonWithdraw = this.parent.addCustomWidget(Button.builder(Component.translatable("gui.button.bank.withdraw"), this::OnWithdraw).pos(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing).size(BUTTON_WIDTH, 20).build());
+		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, Component.translatable("gui.button.bank.deposit"), this::OnDeposit));
+		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, Component.translatable("gui.button.bank.withdraw"), this::OnWithdraw));
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		
 	}
@@ -97,11 +97,11 @@ public class BankAccountWidget {
 
 	public interface IBankAccountWidget
 	{
-		public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T widget);
-		public Font getFont();
-		public Screen getScreen();
-		public BankAccount getBankAccount();
-		public Container getCoinAccess();
+		<T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget);
+		Font getFont();
+		Screen getScreen();
+		BankAccount getBankAccount();
+		Container getCoinAccess();
 	}
 	
 }

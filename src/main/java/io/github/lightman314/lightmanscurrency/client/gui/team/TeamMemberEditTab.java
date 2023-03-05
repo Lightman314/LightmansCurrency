@@ -51,9 +51,9 @@ public class TeamMemberEditTab extends TeamTab {
 		this.memberNameInput = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 11, screen.guiTop() + 9, 178, 20, Component.empty()));
 		this.memberNameInput.setMaxLength(16);
 		
-		this.buttonAddMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(60, 20).build());
-		this.buttonPromoteMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin).pos(screen.guiLeft() + 70, screen.guiTop() + 30).size(60, 20).build());
-		this.buttonRemoveMember = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember).pos(screen.guiLeft() + 130, screen.guiTop() + 30).size(60, 20).build());
+		this.buttonAddMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.add"), this::addMember));
+		this.buttonPromoteMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 70, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.promote"), this::addAdmin));
+		this.buttonRemoveMember = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 130, screen.guiTop() + 30, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.member.remove"), this::removeMember));
 		this.buttonAddMember.active = this.buttonPromoteMember.active = this.buttonRemoveMember.active = false;
 		
 		this.memberDisplay = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 10, screen.guiTop() + 55, screen.xSize - 20, screen.ySize - 65, this.getFont(), this::getMemberList));

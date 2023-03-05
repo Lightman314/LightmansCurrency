@@ -26,7 +26,7 @@ public class PlainButton extends Button{
 	
 	public PlainButton(int x, int y, int sizeX, int sizeY, OnPress pressable, ResourceLocation buttonResource, NonNullSupplier<Pair<Integer, Integer>> resourceSource)
 	{
-		super(x, y, sizeX, sizeY, Component.empty(), pressable, Button.DEFAULT_NARRATION);
+		super(x, y, sizeX, sizeY, Component.empty(), pressable);
 		this.buttonResource = buttonResource;
 		this.resourceSource = resourceSource;
 	}
@@ -49,7 +49,7 @@ public class PlainButton extends Button{
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         Pair<Integer,Integer> resource = this.resourceSource.get();
-        this.blit(pose, this.getX(), this.getY(), resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
+        this.blit(pose, this.x, this.y, resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
 		
 	}
 

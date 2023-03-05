@@ -57,13 +57,13 @@ public class OwnershipTab extends SettingsTab{
 		this.newOwnerInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.empty()));
 		this.newOwnerInput.setMaxLength(16);
 		
-		this.buttonSetOwner = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner).pos(screen.guiLeft() + 20, screen.guiTop() + 41).size(160, 20).build());
+		this.buttonSetOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 41, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner));
 		this.buttonSetOwner.active = false;
 		
 		this.teamSelection = screen.addRenderableTabWidget(new TeamSelectWidget(screen.guiLeft() + 10, screen.guiTop() + 65, 5, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
 		this.teamSelection.init(screen::addRenderableTabWidget, this.getFont());
 		
-		this.buttonSetTeamOwner = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner).pos(screen.guiLeft() + 20, screen.guiTop() + 170).size(160, 20).build());
+		this.buttonSetTeamOwner = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 170, 160, 20, Component.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner));
 		this.buttonSetTeamOwner.active = false;
 		
 	}

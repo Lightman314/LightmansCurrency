@@ -46,7 +46,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		for(int i = 0; i < this.rows; ++i)
 		{
 			int index = i;
-			TeamButton button = new TeamButton(this.getX(), this.getY() + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
+			TeamButton button = new TeamButton(this.x, this.y + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
 			this.teamButtons.add(button);
 			addButton.accept(button);
 		}
@@ -58,7 +58,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
 			return;
-		fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF000000);
+		fill(pose, this.x, this.y, this.x + this.width, this.y + this.height, 0xFF000000);
 	}
 
 	private int scroll = 0;
@@ -129,7 +129,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	protected boolean isValidClickButton(int button) { return false; }

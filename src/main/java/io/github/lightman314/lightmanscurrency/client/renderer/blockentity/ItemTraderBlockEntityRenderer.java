@@ -5,10 +5,13 @@ import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -22,8 +25,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
@@ -66,7 +67,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
 				
 				//Get rotation
-				List<Quaternionf> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
+				List<Quaternion> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
 				
 				//Get scale
 				float scale = blockEntity.GetStackRenderScale(tradeSlot);
@@ -80,7 +81,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 					
 					//Translate, rotate, and scale the matrix stack
 					pose.translate(position.x(), position.y(), position.z());
-					for(Quaternionf rot : rotation)
+					for(Quaternion rot : rotation)
 					{
 						pose.mulPose(rot);
 					}
@@ -123,7 +124,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }
-	public static Quaternionf getRotation(float partialTicks) { return new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
+	public static Quaternion getRotation(float partialTicks) { return MathUtil.fromAxisAngleDegree(Vector3f.YP, (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
 
 	@SubscribeEvent
 	public static void onClientTick(TickEvent.ClientTickEvent event) {

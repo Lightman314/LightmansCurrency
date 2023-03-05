@@ -179,7 +179,7 @@ public class FreeSample extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
+			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
 			
 		}
 

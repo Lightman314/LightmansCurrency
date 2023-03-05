@@ -47,7 +47,7 @@ public class NotificationTab extends SettingsTab{
 		
 		this.buttonToggleChatNotifications = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 55, 10, 10, this::ToggleChatNotifications, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
-		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTeamNotificationLevel).pos(screen.guiLeft() + 20, screen.guiTop() + 80).size(screen.xSize - 40, 20).build());
+		this.buttonToggleTeamLevel = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 80, screen.xSize - 40, 20, Component.empty(), this::ToggleTeamNotificationLevel));
 		
 		this.tick();
 		

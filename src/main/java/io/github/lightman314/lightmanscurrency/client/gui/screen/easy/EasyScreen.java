@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.options.IEasyScreenOptions;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -54,7 +54,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         this.changeSize(options.getWidth(), options.getHeight());
     }
 
-    private final List<Renderable> renderables = new ArrayList<>();
+    private final List<Widget> renderables = new ArrayList<>();
     private final List<GuiEventListener> children = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
@@ -79,7 +79,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     @Override
     public final <T> @NotNull T addChild(@NotNull T child) {
-        if(child instanceof Renderable r && !this.renderables.contains(r))
+        if(child instanceof Widget r && !this.renderables.contains(r))
             this.renderables.add(r);
         if(child instanceof GuiEventListener g && !this.children.contains(g))
             this.children.add(g);
@@ -96,7 +96,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     }
 
     public final void removeChild(@NotNull Object widget) {
-        if(widget instanceof Renderable r)
+        if(widget instanceof Widget r)
             this.renderables.remove(r);
         if(widget instanceof GuiEventListener l)
             this.children.remove(l);
@@ -143,7 +143,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     }
 
     protected final void drawRenderables(PoseStack pose, int mouseX, int mouseY, float partialTick) {
-        for(Renderable r : this.renderables)
+        for(Widget r : this.renderables)
             r.render(pose, mouseX, mouseY, partialTick);
     }
 
@@ -224,12 +224,12 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     /** @deprecated Use EasyScreen.addChild */
     @Override
     @Deprecated
-    protected final <T extends GuiEventListener & Renderable & NarratableEntry> @NotNull T addRenderableWidget(@NotNull T widget) { return this.addChild(widget); }
+    protected final <T extends GuiEventListener & Widget & NarratableEntry> @NotNull T addRenderableWidget(@NotNull T widget) { return this.addChild(widget); }
 
     /** @deprecated Use EasyScreen.addChild */
     @Override
     @Deprecated
-    protected final <T extends Renderable> @NotNull T addRenderableOnly(@NotNull T widget) { return this.addChild(widget); }
+    protected final <T extends Widget> @NotNull T addRenderableOnly(@NotNull T widget) { return this.addChild(widget); }
 
     /** @deprecated Use EasyScreen.addChild */
     @Override

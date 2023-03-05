@@ -85,7 +85,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	public void init(int scrollBarXOffset, int scrollBarYOffset, int scrollBarHeight) {
 		this.scrollBarXOffset = scrollBarXOffset;
-		this.scrollBar = new ScrollBarWidget(this.getX() + this.width + scrollBarXOffset, this.getY() + scrollBarYOffset, scrollBarHeight, this);
+		this.scrollBar = new ScrollBarWidget(this.x + this.width + scrollBarXOffset, this.y + scrollBarYOffset, scrollBarHeight, this);
 		this.addWidget.accept(this.scrollBar);
 		this.resetButtons();
 	}
@@ -165,7 +165,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		if(this.validTrades() <= 0)
 		{
 			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.notrades"));
-			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notrades"), this.getX() + (this.width / 2) - (textWidth / 2), this.getX() + (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notrades"), this.x + (this.width / 2) - (textWidth / 2), this.x + (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
 		}
 	}
 	
@@ -265,7 +265,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 				TradeButton button = this.allButtons.get(displayIndex);
 				if (trade.getFirst() != null && trade.getSecond() != null) {
 					TradeContext context = this.getContext.apply(trade.getFirst());
-					button.move(this.getX() + xOffset, this.getY() + yOffset);
+					button.move(this.x + xOffset, this.y + yOffset);
 					button.visible = true;
 					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
 					xOffset += trade.getSecond().getButtonRenderer().tradeButtonWidth(context) + spacing;
@@ -396,7 +396,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public @NotNull NarrationPriority narrationPriority() { return NarrationPriority.NONE; }

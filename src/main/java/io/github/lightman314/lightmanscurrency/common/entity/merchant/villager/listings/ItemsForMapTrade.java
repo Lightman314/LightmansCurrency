@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.I
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -102,7 +102,7 @@ public class ItemsForMapTrade implements ItemListing
         public ItemListing deserialize(JsonObject json) throws Exception {
             ItemStack price1 = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
             ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, new ResourceLocation(json.get("Destination").getAsString()));
+            TagKey<Structure> destination = TagKey.create(Registry.STRUCTURE_REGISTRY, new ResourceLocation(json.get("Destination").getAsString()));
             String displayName = json.get("MapName").getAsString();
             MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(json.get("Decoration").getAsString(), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
             int maxTrades = json.get("MaxTrades").getAsInt();

@@ -32,14 +32,15 @@ public class TabButton extends Button{
 	
 	public TabButton(OnPress pressable, Font font, ITab tab)
 	{
-		super(0, 0, SIZE, SIZE, Component.empty(), pressable, Button.DEFAULT_NARRATION);
+		super(0, 0, SIZE, SIZE, Component.empty(), pressable);
 		this.font = font;
 		this.tab = tab;
 	}
 	
 	public void reposition(int x, int y, int rotation)
 	{
-		this.setPosition(x, y);
+		this.x = x;
+		this.y = y;
 		this.rotation = MathUtil.clamp(rotation, 0, 3);
 	}
 	
@@ -56,10 +57,10 @@ public class TabButton extends Button{
         int xOffset = this.rotation < 2 ? 0 : this.width;
         int yOffset = (this.rotation % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
         //Render the background
-        this.blit(pose, this.getX(), this.getY(), 200 + xOffset, yOffset, this.width, this.height);
+        this.blit(pose, this.x, this.y, 200 + xOffset, yOffset, this.width, this.height);
         
         RenderSystem.setShaderColor(activeColor, activeColor, activeColor, 1f);
-        this.tab.getIcon().render(pose, this, this.font, this.getX() + 4, this.getY() + 4);
+        this.tab.getIcon().render(pose, this, this.font, this.x + 4, this.y + 4);
 		
 	}
 	

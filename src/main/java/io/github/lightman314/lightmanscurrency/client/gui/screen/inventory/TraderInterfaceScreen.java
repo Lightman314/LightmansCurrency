@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
@@ -243,7 +243,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		return widget;
 	}
 	
-	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
+	public <T extends Widget> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
 	}
 	

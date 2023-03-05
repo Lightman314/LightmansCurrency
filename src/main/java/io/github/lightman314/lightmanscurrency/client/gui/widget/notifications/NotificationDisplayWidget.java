@@ -54,29 +54,29 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 		List<Notification> notifications = this.getNotifications();
 		int index = this.scroll;
 		
-		Screen.fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.backgroundColor);
+		Screen.fill(pose, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
 		
 		for(int y = 0; y < this.rowCount && index < notifications.size(); ++y)
 		{
-			int yPos = this.getY() + y * HEIGHT_PER_ROW;
+			int yPos = this.y + y * HEIGHT_PER_ROW;
 			Notification n = notifications.get(index++);
 			
 			//Draw the background
 			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			int vPos = n.wasSeen() && this.colorIfUnseen ? 222 : 200;
-			this.blit(pose, this.getX(), yPos, 0, vPos, 2, HEIGHT_PER_ROW);
-			int xPos = this.getX() + 2;
-			while(xPos < this.getX() + this.width - 2)
+			this.blit(pose, this.x, yPos, 0, vPos, 2, HEIGHT_PER_ROW);
+			int xPos = this.x + 2;
+			while(xPos < this.x + this.width - 2)
 			{
-				int thisWidth = Math.min(166, this.getX() + this.width - 2 - xPos);
+				int thisWidth = Math.min(166, this.x + this.width - 2 - xPos);
 				this.blit(pose, xPos, yPos, 2, vPos, thisWidth, HEIGHT_PER_ROW);
 				xPos += thisWidth;
 			}
-			this.blit(pose, this.getX() + this.width - 2, yPos, 168, 200, 2, HEIGHT_PER_ROW);
+			this.blit(pose, this.x + this.width - 2, yPos, 168, 200, 2, HEIGHT_PER_ROW);
 			
 			//Draw the text
-			int textXPos = this.getX() + 2;
+			int textXPos = this.x + 2;
 			int textWidth = this.width - 4;
 			int textColor = n.wasSeen() ? 0xFFFFFF : 0x000000;
 			if(n.getCount() > 1)
@@ -84,7 +84,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 				//Render quantity text
 				String countText = String.valueOf(n.getCount());
 				int quantityWidth = this.font.width(countText);
-				this.blit(pose, this.getX() + 1 + quantityWidth, yPos, 170, vPos, 3, HEIGHT_PER_ROW);
+				this.blit(pose, this.x + 1 + quantityWidth, yPos, 170, vPos, 3, HEIGHT_PER_ROW);
 				
 				this.font.draw(pose, countText, textXPos, yPos + (HEIGHT_PER_ROW / 2) - (this.font.lineHeight / 2), textColor);
 				
@@ -102,7 +102,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 			{
 				for(int l = 0; l < lines.size() && l < 2; ++l)
 					this.font.draw(pose, lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
-				if(this.tooltip == null && mouseX >= this.getX() && mouseX < this.getX() + this.width && mouseY >= yPos && mouseY < yPos + HEIGHT_PER_ROW)
+				if(this.tooltip == null && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= yPos && mouseY < yPos + HEIGHT_PER_ROW)
 				{
 					if(lines.size() > 2)
 					{
@@ -146,7 +146,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	public int getMaxScroll() { return Math.max(0, this.getNotifications().size() - this.rowCount); }
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {

@@ -56,7 +56,7 @@ public class TradeButton extends Button{
 	public boolean displayOnly = false;
 	
 	public TradeButton(Supplier<TradeContext> contextSource, Supplier<TradeData> tradeSource, OnPress onPress) {
-		super(0, 0, 0, BUTTON_HEIGHT, Component.empty(), onPress, Button.DEFAULT_NARRATION);
+		super(0, 0, 0, BUTTON_HEIGHT, Component.empty(), onPress);
 		this.tradeSource = tradeSource;
 		this.contextSource = contextSource;
 		this.recalculateSize();
@@ -72,7 +72,7 @@ public class TradeButton extends Button{
 		}
 	}
 	
-	public void move(int x, int y) { this.setPosition(x, y); }
+	public void move(int x, int y) { this.x = x; this.y = y; }
 	
 	@Override
 	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
@@ -117,17 +117,17 @@ public class TradeButton extends Button{
 		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
 		
 		//Render the left
-		this.blit(pose, this.getX(), this.getY(), 0, vOffset, 4, BUTTON_HEIGHT);
+		this.blit(pose, this.x, this.y, 0, vOffset, 4, BUTTON_HEIGHT);
 		//Render the middle
 		int xOff = 4;
 		while(xOff < this.width - 4)
 		{
 			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-			this.blit(pose, this.getX() + xOff, this.getY(), 4, vOffset, xRend, BUTTON_HEIGHT);
+			this.blit(pose, this.x + xOff, this.y, 4, vOffset, xRend, BUTTON_HEIGHT);
 			xOff += xRend;
 		}
 		//Render the right
-		this.blit(pose, this.getX() + this.width - 4, this.getY(), TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
+		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
 	}
 	
 	private void renderArrow(PoseStack pose, ScreenPosition position, boolean isHovered)
@@ -141,7 +141,7 @@ public class TradeButton extends Button{
 		
 		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 		
-		this.blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
+		this.blit(pose, this.x + position.x, this.y + position.y, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}
 	
@@ -154,16 +154,16 @@ public class TradeButton extends Button{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		alerts.get(0).setShaderColor(this.active ? 1f : 0.5f);
 		
-		this.blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
+		this.blit(pose, this.x + position.x, this.y + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}
 	
 	public void renderDisplays(PoseStack pose, TradeRenderManager<?> tr, TradeContext context)
 	{
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
-			display.getFirst().render(this, pose, this.getX(), this.getY(), display.getSecond());
+			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
 		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(tr, context))
-			display.getFirst().render(this, pose, this.getX(), this.getY(), display.getSecond());
+			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
 	}
 	
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY)
@@ -179,17 +179,17 @@ public class TradeButton extends Button{
 		
 		List<Component> tooltips = new ArrayList<>();
 		
-		this.tryAddTooltip(tooltips, tr.getAdditionalTooltips(context, mouseX - this.getX(), mouseY - this.getY()));
+		this.tryAddTooltip(tooltips, tr.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
 		
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
 		{
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 				this.tryAddTooltip(tooltips, display.getFirst().tooltip);
 		}
 		
 		for(Pair<DisplayEntry,DisplayData> display : getOutputDisplayData(tr, context))
 		{
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
 				this.tryAddTooltip(tooltips, display.getFirst().tooltip);
 			}
@@ -241,7 +241,7 @@ public class TradeButton extends Button{
 		for(int i = 0; i < inputDisplays.size(); ++i)
 		{
 			Pair<DisplayEntry,DisplayData> display = inputDisplays.get(i);
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
 				consumer.onTradeButtonInputInteraction(context.getTrader(), trade, i, button);
 				return;
@@ -252,7 +252,7 @@ public class TradeButton extends Button{
 		for(int i = 0; i < outputDisplays.size(); ++i)
 		{
 			Pair<DisplayEntry,DisplayData> display = outputDisplays.get(i);
-			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
+			if(display.getFirst().isMouseOver(this.x, this.y, display.getSecond(), mouseX, mouseY))
 			{
 				consumer.onTradeButtonOutputInteraction(context.getTrader(), trade, i, button);
 				return;
@@ -260,7 +260,7 @@ public class TradeButton extends Button{
 		}
 		
 		//Only run the default interaction code if you didn't hit an input or output display
-		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.getX(), mouseY - this.getY(), button);
+		consumer.onTradeButtonInteraction(context.getTrader(), trade, mouseX - this.x, mouseY - this.y, button);
 		
 	}
 	
@@ -278,8 +278,8 @@ public class TradeButton extends Button{
 	public boolean isMouseOverAlert(int mouseX, int mouseY, TradeRenderManager<?> tr, TradeContext context)
 	{
 		ScreenPosition position = tr.alertPosition(context);
-		int left = this.getX() + position.x;
-		int top = this.getY() + position.y;
+		int left = this.x + position.x;
+		int top = this.y + position.y;
 		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
 	}
 	

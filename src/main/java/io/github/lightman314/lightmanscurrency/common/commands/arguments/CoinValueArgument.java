@@ -90,7 +90,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     }
 
     private List<ResourceLocation> lookupCoinList() {
-        return this.items.listElementIds().map(ResourceKey::location).filter(CoinValueArgument::isCoin).toList();
+        return this.items.listElements().map(ResourceKey::location).filter(CoinValueArgument::isCoin).toList();
     }
 
     private static boolean isCoin(ResourceLocation itemID)

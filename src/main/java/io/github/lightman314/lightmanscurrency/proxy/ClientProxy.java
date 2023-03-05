@@ -41,7 +41,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -93,7 +93,7 @@ public class ClientProxy extends CommonProxy{
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 
 		//Setup Item Edit blacklists
-		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
+		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
 
@@ -267,8 +267,7 @@ public class ClientProxy extends CommonProxy{
 	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event)
 	{
 		//Initialize the item edit widgets item list
-		Minecraft mc = Minecraft.getInstance();
-    	ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks());
+    	ItemEditWidget.initItemList();
 	}
 
 	@Override

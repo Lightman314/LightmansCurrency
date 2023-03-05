@@ -215,9 +215,9 @@ public class TimedSale extends TradeRule {
 			TimedSale rule = this.getRule();
 			if(rule != null)
 				this.discountInput.setValue(Integer.toString(rule.discount));
-			this.buttonSetDiscount = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton).pos(screen.guiLeft() + 110, screen.guiTop() + 10).size(50, 20).build());
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
-			this.buttonStartSale = this.addCustomRenderable(Button.builder(this.getButtonText(), this::PressStartButton).pos(screen.guiLeft() + 10, screen.guiTop() + 45).size(156, 20).build());
+			this.buttonStartSale = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 45, 156, 20, this.getButtonText(), this::PressStartButton));
 			
 			this.durationInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 75, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
 			this.durationInput.setTime(this.getRule().duration);
@@ -230,7 +230,7 @@ public class TimedSale extends TradeRule {
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.getX() + this.discountInput.getWidth() + 4, this.discountInput.getY() + 3, 0xFFFFFF);
+			this.screen.getFont().draw(matrixStack, Component.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
 			Component infoText = Component.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
 			if(this.getRule().timerActive())

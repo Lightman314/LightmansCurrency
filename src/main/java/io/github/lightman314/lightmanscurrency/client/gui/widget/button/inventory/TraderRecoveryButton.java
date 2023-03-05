@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.NotNull;
 
 public class TraderRecoveryButton extends PlainButton {
@@ -48,15 +49,16 @@ public class TraderRecoveryButton extends PlainButton {
 	
 	@Override
 	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.setPosition(getXPosition(this.screen),getYPosition(this.screen));
+
+		this.x = getXPosition(this.screen);
+		this.y = getYPosition(this.screen);
 
 		if(EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0)
 		{
 			this.visible = true;
 			//Change visibility based on whether the correct tab is open
 			if(this.screen instanceof CreativeModeInventoryScreen cs)
-				this.visible = cs.isInventoryOpen();
+				this.visible = cs.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
 			super.render(pose, mouseX, mouseY, partialTicks);
 		}
 		else

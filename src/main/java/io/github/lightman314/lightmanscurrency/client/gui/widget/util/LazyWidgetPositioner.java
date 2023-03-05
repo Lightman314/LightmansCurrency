@@ -53,7 +53,8 @@ public class LazyWidgetPositioner {
 		for (AbstractWidget w : this.widgetList) {
 			if (w.visible) {
 				ScreenPosition pos = this.mode.apply(this);
-				w.setPosition(pos.x, pos.y);
+				w.x = pos.x;
+				w.y = pos.y;
 				this.posIndex++;
 			}
 		}

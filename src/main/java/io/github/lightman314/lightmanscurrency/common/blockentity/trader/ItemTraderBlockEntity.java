@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
@@ -17,9 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-
 public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 
 	protected int tradeCount;
@@ -60,12 +60,12 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, float partialTicks)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, float partialTicks)
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof IItemTraderBlock traderBlock)
 		{
-			List<Quaternionf> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
+			List<Quaternion> rotation = traderBlock.GetStackRenderRot(tradeSlot, this.getBlockState());
 			//If null received. Rotate item based on world time
 			if(rotation == null)
 			{
@@ -76,8 +76,8 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		}
 		else
 		{
-			List<Quaternionf> rotation = new ArrayList<>();
-			rotation.add(new Quaternionf().fromAxisAngleDeg(new Vector3f(0f,1f,0f), 0f));
+			List<Quaternion> rotation = new ArrayList<>();
+			rotation.add(MathUtil.fromAxisAngleDegree(Vector3f.YP, 0f));
 			return rotation;
 		}
 			

@@ -54,7 +54,7 @@ public class TeamSelectionTab extends TeamTab {
 		this.newTeamName = screen.addRenderableTabWidget(new EditBox(this.getFont(), screen.guiLeft() + 20, screen.guiTop() + 140, 160, 20, Component.empty()));
 		this.newTeamName.setMaxLength(32);
 		
-		this.buttonCreateTeam = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam).pos(screen.guiLeft() + 120, screen.guiTop() + 165).size(60, 20).build());
+		this.buttonCreateTeam = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 120, screen.guiTop() + 165, 60, 20, Component.translatable("gui.button.lightmanscurrency.team.create"), this::createTeam));
 		this.buttonCreateTeam.active = false;
 		
 	}

@@ -85,7 +85,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.priceSelect.init();
 		this.priceSelect.drawBG = this.priceSelect.allowFreeToggle = false;
 		
-		this.buttonTogglePriceMode = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()).pos(this.screen.getGuiLeft() + 114, this.screen.getGuiTop() + 5).size(this.screen.getXSize() - 119, 20).build());
+		this.buttonTogglePriceMode = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 114, this.screen.getGuiTop() + 5, this.screen.getXSize() - 119, 20, Component.translatable("button.lightmanscurrency.auction.toggleprice.startingbid"), b -> this.TogglePriceTarget()));
 		
 		this.commonTab.getAuctionItems().addListener(c -> this.UpdateAuctionItems());
 		
@@ -96,7 +96,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.timeInput.setTime(this.timeInput.minDuration);
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()).pos(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20).size(this.screen.getXSize() - 80, 20).build());
+		this.buttonSubmitAuction = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() - 20, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.create"), b -> this.submitAuction()));
 		this.buttonSubmitAuction.active = false;
 		
 		this.buttonSubmitPersistentAuction = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 20, this.screen.getGuiTop() - 20, this::submitPersistentAuction, IconAndButtonUtil.ICON_PERSISTENT_DATA, IconAndButtonUtil.TOOLTIP_PERSISTENT_AUCTION));

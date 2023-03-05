@@ -213,15 +213,15 @@ public class PlayerDiscounts extends TradeRule {
 
 			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 34, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton).pos(screen.guiLeft() + 10, screen.guiTop() + 55).size(78, 20).build());
-			this.buttonRemovePlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55).size(78, 20).build());
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 55, 78, 20, Component.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 55, 78, 20, Component.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
 			
 			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, Component.empty()));
 			this.discountInput.setMaxLength(2);
 			PlayerDiscounts rule = this.getRule();
 			if(rule != null)
 				this.discountInput.setValue(Integer.toString(rule.discount));
-			this.buttonSetDiscount = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton).pos(screen.guiLeft() + 110, screen.guiTop() + 10).size(50, 20).build());
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
 			this.playerList = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 78, screen.xSize - 14, 91, this.screen.getFont(), this::getPlayerList));
 			this.playerList.setColumnCount(2);	
@@ -246,7 +246,7 @@ public class PlayerDiscounts extends TradeRule {
 			
 			Screen.fill(poseStack, this.screen.guiLeft() + 7, this.screen.guiTop() + 78, this.screen.guiLeft() + this.screen.width - 7, this.screen.guiTop() + 78 + 91, 0x000000FF);
 			
-			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.getX() + this.discountInput.getWidth() + 4, this.discountInput.getY() + 3, 0xFFFFFF);
+			this.screen.getFont().draw(poseStack, Component.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
 		}
 		

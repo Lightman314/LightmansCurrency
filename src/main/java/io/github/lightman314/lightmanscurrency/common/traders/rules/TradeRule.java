@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
@@ -225,7 +225,7 @@ public abstract class TradeRule {
 		
 		public void onScreenTick() { }
 		
-		public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomRenderable(T widget)
+		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
 		{
 			return screen.addCustomRenderable(widget);
 		}

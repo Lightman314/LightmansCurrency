@@ -10,12 +10,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public class EasyTabButton extends Button implements ITooltipWidget {
 
@@ -27,7 +25,7 @@ public class EasyTabButton extends Button implements ITooltipWidget {
     EasyTabRotation rotation = EasyTabRotation.TOP;
 
     public EasyTabButton(EasyTab<?> tab, Button.OnPress pressable) {
-        super(0,0, SIZE, SIZE, Component.empty(), pressable, new Narration(tab));
+        super(0,0, SIZE, SIZE, Component.empty(), pressable);
         this.tab = tab;
     }
 
@@ -35,19 +33,6 @@ public class EasyTabButton extends Button implements ITooltipWidget {
 
     @Override
     public List<Component> getTooltip() { return this.tab.getTooltip(); }
-
-    private record Narration(EasyTab<?> tab) implements CreateNarration {
-        @Override
-        public @NotNull MutableComponent createNarrationMessage(@NotNull Supplier<MutableComponent> buttonText) {
-            MutableComponent result = Component.empty();
-            for (Component line : this.tab.getTooltip()) {
-                if (!result.getString().isEmpty())
-                    result.append(Component.literal("\n"));
-                result.append(line);
-            }
-            return result;
-        }
-    }
 
     @Override
     public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTick) {
@@ -61,10 +46,10 @@ public class EasyTabButton extends Button implements ITooltipWidget {
         RenderSystem.setShaderColor(r * activeColor, g * activeColor, b * activeColor, 1f);
 
         //Render the background
-        this.blit(pose, this.getX(), this.getY(), this.rotation.x, 0, this.width, this.height);
+        this.blit(pose, this.x, this.y, this.rotation.x, 0, this.width, this.height);
 
         //Render the icon
-        this.tab.getTabIcon().render(pose, this, Minecraft.getInstance().font, this.getX() + 2, this.getY() + 2);
+        this.tab.getTabIcon().render(pose, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
 
     }
 

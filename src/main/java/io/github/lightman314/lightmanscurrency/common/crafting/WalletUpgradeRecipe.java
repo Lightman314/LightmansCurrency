@@ -114,9 +114,6 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		return width * height >= this.ingredients.size();
 	}
 
-	@Override
-	public @NotNull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
-
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
 	    
 		

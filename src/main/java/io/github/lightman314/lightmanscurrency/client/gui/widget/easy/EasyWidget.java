@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class EasyWidget extends GuiComponent implements Renderable, GuiEventListener, NarratableEntry, ITooltipSource {
+public abstract class EasyWidget extends GuiComponent implements Widget, GuiEventListener, NarratableEntry, ITooltipSource {
 
     private ScreenPosition position = ScreenPosition.ZERO;
     @NotNull

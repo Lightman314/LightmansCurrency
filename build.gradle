@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.3-2.1.0.0'
+version = '1.19.2-2.1.0.0'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -18,7 +18,7 @@ minecraft {
     // snapshot_YYYYMMDD   Snapshot are built nightly.
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
-    mappings channel: 'official', version: '1.19.3'
+    mappings channel: 'official', version: '1.19.2'
     runs {
         client {
             workingDirectory project.file('run')
@@ -69,17 +69,17 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.1.3'
    	
    	//JEI when actually working on plugin
     //compileOnly fg.deobf("mezz.jei:jei-1.19.3-common-api:12.1.1.8")
     //compileOnly fg.deobf("mezz.jei:jei-1.19.3-forge-api:12.1.1.8")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:4362072")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4362072")
+    compileOnly fg.deobf("curse.maven:jei-238222:3873049")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:3873049")
     
     //Curios API
-    compileOnly fg.deobf("curse.maven:curios-309927:4152930")
+    compileOnly fg.deobf("curse.maven:curios-309927:3841962")
     //Curios Runtime
     //runtimeOnly fg.deobf("curse.maven:curios-309927:4152930")
 

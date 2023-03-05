@@ -52,8 +52,8 @@ public class AllyTab extends SettingsTab {
 		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, Component.empty()));
 		this.nameInput.setMaxLength(16);
 		
-		this.buttonAddAlly = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly).pos(screen.guiLeft() + 20, screen.guiTop() + 35).size(74, 20).build());
-		this.buttonRemoveAlly = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly).pos(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35).size(74, 20).build());
+		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
+		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, Component.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
 		
 		this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 60, 190, 135, screen.getFont(), this::getAllyList));
 		this.display.setColumnCount(2);

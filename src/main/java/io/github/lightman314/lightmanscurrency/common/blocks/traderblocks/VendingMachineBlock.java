@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -21,8 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -110,9 +110,9 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
-		List<Quaternionf> rotation = new ArrayList<>();
+		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
 		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing * -90f));
 		return rotation;

@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockBase;
@@ -20,8 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBlock {
 	
@@ -52,7 +52,7 @@ public class DisplayCaseBlock extends TraderBlockBase implements IItemTraderBloc
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		//Return null for automatic rotation
 		return null;

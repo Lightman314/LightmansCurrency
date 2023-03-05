@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client;
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import net.minecraft.world.item.CreativeModeTab;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -151,7 +152,7 @@ public class ClientEvents {
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
-			if(screen instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+			if(screen instanceof CreativeModeInventoryScreen creativeScreen && creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 				return;
 			
 			IWalletHandler walletHandler = getWalletHandler(); 
@@ -187,7 +188,7 @@ public class ClientEvents {
 			if(!gui.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
 				return;
 			
-			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen && creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 				return;
 			
 			Minecraft mc = Minecraft.getInstance();
@@ -225,7 +226,7 @@ public class ClientEvents {
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+			if(gui instanceof CreativeModeInventoryScreen creativeScreen && creativeScreen.getSelectedTab() != CreativeModeTab.TAB_INVENTORY.getId())
 				return;
 			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
 			

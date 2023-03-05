@@ -66,9 +66,9 @@ public class AuctionBidTab extends TraderClientTab {
 		this.bidAmount.allowFreeToggle = false;
 		this.bidAmount.drawBG = false;
 		
-		this.bidButton = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.lightmanscurrency.auction.bid"), this::SubmitBid).pos(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + 119).size(68, 20).build());
+		this.bidButton = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + 119, 68, 20, Component.translatable("gui.lightmanscurrency.auction.bid"), this::SubmitBid));
 		
-		this.closeButton = this.screen.addRenderableTabWidget(Button.builder(Component.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close).pos(this.screen.getGuiLeft() + this.screen.getXSize() - 25, this.screen.getGuiTop() + 5).size(20, 20).build());
+		this.closeButton = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + this.screen.getXSize() - 25, this.screen.getGuiTop() + 5, 20, 20, Component.literal("X").withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD), this::close));
 		
 		this.tick();
 		

@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.WalletCapabilit
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.world.item.CreativeModeTab;
 import org.jetbrains.annotations.NotNull;
 
 public class WalletButton extends PlainButton{
@@ -32,10 +33,11 @@ public class WalletButton extends PlainButton{
 			return;
 		
 		//Reposition the button based on the containers top/left most position
-		this.setPosition(this.parent.getGuiLeft() + this.xOffset, this.parent.getGuiTop() + this.yOffset);
+		this.x = this.parent.getGuiLeft() + this.xOffset;
+		this.y = this.parent.getGuiTop() + this.yOffset;
 		
 		if(this.parent instanceof CreativeModeInventoryScreen cs)
-			this.visible = cs.isInventoryOpen();
+			this.visible = cs.getSelectedTab() == CreativeModeTab.TAB_INVENTORY.getId();
 		
 		super.render(pose, mouseX, mouseY, partialTicks);
 		

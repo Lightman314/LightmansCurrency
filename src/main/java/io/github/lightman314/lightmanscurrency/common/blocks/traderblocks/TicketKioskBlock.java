@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
@@ -18,8 +20,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -44,7 +44,7 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state) { return new ArrayList<>(); }
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state) { return new ArrayList<>(); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)

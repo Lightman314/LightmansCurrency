@@ -43,7 +43,7 @@ public class TeamNameTab extends TeamTab {
 		this.nameInput.setMaxLength(Team.MAX_NAME_LENGTH);
 		this.nameInput.setValue(this.getActiveTeam().getName());
 		
-		this.buttonChangeName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName).pos(screen.guiLeft() + 20, screen.guiTop() + 45).size(160, 20).build());
+		this.buttonChangeName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 45, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.rename"), this::changeName));
 		this.buttonChangeName.active = false;
 	}
 

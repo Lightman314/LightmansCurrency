@@ -61,8 +61,8 @@ public class MainTab extends SettingsTab{
 		this.nameInput.setMaxLength(32);
 		this.nameInput.setValue(trader.getCustomName());
 		
-		this.buttonSetName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.lightmanscurrency.changename"), this::SetName).pos(screen.guiLeft() + 20, screen.guiTop() + 50).size(74, 20).build());
-		this.buttonResetName = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.lightmanscurrency.resetname"), this::ResetName).pos(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50).size(74, 20).build());
+		this.buttonSetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 50, 74, 20, Component.translatable("gui.lightmanscurrency.changename"), this::SetName));
+		this.buttonResetName = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 50, 74, 20, Component.translatable("gui.lightmanscurrency.resetname"), this::ResetName));
 		
 		//Creative Toggle
 		this.buttonToggleCreative = screen.addRenderableTabWidget(IconAndButtonUtil.creativeToggleButton(screen.guiLeft() + 176, screen.guiTop() + screen.ySize - 30, this::ToggleCreative, () -> this.getTrader().isCreative()));

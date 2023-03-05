@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
@@ -585,7 +585,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
 		}
 		if(compound.contains("Level"))
-			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("Level")));
+			this.level = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(compound.getString("Level")));
 		
 		if(compound.contains("TraderBlock"))
 		{
@@ -1267,7 +1267,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("x") && compound.contains("y") && compound.contains("z"))
 			this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
 		if(compound.contains("World"))
-			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("World")));
+			this.level = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(compound.getString("World")));
 
 		//Stored Money
 		if(compound.contains("StoredMoney"))

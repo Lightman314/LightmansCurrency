@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -60,7 +60,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	public void onClose() { this.accountWidget = null; }
 
 	@Override
-	public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T button) {
+	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
 		if(button instanceof AbstractWidget)
 			this.screen.addRenderableTabWidget((AbstractWidget)button);
 		return button;

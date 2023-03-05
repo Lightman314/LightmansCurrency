@@ -20,7 +20,7 @@ public class DropdownButton extends Button{
 	
 	public DropdownButton(int x, int y, int width, Font font, Component optionText, OnPress pressable)
 	{
-		super(x , y, width, DropdownWidget.HEIGHT, Component.empty(), pressable, Button.DEFAULT_NARRATION);
+		super(x , y, width, DropdownWidget.HEIGHT, Component.empty(), pressable);
 		this.optionText = optionText;
 		this.font = font;
 	}
@@ -34,17 +34,17 @@ public class DropdownButton extends Button{
         int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
+        this.blit(pose, this.x, this.y, 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 4)
         {
         	int xPart = Math.min(this.width - 4 - xOffset, 252);
-        	this.blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
+        	this.blit(pose, this.x + 2 + xOffset, this.y, 2, offset, xPart, DropdownWidget.HEIGHT);
         	xOffset += xPart;
         }
-        this.blit(pose, this.getX() + this.width - 2, this.getY(), 254, offset, 2, DropdownWidget.HEIGHT);
+        this.blit(pose, this.x + this.width - 2, this.y, 254, offset, 2, DropdownWidget.HEIGHT);
         //Draw the option text
-        this.font.draw(pose, TextRenderUtil.fitString(this.optionText, this.width - 4), this.getX() + 2, this.getY() + 2, 0x404040);
+        this.font.draw(pose, TextRenderUtil.fitString(this.optionText, this.width - 4), this.x + 2, this.y + 2, 0x404040);
         
 	}
 

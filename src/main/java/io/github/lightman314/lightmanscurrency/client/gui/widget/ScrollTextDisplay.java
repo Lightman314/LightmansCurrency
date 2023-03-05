@@ -41,7 +41,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 			return;
 		
 		//Render the background
-		Screen.fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.backgroundColor);
+		Screen.fill(pose, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
 		
 		//Start rendering the text
 		List<? extends Component> text = this.textSource.get();
@@ -49,8 +49,8 @@ public class ScrollTextDisplay extends AbstractWidget{
 		this.validateScroll(text.size());
 		int i = this.getStartingIndex(text.size());
 		int columnWidth = this.getColumnWidth();
-		int bottom = this.getY() + this.height;
-		for(int yPos = this.getY() + 2; yPos < bottom && i >= 0 && i < text.size();)
+		int bottom = this.y + this.height;
+		for(int yPos = this.y + 2; yPos < bottom && i >= 0 && i < text.size();)
 		{
 			int rowHeight = 0;
 			for(int col = 0; col < this.columnCount && i >= 0 && i < text.size(); ++col)
@@ -91,7 +91,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	private int getXPos(int column)
 	{
 		int columnSpacing = this.width / this.columnCount;
-		return this.getX() + 2 + column * columnSpacing;
+		return this.x + 2 + column * columnSpacing;
 	}
 	
 	private boolean canScrollDown()
@@ -127,7 +127,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 
 }

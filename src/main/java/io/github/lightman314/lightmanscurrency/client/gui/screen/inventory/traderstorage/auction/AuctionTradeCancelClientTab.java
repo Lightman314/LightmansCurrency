@@ -43,8 +43,8 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + (this.screen.getXSize() / 2) - 47, this.screen.getGuiTop() + 17);
 		
-		this.buttonCancelPlayerGive = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true)).pos(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 60).size(this.screen.getXSize() - 80, 20).build());
-		this.buttonCancelStorageGive = this.screen.addRenderableTabWidget(Button.builder(Component.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false)).pos(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 85).size(this.screen.getXSize() - 80, 20).build());
+		this.buttonCancelPlayerGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 60, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true)));
+		this.buttonCancelStorageGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 85, this.screen.getXSize() - 80, 20, Component.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false)));
 		
 	}
 

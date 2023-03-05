@@ -34,7 +34,7 @@ public class UniversalTraderButton extends Button{
 	
 	public UniversalTraderButton(int x, int y, OnPress pressable, Font font)
 	{
-		super(x, y, WIDTH, HEIGHT, Component.empty(), pressable, Button.DEFAULT_NARRATION);
+		super(x, y, WIDTH, HEIGHT, Component.empty(), pressable);
 		this.font = font;
 	}
 	
@@ -63,15 +63,15 @@ public class UniversalTraderButton extends Button{
 		if(this.isHovered || this.selected)
 			offset = HEIGHT;
 		//Draw Button BG
-		this.blit(pose, this.getX(), this.getY(), 0, offset, WIDTH, HEIGHT);
+		this.blit(pose, this.x, this.y, 0, offset, WIDTH, HEIGHT);
 		
 		//Draw the icon
-		this.data.getIcon().render(pose, this, this.font, this.getX() + 4, this.getY() + 7);
+		this.data.getIcon().render(pose, this, this.font, this.x + 4, this.y + 7);
 		
 		//Draw the name & owner of the trader
 		Style style = this.data.isCreative() ? Style.EMPTY.applyFormat(ChatFormatting.GREEN) : Style.EMPTY;
-		this.font.draw(pose, TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), this.getX() + 24f, this.getY() + 6f, 0x404040);
-		this.font.draw(pose, TextRenderUtil.fitString(this.data.getOwner().getOwnerName(true), this.width - 26), this.getX() + 24f, this.getY() + 16f, 0x404040);
+		this.font.draw(pose, TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), this.x + 24f, this.y + 6f, 0x404040);
+		this.font.draw(pose, TextRenderUtil.fitString(this.data.getOwner().getOwnerName(true), this.width - 26), this.x + 24f, this.y + 16f, 0x404040);
 		
 	}
 

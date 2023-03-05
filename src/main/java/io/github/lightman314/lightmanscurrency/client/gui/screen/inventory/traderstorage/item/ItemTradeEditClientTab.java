@@ -92,7 +92,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, Component.empty(), this::ToggleTradeType));
 		this.buttonToggleNBTEnforcement = this.screen.addRenderableTabWidget(IconAndButtonUtil.checkmarkButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 4, this::ToggleNBTEnforcement, this::getEnforceNBTState));
 
 	}

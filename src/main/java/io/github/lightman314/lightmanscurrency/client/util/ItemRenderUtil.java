@@ -100,7 +100,7 @@ public class ItemRenderUtil {
 		Minecraft minecraft = Minecraft.getInstance();
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
 		RenderSystem.setShaderColor(1f,1f,1f,1f);
-		RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
+		RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
         Screen.blit(matrixStack, x, y, ITEM_BLIT_OFFSET, 16, 16, textureatlassprite);
 	}
 	

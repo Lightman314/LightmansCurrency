@@ -88,9 +88,9 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
         this.valueInput.allowFreeToggle = false;
         this.valueInput.init();
 
-        this.buttonPropose = this.addRenderableWidget(Button.builder(Component.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose).pos(this.leftPos + 8, this.topPos + 110 + CoinValueInput.HEIGHT).size(70, 20).build());
+        this.buttonPropose = this.addRenderableWidget(new Button(this.leftPos + 8, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, Component.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
 
-        this.buttonAccept = this.addRenderableWidget(Button.builder(Component.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept).pos(this.leftPos + 98, this.topPos + 110 + CoinValueInput.HEIGHT).size(70, 20).build());
+        this.buttonAccept = this.addRenderableWidget(new Button(this.leftPos + 98, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, Component.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
         this.buttonAccept.active = false;
 
     }

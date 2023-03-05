@@ -160,8 +160,8 @@ public class PlayerBlacklist extends TradeRule{
 			
 			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(78, 20).build());
-			this.buttonRemovePlayer = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30).size(78, 20).build());
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
 			
 			this.playerDisplay = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getBlacklistedPlayers));
 			this.playerDisplay.setColumnCount(2);

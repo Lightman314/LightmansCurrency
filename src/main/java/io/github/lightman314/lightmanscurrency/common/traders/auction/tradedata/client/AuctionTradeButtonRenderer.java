@@ -77,7 +77,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
         //Draw remaining time
         TimeUtil.TimeData time = new TimeUtil.TimeData(this.trade.getRemainingTime(TimeUtil.getCurrentTime()));
-        TextRenderUtil.drawCenteredText(pose, time.getShortString(1), button.getX() + button.getWidth() / 2, button.getY() + button.getHeight() - 9, this.getTextColor(time));
+        TextRenderUtil.drawCenteredText(pose, time.getShortString(1), button.x + button.getWidth() / 2, button.y + button.getHeight() - 9, this.getTextColor(time));
     }
 
     @Override

@@ -15,7 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -35,7 +35,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	List<Renderable> tabWidgets = new ArrayList<>();
+	List<Widget> tabWidgets = new ArrayList<>();
 	List<GuiEventListener> tabListeners = new ArrayList<>();
 	
 	List<TabButton> tabButtons = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		this.currentTab().tick();
 	}
 	
-	public <T extends Renderable> T addRenderableTabWidget(T widget)
+	public <T extends Widget> T addRenderableTabWidget(T widget)
 	{
 		this.tabWidgets.add(widget);
 		if(widget instanceof GuiEventListener gl)
@@ -158,7 +158,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		return widget;
 	}
 	
-	public void removeRenderableTabWidget(Renderable widget)
+	public void removeRenderableTabWidget(Widget widget)
 	{
 		this.tabWidgets.remove(widget);
 		if(widget instanceof GuiEventListener gl)

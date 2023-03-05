@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
@@ -23,8 +25,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock {
 	
@@ -52,7 +52,7 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
-		List<Vector3f> posList = new ArrayList<Vector3f>(1);
+		List<Vector3f> posList = new ArrayList<>(1);
 		if(tradeSlot == 0)
 		{
 			Direction facing = this.getFacing(state);
@@ -71,10 +71,10 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public List<Quaternionf> GetStackRenderRot(int tradeSlot, BlockState state)
+	public List<Quaternion> GetStackRenderRot(int tradeSlot, BlockState state)
 	{
 		//Return null for automatic rotation
-		List<Quaternionf> rotation = new ArrayList<>();
+		List<Quaternion> rotation = new ArrayList<>();
 		int facing = this.getFacing(state).get2DDataValue();
 		rotation.add(MathUtil.fromAxisAngleDegree(MathUtil.getYP(),facing * -90f));
 		return rotation;

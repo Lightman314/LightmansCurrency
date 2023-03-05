@@ -42,9 +42,9 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.buttonCreateBankAccount = screen.addRenderableTabWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount).pos(screen.guiLeft() + 20, screen.guiTop() + 20).size(160, 20).build());
+		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, Component.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
 		
-		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(Button.builder(Component.empty(), this::toggleBankLimit).pos(screen.guiLeft() + 20, screen.guiTop() + 60).size(160, 20).build());
+		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, Component.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();
 		
 	}

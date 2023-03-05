@@ -41,7 +41,7 @@ public class TeamButton extends Button{
 	
 	public TeamButton(int x, int y, Size size, OnPress press, Font font, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
 	{
-		super(x, y, size.width, HEIGHT, Component.empty(), press, Button.DEFAULT_NARRATION);
+		super(x, y, size.width, HEIGHT, Component.empty(), press);
 		this.font = font;
 		this.size = size;
 		this.teamSource = teamSource;
@@ -58,12 +58,12 @@ public class TeamButton extends Button{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
-		this.blit(pose, this.getX(), this.getY(), 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
+		this.blit(pose, this.x, this.y, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
 		
 		//Render Team Name
-		this.font.draw(pose, TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), this.getX() + 2, this.getY() + 2, TEXT_COLOR);
+		this.font.draw(pose, TextRenderUtil.fitString(this.getTeam().getName(), this.width - 4), this.x + 2, this.y + 2, TEXT_COLOR);
 		//Render Owner Name
-		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), this.getX() + 2, this.getY() + 10, TEXT_COLOR);
+		this.font.draw(pose, TextRenderUtil.fitString(Component.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)), this.width - 4), this.x + 2, this.y + 10, TEXT_COLOR);
 		
 	}
 	

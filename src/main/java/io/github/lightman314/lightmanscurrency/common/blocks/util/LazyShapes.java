@@ -3,12 +3,12 @@ package io.github.lightman314.lightmanscurrency.common.blocks.util;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.mojang.math.Vector3f;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.joml.Vector3f;
 
 public class LazyShapes {
 

@@ -43,9 +43,9 @@ public class TimeInputWidget extends AbstractWidget {
 		{
 			final TimeUnit unit = this.relevantUnits.get(i);
 			
-			int xPos = this.getX() + ((20 + this.spacing) * i);
-			PlainButton addButton = new PlainButton(xPos, this.getY(), 20, 10, b -> this.addTime(unit), CoinValueInput.GUI_TEXTURE, 0, CoinValueInput.HEIGHT);
-			PlainButton removeButton = new PlainButton(xPos, this.getY() + 23, 20, 10, b -> this.removeTime(unit), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT);
+			int xPos = this.x + ((20 + this.spacing) * i);
+			PlainButton addButton = new PlainButton(xPos, this.y, 20, 10, b -> this.addTime(unit), CoinValueInput.GUI_TEXTURE, 0, CoinValueInput.HEIGHT);
+			PlainButton removeButton = new PlainButton(xPos, this.y + 23, 20, 10, b -> this.removeTime(unit), CoinValueInput.GUI_TEXTURE, 20, CoinValueInput.HEIGHT);
 			widgetAdder.accept(addButton);
 			widgetAdder.accept(removeButton);
 			this.buttons.add(addButton);
@@ -200,7 +200,7 @@ public class TimeInputWidget extends AbstractWidget {
 		
 		for(int i = 0; i < this.relevantUnits.size(); ++i)
 		{
-			TextRenderUtil.drawCenteredText(pose, this.getTime().getUnitString(this.relevantUnits.get(i), true), this.getX() + ((20 + this.spacing) * i) + 10, this.getY() + 12, 0xFFFFFF);
+			TextRenderUtil.drawCenteredText(pose, this.getTime().getUnitString(this.relevantUnits.get(i), true), this.x + ((20 + this.spacing) * i) + 10, this.y + 12, 0xFFFFFF);
 		}
 
 	}
@@ -208,6 +208,6 @@ public class TimeInputWidget extends AbstractWidget {
 	public void removeChildren(Consumer<AbstractWidget> remover) { for(Button b : this.buttons) remover.accept(b); }
 	
 	@Override
-	public void updateWidgetNarration(@NotNull NarrationElementOutput narrator) {}
+	public void updateNarration(@NotNull NarrationElementOutput narrator) {}
 
 }

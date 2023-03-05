@@ -162,8 +162,8 @@ public class PlayerWhitelist extends TradeRule{
 			
 			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
 			
-			this.buttonAddPlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(78, 20).build());
-			this.buttonRemovePlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30).size(78, 20).build());
+			this.buttonAddPlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
+			this.buttonRemovePlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
 			
 			//Player list display
 			this.playerDisplay = this.screen.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));

@@ -79,7 +79,7 @@ public class TransferTab extends ATMTab {
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(Button.builder(Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126).size(this.screen.getXSize() - 20, 20).build());
+		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126, this.screen.getXSize() - 20, 20, Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
 		
 	}

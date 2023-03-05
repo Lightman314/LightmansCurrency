@@ -28,7 +28,7 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -54,7 +54,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 
 	IconButton buttonOpenTerminal;
 	
-	List<Renderable> tabRenderables = new ArrayList<>();
+	List<Widget> tabRenderables = new ArrayList<>();
 	List<GuiEventListener> tabListeners = new ArrayList<>();
 	
 	TraderClientTab currentTab = DEFAULT_TAB;
@@ -198,14 +198,14 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 	
-	public <T extends Renderable> T addRenderableTabWidget(T widget) {
+	public <T extends Widget> T addRenderableTabWidget(T widget) {
 		this.tabRenderables.add(widget);
 		if(widget instanceof GuiEventListener gl)
 			this.addTabListener(gl);
 		return widget;
 	}
 	
-	public <T extends Renderable> void removeRenderableTabWidget(T widget) {
+	public <T extends Widget> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
 		if(widget instanceof GuiEventListener gl)
 			this.removeTabListener(gl);

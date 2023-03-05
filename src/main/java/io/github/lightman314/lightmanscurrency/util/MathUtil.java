@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 
 public class MathUtil {
 
@@ -10,7 +10,7 @@ public class MathUtil {
 	public static Vector3f getZP() { return new Vector3f(0f, 0f, 1f); }
 
 
-	public static Quaternionf fromAxisAngleDegree(Vector3f axis, float degree) { return new Quaternionf().fromAxisAngleDeg(axis, degree); }
+	public static Quaternion fromAxisAngleDegree(Vector3f axis, float degree) { return axis.rotationDegrees(degree); }
 
 
 	/**
