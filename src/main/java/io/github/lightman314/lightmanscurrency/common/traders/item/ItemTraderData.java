@@ -501,15 +501,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a sale
 		if(trade.isSale())
 		{
+			//Randomize the items to be sold
+			List<ItemStack> soldItems = trade.getRandomSellItems(this);
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(context) && !this.isCreative())
+			if(soldItems == null)
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
-
-			//Randomize the items to be sold
-			List<ItemStack> soldItems = InventoryUtil.combineQueryItems(trade.getRandomSellItems(this));
 			
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
@@ -639,7 +638,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 			List<ItemStack> soldItems = trade.getRandomSellItems(this);
 			//Abort if not enough items in inventory
-			if((!trade.hasStock(context) && !this.isCreative()) || soldItems == null)
+			if(soldItems == null)
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
