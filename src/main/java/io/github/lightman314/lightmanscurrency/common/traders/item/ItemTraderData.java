@@ -261,23 +261,31 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(trade.isValid())
 			{
 				JsonObject tradeData = new JsonObject();
+				JsonArray ignoreNBTData = new JsonArray();
 				tradeData.addProperty("TradeType", trade.getTradeType().name());
 				if(trade.getSellItem(0).isEmpty())
 				{
 					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(1)));
 					if(trade.hasCustomName(1))
 						tradeData.addProperty("DisplayName", trade.getCustomName(1));
+					//Manually assign to the 0th index, as this is what the loaded trade will acknowledge
+					if(!trade.getEnforceNBT(1))
+						ignoreNBTData.add(0);
 				}
 				else
 				{
 					tradeData.add("SellItem", FileUtil.convertItemStack(trade.getSellItem(0)));
 					if(trade.hasCustomName(0))
 						tradeData.addProperty("DisplayName", trade.getCustomName(0));
+					if(!trade.getEnforceNBT(0))
+						ignoreNBTData.add(0);
 					if(!trade.getSellItem(1).isEmpty())
 					{
 						tradeData.add("SellItem2", FileUtil.convertItemStack(trade.getSellItem(1)));
 						if(trade.hasCustomName(1))
 							tradeData.addProperty("DisplayName2", trade.getCustomName(1));
+						if(!trade.getEnforceNBT(1))
+							ignoreNBTData.add(1);
 					}
 				}
 
@@ -289,14 +297,25 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					if(trade.getBarterItem(0).isEmpty())
 					{
 						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(1)));
+						//Manually assign to the 2nd index, as this is what the loaded trade will acknowledge
+						if(!trade.getEnforceNBT(3))
+							ignoreNBTData.add(2);
 					}
 					else
 					{
 						tradeData.add("BarterItem", FileUtil.convertItemStack(trade.getBarterItem(0)));
 						if(!trade.getBarterItem(1).isEmpty())
+						{
 							tradeData.add("BarterItem2", FileUtil.convertItemStack(trade.getBarterItem(1)));
+							if(!trade.getEnforceNBT(3))
+								ignoreNBTData.add(3);
+						}
 					}
 				}
+
+				//Save ignored NBT slots (if relevant)
+				if(ignoreNBTData.size() > 0)
+					tradeData.add("IgnoreNBT", ignoreNBTData);
 
 				JsonArray ruleData = TradeRule.saveRulesToJson(trade.getRules());
 				if(ruleData.size() > 0)
@@ -305,6 +324,23 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				trades.add(tradeData);
 			}
 		}
+
+		//Save relevant storage (for sales that have randomized items to output)
+		JsonArray storageData = new JsonArray();
+		for(ItemStack item : this.storage.getContents())
+		{
+			boolean shouldWrite = false;
+			for(int i = 0; i < this.trades.size() && !shouldWrite; ++i)
+			{
+				ItemTradeData trade = this.trades.get(i);
+				if(trade.isValid() && trade.shouldStorageItemBeSaved(item))
+					shouldWrite = true;
+			}
+			if(shouldWrite)
+				storageData.add(FileUtil.convertItemStack(item));
+		}
+		if(storageData.size() > 0)
+			json.add("RelevantStorage", storageData);
 
 		json.add("Trades", trades);
 
@@ -363,6 +399,15 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					newTrade.setCustomName(1, tradeData.get("DisplayName2").getAsString());
 				if(tradeData.has("Rules"))
 					newTrade.setRules(TradeRule.Parse(tradeData.get("Rules").getAsJsonArray()));
+				if(tradeData.has("IgnoreNBT"))
+				{
+					JsonArray ignoreNBTData = tradeData.getAsJsonArray("IgnoreNBT");
+					for(int j = 0; j < ignoreNBTData.size(); ++j)
+					{
+						int slot = ignoreNBTData.get(j).getAsInt();
+						newTrade.setEnforceNBT(slot, false);
+					}
+				}
 
 				this.trades.add(newTrade);
 
@@ -372,7 +417,20 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		if(this.trades.size() == 0)
 			throw new Exception("Trader has no valid trades!");
 
-		this.storage = new TraderItemStorage.LockedTraderStorage(this);
+		List<ItemStack> storage = new ArrayList<>();
+		if(json.has("RelevantStorage"))
+		{
+			JsonArray storageData = json.getAsJsonArray("RelevantStorage");
+			for(int i = 0; i < storageData.size(); ++i)
+			{
+				try{
+					ItemStack item = FileUtil.parseItemStack(storageData.get(i).getAsJsonObject());
+					storage.add(item);
+				} catch(Exception e) { LightmansCurrency.LogError("Error parsing storage item at index " + i, e); }
+			}
+		}
+
+		this.storage = new TraderItemStorage.LockedTraderStorage(this, storage);
 
 	}
 
@@ -442,15 +500,15 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a sale
 		if(trade.isSale())
 		{
+
+			//Randomize the items to be sold
+			List<ItemStack> soldItems = trade.getRandomSellItems(this);
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(context) && !this.isCreative())
+			if(soldItems == null)
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
-
-			//Randomize the items to be sold
-			List<ItemStack> soldItems = InventoryUtil.combineQueryItems(trade.getRandomSellItems(this.storage));
 
 			//Abort if not enough room to put the sold item
 			if(!context.canFitItems(soldItems))
@@ -578,9 +636,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				return TradeResult.FAIL_NO_INPUT_SPACE;
 			}
 
-			List<ItemStack> soldItems = trade.getRandomSellItems(this.storage);
+			List<ItemStack> soldItems = trade.getRandomSellItems(this);
 			//Abort if not enough items in inventory
-			if(!trade.hasStock(context) && !this.isCreative())
+			if(soldItems == null)
 			{
 				LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_OUT_OF_STOCK;

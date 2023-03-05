@@ -28,7 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class InputTraderData extends TraderData {
 
-	public static final MutableComponent getFacingName(Direction side) { return new TranslatableComponent("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
+	public static MutableComponent getFacingName(Direction side) { return new TranslatableComponent("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final Map<Direction,Boolean> inputSides = new HashMap<>();

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,6 +176,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public boolean hasPermission(PlayerReference player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
 	
 	public int getPermissionLevel(Player player, String permission) {
+		if(this.isPersistent() && player != null && this.persistentTraderBlockedPermissions().contains(permission))
+			return 0;
+
 		if(this.isAdmin(player))
 			return Integer.MAX_VALUE;
 		
@@ -184,7 +188,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return 0;
 	}
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		
+		if(this.isPersistent() && player != null && this.persistentTraderBlockedPermissions().contains(permission))
+			return 0;
+
 		if(this.isAdmin(player))
 			return Integer.MAX_VALUE;
 		
@@ -193,6 +199,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return 0;
 		
 	}
+
+	private ImmutableList<String> persistentTraderBlockedPermissions() {
+		List<String> blockedPermissions = Lists.newArrayList(Permissions.EDIT_TRADES, Permissions.EDIT_SETTINGS, Permissions.INTERACTION_LINK, Permissions.TRANSFER_OWNERSHIP, Permissions.COLLECT_COINS, Permissions.STORE_COINS);
+		this.blockPermissionsForPersistentTrader(blockedPermissions);
+		return ImmutableList.copyOf(blockedPermissions);
+	}
+
+	protected void blockPermissionsForPersistentTrader(List<String> list) {}
 	
 	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.getOrDefault(permission, 0); }
 	public void setAllyPermissionLevel(Player player, String permission, int level) {

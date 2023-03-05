@@ -69,7 +69,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return ItemStack.EMPTY;
 	}
 
-	public List<ItemStack> getRandomSellItems(TraderItemStorage storage) { return this.restriction.getRandomSellItems(storage, this); }
+	public List<ItemStack> getRandomSellItems(ItemTraderData storage) { return this.restriction.getRandomSellItems(storage, this); }
 
 	public ItemStack getBarterItem(int index)
 	{
@@ -134,6 +134,19 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				return true;
 		}
 		return this.restriction.allowExtraItemInStorage(item);
+	}
+
+	public boolean shouldStorageItemBeSaved(ItemStack item) {
+		if((this.isSale() || this.isBarter()) && this.isValid())
+		{
+			//Only loop through sale items, as purchase items don't matter as far as storage is concerned.
+			for(int i = 0; i < 2; ++i)
+			{
+				if(!this.getEnforceNBT(i) && this.getItemRequirement(i).test(item))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean hasCustomName(int index) { return !this.getCustomName(index).isEmpty(); }

@@ -69,7 +69,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	@Override
 	public void onOpen() {
-		
+
 		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -43,6 +44,7 @@ public class ClientModEvents {
 			event.addSprite(EasySlot.EMPTY_SLOT_BG);
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 			event.addSprite(TicketModifierSlot.EMPTY_DYE_SLOT);
+			event.addSprite(ItemTradeButtonRenderer.NBT_SLOT);
 		}
 	}
 

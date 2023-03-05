@@ -40,9 +40,8 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof ItemTraderData)
+		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
 		{
-			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -62,8 +61,9 @@ public class ItemStorageTab extends TraderStorageTab{
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
-		if(this.menu.getTrader() instanceof ItemTraderData) {
-			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+		if(this.menu.getTrader() instanceof ItemTraderData trader) {
+			if(trader.isPersistent())
+				return false;
 			TraderItemStorage storage = trader.getStorage();
 			if(storage.getFittableAmount(stack) > 0)
 			{
@@ -76,9 +76,10 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getTrader() instanceof ItemTraderData)
+		if(this.menu.getTrader() instanceof ItemTraderData trader)
 		{
-			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+			if(trader.isPersistent())
+				return;
 			TraderItemStorage storage = trader.getStorage();
 			ItemStack heldItem = this.menu.getCarried();
 			if(heldItem.isEmpty())
@@ -93,7 +94,7 @@ public class ItemStorageTab extends TraderStorageTab{
 					//Assume we're moving a whole stack for now
 					int tempAmount = Math.min(stackToRemove.getMaxStackSize(), stackToRemove.getCount());
 					stackToRemove.setCount(tempAmount);
-					int removedAmount = 0;
+					int removedAmount;
 					
 					//Right-click, attempt to cut the stack in half
 					if(!leftClick)
@@ -164,8 +165,9 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getTrader() instanceof ItemTraderData) {
-			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+		if(this.menu.getTrader() instanceof ItemTraderData trader) {
+			if(trader.isPersistent())
+				return;
 			TraderItemStorage storage = trader.getStorage();
 			Inventory inv = this.menu.player.getInventory();
 			boolean changed = false;

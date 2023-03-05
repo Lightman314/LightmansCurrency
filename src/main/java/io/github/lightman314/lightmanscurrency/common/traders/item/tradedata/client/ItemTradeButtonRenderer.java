@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
@@ -13,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,6 +27,9 @@ import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
+
+    public static final ResourceLocation NBT_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_nbt_highlight");
+    public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,NBT_SLOT);
 
     public ItemTradeButtonRenderer(ItemTradeData trade) { super(trade); }
 
@@ -67,7 +74,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getSellItem(i);
             if(!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context)));
+                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
                 entries.add(TradeButton.DisplayEntry.of(this.trade.getRestriction().getEmptySlotBG(), Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
         }
@@ -119,17 +126,21 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getBarterItem(i);
             if(!item.isEmpty())
-                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getTooltipFromItem(item, true, this.trade.getEnforceNBT(i + 2))));
+                entries.add(TradeButton.DisplayEntry.of(item, item.getCount(), this.getTooltipFromItem(item, true, this.trade.getEnforceNBT(i + 2)), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
                 entries.add(TradeButton.DisplayEntry.of(EasySlot.BACKGROUND, Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.item_edit"))));
         }
         return entries;
     }
 
+    private Pair<ResourceLocation,ResourceLocation> getNBTHightlight(boolean enforceNBT) {
+        return enforceNBT ? null : NBT_BACKGROUND;
+    }
+
     private List<Component> getTooltipFromItem(ItemStack item, boolean purchase, boolean enforceNBT) {
         List<Component> tooltip = new ArrayList<>();
         if(!enforceNBT)
-            tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
         tooltip.addAll(ItemRenderUtil.getTooltipFromItem(item));
         return tooltip;
     }
@@ -160,6 +171,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             //Check whether they can afford the cost
             if(!this.trade.canAfford(context))
                 alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.cannotafford")));
+
         }
     }
 
