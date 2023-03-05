@@ -25,3 +25,7 @@ run
 forge*changelog.txt
 /.apt_generated/
 /.apt_generated_tests/
+
+#custom
+secrets
+Build Backups
