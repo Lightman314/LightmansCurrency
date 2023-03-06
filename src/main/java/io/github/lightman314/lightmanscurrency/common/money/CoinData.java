@@ -7,13 +7,12 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class CoinData
@@ -91,18 +90,18 @@ public class CoinData
 		return new Pair<>(this.worthOtherCoin, this.worthOtherCoinCount);
 	}
 	
-	public Component getInitial()
+	public ITextComponent getInitial()
 	{
-		if(this.initialTranslation != null && !this.initialTranslation.isBlank())
-			return new TranslatableComponent(this.initialTranslation);
+		if(this.initialTranslation != null && !this.initialTranslation.isEmpty())
+			return EasyText.translatable(this.initialTranslation);
 		//LightmansCurrency.LogWarning("No initial found for the coin '" + this.coinItem.getRegistryName().toString() + "'.");
-		return new TextComponent(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
+		return EasyText.literal(this.coinItem.getName(new ItemStack(this.coinItem)).getString().substring(0,1).toLowerCase());
 	}
 	
-	public Component getPlural() {
+	public ITextComponent getPlural() {
 		//Get plural form
-		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
-			return new TranslatableComponent(this.pluralTranslation);
+		if(this.pluralTranslation != null && !this.pluralTranslation.isEmpty())
+			return EasyText.translatable(this.pluralTranslation);
 		return MoneyUtil.getDefaultPlural(this.coinItem);
 	}
 	
@@ -117,9 +116,9 @@ public class CoinData
 			worth.addProperty("count", this.worthOtherCoinCount);
 			json.add("worth", worth);
 		}
-		if(this.initialTranslation != null && !this.initialTranslation.isBlank())
+		if(this.initialTranslation != null && !this.initialTranslation.isEmpty())
 			json.addProperty("initial", this.initialTranslation);
-		if(this.pluralTranslation != null && !this.pluralTranslation.isBlank())
+		if(this.pluralTranslation != null && !this.pluralTranslation.isEmpty())
 			json.addProperty("plural", this.pluralTranslation);
 		if(this.isHidden)
 			json.addProperty("hidden", true);
@@ -127,10 +126,7 @@ public class CoinData
 		return json;
 	}
 	
-	public static Builder getBuilder(ItemLike coinItem, String chain)
-	{
-		return new Builder(coinItem.asItem(), chain);
-	}
+	public static Builder getBuilder(IItemProvider coinItem, String chain) { return new Builder(coinItem.asItem(), chain); }
 	
 	public static Builder getBuilder(JsonObject json)
 	{
@@ -186,7 +182,7 @@ public class CoinData
 		/**
 		 * Defines what lesser coin can be converted into this one, and how many of those coins are worth 1 of this coin.
 		 */
-		public Builder defineConversion(ItemLike otherCoin, int coinAmount)
+		public Builder defineConversion(IItemProvider otherCoin, int coinAmount)
 		{
 			this.worthOtherCoin = otherCoin.asItem();
 			this.worthOtherCoinCount = coinAmount;

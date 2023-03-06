@@ -18,14 +18,11 @@ import io.github.lightman314.lightmanscurrency.common.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.registries.RegistryObject;
 
 public class ModBlocks {
 
@@ -34,7 +31,7 @@ public class ModBlocks {
 	 */
 	public static void init() { }
 
-	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() {
+	private static BiFunction<Block,ItemGroup, Item> getDefaultGenerator() {
 		return (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
@@ -44,7 +41,7 @@ public class ModBlocks {
 			return new BlockItem(block, properties);
 		};
 	}
-	private static BiFunction<Block,CreativeModeTab,Item> getCoinGenerator(boolean fireResistant) {
+	private static BiFunction<Block,ItemGroup,Item> getCoinGenerator(boolean fireResistant) {
 		return (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)

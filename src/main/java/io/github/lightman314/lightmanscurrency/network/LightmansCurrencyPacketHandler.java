@@ -17,16 +17,16 @@ import io.github.lightman314.lightmanscurrency.network.message.teams.*;
 import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.network.NetworkEvent.Context;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -169,19 +169,19 @@ public class LightmansCurrencyPacketHandler {
 
 	}
 	
-	private static <T> void register(Class<T> clazz, BiConsumer<T,FriendlyByteBuf> encoder, Function<FriendlyByteBuf,T> decoder, BiConsumer<T,Supplier<Context>> handler)
+	private static <T> void register(Class<T> clazz, BiConsumer<T, PacketBuffer> encoder, Function<PacketBuffer,T> decoder, BiConsumer<T,Supplier<Context>> handler)
 	{
 		instance.registerMessage(nextId++, clazz, encoder, decoder, handler);
 	}
 	
-	public static PacketTarget getTarget(Player player)
+	public static PacketTarget getTarget(PlayerEntity player)
 	{
-		if(player instanceof ServerPlayer)
-			return getTarget((ServerPlayer)player);
+		if(player instanceof ServerPlayerEntity)
+			return getTarget((ServerPlayerEntity) player);
 		return null;
 	}
 	
-	public static PacketTarget getTarget(ServerPlayer player)
+	public static PacketTarget getTarget(ServerPlayerEntity player)
 	{
 		return PacketDistributor.PLAYER.with(() -> player);
 	}
@@ -189,8 +189,8 @@ public class LightmansCurrencyPacketHandler {
 	private static class LazyEncoders
 	{
 
-		public static <T> void emptyEncode(T message, FriendlyByteBuf buffer) {}
-		public static <T> Function<FriendlyByteBuf,T> emptyDecode(NonNullSupplier<T> get) { return (buffer) -> get.get(); }
+		public static <T> void emptyEncode(T ignored1, PacketBuffer ignored2) {}
+		public static <T> Function<PacketBuffer,T> emptyDecode(NonNullSupplier<T> get) { return (buffer) -> get.get(); }
 
 	}
 	

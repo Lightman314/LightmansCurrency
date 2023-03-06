@@ -7,31 +7,24 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.item.ItemStack;
 
-public abstract class WalletMenuBase extends AbstractContainerMenu {
+public abstract class WalletMenuBase extends Container {
 
 	private static int maxWalletSlots = 0;
 	public static int getMaxWalletSlots() { return maxWalletSlots; }
 	public static void updateMaxWalletSlots(int slotCount) { maxWalletSlots = Math.max(maxWalletSlots, slotCount); }
 	
-	protected final Container dummyInventory = new SimpleContainer(1);
+	protected final Inventory dummyInventory = new Inventory(1);
 	
 	protected final int walletStackIndex;
 	public final boolean isEquippedWallet() { return this.walletStackIndex < 0; }
 	public final int getWalletStackIndex() { return this.walletStackIndex; }
 	
-	protected final Inventory inventory;
+	protected final PlayerInventory inventory;
 	public final boolean hasWallet() { ItemStack wallet = this.getWallet(); return !wallet.isEmpty() && wallet.getItem() instanceof WalletItem; }
 	public final ItemStack getWallet()
 	{

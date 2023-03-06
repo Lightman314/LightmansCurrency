@@ -8,22 +8,17 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketMachineBlockEntity;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class TicketMachineMenu extends AbstractContainerMenu{
+public class TicketMachineMenu extends Container {
 	
-	private final Container output = new SimpleContainer(1);
+	private final IInventory output = new Inventory(1);
 	
 	private final TicketMachineBlockEntity blockEntity;
 	

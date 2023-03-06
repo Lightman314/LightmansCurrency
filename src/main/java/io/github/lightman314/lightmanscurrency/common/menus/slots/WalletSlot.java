@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slots;
 
+import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
 import java.util.List;
 
@@ -13,18 +12,21 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.util.ResourceLocation;
 
-public class WalletSlot extends Slot{
+import javax.annotation.Nonnull;
+
+public class WalletSlot extends Slot {
 	
 	public static final ResourceLocation EMPTY_WALLET_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_wallet_slot");
-	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_WALLET_SLOT);
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(ModMenus.BLOCK_ATLAS, EMPTY_WALLET_SLOT);
 	
 	private final List<IWalletSlotListener> listeners = Lists.newArrayList();
 	
-	Container blacklistInventory;
+	IInventory blacklistInventory;
 	int blacklistIndex;
 	
-	public WalletSlot(Container inventory, int index, int x, int y)
+	public WalletSlot(IInventory inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
@@ -37,7 +39,7 @@ public class WalletSlot extends Slot{
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
+	public boolean mayPlace(@Nonnull ItemStack stack) {
 		if(this.blacklistIndex >= 0 && this.blacklistInventory != null)
 		{
 			if(stack == this.getBlacklistedItem())
@@ -55,10 +57,10 @@ public class WalletSlot extends Slot{
 	
 	public void setChanged() {
 		super.setChanged();
-		this.listeners.forEach(listener -> listener.onWalletSlotChanged());
+		this.listeners.forEach(IWalletSlotListener::onWalletSlotChanged);
 	}
 	
-	public void setBlacklist(Container blacklistInventory, int blacklistIndex)
+	public void setBlacklist(IInventory blacklistInventory, int blacklistIndex)
 	{
 		this.blacklistInventory = blacklistInventory;
 		this.blacklistIndex = blacklistIndex;

@@ -6,12 +6,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -128,16 +126,19 @@ public class LCCurios {
 			public boolean canSync(SlotContext context) { return true; }
 			
 			@Override
-			public boolean canEquip(SlotContext context) {
-				return context.entity() instanceof Player;
-			}
+			public boolean canEquip(String identifier, LivingEntity livingEntity) { return livingEntity instanceof PlayerEntity; }
 			
 			@Override
-			public boolean canUnequip(SlotContext context) {
-				if(context.entity() instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
+			public boolean canUnequip(String identifier, LivingEntity entity) {
+				if(entity instanceof PlayerEntity)
 				{
-					//Prevent unequipping if the wallet is open in the menu.
-					return !menu.isEquippedWallet();
+					PlayerEntity player = (PlayerEntity) entity;
+					if(player.containerMenu instanceof WalletMenuBase)
+					{
+						WalletMenuBase menu = (WalletMenuBase)player.containerMenu;
+						//Prevent unequipping if the wallet is open in the menu.
+						return !menu.isEquippedWallet();
+					}
 				}
 				return true;
 			}

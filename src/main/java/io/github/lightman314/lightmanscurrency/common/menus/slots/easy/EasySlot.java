@@ -5,14 +5,14 @@ import java.util.function.Function;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 public class EasySlot extends Slot {
 
@@ -23,52 +23,54 @@ public class EasySlot extends Slot {
     public boolean active = true;
     public boolean locked = false;
 
-    public EasySlot(Container container, int index, int x, int y) { super(container, index, x, y); }
+    public EasySlot(IInventory container, int index, int x, int y) { super(container, index, x, y); }
 
     @Override
     public boolean isActive() { return this.active; }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
+    public boolean mayPlace(@Nonnull ItemStack stack) {
         if(this.locked)
             return false;
         return super.mayPlace(stack);
     }
 
     @Override
-    public @NotNull ItemStack remove(int amount) {
+    public @Nonnull ItemStack remove(int amount) {
         if(this.locked)
             return ItemStack.EMPTY;
         return super.remove(amount);
     }
 
     @Override
-    public boolean mayPickup(@NotNull Player player) {
+    public boolean mayPickup(@Nonnull PlayerEntity player) {
         if(this.locked)
             return false;
         return super.mayPickup(player);
     }
 
-    public static void SetActive(AbstractContainerMenu menu) {
+    public static void SetActive(Container menu) {
         SetActive(menu, (slot) -> true);
     }
 
-    public static void SetActive(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) {
+    public static void SetActive(Container menu, Function<EasySlot,Boolean> filter) {
         menu.slots.forEach(slot -> {
-            if(slot instanceof EasySlot simpleSlot) {
+            if(slot instanceof EasySlot) {
+                EasySlot simpleSlot = (EasySlot)slot;
                 if(filter.apply(simpleSlot))
                     simpleSlot.active = true;
             }
         });
     }
 
-    public static void SetInactive(AbstractContainerMenu menu) {
+    public static void SetInactive(Container menu) {
         SetInactive(menu, (slot) -> true);
     }
 
-    public static void SetInactive(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) {
+    public static void SetInactive(Container menu, Function<EasySlot,Boolean> filter) {
         menu.slots.forEach(slot -> {
-            if(slot instanceof EasySlot simpleSlot) {
+            if(slot instanceof EasySlot) {
+                EasySlot simpleSlot = (EasySlot)slot;
                 if(filter.apply(simpleSlot))
                     simpleSlot.active = false;
             }
@@ -84,24 +86,25 @@ public class EasySlot extends Slot {
         }
     }
 
-    public static void SetLocked(AbstractContainerMenu menu, boolean locked) { SetLocked(menu, locked, (slot) -> true); }
+    public static void SetLocked(Container menu, boolean locked) { SetLocked(menu, locked, (slot) -> true); }
 
-    public static void SetLocked(AbstractContainerMenu menu, boolean locked, Function<EasySlot,Boolean> filter) {
+    public static void SetLocked(Container menu, boolean locked, Function<EasySlot,Boolean> filter) {
         menu.slots.forEach(slot -> {
-            if(slot instanceof  EasySlot simpleSlot)
+            if(slot instanceof EasySlot)
             {
+                EasySlot simpleSlot = (EasySlot)slot;
                 if(filter.apply(simpleSlot))
                     simpleSlot.locked = locked;
             }
         });
     }
 
-    public static void Lock(AbstractContainerMenu menu) { SetLocked(menu, true); }
+    public static void Lock(Container menu) { SetLocked(menu, true); }
 
-    public static void Lock(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, true, filter); }
+    public static void Lock(Container menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, true, filter); }
 
-    public static void Unlock(AbstractContainerMenu menu) { SetLocked(menu, false); }
+    public static void Unlock(Container menu) { SetLocked(menu, false); }
 
-    public static void Unlock(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, false, filter); }
+    public static void Unlock(Container menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, false, filter); }
 
 }

@@ -7,12 +7,11 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -20,10 +19,10 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
 
     public static final ResourceLocation EMPTY_DYE_SLOT =  new ResourceLocation(LightmansCurrency.MODID, "item/empty_dye_slot");
 
-    public TicketModifierSlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
+    public TicketModifierSlot(IInventory inventory, int index, int x, int y) { super(inventory, index, x, y); }
 
     @Override
-    public boolean mayPlace(@NotNull ItemStack stack) {
+    public boolean mayPlace(@Nonnull ItemStack stack) {
         return stack.getItem() == ModItems.TICKET_MASTER.get() || InventoryUtil.ItemHasTag(stack, new ResourceLocation("forge","dyes"));
     }
 

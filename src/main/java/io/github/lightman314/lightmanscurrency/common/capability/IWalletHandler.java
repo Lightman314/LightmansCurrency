@@ -1,5 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.capability;
 
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -13,7 +18,7 @@ public interface IWalletHandler{
 	 * @deprecated No longer in use as the wallet is not longer displayed in the wallet menu.
 	 */
 	@Deprecated
-	default Container getInventory() { return new SimpleContainer(1); }
+	default IInventory getInventory() { return new Inventory(1); }
 	
 	/**
 	 * The currently equipped wallet on the player.
@@ -64,11 +69,11 @@ public interface IWalletHandler{
 	/**
 	 * Save the nbt data to file
 	 */
-	CompoundTag save();
+	CompoundNBT save();
 	
 	/**
 	 * Load the nbt data from file
 	 */
-	void load(CompoundTag tag);
+	void load(CompoundNBT tag);
 	
 }

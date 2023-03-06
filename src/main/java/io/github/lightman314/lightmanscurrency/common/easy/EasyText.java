@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.easy;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.UUID;
 
 public class EasyText {
 
-    public static MutableComponent empty() { return literal(""); }
-    public static MutableComponent literal(String text) { return new TextComponent(text); }
-    public static MutableComponent translatable(String translation, Object... children) { return new TranslatableComponent(translation, children); }
+    public static IFormattableTextComponent empty() { return literal(""); }
+    public static IFormattableTextComponent literal(String text) { return new StringTextComponent(text); }
+    public static IFormattableTextComponent translatable(String translation, Object... children) { return new TranslationTextComponent(translation, children); }
 
-    public static void sendMessage(ServerPlayer player, Component message) { player.sendMessage(message, new UUID(0,0)); }
+    public static void sendMessage(ServerPlayerEntity player, ITextComponent message) { player.sendMessage(message, new UUID(0,0)); }
 
 }

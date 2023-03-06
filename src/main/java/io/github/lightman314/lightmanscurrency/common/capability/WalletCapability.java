@@ -12,8 +12,16 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -51,7 +59,7 @@ public class WalletCapability {
 		return CoinValue.EMPTY;
 	}
 	
-	public static ICapabilityProvider createProvider(final Player playerEntity)
+	public static ICapabilityProvider createProvider(final PlayerEntity playerEntity)
 	{
 		return new Provider(playerEntity);
 	}
@@ -130,16 +138,16 @@ public class WalletCapability {
 		}
 		
 		@Override
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			CompoundTag walletItem = this.walletItem.save(new CompoundTag());
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
+			CompoundNBT walletItem = this.walletItem.save(new CompoundNBT());
 			compound.put("Wallet", walletItem);
 			compound.putBoolean("Visible", this.visible);
 			return compound;
 		}
 		
 		@Override
-		public void load(CompoundTag compound)
+		public void load(CompoundNBT compound)
 		{
 			this.walletItem = ItemStack.of(compound.getCompound("Wallet"));
 			if(compound.contains("Visible"))
@@ -160,10 +168,10 @@ public class WalletCapability {
 		
 	}
 	
-	private static class Provider implements ICapabilitySerializable<Tag>{
+	private static class Provider implements ICapabilitySerializable<INBT>{
 		final LazyOptional<IWalletHandler> optional;
 		final IWalletHandler handler;
-		Provider(final Player playerEntity)
+		Provider(final PlayerEntity playerEntity)
 		{
 			this.handler = new WalletHandler(playerEntity);
 			this.optional = LazyOptional.of(() -> this.handler);
@@ -174,25 +182,25 @@ public class WalletCapability {
 			return CurrencyCapabilities.WALLET.orEmpty(capability, this.optional);
 		}
 		@Override
-		public Tag serializeNBT() { return handler.save(); }
+		public INBT serializeNBT() { return handler.save(); }
 		@Override
-		public void deserializeNBT(Tag tag) {
-			if(tag instanceof CompoundTag compound)
-				handler.load(compound);
+		public void deserializeNBT(INBT tag) {
+			if(tag instanceof CompoundNBT)
+				handler.load((CompoundNBT)tag);
 		}
 	}
 	
-	public static void WalletSlotInteraction(Player player, int clickedSlot, boolean heldShift, ItemStack heldItem)
+	public static void WalletSlotInteraction(PlayerEntity player, int clickedSlot, boolean heldShift, ItemStack heldItem)
 	{
 		
 		if(LightmansCurrency.isCuriosValid(player))
 			return;
 		
 		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
-		AbstractContainerMenu menu = player.containerMenu;
+		Container menu = player.containerMenu;
 		boolean creative = player.isCreative() && !player.level.isClientSide;
 		if(!creative)
-			heldItem = menu.getCarried();
+			heldItem = player.inventory.getCarried();
 		IWalletHandler walletHandler = lazyGetWalletHandler(player);
 		if(walletHandler == null)
 		{
@@ -209,10 +217,10 @@ public class WalletCapability {
 				if(wallet.isEmpty())
 					return;
 				//If we were able to move the wallet into the players inventory, empty the wallet slot
-				if(player.getInventory().getFreeSlot() >= 0)
+				if(player.inventory.getFreeSlot() >= 0)
 				{
 					if(!creative)
-						player.getInventory().add(wallet);
+						player.inventory.add(wallet);
 					walletHandler.setWallet(ItemStack.EMPTY);
 					//LightmansCurrency.LogInfo("Successfully moved the wallet into the players inventory on the " + DebugUtil.getSideText(player));
 				}

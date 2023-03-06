@@ -2,16 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots.easy;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class EasyMultiBGSlot extends EasySlot {
 
 
-    public EasyMultiBGSlot(Container container, int slot, int x, int y) { super(container, slot, x, y); }
+    public EasyMultiBGSlot(IInventory container, int slot, int x, int y) { super(container, slot, x, y); }
 
 
     protected abstract List<Pair<ResourceLocation,ResourceLocation>> getPossibleNoItemIcons();

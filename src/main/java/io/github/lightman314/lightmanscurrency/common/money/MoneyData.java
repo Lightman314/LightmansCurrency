@@ -8,16 +8,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MoneyData {
 
@@ -58,7 +57,7 @@ public class MoneyData {
 		return json;
 	}
 	
-	public static void encode(MoneyData data, FriendlyByteBuf buffer) {
+	public static void encode(MoneyData data, PacketBuffer buffer) {
 		JsonObject json = data.toJson();
 		String jsonString = FileUtil.GSON.toJson(json);
 		int stringSize = jsonString.length();
@@ -66,17 +65,17 @@ public class MoneyData {
 		buffer.writeUtf(jsonString, stringSize);
 	}
 	
-	public static MoneyData decode(FriendlyByteBuf buffer) {
+	public static MoneyData decode(PacketBuffer buffer) {
 		try {
 			LightmansCurrency.LogInfo("Decoding money data packet:");
 			int stringSize = buffer.readInt();
 			String jsonString = buffer.readUtf(stringSize);
-			JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+			JsonObject json = FileUtil.JSON_PARSER.parse(jsonString).getAsJsonObject();
 			return fromJson(json);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error decoding MoneyData.", t); return generateDefault(); }
 	}
 	
-	public static void handle(MoneyData data, Supplier<Context> source) {
+	public static void handle(MoneyData data, Supplier<NetworkEvent.Context> source) {
 		source.get().enqueueWork(() ->{
 			LightmansCurrency.LogInfo("Received money data packet from server. Synchronizing coin list.");
 			MoneyUtil.receiveMoneyData(data);
@@ -138,7 +137,7 @@ public class MoneyData {
     	}
     }
 	
-	public Component getPluralName(Item coinItem) {
+	public ITextComponent getPluralName(Item coinItem) {
 		CoinData data = this.getData(coinItem);
 		if(data != null)
 			return data.getPlural();

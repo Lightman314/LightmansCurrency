@@ -4,9 +4,8 @@ import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.item.Item;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModItems {
 	

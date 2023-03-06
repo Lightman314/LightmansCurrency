@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.events.GetDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
@@ -23,21 +24,15 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class MoneyUtil {
@@ -50,18 +45,18 @@ public class MoneyUtil {
 	public static MoneyData getMoneyData() { return moneyData; }
 	public static void receiveMoneyData(MoneyData data) { moneyData = data; }
 	
-	public static Component getPluralName(Item coin) {
+	public static ITextComponent getPluralName(Item coin) {
 		if(moneyData != null)
 			return moneyData.getPluralName(coin);
 		return getDefaultPlural(coin);
 	}
 	
-	public static Component getDefaultPlural(Item coin) {
+	public static ITextComponent getDefaultPlural(Item coin) {
 		//If no plural form defined, attempt to find one.
 		String defaultPlural = coin.getDescriptionId() + ".plural";
-		if(new TranslatableComponent(defaultPlural).getString().equals(defaultPlural))
-			return new TranslatableComponent("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
-		return new TranslatableComponent(defaultPlural);
+		if(EasyText.translatable(defaultPlural).getString().equals(defaultPlural))
+			return EasyText.translatable("item.lightmanscurrency.generic.plural", coin.getName(new ItemStack(coin)));
+		return EasyText.translatable(defaultPlural);
 	}
 
 	//Make high priority so that it runs before other "server start" events that may end up loading traders
@@ -79,7 +74,7 @@ public class MoneyUtil {
 			createMoneyDataFile(mcl);
 		}
 		try { 
-			JsonObject fileData = GsonHelper.parse(Files.readString(mcl.toPath()));
+			JsonObject fileData = FileUtil.JSON_PARSER.parse(Files.readString(mcl.toPath())).getAsJsonObject();
 			moneyData = MoneyData.fromJson(fileData);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Master Coin List. Using default values for now.", e);

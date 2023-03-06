@@ -5,20 +5,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.anti_ad.mc.ipnext.item.NbtUtils;
 
 public class FileUtil {
-	
+
+	public static final JsonParser JSON_PARSER = new JsonParser();
 	public static Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 	
 	public static JsonObject convertItemStack(ItemStack item) {
@@ -44,12 +42,12 @@ public class FileUtil {
 				if(tag.isJsonPrimitive() && tag.getAsJsonPrimitive().isString())
 				{
 					//Parse the compound tag
-					CompoundTag compound = TagParser.parseTag(tag.getAsString());
+					CompoundNBT compound = NbtUtils.INSTANCE.parseNbt(tag.getAsString());
 					result.setTag(compound);
 				}
 				else
 				{
-					CompoundTag compound = TagParser.parseTag(GSON.toJson(tag));
+					CompoundNBT compound = NbtUtils.INSTANCE.parseNbt(GSON.toJson(tag));
 					result.setTag(compound);
 				}
 			}

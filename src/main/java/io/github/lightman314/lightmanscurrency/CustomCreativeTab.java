@@ -9,23 +9,24 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.fml.RegistryObject;
 
-public class CustomCreativeTab extends CreativeModeTab {
+import javax.annotation.Nonnull;
+
+public class CustomCreativeTab extends ItemGroup {
 
 	private final ItemSorter itemSorter;
 	
-	Supplier<ItemLike> iconItem;
+	Supplier<IItemProvider> iconItem;
 	
-	public CustomCreativeTab(String label, Supplier<ItemLike> iconItem)
+	public CustomCreativeTab(String label, Supplier<IItemProvider> iconItem)
 	{
 		super(label);
 		this.iconItem = iconItem;
@@ -33,7 +34,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	}
 	
 	@Override
-	public @NotNull ItemStack makeIcon()
+	public @Nonnull ItemStack makeIcon()
 	{
 		if(this.iconItem != null)
 			return new ItemStack(this.iconItem.get());
@@ -42,7 +43,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void fillItemList(@NotNull NonNullList<ItemStack> items) {
+	public void fillItemList(@Nonnull NonNullList<ItemStack> items) {
 		
 		super.fillItemList(items);
 
@@ -54,7 +55,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	public final ItemSorterBuilder startInit() { return new ItemSorterBuilder(this.itemSorter); }
 
 
-	public void addToSortingList(List<ItemLike> extras)
+	public void addToSortingList(List<IItemProvider> extras)
 	{
 		this.itemSorter.addToSortingList(extras);
 	}
@@ -63,7 +64,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 	 * Initializes the sorting list of the item group. Should be called in the FMLCommonSetupEvent.
 	 */
 	@Deprecated
-	public void initSortingList(List<ItemLike> defaultList)
+	public void initSortingList(List<IItemProvider> defaultList)
 	{
 		this.itemSorter.initSortingList(defaultList);
 	}
@@ -73,12 +74,12 @@ public class CustomCreativeTab extends CreativeModeTab {
 	 * Initializes the sorting list of the item group. Should be called in the FMLCommonSetupEvent.
 	 */
 	@Deprecated
-	public void initSortingList2(List<RegistryObject<? extends ItemLike>> defaultList)
+	public void initSortingList2(List<RegistryObject<? extends IItemProvider>> defaultList)
 	{
-		List<ItemLike> list = new ArrayList<>();
-		for(RegistryObject<? extends ItemLike> item : defaultList)
+		List<IItemProvider> list = new ArrayList<>();
+		for(RegistryObject<? extends IItemProvider> item : defaultList)
 		{
-			ItemLike i = item.get();
+			IItemProvider i = item.get();
 			if(i != null)
 				list.add(i);
 		}
@@ -98,22 +99,32 @@ public class CustomCreativeTab extends CreativeModeTab {
 		}
 
 		private void addItem(Object object) {
-			if(object instanceof ItemLike item)
+			if(object instanceof IItemProvider)
+			{
+				IItemProvider item = (IItemProvider)object;
 				this.addItem(item.asItem());
-			else if(object instanceof RegistryObject<?> registryObject)
+			}
+			else if(object instanceof RegistryObject<?>)
+			{
+				RegistryObject<?> registryObject = (RegistryObject<?>)object;
 				this.addItem(registryObject.get());
-			else if(object instanceof RegistryObjectBundle<?,?> bundle)
+			}
+
+			else if(object instanceof RegistryObjectBundle<?,?>)
 			{
+				RegistryObjectBundle<?,?> bundle = (RegistryObjectBundle<?,?>)object;
 				for(Object obj : bundle.getAllSorted())
 					this.addItem(obj);
 			}
-			else if(object instanceof RegistryObjectBiBundle<?,?,?> bundle)
+			else if(object instanceof RegistryObjectBiBundle<?,?,?>)
 			{
+				RegistryObjectBiBundle<?,?,?> bundle = (RegistryObjectBiBundle<?,?,?>)object;
 				for(Object obj : bundle.getAllSorted())
 					this.addItem(obj);
 			}
-			else if(object instanceof List<?> list)
+			else if(object instanceof List<?>)
 			{
+				List<?> list = (List<?>)object;
 				for(Object obj : list)
 					this.addItem(obj);
 			}
@@ -139,17 +150,17 @@ public class CustomCreativeTab extends CreativeModeTab {
 		
 		private ArrayList<Item> sortList = null;
 		
-		private ArrayList<Item> convertList(List<ItemLike> sourceList)
+		private ArrayList<Item> convertList(List<IItemProvider> sourceList)
 		{
 			ArrayList<Item> list = Lists.newArrayList();
-			for (ItemLike itemLike : sourceList) {
+			for (IItemProvider itemLike : sourceList) {
 				list.add(itemLike.asItem());
 			}
 			return list;
 		}
 
 		@Deprecated
-		public void initSortingList(List<ItemLike> sortList)
+		public void initSortingList(List<IItemProvider> sortList)
 		{
 			if(this.sortList == null)
 				this.sortList = this.convertList(sortList);
@@ -172,7 +183,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 			}
 		}
 		
-		public void addToSortingList(List<ItemLike> extras)
+		public void addToSortingList(List<IItemProvider> extras)
 		{
 			if(this.sortList == null)
 			{
@@ -180,7 +191,7 @@ public class CustomCreativeTab extends CreativeModeTab {
 				this.sortList = this.convertList(extras);
 				return;
 			}
-			for (ItemLike extra : extras) {
+			for (IItemProvider extra : extras) {
 				this.sortList.add(extra.asItem());
 			}
 			LightmansCurrency.LogInfo("Added " + extras.size() + " items to the creative tab sorting list.");
