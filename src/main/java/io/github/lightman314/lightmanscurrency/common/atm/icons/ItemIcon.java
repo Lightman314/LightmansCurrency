@@ -2,16 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.atm.icons;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -45,7 +45,7 @@ public class ItemIcon extends ATMIconData {
 		}
 	}
 	
-	public ItemIcon(int xPos, int yPos, ItemLike item) {
+	public ItemIcon(int xPos, int yPos, IItemProvider item) {
 		super(xPos, yPos);
 		this.item = new ItemStack(item);
 		this.simpleItem = true;
@@ -66,7 +66,7 @@ public class ItemIcon extends ATMIconData {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
+	public void render(ATMConversionButton button, MatrixStack pose, boolean isHovered) {
 		ItemRenderUtil.drawItemStack(button, null, this.item, button.x + this.xPos, button.y + this.yPos, "");
 	}
 	

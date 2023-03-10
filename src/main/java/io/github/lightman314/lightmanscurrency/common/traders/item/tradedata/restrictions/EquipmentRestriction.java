@@ -3,27 +3,27 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.re
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EquipmentRestriction extends ItemTradeRestriction {
 
-	private final EquipmentSlot equipmentType;
+	private final EquipmentSlotType equipmentType;
 
-	public static final EquipmentRestriction HEAD = new EquipmentRestriction(EquipmentSlot.HEAD);
-	public static final EquipmentRestriction CHEST = new EquipmentRestriction(EquipmentSlot.CHEST);
-	public static final EquipmentRestriction LEGS = new EquipmentRestriction(EquipmentSlot.LEGS);
-	public static final EquipmentRestriction FEET = new EquipmentRestriction(EquipmentSlot.FEET);
+	public static final EquipmentRestriction HEAD = new EquipmentRestriction(EquipmentSlotType.HEAD);
+	public static final EquipmentRestriction CHEST = new EquipmentRestriction(EquipmentSlotType.CHEST);
+	public static final EquipmentRestriction LEGS = new EquipmentRestriction(EquipmentSlotType.LEGS);
+	public static final EquipmentRestriction FEET = new EquipmentRestriction(EquipmentSlotType.FEET);
 
-	protected EquipmentRestriction(EquipmentSlot type) { this.equipmentType = type; }
+	protected EquipmentRestriction(EquipmentSlotType type) { this.equipmentType = type; }
 	
-	public EquipmentSlot getEquipmentSlot() { return this.equipmentType; }
+	public EquipmentSlotType getEquipmentSlot() { return this.equipmentType; }
 	
 	@Override
 	public boolean allowSellItem(ItemStack itemStack)
@@ -44,7 +44,7 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 
 	private boolean vanillaEquippable(ItemStack item) {
 		try {
-			return Mob.getEquipmentSlotForItem(item) == this.equipmentType;
+			return MobEntity.getEquipmentSlotForItem(item) == this.equipmentType;
 		} catch(Throwable t) { t.printStackTrace(); return false; }
 	}
 	
@@ -52,18 +52,18 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
 	{
-		return switch (this.equipmentType) {
-			case HEAD -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET);
-			case CHEST -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE);
-			case LEGS -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS);
-			case FEET -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS);
-			case OFFHAND -> Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
-			default -> null;
-		};
+		switch (this.equipmentType) {
+			case HEAD: return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_HELMET);
+			case CHEST: return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_CHESTPLATE);
+			case LEGS: return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS);
+			case FEET: return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS);
+			case OFFHAND: return Pair.of(PlayerContainer.BLOCK_ATLAS, PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD);
+			default: return null;
+		}
 	}
 
-	private static ArmorStand safeGetDummyArmorStand() throws Exception {
-		return new ArmorStand(LightmansCurrency.PROXY.safeGetDummyLevel(), 0d, 0d, 0d);
+	private static ArmorStandEntity safeGetDummyArmorStand() throws Exception {
+		return new ArmorStandEntity(LightmansCurrency.PROXY.safeGetDummyLevel(), 0d, 0d, 0d);
 	}
 	
 }

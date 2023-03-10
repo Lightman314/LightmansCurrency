@@ -2,33 +2,33 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.notifications;
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
-public class NotificationDisplayWidget extends AbstractWidget implements IScrollable {
+import javax.annotation.Nonnull;
+
+public class NotificationDisplayWidget extends Widget implements IScrollable {
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
 	
 	public static final int HEIGHT_PER_ROW = 22;
 	
 	private final NonNullSupplier<List<Notification>> notificationSource;
-	private final Font font;
+	private final FontRenderer font;
 	private final int rowCount;
 	public boolean colorIfUnseen = false;
 	public int backgroundColor = 0xFFC6C6C6;
@@ -37,17 +37,17 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	
 	private List<Notification> getNotifications() { return this.notificationSource.get(); }
 	
-	Component tooltip = null;
+	ITextComponent tooltip = null;
 	
-	public NotificationDisplayWidget(int x, int y, int width, int rowCount, Font font, NonNullSupplier<List<Notification>> notificationSource) {
-		super(x, y, width, CalculateHeight(rowCount), new TextComponent(""));
+	public NotificationDisplayWidget(int x, int y, int width, int rowCount, FontRenderer font, NonNullSupplier<List<Notification>> notificationSource) {
+		super(x, y, width, CalculateHeight(rowCount), EasyText.empty());
 		this.notificationSource = notificationSource;
 		this.font = font;
 		this.rowCount = rowCount;
 	}
 
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.validateScroll();
 		
 		this.tooltip = null;
@@ -63,8 +63,8 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 			Notification n = notifications.get(index++);
 			
 			//Draw the background
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			int vPos = n.wasSeen() && this.colorIfUnseen ? 222 : 200;
 			this.blit(pose, this.x, yPos, 0, vPos, 2, HEIGHT_PER_ROW);
 			int xPos = this.x + 2;
@@ -93,8 +93,8 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 				textWidth -= quantityWidth + 2;
 			}
 			
-			Component message = n.getMessage();
-			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
+			ITextComponent message = n.getMessage();
+			List<IReorderingProcessor> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
 				this.font.draw(pose, lines.get(0), textXPos, yPos + (HEIGHT_PER_ROW / 2) - (this.font.lineHeight / 2), textColor);
@@ -108,7 +108,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 					if(lines.size() > 2)
 					{
 						if(n.hasTimeStamp())
-							this.tooltip = new TextComponent("").append(n.getTimeStampMessage()).append(new TextComponent("\n")).append(message);
+							this.tooltip = EasyText.empty().append(n.getTimeStampMessage()).append(EasyText.literal("\n")).append(message);
 						else
 							this.tooltip = message;
 					}
@@ -121,7 +121,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 		
 	}
 	
-	public void tryRenderTooltip(PoseStack pose, Screen screen, int mouseX, int mouseY)
+	public void tryRenderTooltip(MatrixStack pose, Screen screen, int mouseX, int mouseY)
 	{
 		if(this.tooltip != null)
 		{
@@ -145,9 +145,6 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 
 	@Override
 	public int getMaxScroll() { return Math.max(0, this.getNotifications().size() - this.rowCount); }
-	
-	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
@@ -157,7 +154,8 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 			this.setScroll(this.scroll - 1);
 		return true;
 	}
-	
-	public void playDownSound(@NotNull SoundManager manager) {}
+
+	@Override
+	public void playDownSound(@Nonnull SoundHandler manager) {}
 	
 }

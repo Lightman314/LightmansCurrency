@@ -3,18 +3,18 @@ package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.world.World;
 
 public interface IDumpable {
 
 	//Ejection stuff
-	List<ItemStack> getContents(Level level, BlockPos pos, BlockState state, boolean dropBlock);
+	List<ItemStack> getContents(World level, BlockPos pos, BlockState state, boolean dropBlock);
 	
-	MutableComponent getName();
+	IFormattableTextComponent getName();
 	
 	OwnerData getOwner();
 	

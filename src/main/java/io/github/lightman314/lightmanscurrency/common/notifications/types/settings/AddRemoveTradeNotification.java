@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class AddRemoveTradeNotification extends Notification {
 
@@ -19,7 +19,7 @@ public class AddRemoveTradeNotification extends Notification {
 	int newCount;
 	
 	public AddRemoveTradeNotification(PlayerReference player, boolean isAdd, int newCount) { this.player = player; this.isAdd = isAdd; this.newCount = newCount; }
-	public AddRemoveTradeNotification(CompoundTag compound) { this.load(compound); }
+	public AddRemoveTradeNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -28,19 +28,19 @@ public class AddRemoveTradeNotification extends Notification {
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
 	@Override
-	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.settings.addremovetrade", this.player.getName(true), new TranslatableComponent(this.isAdd ? "log.settings.add" : "log.settings.remove"), newCount);
+	public IFormattableTextComponent getMessage() {
+		return EasyText.translatable("log.settings.addremovetrade", this.player.getName(true), EasyText.translatable(this.isAdd ? "log.settings.add" : "log.settings.remove"), newCount);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("Player", this.player.save());
 		compound.putBoolean("Add", this.isAdd);
 		compound.putInt("NewCount", this.newCount);
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.isAdd = compound.getBoolean("Add");
 		this.newCount = compound.getInt("NewCount");

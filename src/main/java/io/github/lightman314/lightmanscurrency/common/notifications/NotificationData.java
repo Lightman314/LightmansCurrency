@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.Config;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraftforge.common.util.Constants;
 
 public class NotificationData {
 
@@ -67,31 +67,30 @@ public class NotificationData {
 			this.notifications.remove(this.notifications.get(this.notifications.size() - 1));
 	}
 	
-	public CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
-		ListTag notificationList = new ListTag();
-		for(int i = 0; i < notifications.size(); ++i)
-		{
-			notificationList.add(notifications.get(i).save());
+	public CompoundNBT save() {
+		CompoundNBT compound = new CompoundNBT();
+		ListNBT notificationList = new ListNBT();
+		for (Notification notification : notifications) {
+			notificationList.add(notification.save());
 		}
 		compound.put("Notifications", notificationList);
 		return compound;
 	}
 	
-	public static NotificationData loadFrom(CompoundTag compound) {
+	public static NotificationData loadFrom(CompoundNBT compound) {
 		NotificationData data = new NotificationData();
 		data.load(compound);
 		return data;
 	}
 	
-	public void load(CompoundTag compound) {
-		if(compound.contains("Notifications", Tag.TAG_LIST))
+	public void load(CompoundNBT compound) {
+		if(compound.contains("Notifications", Constants.NBT.TAG_LIST))
 		{
 			this.notifications = new ArrayList<>();
-			ListTag notificationList = compound.getList("Notifications", Tag.TAG_COMPOUND);
+			ListNBT notificationList = compound.getList("Notifications", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < notificationList.size(); ++i)
 			{
-				CompoundTag notTag = notificationList.getCompound(i);
+				CompoundNBT notTag = notificationList.getCompound(i);
 				Notification not = Notification.deserialize(notTag);
 				if(not != null)
 					this.notifications.add(not);

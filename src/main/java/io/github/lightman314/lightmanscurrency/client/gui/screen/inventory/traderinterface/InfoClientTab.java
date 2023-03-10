@@ -3,19 +3,15 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
-import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.*;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -26,12 +22,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparis
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InfoTab;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Items;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
@@ -47,11 +43,12 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	private final ScreenArea WARNING_AREA = ScreenArea.of(ScreenPosition.ZERO, 16, 16);
 	private ScreenArea currentWarningArea;
 
-	@Override
-	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
+	@Nonnull
+    @Override
+	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.info"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.info"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -76,12 +73,12 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 	}
 
-	private List<Component> getWarningMessages() {
+	private List<ITextComponent> getWarningMessages() {
 		if(this.menu.getBE() == null)
 			return new ArrayList<>();
 
 		//Get last result
-		List<Component> list = new ArrayList<>();
+		List<ITextComponent> list = new ArrayList<>();
 		TradeResult result = this.menu.getBE().mostRecentTradeResult();
 		if(result.failMessage != null)
 			list.add(result.failMessage);
@@ -94,14 +91,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 				return new ArrayList<>();
 			if(trueTrade == null)
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.missing").withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.missing").withStyle(TextFormatting.RED));
 				return list;
 			}
 			TradeComparisonResult differences = referencedTrade.compare(trueTrade);
 			//Type check
 			if(!differences.TypeMatches())
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.type").withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.type").withStyle(TextFormatting.RED));
 				return list;
 			}
 			//Trade-specific checks
@@ -113,14 +110,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			TraderData trader = this.menu.getBE().getTrader();
 			if(trader != null && !trader.hasPermission(this.menu.getBE().getReferencedPlayer(), Permissions.INTERACTION_LINK))
 			{
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.info.trader.permissions").withStyle(TextFormatting.RED));
 			}
 		}
 		return list;
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 
 		if(this.menu.getBE() == null)
 			return;
@@ -129,13 +126,13 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		this.font.draw(pose, this.menu.getBE().getBlockState().getBlock().getName(), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		//Trader name
 		TraderData trader = this.menu.getBE().getTrader();
-		Component infoText;
+		ITextComponent infoText;
 		if(trader != null)
 			infoText = trader.getTitle();
 		else
 		{
 			if(this.menu.getBE().hasTrader())
-				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.removed").withStyle(ChatFormatting.RED);
+				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.removed").withStyle(TextFormatting.RED);
 			else
 				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.null");
 		}
@@ -154,30 +151,30 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		if(this.newTradeDisplay.visible)
 		{
 			//Render the down arrow
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			this.screen.blit(pose, this.screen.getGuiLeft() - 2 + (this.tradeDisplay.getWidth() / 2), this.screen.getGuiTop() + 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
 
 			//If no found trade, give "Trade No Longer Exists" message.
 			if(this.menu.getBE().getTrueTrade() == null)
-				this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 109 - this.font.lineHeight, 0x404040);
+				this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(TextFormatting.RED), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 109 - this.font.lineHeight, 0x404040);
 
 		}
 
 		BankAccount account = this.menu.getBE().getBankAccount();
 		if(account != null && this.menu.getBE().getInteractionType().trades)
 		{
-			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
+			ITextComponent accountName = TextRenderUtil.fitString(account.getName(), 160);
 			this.font.draw(pose, accountName, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(accountName) / 2), this.screen.getGuiTop() + 120, 0x404040);
-			Component balanceText = EasyText.translatable("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
+			ITextComponent balanceText = EasyText.translatable("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
 			this.font.draw(pose, balanceText, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(balanceText) / 2), this.screen.getGuiTop() + 130, 0x404040);
 		}
 
 		if(this.getWarningMessages().size() > 0)
 		{
 			//Render warning widget
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			this.screen.blit(pose, this.currentWarningArea.x, this.currentWarningArea.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
 		}
 
@@ -194,7 +191,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 
 		if(this.menu.getBE() == null)
 			return;
@@ -205,7 +202,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 		if(this.currentWarningArea.isMouseInArea(mouseX, mouseY))
 		{
-			List<Component> warnings = this.getWarningMessages();
+			List<ITextComponent> warnings = this.getWarningMessages();
 			if(warnings.size() > 0)
 				this.screen.renderComponentTooltip(pose, warnings, mouseX, mouseY);
 		}

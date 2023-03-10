@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageCreateTeam {
 	
@@ -17,11 +17,11 @@ public class MessageCreateTeam {
 		this.teamName = teamName;
 	}
 	
-	public static void encode(MessageCreateTeam message, FriendlyByteBuf buffer) {
+	public static void encode(MessageCreateTeam message, PacketBuffer buffer) {
 		buffer.writeUtf(message.teamName, Team.MAX_NAME_LENGTH);
 	}
 
-	public static MessageCreateTeam decode(FriendlyByteBuf buffer) {
+	public static MessageCreateTeam decode(PacketBuffer buffer) {
 		return new MessageCreateTeam(buffer.readUtf(Team.MAX_NAME_LENGTH));
 	}
 

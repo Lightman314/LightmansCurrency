@@ -16,38 +16,39 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 
-public class TraderMenu extends AbstractContainerMenu {
+import javax.annotation.Nonnull;
+
+public class TraderMenu extends Container {
 
 	public final Supplier<ITraderSource> traderSource;
-	public final Player player;
+	public final PlayerEntity player;
 	
 	public static final int SLOT_OFFSET = 15;
 	
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
-	Container coins = new SimpleContainer(5);
-	public Container getCoinInventory() { return this.coins; }
+	IInventory coins = new Inventory(5);
+	public IInventory getCoinInventory() { return this.coins; }
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 	
-	public TraderMenu(int windowID, Inventory inventory, long traderID) {
+	public TraderMenu(int windowID, PlayerInventory inventory, long traderID) {
 		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
 	}
 	
-	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource) {
+	protected TraderMenu(ContainerType<?> type, int windowID, PlayerInventory inventory, Supplier<ITraderSource> traderSource) {
 		super(type, windowID);
 		this.player = inventory.player;
 		this.traderSource = traderSource;
@@ -61,7 +62,7 @@ public class TraderMenu extends AbstractContainerMenu {
 		return TradeContext.create(trader, this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).build();
 	}
 
-	protected void init(Inventory inventory) {
+	protected void init(PlayerInventory inventory) {
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -93,13 +94,13 @@ public class TraderMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
+	public boolean stillValid(@Nonnull PlayerEntity player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && this.traderSource.get().getTraders().size() > 0; }
 	
 	@Override
-	public void removed(@NotNull Player player) {
+	public void removed(@Nonnull PlayerEntity player) {
 		super.removed(player);
-		this.clearContainer(player, this.coins);
-		this.clearContainer(player, this.interactionSlot.container);
+		this.clearContainer(player, this.player.level, this.coins);
+		this.clearContainer(player, this.player.level, this.interactionSlot.container);
 		if(this.traderSource.get() != null)
 		{
 			for(TraderData trader : this.traderSource.get().getTraders()) {
@@ -151,7 +152,7 @@ public class TraderMenu extends AbstractContainerMenu {
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @Nonnull ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -211,9 +212,9 @@ public class TraderMenu extends AbstractContainerMenu {
 	
 	public static class TraderMenuBlockSource extends TraderMenu
 	{
-		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos blockPosition) {
+		public TraderMenuBlockSource(int windowID, PlayerInventory inventory, BlockPos blockPosition) {
 			super(ModMenus.TRADER_BLOCK.get(), windowID, inventory, () -> {
-				BlockEntity be = inventory.player.level.getBlockEntity(blockPosition);
+				TileEntity be = inventory.player.level.getBlockEntity(blockPosition);
 				if(be instanceof ITraderSource)
 					return (ITraderSource)be;
 				return null;
@@ -223,7 +224,7 @@ public class TraderMenu extends AbstractContainerMenu {
 
 	public static class TraderMenuAllNetwork extends TraderMenu
 	{
-		public TraderMenuAllNetwork(int windowID, Inventory inventory) {
+		public TraderMenuAllNetwork(int windowID, PlayerInventory inventory) {
 			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
 		}
 	}

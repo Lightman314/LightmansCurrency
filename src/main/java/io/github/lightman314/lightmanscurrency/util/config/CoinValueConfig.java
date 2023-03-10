@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.util.config;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.util.CoinValueParser;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.function.Supplier;
@@ -26,7 +26,7 @@ public class CoinValueConfig implements Supplier<CoinValue> {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReloaded);
     }
 
-    public void onConfigReloaded(ModConfigEvent event)
+    public void onConfigReloaded(ModConfig.ModConfigEvent event)
     {
         if(event.getConfig().getSpec() == this.specSupplier.get())
             this.cachedValue = null;

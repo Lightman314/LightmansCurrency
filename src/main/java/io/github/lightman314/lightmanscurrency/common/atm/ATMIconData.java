@@ -7,14 +7,14 @@ import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SpriteIcon;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -83,7 +83,7 @@ public abstract class ATMIconData {
 	protected abstract void saveAdditional(JsonObject data);
 	
 	@OnlyIn(Dist.CLIENT)
-	public abstract void render(ATMConversionButton button, PoseStack pose, boolean isHovered);
+	public abstract void render(ATMConversionButton button, MatrixStack pose, boolean isHovered);
 	
 	public static ATMIconData parse(JsonObject data) throws Exception {
 		if(data.has("type"))

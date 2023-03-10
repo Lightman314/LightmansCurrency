@@ -6,35 +6,35 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEnt
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
-	private final BiFunction<Direction,Boolean,VoxelShape> shape;
+	private final BiFunction<Direction,Boolean, VoxelShape> shape;
 	
 	protected TraderBlockTallRotatable(Properties properties)
 	{
@@ -61,32 +61,32 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state); }
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull ISelectionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISBOTTOM);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
 	@Override
-	public @NotNull PushReaction getPistonPushReaction(@NotNull BlockState state)
+	public @Nonnull PushReaction getPistonPushReaction(@Nonnull BlockState state)
 	{
 		return PushReaction.BLOCK;
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull World level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(this.getReplacable(level, pos.above(), state, player, stack))
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -94,11 +94,11 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		{
 			//Failed placing the top block. Abort placement
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player instanceof Player)
+			if(player instanceof PlayerEntity)
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				((Player)player).getInventory().add(giveStack);
+				((PlayerEntity)player).inventory.add(giveStack);
 			}
 		}
 		
@@ -106,10 +106,10 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		
 	}
 	
-	public boolean getReplacable(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack) {
-		if(player instanceof Player)
+	public boolean getReplacable(World level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack) {
+		if(player instanceof PlayerEntity)
 		{
-			BlockPlaceContext context = new BlockPlaceContext(level, (Player)player, InteractionHand.MAIN_HAND, stack, new BlockHitResult(Vec3.ZERO, Direction.UP, pos, true));
+			BlockItemUseContext context = new BlockItemUseContext(level, (PlayerEntity) player, Hand.MAIN_HAND, stack, new BlockRayTraceResult(Vector3d.ZERO, Direction.UP, pos, true));
 			return level.getBlockState(pos).canBeReplaced(context);
 		}
 		else
@@ -119,15 +119,16 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull World level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player)
 	{
 		
 		//Run base functionality first to prevent the removal of the block containing the block entity
 		this.playerWillDestroyBase(level, pos, state, player);
 		
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity<?> trader)
+		TileEntity blockEntity = this.getBlockEntity(state, level, pos);
+		if(blockEntity instanceof TraderBlockEntity<?>)
 		{
+			TraderBlockEntity<?> trader = (TraderBlockEntity<?>)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 		}
@@ -138,25 +139,23 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
+	protected void onInvalidRemoval(BlockState state, World level, BlockPos pos, TraderData trader) {
 		super.onInvalidRemoval(state, level, pos, trader);
 		//Destroy the other half of the Tall Block
 		setAir(level, this.getOtherHeight(pos, state), null);
 	}
 	
-	protected final void setAir(Level level, BlockPos pos, Player player)
+	protected final void setAir(World level, BlockPos pos, PlayerEntity player)
 	{
 		BlockState state = level.getBlockState(pos);
 		if(state.getBlock() == this)
 		{
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player != null)
-				level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
 		}
 	}
 	
 	@Override
-	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
+	public TileEntity getBlockEntity(BlockState state, IWorld level, BlockPos pos)
 	{
 		if(level == null)
 			return null;

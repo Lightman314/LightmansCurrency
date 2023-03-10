@@ -5,13 +5,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
@@ -19,13 +20,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
@@ -38,7 +38,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	private final int xSize = 176;
 	private final int ySize = 187;
 	
-	private EditBox searchField;
+	private TextFieldWidget searchField;
 	private static int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
@@ -56,7 +56,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	
 	public TradingTerminalScreen()
 	{
-		super(new TranslatableComponent("block.lightmanscurrency.terminal"));
+		super(EasyText.translatable("block.lightmanscurrency.terminal"));
 	}
 	
 	@Override
@@ -68,12 +68,12 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		int guiLeft = (this.width - this.xSize) / 2;
 		int guiTop = (this.height - this.ySize) / 2;
 		
-		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addButton(new TextFieldWidget(this.font, guiLeft + 28, guiTop + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		this.scrollBar = this.addRenderableWidget(new ScrollBarWidget(guiLeft + 16 + UniversalTraderButton.WIDTH, guiTop + 17, UniversalTraderButton.HEIGHT * 5 + 2, this));
+		this.scrollBar = this.addButton(new ScrollBarWidget(guiLeft + 16 + UniversalTraderButton.WIDTH, guiTop + 17, UniversalTraderButton.HEIGHT * 5 + 2, this));
 		
 		this.initTraderButtons(guiLeft, guiTop);
 		
@@ -93,7 +93,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 5; y++)
 		{
-			UniversalTraderButton newButton = this.addRenderableWidget(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::OpenTrader, this.font));
+			UniversalTraderButton newButton = this.addButton(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::OpenTrader, this.font));
 			this.traderButtons.add(newButton);
 		}
 	}
@@ -106,16 +106,15 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		if(this.minecraft == null)
 			this.minecraft = Minecraft.getInstance();
 		
 		this.renderBackground(pose);
-		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		int startX = (this.width - this.xSize) / 2;
 		int startY = (this.height - this.ySize) / 2;
@@ -206,7 +205,7 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = this.searchField.getValue().isBlank() ? this.traderList() : TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = this.searchField.getValue().isEmpty() ? this.traderList() : TraderSearchFilter.FilterTraders(this.traderList(), this.searchField.getValue());
 		//Validate the scroll
 		this.validateScroll();
 		//Update the trader buttons
@@ -225,7 +224,17 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		}
 	}
 
-	private record TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) implements Comparator<TraderData> {
+	private static class TraderSorter implements Comparator<TraderData> {
+
+		private final boolean creativeAtTop;
+		private final boolean emptyAtBottom;
+		private final boolean auctionHousePriority;
+
+		public TraderSorter(boolean creativeAtTop, boolean emptyAtBottom, boolean auctionHousePriority) {
+			this.creativeAtTop = creativeAtTop;
+			this.emptyAtBottom = emptyAtBottom;
+			this.auctionHousePriority = auctionHousePriority;
+		}
 
 		@Override
 		public int compare(TraderData a, TraderData b) {

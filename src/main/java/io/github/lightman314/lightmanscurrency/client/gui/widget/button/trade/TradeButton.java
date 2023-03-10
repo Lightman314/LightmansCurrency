@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -23,19 +24,18 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.T
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue.CoinValuePair;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
 
-public class TradeButton extends Button{
+public class TradeButton extends Button {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trade.png");
-	public static final OnPress NULL_PRESS = button -> {};
+	public static final IPressable NULL_PRESS = button -> {};
 
 	public static  final int ARROW_WIDTH = 22;
 	public static  final int ARROW_HEIGHT = 18;
@@ -56,7 +56,7 @@ public class TradeButton extends Button{
 	public TradeContext getContext() { return this.contextSource.get(); }
 	public boolean displayOnly = false;
 
-	public TradeButton(Supplier<TradeContext> contextSource, Supplier<TradeData> tradeSource, OnPress onPress) {
+	public TradeButton(Supplier<TradeContext> contextSource, Supplier<TradeData> tradeSource, IPressable onPress) {
 		super(0, 0, 0, BUTTON_HEIGHT, EasyText.empty(), onPress);
 		this.tradeSource = tradeSource;
 		this.contextSource = contextSource;
@@ -76,7 +76,7 @@ public class TradeButton extends Button{
 	public void move(int x, int y) { this.x = x; this.y = y; }
 
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
@@ -102,18 +102,18 @@ public class TradeButton extends Button{
 
 	}
 
-	private void renderBackground(PoseStack pose, boolean isHovered)
+	private void renderBackground(MatrixStack pose, boolean isHovered)
 	{
 		if(this.width < 8)
 		{
 			LightmansCurrency.LogError("Cannot render a trade button that is less than 8 pixels wide!");
 			return;
 		}
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderUtil.bindTexture(GUI_TEXTURE);
 		if(this.active)
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 		else
-			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+			RenderUtil.color4f(0.5f, 0.5f, 0.5f, 1f);
 
 		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
 
@@ -131,14 +131,14 @@ public class TradeButton extends Button{
 		this.blit(pose, this.x + this.width - 4, this.y, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
 	}
 
-	private void renderArrow(PoseStack pose, ScreenPosition position, boolean isHovered)
+	private void renderArrow(MatrixStack pose, ScreenPosition position, boolean isHovered)
 	{
 
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderUtil.bindTexture(GUI_TEXTURE);
 		if(this.active)
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 		else
-			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+			RenderUtil.color4f(0.5f, 0.5f, 0.5f, 1f);
 
 		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 
@@ -146,20 +146,20 @@ public class TradeButton extends Button{
 
 	}
 
-	private void renderAlert(PoseStack pose, ScreenPosition position, List<AlertData> alerts)
+	private void renderAlert(MatrixStack pose, ScreenPosition position, List<AlertData> alerts)
 	{
 
 		if(alerts == null || alerts.size() == 0)
 			return;
 		alerts.sort(AlertData::compare);
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderUtil.bindTexture(GUI_TEXTURE);
 		alerts.get(0).setShaderColor(this.active ? 1f : 0.5f);
 
 		this.blit(pose, this.x + position.x, this.y + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 
 	}
 
-	public void renderDisplays(PoseStack pose, TradeRenderManager<?> tr, TradeContext context)
+	public void renderDisplays(MatrixStack pose, TradeRenderManager<?> tr, TradeContext context)
 	{
 		for(Pair<DisplayEntry,DisplayData> display : getInputDisplayData(tr, context))
 			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
@@ -167,7 +167,7 @@ public class TradeButton extends Button{
 			display.getFirst().render(this, pose, this.x, this.y, display.getSecond());
 	}
 
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY)
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY)
 	{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
@@ -178,7 +178,7 @@ public class TradeButton extends Button{
 
 		TradeContext context = this.getContext();
 
-		List<Component> tooltips = new ArrayList<>();
+		List<ITextComponent> tooltips = new ArrayList<>();
 
 		this.tryAddTooltip(tooltips, tr.getAdditionalTooltips(context, mouseX - this.x, mouseY - this.y));
 
@@ -208,14 +208,14 @@ public class TradeButton extends Button{
 
 	}
 
-	private void tryAddTooltip(List<Component> tooltips, @Nullable List<Component> add)
+	private void tryAddTooltip(List<ITextComponent> tooltips, @Nullable List<ITextComponent> add)
 	{
 		if(add == null)
 			return;
 		tooltips.addAll(add);
 	}
 
-	private void tryAddAlertTooltips(List<Component> tooltips, @Nullable List<AlertData> alerts)
+	private void tryAddAlertTooltips(List<ITextComponent> tooltips, @Nullable List<AlertData> alerts)
 	{
 		if(alerts == null)
 			return;
@@ -265,7 +265,7 @@ public class TradeButton extends Button{
 
 	}
 
-	private static void DrawTooltip(PoseStack pose, int mouseX, int mouseY, List<Component> tooltips)
+	private static void DrawTooltip(MatrixStack pose, int mouseX, int mouseY, List<ITextComponent> tooltips)
 	{
 		if(tooltips == null || tooltips.size() == 0)
 			return;
@@ -311,7 +311,19 @@ public class TradeButton extends Button{
 		return super.isValidClickButton(button);
 	}
 
-	public record DisplayData(int xOffset, int yOffset, int width, int height) {
+	public static class DisplayData {
+
+		public final int xOffset;
+		public final int yOffset;
+		public final int width;
+		public final int height;
+
+		public DisplayData(int xOffset, int yOffset, int width, int height) {
+			this.xOffset = xOffset;
+			this.yOffset = yOffset;
+			this.width = width;
+			this.height = height;
+		}
 
 		/**
 		 * Divides the display area horizontally into the given number of pieces.
@@ -335,59 +347,58 @@ public class TradeButton extends Button{
 	public static abstract class DisplayEntry
 	{
 
-		private final List<Component> tooltip;
+		private final List<ITextComponent> tooltip;
 
 		@Deprecated
 		protected DisplayEntry() { this.tooltip = null; }
 
-		protected DisplayEntry (List<Component> tooltip) { this.tooltip = tooltip; }
+		protected DisplayEntry (List<ITextComponent> tooltip) { this.tooltip = tooltip; }
 
-		protected final Font getFont() {
+		protected final FontRenderer getFont() {
 			Minecraft m = Minecraft.getInstance();
 			return m.font;
 		}
 
-		protected List<Component> getTooltip() {
+		protected List<ITextComponent> getTooltip() {
 			if(this.tooltip == null)
 				return new ArrayList<>();
 			return this.tooltip;
 		}
 
-		public abstract void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area);
+		public abstract void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area);
 
 		public abstract boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY);
 
 		public static DisplayEntry of(ItemStack item, int count) { return new ItemEntry(item, count, null); }
-		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip) { return new ItemEntry(item, count, tooltip); }
-		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background) { return new ItemAndBackgroundEntry(item, count, tooltip, background, ScreenPosition.ZERO); }
-		public static DisplayEntry of(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { return new ItemAndBackgroundEntry(item, count, tooltip, background, backgroundOffset); }
+		public static DisplayEntry of(ItemStack item, int count, List<ITextComponent> tooltip) { return new ItemEntry(item, count, tooltip); }
+		public static DisplayEntry of(ItemStack item, int count, List<ITextComponent> tooltip, Pair<ResourceLocation,ResourceLocation> background) { return new ItemAndBackgroundEntry(item, count, tooltip, background, ScreenPosition.ZERO); }
+		public static DisplayEntry of(ItemStack item, int count, List<ITextComponent> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { return new ItemAndBackgroundEntry(item, count, tooltip, background, backgroundOffset); }
 		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background) { return new EmptySlotEntry(background, null); }
-		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background, List<Component> tooltip) { return new EmptySlotEntry(background, tooltip); }
+		public static DisplayEntry of(Pair<ResourceLocation,ResourceLocation> background, List<ITextComponent> tooltip) { return new EmptySlotEntry(background, tooltip); }
 
-		public static DisplayEntry of(Component text, TextFormatting format) { return new TextEntry(text, format, null); }
-		public static DisplayEntry of(Component text, TextFormatting format, List<Component> tooltip) { return new TextEntry(text, format, tooltip); }
+		public static DisplayEntry of(ITextComponent text, TextFormatting format) { return new TextEntry(text, format, null); }
+		public static DisplayEntry of(ITextComponent text, TextFormatting format, List<ITextComponent> tooltip) { return new TextEntry(text, format, tooltip); }
 
 		public static DisplayEntry of(CoinValue price) { return new PriceEntry(price, null, false); }
-		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips) { return new PriceEntry(price, additionalTooltips, false); }
-		public static DisplayEntry of(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return new PriceEntry(price, additionalTooltips, tooltipOverride); }
+		public static DisplayEntry of(CoinValue price, List<ITextComponent> additionalTooltips) { return new PriceEntry(price, additionalTooltips, false); }
+		public static DisplayEntry of(CoinValue price, List<ITextComponent> additionalTooltips, boolean tooltipOverride) { return new PriceEntry(price, additionalTooltips, tooltipOverride); }
 
 		private static class ItemEntry extends DisplayEntry
 		{
 			private final ItemStack item;
 
-			private ItemEntry(ItemStack item, int count, List<Component> tooltip) { super(tooltip); this.item = item.copy(); this.item.setCount(count);  }
+			private ItemEntry(ItemStack item, int count, List<ITextComponent> tooltip) { super(tooltip); this.item = item.copy(); this.item.setCount(count);  }
 
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 
 			@Override
-			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+			public void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area) {
 				if(this.item.isEmpty())
 					return;
-				Font font = this.getFont();
 				//Center the x & y positions
 				int left = getTopLeft(x + area.xOffset, area.width);
 				int top = getTopLeft(y + area.yOffset, area.height);
-				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
+				ItemRenderUtil.drawItemStack(gui, this.getFont(), this.item, left, top);
 			}
 
 			@Override
@@ -402,12 +413,12 @@ public class TradeButton extends Button{
 		{
 			private final Pair<ResourceLocation,ResourceLocation> background;
 
-			private EmptySlotEntry(Pair<ResourceLocation,ResourceLocation> background, List<Component> tooltip) { super(tooltip); this.background = background; }
+			private EmptySlotEntry(Pair<ResourceLocation,ResourceLocation> background, List<ITextComponent> tooltip) { super(tooltip); this.background = background; }
 
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 
 			@Override
-			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+			public void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area) {
 				int left = getTopLeft(x + area.xOffset, area.width);
 				int top = getTopLeft(y + area.yOffset, area.height);
 				ItemRenderUtil.drawSlotBackground(pose, left, top, this.background);
@@ -428,20 +439,19 @@ public class TradeButton extends Button{
 			private final Pair<ResourceLocation,ResourceLocation> background;
 			private final ScreenPosition backgroundOffset;
 
-			private ItemAndBackgroundEntry(ItemStack item, int count, List<Component> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { super(tooltip); this.item = item.copy(); this.item.setCount(count); this.background = background; this.backgroundOffset = backgroundOffset; }
+			private ItemAndBackgroundEntry(ItemStack item, int count, List<ITextComponent> tooltip, Pair<ResourceLocation,ResourceLocation> background, ScreenPosition backgroundOffset) { super(tooltip); this.item = item.copy(); this.item.setCount(count); this.background = background; this.backgroundOffset = backgroundOffset; }
 
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 
 			@Override
-			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+			public void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area) {
 				if(this.item.isEmpty())
 					return;
-				Font font = this.getFont();
 				//Center the x & y positions
 				int left = getTopLeft(x + area.xOffset, area.width);
 				int top = getTopLeft(y + area.yOffset, area.height);
 				ItemRenderUtil.drawSlotBackground(pose, left + this.backgroundOffset.x, top + this.backgroundOffset.y, this.background);
-				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
+				ItemRenderUtil.drawItemStack(gui, this.getFont(), this.item, left, top);
 			}
 
 			@Override
@@ -456,10 +466,10 @@ public class TradeButton extends Button{
 		{
 
 
-			private final Component text;
+			private final ITextComponent text;
 			private final TextFormatting format;
 
-			private TextEntry(Component text, TextFormatting format, List<Component> tooltip) { super(tooltip); this.text = text; this.format = format; }
+			private TextEntry(ITextComponent text, TextFormatting format, List<ITextComponent> tooltip) { super(tooltip); this.text = text; this.format = format; }
 
 			protected int getTextLeft(int x, int availableWidth) {
 				if(this.format.centering().isCenter())
@@ -480,16 +490,15 @@ public class TradeButton extends Button{
 			protected int getTextWidth() { return this.getFont().width(this.text); }
 
 			@Override
-			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
-				if(this.text.getString().isBlank())
+			public void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area) {
+				if(this.text.getString().isEmpty())
 					return;
-				Font font = this.getFont();
 				//Define the x position
 				int left = this.getTextLeft(x + area.xOffset, area.width);
 				//Define the y position
 				int top = this.getTextTop(y + area.yOffset, area.height);
 				//Draw the text
-				font.drawShadow(pose, this.text, left, top, this.format.color());
+				this.getFont().drawShadow(pose, this.text, left, top, this.format.color());
 			}
 
 			@Override
@@ -504,15 +513,15 @@ public class TradeButton extends Button{
 		private static class PriceEntry extends DisplayEntry {
 			private final CoinValue price;
 
-			public PriceEntry(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) {
+			public PriceEntry(CoinValue price, List<ITextComponent> additionalTooltips, boolean tooltipOverride) {
 				super(getTooltip(price, additionalTooltips, tooltipOverride));
 				this.price = price;
 			}
 
 			private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 
-			private static List<Component> getTooltip(CoinValue price, List<Component> additionalTooltips, boolean tooltipOverride) {
-				List<Component> tooltips = new ArrayList<>();
+			private static List<ITextComponent> getTooltip(CoinValue price, List<ITextComponent> additionalTooltips, boolean tooltipOverride) {
+				List<ITextComponent> tooltips = new ArrayList<>();
 				if(tooltipOverride && additionalTooltips != null)
 					return additionalTooltips;
 				if(!price.isFree() && price.isValid())
@@ -523,10 +532,10 @@ public class TradeButton extends Button{
 			}
 
 			@Override
-			public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
+			public void render(AbstractGui gui, MatrixStack pose, int x, int y, DisplayData area) {
 				if(this.price.isFree())
 				{
-					Font font = this.getFont();
+					FontRenderer font = this.getFont();
 					int left = x + area.xOffset + (area.width / 2) - (font.width(this.price.getString()) / 2);
 					int top = y + area.yOffset + (area.height / 2) - (font.lineHeight / 2);
 					font.draw(pose, EasyText.literal(this.price.getString()), left, top, 0xFFFFFF);

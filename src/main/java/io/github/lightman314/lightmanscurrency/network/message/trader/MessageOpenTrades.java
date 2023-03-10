@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageOpenTrades {
 	
@@ -17,18 +17,18 @@ public class MessageOpenTrades {
 		this.traderID = traderID;
 	}
 	
-	public static void encode(MessageOpenTrades message, FriendlyByteBuf buffer) {
+	public static void encode(MessageOpenTrades message, PacketBuffer buffer) {
 		buffer.writeLong(message.traderID);
 	}
 
-	public static MessageOpenTrades decode(FriendlyByteBuf buffer) {
+	public static MessageOpenTrades decode(PacketBuffer buffer) {
 		return new MessageOpenTrades(buffer.readLong());
 	}
 
 	public static void handle(MessageOpenTrades message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				TraderData data = TraderSaveData.GetTrader(false, message.traderID);

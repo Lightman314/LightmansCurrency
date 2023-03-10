@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -10,25 +11,26 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.util.Constants;
 
-public class TicketItem extends Item{
+public class TicketItem extends Item {
 
 	public static final ResourceLocation TICKET_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket");
 	public static final ResourceLocation TICKET_MATERIAL_TAG = new ResourceLocation(LightmansCurrency.MODID,"ticket_material");
-	public static final TagKey<Item> TICKET_MATERIAL_KEY = TagKey.create(ForgeRegistries.Keys.ITEMS, TICKET_MATERIAL_TAG);
+	public static final Tags.IOptionalNamedTag<Item> TICKET_MATERIAL = ItemTags.createOptional(TICKET_MATERIAL_TAG);
 
 	public static final long CREATIVE_TICKET_ID = -1;
 	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
@@ -39,14 +41,14 @@ public class TicketItem extends Item{
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -1)
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
 	}
 
-	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull World level, @Nonnull Entity entity, int slot, boolean selected) {
 		GetTicketID(stack);
 	}
 
@@ -62,8 +64,8 @@ public class TicketItem extends Item{
 		//Get the ticket item
 		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
 			return Long.MIN_VALUE;
-		CompoundTag ticketTag = ticket.getTag();
-		if(ticketTag.contains("TicketID", Tag.TAG_LONG))
+		CompoundNBT ticketTag = ticket.getTag();
+		if(ticketTag.contains("TicketID", Constants.NBT.TAG_LONG))
 			return ticketTag.getLong("TicketID");
 		else if(ticketTag.contains("TicketID"))
 		{
@@ -80,7 +82,7 @@ public class TicketItem extends Item{
 	{
 		if(ticket.isEmpty() || !(ticket.getItem() instanceof TicketItem) || !ticket.hasTag())
 			return 0xFFFFFF;
-		CompoundTag ticketTag = ticket.getTag();
+		CompoundNBT ticketTag = ticket.getTag();
 		if(!ticketTag.contains("TicketColor"))
 			return 0xFFFFFF;
 		return ticketTag.getInt("TicketColor");
@@ -91,7 +93,7 @@ public class TicketItem extends Item{
 	public static ItemStack CreateMasterTicket(long ticketID, int color)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER.get());
-		CompoundTag tag = ticket.getOrCreateTag();
+		CompoundNBT tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);
 		return ticket;
@@ -112,7 +114,7 @@ public class TicketItem extends Item{
 	public static ItemStack CreateTicket(long ticketID, int color, int count)
 	{
 		ItemStack ticket = new ItemStack(ModItems.TICKET.get(), count);
-		CompoundTag tag = ticket.getOrCreateTag();
+		CompoundNBT tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);
 		return ticket;
@@ -121,21 +123,30 @@ public class TicketItem extends Item{
 	public static void SetTicketColor(ItemStack ticket, Color color) { SetTicketColor(ticket, color.hexColor); }
 
 	public static void SetTicketColor(ItemStack ticket, int color) {
-		CompoundTag tag = ticket.getOrCreateTag();
+		CompoundNBT tag = ticket.getOrCreateTag();
 		tag.putInt("TicketColor", color);
 	}
 
-	public static MutableComponent getTicketMaterialsList() {
-		MutableComponent list = EasyText.empty();
+	public static IFormattableTextComponent getTicketMaterialsList() {
+		IFormattableTextComponent list = EasyText.empty();
 
 		try {
-			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().toList())
+			for(Item item : TICKET_MATERIAL.getValues())
 			{
 				list.append(EasyText.literal("\n")).append(new ItemStack(item).getHoverName());
 			}
 		} catch(Throwable t) { t.printStackTrace(); }
 
 		return list;
+	}
+
+	public void fillItemCategory(@Nonnull ItemGroup tab, @Nonnull NonNullList<ItemStack> itemList) {
+		if (this.allowdedIn(tab)) {
+			if(this == ModItems.TICKET_MASTER.get())
+				itemList.add(TicketItem.CreateMasterTicket(CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR));
+			else
+				itemList.add(TicketItem.CreateTicket(CREATIVE_TICKET_ID,CREATIVE_TICKET_COLOR));
+		}
 	}
 
 }

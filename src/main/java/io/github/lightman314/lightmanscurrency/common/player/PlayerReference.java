@@ -12,16 +12,16 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.common.UsernameCache;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class PlayerReference {
 	
@@ -35,12 +35,12 @@ public class PlayerReference {
 		else
 		{
 			String n = getPlayerName(this.id);
-			if(n == null || n.isBlank())
+			if(n == null || n.isEmpty())
 				return this.name;
 			return n;
 		}
 	}
-	public MutableComponent getNameComponent(boolean isClient) { return new TextComponent(this.getName(isClient)); }
+	public IFormattableTextComponent getNameComponent(boolean isClient) { return EasyText.literal(this.getName(isClient)); }
 	
 	private PlayerReference(UUID playerID, String name)
 	{
@@ -88,16 +88,16 @@ public class PlayerReference {
 		return this.getPlayer() != null;
 	}
 	
-	public Player getPlayer() {
+	public PlayerEntity getPlayer() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 			return server.getPlayerList().getPlayer(this.id);
 		return null;
 	}
 	
-	public CompoundTag save()
+	public CompoundNBT save()
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		compound.putUUID("id", this.id);
 		compound.putString("name", this.getName(false));
 		if(this.forceName)
@@ -112,7 +112,7 @@ public class PlayerReference {
 		return json;
 	}
 	
-	public static PlayerReference load(CompoundTag compound)
+	public static PlayerReference load(CompoundNBT compound)
 	{
 		try {
 			UUID id = compound.getUUID("id");
@@ -135,23 +135,23 @@ public class PlayerReference {
 		} catch(Exception e) {LightmansCurrency.LogError("Error loading PlayerReference from JsonObject", e); return null; }
 	}
 	
-	public static void saveList(CompoundTag compound, List<PlayerReference> playerList, String tag)
+	public static void saveList(CompoundNBT compound, List<PlayerReference> playerList, String tag)
 	{
-		ListTag list = new ListTag();
+		ListNBT list = new ListNBT();
 		for (PlayerReference playerReference : playerList) {
-			CompoundTag thisCompound = playerReference.save();
+			CompoundNBT thisCompound = playerReference.save();
 			list.add(thisCompound);
 		}
 		compound.put(tag, list);
 	}
 	
-	public static List<PlayerReference> loadList(CompoundTag compound, String tag)
+	public static List<PlayerReference> loadList(CompoundNBT compound, String tag)
 	{
 		List<PlayerReference> playerList = Lists.newArrayList();
-		ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
+		ListNBT list = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < list.size(); ++i)
 		{
-			CompoundTag thisCompound = list.getCompound(i);
+			CompoundNBT thisCompound = list.getCompound(i);
 			PlayerReference player = load(thisCompound);
 			if(player != null)
 				playerList.add(player);
@@ -175,12 +175,12 @@ public class PlayerReference {
 	
 	public static PlayerReference of(Entity entity)
 	{
-		if(entity instanceof Player)
-			return of((Player)entity);
+		if(entity instanceof PlayerEntity)
+			return of((PlayerEntity)entity);
 		return null;
 	}
 	
-	public static PlayerReference of(Player player)
+	public static PlayerReference of(PlayerEntity player)
 	{
 		if(player == null)
 			return null;
@@ -189,7 +189,7 @@ public class PlayerReference {
 	
 	public static PlayerReference of(boolean isClient, String playerName)
 	{
-		if(playerName.isBlank())
+		if(playerName.isEmpty())
 			return null;
 		if(isClient)
 		{
@@ -244,7 +244,7 @@ public class PlayerReference {
 			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 			if(server != null)
 			{
-				GameProfile profile = server.getProfileCache().get(playerID).orElse(null);
+				GameProfile profile = server.getProfileCache().get(playerID);
 				if(profile != null)
 					return profile.getName();
 			}
@@ -268,7 +268,7 @@ public class PlayerReference {
 			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 			if(server != null)
 			{
-				GameProfile profile = server.getProfileCache().get(playerName).orElse(null);
+				GameProfile profile = server.getProfileCache().get(playerName);
 				if(profile != null)
 					return profile.getId();
 			}

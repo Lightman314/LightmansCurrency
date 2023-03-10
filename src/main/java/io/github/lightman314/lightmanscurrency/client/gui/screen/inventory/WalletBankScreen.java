@@ -3,12 +3,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank.*;
@@ -19,20 +29,11 @@ import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMen
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpenWallet;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 @IPNIgnore
-public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
+public class WalletBankScreen extends ContainerScreen<WalletBankMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/wallet_bank.png");
 	
@@ -41,8 +42,8 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 	public List<WalletBankTab> getTabs() { return this.tabs; }
 	public WalletBankTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	List<AbstractWidget> tabWidgets = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
+	List<Widget> tabWidgets = new ArrayList<>();
+	List<IGuiEventListener> tabListeners = new ArrayList<>();
 	
 	List<TabButton> tabButtons = new ArrayList<>();
 	
@@ -50,7 +51,7 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 	
 	Button buttonOpenWallet;
 	
-	public WalletBankScreen(WalletBankMenu menu, Inventory inventory, Component title) {
+	public WalletBankScreen(WalletBankMenu menu, PlayerInventory inventory, ITextComponent title) {
 		super(menu, inventory, title);
 	}
 
@@ -63,7 +64,8 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 		
 		super.init();
 		
-		this.clearWidgets();
+		this.buttons.clear();
+		this.children.clear();
 		
 		this.tabWidgets.clear();
 		this.tabListeners.clear();
@@ -71,23 +73,23 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
-			TabButton button = this.addRenderableWidget(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
+			TabButton button = this.addButton(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
 			button.reposition(this.leftPos - TabButton.SIZE, this.topPos + i * TabButton.SIZE, 3);
 			button.active = i != this.currentTabIndex;
 			this.tabButtons.add(button);
 		}
 		
-		this.buttonOpenWallet = this.addRenderableWidget(new IconButton(this.leftPos, this.topPos - 20, this::PressOpenWalletButton, IconData.of(this.menu.getWallet())));
+		this.buttonOpenWallet = this.addButton(new IconButton(this.leftPos, this.topPos - 20, this::PressOpenWalletButton, IconData.of(this.menu.getWallet())));
 		
 		this.currentTab().init();
 		
 	}
 	
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY) {
 		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Draw the top
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, WalletBankMenu.BANK_WIDGET_SPACING);
@@ -115,13 +117,13 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 		
 	}
 	
-	private Component getWalletName() {
+	private ITextComponent getWalletName() {
 		ItemStack wallet = this.menu.getWallet();
-		return wallet.isEmpty() ? new TextComponent("") : wallet.getHoverName();
+		return wallet.isEmpty() ? EasyText.empty() : wallet.getHoverName();
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY) {
 		
 		this.font.draw(pose, this.getWalletName(), 8.0f, WalletBankMenu.BANK_WIDGET_SPACING - 11, 0x404040);
 		
@@ -129,7 +131,7 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -142,13 +144,12 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 		this.renderTooltip(pose, mouseX,  mouseY);
 		
 		if(this.buttonOpenWallet != null && this.buttonOpenWallet.isMouseOver(mouseX, mouseY))
-			this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.wallet.openwallet"), mouseX, mouseY);
+			this.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.wallet.openwallet"), mouseX, mouseY);
 		
 		//Render the tab button tooltips
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		for (TabButton tabButton : this.tabButtons) {
+			if (tabButton.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(pose, tabButton.tab.getTooltip(), mouseX, mouseY);
 		}
 		
 	}
@@ -179,47 +180,46 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 			return;
 		this.changeTab(tabIndex);
 	}
-	
-	public void containerTick()
+
+	@Override
+	public void tick()
 	{
 		this.currentTab().tick();
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget)
+	public <T extends Widget> T addRenderableTabWidget(T widget)
 	{
 		this.tabWidgets.add(widget);
 		return widget;
 	}
 	
-	public void removeRenderableTabWidget(AbstractWidget widget)
+	public void removeRenderableTabWidget(Widget widget)
 	{
-		if(this.tabWidgets.contains(widget))
-			this.tabWidgets.remove(widget);
+		this.tabWidgets.remove(widget);
 	}
 	
-	public <T extends GuiEventListener> T addTabListener(T listener)
+	public <T extends IGuiEventListener> T addTabListener(T listener)
 	{
 		this.tabListeners.add(listener);
 		return listener;
 	}
 	
-	public void removeTabListener(GuiEventListener listener)
+	public void removeTabListener(IGuiEventListener listener)
 	{
-		if(this.tabListeners.contains(listener))
-			this.tabListeners.remove(listener);
+		this.tabListeners.remove(listener);
 	}
 	
-	public Font getFont() {
+	public FontRenderer getFont() {
 		return this.font;
 	}
 	
+	@Nonnull
 	@Override
-	public List<? extends GuiEventListener> children()
+	public List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabWidgets);
 		listeners.addAll(this.tabListeners);
 		return listeners;
@@ -227,7 +227,7 @@ public class WalletBankScreen extends AbstractContainerScreen<WalletBankMenu>{
 	
 	@Override
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+	      InputMappings.Input mouseKey = InputMappings.getKey(p_97765_, p_97766_);
 	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
 	      if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
 	    	  return true;

@@ -6,8 +6,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -15,30 +14,26 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue.ValueType;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class CoinValueInput extends AbstractWidget implements IScrollable{
+public class CoinValueInput extends Widget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID,"textures/gui/coinvalueinput.png");
 	
@@ -53,9 +48,9 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	
 	private final ValueType inputType;
 	
-	private final Font font;
+	private final FontRenderer font;
 	private final Consumer<CoinValue> onValueChanged;
-	private final Consumer<AbstractWidget> addWidget;
+	private final Consumer<Widget> addWidget;
 	
 	Button buttonLeft;
 	Button buttonRight;
@@ -64,11 +59,11 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	Button toggleFree;
 	private List<Button> increaseButtons;
 	private List<Button> decreaseButtons;
-	private Component title;
-	public void setTitle(Component title) {this.title = title; }
+	private ITextComponent title;
+	public void setTitle(ITextComponent title) {this.title = title; }
 	
 	String lastInput = "";
-	EditBox valueInput;
+	TextFieldWidget valueInput;
 	String prefix;
 	String postfix;
 	
@@ -82,7 +77,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	List<CoinData> coinData = new ArrayList<>();
 	
 	@Deprecated
-	public CoinValueInput(int y, Component title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
+	public CoinValueInput(int y, ITextComponent title, CoinValue startingValue, @Nonnull ICoinValueInput parent) {
 		
 		super((parent.getWidth() - DISPLAY_WIDTH) /  2, y, DISPLAY_WIDTH, HEIGHT, title);
 		
@@ -101,7 +96,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	public CoinValueInput(int x, int y, Component title, CoinValue startingValue, Font font, Consumer<CoinValue> onValueChanged, Consumer<AbstractWidget> addWidget) {
+	public CoinValueInput(int x, int y, ITextComponent title, CoinValue startingValue, FontRenderer font, Consumer<CoinValue> onValueChanged, Consumer<Widget> addWidget) {
 		super(x, y, DISPLAY_WIDTH, HEIGHT, title);
 		
 		this.inputType = Config.SERVER.coinValueInputType.get();
@@ -192,14 +187,14 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			int postfixWidth = this.font.width(this.postfix);
 			if(postfixWidth > 0)
 				postfixWidth += 2;
-			this.valueInput = new EditBox(this.font, this.x + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, new TextComponent(""));
+			this.valueInput = new TextFieldWidget(this.font, this.x + 10 + prefixWidth, this.y + 20, DISPLAY_WIDTH - 20 - prefixWidth - postfixWidth, 20, EasyText.empty());
 			this.addWidget.accept(this.valueInput);
 		}
 		this.tick();
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Match the buttons visibility to our visibility.
 		this.toggleFree.visible = this.allowFreeToggle && this.visible;
@@ -209,9 +204,9 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			this.valueInput.visible = this.visible;
 		if(!this.visible) //If not visible, render nothing
 			return;
-		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
+
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f,  1f,  1f, 1f);
 		
 		if(this.drawBG)
 		{
@@ -423,9 +418,9 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	@Deprecated
 	public interface ICoinValueInput
 	{
-		<T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button);
+		<T extends Widget> T addCustomWidget(T button);
 		int getWidth();
-		Font getFont();
+		FontRenderer getFont();
 		void OnCoinValueChanged(CoinValueInput input);
 	}
 	
@@ -438,9 +433,6 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		this.scroll++;
 		this.validateScroll();
 	}
-
-	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 	
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return false; }

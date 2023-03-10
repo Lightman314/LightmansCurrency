@@ -3,21 +3,17 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.TicketTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -35,11 +31,8 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	}
 	
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new TicketTraderBlockEntity(pos, state, TRADECOUNT); }
-	
-	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.TICKET_TRADER.get(); }
-	
+	public TileEntity makeTrader() { return new TicketTraderBlockEntity(TRADECOUNT); }
+
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleBlock) { return new ArrayList<>(); }
 	
@@ -56,6 +49,6 @@ public class TicketKioskBlock extends TraderBlockTallRotatable implements IItemT
 	public int maxRenderIndex() { return -1; }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_TICKET; }
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return LCTooltips.ITEM_TRADER_TICKET; }
 	
 }

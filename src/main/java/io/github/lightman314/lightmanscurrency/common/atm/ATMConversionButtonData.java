@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.atm.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon.ArrowType;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.util.IItemProvider;
 
 public class ATMConversionButtonData {
 
@@ -133,7 +133,7 @@ public class ATMConversionButtonData {
 		);
 	}
 	
-	private static ATMConversionButtonData convertSingle(int x, int y, ItemLike from, ItemLike to, String command) {
+	private static ATMConversionButtonData convertSingle(int x, int y, IItemProvider from, IItemProvider to, String command) {
 		return new ATMConversionButtonData(x, y, 26, command,
 			Lists.newArrayList(
 				new ItemIcon(-2,1,from),

@@ -1,9 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -15,20 +21,12 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageOpe
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletConvertCoins;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletQuickCollect;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageWalletToggleAutoConvert;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 import javax.annotation.Nonnull;
 
 @IPNIgnore
-public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
+public class WalletScreen extends ContainerScreen<WalletMenu> {
 
 	private final int BASEHEIGHT = 114;
 	
@@ -42,17 +40,14 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	
 	Button buttonQuickCollect;
 	
-	public WalletScreen(WalletMenu container, Inventory inventory, Component title)
-	{
-		super(container, inventory, title);
-	}
+	public WalletScreen(WalletMenu container, PlayerInventory inventory, ITextComponent title) { super(container, inventory, title); }
 	
 	@Override
-	protected void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		//Draw the top
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, 17);
@@ -75,16 +70,16 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 		
 	}
 	
-	private Component getWalletName() {
+	private ITextComponent getWalletName() {
 		ItemStack wallet = this.menu.getWallet();
-		return wallet.isEmpty() ? new TextComponent("") : wallet.getHoverName();
+		return wallet.isEmpty() ? EasyText.empty() : wallet.getHoverName();
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
+	protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY)
 	{
 		this.font.draw(pose, this.getWalletName(), 8.0f, 6.0f, 0x404040);
-		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(pose, this.inventory.getName(), 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -96,7 +91,8 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 		
 		super.init();
 		
-		this.clearWidgets();
+		this.buttons.clear();
+		this.children.clear();
 		this.buttonConvert = null;
 		this.buttonToggleAutoConvert = null;
 		
@@ -105,12 +101,12 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 		if(this.menu.canConvert())
 		{
 			//Create the buttons
-			this.buttonConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressConvertButton, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
+			this.buttonConvert = this.addButton(new IconButton(this.leftPos - 20, buttonPosition, this::PressConvertButton, IconData.of(GUI_TEXTURE, this.imageWidth, 0)));
 			buttonPosition += 20;
 			
 			if(this.menu.canPickup())
 			{
-				this.buttonToggleAutoConvert = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressAutoConvertToggleButton, IconData.of(GUI_TEXTURE, this.imageWidth, 16)));
+				this.buttonToggleAutoConvert = this.addButton(new IconButton(this.leftPos - 20, buttonPosition, this::PressAutoConvertToggleButton, IconData.of(GUI_TEXTURE, this.imageWidth, 16)));
 				buttonPosition += 20;
 				this.updateToggleButton();
 			}
@@ -118,16 +114,18 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 		
 		if(this.menu.hasBankAccess())
 		{
-			this.buttonOpenBank = this.addRenderableWidget(new IconButton(this.leftPos - 20, buttonPosition, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.get().asItem())));
+			this.buttonOpenBank = this.addButton(new IconButton(this.leftPos - 20, buttonPosition, this::PressOpenBankButton, IconData.of(ModBlocks.MACHINE_ATM.get().asItem())));
 		}
 		
-		this.buttonQuickCollect = this.addRenderableWidget(new PlainButton(this.leftPos + 159, this.topPos + this.imageHeight - 95, 10, 10, this::PressQuickCollectButton, GUI_TEXTURE, this.imageWidth + 16, 0));
+		this.buttonQuickCollect = this.addButton(new PlainButton(this.leftPos + 159, this.topPos + this.imageHeight - 95, 10, 10, this::PressQuickCollectButton, GUI_TEXTURE, this.imageWidth + 16, 0));
 		
 	}
 	
 	@Override
-	public void containerTick()
+	public void tick()
 	{
+
+		super.tick();
 		
 		if(this.buttonToggleAutoConvert != null)
 		{
@@ -146,27 +144,27 @@ public class WalletScreen extends AbstractContainerScreen<WalletMenu> {
 	}
 	
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		this.renderBackground(matrixStack);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderTooltip(matrixStack, mouseX,  mouseY);
+		this.renderBackground(pose);
+		super.render(pose, mouseX, mouseY, partialTicks);
+		this.renderTooltip(pose, mouseX,  mouseY);
 		
 		if(this.buttonConvert != null && this.buttonConvert.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
+			this.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.wallet.convert"), mouseX, mouseY);
 		}
 		else if(this.buttonToggleAutoConvert != null && this.buttonToggleAutoConvert.isMouseOver(mouseX, mouseY))
 		{
 			if(this.autoConvert)
-				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
+				this.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.wallet.autoconvert.disable"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
+				this.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.wallet.autoconvert.enable"), mouseX, mouseY);
 		}
 		else if(this.buttonOpenBank != null && this.buttonOpenBank.isMouseOver(mouseX, mouseY))
 		{
-			this.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lightmanscurrency.wallet.openbank"), mouseX, mouseY); 
+			this.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.wallet.openbank"), mouseX, mouseY);
 		}
 	}
 	

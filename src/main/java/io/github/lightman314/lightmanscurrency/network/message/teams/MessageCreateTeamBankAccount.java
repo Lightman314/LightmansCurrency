@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageCreateTeamBankAccount {
 	
@@ -15,11 +15,11 @@ public class MessageCreateTeamBankAccount {
 		this.teamID = teamID;
 	}
 	
-	public static void encode(MessageCreateTeamBankAccount message, FriendlyByteBuf buffer) {
+	public static void encode(MessageCreateTeamBankAccount message, PacketBuffer buffer) {
 		buffer.writeLong(message.teamID);
 	}
 
-	public static MessageCreateTeamBankAccount decode(FriendlyByteBuf buffer) {
+	public static MessageCreateTeamBankAccount decode(PacketBuffer buffer) {
 		return new MessageCreateTeamBankAccount(buffer.readLong());
 	}
 

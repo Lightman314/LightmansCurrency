@@ -3,29 +3,27 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataTicket;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 
 
 public class TicketTraderBlockEntity extends ItemTraderBlockEntity{
 	
 	
-	public TicketTraderBlockEntity(BlockPos pos, BlockState state)
+	public TicketTraderBlockEntity()
 	{
-		super(ModBlockEntities.TICKET_TRADER.get(), pos, state);
+		super(ModBlockEntities.TICKET_TRADER.get());
 	}
 	
-	public TicketTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
+	public TicketTraderBlockEntity(int tradeCount)
 	{
-		super(ModBlockEntities.TICKET_TRADER.get(), pos, state, tradeCount);
+		super(ModBlockEntities.TICKET_TRADER.get(), tradeCount);
 	}
 	
 	@Override
 	public ItemTraderData buildNewTrader() { return new ItemTraderDataTicket(this.tradeCount, this.level, this.worldPosition); }
 	
 	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
+	protected ItemTraderData createTraderFromOldData(CompoundNBT compound) {
 		ItemTraderDataTicket newTrader = new ItemTraderDataTicket(1, this.level, this.worldPosition);
 		newTrader.loadOldUniversalTraderData(compound);
 		this.tradeCount = newTrader.getTradeCount();

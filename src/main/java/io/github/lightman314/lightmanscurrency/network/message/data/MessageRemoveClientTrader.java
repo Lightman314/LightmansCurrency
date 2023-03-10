@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.network.message.data;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageRemoveClientTrader {
 	
@@ -15,11 +15,11 @@ public class MessageRemoveClientTrader {
 		this.traderID = traderID;
 	}
 	
-	public static void encode(MessageRemoveClientTrader message, FriendlyByteBuf buffer) {
+	public static void encode(MessageRemoveClientTrader message, PacketBuffer buffer) {
 		buffer.writeLong(message.traderID);
 	}
 
-	public static MessageRemoveClientTrader decode(FriendlyByteBuf buffer) {
+	public static MessageRemoveClientTrader decode(PacketBuffer buffer) {
 		return new MessageRemoveClientTrader(buffer.readLong());
 	}
 

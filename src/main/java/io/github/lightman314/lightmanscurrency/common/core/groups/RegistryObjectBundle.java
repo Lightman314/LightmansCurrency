@@ -4,9 +4,10 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public class RegistryObjectBundle<T,L> {
+public class RegistryObjectBundle<T extends IForgeRegistryEntry<? super T>,L> {
 
 	private final Comparator<L> sorter;
 	private boolean locked = false;
@@ -14,7 +15,7 @@ public class RegistryObjectBundle<T,L> {
 
 	public RegistryObjectBundle(Comparator<L> sorter) { this.sorter = sorter; }
 
-	private final Map<L,RegistryObject<T>> values = new HashMap<>();
+	private final Map<L, RegistryObject<T>> values = new HashMap<>();
 
 	public void put(L key, RegistryObject<T> value) {
 		if(this.locked)
@@ -64,7 +65,7 @@ public class RegistryObjectBundle<T,L> {
 
 	public List<T> getAllSorted(Comparator<L> sorter)
 	{
-		List<L> keys = new ArrayList<>(this.values.keySet().stream().toList());
+		List<L> keys = new ArrayList<>(this.values.keySet());
 		keys.sort(sorter);
 		List<T> result = new ArrayList<>();
 		for(L key : keys)

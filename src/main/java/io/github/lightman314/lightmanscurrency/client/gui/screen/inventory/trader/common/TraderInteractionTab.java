@@ -2,13 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeDat
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.inventory.container.Slot;
 
 public class TraderInteractionTab extends TraderClientTab {
 
@@ -35,7 +35,7 @@ public class TraderInteractionTab extends TraderClientTab {
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.tradeDisplay.renderTraderName(pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, false);
 		this.tradeDisplay.getScrollBar().beforeWidgetRender(mouseY);
 
@@ -43,8 +43,8 @@ public class TraderInteractionTab extends TraderClientTab {
 		if(hoveredButton != null)
 		{
 			//Reset texture/color
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			//Get highlighted slot info from the trade
 			TradeData trade = hoveredButton.getTrade();
 			TradeContext context = hoveredButton.getContext();
@@ -63,15 +63,13 @@ public class TraderInteractionTab extends TraderClientTab {
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		if(this.menu.getCarried().isEmpty())
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
+		if(this.menu.player.inventory.getCarried().isEmpty())
 			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - 16, mouseX, mouseY);
 	}
 
 	@Override
-	public void tick() {
-		this.tradeDisplay.tick();
-	}
+	public void tick() { this.tradeDisplay.tick(); }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

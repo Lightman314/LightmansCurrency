@@ -17,26 +17,23 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.listings.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ConfiguredStructureTags;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.*;
+import net.minecraft.potion.Effects;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.storage.MapDecoration;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.village.WandererTradesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber
 public class VillagerTradeManager {
@@ -44,7 +41,7 @@ public class VillagerTradeManager {
 	public static final ResourceLocation BANKER_ID = new ResourceLocation(LightmansCurrency.MODID, "banker");
 	public static final ResourceLocation CASHIER_ID = new ResourceLocation(LightmansCurrency.MODID, "cashier");
 
-	public static List<ItemListing> getGenericWandererTrades() {
+	public static List<VillagerTrades.ITrade> getGenericWandererTrades() {
 		return ImmutableList.of(
 				//Machines
 				new SimpleTrade(ModItems.COIN_GOLD.get(), 1, ModBlocks.MACHINE_ATM.get()),
@@ -52,7 +49,7 @@ public class VillagerTradeManager {
 				new SimpleTrade(ModItems.COIN_IRON.get(), 5, ModBlocks.TERMINAL.get())
 				);
 	}
-	public static List<ItemListing> getRareWandererTrades() {
+	public static List<VillagerTrades.ITrade> getRareWandererTrades() {
 		return ImmutableList.of(
 				//Traders
 				new SimpleTrade(ModItems.COIN_GOLD.get(), 2, ModItems.COIN_IRON.get(), 4, ModBlocks.DISPLAY_CASE.get()),
@@ -106,7 +103,7 @@ public class VillagerTradeManager {
 						//Sell Freezer
 						RandomTrade.build(new ItemStack(ModItems.COIN_IRON.get(), 30), ModBlocks.FREEZER.getAll(), 12, 20, 0.05f),
 						//Sell Money Mending book
-						new SimpleTrade(20, ModItems.COIN_DIAMOND.get(), 15, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(),1)))
+						new SimpleTrade(20, ModItems.COIN_DIAMOND.get(), 15, EnchantedBookItem.createForEnchantment(new EnchantmentData(ModEnchantments.MONEY_MENDING.get(),1)))
 						),
 				5,
 				ImmutableList.of(
@@ -117,7 +114,7 @@ public class VillagerTradeManager {
 						//Sell extra-large trader server
 						new SimpleTrade(30, ModItems.COIN_GOLD.get(), 10, ModBlocks.ITEM_NETWORK_TRADER_4.get()),
 						//Sell Money Mending book
-						new SimpleTrade(30, ModItems.COIN_DIAMOND.get(), 10, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.MONEY_MENDING.get(),1)))
+						new SimpleTrade(30, ModItems.COIN_DIAMOND.get(), 10, EnchantedBookItem.createForEnchantment(new EnchantmentData(ModEnchantments.MONEY_MENDING.get(),1)))
 						)
 				));
 
@@ -174,7 +171,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(5),
 						new SimpleTrade(new ItemStack(ModItems.COIN_IRON.get(), 2), new ItemStack(Blocks.LANTERN), 12, 5, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 3), ConfiguredStructureTags.ON_OCEAN_EXPLORER_MAPS, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 3), Structure.OCEAN_MONUMENT, "filled_map.monument", MapDecoration.Type.MONUMENT, 12, 5),
 						//Cleric
 						new SimpleTrade(new ItemStack(ModItems.COIN_IRON.get(), 2), new ItemStack(Items.LAPIS_LAZULI), 12, 5, 0.05f),
 						//Armorer
@@ -203,7 +200,7 @@ public class VillagerTradeManager {
 						new EnchantedBookForCoinsTrade(10),
 						new SimpleTrade(new ItemStack(ModItems.COIN_IRON.get(), 3), new ItemStack(Blocks.GLASS,4), 12, 10, 0.05f),
 						//Cartographer
-						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 4), ConfiguredStructureTags.ON_WOODLAND_EXPLORER_MAPS, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10),
+						new ItemsForMapTrade(new ItemStack(ModItems.COIN_GOLD.get(), 4), Structure.WOODLAND_MANSION, "filled_map.mansion", MapDecoration.Type.MANSION, 12, 10),
 						//Cleric
 						new SimpleTrade(new ItemStack(ModItems.COIN_GOLD.get()), new ItemStack(Blocks.GLOWSTONE), 12, 10, 0.05f),
 						//Armorer
@@ -227,12 +224,12 @@ public class VillagerTradeManager {
 				ImmutableList.of(
 						//Farmer
 						new SimpleTrade(new ItemStack(ModItems.COIN_GOLD.get(), 2), new ItemStack(Blocks.CAKE), 12, 15, 0.05f),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.NIGHT_VISION, 100), 15),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.JUMP, 160), 15),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.WEAKNESS, 100), 15),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.BLINDNESS, 120), 15),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.POISON, 100), 15),
-						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(MobEffects.SATURATION, 7), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.NIGHT_VISION, 100), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.JUMP, 160), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.WEAKNESS, 100), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.BLINDNESS, 120), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.POISON, 100), 15),
+						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), SimpleTrade.createSuspiciousStew(Effects.SATURATION, 7), 15),
 						//Fisherman (none)
 						//Shepherd (none)
 						//Fletcher
@@ -271,7 +268,7 @@ public class VillagerTradeManager {
 						//Librarian
 						new SimpleTrade(new ItemStack(ModItems.COIN_GOLD.get(), 1), new ItemStack(Items.NAME_TAG), 12, 30, 0.05f),
 						//Cartographer
-						new SimpleTrade(new ItemStack(ModItems.COIN_GOLD.get(), 1), new ItemStack(Items.GLOBE_BANNER_PATTERN), 12, 30, 0.05f),
+						new SimpleTrade(new ItemStack(ModItems.COIN_GOLD.get(), 1), new ItemStack(Items.GLOBE_BANNER_PATTER), 12, 30, 0.05f),
 						//Cleric
 						new SimpleTrade(new ItemStack(ModItems.COIN_EMERALD.get(), 1), new ItemStack(Blocks.NETHER_WART, 12), 12, 30, 0.05f),
 						new SimpleTrade(new ItemStack(ModItems.COIN_IRON.get(), 5), new ItemStack(Items.EXPERIENCE_BOTTLE), 12, 30, 0.05f),
@@ -305,11 +302,11 @@ public class VillagerTradeManager {
 
 			LightmansCurrency.LogInfo("Registering banker trades.");
 
-			Map<Integer,List<ItemListing>> bankerTrades = CustomVillagerTradeData.getVillagerData(BANKER_ID);
+			Map<Integer,List<VillagerTrades.ITrade>> bankerTrades = CustomVillagerTradeData.getVillagerData(BANKER_ID);
 			for(int i = 1; i <= 5; i++)
 			{
-				List<ItemListing> currentTrades = event.getTrades().get(i);
-				List<ItemListing> newTrades = bankerTrades.get(i);
+				List<VillagerTrades.ITrade> currentTrades = event.getTrades().get(i);
+				List<VillagerTrades.ITrade> newTrades = bankerTrades.get(i);
 				if(newTrades != null)
 					currentTrades.addAll(newTrades);
 				else
@@ -325,11 +322,11 @@ public class VillagerTradeManager {
 
 			LightmansCurrency.LogInfo("Registering cashier trades.");
 
-			Map<Integer,List<ItemListing>> cashierTrades = CustomVillagerTradeData.getVillagerData(CASHIER_ID);
+			Map<Integer,List<VillagerTrades.ITrade>> cashierTrades = CustomVillagerTradeData.getVillagerData(CASHIER_ID);
 			for(int i = 1; i <= 5; i++)
 			{
-				List<ItemListing> currentTrades = event.getTrades().get(i);
-				List<ItemListing> newTrades = cashierTrades.get(i);
+				List<VillagerTrades.ITrade> currentTrades = event.getTrades().get(i);
+				List<VillagerTrades.ITrade> newTrades = cashierTrades.get(i);
 				if(newTrades != null)
 					currentTrades.addAll(newTrades);
 				else
@@ -355,17 +352,17 @@ public class VillagerTradeManager {
 		}
 	}
 
-	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<ItemListing>> trades) {
+	private static void replaceExistingTrades(String trader, Int2ObjectMap<List<VillagerTrades.ITrade>> trades) {
 
 		Supplier<Item> replacementSupplier = () -> Config.getEmeraldReplacementItem(trader);
 
 		for(int i = 1; i <= 5; ++i)
 		{
-			List<ItemListing> tradeList = trades.get(i);
+			List<VillagerTrades.ITrade> tradeList = trades.get(i);
 
-			List<ItemListing> newList = new ArrayList<>();
+			List<VillagerTrades.ITrade> newList = new ArrayList<>();
 
-			for(ItemListing trade : tradeList)
+			for(VillagerTrades.ITrade trade : tradeList)
 			{
 				if(trade != null)
 					newList.add(new ConvertedTrade(trade, Items.EMERALD, replacementSupplier));
@@ -396,7 +393,7 @@ public class VillagerTradeManager {
 
 	}
 
-	private static void replaceExistingTrades(List<ItemListing> tradeList) {
+	private static void replaceExistingTrades(List<VillagerTrades.ITrade> tradeList) {
 
 		for(int i = 0; i < tradeList.size(); ++i)
 		{
@@ -406,15 +403,12 @@ public class VillagerTradeManager {
 
 	}
 
-	public static class ConvertedTrade implements ItemListing
+	public static class ConvertedTrade implements VillagerTrades.ITrade
 	{
 
-		final ItemListing tradeSource;
-		final ItemLike oldItem;
+		final VillagerTrades.ITrade tradeSource;
+		final IItemProvider oldItem;
 		final Supplier<Item> newItem;
-
-		@Deprecated(forRemoval = true, since = "2.0.1.4")
-		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Item newItem) { this(tradeSource, oldItem, () -> newItem); }
 
 		/**
 		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
@@ -424,14 +418,14 @@ public class VillagerTradeManager {
 		 * @param oldItem The Item to replace.
 		 * @param newItem The Item to replace the oldItem with.
 		 */
-		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Supplier<Item> newItem) {
+		public ConvertedTrade(VillagerTrades.ITrade tradeSource, IItemProvider oldItem, Supplier<Item> newItem) {
 			this.tradeSource = tradeSource;
 			this.oldItem = oldItem;
 			this.newItem = newItem;
 		}
 
 		@Override
-		public MerchantOffer getOffer(@NotNull Entity trader, @NotNull Random random) {
+		public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull Random random) {
 			try {
 				int attempts = 0;
 				MerchantOffer offer;

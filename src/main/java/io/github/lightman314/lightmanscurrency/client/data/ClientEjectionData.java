@@ -5,11 +5,11 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -20,9 +20,9 @@ public class ClientEjectionData {
 	
 	public static List<EjectionData> GetEjectionData() { return new ArrayList<>(emergencyEjectionData); }
 	
-	public static void UpdateEjectionData(CompoundTag compound) {
+	public static void UpdateEjectionData(CompoundNBT compound) {
 		emergencyEjectionData.clear();
-		ListTag ejectionList = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+		ListNBT ejectionList = compound.getList("EmergencyEjectionData", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < ejectionList.size(); ++i)
 		{
 			try {

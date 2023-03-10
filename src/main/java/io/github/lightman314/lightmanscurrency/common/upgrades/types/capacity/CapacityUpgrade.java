@@ -23,7 +23,5 @@ public abstract class CapacityUpgrade extends UpgradeType {
 			return 1;
 		return null;
 	}
-
-	
 	
 }

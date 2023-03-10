@@ -3,8 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.traders.tradedata;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
@@ -15,14 +17,12 @@ import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCos
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TradeData {
 
@@ -84,16 +84,16 @@ public abstract class TradeData {
 			TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 	}
 
-	public CompoundTag getAsNBT()
+	public CompoundNBT getAsNBT()
 	{
-		CompoundTag tradeNBT = new CompoundTag();
+		CompoundNBT tradeNBT = new CompoundNBT();
 		this.cost.save(tradeNBT,"Price");
 		TradeRule.saveRules(tradeNBT, this.rules, "RuleData");
 
 		return tradeNBT;
 	}
 
-	protected void loadFromNBT(CompoundTag nbt)
+	protected void loadFromNBT(CompoundNBT nbt)
 	{
 		cost.load(nbt, "Price");
 		//Set whether it's free or not
@@ -152,7 +152,7 @@ public abstract class TradeData {
 
 	public abstract boolean AcceptableDifferences(TradeComparisonResult result);
 
-	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
+	public abstract List<ITextComponent> GetDifferenceWarnings(TradeComparisonResult differences);
 
 	@OnlyIn(Dist.CLIENT)
 	public abstract TradeRenderManager<?> getButtonRenderer();
@@ -194,13 +194,13 @@ public abstract class TradeData {
 	 */
 	public abstract void onInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem);
 
-	@NotNull
-	public final List<Integer> getRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots) {
+	@Nonnull
+	public final List<Integer> getRelevantInventorySlots(TradeContext context, List<Slot> slots) {
 		List<Integer> results = new ArrayList<>();
-		this.collectRelevantInventorySlots(context, slots, results);
+		this.collectRelevantInventorySlots(context, ImmutableList.copyOf(slots), results);
 		return results;
 	}
 
-	protected void collectRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots, List<Integer> results) { }
+	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) { }
 
 }

@@ -6,26 +6,26 @@ import java.util.UUID;
 
 import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class FreeSample extends TradeRule{
 	
@@ -40,7 +40,7 @@ public class FreeSample extends TradeRule{
 	public void beforeTrade(PreTradeEvent event)
 	{
 		if(this.giveDiscount(event))
-			event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.free_sample.alert"));
+			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.free_sample.alert"));
 	}
 	
 	@Override
@@ -77,12 +77,12 @@ public class FreeSample extends TradeRule{
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		
-		ListTag memoryList = new ListTag();
+	protected void saveAdditional(CompoundNBT compound) {
+
+		ListNBT memoryList = new ListNBT();
 		for(UUID entry : this.memory)
 		{
-			CompoundTag tag = new CompoundTag();
+			CompoundNBT tag = new CompoundNBT();
 			tag.putUUID("ID", entry);
 			memoryList.add(tag);
 		}
@@ -93,15 +93,15 @@ public class FreeSample extends TradeRule{
 	public JsonObject saveToJson(JsonObject json) { return json; }
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
-		if(compound.contains("Memory", Tag.TAG_LIST))
+		if(compound.contains("Memory", Constants.NBT.TAG_LIST))
 		{
 			this.memory.clear();
-			ListTag memoryList = compound.getList("Memory", Tag.TAG_COMPOUND);
+			ListNBT memoryList = compound.getList("Memory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < memoryList.size(); i++)
 			{
-				CompoundTag tag = memoryList.getCompound(i);
+				CompoundNBT tag = memoryList.getCompound(i);
 				if(tag.contains("ID"))
 					this.memory.add(tag.getUUID("ID"));
 				else if(tag.contains("id"))
@@ -112,12 +112,12 @@ public class FreeSample extends TradeRule{
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() {
-		CompoundTag data = new CompoundTag();
-		ListTag memoryList = new ListTag();
+	public CompoundNBT savePersistentData() {
+		CompoundNBT data = new CompoundNBT();
+		ListNBT memoryList = new ListNBT();
 		for(UUID entry : this.memory)
 		{
-			CompoundTag tag = new CompoundTag();
+			CompoundNBT tag = new CompoundNBT();
 			tag.putUUID("ID", entry);
 			memoryList.add(tag);
 		}
@@ -126,14 +126,14 @@ public class FreeSample extends TradeRule{
 	}
 	
 	@Override
-	public void loadPersistentData(CompoundTag data) {
-		if(data.contains("Memory", Tag.TAG_LIST))
+	public void loadPersistentData(CompoundNBT data) {
+		if(data.contains("Memory", Constants.NBT.TAG_LIST))
 		{
 			this.memory.clear();
-			ListTag memoryList = data.getList("Memory", Tag.TAG_COMPOUND);
+			ListNBT memoryList = data.getList("Memory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < memoryList.size(); i++)
 			{
-				CompoundTag tag = memoryList.getCompound(i);
+				CompoundNBT tag = memoryList.getCompound(i);
 				if(tag.contains("ID"))
 					this.memory.add(tag.getUUID("ID"));
 				else if(tag.contains("id"))
@@ -146,7 +146,7 @@ public class FreeSample extends TradeRule{
 	public void loadFromJson(JsonObject json) { }
 	
 	@Override
-	protected void handleUpdateMessage(CompoundTag updateInfo) {
+	protected void handleUpdateMessage(CompoundNBT updateInfo) {
 		if(updateInfo.contains("ClearData"))
 			this.memory.clear();
 	}
@@ -165,7 +165,7 @@ public class FreeSample extends TradeRule{
 	private static class GUIHandler extends TradeRule.GUIHandler
 	{
 		
-		private final FreeSample getRule()
+		private FreeSample getRule()
 		{
 			if(getRuleRaw() instanceof FreeSample)
 				return (FreeSample)getRuleRaw();
@@ -182,15 +182,15 @@ public class FreeSample extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, new TranslatableComponent("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
+			this.buttonClearMemory = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 50, screen.xSize - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton));
 			
 		}
 
 		@Override
-		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+		public void renderTab(MatrixStack poseStack, int mouseX, int mouseY, float partialTicks) {
 			
 			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(poseStack, new TranslatableComponent("gui.button.lightmanscurrency.free_sample.reset.tooltip"), mouseX, mouseY);
+				screen.renderTooltip(poseStack, EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset.tooltip"), mouseX, mouseY);
 			
 		}
 
@@ -205,7 +205,7 @@ public class FreeSample extends TradeRule{
 		void PressClearMemoryButton(Button button)
 		{
 			this.getRule().memory.clear();
-			CompoundTag updateInfo = new CompoundTag();
+			CompoundNBT updateInfo = new CompoundNBT();
 			updateInfo.putBoolean("ClearData", true);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
 		}

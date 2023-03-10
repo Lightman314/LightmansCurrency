@@ -13,20 +13,19 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class CoinValue
@@ -45,7 +44,7 @@ public class CoinValue
 	
 	public boolean isValid() { return this.isFree || this.coinValues.size() > 0; }
 	
-	public CoinValue(CompoundTag compound)
+	public CoinValue(CompoundNBT compound)
 	{
 		this.coinValues = new ArrayList<>();
 		this.load(compound, DEFAULT_KEY);
@@ -115,7 +114,7 @@ public class CoinValue
 		}
 	}
 	
-	public CompoundTag save(CompoundTag compound, String key)
+	public CompoundNBT save(CompoundNBT compound, String key)
 	{
 		if(this.isFree)
 		{
@@ -123,10 +122,10 @@ public class CoinValue
 		}
 		else
 		{
-			ListTag list = new ListTag();
+			ListNBT list = new ListNBT();
     		for(CoinValuePair value : coinValues)
     		{
-    			CompoundTag thisCompound = new CompoundTag();
+				CompoundNBT thisCompound = new CompoundNBT();
     			//new ItemStack(null).write(nbt)
 				ResourceLocation resource = ForgeRegistries.ITEMS.getKey(value.coin);
     			if(resource != null && MoneyUtil.isCoin(value.coin))
@@ -142,21 +141,21 @@ public class CoinValue
 		return compound;
 	}
 	
-	public void load(CompoundTag compound, String key)
+	public void load(CompoundNBT compound, String key)
 	{
-		if(compound.contains(key, Tag.TAG_INT))
+		if(compound.contains(key, Constants.NBT.TAG_INT))
 		{
 			//Read old value
 			this.loadFromOldValue(compound.getInt(key));
 		}
-		else if(compound.contains(key, Tag.TAG_LIST))
+		else if(compound.contains(key, Constants.NBT.TAG_LIST))
 		{
 			//Read full value
-			ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
+			ListNBT listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
 			this.coinValues.clear();
 			for(int i = 0; i < listNBT.size(); i++)
 			{
-				CompoundTag thisCompound = listNBT.getCompound(i);
+				CompoundNBT thisCompound = listNBT.getCompound(i);
 				Item priceCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(thisCompound.getString("id")));
 				int amount = thisCompound.getInt("amount");
 				this.coinValues.add(new CoinValuePair(priceCoin,amount));
@@ -170,7 +169,7 @@ public class CoinValue
 		
 	}
 
-	public static CoinValue from(CompoundTag compound, String key) {
+	public static CoinValue from(CompoundNBT compound, String key) {
 		CoinValue val = new CoinValue();
 		val.load(compound, key);
 		return val;
@@ -198,9 +197,9 @@ public class CoinValue
 		this.sortValue();
 	}
 
-	public final void encode(FriendlyByteBuf buffer) { buffer.writeNbt(this.save(new CompoundTag(), DEFAULT_KEY)); }
+	public final void encode(PacketBuffer buffer) { buffer.writeNbt(this.save(new CompoundNBT(), DEFAULT_KEY)); }
 
-	public static CoinValue decode(FriendlyByteBuf buffer) { return from(buffer.readAnySizeNbt(), DEFAULT_KEY); }
+	public static CoinValue decode(PacketBuffer buffer) { return from(buffer.readAnySizeNbt(), DEFAULT_KEY); }
 	
 	public void addValue(CoinValue other)
 	{
@@ -376,7 +375,7 @@ public class CoinValue
 	{
 		
 		if(this.isFree)
-			return new TranslatableComponent("gui.coinvalue.free").getString();
+			return EasyText.translatable("gui.coinvalue.free").getString();
 		
 		switch(Config.SERVER.coinValueType.get())
 		{
@@ -389,7 +388,7 @@ public class CoinValue
 					string.append(coinData.getInitial().getString());
 				}
 			}
-        	if(string.toString().isBlank())
+        	if(string.toString().isEmpty())
         		return emptyFiller;
         	return string.toString();
 		case VALUE:
@@ -400,9 +399,9 @@ public class CoinValue
 		
 	}
 	
-	public MutableComponent getComponent() { return this.getComponent(""); }
+	public IFormattableTextComponent getComponent() { return this.getComponent(""); }
 	
-	public MutableComponent getComponent(String emptyFiller) { return new TextComponent(this.getString(emptyFiller)); }
+	public IFormattableTextComponent getComponent(String emptyFiller) { return EasyText.literal(this.getString(emptyFiller)); }
 	
 	public long getRawValue()
 	{
@@ -525,7 +524,7 @@ public class CoinValue
 		return new CoinValue(pairs, false);
 	}
 	
-	public static CoinValue easyBuild2(Container inventory)
+	public static CoinValue easyBuild2(IInventory inventory)
 	{
 		return new CoinValue(MoneyUtil.getValue(inventory));
 	}
@@ -603,10 +602,11 @@ public class CoinValue
 	public boolean equals(Object other) {
 		if(this == other)
 			return true;
-		else if(!(other instanceof CoinValue coinValue))
+		else if(!(other instanceof CoinValue))
 			return false;
 		else
 		{
+			CoinValue coinValue = (CoinValue)other;
 			if(coinValue.isFree && this.isFree)
 				return true;
 			else

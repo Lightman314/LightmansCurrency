@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.permissions.optio
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.widget.button.Button;
 
 public class BooleanPermission extends PermissionOption{
 

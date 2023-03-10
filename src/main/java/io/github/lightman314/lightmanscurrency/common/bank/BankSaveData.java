@@ -17,35 +17,34 @@ import io.github.lightman314.lightmanscurrency.network.message.bank.MessageIniti
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageUpdateClientBank;
 import io.github.lightman314.lightmanscurrency.network.message.bank.SPacketSyncSelectedBankAccount;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class BankSaveData extends SavedData {
+public class BankSaveData extends WorldSavedData {
 
 	
 	private final Map<UUID, Pair<BankAccount,AccountReference>> playerBankData = new HashMap<>();
 	
-	private BankSaveData() {}
-	private BankSaveData(CompoundTag compound) {
-		
-		ListTag bankData = compound.getList("PlayerBankData", Tag.TAG_COMPOUND);
+	private BankSaveData() { super("lightmanscurrency_bank_data"); }
+	public void load(CompoundNBT compound)
+	{
+		ListNBT bankData = compound.getList("PlayerBankData", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < bankData.size(); ++i)
 		{
-			CompoundTag tag = bankData.getCompound(i);
+			CompoundNBT tag = bankData.getCompound(i);
 			UUID player = tag.getUUID("Player");
 			BankAccount bankAccount = loadBankAccount(player, tag.getCompound("BankAccount"));
 			AccountReference lastSelected = BankAccount.LoadReference(false, tag.getCompound("LastSelected"));
@@ -53,11 +52,11 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public @NotNull CompoundTag save(CompoundTag compound) {
+	public @Nonnull CompoundNBT save(CompoundNBT compound) {
 		
-		ListTag bankData = new ListTag();
+		ListNBT bankData = new ListNBT();
 		this.playerBankData.forEach((player,data) -> {
-			CompoundTag tag = new CompoundTag();
+			CompoundNBT tag = new CompoundNBT();
 			tag.putUUID("Player", player);
 			tag.put("BankAccount", data.getFirst().save());
 			tag.put("LastSelected", data.getSecond().save());
@@ -68,7 +67,7 @@ public class BankSaveData extends SavedData {
 		return compound;
 	}
 	
-	private static BankAccount loadBankAccount(UUID player, CompoundTag compound) {
+	private static BankAccount loadBankAccount(UUID player, CompoundNBT compound) {
 		BankAccount bankAccount = new BankAccount(() -> MarkBankAccountDirty(player), compound);
 		try {
 			bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
@@ -90,9 +89,9 @@ public class BankSaveData extends SavedData {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(BankSaveData::new, BankSaveData::new, "lightmanscurrency_bank_data");
+				return level.getDataStorage().computeIfAbsent(BankSaveData::new, "lightmanscurrency_bank_data");
 		}
 		return null;
 	}
@@ -105,7 +104,7 @@ public class BankSaveData extends SavedData {
 		return results;
 	}
 	
-	public static BankAccount GetBankAccount(Player player) { return GetBankAccount(player.level.isClientSide, player.getUUID()); }
+	public static BankAccount GetBankAccount(PlayerEntity player) { return GetBankAccount(player.level.isClientSide, player.getUUID()); }
 	
 	public static BankAccount GetBankAccount(boolean isClient, UUID player) {
 		if(isClient)
@@ -128,8 +127,9 @@ public class BankSaveData extends SavedData {
 			return null;
 		}
 	}
-	
-	@Deprecated /** @deprecated Only use to transfer bank account data from the old Trading Office. */
+
+	/** @deprecated Only use to transfer bank account data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldBankAccount(UUID player, BankAccount account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
@@ -149,13 +149,13 @@ public class BankSaveData extends SavedData {
 			bsd.setDirty();
 			//Send update packet to all connected clients
 			BankAccount bankAccount = GetBankAccount(false, player);
-			CompoundTag compound = bankAccount.save();
+			CompoundNBT compound = bankAccount.save();
 			compound.putUUID("Player", player);
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientBank(compound));
 		}
 	}
 	
-	public static AccountReference GetSelectedBankAccount(Player player) {
+	public static AccountReference GetSelectedBankAccount(PlayerEntity player) {
 		if(player.level.isClientSide)
 		{
 			ClientBankData.GetLastSelectedAccount();
@@ -184,8 +184,9 @@ public class BankSaveData extends SavedData {
 		}
 		return BankAccount.GenerateReference(player);
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer selected bank account from old Trading Office. */
+
+	/** @deprecated Use only to transfer selected bank account from old Trading Office. */
+	@Deprecated
 	public static void GiveOldSelectedBankAccount(UUID player, AccountReference account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
@@ -202,7 +203,7 @@ public class BankSaveData extends SavedData {
 		}
 	}
 	
-	public static void SetSelectedBankAccount(Player player, AccountReference account) {
+	public static void SetSelectedBankAccount(PlayerEntity player, AccountReference account) {
 		//Ignore if the account is null or the player isn't allowed to access it.
 		if(account == null)
 			return;
@@ -242,17 +243,17 @@ public class BankSaveData extends SavedData {
 	public static void OnPlayerLogin(PlayerLoggedInEvent event)
 	{
 		
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+		PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 		
 		BankSaveData bsd = get();
 		
 		//Confirm the presence of the loading players bank account
 		GetBankAccount(event.getPlayer());
 		
-		CompoundTag compound = new CompoundTag();
-		ListTag bankList = new ListTag();
+		CompoundNBT compound = new CompoundNBT();
+		ListNBT bankList = new ListNBT();
 		bsd.playerBankData.forEach((id, data) -> {
-			CompoundTag tag = data.getFirst().save();
+			CompoundNBT tag = data.getFirst().save();
 			tag.putUUID("Player", id);
 			bankList.add(tag);
 		});

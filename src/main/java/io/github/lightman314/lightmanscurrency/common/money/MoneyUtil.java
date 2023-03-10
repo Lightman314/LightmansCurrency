@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.money;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +23,17 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -61,7 +64,7 @@ public class MoneyUtil {
 
 	//Make high priority so that it runs before other "server start" events that may end up loading traders
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onServerStart(ServerStartedEvent event) {
+	public static void onServerStart(FMLServerStartedEvent event) {
 		LightmansCurrency.LogInfo("Setting up Money System for server.");
 		reloadMoneyData();
 	}
@@ -74,7 +77,7 @@ public class MoneyUtil {
 			createMoneyDataFile(mcl);
 		}
 		try { 
-			JsonObject fileData = FileUtil.JSON_PARSER.parse(Files.readString(mcl.toPath())).getAsJsonObject();
+			JsonObject fileData = FileUtil.JSON_PARSER.parse(FileUtil.readString(mcl)).getAsJsonObject();
 			moneyData = MoneyData.fromJson(fileData);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading Master Coin List. Using default values for now.", e);
@@ -326,13 +329,13 @@ public class MoneyUtil {
 	 * Gets the total value of the items in the given inventory.
 	 * @param inventory The inventory full of coins with which to get the value of.
 	 */
-    public static CoinValue getCoinValue(Container inventory) { return new CoinValue(getValue(inventory)); }
+    public static CoinValue getCoinValue(IInventory inventory) { return new CoinValue(getValue(inventory)); }
     
     /**
 	 * Gets the total value of the items in the given inventory.
 	 * @param inventory The inventory full of coins with which to get the value of.
 	 */
-    public static long getValue(Container inventory)
+    public static long getValue(IInventory inventory)
 	{
     	long value = 0;
 		for(int i = 0; i < inventory.getContainerSize(); i++)
@@ -345,7 +348,7 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as large a coin as humanly possible
      */
-    public static void ConvertAllCoinsUp(Container inventory)
+    public static void ConvertAllCoinsUp(IInventory inventory)
     {
     	if(moneyData == null)
     		return;
@@ -365,7 +368,7 @@ public class MoneyUtil {
      */
     public static NonNullList<ItemStack> ConvertAllCoinsUp(NonNullList<ItemStack> inventoryList)
     {
-    	Container inventory = InventoryUtil.buildInventory(inventoryList);
+		IInventory inventory = InventoryUtil.buildInventory(inventoryList);
     	ConvertAllCoinsUp(inventory);
     	return InventoryUtil.buildList(inventory);
     }
@@ -373,7 +376,7 @@ public class MoneyUtil {
     /**
      * Converts as many of the small coin that it can into its next largest coin
      */
-    public static void ConvertCoinsUp(Container inventory, Item smallCoin)
+    public static void ConvertCoinsUp(IInventory inventory, Item smallCoin)
     {
     	//Get next-higher coin data
     	Pair<Item,Integer> upwardConversion = getUpwardConversion(smallCoin);
@@ -402,7 +405,7 @@ public class MoneyUtil {
     /**
      * Converts all coins in the inventory to as small a coin as humanly possible
      */
-    public static void ConvertAllCoinsDown(Container inventory)
+    public static void ConvertAllCoinsDown(IInventory inventory)
     {
     	ConvertAllCoinsDown(inventory, 2);
     }
@@ -411,7 +414,7 @@ public class MoneyUtil {
      * Converts all coins in the inventory to as small a coin as humanly possible
      * @param iterations The number of times to repeatedly convert to ensure that the available space is used. Default is 2.
      */
-    private static void ConvertAllCoinsDown(Container inventory, int iterations)
+    private static void ConvertAllCoinsDown(IInventory inventory, int iterations)
     {
     	if(moneyData == null)
     		return;
@@ -429,7 +432,7 @@ public class MoneyUtil {
     /**
      * Converts as many of the large coin that it can into its defined smaller coin
      */
-    public static void ConvertCoinsDown(Container inventory, Item largeCoin)
+    public static void ConvertCoinsDown(IInventory inventory, Item largeCoin)
     {
     	CoinData coinData = getData(largeCoin);
     	Item smallCoin = coinData.worthOtherCoin;
@@ -451,7 +454,7 @@ public class MoneyUtil {
 		}
     }
     
-    public static void SortCoins(Container inventory)
+    public static void SortCoins(IInventory inventory)
 	{
 		
 		InventoryUtil.MergeStacks(inventory);
@@ -503,7 +506,7 @@ public class MoneyUtil {
     
     public static NonNullList<ItemStack> SortCoins(NonNullList<ItemStack> inventory)
     {
-    	Container tempInventory = InventoryUtil.buildInventory(inventory);
+		IInventory tempInventory = InventoryUtil.buildInventory(inventory);
     	SortCoins(tempInventory);
     	return InventoryUtil.buildList(tempInventory);
     }
@@ -515,7 +518,7 @@ public class MoneyUtil {
      * @param price The price of the payment that we are attempting to process.
      * @return Whether the payment went through. If false is returned, no money was taken from the wallet nor the inventory.
      */
-    public static boolean ProcessPayment(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue price)
+    public static boolean ProcessPayment(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue price)
     {
     	return ProcessPayment(inventory, player, price, false);
     }
@@ -528,7 +531,7 @@ public class MoneyUtil {
      * @param ignoreWallet Whether we should ignore the players wallet in terms of taking payment or giving change.
      * @return Whether the payment went through. If false is returned, no money was taken from the wallet nor the inventory.
      */
-    public static boolean ProcessPayment(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue price, boolean ignoreWallet)
+    public static boolean ProcessPayment(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue price, boolean ignoreWallet)
     {
     	//Get the players wallet
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
@@ -589,12 +592,12 @@ public class MoneyUtil {
      * @param player The player receiving the money. Required for item overflow, and wallet aquisition.
      * @param change The amount of money we're attempting to give.
      */
-    public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change)
+    public static void ProcessChange(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue change)
     {
     	ProcessChange(inventory, player, change, false);
     }
     
-    public static void ProcessChange(@Nullable Container inventory, @Nonnull Player player, @Nonnull CoinValue change, boolean ignoreWallet)
+    public static void ProcessChange(@Nullable IInventory inventory, @Nonnull PlayerEntity player, @Nonnull CoinValue change, boolean ignoreWallet)
     {
     	//Get the players wallet
     	ItemStack wallet = ignoreWallet ? ItemStack.EMPTY : LightmansCurrency.getWalletStack(player);
@@ -616,7 +619,7 @@ public class MoneyUtil {
 			//Out of room to place it, throw it at the player
 			if(!coinStack.isEmpty())
 			{
-				player.getInventory().placeItemBackInInventory(coinStack);
+				player.inventory.placeItemBackInInventory(player.level, coinStack);
 			}
 		}
     	
@@ -631,7 +634,7 @@ public class MoneyUtil {
      * @return Returns the given value if there is not enough money to take.
      * Returns 0 if exact change was taken, and returns a negative value if more money was taken than what was requested so that change can be calculated separately.
      */
-    public static long takeObjectsOfValue(long value, Container inventory, boolean forceTake)
+    public static long takeObjectsOfValue(long value, IInventory inventory, boolean forceTake)
 	{
     	if(moneyData == null)
     		return value;

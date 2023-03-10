@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.interfaces;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 
 public interface IOwnableBlock {
 
-	boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state);
+	boolean canBreak(PlayerEntity player, IWorld level, BlockPos pos, BlockState state);
 	
 }

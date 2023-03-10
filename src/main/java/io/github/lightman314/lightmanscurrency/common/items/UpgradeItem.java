@@ -11,19 +11,19 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.IUpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType.UpgradeData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 public abstract class UpgradeItem extends Item implements IUpgradeItem{
 
 	protected final UpgradeType upgradeType;
 	private boolean addTooltips = true;
-	Function<UpgradeData,List<Component>> customTooltips = null;
+	Function<UpgradeData,List<ITextComponent>> customTooltips = null;
 	
 	public UpgradeItem(UpgradeType upgradeType, Properties properties)
 	{
@@ -33,7 +33,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	
 	public final boolean addsTooltips() { return this.addTooltips; }
 	protected final void ignoreTooltips() { this.addTooltips = false; }
-	protected final void setCustomTooltips(Function<UpgradeData,List<Component>> customTooltips) { this.customTooltips = customTooltips; }
+	protected final void setCustomTooltips(Function<UpgradeData,List<ITextComponent>> customTooltips) { this.customTooltips = customTooltips; }
 	
 	@Override
 	public UpgradeType getUpgradeType() { return this.upgradeType; }
@@ -55,8 +55,8 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 			UpgradeData data = ((UpgradeItem)stack.getItem()).getDefaultUpgradeData();
 			if(stack.hasTag())
 			{
-				CompoundTag tag = stack.getTag();
-				if(tag.contains("UpgradeData", Tag.TAG_COMPOUND))
+				CompoundNBT tag = stack.getTag();
+				if(tag.contains("UpgradeData", Constants.NBT.TAG_COMPOUND))
 					data.read(tag.getCompound("UpgradeData"));
 			}
 			return data;
@@ -66,24 +66,26 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	
 	public static void setUpgradeData(ItemStack stack, UpgradeData data)
 	{
-		if(stack.getItem() instanceof UpgradeItem upgradeItem)
+		if(stack.getItem() instanceof UpgradeItem)
 		{
-			CompoundTag tag = stack.getOrCreateTag();
+			UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
+			CompoundNBT tag = stack.getOrCreateTag();
 			tag.put("UpgradeData",  data.writeToNBT(upgradeItem.upgradeType));
 		}
 		else
 		{
-			CompoundTag tag = stack.getOrCreateTag();
+			CompoundNBT tag = stack.getOrCreateTag();
 			tag.put("UpgradeData", data.writeToNBT());
 		}
 	}
 	
-	public static List<Component> getUpgradeTooltip(ItemStack stack) { return getUpgradeTooltip(stack, false); }
+	public static List<ITextComponent> getUpgradeTooltip(ItemStack stack) { return getUpgradeTooltip(stack, false); }
 	
-	public static List<Component> getUpgradeTooltip(ItemStack stack, boolean forceCollection)
+	public static List<ITextComponent> getUpgradeTooltip(ItemStack stack, boolean forceCollection)
 	{
-		if(stack.getItem() instanceof UpgradeItem item)
+		if(stack.getItem() instanceof UpgradeItem)
 		{
+			UpgradeItem item = (UpgradeItem)stack.getItem();
 			if(!item.addTooltips && !forceCollection) //Block if tooltips have been blocked
 				return Lists.newArrayList();
 			UpgradeType type = item.getUpgradeType();
@@ -96,10 +98,10 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		//Add upgrade tooltips
-		List<Component> upgradeTooltips = getUpgradeTooltip(stack);
+		List<ITextComponent> upgradeTooltips = getUpgradeTooltip(stack);
 		if(upgradeTooltips != null)
 			tooltip.addAll(upgradeTooltips);
 		

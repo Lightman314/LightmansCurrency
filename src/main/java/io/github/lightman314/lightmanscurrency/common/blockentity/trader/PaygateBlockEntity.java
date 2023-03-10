@@ -9,46 +9,50 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.util.Constants;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	private int timer = 0;
 	
-	public PaygateBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.PAYGATE.get(), pos, state); }
+	public PaygateBlockEntity() { this(ModBlockEntities.PAYGATE.get()); }
 	
-	protected PaygateBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
+	protected PaygateBlockEntity(TileEntityType<?> type) { super(type); }
 	
 	
-	@Override
-	public void saveAdditional(@NotNull CompoundTag compound) {
+	@Nonnull
+    @Override
+	public CompoundNBT save(@Nonnull CompoundNBT compound) {
 		
-		super.saveAdditional(compound);
+		compound = super.save(compound);
 		
 		this.saveTimer(compound);
+
+		return compound;
 		
 	}
 	
-	public final CompoundTag saveTimer(CompoundTag compound) {
+	public final CompoundNBT saveTimer(CompoundNBT compound) {
 		compound.putInt("Timer", Math.max(this.timer, 0));
 		return compound;
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound) {
-		
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound) {
+
+		super.load(state, compound);
+
 		//Load the timer
-		if(compound.contains("Timer", Tag.TAG_INT))
+		if(compound.contains("Timer", Constants.NBT.TAG_INT))
 			this.timer = Math.max(compound.getInt("Timer"), 0);
-		
-		super.load(compound);
 		
 	}
 	
@@ -61,9 +65,11 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	}
 	
 	@Override
-	public void serverTick()
+	public void tick()
 	{
-		super.serverTick();
+		super.tick();
+		if(this.isClient())
+			return;
 		if(this.timer > 0)
 		{
 			this.timer--;
@@ -78,10 +84,10 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	public void markTimerDirty() {
 		this.setChanged();
 		if(!this.level.isClientSide)
-			BlockEntityUtil.sendUpdatePacket(this, this.saveTimer(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveTimer(new CompoundNBT()));
 	}
 	
-	public int getValidTicketTrade(Player player, ItemStack heldItem) {
+	public int getValidTicketTrade(PlayerEntity player, ItemStack heldItem) {
 		PaygateTraderData trader = this.getTraderData();
 		if(heldItem.getItem() == ModItems.TICKET.get())
 		{
@@ -107,12 +113,15 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	protected PaygateTraderData buildNewTrader() { return new PaygateTraderData(this.level, this.worldPosition); }
 
 	@Override @Deprecated
-	protected PaygateTraderData createTraderFromOldData(CompoundTag compound) {
+	protected PaygateTraderData createTraderFromOldData(CompoundNBT compound) {
 		PaygateTraderData newTrader = new PaygateTraderData(this.level, this.worldPosition);
 		newTrader.loadOldBlockEntityData(compound);
 		if(compound.contains("Timer"))
 			this.timer = compound.getInt("Timer");
 		return newTrader;
 	}
-	
+
+	@Override
+	protected void loadAsFormerNetworkTrader(@Nullable PaygateTraderData trader, CompoundNBT compound) { }
+
 }

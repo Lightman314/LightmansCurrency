@@ -3,28 +3,31 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.inter
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.ICapabilityBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 
 public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 
-	 BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos);
+	 TileEntity getBlockEntity(BlockState state, IWorld level, BlockPos pos);
 	
-	default boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
+	default boolean canBreak(PlayerEntity player, IWorld level, BlockPos pos, BlockState state)
 	{
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof IOwnableBlockEntity ownableBlockEntity)
+		TileEntity blockEntity = this.getBlockEntity(state, level, pos);
+		if(blockEntity instanceof IOwnableBlockEntity)
+		{
+			IOwnableBlockEntity ownableBlockEntity = (IOwnableBlockEntity)blockEntity;
 			return ownableBlockEntity.canBreak(player);
+		}
 		return true;
 	}
 	
-	default ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) { return state != null ? new ItemStack(state.getBlock()): ItemStack.EMPTY; }
+	default ItemStack getDropBlockItem(World level, BlockPos pos, BlockState state) { return state != null ? new ItemStack(state.getBlock()): ItemStack.EMPTY; }
 	
-	default BlockEntity getCapabilityBlockEntity(BlockState state, Level level, BlockPos pos) { return this.getBlockEntity(state, level, pos); }
+	default TileEntity getCapabilityBlockEntity(BlockState state, World level, BlockPos pos) { return this.getBlockEntity(state, level, pos); }
 	
 }

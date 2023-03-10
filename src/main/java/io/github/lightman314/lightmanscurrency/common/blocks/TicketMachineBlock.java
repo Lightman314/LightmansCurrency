@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketMachineBlockEntity;
@@ -10,54 +11,54 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketMachineMenu;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
-public class TicketMachineBlock extends RotatableBlock implements EntityBlock{
+public class TicketMachineBlock extends RotatableBlock {
 
-	private static final MutableComponent TITLE = EasyText.translatable("gui.lightmanscurrency.ticket_machine.title");
+	private static final IFormattableTextComponent TITLE = EasyText.translatable("gui.lightmanscurrency.ticket_machine.title");
 
-	public TicketMachineBlock(Properties properties) { super(properties, Block.box(0d,0d,0d,16d,14d,16d)); }
+	public TicketMachineBlock(Properties properties) { super(properties, box(0d,0d,0d,16d,14d,16d)); }
+
+	@Override
+	public boolean hasTileEntity(BlockState state) { return true; }
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return new TicketMachineBlockEntity(pos, state); }
+	public TileEntity createTileEntity(BlockState state, IBlockReader level) { return new TicketMachineBlockEntity(); }
 
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public @Nonnull ActionResultType use(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		if(!level.isClientSide)
-			NetworkHooks.openGui((ServerPlayer)player, this.getMenuProvider(state, level, pos), pos);
-		return InteractionResult.SUCCESS;
+			NetworkHooks.openGui((ServerPlayerEntity) player, this.getMenuProvider(state, level, pos), pos);
+		return ActionResultType.SUCCESS;
 	}
 
 	@Nullable
 	@Override
-	public MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos)
+	public INamedContainerProvider getMenuProvider(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> new TicketMachineMenu(windowId, playerInventory, (TicketMachineBlockEntity)world.getBlockEntity(pos)), TITLE);
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> new TicketMachineMenu(windowId, playerInventory, (TicketMachineBlockEntity)world.getBlockEntity(pos)), TITLE);
 	}
 
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.TICKET_MACHINE);
 		super.appendHoverText(stack, level, tooltip, flagIn);

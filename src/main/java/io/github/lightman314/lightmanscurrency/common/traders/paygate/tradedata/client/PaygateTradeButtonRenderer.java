@@ -47,8 +47,9 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof PaygateTraderData paygate)
+        if(context.hasTrader() && context.getTrader() instanceof PaygateTraderData)
         {
+            PaygateTraderData paygate = (PaygateTraderData)context.getTrader();
             //Check whether the paygate is currently active
             if(paygate.isActive())
                 alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.paygate.active")));

@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageUpdateClientNotifications {
 
@@ -15,11 +15,11 @@ public class MessageUpdateClientNotifications {
 		this.data = data;
 	}
 	
-	public static void encode(MessageUpdateClientNotifications message, FriendlyByteBuf buffer) {
+	public static void encode(MessageUpdateClientNotifications message, PacketBuffer buffer) {
 		buffer.writeNbt(message.data.save());
 	}
 
-	public static MessageUpdateClientNotifications decode(FriendlyByteBuf buffer) {
+	public static MessageUpdateClientNotifications decode(PacketBuffer buffer) {
 		return new MessageUpdateClientNotifications(NotificationData.loadFrom(buffer.readNbt()));
 	}
 

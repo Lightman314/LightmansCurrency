@@ -7,11 +7,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.RegistryObject;
 
 public class ModMenus {
 	

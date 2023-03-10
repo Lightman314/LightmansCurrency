@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+
+import javax.annotation.Nonnull;
 
 public class NullCategory extends NotificationCategory {
 
@@ -17,11 +19,12 @@ public class NullCategory extends NotificationCategory {
 	
 	private NullCategory() {}
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.BARRIER); }
 
 	@Override
-	public MutableComponent getName() { return new TextComponent("NULL"); }
+	public IFormattableTextComponent getName() { return EasyText.literal("NULL"); }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -30,6 +33,6 @@ public class NullCategory extends NotificationCategory {
 	public boolean matches(NotificationCategory other) { return other instanceof NullCategory; }
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) { }
+	protected void saveAdditional(CompoundNBT compound) { }
 	
 }

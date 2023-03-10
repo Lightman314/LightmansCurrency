@@ -1,21 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankInteraction;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.Container;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.util.text.ITextComponent;
 
 public class BankAccountWidget {
 
@@ -25,7 +22,7 @@ public class BankAccountWidget {
 	
 	private final IBankAccountWidget parent;
 	
-	private CoinValueInput amountSelection;
+	private final CoinValueInput amountSelection;
 	public CoinValueInput getAmountSelection() { return this.amountSelection; }
 	Button buttonDeposit;
 	Button buttonWithdraw;
@@ -45,24 +42,24 @@ public class BankAccountWidget {
 		
 		int screenMiddle = this.parent.getScreen().width / 2;
 		
-		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(screenMiddle - CoinValueInput.DISPLAY_WIDTH / 2, this.y, new TranslatableComponent("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this.parent.getFont(), value -> {}, this.parent::addCustomWidget));
+		this.amountSelection = this.parent.addCustomWidget(new CoinValueInput(screenMiddle - CoinValueInput.DISPLAY_WIDTH / 2, this.y, EasyText.translatable("gui.lightmanscurrency.bank.amounttip"), CoinValue.EMPTY, this.parent.getFont(), value -> {}, this.parent::addCustomWidget));
 		this.amountSelection.allowFreeToggle = false;
 		this.amountSelection.init();
 		
-		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.deposit"), this::OnDeposit));
-		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, new TranslatableComponent("gui.button.bank.withdraw"), this::OnWithdraw));
+		this.buttonDeposit = this.parent.addCustomWidget(new Button(screenMiddle - 5 - BUTTON_WIDTH, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, EasyText.translatable("gui.button.bank.deposit"), this::OnDeposit));
+		this.buttonWithdraw = this.parent.addCustomWidget(new Button(screenMiddle + 5, this.y + CoinValueInput.HEIGHT + 5 + spacing, BUTTON_WIDTH, 20, EasyText.translatable("gui.button.bank.withdraw"), this::OnWithdraw));
 		this.buttonDeposit.active = this.buttonWithdraw.active = false;
 		
 	}
 	
-	public void renderInfo(PoseStack pose) { this.renderInfo(pose, 0); }
+	public void renderInfo(MatrixStack pose) { this.renderInfo(pose, 0); }
 	
-	public void renderInfo(PoseStack pose, int yOffset)
+	public void renderInfo(MatrixStack pose, int yOffset)
 	{
 		
 		int screenMiddle = this.parent.getScreen().width / 2;
-		Font font = this.parent.getFont();
-		Component balanceComponent = this.parent.getBankAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.parent.getBankAccount().getCoinStorage().getString("0"));
+		FontRenderer font = this.parent.getFont();
+		ITextComponent balanceComponent = this.parent.getBankAccount() == null ? EasyText.translatable("gui.lightmanscurrency.bank.null") : EasyText.translatable("gui.lightmanscurrency.bank.balance", this.parent.getBankAccount().getCoinStorage().getString("0"));
 		int offset = font.width(balanceComponent.getString()) / 2;
 		this.parent.getFont().draw(pose, balanceComponent, screenMiddle - offset, this.y + CoinValueInput.HEIGHT + 30 + spacing + yOffset, 0x404040);
 		
@@ -98,11 +95,11 @@ public class BankAccountWidget {
 
 	public interface IBankAccountWidget
 	{
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T widget);
-		public Font getFont();
-		public Screen getScreen();
-		public BankAccount getBankAccount();
-		public Container getCoinAccess();
+		<T extends Widget> T addCustomWidget(T widget);
+		FontRenderer getFont();
+		Screen getScreen();
+		BankAccount getBankAccount();
+		IInventory getCoinAccess();
 	}
 	
 }

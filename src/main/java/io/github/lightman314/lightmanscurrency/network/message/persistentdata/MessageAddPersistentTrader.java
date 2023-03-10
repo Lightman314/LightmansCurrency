@@ -10,12 +10,12 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageAddPersistentTrader {
 
@@ -28,7 +28,7 @@ public class MessageAddPersistentTrader {
 	public MessageAddPersistentTrader(long traderID, String id, String owner) {
 		this.traderID = traderID;
 		this.id = id;
-		this.owner = owner.isBlank() ? "Minecraft" : owner;
+		this.owner = owner.isEmpty() ? "Minecraft" : owner;
 	}
 	
 	private JsonObject getTraderJson(TraderData trader, String id) throws Exception {
@@ -38,27 +38,27 @@ public class MessageAddPersistentTrader {
 		return traderJson;
 	}
 	
-	public static void encode(MessageAddPersistentTrader message, FriendlyByteBuf buffer) {
+	public static void encode(MessageAddPersistentTrader message, PacketBuffer buffer) {
 		buffer.writeLong(message.traderID);
 		buffer.writeUtf(message.id);
 		buffer.writeUtf(message.owner);
 	}
 	
-	public static MessageAddPersistentTrader decode(FriendlyByteBuf buffer) {
+	public static MessageAddPersistentTrader decode(PacketBuffer buffer) {
 		return new MessageAddPersistentTrader(buffer.readLong(), buffer.readUtf(), buffer.readUtf());
 	}
 	
 	public static void handle(MessageAddPersistentTrader message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> {
 			//Only allow if player is in admin mode
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(CommandLCAdmin.isAdminPlayer(player))
 			{
 				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);
 				if(trader != null && trader.canMakePersistent())
 				{
 					
-					boolean generateID = message.id.isBlank();
+					boolean generateID = message.id.isEmpty();
 					
 					if(!generateID)
 					{
@@ -75,7 +75,7 @@ public class MessageAddPersistentTrader {
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.overwrite", message.id), new UUID(0,0));
+									player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.overwrite", message.id), new UUID(0,0));
 									return;
 								}
 							}
@@ -83,7 +83,7 @@ public class MessageAddPersistentTrader {
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-							player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", message.id), new UUID(0,0));
+							player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.add", message.id), new UUID(0,0));
 							return;
 						} catch (Throwable t) { t.printStackTrace(); }
 					}
@@ -105,12 +105,12 @@ public class MessageAddPersistentTrader {
 							//Check trader_1 -> trader_2147483646 to find an available id
 							for(int i = 1; i < Integer.MAX_VALUE; ++i)
 							{
-								String genID = GENERATE_ID_FORMAT + String.valueOf(i);
+								String genID = GENERATE_ID_FORMAT + i;
 								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 								{
 									persistentTraders.add(message.getTraderJson(trader, genID));
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
-									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
+									player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
 									return;
 								}
 							}
@@ -119,7 +119,7 @@ public class MessageAddPersistentTrader {
 					}
 				}
 			}
-			player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.fail"), new UUID(0,0));
+			player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.trader.fail"), new UUID(0,0));
 		});
 		supplier.get().setPacketHandled(true);
 	}

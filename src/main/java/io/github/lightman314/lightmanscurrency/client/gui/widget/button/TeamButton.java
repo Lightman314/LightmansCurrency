@@ -3,19 +3,18 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.ResourceLocation;
 
-public class TeamButton extends Button{
+public class TeamButton extends Button {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teambutton.png");
 	
@@ -32,15 +31,15 @@ public class TeamButton extends Button{
 	public static final int HEIGHT = 20;
 	public static final int TEXT_COLOR = 0xFFFFFF;
 	
-	private final Font font;
+	private final FontRenderer font;
 	private final Size size;
 	private final Supplier<Team> teamSource;
 	public Team getTeam() { return this.teamSource.get(); }
 	private final Supplier<Boolean> selectedSource;
 	
-	public TeamButton(int x, int y, Size size, OnPress press, Font font, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
+	public TeamButton(int x, int y, Size size, IPressable press, FontRenderer font, @Nonnull Supplier<Team> teamSource, @Nonnull Supplier<Boolean> selectedSource)
 	{
-		super(x, y, size.width, HEIGHT, new TextComponent(""), press);
+		super(x, y, size.width, HEIGHT, EasyText.empty(), press);
 		this.font = font;
 		this.size = size;
 		this.teamSource = teamSource;
@@ -48,21 +47,21 @@ public class TeamButton extends Button{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		if(!this.visible || this.getTeam() == null)
 			return;
 		
 		//Render Background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		
 		this.blit(pose, this.x, this.y, 0, (selectedSource.get() ? HEIGHT : 0) + this.size.guiPos, this.size.width, HEIGHT);
 		
 		//Render Team Name
 		this.font.draw(pose, this.fitString(this.getTeam().getName()), this.x + 2, this.y + 2, TEXT_COLOR);
-		//Render Owner Name)
-		this.font.draw(pose, this.fitString(new TranslatableComponent("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)).getString()), this.x + 2, this.y + 10, TEXT_COLOR);
+		//Render Owner Name
+		this.font.draw(pose, this.fitString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getTeam().getOwner().getName(true)).getString()), this.x + 2, this.y + 10, TEXT_COLOR);
 		
 	}
 	
@@ -78,7 +77,7 @@ public class TeamButton extends Button{
 	}
 	
 	@Override
-	public void playDownSound(SoundManager soundManager) {
+	public void playDownSound(@Nonnull SoundHandler soundManager) {
 		if(!this.visible || this.getTeam() == null)
 			return;
 		super.playDownSound(soundManager);

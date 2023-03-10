@@ -2,27 +2,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import javax.annotation.Nonnull;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 @OnlyIn(Dist.CLIENT)
-public class IconButton extends Button{
+public class IconButton extends Button {
 	
 	public static final int SIZE = 20;
 	
@@ -31,47 +26,41 @@ public class IconButton extends Button{
 	private NonNullSupplier<Boolean> activeCheck = () -> this.active;
 	private NonNullSupplier<Boolean> visibilityCheck = () -> this.visible;
 	
-	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon)
+	public IconButton(int x, int y, IPressable pressable, @Nonnull IconData icon)
 	{
-		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
+		super(x,y,SIZE,SIZE, EasyText.empty(), pressable);
 		this.setIcon(icon);
 	}
 	
-	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource)
+	public IconButton(int x, int y, IPressable pressable, @Nonnull NonNullSupplier<IconData> iconSource)
 	{
-		super(x,y,SIZE,SIZE,new TextComponent(""), pressable);
+		super(x,y,SIZE,SIZE,EasyText.empty(), pressable);
 		this.setIcon(iconSource);
 	}
 	
-	public IconButton(int x, int y, OnPress pressable, @Nonnull IconData icon, OnTooltip tooltip)
+	public IconButton(int x, int y, IPressable pressable, @Nonnull IconData icon, ITooltip tooltip)
 	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
+		super(x,y,SIZE,SIZE, EasyText.empty(), pressable, tooltip);
 		this.setIcon(icon);
 	}
 	
-	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullSupplier<IconData> iconSource, OnTooltip tooltip)
+	public IconButton(int x, int y, IPressable pressable, @Nonnull NonNullSupplier<IconData> iconSource, ITooltip tooltip)
 	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable, tooltip);
+		super(x,y,SIZE,SIZE, EasyText.empty(), pressable, tooltip);
 		this.setIcon(iconSource);
 	}
 	
-	public IconButton(int x, int y, OnPress pressable, @Nonnull NonNullFunction<IconButton,IconData> iconSource, OnTooltip tooltip)
+	public IconButton(int x, int y, IPressable pressable, @Nonnull NonNullFunction<IconButton,IconData> iconSource, ITooltip tooltip)
 	{
-		super(x,y,SIZE, SIZE, new TextComponent(""), pressable, tooltip);
+		super(x,y,SIZE, SIZE, EasyText.empty(), pressable, tooltip);
 		this.setIcon(iconSource);
-	}
-	
-	@Deprecated
-	public IconButton(int x, int y, OnPress pressable, Font ignored, IconData icon) { this(x, y, pressable, icon); }
-	@Deprecated
-	public IconButton(int x, int y, OnPress pressable, ResourceLocation iconResource, int resourceX, int resourceY)
-	{
-		super(x,y,SIZE,SIZE, new TextComponent(""), pressable);
-		this.setIcon(IconData.of(iconResource, resourceX, resourceY));
 	}
 	
 	public void setVisiblityCheck(NonNullSupplier<Boolean> visibilityCheck) {
-		this.visibilityCheck = Objects.requireNonNullElseGet(visibilityCheck, () -> () -> this.visible);
+		if(visibilityCheck == null)
+			this.visibilityCheck = () -> this.visible;
+		else
+			this.visibilityCheck = visibilityCheck;
 	}
 	
 	public void setActiveCheck(NonNullSupplier<Boolean> activeCheck) {
@@ -79,12 +68,6 @@ public class IconButton extends Button{
 			this.activeCheck = () -> this.active;
 		else
 			this.activeCheck = activeCheck;
-	}
-	
-	@Deprecated
-	public void setResource(ResourceLocation iconResource, int resourceX, int resourceY)
-	{
-		this.iconSource = b -> IconData.of(iconResource, resourceX, resourceY);
 	}
 	
 	public void setIcon(@Nonnull IconData icon)
@@ -102,19 +85,18 @@ public class IconButton extends Button{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.visible = this.visibilityCheck.get();
 		this.active = this.activeCheck.get();
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
-		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
+
+		RenderUtil.bindTexture(WIDGETS_LOCATION);
+		RenderUtil.color4f(1f,  1f,  1f, 1f);
 		
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -123,7 +105,7 @@ public class IconButton extends Button{
         this.blit(pose, this.x, this.y, 0, 46 + offset * 20, this.width / 2, this.height);
         this.blit(pose, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + offset * 20, this.width / 2, this.height);
         if(!this.active)
-            RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+			RenderUtil.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         
         this.iconSource.apply(this).render(pose, this, Minecraft.getInstance().font, this.x + 2, this.y + 2);
 		

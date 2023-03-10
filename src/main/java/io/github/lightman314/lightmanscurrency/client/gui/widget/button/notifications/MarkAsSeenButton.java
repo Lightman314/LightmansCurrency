@@ -1,34 +1,35 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class MarkAsSeenButton extends Button {
 
 	public static final int HEIGHT = 11;
 	
-	public MarkAsSeenButton(int rightPos, int yPos, Component text, OnPress onPress) {
+	public MarkAsSeenButton(int rightPos, int yPos, ITextComponent text, IPressable onPress) {
 		super(rightPos - getWidth(text), yPos, getWidth(text), HEIGHT, text, onPress);
 	}
 	
-	private static int getWidth(Component text) { return TextRenderUtil.getFont().width(text) + 4; }
+	private static int getWidth(ITextComponent text) { return TextRenderUtil.getFont().width(text) + 4; }
 	
 	@Override
-	public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		Minecraft minecraft = Minecraft.getInstance();
-		Font font = minecraft.font;
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-		int i = this.getYImage(this.isHoveredOrFocused());
+		FontRenderer font = minecraft.font;
+		RenderUtil.bindTexture(WIDGETS_LOCATION);
+		RenderUtil.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+		int i = this.getYImage(this.isHovered());
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.enableDepthTest();
@@ -42,7 +43,7 @@ public class MarkAsSeenButton extends Button {
 		this.blit(pose, this.x + this.width / 2, this.y + topSize, 200 - this.width / 2, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
 		this.renderBg(pose, minecraft, mouseX, mouseY);
 		int j = getFGColor();
-		drawCenteredString(pose, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
+		drawCenteredString(pose, font, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
 	}
 	
 }

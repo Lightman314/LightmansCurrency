@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageSelectBankAccount {
 	
@@ -15,18 +15,18 @@ public class MessageSelectBankAccount {
 	
 	public MessageSelectBankAccount(AccountReference account) { this.account = account; }
 	
-	public static void encode(MessageSelectBankAccount message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSelectBankAccount message, PacketBuffer buffer) {
 		message.account.writeToBuffer(buffer);
 	}
 
-	public static MessageSelectBankAccount decode(FriendlyByteBuf buffer) {
+	public static MessageSelectBankAccount decode(PacketBuffer buffer) {
 		return new MessageSelectBankAccount(BankAccount.LoadReference(false, buffer));
 	}
 
-	public static void handle(MessageSelectBankAccount message, Supplier<Context> supplier) {
+	public static void handle(MessageSelectBankAccount message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 				BankSaveData.SetSelectedBankAccount(player, message.account);
 		});

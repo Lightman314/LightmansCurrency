@@ -1,25 +1,22 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
-import com.google.common.collect.Lists;
-
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.MintScreen;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
+import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 
@@ -29,30 +26,41 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 	public CoinMintCategory(IGuiHelper guiHelper)
 	{
 		this.background = guiHelper.createDrawable(MintScreen.GUI_TEXTURE, 0, 138, 82, 26);
-		this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM, new ItemStack(ModBlocks.MACHINE_MINT.get()));
+		this.icon = guiHelper.createDrawableIngredient(new ItemStack(ModBlocks.MACHINE_MINT.get()));
 	}
-	
-	@Override
-	public @NotNull RecipeType<CoinMintRecipe> getRecipeType() { return LCJeiPlugin.COIN_MINT_TYPE; }
 
 	@Override
-	public @NotNull IDrawable getBackground() { return this.background; }
+	public @Nonnull IDrawable getBackground() { return this.background; }
 
 	@Override
-	public @NotNull IDrawable getIcon() { return this.icon; }
+	public @Nonnull IDrawable getIcon() { return this.icon; }
+
+
+
+	@Nonnull
+	@Override
+	public ResourceLocation getUid() { return LCJeiPlugin.COIN_MINT_UID; }
 
 	@Override
-	public @NotNull Class<? extends CoinMintRecipe> getRecipeClass() { return CoinMintRecipe.class; }
+	public @Nonnull Class<? extends CoinMintRecipe> getRecipeClass() { return CoinMintRecipe.class; }
 
 	@Override
-	public @NotNull Component getTitle() { return new TranslatableComponent("gui.lightmanscurrency.coinmint.title"); }
-	
+	public @Nonnull String getTitle() { return EasyText.translatable("gui.lightmanscurrency.coinmint.title").getString(); }
+
 	@Override
-	public void setRecipe(IRecipeLayoutBuilder builder, CoinMintRecipe recipe, @NotNull IFocusGroup focus) {
-		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
-		inputSlot.addIngredients(VanillaTypes.ITEM, Lists.newArrayList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
-		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);
-		outputSlot.addIngredient(VanillaTypes.ITEM, recipe.getResultItem());
+	public void setIngredients(@Nonnull CoinMintRecipe recipe, @Nonnull IIngredients ingredients) {
+		ingredients.setInputs(VanillaTypes.ITEM, ListUtil.createList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
+		ingredients.setOutput(VanillaTypes.ITEM, recipe.getResultItem());
+	}
+
+	@Override
+	public void setRecipe(IRecipeLayout recipeLayout, @Nonnull CoinMintRecipe recipe, @Nonnull IIngredients ingredients) {
+
+		IGuiItemStackGroup stacks = recipeLayout.getItemStacks();
+
+		stacks.init(0, true, 0, 4);
+		stacks.init(1, false, 60, 4);
+		stacks.set(ingredients);
 	}
 
 	private static ItemStack[] SetStackCount(ItemStack[] results, int count)
@@ -61,8 +69,5 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 			stack.setCount(count);
 		return results;
 	}
-
-	@Override
-	public @NotNull ResourceLocation getUid() { return LCJeiPlugin.COIN_MINT_UID; }
 	
 }

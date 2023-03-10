@@ -30,7 +30,7 @@ public abstract class TraderSearchFilter {
 	
 	public static List<TraderData> FilterTraders(List<TraderData> data, String searchText)
 	{
-		if(searchText.isBlank())
+		if(searchText.isEmpty())
 			return data;
 		List<TraderData> results = new ArrayList<>();
 		for(TraderData trader : data)

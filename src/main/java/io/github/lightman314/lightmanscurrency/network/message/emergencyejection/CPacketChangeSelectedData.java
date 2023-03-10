@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.network.message.emergencyejectio
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderRecoveryMenu;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class CPacketChangeSelectedData {
 
@@ -13,17 +13,17 @@ public class CPacketChangeSelectedData {
 	
 	public CPacketChangeSelectedData(int newSelection) { this.newSelection = newSelection; }
 	
-	public static void encode(CPacketChangeSelectedData message, FriendlyByteBuf buffer) {
+	public static void encode(CPacketChangeSelectedData message, PacketBuffer buffer) {
 		buffer.writeInt(message.newSelection);
 	}
 	
-	public static CPacketChangeSelectedData decode(FriendlyByteBuf buffer) {
+	public static CPacketChangeSelectedData decode(PacketBuffer buffer) {
 		return new CPacketChangeSelectedData(buffer.readInt());
 	}
 	
 	public static void handle(CPacketChangeSelectedData message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> {
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null && player.containerMenu instanceof TraderRecoveryMenu)
 			{
 				TraderRecoveryMenu menu = (TraderRecoveryMenu)player.containerMenu;

@@ -4,29 +4,31 @@ import java.util.function.BiFunction;
 
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.ITallBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.PushReaction;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 
 	public static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
-	private final BiFunction<Direction,Boolean,VoxelShape> shape;
+	private final BiFunction<Direction,Boolean, VoxelShape> shape;
 	
 	protected TallRotatableBlock(Properties properties)
 	{
@@ -49,33 +51,32 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 		);
 	}
 	
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull ISelectionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISBOTTOM);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
+	@Nonnull
 	@Override
-	public PushReaction getPistonPushReaction(BlockState state)
-	{
-		return PushReaction.BLOCK;
-	}
+	public PushReaction getPistonPushReaction(@Nonnull BlockState state) { return PushReaction.BLOCK; }
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(World level, BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -83,19 +84,20 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock{
 		{
 			//Failed placing the top block. Abort placement
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player instanceof Player)
+			if(player instanceof PlayerEntity)
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				((Player)player).getInventory().add(giveStack);
+				((PlayerEntity)player).inventory.add(giveStack);
 			}
 		}
 		
 	}
 	
+	@Nonnull
 	@SuppressWarnings("deprecation")
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+	public BlockState updateShape(@Nonnull BlockState stateIn, @Nonnull Direction facing, @Nonnull BlockState facingState, @Nonnull IWorld worldIn, @Nonnull BlockPos currentPos, @Nonnull BlockPos facingPos)
 	{
 		if((facing == Direction.UP && stateIn.getValue(ISBOTTOM)) || (facing == Direction.DOWN && !stateIn.getValue(ISBOTTOM)))
 		{

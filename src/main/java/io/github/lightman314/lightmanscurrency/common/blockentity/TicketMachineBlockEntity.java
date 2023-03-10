@@ -2,37 +2,39 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.BlockState;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 
-public class TicketMachineBlockEntity extends BlockEntity{
+import javax.annotation.Nonnull;
 
-	SimpleContainer storage = new SimpleContainer(2);
-	public Container getStorage() { return this.storage; }
+public class TicketMachineBlockEntity extends TileEntity {
+
+	Inventory storage = new Inventory(2);
+	public IInventory getStorage() { return this.storage; }
 	
-	public TicketMachineBlockEntity(BlockPos pos, BlockState state)
+	public TicketMachineBlockEntity()
 	{
-		super(ModBlockEntities.TICKET_MACHINE.get(), pos, state);
+		super(ModBlockEntities.TICKET_MACHINE.get());
 		this.storage.addListener(c -> this.setChanged());
 	}
 	
+	@Nonnull
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
+		compound = super.save(compound);
 		InventoryUtil.saveAllItems("Items", compound, this.storage);
-		super.saveAdditional(compound);
+		return compound;
 	}
 	
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
+		super.load(state, compound);
 		this.storage = InventoryUtil.loadAllItems("Items", compound, 2);
 		this.storage.addListener(c -> this.setChanged());
-		super.load(compound);
 	}
 	
 }

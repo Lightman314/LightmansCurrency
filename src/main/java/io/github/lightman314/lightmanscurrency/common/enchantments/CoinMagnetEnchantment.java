@@ -7,22 +7,21 @@ import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 
 public class CoinMagnetEnchantment extends WalletEnchantment {
 
@@ -31,7 +30,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	//Max level to calculate range for
 	public static final int MAX_CALCULATION_LEVEL = MAX_LEVEL + 2;
 	
-	public CoinMagnetEnchantment(Rarity rarity, EquipmentSlot... slots) {
+	public CoinMagnetEnchantment(Rarity rarity, EquipmentSlotType... slots) {
 		super(rarity, LCEnchantmentCategories.WALLET_PICKUP_CATEGORY, slots);
 	}
 	
@@ -59,8 +58,8 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 				return;
 			//Calculate the search radius
 			float range = getCollectionRange(enchantLevel);
-			Level level = entity.level;
-			AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
+			World level = entity.level;
+			AxisAlignedBB searchBox = new AxisAlignedBB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
 			boolean updateWallet = false;
 			for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
 			{
@@ -71,10 +70,10 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 				{
 					updateWallet = true;
 					if(leftovers.isEmpty())
-						ie.discard();
+						ie.remove();
 					else
 						ie.setItem(leftovers);
-					level.playSound(null, entity, ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
+					level.playSound(null, entity, ModSounds.COINS_CLINKING, SoundCategory.PLAYERS, 0.4f, 1f);
 				}
 			}
 			if(updateWallet)
@@ -86,8 +85,11 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	}
 
 	public static boolean coinMagnetEntityFilter(Entity entity) {
-		if(entity instanceof ItemEntity item)
+		if(entity instanceof ItemEntity)
+		{
+			ItemEntity item = (ItemEntity)entity;
 			return !item.hasPickUpDelay() && MoneyUtil.isCoin(item.getItem(), false);
+		}
 		return false;
 	}
 	
@@ -98,19 +100,19 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		return Config.SERVER.coinMagnetRangeBase.get() + (Config.SERVER.coinMagnetRangeLevel.get() * Math.min(enchantLevel, MAX_CALCULATION_LEVEL - 1));
 	}
 	
-	public static Component getCollectionRangeDisplay(int enchantLevel) {
+	public static ITextComponent getCollectionRangeDisplay(int enchantLevel) {
 		float range = getCollectionRange(enchantLevel);
 		String display = range %1f > 0f ? String.valueOf(range) : String.valueOf(Math.round(range));
-		return new TextComponent(display).withStyle(ChatFormatting.GREEN);
+		return EasyText.literal(display).withStyle(TextFormatting.GREEN);
 	}
 	
 	@Override
-	public void addWalletTooltips(List<Component> tooltips, int enchantLevel, ItemStack wallet) {
+	public void addWalletTooltips(List<ITextComponent> tooltips, int enchantLevel, ItemStack wallet) {
 		if(wallet.getItem() instanceof WalletItem)
 		{
 			if(enchantLevel > 0 && WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			{
-				tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(ChatFormatting.YELLOW));
+				tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup.magnet", getCollectionRangeDisplay(enchantLevel)).withStyle(TextFormatting.YELLOW));
 			}
 		}
 	}

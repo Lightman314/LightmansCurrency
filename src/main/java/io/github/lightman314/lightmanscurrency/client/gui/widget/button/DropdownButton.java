@@ -1,39 +1,41 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 @OnlyIn(Dist.CLIENT)
-public class DropdownButton extends Button{
+public class DropdownButton extends Button {
 	
-	private final Component optionText;
-	private final Font font;
+	private final ITextComponent optionText;
+	private final FontRenderer font;
 	
-	public DropdownButton(int x, int y, int width, Font font, Component optionText, OnPress pressable)
+	public DropdownButton(int x, int y, int width, FontRenderer font, ITextComponent optionText, IPressable pressable)
 	{
-		super(x , y, width, DropdownWidget.HEIGHT, new TextComponent(""), pressable);
+		super(x , y, width, DropdownWidget.HEIGHT, EasyText.empty(), pressable);
 		this.optionText = optionText;
 		this.font = font;
 	}
 	
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(@Nonnull MatrixStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Draw the background
-		RenderSystem.setShaderTexture(0, DropdownWidget.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(DropdownWidget.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
         int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
         if(!this.active)
-        	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+			RenderUtil.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         this.blit(poseStack, this.x, this.y, 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 4)

@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.menus.containers;
 
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.inventory.Inventory;
 
-public class TicketInventory extends SimpleContainer{
+public class TicketInventory extends Inventory {
 
 	public TicketInventory(int numSlots) { super(numSlots); }
 	

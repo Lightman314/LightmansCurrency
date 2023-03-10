@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.interfaces;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public interface ICapabilityBlock
 {
-	BlockEntity getCapabilityBlockEntity(BlockState state, Level level, BlockPos pos);
+	TileEntity getCapabilityBlockEntity(BlockState state, World level, BlockPos pos);
 }

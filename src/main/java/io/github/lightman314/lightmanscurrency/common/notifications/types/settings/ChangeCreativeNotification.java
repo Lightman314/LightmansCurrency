@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class ChangeCreativeNotification extends Notification {
 
@@ -18,7 +18,7 @@ public class ChangeCreativeNotification extends Notification {
 	boolean creative;
 	
 	public ChangeCreativeNotification(PlayerReference player, boolean creative) { this.player = player; this.creative = creative; }
-	public ChangeCreativeNotification(CompoundTag compound) { this.load(compound); }
+	public ChangeCreativeNotification(CompoundNBT compound) { this.load(compound); }
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
 	
@@ -26,18 +26,18 @@ public class ChangeCreativeNotification extends Notification {
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 	
 	@Override
-	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.settings.creativemode", this.player.getName(true), new TranslatableComponent(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
+	public IFormattableTextComponent getMessage() {
+		return EasyText.translatable("log.settings.creativemode", this.player.getName(true), EasyText.translatable(this.creative ? "log.settings.enabled" : "log.settings.disabled"));
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("Player", this.player.save());
 		compound.putBoolean("Creative", this.creative);
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.creative = compound.getBoolean("Creative");
 	}

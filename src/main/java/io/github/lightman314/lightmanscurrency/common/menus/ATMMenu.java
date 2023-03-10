@@ -9,34 +9,35 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvancedMenu{
+import javax.annotation.Nonnull;
+
+public class ATMMenu extends Container implements IBankAccountAdvancedMenu{
 	
-	private Player player;
-	public Player getPlayer() { return this.player; }
+	private final PlayerEntity player;
+	public PlayerEntity getPlayer() { return this.player; }
 	
-	private final Container coinInput = new SimpleContainer(9);
-	public Container getCoinInput() { return this.coinInput; }
+	private final IInventory coinInput = new Inventory(9);
+	public IInventory getCoinInput() { return this.coinInput; }
 	
-	private MutableComponent transferMessage = null;
+	private IFormattableTextComponent transferMessage = null;
 	
-	public ATMMenu(int windowId, Inventory inventory)
+	public ATMMenu(int windowId, PlayerInventory inventory)
 	{
 		super(ModMenus.ATM.get(), windowId);
 		
@@ -64,17 +65,17 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	}
 	
 	@Override
-	public boolean stillValid(Player playerIn) {
+	public boolean stillValid(@Nonnull PlayerEntity playerIn) {
 		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
 		this.getBankAccountReference();
 		return true;
 	}
 	
 	@Override
-	public void removed(Player playerIn)
+	public void removed(@Nonnull PlayerEntity playerIn)
 	{
 		super.removed(playerIn);
-		this.clearContainer(playerIn,  this.coinInput);
+		this.clearContainer(playerIn, playerIn.level, this.coinInput);
 		if(!this.isClient())
 		{
 			AccountReference account = this.getBankAccountReference();
@@ -89,8 +90,9 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -141,7 +143,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		//Convert defined coin upwards
 		else if(command.startsWith("convertUp-"))
 		{
-			ResourceLocation coinID = null;
+			ResourceLocation coinID;
 			String id = "";
 			try {
 				id = command.substring("convertUp-".length());
@@ -149,17 +151,17 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
 				if(coinItem == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a registered item.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
 					return;
 				}
 				if(!MoneyUtil.isCoin(coinItem))
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a coin.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
 					return;
 				}
 				if(MoneyUtil.getUpwardConversion(coinItem) == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is the largest visible coin in its chain, and thus cannot be converted any larger.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the largest visible coin in its chain, and thus cannot be converted any larger.");
 					return;
 				}
 				MoneyUtil.ConvertCoinsUp(this.coinInput, coinItem);
@@ -178,17 +180,17 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
 				if(coinItem == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a registered item.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
 					return;
 				}
 				if(!MoneyUtil.isCoin(coinItem))
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a coin.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
 					return;
 				}
 				if(MoneyUtil.getDownwardConversion(coinItem) == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is the smallest known coin, and thus cannot be converted any smaller.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the smallest known coin, and thus cannot be converted any smaller.");
 					return;
 				}
 				MoneyUtil.ConvertCoinsDown(this.coinInput, coinItem);
@@ -200,7 +202,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 	}
 
 	
-	public MutableComponent SetPlayerAccount(String playerName) {
+	public IFormattableTextComponent SetPlayerAccount(String playerName) {
 		
 		if(CommandLCAdmin.isAdminPlayer(this.player))
 		{
@@ -208,21 +210,21 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
-				return new TranslatableComponent("gui.bank.select.player.success", accountPlayer.getName(false));
+				return EasyText.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else
-				return new TranslatableComponent("gui.bank.transfer.error.null.to");
+				return EasyText.translatable("gui.bank.transfer.error.null.to");
 		}
-		return new TextComponent("ERROR");
+		return EasyText.literal("ERROR");
 		
 	}
 	
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
 	
-	public MutableComponent getTransferMessage() { return this.transferMessage; }
+	public IFormattableTextComponent getTransferMessage() { return this.transferMessage; }
 	
 	@Override
-	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
+	public void setTransferMessage(IFormattableTextComponent message) { this.transferMessage = message; }
 	
 	public void clearMessage() { this.transferMessage = null; }
 

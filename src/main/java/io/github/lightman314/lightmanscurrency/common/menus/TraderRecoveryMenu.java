@@ -6,29 +6,30 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.NamelessMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketChangeSelectedData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
-public class TraderRecoveryMenu extends AbstractContainerMenu {
+import javax.annotation.Nonnull;
 
-	public static final MenuProvider PROVIDER = new Provider();
+public class TraderRecoveryMenu extends Container {
+
+	public static final INamedContainerProvider PROVIDER = new Provider();
 	
-	public TraderRecoveryMenu(int menuID, Inventory inventory) { this(ModMenus.TRADER_RECOVERY.get(), menuID, inventory); }
+	public TraderRecoveryMenu(int menuID, PlayerInventory inventory) { this(ModMenus.TRADER_RECOVERY.get(), menuID, inventory); }
 	
-	private final Player player;
+	private final PlayerEntity player;
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
@@ -46,9 +47,9 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	}
 	
 	private final SuppliedContainer ejectionContainer;
-	private final Container dummyContainer = new SimpleContainer(54);
+	private final IInventory dummyContainer = new Inventory(54);
 	
-	private Container getSelectedContainer() { 
+	private IInventory getSelectedContainer() {
 		//Get valid data
 		List<EjectionData> data = this.getValidEjectionData();
 		//Refresh selection, just in case it's no longer valid.
@@ -58,7 +59,7 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 		return this.dummyContainer;
 	}
 	
-	protected TraderRecoveryMenu(MenuType<?> type, int menuID, Inventory inventory) {
+	protected TraderRecoveryMenu(ContainerType<?> type, int menuID, PlayerInventory inventory) {
 		super(type, menuID);
 		this.player = inventory.player;
 		
@@ -87,7 +88,8 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 		
 	}
 
-	public ItemStack quickMoveStack(Player player, int slotIndex) {
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull PlayerEntity player, int slotIndex) {
 	      ItemStack itemstack = ItemStack.EMPTY;
 	      Slot slot = this.slots.get(slotIndex);
 	      if (slot != null && slot.hasItem()) {
@@ -112,13 +114,13 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	   }
 
 	@Override
-	public boolean stillValid(Player player) { return this.getValidEjectionData().size() > 0; }
+	public boolean stillValid(@Nonnull PlayerEntity player) { return true; }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull PlayerEntity player) {
 		super.removed(player);
 		//Clear the dummy container for safety.
-		this.clearContainer(player, this.dummyContainer);
+		this.clearContainer(player, player.level, this.dummyContainer);
 	}
 
 	public void changeSelection(int newSelection) {
@@ -135,13 +137,10 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 		}
 	}
 	
-	private static class Provider implements MenuProvider {
+	private static class Provider extends NamelessMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new TraderRecoveryMenu(id, inventory); }
-
-		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) { return new TraderRecoveryMenu(id, inventory); }
 		
 	}
 	

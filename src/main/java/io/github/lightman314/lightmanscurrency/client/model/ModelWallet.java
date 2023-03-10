@@ -3,30 +3,33 @@ package io.github.lightman314.lightmanscurrency.client.model;
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.LivingEntity;
 
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.LivingEntity;
 
-
-public class ModelWallet<T extends LivingEntity> extends HumanoidModel<T> {
+public class ModelWallet<T extends LivingEntity> extends BipedModel<T> {
 	
-	public final ModelPart wallet;
+	public final ModelRenderer wallet;
 	
-	public ModelWallet(ModelPart part)
+	public ModelWallet()
 	{
-		super(part);
-		this.wallet = part.getChild("wallet");
+		super(0.0f);
+		this.texWidth = 32;
+		this.texHeight = 16;
+		this.wallet = new ModelRenderer(this, 0, 0);
+		this.wallet.setPos(0f, 0f, 0f);
+		this.wallet.addBox(4F, 11.5F, -2.0F, 2, 4, 4, 0.0F);
 	}
 	
 	@Override
-	protected Iterable<ModelPart> headParts()
+	protected Iterable<ModelRenderer> headParts()
 	{
 		return ImmutableList.of();
 	}
 	
 	@Override
-	protected Iterable<ModelPart> bodyParts()
+	protected Iterable<ModelRenderer> bodyParts()
 	{
 		return ImmutableList.of(this.wallet);
 	}

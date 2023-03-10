@@ -4,8 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -44,21 +56,11 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
 
 public class ItemTraderData extends InputTraderData implements ITraderItemFilter, ITradeSource<ItemTradeData> {
 
@@ -88,9 +90,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		this.validateTradeRestrictions();
 	}
 
-	public ItemTraderData(int tradeCount, Level level, BlockPos pos) { this(TYPE, tradeCount, level, pos); }
+	public ItemTraderData(int tradeCount, World level, BlockPos pos) { this(TYPE, tradeCount, level, pos); }
 
-	protected ItemTraderData(ResourceLocation type, int tradeCount, Level level, BlockPos pos)
+	protected ItemTraderData(ResourceLocation type, int tradeCount, World level, BlockPos pos)
 	{
 		super(type, level, pos);
 		this.trades = ItemTradeData.listOfSize(tradeCount, true);
@@ -98,7 +100,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(CompoundNBT compound) {
 		super.saveAdditional(compound);
 
 		this.saveStorage(compound);
@@ -106,16 +108,16 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	}
 
-	protected final void saveStorage(CompoundTag compound) {
+	protected final void saveStorage(CompoundNBT compound) {
 		this.storage.save(compound, "ItemStorage");
 	}
 
-	protected final void saveTrades(CompoundTag compound) {
+	protected final void saveTrades(CompoundNBT compound) {
 		ItemTradeData.saveAllData(compound, this.trades);
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag compound) {
+	public void loadAdditional(CompoundNBT compound) {
 		super.loadAdditional(compound);
 
 		if(compound.contains("ItemStorage"))
@@ -133,7 +135,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public int getTradeCount() { return this.trades.size(); }
 
 	@Override
-	public void addTrade(Player requestor)
+	public void addTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -151,7 +153,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			Permissions.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
 	}
 
-	public void removeTrade(Player requestor)
+	public void removeTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -231,7 +233,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
 
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
+	public IFormattableTextComponent inputSettingsTabTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
 
 	@Override
 	public int inputSettingsTabColor() { return 0x00BF00; }
@@ -435,11 +437,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
-		ListTag tradePersistentData = new ListTag();
+	protected void saveAdditionalPersistentData(CompoundNBT compound) {
+		ListNBT tradePersistentData = new ListNBT();
 		boolean tradesAreRelevant = false;
 		for (ItemTradeData trade : this.trades) {
-			CompoundTag ptTag = new CompoundTag();
+			CompoundNBT ptTag = new CompoundNBT();
 			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
@@ -449,14 +451,14 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(CompoundNBT compound) {
 		if(compound.contains("PersistentTradeData"))
 		{
-			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
+			ListNBT tradePersistentData = compound.getList("PersistentTradeData", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < tradePersistentData.size() && i < this.trades.size(); ++i)
 			{
 				ItemTradeData trade = this.trades.get(i);
-				CompoundTag ptTag = tradePersistentData.getCompound(i);
+				CompoundNBT ptTag = tradePersistentData.getCompound(i);
 				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
 			}
 		}
@@ -728,8 +730,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			if(stack.getItem() instanceof UpgradeItem)
 			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 			}
@@ -739,46 +742,56 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 
 	@Override
-	@NotNull
-	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide){
+	@Nonnull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
 		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
 	}
 
 	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {
+	protected void loadExtraOldUniversalTraderData(CompoundNBT compound) {
 
-		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = ItemTradeData.loadAllData(compound, true);
 
+		//Load from old inventory style (block entity version)
+		if(compound.contains("Items", Constants.NBT.TAG_LIST))
+		{
+			IInventory oldStorage = InventoryUtil.loadAllItems("Items", compound, this.getTradeCount() * 9);
+			for(int i = 0; i < oldStorage.getContainerSize(); ++i)
+				this.storage.forceAddItem(oldStorage.getItem(i));
+		}
+		//Load from old inventory style (universal trader version)
+		if(compound.contains("Storage", Constants.NBT.TAG_LIST))
+		{
+			IInventory oldStorage = InventoryUtil.loadAllItems("Storage", compound, this.getTradeCount() * 9);
+			for(int i = 0; i < oldStorage.getContainerSize(); ++i)
+				this.storage.forceAddItem(oldStorage.getItem(i));
+		}
 
-		//Could check if it's still the old inventory style, but I'm going to ignore that possibility.
-		if(compound.contains("Storage", Tag.TAG_LIST))
-			this.storage.load(compound, "Storage");
-
-		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
+		if(compound.contains("UpgradeInventory", Constants.NBT.TAG_LIST))
 			this.loadOldUpgradeData(InventoryUtil.loadAllItems("UpgradeInventory", compound, 5));
 
 		//Load the logger
-		if(compound.contains("ItemShopHistory", Tag.TAG_LIST))
+		if(compound.contains("ItemShopHistory", Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList("ItemShopHistory", Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList("ItemShopHistory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); ++i)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
+				IFormattableTextComponent text = ITextComponent.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.pushLocalNotification(new TextNotification(text));
 			}
 		}
 
 		//Trade Rules
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
+		if(compound.contains("TradeRules", Constants.NBT.TAG_LIST))
 			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
 
 		//Item Settings
-		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
+		if(compound.contains("ItemSettings", Constants.NBT.TAG_COMPOUND))
 		{
-			CompoundTag is = compound.getCompound("ItemSettings");
+			CompoundNBT is = compound.getCompound("ItemSettings");
 			if(is.contains("InputSides"))
 				this.loadOldInputSides(is.getCompound("InputSides"));
 			if(is.contains("OutputSides"))
@@ -787,7 +800,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	}
 	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) {
+	protected void loadExtraOldBlockEntityData(CompoundNBT compound) {
 		this.loadExtraOldUniversalTraderData(compound);
 	}
 

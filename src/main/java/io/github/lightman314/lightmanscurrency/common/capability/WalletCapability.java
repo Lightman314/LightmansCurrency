@@ -11,29 +11,41 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.Direction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.Direction;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
+import java.util.concurrent.Callable;
+
 public class WalletCapability {
+
+	public static void register() {
+		CapabilityManager.INSTANCE.register(IWalletHandler.class,  new Capability.IStorage<IWalletHandler>() {
+
+			@Override
+			public INBT writeNBT(Capability<IWalletHandler> capability, IWalletHandler instance, Direction side) {
+				return instance.save();
+			}
+
+			@Override
+			public void readNBT(Capability<IWalletHandler> capability, IWalletHandler instance, Direction side, INBT nbt) {
+				if(nbt instanceof CompoundNBT)
+				{
+					instance.load((CompoundNBT)nbt);
+				}
+			}
+		}, (Callable<? extends IWalletHandler>) WalletHandler::new);
+	}
 
 	@Deprecated
 	public static LazyOptional<IWalletHandler> getWalletHandler(@Nonnull final Entity entity) {
@@ -74,7 +86,9 @@ public class WalletCapability {
 		//Visibility
 		boolean visible;
 		boolean wasVisible;
-		
+
+		private WalletHandler() { this(null); }
+
 		public WalletHandler(LivingEntity entity) {
 			this.entity = entity;
 			this.backupWallet = ItemStack.EMPTY;
@@ -195,9 +209,7 @@ public class WalletCapability {
 		
 		if(LightmansCurrency.isCuriosValid(player))
 			return;
-		
-		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
-		Container menu = player.containerMenu;
+
 		boolean creative = player.isCreative() && !player.level.isClientSide;
 		if(!creative)
 			heldItem = player.inventory.getCarried();
@@ -234,17 +246,17 @@ public class WalletCapability {
 				{
 					walletHandler.setWallet(heldItem);
 					if(!creative)
-						menu.setCarried(wallet);
+						player.inventory.setCarried(wallet);
 				}
 			}
 		}
 		else if(heldShift)
 		{
-			Inventory inventory = player.getInventory();
+			PlayerInventory inventory = player.inventory;
 			//Try to shift-click the hovered slot into the wallet slot
 			if(clickedSlot >= inventory.getContainerSize())
 			{
-				LightmansCurrency.LogWarning("Clicked on slot " + clickedSlot + " of " + player.getInventory().getContainerSize() + " on the " + DebugUtil.getSideText(player));
+				LightmansCurrency.LogWarning("Clicked on slot " + clickedSlot + " of " + player.inventory.getContainerSize() + " on the " + DebugUtil.getSideText(player));
 				return;
 			}	
 			ItemStack slotItem = inventory.getItem(clickedSlot);

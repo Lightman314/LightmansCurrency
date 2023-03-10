@@ -3,22 +3,22 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageWalletToggleAutoConvert {
 	
-	public static void encode(MessageWalletToggleAutoConvert message, FriendlyByteBuf buffer) { }
+	public static void encode(MessageWalletToggleAutoConvert message, PacketBuffer buffer) { }
 
-	public static MessageWalletToggleAutoConvert decode(FriendlyByteBuf buffer) {
+	public static MessageWalletToggleAutoConvert decode(PacketBuffer buffer) {
 		return new MessageWalletToggleAutoConvert();
 	}
 
 	public static void handle(MessageWalletToggleAutoConvert message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				if(player.containerMenu instanceof WalletMenuBase)

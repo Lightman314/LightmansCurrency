@@ -1,40 +1,40 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.MathHelper;
 
-public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
+public class FreezerTraderBlockEntity extends ItemTraderBlockEntity {
 
 	/** The current angle of the door (between 0 and 1) */
 	private float doorAngle;
 	/** The angle of the door last tick */
 	private float prevDoorAngle;
 	
-	public FreezerTraderBlockEntity(BlockPos pos, BlockState state)
+	public FreezerTraderBlockEntity()
 	{
-		super(ModBlockEntities.FREEZER_TRADER.get(), pos, state);
+		super(ModBlockEntities.FREEZER_TRADER.get());
 	}
 	
-	public FreezerTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
+	public FreezerTraderBlockEntity(int tradeCount)
 	{
-		super(ModBlockEntities.FREEZER_TRADER.get(), pos, state, tradeCount);
+		super(ModBlockEntities.FREEZER_TRADER.get(), tradeCount);
 	}
 	
-	public float getDoorAngle(float partialTicks) {
-		return Mth.lerp(partialTicks, this.prevDoorAngle, this.doorAngle);
-	}
+	public float getDoorAngle(float partialTicks) { return MathHelper.lerp(partialTicks, this.prevDoorAngle, this.doorAngle); }
 	
-	private final float distancePerTick = 0.1f;
+	private static final float distancePerTick = 0.1f;
 	
 	@Override
-	public void clientTick()
+	public void tick()
 	{
+		super.tick();
+
+		if(!this.isClient())
+			return;
+
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
@@ -43,7 +43,7 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements I
 			this.prevDoorAngle = this.doorAngle;
 			//Play the opening sound
 			if (userCount > 0 && this.doorAngle == 0.0F) {
-				this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+				this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
 				//this.level.playSound(null, this.worldPosition, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
 			}
 			if(userCount > 0 && this.doorAngle < 1f)
@@ -54,7 +54,7 @@ public class FreezerTraderBlockEntity extends ItemTraderBlockEntity implements I
 			{
 				this.doorAngle -= distancePerTick;
 				if (this.doorAngle < 0.5F && this.prevDoorAngle >= 0.5F) {
-					this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
+					this.level.playLocalSound(this.worldPosition.getX() + 0.5d, this.worldPosition.getY() + 0.5d, this.worldPosition.getZ() + 0.5d, SoundEvents.CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F, false);
 				}
 			}
 			if(this.doorAngle > 1f)

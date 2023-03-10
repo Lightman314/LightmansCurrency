@@ -4,22 +4,24 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+
+import javax.annotation.Nonnull;
 
 public class RotatableBlock extends Block implements IRotatableBlock{
 	
-	private final Function<Direction,VoxelShape> shape;
+	private final Function<Direction, VoxelShape> shape;
 	
 	public RotatableBlock(Properties properties)
 	{
@@ -36,16 +38,15 @@ public class RotatableBlock extends Block implements IRotatableBlock{
 		this.shape = shape;
 	}
 	
-	protected boolean transparent(BlockState state) { return true; }
-	
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context)
 	{
 		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
 	}
 	
+	@Nonnull
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation)
 	{
@@ -53,14 +54,15 @@ public class RotatableBlock extends Block implements IRotatableBlock{
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
     }
 	
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull ISelectionContext context)
 	{
 		return shape.apply(this.getFacing(state));
 	}

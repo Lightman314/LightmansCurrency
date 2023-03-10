@@ -12,26 +12,26 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTeam;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageInitializeClientTeams;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class TeamSaveData extends SavedData {
+public class TeamSaveData extends WorldSavedData {
 
 	private long nextID = 0;
-	private final long getNextID() {
+	private long getNextID() {
 		long id = this.nextID;
 		this.nextID++;
 		this.setDirty();
@@ -40,12 +40,12 @@ public class TeamSaveData extends SavedData {
 	private final Map<Long, Team> teams = new HashMap<>();
 	
 	
-	private TeamSaveData() {}
-	private TeamSaveData(CompoundTag compound) {
+	private TeamSaveData() { super("lightmanscurrency_team_data"); }
+	public void load(CompoundNBT compound) {
 		
 		this.nextID = compound.getLong("NextID");
 		
-		ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
+		ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < teamList.size(); ++i)
 		{
 			Team team = Team.load(teamList.getCompound(i));
@@ -55,11 +55,12 @@ public class TeamSaveData extends SavedData {
 		
 	}
 	
-	public CompoundTag save(CompoundTag compound) {
+	@Nonnull
+	public CompoundNBT save(CompoundNBT compound) {
 		
 		compound.putLong("NextID", this.nextID);
-		
-		ListTag teamList = new ListTag();
+
+		ListNBT teamList = new ListNBT();
 		this.teams.forEach((teamID, team) ->{
 			if(team != null)
 				teamList.add(team.save());
@@ -73,9 +74,9 @@ public class TeamSaveData extends SavedData {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(TeamSaveData::new, TeamSaveData::new, "lightmanscurrency_team_data");
+				return level.getDataStorage().computeIfAbsent(TeamSaveData::new, "lightmanscurrency_team_data");
 		}
 		return null;
 	}
@@ -123,15 +124,15 @@ public class TeamSaveData extends SavedData {
 			Team team = GetTeam(false, teamID);
 			if(team != null)
 			{
-				CompoundTag compound = team.save();
+				CompoundNBT compound = team.save();
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTeam(compound));
 			}
 		}
 	}
-	
-	
-	@Deprecated
+
+
 	/** @deprecated Only use to copy team over from former Trading Office. */
+	@Deprecated
 	public static Team RegisterOldTeam(Team team) {
 		TeamSaveData tsd = get();
 		if(tsd != null)
@@ -146,7 +147,7 @@ public class TeamSaveData extends SavedData {
 		return null;
 	}
 	
-	public static Team RegisterTeam(Player owner, String teamName)
+	public static Team RegisterTeam(PlayerEntity owner, String teamName)
 	{
 		TeamSaveData tsd = get();
 		if(tsd != null)
@@ -182,11 +183,11 @@ public class TeamSaveData extends SavedData {
 	public static void OnPlayerLogin(PlayerLoggedInEvent event)
 	{
 		
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+		PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 		TeamSaveData tsd = get();
 		
-		CompoundTag compound = new CompoundTag();
-		ListTag teamList = new ListTag();
+		CompoundNBT compound = new CompoundNBT();
+		ListNBT teamList = new ListNBT();
 		tsd.teams.forEach((id, team) -> teamList.add(team.save()));
 		compound.put("Teams", teamList);
 		LightmansCurrencyPacketHandler.instance.send(target, new MessageInitializeClientTeams(compound));

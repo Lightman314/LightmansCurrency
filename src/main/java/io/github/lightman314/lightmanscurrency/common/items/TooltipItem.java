@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -41,7 +42,7 @@ public class TooltipItem extends Item {
 	}
 	
 	private static TranslationTextComponent getTooltipLine(String tooltipTranslation, int page) {
-		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + String.valueOf(page);
+		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + (page);
 		TranslationTextComponent result = new TranslationTextComponent(tt);
 		//Returns null if the translated text is the translation key.
 		if(result.getString().contentEquals(tt))
@@ -50,7 +51,7 @@ public class TooltipItem extends Item {
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable World level, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		addTooltip(tooltip, this.tooltips);
 		super.appendHoverText(stack, level, tooltip, flagIn);

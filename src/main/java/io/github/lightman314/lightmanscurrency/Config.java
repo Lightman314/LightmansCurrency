@@ -12,6 +12,8 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
@@ -21,8 +23,6 @@ import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.ForgeRegistries;
 

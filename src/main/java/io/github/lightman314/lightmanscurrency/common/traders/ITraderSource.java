@@ -7,22 +7,23 @@ import javax.annotation.Nonnull;
 
 public interface ITraderSource {
 
-	public static final ITraderSource CLIENT_TRADER_SOURCE = new NetworkTraderSource(true);
-	public static final ITraderSource SERVER_TRADER_SOURCE = new NetworkTraderSource(false);
+	ITraderSource CLIENT_TRADER_SOURCE = new NetworkTraderSource(true);
+	ITraderSource SERVER_TRADER_SOURCE = new NetworkTraderSource(false);
 	
 	@Nonnull
-	public List<TraderData> getTraders();
-	public boolean isSingleTrader();
-	public default TraderData getSingleTrader() { return this.getTraders().get(0); }
+	List<TraderData> getTraders();
+	boolean isSingleTrader();
+	default TraderData getSingleTrader() { return this.getTraders().get(0); }
 	
-	public static Supplier<ITraderSource> UniversalTraderSource(boolean isClient) { return isClient ? () -> CLIENT_TRADER_SOURCE : () -> SERVER_TRADER_SOURCE; }
+	static Supplier<ITraderSource> UniversalTraderSource(boolean isClient) { return isClient ? () -> CLIENT_TRADER_SOURCE : () -> SERVER_TRADER_SOURCE; }
 	
-	public static class NetworkTraderSource implements ITraderSource
+	class NetworkTraderSource implements ITraderSource
 	{
 		
 		private final boolean isClient;
 		public NetworkTraderSource(boolean isClient) { this.isClient = isClient; }
 		
+		@Nonnull
 		@Override
 		public List<TraderData> getTraders() { return TraderSaveData.GetAllTerminalTraders(this.isClient); }
 		@Override

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -8,10 +9,9 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class PaygateNotification extends Notification{
 
@@ -42,7 +42,7 @@ public class PaygateNotification extends Notification{
 		
 	}
 	
-	public PaygateNotification(CompoundTag compound) { this.load(compound); }
+	public PaygateNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -51,17 +51,17 @@ public class PaygateNotification extends Notification{
 	public NotificationCategory getCategory() { return this.traderData; }
 
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		
 		if(this.ticketID >= -1)
-			return new TranslatableComponent("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+			return EasyText.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
 		else
-			return new TranslatableComponent("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
+			return EasyText.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
 		
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("Duration", this.duration);
@@ -74,7 +74,7 @@ public class PaygateNotification extends Notification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.duration = compound.getInt("Duration");
@@ -90,8 +90,9 @@ public class PaygateNotification extends Notification{
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof PaygateNotification pn)
+		if(other instanceof PaygateNotification)
 		{
+			PaygateNotification pn = (PaygateNotification)other;
 			if(!pn.traderData.matches(this.traderData))
 				return false;
 			if(pn.ticketID != this.ticketID)

@@ -1,15 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
@@ -17,30 +15,28 @@ import io.github.lightman314.lightmanscurrency.common.emergency_ejection.Ejectio
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
-public abstract class TraderInterfaceBlock extends RotatableBlock implements IEasyEntityBlock, IOwnableBlock {
+public abstract class TraderInterfaceBlock extends RotatableBlock implements IOwnableBlock {
 
 	protected TraderInterfaceBlock(Properties properties) { super(properties); }
 	
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public @Nonnull ActionResultType use(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -52,11 +48,11 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 				blockEntity.openMenu(player);
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(World level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -69,7 +65,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull World level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player)
 	{
 		TraderInterfaceBlockEntity blockEntity = this.getBlockEntity(level, pos, state);
 		if(blockEntity != null)
@@ -84,7 +80,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, @Nonnull World level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
@@ -115,10 +111,10 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		super.onRemove(state, level, pos, newState, flag);
 	}
 	
-	protected abstract void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderInterfaceBlockEntity trader);
+	protected abstract void onInvalidRemoval(BlockState state, World level, BlockPos pos, TraderInterfaceBlockEntity trader);
 
 	@Override
-	public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
+	public boolean canBreak(PlayerEntity player, IWorld level, BlockPos pos, BlockState state) {
 		TraderInterfaceBlockEntity be = this.getBlockEntity(level, pos, state);
 		if(be == null)
 			return true;
@@ -126,32 +122,31 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return this.createBlockEntity(pos, state); }
-	
-	protected abstract BlockEntity createBlockEntity(BlockPos pos, BlockState state);
-	protected abstract BlockEntityType<?> interfaceType();
+	public boolean hasTileEntity(BlockState state) { return true; }
 
 	@Override
-	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(this.interfaceType()); }
+	public TileEntity createTileEntity(@Nonnull BlockState state, IBlockReader world) { return this.createBlockEntity(state); }
+	
+	protected abstract TileEntity createBlockEntity(BlockState state);
 
-	protected final TraderInterfaceBlockEntity getBlockEntity(LevelAccessor level, BlockPos pos, BlockState ignored) {
-		BlockEntity be = level.getBlockEntity(pos);
-		if(be instanceof TraderInterfaceBlockEntity tibe)
-			return tibe;
+	protected final TraderInterfaceBlockEntity getBlockEntity(IWorld level, BlockPos pos, BlockState ignored) {
+		TileEntity be = level.getBlockEntity(pos);
+		if(be instanceof TraderInterfaceBlockEntity)
+			return (TraderInterfaceBlockEntity)be;
 		return null;
 	}
 	
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
 	@Override
-	public boolean isSignalSource(@NotNull BlockState state) { return true; }
+	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 	
 	public ItemStack getDropBlockItem(BlockState state, TraderInterfaceBlockEntity traderInterface) { return new ItemStack(state.getBlock()); }
 	

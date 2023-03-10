@@ -1,32 +1,32 @@
 package io.github.lightman314.lightmanscurrency.common.tickets;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class TicketSaveData extends SavedData {
+public class TicketSaveData extends WorldSavedData {
 
     private long nextID = 0;
     private final Map<UUID,Long> convertedIDs = new HashMap<>();
 
-    private TicketSaveData() {}
-    private TicketSaveData(CompoundTag compound)
+    private TicketSaveData() { super("lightmanscurrency_ticket_data"); }
+    public void load(CompoundNBT compound)
     {
         this.nextID = compound.getLong("NextID");
         if(compound.contains("ConvertedIDs"))
         {
-            ListTag list = compound.getList("ConvertedIDs", Tag.TAG_COMPOUND);
+            ListNBT list = compound.getList("ConvertedIDs", Constants.NBT.TAG_COMPOUND);
             for(int i = 0; i < list.size(); ++i)
             {
-                CompoundTag entry = list.getCompound(i);
+                CompoundNBT entry = list.getCompound(i);
                 UUID uuid = entry.getUUID("UUID");
                 long id = entry.getLong("ID");
                 this.convertedIDs.put(uuid, id);
@@ -35,12 +35,12 @@ public class TicketSaveData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compound) {
+    public @Nonnull CompoundNBT save(@Nonnull CompoundNBT compound) {
 
         compound.putLong("NextID", this.nextID);
-        ListTag list = new ListTag();
+        ListNBT list = new ListNBT();
         this.convertedIDs.forEach((uuid,id) -> {
-            CompoundTag entry = new CompoundTag();
+            CompoundNBT entry = new CompoundNBT();
             entry.putUUID("UUID", uuid);
             entry.putLong("ID", id);
             list.add(entry);
@@ -53,7 +53,7 @@ public class TicketSaveData extends SavedData {
     private static TicketSaveData get() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
-            return server.overworld().getDataStorage().computeIfAbsent(TicketSaveData::new, TicketSaveData::new, "lightmanscurrency_ticket_data");
+            return server.overworld().getDataStorage().computeIfAbsent(TicketSaveData::new, "lightmanscurrency_ticket_data");
         return null;
     }
 

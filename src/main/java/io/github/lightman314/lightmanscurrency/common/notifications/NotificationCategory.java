@@ -7,21 +7,22 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+
+import javax.annotation.Nonnull;
 
 public abstract class NotificationCategory implements ITab
 {
 	
 	public static final ResourceLocation GENERAL_TYPE = new ResourceLocation(LightmansCurrency.MODID, "general");
 	
-	private static final Map<String,Function<CompoundTag,NotificationCategory>> DESERIALIZERS = new HashMap<>();
+	private static final Map<String,Function<CompoundNBT,NotificationCategory>> DESERIALIZERS = new HashMap<>();
 	
-	public static void register(ResourceLocation type, Function<CompoundTag,NotificationCategory> deserializer) {
+	public static void register(ResourceLocation type, Function<CompoundNBT,NotificationCategory> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
 		{
@@ -36,7 +37,7 @@ public abstract class NotificationCategory implements ITab
 		DESERIALIZERS.put(t, deserializer);
 	}
 	
-	public static NotificationCategory deserialize(CompoundTag compound) {
+	public static NotificationCategory deserialize(CompoundNBT compound) {
 		if(compound.contains("type"))
 		{
 			String type = compound.getString("type");
@@ -60,8 +61,8 @@ public abstract class NotificationCategory implements ITab
 	/* Obsolete as this is covered by ITab
 	public abstract IconData getIcon();
 	*/
-	public final MutableComponent getTooltip() { return this.getName(); }
-	public abstract MutableComponent getName();
+	public final IFormattableTextComponent getTooltip() { return this.getName(); }
+	public abstract IFormattableTextComponent getName();
 	public final int getColor() { return 0xFFFFFF; }
 	protected abstract ResourceLocation getType();
 	
@@ -69,25 +70,25 @@ public abstract class NotificationCategory implements ITab
 	
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
 		@Override
-		public @NotNull IconData getIcon() { return IconData.of(Items.CHEST); }
+		public @Nonnull IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Override
-		public MutableComponent getName() { return new TranslatableComponent("notifications.source.general"); }
+		public IFormattableTextComponent getName() { return EasyText.translatable("notifications.source.general"); }
 		@Override
 		public boolean matches(NotificationCategory other) { return other == GENERAL; }
 		@Override
 		protected ResourceLocation getType() { return GENERAL_TYPE; }
 		@Override
-		protected void saveAdditional(CompoundTag compound) {}
+		protected void saveAdditional(CompoundNBT compound) {}
 	};
 	
-	public final CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
+	public final CompoundNBT save() {
+		CompoundNBT compound = new CompoundNBT();
 		compound.putString("type", this.getType().toString());
 		this.saveAdditional(compound);
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(CompoundTag compound);
+	protected abstract void saveAdditional(CompoundNBT compound);
 
 	public final boolean notGeneral() { return this != GENERAL; }
 	

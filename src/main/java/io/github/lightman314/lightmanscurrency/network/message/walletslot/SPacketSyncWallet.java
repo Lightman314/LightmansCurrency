@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class SPacketSyncWallet {
 	
@@ -24,17 +24,17 @@ public class SPacketSyncWallet {
 		this.visible = visible;
 	}
 	
-	public static void encode(SPacketSyncWallet message, FriendlyByteBuf buffer) {
+	public static void encode(SPacketSyncWallet message, PacketBuffer buffer) {
 		buffer.writeInt(message.entityID);
 		buffer.writeItemStack(message.walletItem, false);
 		buffer.writeBoolean(message.visible);
 	}
 
-	public static SPacketSyncWallet decode(FriendlyByteBuf buffer) {
+	public static SPacketSyncWallet decode(PacketBuffer buffer) {
 		return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean());
 	}
 
-	public static void handle(SPacketSyncWallet message, Supplier<Context> supplier) {
+	public static void handle(SPacketSyncWallet message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			Minecraft minecraft = Minecraft.getInstance();

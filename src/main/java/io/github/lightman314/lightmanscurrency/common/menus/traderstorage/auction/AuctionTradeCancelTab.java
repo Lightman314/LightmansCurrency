@@ -10,9 +10,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -25,13 +25,14 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionTradeCancelClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(PlayerEntity player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public AuctionTradeData getTrade() { 
-		if(this.menu.getTrader() instanceof AuctionHouseTrader trader)
+		if(this.menu.getTrader() instanceof AuctionHouseTrader)
 		{
+			AuctionHouseTrader trader = (AuctionHouseTrader)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -56,12 +57,13 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	
 	public void cancelAuction(boolean giveToPlayer) {
 		TraderData t = this.menu.getTrader();
-		if(t instanceof AuctionHouseTrader trader)
+		if(t instanceof AuctionHouseTrader)
 		{
+			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			AuctionTradeData trade = trader.getTrade(this.tradeIndex);
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putBoolean("CancelAuction", giveToPlayer);
 				this.menu.sendMessage(message);
 				//Don't run the cancel interaction while on the client
@@ -72,7 +74,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 				trade.CancelTrade(trader, giveToPlayer, this.menu.player);
 				trader.markTradesDirty();
 				trader.markStorageDirty();
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putBoolean("CancelSuccess", true);
 				this.menu.sendMessage(message);
 			}
@@ -80,7 +82,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");

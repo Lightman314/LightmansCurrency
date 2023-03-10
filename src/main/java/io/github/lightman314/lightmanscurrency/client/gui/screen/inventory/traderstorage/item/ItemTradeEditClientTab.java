@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
@@ -14,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -21,12 +21,13 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener {
 
@@ -39,11 +40,12 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		super(screen, commonTab);
 	}
 
-	@Override
-	public @NotNull IconData getIcon() { return IconData.BLANK; }
+	@Nonnull
+    @Override
+	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.empty(); }
+	public ITextComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -56,7 +58,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	TradeButton tradeDisplay;
 	CoinValueInput priceSelection;
-	EditBox customNameInput;
+	TextFieldWidget customNameInput;
 
 	ItemEditWidget itemEdit;
 	ScrollBarWidget itemEditScroll;
@@ -87,7 +89,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.itemEditScroll.smallKnob = true;
 
 		int labelWidth = this.font.width(EasyText.translatable("gui.lightmanscurrency.customname"));
-		this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 28 - labelWidth, 18, EasyText.empty()));
+		this.customNameInput = this.screen.addRenderableTabWidget(new TextFieldWidget(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 28 - labelWidth, 18, EasyText.empty()));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 
@@ -107,7 +109,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void onClose() { this.selection = -1; this.itemEditScrollValue = -1; }
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 
 		if(this.getTrade() == null)
 			return;
@@ -118,8 +120,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			this.itemEditScroll.beforeWidgetRender(mouseY);
 
 		//Render a down arrow over the selected position
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 
 		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 
@@ -189,7 +191,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 
@@ -199,7 +201,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -208,9 +210,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof ItemTradeData t)
+		if(trade instanceof ItemTradeData)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemTradeData t = (ItemTradeData)trade;
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -233,9 +236,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof ItemTradeData t)
+		if(trade instanceof ItemTradeData)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemTradeData t = (ItemTradeData)trade;
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(t.isSale() || t.isBarter())
 			{
 				if(this.selection != index && heldItem.isEmpty())

@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessagePlayPickupSound {
 
@@ -12,9 +12,9 @@ public class MessagePlayPickupSound {
 
 	private MessagePlayPickupSound() {}
 
-	public static void encode(MessagePlayPickupSound message, FriendlyByteBuf buffer) { }
+	public static void encode(MessagePlayPickupSound message, PacketBuffer buffer) { }
 
-	public static MessagePlayPickupSound decode(FriendlyByteBuf buffer) {
+	public static MessagePlayPickupSound decode(PacketBuffer buffer) {
 		return INSTANCE;
 	}
 

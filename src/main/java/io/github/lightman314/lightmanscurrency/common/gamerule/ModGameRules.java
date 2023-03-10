@@ -4,34 +4,35 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import net.minecraft.world.GameRules;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+
 
 public class ModGameRules {
 
 	private static final List<RuleData<?>> GAME_RULES = Lists.newArrayList();
-	
-	public static final GameRules.Key<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet", GameRules.Category.PLAYER, createBoolean(false));
-	public static final GameRules.Key<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.Category.PLAYER, createInteger(0));
+
+	public static final GameRules.RuleKey<GameRules.BooleanValue> KEEP_WALLET = register("keepWallet",GameRules.Category.PLAYER, createBoolean(false));
+	public static final GameRules.RuleKey<GameRules.IntegerValue> COIN_DROP_PERCENT = register("coinDropPercent", GameRules.Category.PLAYER, createInteger(0));
 	
 	
 	@SuppressWarnings("unchecked")
-	private static GameRules.Type<GameRules.IntegerValue> createInteger(int defaultVal)
+	private static GameRules.RuleType<GameRules.IntegerValue> createInteger(int defaultVal)
 	{
 		try {
 			//1.16 obfuscated 'func_223562_a'
 			//1.17 & 1.18 obfuscated 'm_46312_'
-			Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "m_46312_", int.class);
+			Method m = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "func_223562_a", int.class);
 			m.setAccessible(true);
-			return (GameRules.Type<GameRules.IntegerValue>) m.invoke(null, defaultVal);
+			return (GameRules.RuleType<GameRules.IntegerValue>) m.invoke(null, defaultVal);
 		} catch(Exception e) {
 			try {
 				Method m2 = ObfuscationReflectionHelper.findMethod(GameRules.IntegerValue.class, "create", int.class);
 				m2.setAccessible(true);
-				return (GameRules.Type<GameRules.IntegerValue>) m2.invoke(null, defaultVal);
+				return (GameRules.RuleType<GameRules.IntegerValue>) m2.invoke(null, defaultVal);
 			} catch(Exception e2) {
 				LightmansCurrency.LogError("Create gamerule error", e);
 			}
@@ -40,20 +41,20 @@ public class ModGameRules {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static GameRules.Type<GameRules.BooleanValue> createBoolean(boolean defaultVal)
+	private static GameRules.RuleType<GameRules.BooleanValue> createBoolean(boolean defaultVal)
 	{
 		try {
 			//1.16 obfuscated 'func_223571_a'
 			//1.17 & 1.18 obfuscated 'm_46250_'
 			Method m = ObfuscationReflectionHelper.findMethod(GameRules.BooleanValue.class, "m_46250_", boolean.class);
 			m.setAccessible(true);
-			return (GameRules.Type<GameRules.BooleanValue>) m.invoke(null, defaultVal);
+			return (GameRules.RuleType<GameRules.BooleanValue>) m.invoke(null, defaultVal);
 		}
 		catch(Exception e) {
 			try {
 				Method m2 = ObfuscationReflectionHelper.findMethod(GameRules.BooleanValue.class, "create", boolean.class);
 				m2.setAccessible(true);
-				return (GameRules.Type<GameRules.BooleanValue>) m2.invoke(null, defaultVal);
+				return (GameRules.RuleType<GameRules.BooleanValue>) m2.invoke(null, defaultVal);
 			} catch(Exception e2) {
 				LightmansCurrency.LogError("Create gamerule error", e);
 			}
@@ -61,17 +62,17 @@ public class ModGameRules {
 		return null;
 	}
 	
-	private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Category category, GameRules.Type<T> ruleType)
+	private static <T extends GameRules.RuleValue<T>> GameRules.RuleKey<T> register(String name, GameRules.Category category, GameRules.RuleType<T> ruleType)
 	{
 		if(ruleType == null)
 			return null;
-		GameRules.Key<T> ruleKey = new GameRules.Key<>(name, category);
+		GameRules.RuleKey<T> ruleKey = new GameRules.RuleKey<>(name, category);
 		RuleData<T> ruleData = new RuleData<>(name, category, ruleType);
 		GAME_RULES.add(ruleData);
 		return ruleKey;
 	}
 	
-	public static <T extends GameRules.Value<T>> T getCustomValue(Level level, GameRules.Key<T> ruleKey)
+	public static <T extends GameRules.RuleValue<T>> T getCustomValue(World level, GameRules.RuleKey<T> ruleKey)
 	{
 		if(ruleKey == null)
 			return null;
@@ -84,7 +85,14 @@ public class ModGameRules {
 		GAME_RULES.clear();
 	}
 
-	private record RuleData<T extends GameRules.Value<T>>(String name, GameRules.Category category, GameRules.Type<T> ruleType) { }
+	private static class RuleData<T extends GameRules.RuleValue<T>> {
+
+		public final String name;
+		public final GameRules.Category category;
+		public final GameRules.RuleType<T> ruleType;
+		RuleData(String name, GameRules.Category category, GameRules.RuleType<T> ruleType) { this.name = name; this.category = category; this.ruleType = ruleType; }
+
+	}
 	
 	
 }

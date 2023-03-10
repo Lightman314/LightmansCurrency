@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
@@ -16,31 +16,34 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
 
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.trader"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.trader"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
 	
-	EditBox searchField;
+	TextFieldWidget searchField;
 	
 	ScrollBarWidget scrollBar;
 	
@@ -77,7 +80,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void onOpen() {
 		
-		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, new TranslatableComponent("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.screen.addRenderableTabWidget(new TextFieldWidget(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
@@ -114,10 +117,10 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		this.screen.blit(pose, this.screen.getGuiLeft() + 28, this.screen.getGuiTop() + 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
@@ -125,22 +128,15 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		
-	}
-	
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) { }
+
 	@Override
 	public void tick() {
 		
 		this.searchField.tick();
-		
-		for(int i = 0; i < this.traderButtons.size(); ++i)
-		{
-			UniversalTraderButton button = this.traderButtons.get(i);
-			if(button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader())
-				button.selected = true;
-			else
-				button.selected = false;
+
+		for (UniversalTraderButton button : this.traderButtons) {
+			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();
 		}
 	}
 	

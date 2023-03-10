@@ -6,12 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
@@ -33,20 +40,12 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCol
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nonnull;
 
 @IPNIgnore
-public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMenu> implements IClientMessage, IScreen {
+public class TraderStorageScreen extends ContainerScreen<TraderStorageMenu> implements IClientMessage, IScreen {
 
 	Map<Integer,TraderStorageClientTab<?>> availableTabs = new HashMap<>();
 	public TraderStorageClientTab<?> currentTab() { return this.availableTabs.get(this.menu.getCurrentTabIndex()); }
@@ -66,12 +65,12 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	Button buttonTradeRules;
 	
-	List<AbstractWidget> tabRenderables = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
+	List<Widget> tabRenderables = new ArrayList<>();
+	List<IGuiEventListener> tabListeners = new ArrayList<>();
 	
 	private final List<Runnable> tickListeners = new ArrayList<>();
 	
-	public TraderStorageScreen(TraderStorageMenu menu, Inventory inventory, Component title) {
+	public TraderStorageScreen(TraderStorageMenu menu, PlayerInventory inventory, ITextComponent title) {
 		super(menu, inventory, title);
 		this.menu.getAllTabs().forEach((key,tab) -> this.availableTabs.put(key, tab.createClientTab(this)));
 		this.imageWidth = TraderScreen.WIDTH;
@@ -91,7 +90,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
 			if(tab.tabButtonVisible()) {
-				TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
+				TabButton newButton = this.addButton(new TabButton(button -> this.changeTab(key), this.font, tab));
 				if(key == this.menu.getCurrentTabIndex())
 					newButton.active = false;
 				this.tabButtons.put(key, newButton);
@@ -107,23 +106,23 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		});
 		
 		//Other buttons
-		this.buttonShowTrades = this.addRenderableWidget(IconAndButtonUtil.traderButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 118, this::PressTradesButton));
+		this.buttonShowTrades = this.addButton(IconAndButtonUtil.traderButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 118, this::PressTradesButton));
 		
-		this.buttonCollectMoney = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 138, this::PressCollectionButton, this.menu.player, this.menu::getTrader));
+		this.buttonCollectMoney = this.addButton(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 138, this::PressCollectionButton, this.menu.player, this.menu::getTrader));
 		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getTrader().hasBankAccount();
 		
-		this.buttonStoreMoney = this.addRenderableWidget(IconAndButtonUtil.storeCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 158, this::PressStoreCoinsButton));
+		this.buttonStoreMoney = this.addButton(IconAndButtonUtil.storeCoinButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 158, this::PressStoreCoinsButton));
 		this.buttonStoreMoney.visible = false;
 		
-		this.buttonOpenSettings = this.addRenderableWidget(IconAndButtonUtil.openSettingsButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 118, this::PressSettingsButton));
+		this.buttonOpenSettings = this.addButton(IconAndButtonUtil.openSettingsButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 118, this::PressSettingsButton));
 		this.buttonOpenSettings.visible = this.menu.hasPermission(Permissions.EDIT_SETTINGS);
 		
-		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 138, this::PressTradeRulesButton, () -> this.currentTab().getTradeRuleTradeIndex() >= 0));
+		this.buttonTradeRules = this.addButton(IconAndButtonUtil.tradeRuleButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET + 176, this.topPos + 138, this::PressTradeRulesButton, () -> this.currentTab().getTradeRuleTradeIndex() >= 0));
 		this.buttonTradeRules.visible = this.menu.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
-		this.buttonShowLog = this.addRenderableWidget(IconAndButtonUtil.showLoggerButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 158, this::PressLogButton, () -> false));
+		this.buttonShowLog = this.addButton(IconAndButtonUtil.showLoggerButton(this.leftPos + TraderStorageMenu.SLOT_OFFSET - 20, this.topPos + 158, this::PressLogButton, () -> false));
 		
-		this.logWindow = this.addRenderableWidget(new NotificationDisplayWidget(this.leftPos + TraderStorageMenu.SLOT_OFFSET, this.topPos, this.imageWidth - (2 * TraderStorageMenu.SLOT_OFFSET), this.imageHeight / NotificationDisplayWidget.HEIGHT_PER_ROW, this.font, () -> { TraderData trader = this.menu.getTrader(); return trader != null ? trader.getNotifications() : new ArrayList<>(); }));
+		this.logWindow = this.addButton(new NotificationDisplayWidget(this.leftPos + TraderStorageMenu.SLOT_OFFSET, this.topPos, this.imageWidth - (2 * TraderStorageMenu.SLOT_OFFSET), this.imageHeight / NotificationDisplayWidget.HEIGHT_PER_ROW, this.font, () -> { TraderData trader = this.menu.getTrader(); return trader != null ? trader.getNotifications() : new ArrayList<>(); }));
 		this.logWindow.visible = false;
 		
 		//Left side auto-position
@@ -134,15 +133,15 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		//Initialize the current tab
 		this.currentTab().onOpen();
 		
-		this.containerTick();
+		this.tick();
 		
 	}
 
 	@Override
-	protected void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
-		
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY) {
+
+		RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		
 		//Main BG
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -164,14 +163,14 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	}
 	
 	@Override
-	protected void renderLabels(@Nonnull PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY) {
 		
-		this.font.draw(pose, this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
+		this.font.draw(pose, this.inventory.getName(), TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
 	}
 	
 	@Override
-	public void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(this.menu.getTrader() == null)
 		{
 			this.menu.player.closeContainer();
@@ -194,7 +193,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.currentTab().renderTooltips(pose, mouseX, mouseY);
 		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), e); }
 		
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.buttons);
 		
 		this.tabButtons.forEach((key, button) ->{
 			if(button.isMouseOver(mouseX, mouseY))
@@ -204,8 +203,10 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	}
 	
 	@Override
-	public void containerTick()
+	public void tick()
 	{
+		super.tick();
+
 		if(this.menu.getTrader() == null)
 		{
 			this.menu.player.closeContainer();
@@ -235,7 +236,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	@Override
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+	      InputMappings.Input mouseKey = InputMappings.getKey(p_97765_, p_97766_);
 	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
 	      if (this.currentTab().blockInventoryClosing() && this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey)) { return true; }
 	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
@@ -249,7 +250,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	
 	public void changeTab(int newTab) { this.changeTab(newTab, true, null); }
 	
-	public void changeTab(int newTab, boolean sendMessage, CompoundTag selfMessage) {
+	public void changeTab(int newTab, boolean sendMessage, CompoundNBT selfMessage) {
 		
 		if(newTab == this.menu.getCurrentTabIndex())
 			return;
@@ -287,19 +288,19 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 	}
 	
 	@Override
-	public void selfMessage(CompoundTag message) {
+	public void selfMessage(CompoundNBT message) {
 		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
-		if(message.contains("ChangeTab",Tag.TAG_INT))
+		if(message.contains("ChangeTab", Constants.NBT.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"), false, message);
 		else
 			this.currentTab().receiveSelfMessage(message);
 	}
 	
-	public void serverMessage(CompoundTag message) {
+	public void serverMessage(CompoundNBT message) {
 		this.currentTab().receiveServerMessage(message);
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {
+	public <T extends Widget> T addRenderableTabWidget(T widget) {
 		this.tabRenderables.add(widget);
 		return widget;
 	}
@@ -308,20 +309,21 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		this.tabRenderables.remove(widget);
 	}
 	
-	public <T extends GuiEventListener> T addTabListener(T listener) {
+	public <T extends IGuiEventListener> T addTabListener(T listener) {
 		this.tabListeners.add(listener);
 		return listener;
 	}
 	
-	public <T extends GuiEventListener> void removeTabListener(T listener) {
+	public <T extends IGuiEventListener> void removeTabListener(T listener) {
 		this.tabListeners.remove(listener);
 	}
 	
+	@Nonnull
 	@Override
-	public List<? extends GuiEventListener> children()
+	public List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
 		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);

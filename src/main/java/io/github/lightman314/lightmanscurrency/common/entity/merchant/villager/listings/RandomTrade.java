@@ -5,19 +5,19 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class RandomTrade implements ItemListing
+public class RandomTrade implements VillagerTrades.ITrade
 {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "random_selection");
@@ -30,20 +30,20 @@ public class RandomTrade implements ItemListing
     protected final int xp;
     protected final float priceMult;
 
-    public static RandomTrade build(ItemStack price, List<? extends ItemLike> sellItemOptions, int maxTrades, int xpValue, float priceMult) {
+    public static RandomTrade build(ItemStack price, List<? extends IItemProvider> sellItemOptions, int maxTrades, int xpValue, float priceMult) {
         return build(price, ItemStack.EMPTY, sellItemOptions, maxTrades, xpValue, priceMult);
     }
 
-    public static RandomTrade build(ItemStack price1, ItemStack price2, List<? extends ItemLike> sellItemOptions, int maxTrades, int xpValue, float priceMult) {
+    public static RandomTrade build(ItemStack price1, ItemStack price2, List<? extends IItemProvider> sellItemOptions, int maxTrades, int xpValue, float priceMult) {
         return new RandomTrade(price1, price2, convertItemList(sellItemOptions), maxTrades, xpValue, priceMult);
     }
 
 
-    public RandomTrade(ItemStack price, ItemLike[] sellItemOptions, int maxTrades, int xpValue, float priceMult) {
+    public RandomTrade(ItemStack price, IItemProvider[] sellItemOptions, int maxTrades, int xpValue, float priceMult) {
         this(price, ItemStack.EMPTY, sellItemOptions, maxTrades, xpValue, priceMult);
     }
 
-    public RandomTrade(ItemStack price1, ItemStack price2, ItemLike[] sellItemOptions, int maxTrades, int xpValue, float priceMult) {
+    public RandomTrade(ItemStack price1, ItemStack price2, IItemProvider[] sellItemOptions, int maxTrades, int xpValue, float priceMult) {
         this(price1, price2, convertItemArray(sellItemOptions), maxTrades, xpValue, priceMult);
     }
 
@@ -57,9 +57,9 @@ public class RandomTrade implements ItemListing
         this.priceMult = priceMult;
     }
 
-    private static List<ItemStack> convertItemArray(ItemLike[] array) {
+    private static List<ItemStack> convertItemArray(IItemProvider[] array) {
         List<ItemStack> options = new ArrayList<>();
-        for(ItemLike item : array)
+        for(IItemProvider item : array)
         {
             ItemStack stack = new ItemStack(item);
             if(!stack.isEmpty())
@@ -68,9 +68,9 @@ public class RandomTrade implements ItemListing
         return options;
     }
 
-    private static List<ItemStack> convertItemList(Iterable<? extends ItemLike> array) {
+    private static List<ItemStack> convertItemList(Iterable<? extends IItemProvider> array) {
         List<ItemStack> options = new ArrayList<>();
-        for(ItemLike item : array)
+        for(IItemProvider item : array)
         {
             ItemStack stack = new ItemStack(item);
             if(!stack.isEmpty())
@@ -80,7 +80,7 @@ public class RandomTrade implements ItemListing
     }
 
     @Override
-    public MerchantOffer getOffer(@NotNull Entity trader, Random rand) {
+    public MerchantOffer getOffer(@Nonnull Entity trader, Random rand) {
 
         int index = rand.nextInt(this.sellItemOptions.size());
         ItemStack sellItem = sellItemOptions.get(index).copy();
@@ -94,9 +94,10 @@ public class RandomTrade implements ItemListing
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
-            if(trade instanceof RandomTrade t)
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ITrade trade) {
+            if(trade instanceof RandomTrade)
             {
+                RandomTrade t = (RandomTrade)trade;
                 json.add("Price", FileUtil.convertItemStack(t.price1));
                 if(!t.price2.isEmpty())
                     json.add("Price2", FileUtil.convertItemStack(t.price2));
@@ -113,7 +114,7 @@ public class RandomTrade implements ItemListing
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
+        public VillagerTrades.ITrade deserialize(JsonObject json) throws Exception {
             ItemStack price1 = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
             ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
             List<ItemStack> sellItems = new ArrayList<>();

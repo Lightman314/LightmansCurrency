@@ -1,8 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison;
 
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

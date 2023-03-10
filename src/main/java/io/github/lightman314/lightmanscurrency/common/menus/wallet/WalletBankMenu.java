@@ -2,17 +2,18 @@ package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 
 	public static final int BANK_WIDGET_SPACING = 128;
 	
-	public WalletBankMenu(int windowId, Inventory inventory, int walletStackIndex) {
+	public WalletBankMenu(int windowId, PlayerInventory inventory, int walletStackIndex) {
 		
 		super(ModMenus.WALLET_BANK.get(), windowId, inventory, walletStackIndex);
 		
@@ -22,16 +23,17 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	}
 
 	@Override
-	public Container getCoinInput() { return this.coinInput; }
+	public IInventory getCoinInput() { return this.coinInput; }
 
 	@Override
 	public boolean isClient() { return this.player.level.isClientSide; }
 
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
+	public ItemStack quickMoveStack(@Nonnull PlayerEntity player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(@NotNull Player player) {
+	public boolean stillValid(@Nonnull PlayerEntity player) {
 		this.getBankAccountReference();
 		return super.stillValid(player) && this.hasBankAccess();
 	}

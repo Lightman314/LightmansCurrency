@@ -7,10 +7,18 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+
+import javax.annotation.Nonnull;
 
 public abstract class WalletMenuBase extends Container {
 
@@ -40,14 +48,14 @@ public abstract class WalletMenuBase extends Container {
 	public boolean getAutoConvert() { return this.autoConvert; }
 	public void ToggleAutoConvert() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
 	
-	protected final Container coinInput;
+	protected final IInventory coinInput;
 	
 	protected final WalletItem walletItem;
 	
-	public final Player player;
-	public Player getPlayer() { return this.player; }
+	public final PlayerEntity player;
+	public PlayerEntity getPlayer() { return this.player; }
 	
-	protected WalletMenuBase(MenuType<?> type, int windowID, Inventory inventory, int walletStackIndex) {
+	protected WalletMenuBase(ContainerType<?> type, int windowID, PlayerInventory inventory, int walletStackIndex) {
 		super(type, windowID);
 		
 		this.inventory = inventory;
@@ -61,7 +69,7 @@ public abstract class WalletMenuBase extends Container {
 		else
 			this.walletItem = null;
 		
-		this.coinInput = new SimpleContainer(WalletItem.InventorySize(this.walletItem));
+		this.coinInput = new Inventory(WalletItem.InventorySize(this.walletItem));
 		this.reloadWalletContents();
 		
 		this.autoConvert = WalletItem.getAutoConvert(this.getWallet());
@@ -97,7 +105,7 @@ public abstract class WalletMenuBase extends Container {
 	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
 	
 	@Override
-	public boolean stillValid(@NotNull Player playerIn) { return this.hasWallet(); }
+	public boolean stillValid(@Nonnull PlayerEntity playerIn) { return this.hasWallet(); }
 	
 	public final void saveWalletContents()
 	{
@@ -153,8 +161,15 @@ public abstract class WalletMenuBase extends Container {
 	}
 
 	public static void OnWalletUpdated(Entity entity) {
-		if(entity instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
-			menu.reloadWalletContents();
+		if(entity instanceof PlayerEntity)
+		{
+			PlayerEntity player = (PlayerEntity)entity;
+			if(player.containerMenu instanceof WalletMenuBase)
+			{
+				WalletMenuBase menu = (WalletMenuBase)player.containerMenu;
+				menu.reloadWalletContents();
+			}
+		}
 	}
 	
 }

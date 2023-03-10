@@ -8,8 +8,8 @@ import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class TimeUtil {
 
@@ -81,12 +81,13 @@ public class TimeUtil {
 		}
 
 		private long getUnitValue(TimeUnit unit) {
-			return switch (unit) {
-				case DAY -> this.days;
-				case HOUR -> this.hours;
-				case MINUTE -> this.minutes;
-				case SECOND -> this.seconds;
-			};
+			switch (unit) {
+				case DAY: return this.days;
+				case HOUR: return this.hours;
+				case MINUTE: return this.minutes;
+				case SECOND: return this.seconds;
+			}
+			return 0;
 		}
 
 		public String getUnitString(TimeUnit unit, boolean shortText) { return this.getUnitString(unit, shortText, true); }
@@ -129,9 +130,9 @@ public class TimeUtil {
 		public static final List<TimeUnit> UNITS_SMALL_TO_LARGE = ImmutableList.of(TimeUnit.SECOND, TimeUnit.MINUTE, TimeUnit.HOUR, TimeUnit.DAY);
 		public static final List<TimeUnit> UNITS_LARGE_TO_SMALL = ImmutableList.of(TimeUnit.DAY, TimeUnit.HOUR, TimeUnit.MINUTE, TimeUnit.SECOND);
 
-		public MutableComponent getText() { return new TranslatableComponent("gui.lightmanscurrency.time.unit." + this.name().toLowerCase()); }
-		public MutableComponent getPluralText() { return new TranslatableComponent("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".plural"); }
-		public MutableComponent getShortText() { return new TranslatableComponent("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".short"); }
+		public IFormattableTextComponent getText() { return EasyText.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase()); }
+		public IFormattableTextComponent getPluralText() { return EasyText.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".plural"); }
+		public IFormattableTextComponent getShortText() { return EasyText.translatable("gui.lightmanscurrency.time.unit." + this.name().toLowerCase() + ".short"); }
 
 	}
 

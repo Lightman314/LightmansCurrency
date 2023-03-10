@@ -2,28 +2,27 @@ package io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.
 
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.MapItem;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.saveddata.maps.MapDecoration;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.FilledMapItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.MapData;
+import net.minecraft.world.storage.MapDecoration;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 
-public class ItemsForMapTrade implements ItemListing
+public class ItemsForMapTrade implements VillagerTrades.ITrade
 {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "items_for_map");
@@ -31,19 +30,19 @@ public class ItemsForMapTrade implements ItemListing
 
     protected final ItemStack price1;
     protected final ItemStack price2;
-    protected final TagKey<ConfiguredStructureFeature<?, ?>> destination;
+    protected final Structure<?> destination;
     protected final String displayName;
     protected final MapDecoration.Type mapDecorationType;
     protected final int maxTrades;
     protected final int xp;
     protected final float priceMult;
 
-    public ItemsForMapTrade(ItemStack price, TagKey<ConfiguredStructureFeature<?, ?>> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
+    public ItemsForMapTrade(ItemStack price, Structure<?> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue)
     {
         this(price, ItemStack.EMPTY, destination, displayName, mapDecorationType, maxUses, xpValue, SimpleTrade.PRICE_MULT);
     }
 
-    public ItemsForMapTrade(ItemStack price1, ItemStack price2, TagKey<ConfiguredStructureFeature<?, ?>> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue, float priceMult)
+    public ItemsForMapTrade(ItemStack price1, ItemStack price2, Structure<?> destination, String displayName, MapDecoration.Type mapDecorationType, int maxUses, int xpValue, float priceMult)
     {
         this.price1 = price1;
         this.price2 = price2;
@@ -56,19 +55,20 @@ public class ItemsForMapTrade implements ItemListing
     }
 
     @Override
-    public MerchantOffer getOffer(Entity trader, @NotNull Random rand) {
+    public MerchantOffer getOffer(Entity trader, @Nonnull Random rand) {
 
-        if(!(trader.level instanceof ServerLevel serverworld))
+        if(!(trader.level instanceof ServerWorld))
             return null;
         else
         {
+            ServerWorld serverworld = (ServerWorld)trader.level;
             BlockPos blockPos = serverworld.findNearestMapFeature(this.destination, trader.blockPosition(), 100, true);
             if(blockPos != null)
             {
-                ItemStack itemstack = MapItem.create(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
-                MapItem.lockMap(serverworld, itemstack);
-                MapItemSavedData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
-                itemstack.setHoverName(new TranslatableComponent(this.displayName));
+                ItemStack itemstack = FilledMapItem.create(serverworld, blockPos.getX(), blockPos.getZ(), (byte)2, true, true);
+                FilledMapItem.lockMap(serverworld, itemstack);
+                MapData.addTargetDecoration(itemstack, blockPos, "+", this.mapDecorationType);
+                itemstack.setHoverName(EasyText.translatable(this.displayName));
                 return new MerchantOffer(this.price1, this.price2, itemstack, this.maxTrades, this.xp, this.priceMult);
             }
             else
@@ -82,13 +82,14 @@ public class ItemsForMapTrade implements ItemListing
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
-            if(trade instanceof ItemsForMapTrade t)
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ITrade trade) {
+            if(trade instanceof ItemsForMapTrade)
             {
+                ItemsForMapTrade t = (ItemsForMapTrade)trade;
                 json.add("Price", FileUtil.convertItemStack(t.price1));
                 if(!t.price2.isEmpty())
                     json.add("Price2", FileUtil.convertItemStack(t.price2));
-                json.addProperty("Destination", t.destination.location().toString());
+                json.addProperty("Destination", t.destination.getRegistryName().toString());
                 json.addProperty("MapName", t.displayName);
                 json.addProperty("Decoration", t.mapDecorationType.toString());
                 json.addProperty("MaxTrades", t.maxTrades);
@@ -100,10 +101,10 @@ public class ItemsForMapTrade implements ItemListing
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
+        public VillagerTrades.ITrade deserialize(JsonObject json) throws Exception {
             ItemStack price1 = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
             ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
-            TagKey<ConfiguredStructureFeature<?, ?>> destination = TagKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, new ResourceLocation(json.get("Destination").getAsString()));
+            Structure<?> destination = ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(json.get("Destination").getAsString()));
             String displayName = json.get("MapName").getAsString();
             MapDecoration.Type mapDecorationType = EnumUtil.enumFromString(json.get("Decoration").getAsString(), MapDecoration.Type.values(), MapDecoration.Type.FRAME);
             int maxTrades = json.get("MaxTrades").getAsInt();

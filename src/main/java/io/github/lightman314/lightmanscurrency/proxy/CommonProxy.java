@@ -7,10 +7,10 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountRe
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,21 +21,21 @@ public class CommonProxy {
 	
 	public void clearClientTraders() {}
 	
-	public void updateTrader(CompoundTag compound) {}
+	public void updateTrader(CompoundNBT compound) {}
 	
 	public void removeTrader(long traderID) {}
 	
-	public void initializeTeams(CompoundTag compound) {}
+	public void initializeTeams(CompoundNBT compound) {}
 	
-	public void updateTeam(CompoundTag compound) {}
+	public void updateTeam(CompoundNBT compound) {}
 	
 	public void removeTeam(long teamID) {}
 	
-	public void initializeBankAccounts(CompoundTag compound) {}
+	public void initializeBankAccounts(CompoundNBT compound) {}
 	
-	public void updateBankAccount(CompoundTag compound) {}
+	public void updateBankAccount(CompoundNBT compound) {}
 	
-	public void receiveEmergencyEjectionData(CompoundTag compound) {}
+	public void receiveEmergencyEjectionData(CompoundNBT compound) {}
 	
 	public void updateNotifications(NotificationData data) {}
 	
@@ -60,15 +60,15 @@ public class CommonProxy {
 	public void loadAdminPlayers(List<UUID> serverAdminList) { }
 
 	@Nonnull
-	public Level safeGetDummyLevel() throws Exception{
-		Level level = this.getDummyLevelFromServer();
+	public World safeGetDummyLevel() throws Exception{
+		World level = this.getDummyLevelFromServer();
 		if(level != null)
 			return level;
 		throw new Exception("Could not get dummy level from server, as there is no active server!");
 	}
 
 	@Nullable
-	protected final Level getDummyLevelFromServer() {
+	protected final World getDummyLevelFromServer() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 			return server.overworld();

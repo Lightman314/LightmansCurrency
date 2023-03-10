@@ -14,14 +14,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSl
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class ItemStorageTab extends TraderStorageTab{
 
@@ -32,7 +32,7 @@ public class ItemStorageTab extends TraderStorageTab{
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof ItemTraderData; }
+	public boolean canOpen(PlayerEntity player) { return this.menu.getTrader() instanceof ItemTraderData; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
@@ -40,14 +40,18 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+			if(!trader.isPersistent())
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
-				upgradeSlot.active = false;
-				addSlot.apply(upgradeSlot);
-				this.slots.add(upgradeSlot);
+				for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
+				{
+					SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
+					upgradeSlot.active = false;
+					addSlot.apply(upgradeSlot);
+					this.slots.add(upgradeSlot);
+				}
 			}
 		}
 	}
@@ -61,7 +65,8 @@ public class ItemStorageTab extends TraderStorageTab{
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
-		if(this.menu.getTrader() instanceof ItemTraderData trader) {
+		if(this.menu.getTrader() instanceof ItemTraderData) {
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			if(trader.isPersistent())
 				return false;
 			TraderItemStorage storage = trader.getStorage();
@@ -76,12 +81,13 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getTrader() instanceof ItemTraderData trader)
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			if(trader.isPersistent())
 				return;
 			TraderItemStorage storage = trader.getStorage();
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(heldItem.isEmpty())
 			{
 				//Move item out of storage
@@ -107,14 +113,14 @@ public class ItemStorageTab extends TraderStorageTab{
 					if(isShiftHeld)
 					{
 						//Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
-						this.menu.player.getInventory().add(stackToRemove);
+						this.menu.player.inventory.add(stackToRemove);
 						//Determine the amount actually added to the players inventory
 						removedAmount = tempAmount - stackToRemove.getCount();
 					}
 					else
 					{
 						//Put the item into the players hand
-						this.menu.setCarried(stackToRemove);
+						this.menu.player.inventory.setCarried(stackToRemove);
 						removedAmount = tempAmount;
 					}
 					//Remove the correct amount from storage
@@ -145,7 +151,7 @@ public class ItemStorageTab extends TraderStorageTab{
 					{
 						heldItem.shrink(1);
 						if(heldItem.isEmpty())
-							this.menu.setCarried(ItemStack.EMPTY);
+							this.menu.player.inventory.setCarried(ItemStack.EMPTY);
 					}
 					//Mark the storage dirty
 					trader.markStorageDirty();
@@ -157,7 +163,7 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	private void sendStorageClickMessage(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putInt("ClickedSlot", storageSlot);
 		message.putBoolean("HeldShift", isShiftHeld);
 		message.putBoolean("LeftClick", leftClick);
@@ -165,11 +171,12 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getTrader() instanceof ItemTraderData trader) {
+		if(this.menu.getTrader() instanceof ItemTraderData) {
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
 			if(trader.isPersistent())
 				return;
 			TraderItemStorage storage = trader.getStorage();
-			Inventory inv = this.menu.player.getInventory();
+			PlayerInventory inv = this.menu.player.inventory;
 			boolean changed = false;
 			if(type == 0)
 			{
@@ -220,7 +227,7 @@ public class ItemStorageTab extends TraderStorageTab{
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("QuickTransfer", type);
 				this.menu.sendMessage(message);
 			}
@@ -229,8 +236,8 @@ public class ItemStorageTab extends TraderStorageTab{
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) { 
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void receiveMessage(CompoundNBT message) { 
+		if(message.contains("ClickedSlot", Constants.NBT.TAG_INT))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

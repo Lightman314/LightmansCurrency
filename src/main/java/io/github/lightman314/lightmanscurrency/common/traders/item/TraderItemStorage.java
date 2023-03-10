@@ -10,14 +10,13 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
 
@@ -26,11 +25,11 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 
 	public TraderItemStorage(@Nonnull ITraderItemFilter filter) { this.filter = filter; }
 
-	public CompoundTag save(CompoundTag compound, String tag) {
-		ListTag list = new ListTag();
+	public CompoundNBT save(CompoundNBT compound, String tag) {
+		ListNBT list = new ListNBT();
 		for (ItemStack item : this.storage) {
 			if (!item.isEmpty()) {
-				CompoundTag itemTag = new CompoundTag();
+				CompoundNBT itemTag = new CompoundNBT();
 				item.save(itemTag);
 				itemTag.putInt("Count", item.getCount());
 				list.add(itemTag);
@@ -40,14 +39,14 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		return compound;
 	}
 
-	public void load(CompoundTag compound, String tag) {
-		if(compound.contains(tag, Tag.TAG_LIST))
+	public void load(CompoundNBT compound, String tag) {
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 			this.storage.clear();
 			for(int i = 0; i < list.size(); ++i)
 			{
-				CompoundTag itemTag = list.getCompound(i);
+				CompoundNBT itemTag = list.getCompound(i);
 				ItemStack item = ItemStack.of(itemTag);
 				item.setCount(itemTag.getInt("Count"));
 				if(!item.isEmpty())
@@ -332,7 +331,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 
 	@Override
 	public TraderItemStorage copy() {
-		CompoundTag tag = this.save(new CompoundTag(), "copy");
+		CompoundNBT tag = this.save(new CompoundNBT(), "copy");
 		TraderItemStorage copy = new TraderItemStorage(this.filter);
 		copy.load(tag, "copy");
 		return copy;
@@ -344,14 +343,14 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public @NotNull ItemStack getStackInSlot(int slot) {
+	public @Nonnull ItemStack getStackInSlot(int slot) {
 		if(slot >= 0 && slot < this.storage.size())
 			return this.storage.get(slot);
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public @NotNull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+	public @Nonnull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		int amountToAdd = Math.min(stack.getCount(), this.getFittableAmount(stack));
 		ItemStack remainder = stack.copy();
 		if(amountToAdd >= stack.getCount())
@@ -369,7 +368,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+	public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack stackInSlot = this.getStackInSlot(slot);
 		int amountToRemove = Math.min(amount, stackInSlot.getCount());
 		ItemStack removedStack = stackInSlot.copy();
@@ -390,6 +389,6 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	}
 
 	@Override
-	public boolean isItemValid(int slot, @NotNull ItemStack stack) { return this.allowItem(stack); }
+	public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return this.allowItem(stack); }
 
 }

@@ -5,6 +5,7 @@ import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WoodType {
 
@@ -32,14 +33,14 @@ public class WoodType {
 
     public static ImmutableList<WoodType> vanillaValues() {
         if(VANILLA_TYPES == null)
-            VANILLA_TYPES = ImmutableList.copyOf(ALL_TYPES.stream().filter(WoodType::isVanilla).toList());
+            VANILLA_TYPES = ImmutableList.copyOf(ALL_TYPES.stream().filter(WoodType::isVanilla).collect(Collectors.toList()));
         return VANILLA_TYPES;
     }
 
 
     public static List<WoodType> validValues() {
         if(VALID_TYPES == null)
-            VALID_TYPES = ImmutableList.copyOf(ALL_TYPES.stream().filter(WoodType::isValid).toList());
+            VALID_TYPES = ImmutableList.copyOf(ALL_TYPES.stream().filter(WoodType::isValid).collect(Collectors.toList()));
         return VALID_TYPES;
     }
 

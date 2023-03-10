@@ -1,15 +1,17 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public class PortableATMItem extends TooltipItem{
 
@@ -18,16 +20,17 @@ public class PortableATMItem extends TooltipItem{
 		super(properties.stacksTo(1), LCTooltips.ATM);
 	}
 	
+	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand)
+	public ActionResult<ItemStack> use(@Nonnull World world, PlayerEntity player, @Nonnull Hand hand)
 	{
 		player.openMenu(this.getMenuProvider());
-		return InteractionResultHolder.success(player.getItemInHand(hand));
+		return ActionResult.success(player.getItemInHand(hand));
 	}
 	
-	public MenuProvider getMenuProvider()
+	public INamedContainerProvider getMenuProvider()
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> new ATMMenu(windowId, playerInventory), EasyText.empty());
 	}
 	
 }

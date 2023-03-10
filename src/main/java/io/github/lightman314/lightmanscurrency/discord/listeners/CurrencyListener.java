@@ -37,17 +37,17 @@ import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.A
 import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TraderEvent.CreateNetworkTraderEvent;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 public class CurrencyListener extends SingleChannelListener{
 	
@@ -191,8 +191,9 @@ public class CurrencyListener extends SingleChannelListener{
 				List<TraderData> traderList = Config.SERVER.limitSearchToNetworkTraders.get() ? TraderSaveData.GetAllTerminalTraders(false) : TraderSaveData.GetAllTraders(false);
 				traderList.forEach(trader -> {
 					try {
-						if(trader instanceof ItemTraderData itemTrader)
+						if(trader instanceof ItemTraderData)
 						{
+							ItemTraderData itemTrader = (ItemTraderData)trader;
 							if(searchType.acceptTrader(itemTrader, searchText))
 							{
 								boolean showStock = !itemTrader.isCreative();
@@ -316,7 +317,7 @@ public class CurrencyListener extends SingleChannelListener{
 			}
 			else
 			{
-				StringBuilder buffer = new StringBuilder("");
+				StringBuilder buffer = new StringBuilder();
 				for(int i = 0; i < itemEntries.size(); ++i)
 				{
 					if(i != 0)
@@ -448,7 +449,7 @@ public class CurrencyListener extends SingleChannelListener{
 	}
 	
 	@SubscribeEvent
-	public void onServerStop(ServerStoppingEvent event)
+	public void onServerStop(FMLServerStoppingEvent event)
 	{
 		//Cancel the timer
 		this.timer.cancel();

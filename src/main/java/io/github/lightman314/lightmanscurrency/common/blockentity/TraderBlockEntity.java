@@ -1,9 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.IOwnableBlockEntity;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
@@ -12,39 +18,35 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 
-public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.UUID;
+
+public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, ITickableTileEntity {
 
 	private long traderID = -1;
 	public long getTraderID() { return this.traderID; }
 	@Deprecated
 	public void setTraderID(long traderID) { this.traderID = traderID; }
 	
-	private CompoundTag customTrader = null;
+	private CompoundNBT customTrader = null;
 	private boolean ignoreCustomTrader = false; 
 	
-	private CompoundTag loadFromOldTag = null;
+	private CompoundNBT loadFromOldTag = null;
 	
 	private boolean legitimateBreak = false;
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
 	public boolean legitimateBreak() { return this.legitimateBreak; }
 	
-	public TraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
+	public TraderBlockEntity(TileEntityType<?> type) {
+		super(type);
 	}
 	
-	private D buildTrader(Player owner, ItemStack placementStack)
+	private D buildTrader(PlayerEntity owner, ItemStack placementStack)
 	{
 		if(this.customTrader != null)
 		{
@@ -97,7 +99,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		}
 	}
 	
-	public void initialize(Player owner, ItemStack placementStack)
+	public void initialize(PlayerEntity owner, ItemStack placementStack)
 	{
 		if(this.getTraderData() != null)
 			return;
@@ -121,44 +123,57 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		} catch(Throwable t) { t.printStackTrace(); return null; }
 	}
 	
+	@Nonnull
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound) {
-		super.saveAdditional(compound);
+	public CompoundNBT save(@Nonnull CompoundNBT compound) {
+		compound = super.save(compound);
 		compound.putLong("TraderID", this.traderID);
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
+		return compound;
 	}
 	
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
-		super.load(compound);
-		if(compound.contains("TraderID", Tag.TAG_LONG))
+		super.load(state, compound);
+		if(compound.contains("TraderID", Constants.NBT.TAG_LONG))
 			this.traderID = compound.getLong("TraderID");
 		if(compound.contains("CustomTrader"))
 			this.customTrader = compound.getCompound("CustomTrader");
 		
 		//Convert from old trader types
-		if(compound.contains("CoreSettings"))
+		if(compound.contains("CoreSettings") || compound.contains("ID"))
 			this.loadFromOldTag = compound;
 		
 	}
 	
 	@Override
-	public void serverTick() {
-		if(this.level == null)
+	public void tick() {
+		if(this.isClient() || this.level == null)
 			return;
 		if(this.loadFromOldTag != null)
 		{
-			D newTrader = this.createTraderFromOldData(this.loadFromOldTag);
-			this.loadFromOldTag = null;
-			if(newTrader != null)
+			if(this.loadFromOldTag.contains("ID"))
 			{
-				this.traderID = TraderSaveData.RegisterTrader(newTrader, null);
-				this.markDirty();
+				UUID uuid = this.loadFromOldTag.getUUID("ID");
+				this.traderID = DataConverter.getNewTraderID(uuid);
+				D trader = this.getTraderData();
+				this.loadAsFormerNetworkTrader(trader, this.loadFromOldTag);
+				this.loadFromOldTag = null;
 			}
 			else
 			{
-				LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
+				D newTrader = this.createTraderFromOldData(this.loadFromOldTag);
+				this.loadFromOldTag = null;
+				if(newTrader != null)
+				{
+					this.traderID = TraderSaveData.RegisterTrader(newTrader, null);
+					this.markDirty();
+				}
+				else
+				{
+					LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
+				}
 			}
 		}
 		if(this.customTrader != null && !this.ignoreCustomTrader)
@@ -192,25 +207,21 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			BlockEntityUtil.sendUpdatePacket(this);
 	}
 	
-	protected abstract D createTraderFromOldData(CompoundTag compound);
+	protected abstract D createTraderFromOldData(CompoundNBT compound);
+
+	protected abstract void loadAsFormerNetworkTrader(@Nullable D trader, CompoundNBT compound);
 	
 	@Override
-	public void onLoad()
-	{
-		if(this.level.isClientSide)
-			BlockEntityUtil.requestUpdatePacket(this);
-	}
-	
-	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
+	public <T> @Nonnull LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
     {
 		
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
 			Direction relativeSide = side;
-			if(this.getBlockState().getBlock() instanceof IRotatableBlock block)
+			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
 			{
+				IRotatableBlock block = (IRotatableBlock)this.getBlockState().getBlock();
 				relativeSide = IRotatableBlock.getRelativeSide(block.getFacing(this.getBlockState()), side);
 			}
 			return trader.getCapability(cap, relativeSide);
@@ -219,7 +230,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		return super.getCapability(cap, side);
     }
 	
-	public boolean canBreak(Player player)
+	public boolean canBreak(PlayerEntity player)
 	{
 		TraderData trader = this.getTraderData();
 		if(trader != null)
@@ -233,7 +244,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	}
 	
 	@Override
-	public AABB getRenderBoundingBox()
+	public AxisAlignedBB getRenderBoundingBox()
 	{
 		if(this.getBlockState() != null)
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);

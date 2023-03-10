@@ -1,18 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption.OptionWidgets;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Items;
+import net.minecraft.item.Items;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class PermissionsTab extends SettingsTab{
 
@@ -32,19 +35,20 @@ public class PermissionsTab extends SettingsTab{
 	@Override
 	public int getColor() { return 0xFFFFFF; }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.BOOKSHELF); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.allyperms"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.allyperms"); }
 
 	@Override
 	public boolean canOpen() { return this.hasPermissions(Permissions.EDIT_PERMISSIONS); }
 
 	@Override
 	public void initTab() {
-		this.options = Lists.newArrayList();
-		this.getScreen().getTrader().getPermissionOptions().forEach(option ->this.options.add(option));
+		this.options = new ArrayList<>();
+		this.options.addAll(this.getScreen().getTrader().getPermissionOptions());
 		int startHeight = this.calculateStartHeight();
 		for(int i = 0; i < this.options.size(); ++i)
 		{
@@ -58,19 +62,19 @@ public class PermissionsTab extends SettingsTab{
 		}
 	}
 	
-	private final int getYPosOffset(int index)
+	private int getYPosOffset(int index)
 	{
 		int yIndex = index / 2;
 		return 20 * yIndex;
 	}
 	
-	private final int getXPos(int index)
+	private int getXPos(int index)
 	{
 		return this.getScreen().guiLeft() + (index % 2 == 0 ? 5 : 105);
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		int startHeight = this.calculateStartHeight();
 		for(int i = 0; i < this.options.size(); ++i)
 		{
@@ -85,13 +89,12 @@ public class PermissionsTab extends SettingsTab{
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) { }
+	public void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) { }
 
 	@Override
 	public void tick() {
-		for(int i = 0; i < this.options.size(); ++i)
-		{
-			this.options.get(i).tick();
+		for (PermissionOption option : this.options) {
+			option.tick();
 		}
 	}
 

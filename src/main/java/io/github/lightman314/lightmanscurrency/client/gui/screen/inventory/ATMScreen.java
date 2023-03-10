@@ -4,28 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.IRenderable;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 
-public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
+public class ATMScreen extends ContainerScreen<ATMMenu> {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm.png");
 	
@@ -36,14 +36,14 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
-	List<Widget> tabWidgets = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
+	List<IRenderable> tabWidgets = new ArrayList<>();
+	List<IGuiEventListener> tabListeners = new ArrayList<>();
 	
 	List<TabButton> tabButtons = new ArrayList<>();
 	
 	boolean logError = true;
 	
-	public ATMScreen(ATMMenu container, Inventory inventory, Component title)
+	public ATMScreen(ATMMenu container, PlayerInventory inventory, ITextComponent title)
 	{
 		super(container, inventory, title);
 		this.imageHeight = 243;
@@ -51,10 +51,11 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	protected void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY)
 	{
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
@@ -66,9 +67,9 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	protected void renderLabels(@Nonnull PoseStack poseStack, int mouseX, int mouseY)
+	protected void renderLabels(@Nonnull MatrixStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(poseStack, this.inventory.getName(), 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -82,7 +83,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		this.tabButtons = new ArrayList<>();
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
-			TabButton button = this.addRenderableWidget(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
+			TabButton button = this.addButton(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
 			button.reposition(this.leftPos - TabButton.SIZE, this.topPos + i * TabButton.SIZE, 3);
 			button.active = i != this.currentTabIndex;
 			this.tabButtons.add(button);
@@ -93,7 +94,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	}
 	
 	@Override
-	public void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(pose);
 		
@@ -143,47 +144,48 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 			return;
 		this.changeTab(tabIndex);
 	}
-	
-	public void containerTick()
+
+	@Override
+	public void tick()
 	{
 		this.currentTab().tick();
 	}
 	
-	public <T extends Widget> T addRenderableTabWidget(T widget)
+	public <T extends IRenderable> T addRenderableTabWidget(T widget)
 	{
 		this.tabWidgets.add(widget);
-		if(widget instanceof GuiEventListener gl)
-			this.addTabListener(gl);
+		if(widget instanceof IGuiEventListener)
+			this.addTabListener((IGuiEventListener)widget);
 		return widget;
 	}
 	
-	public void removeRenderableTabWidget(Widget widget)
+	public void removeRenderableTabWidget(IRenderable widget)
 	{
 		this.tabWidgets.remove(widget);
-		if(widget instanceof GuiEventListener gl)
-			this.removeTabListener(gl);
+		if(widget instanceof IGuiEventListener)
+			this.removeTabListener((IGuiEventListener)widget);
 	}
 	
-	public <T extends GuiEventListener> T addTabListener(T listener)
+	public <T extends IGuiEventListener> T addTabListener(T listener)
 	{
 		this.tabListeners.add(listener);
 		return listener;
 	}
 	
-	public void removeTabListener(GuiEventListener listener)
+	public void removeTabListener(IGuiEventListener listener)
 	{
 		this.tabListeners.remove(listener);
 	}
 	
-	public Font getFont() {
+	public FontRenderer getFont() {
 		return this.font;
 	}
 	
 	@Override
-	public List<? extends GuiEventListener> children()
+	public List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
 		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabListeners);
 		return listeners;
@@ -191,12 +193,12 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	
 	@Override
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-	      InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
-	      //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
-	      if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
-	    	  return true;
-	      }
-	      return super.keyPressed(p_97765_, p_97766_, p_97767_);
+		InputMappings.Input mouseKey = InputMappings.getKey(p_97765_, p_97766_);
+		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
+			return true;
+		}
+		return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 	
 }

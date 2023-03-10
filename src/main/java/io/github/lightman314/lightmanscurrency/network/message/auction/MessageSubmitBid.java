@@ -7,10 +7,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageSubmitBid {
 
@@ -24,19 +23,19 @@ public class MessageSubmitBid {
 		this.bidAmount = bidAmount;
 	}
 	
-	public static void encode(MessageSubmitBid message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSubmitBid message, PacketBuffer buffer) {
 		buffer.writeLong(message.auctionHouseID);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeNbt(message.bidAmount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		message.bidAmount.encode(buffer);
 	}
 	
-	public static MessageSubmitBid decode(FriendlyByteBuf buffer) {
-		return new MessageSubmitBid(buffer.readLong(), buffer.readInt(), new CoinValue(buffer.readAnySizeNbt()));
+	public static MessageSubmitBid decode(PacketBuffer buffer) {
+		return new MessageSubmitBid(buffer.readLong(), buffer.readInt(), CoinValue.decode(buffer));
 	}
 	
 	public static void handle(MessageSubmitBid message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> {
-			Player player = supplier.get().getSender();
+			PlayerEntity player = supplier.get().getSender();
 			if(player != null && player.containerMenu instanceof TraderMenu)
 			{
 				TraderMenu menu = (TraderMenu)player.containerMenu;

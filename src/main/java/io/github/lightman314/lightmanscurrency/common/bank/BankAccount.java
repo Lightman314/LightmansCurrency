@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
@@ -19,13 +20,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class BankAccount {
@@ -77,7 +77,7 @@ public class BankAccount {
 	private String ownerName = "Unknown";
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
-	public MutableComponent getName() { return new TranslatableComponent("lightmanscurrency.bankaccount", this.ownerName); }
+	public IFormattableTextComponent getName() { return EasyText.translatable("lightmanscurrency.bankaccount", this.ownerName); }
 
 
 	public void depositCoins(CoinValue depositAmount) {
@@ -100,7 +100,7 @@ public class BankAccount {
 		return withdrawAmount;
 	}
 	
-	public void LogInteraction(Player player, CoinValue amount, boolean isDeposit) {
+	public void LogInteraction(PlayerEntity player, CoinValue amount, boolean isDeposit) {
 		this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player), this.getName(), isDeposit, amount));
 		this.markDirty();
 	}
@@ -110,7 +110,7 @@ public class BankAccount {
 		this.markDirty();
 	}
 	
-	public void LogTransfer(Player player, CoinValue amount, MutableComponent otherAccount, boolean wasReceived) {
+	public void LogTransfer(PlayerEntity player, CoinValue amount, IFormattableTextComponent otherAccount, boolean wasReceived) {
 		this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
 		this.markDirty();
 	}
@@ -122,7 +122,7 @@ public class BankAccount {
 		DepositCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
 	}
 	
-	public static void DepositCoins(Player player, Container coinInput, BankAccount account, CoinValue amount)
+	public static void DepositCoins(PlayerEntity player, IInventory coinInput, BankAccount account, CoinValue amount)
 	{
 		if(account == null)
 			return;
@@ -156,7 +156,7 @@ public class BankAccount {
 		WithdrawCoins(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccount(), amount);
 	}
 	
-	public static void WithdrawCoins(Player player, Container coinOutput, BankAccount account, CoinValue amount)
+	public static void WithdrawCoins(PlayerEntity player, IInventory coinOutput, BankAccount account, CoinValue amount)
 	{
 		if(account == null || amount.getRawValue() <= 0)
 			return;
@@ -178,39 +178,39 @@ public class BankAccount {
 		account.LogInteraction(player, withdrawnAmount, false);
 	}
 	
-	public static MutableComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
+	public static IFormattableTextComponent TransferCoins(IBankAccountAdvancedMenu menu, CoinValue amount, AccountReference destination)
 	{
 		return TransferCoins(menu.getPlayer(), menu.getBankAccount(), amount, destination.get());
 	}
 	
-	public static MutableComponent TransferCoins(Player player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
+	public static IFormattableTextComponent TransferCoins(PlayerEntity player, BankAccount fromAccount, CoinValue amount, BankAccount destinationAccount)
 	{
 		if(fromAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.from");
+			return EasyText.translatable("gui.bank.transfer.error.null.from");
 		if(destinationAccount == null)
-			return new TranslatableComponent("gui.bank.transfer.error.null.to");
+			return EasyText.translatable("gui.bank.transfer.error.null.to");
 		if(amount.getRawValue() <= 0)
-			return new TranslatableComponent("gui.bank.transfer.error.amount", amount.getString("nothing"));
+			return EasyText.translatable("gui.bank.transfer.error.amount", amount.getString("nothing"));
 		if(fromAccount == destinationAccount)
-			return new TranslatableComponent("gui.bank.transfer.error.same");
+			return EasyText.translatable("gui.bank.transfer.error.same");
 		
 		CoinValue withdrawnAmount = fromAccount.withdrawCoins(amount);
 		if(withdrawnAmount.getRawValue() <= 0)
-			return new TranslatableComponent("gui.bank.transfer.error.nobalance", amount.getString());
+			return EasyText.translatable("gui.bank.transfer.error.nobalance", amount.getString());
 		
 		destinationAccount.depositCoins(withdrawnAmount);
 		fromAccount.LogTransfer(player, withdrawnAmount, destinationAccount.getName(), false);
 		destinationAccount.LogTransfer(player, withdrawnAmount, fromAccount.getName(), true);
 		
-		return new TranslatableComponent("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
+		return EasyText.translatable("gui.bank.transfer.success", withdrawnAmount.getString(), destinationAccount.getName());
 		
 	}
 	
 	public BankAccount() { this((IMarkDirty)null); }
 	public BankAccount(IMarkDirty markDirty) { this.markDirty = markDirty; }
 	
-	public BankAccount(CompoundTag compound) { this(null, compound); }
-	public BankAccount(IMarkDirty markDirty, CompoundTag compound) {
+	public BankAccount(CompoundNBT compound) { this(null, compound); }
+	public BankAccount(IMarkDirty markDirty, CompoundNBT compound) {
 		this.markDirty = markDirty;
 		this.coinStorage.load(compound, "CoinStorage");
 		this.logger.load(compound.getCompound("AccountLogs"));
@@ -224,8 +224,8 @@ public class BankAccount {
 			this.markDirty.markDirty();
 	}
 	
-	public final CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
+	public final CompoundNBT save() {
+		CompoundNBT compound = new CompoundNBT();
 		this.coinStorage.save(compound, "CoinStorage");
 		compound.put("AccountLogs", this.logger.save());
 		compound.putString("OwnerName", this.ownerName);
@@ -233,14 +233,14 @@ public class BankAccount {
 		return compound;
 	}
 	
-	public static AccountReference GenerateReference(Player player) { return GenerateReference(player.level.isClientSide, player.getUUID()); }
+	public static AccountReference GenerateReference(PlayerEntity player) { return GenerateReference(player.level.isClientSide, player.getUUID()); }
 	public static AccountReference GenerateReference(boolean isClient, UUID playerID) { return new AccountReference(isClient, playerID); }
 	public static AccountReference GenerateReference(boolean isClient, PlayerReference player) { return GenerateReference(isClient, player.id); }
 	public static AccountReference GenerateReference(boolean isClient, Team team) { return GenerateReference(isClient, team.getID()); }
 	public static AccountReference GenerateReference(boolean isClient, long teamID) { return new AccountReference(isClient, teamID); }
 	
 	
-	public static AccountReference LoadReference(boolean isClient, CompoundTag compound) {
+	public static AccountReference LoadReference(boolean isClient, CompoundNBT compound) {
 		if(compound.contains("PlayerID"))
 		{
 			UUID id = compound.getUUID("PlayerID");
@@ -254,7 +254,7 @@ public class BankAccount {
 		return null;
 	}
 	
-	public static AccountReference LoadReference(boolean isClient, FriendlyByteBuf buffer) {
+	public static AccountReference LoadReference(boolean isClient, PacketBuffer buffer) {
 		try {
 			AccountType accountType = AccountType.fromID(buffer.readInt());
 			if(accountType == AccountType.Player)
@@ -282,8 +282,8 @@ public class BankAccount {
 		
 		private AccountReference(boolean isClient, long teamID) { this.isClient = isClient; this.accountType = AccountType.Team; this.teamID = teamID; this.playerID = null; }
 		
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
 			//compound.putInt("Type", this.accountType.id);
 			if(this.playerID != null)
 				compound.putUUID("PlayerID", this.playerID);
@@ -292,7 +292,7 @@ public class BankAccount {
 			return compound;
 		}
 		
-		public void writeToBuffer(FriendlyByteBuf buffer) {
+		public void writeToBuffer(PacketBuffer buffer) {
 			buffer.writeInt(this.accountType.id);
 			if(this.playerID != null)
 				buffer.writeUUID(this.playerID);
@@ -313,7 +313,7 @@ public class BankAccount {
 			}
 		}
 		
-		public boolean allowedAccess(Player player) {
+		public boolean allowedAccess(PlayerEntity player) {
 			switch(this.accountType)
 			{
 			case Player:
@@ -333,8 +333,8 @@ public class BankAccount {
 	
 	public interface IBankAccountMenu
 	{
-		Player getPlayer();
-		Container getCoinInput();
+		PlayerEntity getPlayer();
+		IInventory getCoinInput();
 		default void onDepositOrWithdraw() {}
 		boolean isClient();
 		default AccountReference getBankAccountReference() {
@@ -348,7 +348,7 @@ public class BankAccount {
 	
 	public interface IBankAccountAdvancedMenu extends IBankAccountMenu
 	{
-		void setTransferMessage(MutableComponent component);
+		void setTransferMessage(IFormattableTextComponent component);
 		default void setNotificationLevel(CoinValue amount) {
 			BankAccount account = this.getBankAccount();
 			if(account != null)

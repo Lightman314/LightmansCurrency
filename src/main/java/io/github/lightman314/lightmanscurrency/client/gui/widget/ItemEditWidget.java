@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -21,41 +21,43 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
 
-public class ItemEditWidget extends AbstractWidget implements IScrollable{
+import javax.annotation.Nonnull;
+
+public class ItemEditWidget extends Widget implements IScrollable{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/item_edit.png");
 
-	private static final List<CreativeModeTab> ITEM_GROUP_BLACKLIST = new ArrayList<>();
+	private static final List<ItemGroup> ITEM_GROUP_BLACKLIST = new ArrayList<>();
 
-	public static void BlacklistCreativeTabs(CreativeModeTab... tabs) {
-		for(CreativeModeTab tab : tabs)
+	public static void BlacklistCreativeTabs(ItemGroup... tabs) {
+		for(ItemGroup tab : tabs)
 			BlacklistCreativeTab(tab);
 	}
 
-	public static void BlacklistCreativeTab(CreativeModeTab tab) {
+	public static void BlacklistCreativeTab(ItemGroup tab) {
 		if(!ITEM_GROUP_BLACKLIST.contains(tab))
 			ITEM_GROUP_BLACKLIST.add(tab);
 	}
 
 	private static final List<Predicate<ItemStack>> ITEM_BLACKLIST = Lists.newArrayList((s) -> s.getItem() instanceof TicketItem);
 
-	public static void BlacklistItem(RegistryObject<? extends ItemLike> item) { BlacklistItem(item.get()); }
-	public static void BlacklistItem(ItemLike item) { BlacklistItem((s) -> s.getItem() == item.asItem()); }
+	public static void BlacklistItem(RegistryObject<? extends IItemProvider> item) { BlacklistItem(item.get()); }
+	public static void BlacklistItem(IItemProvider item) { BlacklistItem((s) -> s.getItem() == item.asItem()); }
 
 	public static void BlacklistItem(Predicate<ItemStack> itemFilter) {
 		if(!ITEM_BLACKLIST.contains(itemFilter))
@@ -90,11 +92,11 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	private String searchString;
 
-	EditBox searchInput;
+	TextFieldWidget searchInput;
 	ScrollListener stackScrollListener;
 	private final IItemEditListener listener;
 
-	private final Font font;
+	private final FontRenderer font;
 
 	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
 		super(x, y, columns * 18, rows * 18, EasyText.empty());
@@ -127,7 +129,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
-		for(CreativeModeTab group : CreativeModeTab.TABS)
+		for(ItemGroup group : ItemGroup.TABS)
 		{
 			if(!ITEM_GROUP_BLACKLIST.contains(group))
 			{
@@ -276,9 +278,9 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
+	public void init(Function<TextFieldWidget,TextFieldWidget> addWidget, Function<ScrollListener,ScrollListener> addListener) {
 
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = addWidget.apply(new TextFieldWidget(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
@@ -288,7 +290,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
 
@@ -307,8 +309,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 				//Get the slot position
 				int xPos = this.x + x * 18;
 				//Render the slot background
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+				RenderUtil.bindTexture(GUI_TEXTURE);
+				RenderUtil.color4f(1f, 1f, 1f, 1f);
 				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
 				ItemRenderUtil.drawItemStack(this, this.font, this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
@@ -317,8 +319,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		}
 
 		//Render the search field
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
@@ -334,7 +336,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return copy;
 	}
 
-	public void renderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(Screen screen, MatrixStack pose, int mouseX, int mouseY) {
 		if(!this.visible)
 			return;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
@@ -379,10 +381,6 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		boolean restrictItemEditItems();
 		void onItemClicked(ItemStack item);
 	}
-
-
-	@Override
-	public void updateNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

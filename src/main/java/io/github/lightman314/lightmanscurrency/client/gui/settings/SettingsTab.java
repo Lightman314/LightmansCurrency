@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.client.gui.Font;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 
 public abstract class SettingsTab implements ITab{
 
@@ -19,10 +18,10 @@ public abstract class SettingsTab implements ITab{
 	
 	private TraderSettingsScreen screen;
 	protected final TraderSettingsScreen getScreen() { return this.screen; }
-	protected final Player getPlayer() { return this.screen.getPlayer(); }
-	protected final Font getFont() { return this.screen.getFont(); }
+	protected final PlayerEntity getPlayer() { return this.screen.getPlayer(); }
+	protected final FontRenderer getFont() { return this.screen.getFont(); }
 	protected final TraderData getTrader() { return this.screen != null ? this.screen.getTrader() : null; }
-	protected final void sendNetworkMessage(CompoundTag message) { this.getTrader().sendNetworkMessage(message); }
+	protected final void sendNetworkMessage(CompoundNBT message) { this.getTrader().sendNetworkMessage(message); }
 	public final void setScreen(TraderSettingsScreen screen) { this.screen = screen; }
 	
 	public abstract boolean canOpen();
@@ -45,13 +44,13 @@ public abstract class SettingsTab implements ITab{
 	 * Called when the tab is being rendered.
 	 * Used to render any text, images, etc. Called before the buttons are rendered, so you don't have to worry about accidentally drawing over them.
 	 */
-	public abstract void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Called when the tab is being rendered.
 	 * Used to render any tooltips, etc. Called after the buttons are rendered so that tooltips will appear in front.
 	 */
-	public abstract void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Called every frame.
@@ -62,7 +61,6 @@ public abstract class SettingsTab implements ITab{
 	/**
 	 * Called when the tab is changed to another tab.
 	 * Used to remove any widgets that were added.
-	 * @param screen
 	 */
 	public abstract void closeTab();
 	

@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
 
-public class TimeInputWidget extends AbstractWidget {
+import javax.annotation.Nonnull;
+
+public class TimeInputWidget extends Widget {
 
 	
 	private final List<TimeUnit> relevantUnits;
@@ -31,10 +31,10 @@ public class TimeInputWidget extends AbstractWidget {
 	
 	public TimeData getTime() { return new TimeData(this.days, this.hours, this.minutes, this.seconds); }
 	
-	private List<Button> buttons = new ArrayList<>();
+	private final List<Button> buttons = new ArrayList<>();
 	
-	public TimeInputWidget(int x, int y, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<AbstractWidget> widgetAdder, Consumer<TimeData> timeConsumer) {
-		super(x, y, 0, 0, new TextComponent(""));
+	public TimeInputWidget(int x, int y, int spacing, TimeUnit largestUnit, TimeUnit smallestUnit, Consumer<Widget> widgetAdder, Consumer<TimeData> timeConsumer) {
+		super(x, y, 0, 0, EasyText.empty());
 		this.timeConsumer = timeConsumer;
 		this.relevantUnits = this.getRelevantUnits(largestUnit, smallestUnit);
 		this.spacing = spacing;
@@ -187,7 +187,7 @@ public class TimeInputWidget extends AbstractWidget {
 			this.setTimeInternal(this.minDuration);
 	}
 	
-	private final List<TimeUnit> getRelevantUnits(TimeUnit largestUnit, TimeUnit smallestUnit) {
+	private List<TimeUnit> getRelevantUnits(TimeUnit largestUnit, TimeUnit smallestUnit) {
 		List<TimeUnit> results = new ArrayList<>();
 		List<TimeUnit> units = TimeUnit.UNITS_LARGE_TO_SMALL;
 		int startIndex = units.indexOf(largestUnit);
@@ -204,7 +204,7 @@ public class TimeInputWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		for(Button b : this.buttons)
 		{
 			b.active = this.active;
@@ -218,9 +218,6 @@ public class TimeInputWidget extends AbstractWidget {
 
 	}
 	
-	public void removeChildren(Consumer<AbstractWidget> remover) { for(Button b : this.buttons) remover.accept(b); }
-	
-	@Override
-	public void updateNarration(NarrationElementOutput p_169152_) {}
+	public void removeChildren(Consumer<Widget> remover) { for(Button b : this.buttons) remover.accept(b); }
 	
 }

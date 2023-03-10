@@ -3,16 +3,16 @@ package io.github.lightman314.lightmanscurrency.network.message.coinmint;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageMintCoin {
 
-	private boolean fullStack;
-	private BlockPos pos;
+	final boolean fullStack;
+	final BlockPos pos;
 	
 	public MessageMintCoin(boolean fullStack, BlockPos pos)
 	{
@@ -20,22 +20,22 @@ public class MessageMintCoin {
 		this.pos = pos;
 	}
 	
-	public static void encode(MessageMintCoin message, FriendlyByteBuf buffer) {
+	public static void encode(MessageMintCoin message, PacketBuffer buffer) {
 		buffer.writeBoolean(message.fullStack);
 		buffer.writeBlockPos(message.pos);
 	}
 
-	public static MessageMintCoin decode(FriendlyByteBuf buffer) {
+	public static MessageMintCoin decode(PacketBuffer buffer) {
 		return new MessageMintCoin(buffer.readBoolean(), buffer.readBlockPos());
 	}
 
-	public static void handle(MessageMintCoin message, Supplier<Context> supplier) {
+	public static void handle(MessageMintCoin message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
-				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				TileEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity instanceof CoinMintBlockEntity)
 				{
 					CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;

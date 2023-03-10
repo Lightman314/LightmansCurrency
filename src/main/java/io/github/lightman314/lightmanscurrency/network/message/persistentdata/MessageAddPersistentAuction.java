@@ -10,22 +10,22 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageAddPersistentAuction {
 
 	private static final String GENERATE_ID_FORMAT = "auction_";
 	
-	final CompoundTag auctionData;
+	final CompoundNBT auctionData;
 	final String id;
 	
-	public MessageAddPersistentAuction(CompoundTag auctionData, String id) {
+	public MessageAddPersistentAuction(CompoundNBT auctionData, String id) {
 		this.auctionData = auctionData;
 		this.id = id;
 	}
@@ -38,22 +38,22 @@ public class MessageAddPersistentAuction {
 		return json;
 	}
 	
-	public static void encode(MessageAddPersistentAuction message, FriendlyByteBuf buffer) {
+	public static void encode(MessageAddPersistentAuction message, PacketBuffer buffer) {
 		buffer.writeNbt(message.auctionData);
 		buffer.writeUtf(message.id);
 	}
 	
-	public static MessageAddPersistentAuction decode(FriendlyByteBuf buffer) {
+	public static MessageAddPersistentAuction decode(PacketBuffer buffer) {
 		return new MessageAddPersistentAuction(buffer.readAnySizeNbt(), buffer.readUtf());
 	}
 	
 	public static void handle(MessageAddPersistentAuction message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() -> {
 			//Only allow if player is in admin mode
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(CommandLCAdmin.isAdminPlayer(player))
 			{
-				boolean generateID = message.id.isBlank();
+				boolean generateID = message.id.isEmpty();
 				if(!generateID) {
 					
 					JsonObject auctionJson = message.getAuctionJson(message.id);
@@ -68,7 +68,7 @@ public class MessageAddPersistentAuction {
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.auction.overwrite", message.id), new UUID(0,0));
+							player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.overwrite", message.id), new UUID(0,0));
 							return;
 						}
 					}
@@ -76,7 +76,7 @@ public class MessageAddPersistentAuction {
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
 					TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-					player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.auction.add", message.id), new UUID(0,0));
+					player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.add", message.id), new UUID(0,0));
 					return;
 				}
 				else
@@ -94,12 +94,12 @@ public class MessageAddPersistentAuction {
 					//Check auction_1 -> auction_2147483646 to find an available id
 					for(int i = 1; i < Integer.MAX_VALUE; ++i)
 					{
-						String genID = GENERATE_ID_FORMAT + String.valueOf(i);
+						String genID = GENERATE_ID_FORMAT + i;
 						if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 						{
 							persistentAuctions.add(message.getAuctionJson(genID));
 							TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.auction.add", genID), new UUID(0,0));
+							player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.add", genID), new UUID(0,0));
 							return;
 						}
 					}
@@ -107,7 +107,7 @@ public class MessageAddPersistentAuction {
 					
 				}
 			}
-			player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.auction.fail"), new UUID(0,0));
+			player.sendMessage(EasyText.translatable("lightmanscurrency.message.persistent.auction.fail"), new UUID(0,0));
 		});
 		supplier.get().setPacketHandled(true);
 	}

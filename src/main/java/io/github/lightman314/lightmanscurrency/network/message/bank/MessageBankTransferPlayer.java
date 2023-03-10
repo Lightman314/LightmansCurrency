@@ -8,11 +8,10 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAcco
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageBankTransferPlayer {
 	
@@ -24,26 +23,26 @@ public class MessageBankTransferPlayer {
 		this.amount = amount;
 	}
 	
-	public static void encode(MessageBankTransferPlayer message, FriendlyByteBuf buffer) {
+	public static void encode(MessageBankTransferPlayer message, PacketBuffer buffer) {
 		buffer.writeUtf(message.playerName);
-		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		message.amount.encode(buffer);
 	}
 
-	public static MessageBankTransferPlayer decode(FriendlyByteBuf buffer) {
+	public static MessageBankTransferPlayer decode(PacketBuffer buffer) {
 		return new MessageBankTransferPlayer(buffer.readUtf(), new CoinValue(buffer.readAnySizeNbt()));
 	}
 
-	public static void handle(MessageBankTransferPlayer message, Supplier<Context> supplier) {
+	public static void handle(MessageBankTransferPlayer message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				if(player.containerMenu instanceof IBankAccountAdvancedMenu)
 				{
 					IBankAccountAdvancedMenu menu = (IBankAccountAdvancedMenu) player.containerMenu;
 					AccountReference destination = BankAccount.GenerateReference(false, PlayerReference.of(false, message.playerName));
-					MutableComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
+					IFormattableTextComponent response = BankAccount.TransferCoins(menu, message.amount, destination);
 					if(response != null)
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageBankTransferResponse(response));
 				}

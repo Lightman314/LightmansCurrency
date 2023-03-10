@@ -3,28 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.data;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageUpdateClientTeam {
 	
-	CompoundTag traderData;
+	CompoundNBT traderData;
 	
-	public MessageUpdateClientTeam(CompoundTag traderData)
+	public MessageUpdateClientTeam(CompoundNBT traderData)
 	{
 		this.traderData = traderData;
 	}
 	
-	public static void encode(MessageUpdateClientTeam message, FriendlyByteBuf buffer) {
+	public static void encode(MessageUpdateClientTeam message, PacketBuffer buffer) {
 		buffer.writeNbt(message.traderData);
 	}
 
-	public static MessageUpdateClientTeam decode(FriendlyByteBuf buffer) {
+	public static MessageUpdateClientTeam decode(PacketBuffer buffer) {
 		return new MessageUpdateClientTeam(buffer.readNbt());
 	}
 
-	public static void handle(MessageUpdateClientTeam message, Supplier<Context> supplier) {
+	public static void handle(MessageUpdateClientTeam message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() -> LightmansCurrency.PROXY.updateTeam(message.traderData));
 		supplier.get().setPacketHandled(true);
 	}

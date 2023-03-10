@@ -5,15 +5,21 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.IRenderable;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
@@ -28,17 +34,9 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.NotNull;
 
 @IPNIgnore
-public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements IScreen {
+public class TraderScreen extends ContainerScreen<TraderMenu> implements IScreen {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader.png");
 
@@ -54,8 +52,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 
 	IconButton buttonOpenTerminal;
 
-	List<Widget> tabRenderables = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
+	List<IRenderable> tabRenderables = new ArrayList<>();
+	List<IGuiEventListener> tabListeners = new ArrayList<>();
 
 	TraderClientTab currentTab = DEFAULT_TAB;
 	public void setTab(@Nonnull TraderClientTab tab) {
@@ -73,7 +71,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 
 	protected boolean forceShowTerminalButton() { return false; }
 
-	public TraderScreen(TraderMenu menu, Inventory inventory, Component title) {
+	public TraderScreen(TraderMenu menu, PlayerInventory inventory, ITextComponent title) {
 		super(menu, inventory, title);
 		this.imageWidth = WIDTH;
 		this.imageHeight = HEIGHT;
@@ -87,16 +85,16 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		this.tabRenderables.clear();
 		this.tabListeners.clear();
 
-		this.buttonOpenStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
-		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
-		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
+		this.buttonOpenStorage = this.addButton(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
+		this.buttonCollectCoins = this.addButton(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
+		this.buttonOpenTerminal = this.addButton(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
 
 		LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, TraderMenu.SLOT_OFFSET - 20, 118, 20, this.buttonOpenStorage, this.buttonCollectCoins);
 
 		//Initialize the current tab
 		this.currentTab.onOpen();
 
-		this.containerTick();
+		this.tick();
 
 	}
 
@@ -105,10 +103,10 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 
 	@Override
-	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY) {
 
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 
 		//Main BG
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -135,9 +133,9 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 
 	@Override
-	protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY) {
 
-		this.font.draw(pose, this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
+		this.font.draw(pose, this.inventory.getName(), TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 
 		//Moved to underneath the coin slots
 		String valueText = MoneyUtil.getStringOfValue(this.menu.getContext(null).getAvailableFunds());
@@ -146,7 +144,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	}
 
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -159,12 +157,13 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(mouseX, mouseY, 10, 10))
 			this.renderComponentTooltip(pose, this.menu.getContext(null).getAvailableFundsDescription(), mouseX, mouseY);
 
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.buttons);
 
 	}
 
 	@Override
-	public void containerTick() {
+	public void tick() {
+		super.tick();
 		this.currentTab.tick();
 		for(Runnable r : this.tickListeners) r.run();
 	}
@@ -189,7 +188,7 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 
 	@Override
 	public boolean keyPressed(int p_97765_, int p_97766_, int p_97767_) {
-		InputConstants.Key mouseKey = InputConstants.getKey(p_97765_, p_97766_);
+		InputMappings.Input mouseKey = InputMappings.getKey(p_97765_, p_97766_);
 		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
 		assert this.minecraft != null;
 		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab.blockInventoryClosing()) {
@@ -198,33 +197,33 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		return super.keyPressed(p_97765_, p_97766_, p_97767_);
 	}
 
-	public <T extends Widget> T addRenderableTabWidget(T widget) {
+	public <T extends IRenderable> T addRenderableTabWidget(T widget) {
 		this.tabRenderables.add(widget);
-		if(widget instanceof GuiEventListener gl)
-			this.addTabListener(gl);
+		if(widget instanceof IGuiEventListener)
+			this.addTabListener((IGuiEventListener)widget);
 		return widget;
 	}
 
-	public <T extends Widget> void removeRenderableTabWidget(T widget) {
+	public <T extends IRenderable> void removeRenderableTabWidget(T widget) {
 		this.tabRenderables.remove(widget);
-		if(widget instanceof GuiEventListener gl)
-			this.removeTabListener(gl);
+		if(widget instanceof IGuiEventListener)
+			this.removeTabListener((IGuiEventListener)widget);
 	}
 
-	public <T extends GuiEventListener> T addTabListener(T listener) {
+	public <T extends IGuiEventListener> T addTabListener(T listener) {
 		this.tabListeners.add(listener);
 		return listener;
 	}
 
-	public <T extends GuiEventListener> void removeTabListener(T listener) {
+	public <T extends IGuiEventListener> void removeTabListener(T listener) {
 		this.tabListeners.remove(listener);
 	}
 
 	@Override
-	public @NotNull List<? extends GuiEventListener> children()
+	public @Nonnull List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
 		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabListeners);
 		return listeners;

@@ -21,13 +21,13 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
@@ -80,7 +80,7 @@ public class TradeContext {
 		FAIL_NULL("lightmanscurrency.remotetrade.fail.null");
 		public boolean isSuccess() { return this.failMessage == null; }
 		public boolean hasMessage() { return this.failMessage != null; }
-		public final Component failMessage;
+		public final ITextComponent failMessage;
 		TradeResult(String message) { this.failMessage = message == null ? null : EasyText.translatable(message); }
 	}
 
@@ -92,9 +92,9 @@ public class TradeContext {
 	public TraderData getTrader() { return this.trader; }
 
 	//Player Data
-	private final Player player;
+	private final PlayerEntity player;
 	public boolean hasPlayer() { return this.player != null; }
-	public Player getPlayer() { return this.player; }
+	public PlayerEntity getPlayer() { return this.player; }
 
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;
@@ -105,7 +105,7 @@ public class TradeContext {
 	private final AccountReference bankAccount;
 	private boolean hasBankAccount() { return this.bankAccount != null && this.bankAccount.get() != null; }
 
-	private final Container coinSlots;
+	private final IInventory coinSlots;
 	private boolean hasCoinSlots() { return this.hasPlayer() && this.coinSlots != null; }
 
 	private final CoinValue storedMoney;
@@ -173,8 +173,8 @@ public class TradeContext {
 		return funds;
 	}
 
-	public List<Component> getAvailableFundsDescription() {
-		List<Component> text = new ArrayList<>();
+	public List<ITextComponent> getAvailableFundsDescription() {
+		List<ITextComponent> text = new ArrayList<>();
 		if(this.hasCoinSlots() && this.hasPlayer())
 			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.slots", MoneyUtil.getCoinValue(this.coinSlots));
 		if(this.hasStoredMoney())
@@ -194,7 +194,7 @@ public class TradeContext {
 		return text;
 	}
 
-	private void addToFundsTooltip(List<Component> text, String translation, CoinValue value)
+	private void addToFundsTooltip(List<ITextComponent> text, String translation, CoinValue value)
 	{
 		if(value.isValid())
 			text.add(EasyText.translatable(translation, value.getString()));
@@ -325,7 +325,7 @@ public class TradeContext {
 		if(this.hasItemHandler())
 			return InventoryUtil.CanExtractItem(this.itemHandler, item);
 		else if(this.hasPlayer())
-			return InventoryUtil.GetItemCount(this.player.getInventory(), item) >= item.getCount();
+			return InventoryUtil.GetItemCount(this.player.inventory, item) >= item.getCount();
 		return false;
 	}
 
@@ -365,7 +365,7 @@ public class TradeContext {
 		if(this.hasItemHandler())
 			return ItemRequirement.getFirstItemsMatchingRequirements(this.itemHandler, requirements) != null;
 		else if(this.hasPlayer())
-			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.getInventory(), requirements) != null;
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.inventory, requirements) != null;
 		return false;
 	}
 
@@ -393,7 +393,7 @@ public class TradeContext {
 		}
 		else if(this.hasPlayer())
 		{
-			Inventory inventory = this.player.getInventory();
+			PlayerInventory inventory = this.player.inventory;
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
@@ -423,7 +423,7 @@ public class TradeContext {
 			}
 			else if(this.hasPlayer())
 			{
-				InventoryUtil.RemoveItemCount(this.player.getInventory(), item);
+				InventoryUtil.RemoveItemCount(this.player.inventory, item);
 				return true;
 			}
 		}
@@ -448,15 +448,15 @@ public class TradeContext {
 		if(this.hasItemHandler())
 			return ItemRequirement.getFirstItemsMatchingRequirements(this.itemHandler, requirements);
 		else if(this.hasPlayer())
-			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.getInventory(), requirements);
+			return ItemRequirement.getFirstItemsMatchingRequirements(this.player.inventory, requirements);
 		return null;
 	}
 
-	public void hightlightItems(List<ItemRequirement> requirements, NonNullList<Slot> slots, List<Integer> results) {
+	public void hightlightItems(List<ItemRequirement> requirements, List<Slot> slots, List<Integer> results) {
 		if(this.hasPlayer())
 		{
 			Map<Integer,Integer> inventoryConsumedCounts = new HashMap<>();
-			Container inventory = this.player.getInventory();
+			IInventory inventory = this.player.inventory;
 			for(ItemRequirement requirement : requirements)
 			{
 				int amountToConsume = requirement.count;
@@ -479,7 +479,7 @@ public class TradeContext {
 				for(int i = 0; i < slots.size(); ++i)
 				{
 					Slot slot = slots.get(i);
-					if(slot.container == inventory && slot.getContainerSlot() == relevantSlot)
+					if(slot.container == inventory && slot.getSlotIndex() == relevantSlot)
 						results.add(i);
 				}
 			}
@@ -512,7 +512,7 @@ public class TradeContext {
 			}
 			else if(this.hasPlayer())
 			{
-				Inventory inventory = this.player.getInventory();
+				IInventory inventory = this.player.inventory;
 				for(int i = 0; i < inventory.getContainerSize(); ++i)
 				{
 					ItemStack stack = inventory.getItem(i);
@@ -776,7 +776,7 @@ public class TradeContext {
 	}
 
 	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player); }
+	public static Builder create(TraderData trader, PlayerEntity player) { return new Builder(trader, player); }
 	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
 
 	public static class Builder
@@ -785,12 +785,12 @@ public class TradeContext {
 		//Core
 		private final boolean storageMode;
 		private final TraderData trader;
-		private final Player player;
+		private final PlayerEntity player;
 		private final PlayerReference playerReference;
 
 		//Money
 		private AccountReference bankAccount;
-		private Container coinSlots;
+		private IInventory coinSlots;
 		private CoinValue storedCoins;
 		private BiConsumer<CoinValue,Boolean> moneyListener;
 
@@ -805,11 +805,11 @@ public class TradeContext {
 		private IEnergyStorage energyHandler;
 
 		private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(TraderData trader, Player player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; }
+		private Builder(TraderData trader, PlayerEntity player) { this.trader = trader; this.player = player; this.playerReference = PlayerReference.of(player); this.storageMode = false; }
 		private Builder(TraderData trader, PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 
 		public Builder withBankAccount(AccountReference bankAccount) { this.bankAccount = bankAccount; return this; }
-		public Builder withCoinSlots(Container coinSlots) { this.coinSlots = coinSlots; return this; }
+		public Builder withCoinSlots(IInventory coinSlots) { this.coinSlots = coinSlots; return this; }
 		public Builder withStoredCoins(CoinValue storedCoins) { this.storedCoins = storedCoins; return this; }
 
 		public Builder withMoneyListener(BiConsumer<CoinValue,Boolean> moneyListener) { this.moneyListener = moneyListener; return this; }

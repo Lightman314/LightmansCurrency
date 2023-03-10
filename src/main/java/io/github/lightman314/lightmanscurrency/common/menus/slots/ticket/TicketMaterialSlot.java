@@ -2,20 +2,20 @@ package io.github.lightman314.lightmanscurrency.common.menus.slots.ticket;
 
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
-public class TicketMaterialSlot extends Slot{
+import javax.annotation.Nonnull;
+
+public class TicketMaterialSlot extends Slot {
 	
-	public TicketMaterialSlot(Container inventory, int index, int x, int y)
+	public TicketMaterialSlot(IInventory inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack stack) {
-		return InventoryUtil.ItemHasTag(stack, TicketItem.TICKET_MATERIAL_TAG);
-	}
+	public boolean mayPlace(@Nonnull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, TicketItem.TICKET_MATERIAL_TAG); }
 
 }

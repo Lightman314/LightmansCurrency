@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,7 +35,7 @@ public class ClientTeamData {
 		teams.forEach(team -> loadedTeams.put(team.getID(), team));
 	}
 	
-	public static void UpdateTeam(CompoundTag compound)
+	public static void UpdateTeam(CompoundNBT compound)
 	{
 		Team updatedTeam = Team.load(compound);
 		loadedTeams.put(updatedTeam.getID(), updatedTeam);

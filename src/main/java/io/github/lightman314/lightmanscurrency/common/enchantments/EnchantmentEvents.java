@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber
 public class EnchantmentEvents {

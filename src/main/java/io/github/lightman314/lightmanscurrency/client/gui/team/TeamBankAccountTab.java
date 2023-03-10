@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.team;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageCreateTeamBankAccount;
 import io.github.lightman314.lightmanscurrency.network.message.teams.MessageSetTeamBankLimit;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class TeamBankAccountTab extends TeamTab {
 
@@ -21,18 +21,19 @@ public class TeamBankAccountTab extends TeamTab {
 	
 	private TeamBankAccountTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(ModBlocks.COINPILE_GOLD.get());
 	}
 	
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.bank");
+	public ITextComponent getTooltip() {
+		return EasyText.translatable("tooltip.lightmanscurrency.team.bank");
 	}
 
 	@Override
-	public boolean allowViewing(Player player, Team team) {
+	public boolean allowViewing(PlayerEntity player, Team team) {
 		return team != null && team.isOwner(player);
 	}
 
@@ -46,31 +47,27 @@ public class TeamBankAccountTab extends TeamTab {
 		
 		TeamManagerScreen screen = this.getScreen();
 		
-		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, new TranslatableComponent("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
+		this.buttonCreateBankAccount = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 20, 160, 20, EasyText.translatable("gui.button.lightmanscurrency.team.bank.create"), this::createBankAccount));
 		
-		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, new TextComponent(""), this::toggleBankLimit));
+		this.buttonToggleAccountLimit = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 60, 160, 20, EasyText.empty(), this::toggleBankLimit));
 		this.updateBankLimitText();
-		
-		//this.logWidget = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 20, screen.guiTop() + 90, 160, 100, screen.getFont(), this::getAccountLog));
-		//this.logWidget.invertText = true;
-		//this.logWidget.visible = screen.getActiveTeam().hasBankAccount();
 		
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(this.getActiveTeam() == null)
 			return;
 		
 		TeamManagerScreen screen = this.getScreen();
 		if(this.getActiveTeam() != null && this.getActiveTeam().hasBankAccount())
-			this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 46, 0x404040);
+			this.getFont().draw(pose, EasyText.translatable("gui.lightmanscurrency.bank.balance", this.getActiveTeam().getBankAccount().getCoinStorage().getString("0")), screen.guiLeft() + 20, screen.guiTop() + 46, 0x404040);
 		
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 	}
 
@@ -84,13 +81,6 @@ public class TeamBankAccountTab extends TeamTab {
 		//this.logWidget.visible = this.getScreen().getActiveTeam().hasBankAccount();
 		
 	}
-	
-	/*private List<MutableComponent> getAccountLog() {
-		return new ArrayList<>();
-		if(this.getActiveTeam() == null || this.getActiveTeam().getBankAccount() == null)
-			return new ArrayList<>();
-		return this.getActiveTeam().getBankAccount().getLogs().logText;
-	}*/
 
 	@Override
 	public void closeTab() {
@@ -122,7 +112,7 @@ public class TeamBankAccountTab extends TeamTab {
 	
 	private void updateBankLimitText()
 	{
-		Component message = new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit", new TranslatableComponent("gui.button.lightmanscurrency.team.bank.limit." + this.getActiveTeam().getBankLimit()));
+		ITextComponent message = EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit", EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit." + this.getActiveTeam().getBankLimit()));
 		this.buttonToggleAccountLimit.setMessage(message);
 	}
 	

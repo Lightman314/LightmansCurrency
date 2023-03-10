@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderRecoveryMenu;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class SPacketChangeSelectedData {
 
@@ -13,11 +13,11 @@ public class SPacketChangeSelectedData {
 	
 	public SPacketChangeSelectedData(int newSelection) { this.newSelection = newSelection; }
 	
-	public static void encode(SPacketChangeSelectedData message, FriendlyByteBuf buffer) {
+	public static void encode(SPacketChangeSelectedData message, PacketBuffer buffer) {
 		buffer.writeInt(message.newSelection);
 	}
 	
-	public static SPacketChangeSelectedData decode(FriendlyByteBuf buffer) {
+	public static SPacketChangeSelectedData decode(PacketBuffer buffer) {
 		return new SPacketChangeSelectedData(buffer.readInt());
 	}
 	

@@ -3,14 +3,14 @@ package io.github.lightman314.lightmanscurrency.common.traders.permissions.optio
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public abstract class PermissionOption {
 	
@@ -18,7 +18,7 @@ public abstract class PermissionOption {
 	
 	protected PermissionOption(String permission) { this.permission = permission; }
 	
-	public MutableComponent widgetName() { return new TranslatableComponent("permission." + permission); }
+	public IFormattableTextComponent widgetName() { return EasyText.translatable("permission." + permission); }
 	
 	protected TraderSettingsScreen screen;
 	
@@ -38,7 +38,7 @@ public abstract class PermissionOption {
 		if(this.screen.getTrader() == null)
 			return;
 		this.screen.getTrader().setAllyPermissionLevel(this.screen.getPlayer(), this.permission, newValue);
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putString("ChangeAllyPermissions", this.permission);
 		message.putInt("NewLevel", newValue);
 		this.screen.getTrader().sendNetworkMessage(message);
@@ -56,25 +56,25 @@ public abstract class PermissionOption {
 	
 	public abstract void tick();
 	
-	public void render(PoseStack pose, int mouseX, int mouseY) { }
+	public void render(MatrixStack pose, int mouseX, int mouseY) { }
 	
 	public abstract int widgetWidth();
 	
 	public static class OptionWidgets
 	{
-		List<AbstractWidget> buttons = Lists.newArrayList();
-		List<GuiEventListener> listeners = Lists.newArrayList();
+		List<Widget> buttons = Lists.newArrayList();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
 		
-		public List<AbstractWidget> getRenderableWidgets() { return this.buttons; }
-		public List<GuiEventListener> getListeners() { return this.listeners; }
+		public List<Widget> getRenderableWidgets() { return this.buttons; }
+		public List<IGuiEventListener> getListeners() { return this.listeners; }
 		
-		public <T extends AbstractWidget> T addRenderableWidget(T widget)
+		public <T extends Widget> T addRenderableWidget(T widget)
 		{
 			this.buttons.add(widget);
 			return widget;
 		}
 		
-		public <T extends GuiEventListener> T addListener(T listener)
+		public <T extends IGuiEventListener> T addListener(T listener)
 		{
 			this.listeners.add(listener);
 			return listener;

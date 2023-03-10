@@ -10,7 +10,6 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +22,7 @@ public class ColorArgument implements ArgumentType<Integer> {
 
     public static ColorArgument argument() { return new ColorArgument(); }
 
-    public static int getColor(CommandContext<CommandSourceStack> commandContext, String name) {
+    public static int getColor(CommandContext<?> commandContext, String name) {
         return commandContext.getArgument(name, Integer.class);
     }
 

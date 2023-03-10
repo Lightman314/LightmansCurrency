@@ -3,35 +3,34 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
-public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
+public class ItemTraderBlockEntityRenderer extends TileEntityRenderer<ItemTraderBlockEntity> {
 	
-	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+	public ItemTraderBlockEntityRenderer(TileEntityRendererDispatcher dispatcher) { super(dispatcher); }
 	
 	@Override
-	public void render(@NotNull ItemTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
+	public void render(@Nonnull ItemTraderBlockEntity blockEntity, float partialTicks, @Nonnull MatrixStack pose, @Nonnull IRenderTypeBuffer buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
@@ -47,7 +46,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		return result;
 	}
 	
-	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
+	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, MatrixStack pose, IRenderTypeBuffer buffer, int lightLevel, int id)
 	{
 		ItemTraderData trader = blockEntity.getTraderData();
 		if(trader == null)
@@ -96,7 +95,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(0.25, 0.25, 0d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0), ItemCameraTransforms.TransformType.FIXED, lightLevel, id, pose, buffer);
 						
 						pose.popPose();
 						
@@ -107,12 +106,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(-0.25, -0.25, 0.001d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						itemRenderer.renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(1),  ItemCameraTransforms.TransformType.FIXED, lightLevel, id, pose, buffer);
 						
 						pose.popPose();
 					}
 					else
-						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0),  ItemCameraTransforms.TransformType.FIXED, lightLevel, id, pose, buffer);
 				
 					pose.popPose();
 					

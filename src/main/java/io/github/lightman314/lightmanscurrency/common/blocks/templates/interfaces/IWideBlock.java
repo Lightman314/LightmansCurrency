@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 
 public interface IWideBlock {
 	
@@ -12,7 +12,7 @@ public interface IWideBlock {
 		return IRotatableBlock.getLeftPos(pos, facing);
 	}
 	
-	public boolean getIsLeft(BlockState state);
+	boolean getIsLeft(BlockState state);
 	
 	default boolean getIsRight(BlockState state) { return !getIsLeft(state); }
 	

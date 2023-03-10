@@ -7,27 +7,26 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class PlayerBlacklist extends TradeRule{
 	
@@ -41,49 +40,45 @@ public class PlayerBlacklist extends TradeRule{
 	public void beforeTrade(PreTradeEvent event) {
 		
 		if(this.isBlacklisted(event.getPlayerReference()))
-			event.addDenial(new TranslatableComponent("traderule.lightmanscurrency.blacklist.denial"));
+			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.blacklist.denial"));
 	}
 
 	public boolean isBlacklisted(PlayerReference player)
 	{
-		for(int i = 0; i < this.bannedPlayers.size(); ++i)
-		{
-			if(this.bannedPlayers.get(i).is(player))
+		for (PlayerReference bannedPlayer : this.bannedPlayers) {
+			if (bannedPlayer.is(player))
 				return true;
 		}
 		return false;
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		//Save player
-		ListTag playerNameList = new ListTag();
-		for(int i = 0; i < this.bannedPlayers.size(); i++)
-		{
-			playerNameList.add(this.bannedPlayers.get(i).save());
-		}
+		ListNBT playerNameList = new ListNBT();
+		for (PlayerReference bannedPlayer : this.bannedPlayers)
+			playerNameList.add(bannedPlayer.save());
 		compound.put("BannedPlayers", playerNameList);
 	}
 	
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		JsonArray blacklist = new JsonArray();
-		for(int i = 0; i < this.bannedPlayers.size(); ++i)
-		{
-			blacklist.add(this.bannedPlayers.get(i).saveAsJson());
+		for (PlayerReference bannedPlayer : this.bannedPlayers) {
+			blacklist.add(bannedPlayer.saveAsJson());
 		}
 		json.add("BannedPlayers", blacklist);
 		return json;
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
 		//Load blacklisted players
-		if(compound.contains("BannedPlayers", Tag.TAG_LIST))
+		if(compound.contains("BannedPlayers", Constants.NBT.TAG_LIST))
 		{
 			this.bannedPlayers.clear();
-			ListTag playerList = compound.getList("BannedPlayers", Tag.TAG_COMPOUND);
+			ListNBT playerList = compound.getList("BannedPlayers", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < playerList.size(); ++i)
 			{
 				PlayerReference reference = PlayerReference.load(playerList.getCompound(i));
@@ -95,7 +90,7 @@ public class PlayerBlacklist extends TradeRule{
 	}
 	
 	@Override
-	public void handleUpdateMessage(CompoundTag updateInfo) {
+	public void handleUpdateMessage(CompoundNBT updateInfo) {
 		boolean add = updateInfo.getBoolean("Add");
 		String name = updateInfo.getString("Name");
 		PlayerReference player = PlayerReference.of(false, name);
@@ -126,9 +121,9 @@ public class PlayerBlacklist extends TradeRule{
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() { return null; }
+	public CompoundNBT savePersistentData() { return null; }
 	@Override
-	public void loadPersistentData(CompoundTag data) { }
+	public void loadPersistentData(CompoundNBT data) { }
 	
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_BLACKLIST; }
 
@@ -155,7 +150,7 @@ public class PlayerBlacklist extends TradeRule{
 			super(screen, rule);
 		}
 		
-		EditBox nameInput;
+		TextFieldWidget nameInput;
 		
 		Button buttonAddPlayer;
 		Button buttonRemovePlayer;
@@ -165,19 +160,19 @@ public class PlayerBlacklist extends TradeRule{
 		@Override
 		public void initTab() {
 			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, new TextComponent("")));
+			this.nameInput = this.addCustomRenderable(new TextFieldWidget(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, EasyText.empty()));
 			
-			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
-			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
+			this.buttonAddPlayer = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, EasyText.translatable("gui.button.lightmanscurrency.blacklist.add"), this::PressBlacklistButton));
+			this.buttonRemovePlayer = this.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, EasyText.translatable("gui.button.lightmanscurrency.blacklist.remove"), this::PressForgiveButton));
 			
 			this.playerDisplay = this.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getBlacklistedPlayers));
 			this.playerDisplay.setColumnCount(2);
 			
 		}
 		
-		private List<Component> getBlacklistedPlayers()
+		private List<ITextComponent> getBlacklistedPlayers()
 		{
-			List<Component> playerList = Lists.newArrayList();
+			List<ITextComponent> playerList = Lists.newArrayList();
 			if(getBlacklistRule() == null)
 				return playerList;
 			for(PlayerReference player : getBlacklistRule().bannedPlayers)
@@ -186,7 +181,7 @@ public class PlayerBlacklist extends TradeRule{
 		}
 		
 		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) { }
+		public void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) { }
 		
 		@Override
 		public void onTabClose() {
@@ -201,10 +196,10 @@ public class PlayerBlacklist extends TradeRule{
 		void PressBlacklistButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isEmpty())
 			{
 				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
+				CompoundNBT updateInfo = new CompoundNBT();
 				updateInfo.putBoolean("Add", true);
 				updateInfo.putString("Name", name);
 				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
@@ -214,10 +209,10 @@ public class PlayerBlacklist extends TradeRule{
 		void PressForgiveButton(Button button)
 		{
 			String name = nameInput.getValue();
-			if(name != "")
+			if(!name.isEmpty())
 			{
 				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
+				CompoundNBT updateInfo = new CompoundNBT();
 				updateInfo.putBoolean("Add", false);
 				updateInfo.putString("Name", name);
 				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);

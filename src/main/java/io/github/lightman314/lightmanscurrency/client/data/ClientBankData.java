@@ -7,7 +7,7 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,10 +31,10 @@ public class ClientBankData {
 	public static void InitBankAccounts(Map<UUID,BankAccount> bankAccounts)
 	{
 		loadedBankAccounts.clear();
-		bankAccounts.forEach((id,account) -> loadedBankAccounts.put(id, account));
+		loadedBankAccounts.putAll(bankAccounts);
 	}
 	
-	public static void UpdateBankAccount(CompoundTag compound)
+	public static void UpdateBankAccount(CompoundNBT compound)
 	{
 		try {
 			UUID owner = compound.getUUID("Player");

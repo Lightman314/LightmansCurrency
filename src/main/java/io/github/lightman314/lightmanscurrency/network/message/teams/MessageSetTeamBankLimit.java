@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageSetTeamBankLimit {
 	
@@ -17,12 +17,12 @@ public class MessageSetTeamBankLimit {
 		this.newLimit = newLimit;
 	}
 	
-	public static void encode(MessageSetTeamBankLimit message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSetTeamBankLimit message, PacketBuffer buffer) {
 		buffer.writeLong(message.teamID);
 		buffer.writeInt(message.newLimit);
 	}
 
-	public static MessageSetTeamBankLimit decode(FriendlyByteBuf buffer) {
+	public static MessageSetTeamBankLimit decode(PacketBuffer buffer) {
 		return new MessageSetTeamBankLimit(buffer.readLong(), buffer.readInt());
 	}
 

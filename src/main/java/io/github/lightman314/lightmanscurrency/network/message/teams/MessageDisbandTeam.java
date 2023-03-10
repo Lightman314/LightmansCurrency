@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageDisbandTeam {
 	
@@ -16,11 +16,11 @@ public class MessageDisbandTeam {
 		this.teamID = teamID;
 	}
 	
-	public static void encode(MessageDisbandTeam message, FriendlyByteBuf buffer) {
+	public static void encode(MessageDisbandTeam message, PacketBuffer buffer) {
 		buffer.writeLong(message.teamID);
 	}
 
-	public static MessageDisbandTeam decode(FriendlyByteBuf buffer) {
+	public static MessageDisbandTeam decode(PacketBuffer buffer) {
 		return new MessageDisbandTeam(buffer.readLong());
 	}
 

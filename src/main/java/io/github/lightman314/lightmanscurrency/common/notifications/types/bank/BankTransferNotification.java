@@ -1,16 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public class BankTransferNotification extends Notification {
 
@@ -18,12 +18,12 @@ public class BankTransferNotification extends Notification {
 	
 	PlayerReference player;
 	CoinValue amount = new CoinValue();
-	MutableComponent accountName;
-	MutableComponent otherAccount;
+	IFormattableTextComponent accountName;
+	IFormattableTextComponent otherAccount;
 	boolean wasReceived;
 	
-	public BankTransferNotification(CompoundTag compound) { this.load(compound); }
-	public BankTransferNotification(PlayerReference player, CoinValue amount, MutableComponent accountName, MutableComponent otherAccount, boolean wasReceived) {
+	public BankTransferNotification(CompoundNBT compound) { this.load(compound); }
+	public BankTransferNotification(PlayerReference player, CoinValue amount, IFormattableTextComponent accountName, IFormattableTextComponent otherAccount, boolean wasReceived) {
 		this.player = player;
 		this.amount = amount;
 		this.accountName = accountName;
@@ -38,25 +38,25 @@ public class BankTransferNotification extends Notification {
 	public NotificationCategory getCategory() { return new BankCategory(this.accountName); }
 
 	@Override
-	public MutableComponent getMessage() {
-		return new TranslatableComponent("log.bank.transfer", this.player.getName(true), this.amount.getComponent(), new TranslatableComponent(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
+	public IFormattableTextComponent getMessage() {
+		return EasyText.translatable("log.bank.transfer", this.player.getName(true), this.amount.getComponent(), EasyText.translatable(this.wasReceived ? "log.bank.transfer.from" : "log.bank.transfer.to"), this.otherAccount);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("Player", this.player.save());
 		this.amount.save(compound, "Amount");
-		compound.putString("Account", Component.Serializer.toJson(this.accountName));
-		compound.putString("Other", Component.Serializer.toJson(this.otherAccount));
+		compound.putString("Account", ITextComponent.Serializer.toJson(this.accountName));
+		compound.putString("Other", ITextComponent.Serializer.toJson(this.otherAccount));
 		compound.putBoolean("Received", this.wasReceived);
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.amount.load(compound, "Amount");
-		this.accountName = Component.Serializer.fromJson(compound.getString("Account"));
-		this.otherAccount = Component.Serializer.fromJson(compound.getString("Other"));
+		this.accountName = ITextComponent.Serializer.fromJson(compound.getString("Account"));
+		this.otherAccount = ITextComponent.Serializer.fromJson(compound.getString("Other"));
 		this.wasReceived = compound.getBoolean("Received");
 	}
 

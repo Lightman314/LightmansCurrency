@@ -5,25 +5,26 @@ import java.util.function.Function;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderBlockRotatable extends TraderBlockBase implements IRotatableBlock{
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-	private final Function<Direction,VoxelShape> shape;
+	private final Function<Direction, VoxelShape> shape;
 	
 	protected TraderBlockRotatable(Properties properties) { this(properties, LazyShapes.BOX_T); }
 	
@@ -36,26 +37,26 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	}
 	
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context)
 	{
 		return super.getStateForPlacement(context).setValue(FACING, context.getHorizontalDirection());
 	}
 	
 	@Override
-	public @NotNull BlockState rotate(BlockState state, Rotation rotation)
+	public @Nonnull BlockState rotate(BlockState state, Rotation rotation)
 	{
 		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 	
 	@Override
-	protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+	protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
 	{
 		super.createBlockStateDefinition(builder);
 		builder.add(FACING);
 	}
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull ISelectionContext context)
 	{
 		return this.shape.apply(this.getFacing(state));
 	}
@@ -65,9 +66,6 @@ public abstract class TraderBlockRotatable extends TraderBlockBase implements IR
 	{
 		return state.getValue(FACING);
 	}
-	
-	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) { }
 	
 	
 }

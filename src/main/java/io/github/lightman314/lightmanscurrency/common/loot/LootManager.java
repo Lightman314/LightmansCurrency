@@ -15,13 +15,19 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.*;
+import net.minecraft.loot.LootPool.Builder;
+import net.minecraft.loot.conditions.KilledByPlayer;
+import net.minecraft.loot.conditions.RandomChanceWithLooting;
+import net.minecraft.loot.functions.LootingEnchantBonus;
+import net.minecraft.loot.functions.SetCount;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -30,19 +36,6 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraft.world.level.storage.loot.LootPool.Builder;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootPool;
 
 @Mod.EventBusSubscriber
 public class LootManager {
@@ -71,14 +64,14 @@ public class LootManager {
 		
 	}
 	
-	public static MobSpawnType deserializeSpawnReason(String reasonString)
+	public static SpawnReason deserializeSpawnReason(String reasonString)
 	{
-		return deserializeSpawnReason(reasonString, MobSpawnType.NATURAL);
+		return deserializeSpawnReason(reasonString, SpawnReason.NATURAL);
 	}
 	
-	public static MobSpawnType deserializeSpawnReason(String reasonString, MobSpawnType defaultReason)
+	public static SpawnReason deserializeSpawnReason(String reasonString, SpawnReason defaultReason)
 	{
-		for(MobSpawnType reason : MobSpawnType.values())
+		for(SpawnReason reason : SpawnReason.values())
 		{
 			if(reason.toString().contentEquals(reasonString))
 				return reason;
@@ -229,7 +222,7 @@ public class LootManager {
 	public static void onEntitySpawned(LivingSpawnEvent.SpecialSpawn event)
 	{
 		LivingEntity entity = event.getEntityLiving();
-		if(entity instanceof Player)
+		if(entity instanceof PlayerEntity)
 			return;
 		
 		SpawnTrackerCapability.getSpawnerTracker(event.getEntityLiving()).ifPresent(spawnerTracker -> spawnerTracker.setSpawnReason(event.getSpawnReason()));
@@ -242,7 +235,7 @@ public class LootManager {
 	public static void attachSpawnTrackerCapability(AttachCapabilitiesEvent<Entity> event)
 	{
 		//Attach the spawn trader capability to all LivingEntities that aren't players
-		if(event.getObject() instanceof LivingEntity && !(event.getObject() instanceof Player))
+		if(event.getObject() instanceof LivingEntity && !(event.getObject() instanceof PlayerEntity))
 		{
 			event.addCapability(CurrencyCapabilities.ID_SPAWN_TRACKER, SpawnTrackerCapability.createProvider((LivingEntity)event.getObject()));
 		}
@@ -258,9 +251,9 @@ public class LootManager {
 		if(!Config.COMMON.enableSpawnerEntityDrops.get())
 		{
 			//Spawner drops aren't allowed. Check if the entity was spawner-spawned
-			AtomicReference<MobSpawnType> spawnReason = new AtomicReference<>();
+			AtomicReference<SpawnReason> spawnReason = new AtomicReference<>();
 			SpawnTrackerCapability.getSpawnerTracker(event.getEntityLiving()).ifPresent(spawnerTracker -> spawnReason.set(spawnerTracker.spawnReason()));
-			if(spawnReason.get() == MobSpawnType.SPAWNER)
+			if(spawnReason.get() == SpawnReason.SPAWNER)
 			{
 				LightmansCurrency.LogDebug(event.getEntityLiving().getName().getString() + " did not drop coins, as it was spawned by a spawner.");
 				return;
@@ -269,10 +262,10 @@ public class LootManager {
 		
 		String name = ForgeRegistries.ENTITIES.getKey(event.getEntityLiving().getType()).toString();
 		
-		if(event.getSource().getDirectEntity() instanceof Player || event.getSource().getEntity() instanceof Player)
+		if(event.getSource().getDirectEntity() instanceof PlayerEntity || event.getSource().getEntity() instanceof PlayerEntity)
 		{
 			//Assign the player that killed it
-			final Player player = event.getSource().getDirectEntity() instanceof Player ? (Player)event.getSource().getDirectEntity() : (Player)event.getSource().getEntity();
+			final PlayerEntity player = event.getSource().getDirectEntity() instanceof PlayerEntity ? (PlayerEntity)event.getSource().getDirectEntity() : (PlayerEntity)event.getSource().getEntity();
 
 			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
 			if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
@@ -413,7 +406,7 @@ public class LootManager {
 			config.set(list);
 	}
 	
-	private static void DropEntityLoot(Entity entity, Player player, PoolLevel coinPool)
+	private static void DropEntityLoot(Entity entity, PlayerEntity player, PoolLevel coinPool)
 	{
 		
 		if(!Config.COMMON.enableEntityDrops.get())
@@ -424,13 +417,13 @@ public class LootManager {
 		//LightmansCurrency.LOGGER.info("Dropping entity loot level " + coinPool);
 		
 		LootTable table = LootTable.lootTable().build();
-		LootContext.Builder contextBuilder = new LootContext.Builder((ServerLevel)entity.level);
+		LootContext.Builder contextBuilder = new LootContext.Builder((ServerWorld) entity.level);
 		//Add the KilledByPlayer condition to the Loot Context
 		if(player != null)
-			contextBuilder.withParameter(LootContextParams.KILLER_ENTITY, player)
-			.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player);
+			contextBuilder.withParameter(LootParameters.KILLER_ENTITY, player)
+			.withParameter(LootParameters.LAST_DAMAGE_PLAYER, player);
 		
-		LootContext context = contextBuilder.create(new LootContextParamSet.Builder().optional(LootContextParams.LAST_DAMAGE_PLAYER).optional(LootContextParams.KILLER_ENTITY).build());
+		LootContext context = contextBuilder.create(new LootParameterSet.Builder().optional(LootParameters.LAST_DAMAGE_PLAYER).optional(LootParameters.KILLER_ENTITY).build());
 		
 		try {
 			
@@ -646,18 +639,18 @@ public class LootManager {
 	
 	private static Builder GenerateEntityCoinPool(Item item, float min, float max, float chance, String name, boolean requirePlayerKill)
 	{
-		
+
 		Builder lootPoolBuilder = LootPool.lootPool()
-				.setRolls(ConstantValue.exactly(1))
-				.add(LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max))).apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0f, 1f))))
+				.setRolls(ConstantRange.exactly(1))
+				.add(ItemLootEntry.lootTableItem(item).apply(SetCount.setCount(RandomValueRange.between(min, max))).apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0f, 1f))))
 				.name(name);
 		
 		//Require that the player killed it (usually only disabled for bosses)
 		if(requirePlayerKill)
-			lootPoolBuilder.when(LootItemKilledByPlayerCondition.killedByPlayer());
+			lootPoolBuilder.when(KilledByPlayer.killedByPlayer());
 		//Add a random chance to the loot (if applicable, usually only disabled for bosses)
 		if(chance < 1.0f)
-			lootPoolBuilder.when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(chance, LOOTING_MODIFIER));
+			lootPoolBuilder.when(RandomChanceWithLooting.randomChanceAndLootingBoost(chance, LOOTING_MODIFIER));
 		
 		return lootPoolBuilder;
 		
@@ -668,20 +661,28 @@ public class LootManager {
 	{
 		
 		Builder lootPoolBuilder = LootPool.lootPool()
-				.setRolls(UniformGenerator.between(minRolls, maxRolls))
+				.setRolls(RandomValueRange.between(minRolls, maxRolls))
 				.name(name);
 		
 		//Add each loot entry
 		for(ChestLootEntryData entry : lootEntries)
 		{
-			lootPoolBuilder.add(LootItem.lootTableItem(entry.item.get()).apply(SetItemCountFunction.setCount(UniformGenerator.between(entry.minCount, entry.maxCount))).setWeight(entry.weight));
+			lootPoolBuilder.add(ItemLootEntry.lootTableItem(entry.item.get()).apply(SetCount.setCount(RandomValueRange.between(entry.minCount, entry.maxCount))).setWeight(entry.weight));
 		}
 		
 		return lootPoolBuilder;
 		
 	}
 
-	private record ChestLootEntryData(Supplier<Item> item, float minCount, float maxCount, int weight) {
+	private static class ChestLootEntryData {
+
+		public final Supplier<Item> item;
+		public final float minCount;
+		public final float maxCount;
+		public final int weight;
+		public ChestLootEntryData(Supplier<Item> item, float minCount, float maxCount, int weight) {
+			this.item = item; this.minCount = minCount; this.maxCount = maxCount; this.weight = weight;
+		}
 
 		public static ChestLootEntryData COPPER = new ChestLootEntryData(Config.COMMON.lootItem1, 1, 10, 1);
 		public static ChestLootEntryData IRON = new ChestLootEntryData(Config.COMMON.lootItem2, 1, 10, 2);

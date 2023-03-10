@@ -1,21 +1,40 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 
-public abstract class EasyBlockEntity extends BlockEntity implements IClientTracker {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    protected EasyBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
+public abstract class EasyBlockEntity extends TileEntity implements IClientTracker {
+
+    protected EasyBlockEntity(TileEntityType<?> type) { super(type); }
 
     @Override
     public boolean isClient() { return this.level == null || this.level.isClientSide; }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
+    public void onLoad() {
+        if(this.isClient())
+            BlockEntityUtil.requestUpdatePacket(this);
+    }
 
+    @Nullable
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(this.worldPosition, 99, this.getUpdateTag());
+    }
+
+    @Override
+    public @Nonnull CompoundNBT getUpdateTag() { return this.save(new CompoundNBT()); }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+        this.load(this.getBlockState(), pkt.getTag());
+    }
 }

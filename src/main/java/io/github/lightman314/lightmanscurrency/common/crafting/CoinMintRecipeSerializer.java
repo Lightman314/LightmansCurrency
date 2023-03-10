@@ -4,19 +4,21 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe.MintType;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.jetbrains.annotations.NotNull;
 
-public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<CoinMintRecipe>{
+import javax.annotation.Nonnull;
 
+public class CoinMintRecipeSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<CoinMintRecipe>{
+
+	@Nonnull
 	@Override
-	public CoinMintRecipe fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
+	public CoinMintRecipe fromJson(@Nonnull ResourceLocation recipeId, JsonObject json) {
 		if(!json.has("ingredient"))
 		{
 			throw new JsonSyntaxException("Missing ingredient, expected to find an item.");
@@ -29,7 +31,7 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 		{
 			throw new JsonSyntaxException("Missing result. Expected to find an item.");
 		}
-		ItemStack result = ShapedRecipe.itemStackFromJson(json.get("result").getAsJsonObject());
+		ItemStack result = ShapedRecipe.itemFromJson(json.get("result").getAsJsonObject());
 		if(result.isEmpty())
 		{
 			throw new JsonSyntaxException("Result is empty.");
@@ -42,7 +44,7 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 	}
 
 	@Override
-	public CoinMintRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+	public CoinMintRecipe fromNetwork(@Nonnull ResourceLocation recipeId, PacketBuffer buffer) {
 		CoinMintRecipe.MintType type = CoinMintRecipe.readType(buffer.readUtf());
 		Ingredient ingredient = Ingredient.fromNetwork(buffer);
 		int ingredientCount = buffer.readInt();
@@ -51,7 +53,7 @@ public class CoinMintRecipeSerializer extends ForgeRegistryEntry<RecipeSerialize
 	}
 
 	@Override
-	public void toNetwork(FriendlyByteBuf buffer, CoinMintRecipe recipe) {
+	public void toNetwork(PacketBuffer buffer, CoinMintRecipe recipe) {
 		buffer.writeUtf(recipe.getMintType().name());
 		recipe.getIngredient().toNetwork(buffer);
 		buffer.writeInt(recipe.ingredientCount);

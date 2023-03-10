@@ -6,22 +6,23 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.DropdownButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class DropdownWidget extends AbstractWidget {
+import javax.annotation.Nonnull;
+
+public class DropdownWidget extends Widget {
 	
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/dropdown.png");
 	
@@ -31,33 +32,33 @@ public class DropdownWidget extends AbstractWidget {
 	
 	int currentlySelected;
 	
-	private final Font font;
-	private final List<Component> options;
+	private final FontRenderer font;
+	private final List<ITextComponent> options;
 	private final Consumer<Integer> onSelect;
 	private final Function<Integer,Boolean> optionActive;
 	
 	List<Button> optionButtons = new ArrayList<>();
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, Component... options) {
+	public DropdownWidget(int x, int y, int width, FontRenderer font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, ITextComponent... options) {
 		this(x, y, width, font, selected, onSelect, (index) -> true, addButton, options);
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<Component> options) {
+	public DropdownWidget(int x, int y, int width, FontRenderer font, int selected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<ITextComponent> options) {
 		this(x, y, width, font, selected, onSelect, (index) -> true, addButton, options);
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, Component... options) {
+	public DropdownWidget(int x, int y, int width, FontRenderer font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, ITextComponent... options) {
 		this(x, y, width, font, selected, onSelect, optionActive, addButton, Lists.newArrayList(options));
 	}
 	
-	public DropdownWidget(int x, int y, int width, Font font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, List<Component> options) {
-		super(x, y, width, HEIGHT, new TextComponent(""));
+	public DropdownWidget(int x, int y, int width, FontRenderer font, int selected, Consumer<Integer> onSelect, Function<Integer,Boolean> optionActive, Function<Button,Button> addButton, List<ITextComponent> options) {
+		super(x, y, width, HEIGHT, EasyText.empty());
 		this.font = font;
 		this.options = options;
 		this.currentlySelected = MathUtil.clamp(selected, 0, this.options.size() - 1);
 		this.onSelect = onSelect;
 		this.optionActive = optionActive;
-		//Init the buttons before this, so that they get pressed before this closes them on a offset click
+		//Init the buttons before this, so that they get pressed before this closes them on an offset click
 		this.init(addButton);
 	}
 	
@@ -74,14 +75,14 @@ public class DropdownWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Draw the background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
         int offset = this.isHovered ? this.height : 0;
         if(!this.active)
-        	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+			RenderUtil.color4f(0.5F, 0.5F, 0.5F, 1.0F);
         this.blit(pose, this.x, this.y, 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 14)
@@ -119,10 +120,8 @@ public class DropdownWidget extends AbstractWidget {
             	this.open = false;
             	this.optionButtons.forEach(button -> button.visible = false);
             }
-			return false;
-		} else {
-			return false;
 		}
+		return false;
 	}
 	
 	private void OnSelect(Button button) {
@@ -134,9 +133,6 @@ public class DropdownWidget extends AbstractWidget {
 		this.open = false;
 		this.optionButtons.forEach(b -> b.visible = false);
 	}
-
-	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
 	
 	private String fitString(String text) {
 		if(this.font.width(text) <= this.width - 14)

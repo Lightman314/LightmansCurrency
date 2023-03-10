@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.notific
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class NotificationTabButton extends TabButton {
@@ -11,7 +11,7 @@ public class NotificationTabButton extends TabButton {
 	final NonNullSupplier<NotificationData> dataSource;
 	final NotificationCategory category;
 	
-	public NotificationTabButton(OnPress pressable, Font font, NonNullSupplier<NotificationData> dataSource, NotificationCategory category) {
+	public NotificationTabButton(IPressable pressable, FontRenderer font, NonNullSupplier<NotificationData> dataSource, NotificationCategory category) {
 		super(pressable, font, category);
 		this.category = category;
 		this.dataSource = dataSource;

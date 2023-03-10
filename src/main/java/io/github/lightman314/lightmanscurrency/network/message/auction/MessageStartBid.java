@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction.AuctionBidTab;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageStartBid {
 
@@ -18,12 +18,12 @@ public class MessageStartBid {
 		this.tradeIndex = tradeIndex;
 	}
 	
-	public static void encode(MessageStartBid message, FriendlyByteBuf buffer) {
+	public static void encode(MessageStartBid message, PacketBuffer buffer) {
 		buffer.writeLong(message.auctionHouseID);
 		buffer.writeInt(message.tradeIndex);
 	}
 	
-	public static MessageStartBid decode(FriendlyByteBuf buffer) {
+	public static MessageStartBid decode(PacketBuffer buffer) {
 		return new MessageStartBid(buffer.readLong(), buffer.readInt());
 	}
 	

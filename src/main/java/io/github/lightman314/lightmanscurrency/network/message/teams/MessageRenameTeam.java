@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageRenameTeam {
 	
@@ -18,12 +18,12 @@ public class MessageRenameTeam {
 		this.newName = newName;
 	}
 	
-	public static void encode(MessageRenameTeam message, FriendlyByteBuf buffer) {
+	public static void encode(MessageRenameTeam message, PacketBuffer buffer) {
 		buffer.writeLong(message.teamID);
 		buffer.writeUtf(message.newName, Team.MAX_NAME_LENGTH);
 	}
 
-	public static MessageRenameTeam decode(FriendlyByteBuf buffer) {
+	public static MessageRenameTeam decode(PacketBuffer buffer) {
 		return new MessageRenameTeam(buffer.readLong(), buffer.readUtf(Team.MAX_NAME_LENGTH));
 	}
 

@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -22,9 +22,9 @@ public class PlayerTradeManager {
     @Nullable
     public static PlayerTrade GetTrade(int tradeID) { return trades.get(tradeID); }
 
-    public static List<PlayerTrade> GetAllTrades() { return trades.values().stream().toList(); }
+    public static List<PlayerTrade> GetAllTrades() { return new ArrayList<>(trades.values()); }
 
-    public static int CreateNewTrade(ServerPlayer host, ServerPlayer guest) {
+    public static int CreateNewTrade(ServerPlayerEntity host, ServerPlayerEntity guest) {
         int newTradeID = getAvailableTradeID();
         trades.put(newTradeID, new PlayerTrade(host, guest, newTradeID));
         return newTradeID;
@@ -58,7 +58,7 @@ public class PlayerTradeManager {
     }
 
     @SubscribeEvent
-    public static void onServerClose(ServerStoppingEvent event) {
+    public static void onServerClose(FMLServerStoppingEvent event) {
         trades.forEach((id,trade) -> trade.onCancel());
         trades.clear();
     }

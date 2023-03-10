@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.AuctionHouseCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public abstract class AuctionHouseNotification extends Notification {
 
@@ -17,16 +17,15 @@ public abstract class AuctionHouseNotification extends Notification {
 	@Override
 	protected final boolean canMerge(Notification other) { return false; }
 	
-	protected final Component getItemNames(List<ItemData> items) {
-		Component result = null;
-		for(int i = 0; i < items.size(); ++i)
-		{
-			if(result != null)
-				result = items.get(i).formatWith(result);
+	protected final ITextComponent getItemNames(List<ItemData> items) {
+		ITextComponent result = null;
+		for (ItemData item : items) {
+			if (result != null)
+				result = item.formatWith(result);
 			else
-				result = items.get(i).format();
+				result = item.format();
 		}
-		return result == null ? new TextComponent("ERROR") : result;
+		return result == null ? EasyText.literal("ERROR") : result;
 	}
 	
 }

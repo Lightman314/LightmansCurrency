@@ -12,21 +12,21 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 
 public class CommandBalTop {
 	
 	public static final int ENTRIES_PER_PAGE = 10;
 	
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
+	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
+		LiteralArgumentBuilder<CommandSource> lcAdminCommand
 			= Commands.literal("lcbaltop")
 				.executes(context -> CommandBalTop.execute(context, 1))
 				.then(Commands.argument("page", IntegerArgumentType.integer(1))
@@ -36,15 +36,15 @@ public class CommandBalTop {
 		
 	}
 	
-	static int executePage(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int executePage(CommandContext<CommandSource> commandContext) throws CommandSyntaxException {
 		
 		return execute(commandContext, IntegerArgumentType.getInteger(commandContext, "page"));
 		
 	}
 	
-	static int execute(CommandContext<CommandSourceStack> commandContext, int page) throws CommandSyntaxException {
-		
-		CommandSourceStack source = commandContext.getSource();
+	static int execute(CommandContext<CommandSource> commandContext, int page) throws CommandSyntaxException {
+
+		CommandSource source = commandContext.getSource();
 		
 		//Get and sort all the bank accounts
 		//Get player bank accounts
@@ -65,20 +65,20 @@ public class CommandBalTop {
 		
 		if(startIndex >= allAccounts.size())
 		{
-			source.sendFailure(new TranslatableComponent("command.lightmanscurrency.lcbaltop.error.page"));
+			source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcbaltop.error.page"));
 			return 0;
 		}
 			
 		
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
-		source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(TextFormatting.BOLD).withStyle(TextFormatting.GOLD), false);
+		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(TextFormatting.BOLD).withStyle(TextFormatting.GOLD), false);
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
 				BankAccount account = allAccounts.get(i).get();
-				Component name = account.getName();
+				ITextComponent name = account.getName();
 				String amount = account.getCoinStorage().getString("0");
-				source.sendSuccess(new TranslatableComponent("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
+				source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
 			} catch(Exception ignored) { }
 		}
 		

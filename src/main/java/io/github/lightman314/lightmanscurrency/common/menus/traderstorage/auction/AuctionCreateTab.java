@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -30,12 +30,12 @@ public class AuctionCreateTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionCreateClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(PlayerEntity player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<SimpleSlot> getSlots() { return this.slots; }
-	SimpleContainer auctionItems = new SimpleContainer(2);
-	public SimpleContainer getAuctionItems() { return this.auctionItems; }
+	Inventory auctionItems = new Inventory(2);
+	public Inventory getAuctionItems() { return this.auctionItems; }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
@@ -74,7 +74,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 		{
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.put("CreateAuction", trade.getAsNBT());
 				this.menu.sendMessage(message);
 				return;
@@ -84,7 +84,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			if(!trade.isValid())
 			{
 				//Send failure message to the client.
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putBoolean("AuctionCreated", false);
 				this.menu.sendMessage(message);
 				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
@@ -95,7 +95,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 			//Delete the contents of the auctionItems
 			this.auctionItems.clearContent();
 			//Send response message to the client
-			CompoundTag message = new CompoundTag();
+			CompoundNBT message = new CompoundNBT();
 			message.putBoolean("AuctionCreated", true);
 			this.menu.sendMessage(message);
 			for(SimpleSlot slot : this.slots) slot.locked = true;
@@ -104,7 +104,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message)
+	public void receiveMessage(CompoundNBT message)
 	{
 		if(message.contains("CreateAuction"))
 		{

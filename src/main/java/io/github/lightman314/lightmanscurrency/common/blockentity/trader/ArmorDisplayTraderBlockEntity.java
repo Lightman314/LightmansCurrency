@@ -3,33 +3,33 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.fml.network.PacketDistributor;
 
-public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
+import javax.annotation.Nonnull;
+
+public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
 	
@@ -42,16 +42,25 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	private boolean loaded = false;
 	public void flagAsLoaded() { this.loaded = true; }
 	
-	public ArmorDisplayTraderBlockEntity(BlockPos pos, BlockState state)
+	public ArmorDisplayTraderBlockEntity()
 	{
-		super(ModBlockEntities.ARMOR_TRADER.get(), pos, state, TRADE_COUNT);
+		super(ModBlockEntities.ARMOR_TRADER.get(), TRADE_COUNT);
 	}
 	
 	@Override
 	public ItemTraderData buildNewTrader() { return new ItemTraderDataArmor(this.level, this.worldPosition); }
-	
+
+
 	@Override
-	public void clientTick() {
+	public void tick() {
+		super.tick();
+		if(this.isClient())
+			this.clientTick();
+		else
+			this.serverTick();
+	}
+
+	private void clientTick() {
 		if(this.getArmorStand() == null)
 		{
 			if(this.requestTimer <= 0)
@@ -63,13 +72,9 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 				this.requestTimer--;
 		}
 	}
-	
-	@Override
-	public void serverTick()
+
+	private void serverTick()
 	{
-		
-		super.serverTick();
-		
 		if(!this.loaded)
 			return;
 		
@@ -92,8 +97,8 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	public void validateArmorStand() {
 		if(this.isClient())
 			return;
-		ArmorStand armorStand = this.getArmorStand();
-		if(armorStand == null || armorStand.isRemoved())
+		ArmorStandEntity armorStand = this.getArmorStand();
+		if(armorStand == null || !armorStand.isAlive())
 		{
 			//Spawn a new armor stand
 			this.spawnArmorStand();
@@ -105,13 +110,13 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 		if(this.level == null || this.isClient())
 			return;
 		
-		ArmorStand armorStand = new ArmorStand(this.level, this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d);
+		ArmorStandEntity armorStand = new ArmorStandEntity(this.level, this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d);
 		armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5d, this.getStandRotation(), 0.0F);
 		
 		armorStand.setInvulnerable(true);
 		armorStand.setNoGravity(true);
 		armorStand.setSilent(true);
-		CompoundTag compound = armorStand.saveWithoutId(new CompoundTag());
+		CompoundNBT compound = armorStand.saveWithoutId(new CompoundNBT());
 		compound.putBoolean("Marker", true);
 		compound.putBoolean("NoBasePlate", true);
 		armorStand.load(compound);
@@ -124,7 +129,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	}
 	
 	protected void updateArmorStandArmor() {
-		ArmorStand armorStand = this.getArmorStand();
+		ArmorStandEntity armorStand = this.getArmorStand();
 		if(armorStand != null)
 		{
 			ItemTraderData trader = this.getTraderData();
@@ -136,9 +141,10 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 					ItemTradeData thisTrade = trades.get(i);
 					//Trade restrictions shall determine the slot type
 					ItemTradeRestriction r = thisTrade.getRestriction();
-					EquipmentSlot slot = null;
-					if(r instanceof EquipmentRestriction er)
+					EquipmentSlotType slot = null;
+					if(r instanceof EquipmentRestriction)
 					{
+						EquipmentRestriction er = (EquipmentRestriction)r;
 						slot = er.getEquipmentSlot();
 					}
 					if(slot != null)
@@ -155,20 +161,20 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	}
 	
 	public void killIntrudingArmorStands() {
-		ArmorStand armorStand = this.getArmorStand();
+		ArmorStandEntity armorStand = this.getArmorStand();
 		if(this.level != null && armorStand != null)
 		{
-			this.level.getEntitiesOfClass(ArmorStand.class, this.getBlockState().getShape(this.level, this.worldPosition).bounds()).forEach(as ->{
+			this.level.getEntitiesOfClass(ArmorStandEntity.class, this.getBlockState().getShape(this.level, this.worldPosition).bounds()).forEach(as ->{
 				//Delete any armor stands in the exact coordinates as our armor stand.
 				//Should delete any old duplicates from previously buggy armor stands.
 				if(as.position().equals(armorStand.position()))
-					as.remove(Entity.RemovalReason.DISCARDED);
+					as.remove(false);
 			});
 		}
 	}
 	
-	public void sendArmorStandSyncMessageToClient(PacketTarget target) {
-		ArmorStand armorStand = this.getArmorStand();
+	public void sendArmorStandSyncMessageToClient(PacketDistributor.PacketTarget target) {
+		ArmorStandEntity armorStand = this.getArmorStand();
 		if(armorStand != null)
 		{
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageSendArmorStandID(this.worldPosition, armorStand.getId()));
@@ -178,7 +184,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	@OnlyIn(Dist.CLIENT)
 	public static void receiveArmorStandID(BlockPos pos, int entityId) {
 		Minecraft mc = Minecraft.getInstance();
-		BlockEntity be = mc.level.getBlockEntity(pos);
+		TileEntity be = mc.level.getBlockEntity(pos);
 		if(be instanceof ArmorDisplayTraderBlockEntity)
 		{
 			//LightmansCurrency.LogInfo("Received Armor Stand id " + entityId + " from the server.");
@@ -188,7 +194,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	
 	protected void validateArmorStandValues()
 	{
-		ArmorStand armorStand = this.getArmorStand();
+		ArmorStandEntity armorStand = this.getArmorStand();
 		if(armorStand == null)
 			return;
 		armorStand.moveTo(this.worldPosition.getX() + 0.5d, this.worldPosition.getY(), this.worldPosition.getZ() + 0.5f, this.getStandRotation(), 0f);
@@ -202,7 +208,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 			armorStand.setSilent(true);
 		if(!armorStand.isMarker() || !armorStand.isNoBasePlate())
 		{
-			CompoundTag compound = armorStand.saveWithoutId(new CompoundTag());
+			CompoundNBT compound = armorStand.saveWithoutId(new CompoundNBT());
 			if(!armorStand.isMarker())
 				compound.putBoolean("Marker", true);
 			if(!armorStand.isNoBasePlate())
@@ -211,46 +217,48 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
+		compound = super.save(compound);
 		this.writeArmorStandData(compound);
 		
-		super.saveAdditional(compound);
+		return compound;
 	}
 	
-	protected void writeArmorStandData(CompoundTag compound)
+	protected void writeArmorStandData(CompoundNBT compound)
 	{
 		if(this.armorStandID != null)
 			compound.putUUID("ArmorStand", this.armorStandID);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
+		super.load(state, compound);
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))
 			this.armorStandID = compound.getUUID("ArmorStand");
-		super.load(compound);
 	}
 	
-	protected ArmorStand getArmorStand()
+	protected ArmorStandEntity getArmorStand()
 	{
-		Entity entity = null;
-		if(this.level instanceof ServerLevel)
-			entity = ((ServerLevel)level).getEntity(this.armorStandID);
+		Entity entity;
+		if(this.level instanceof ServerWorld)
+			entity = ((ServerWorld)level).getEntity(this.armorStandID);
 		else
 			entity = this.level.getEntity(this.armorStandEntityId);
 		
-		if(entity != null && entity instanceof ArmorStand)
-			return (ArmorStand)entity;
+		if(entity instanceof ArmorStandEntity)
+			return (ArmorStandEntity) entity;
 		
 		return null;
 	}
 	
 	public void destroyArmorStand()
 	{
-		ArmorStand armorStand = this.getArmorStand();
+		ArmorStandEntity armorStand = this.getArmorStand();
 		if(armorStand != null)
 			armorStand.kill();
 	}
@@ -272,7 +280,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	}
 	
 	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
+	protected ItemTraderData createTraderFromOldData(CompoundNBT compound) {
 		ItemTraderDataArmor newTrader = new ItemTraderDataArmor(this.level, this.worldPosition);
 		newTrader.loadOldUniversalTraderData(compound);
 		this.tradeCount = newTrader.getTradeCount();

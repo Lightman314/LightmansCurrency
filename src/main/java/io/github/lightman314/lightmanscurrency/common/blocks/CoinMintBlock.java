@@ -2,73 +2,73 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
-public class CoinMintBlock extends RotatableBlock implements EntityBlock{
+public class CoinMintBlock extends RotatableBlock {
 
-	private static final TranslatableComponent TITLE = new TranslatableComponent("gui.lightmanscurrency.coinmint.title");
+	private static final IFormattableTextComponent TITLE = EasyText.translatable("gui.lightmanscurrency.coinmint.title");
 	
 	public CoinMintBlock(Properties properties)
 	{
 		super(properties, box(1d,0d,1d,15d,16d,15d));
 	}
-	
+
+	@Override
+	public boolean hasTileEntity(BlockState state) { return true; }
+
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new CoinMintBlockEntity(pos, state);
-	}
+	public TileEntity createTileEntity(BlockState state, IBlockReader level) { return new CoinMintBlockEntity(); }
 	
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public ActionResultType use(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		if(!level.isClientSide)
 		{
-			BlockEntity tileEntity = level.getBlockEntity(pos);
+			TileEntity tileEntity = level.getBlockEntity(pos);
 			if(tileEntity instanceof CoinMintBlockEntity && Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
 			{
-				NetworkHooks.openGui((ServerPlayer)player, new CoinMintMenuProvider((CoinMintBlockEntity)tileEntity), pos);
-				return InteractionResult.SUCCESS;
+				NetworkHooks.openGui((ServerPlayerEntity)player, new CoinMintMenuProvider((CoinMintBlockEntity)tileEntity), pos);
+				return ActionResultType.SUCCESS;
 			}
 		}
-		if(Config.SERVER.allowCoinMinting.get() || Config.SERVER.allowCoinMelting.get())
-			return InteractionResult.SUCCESS;
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 			
 	}
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
+	public void onRemove(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving)
 	{
-		BlockEntity blockEntity = level.getBlockEntity(pos);
+		TileEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof CoinMintBlockEntity)
 		{
 			CoinMintBlockEntity mintEntity = (CoinMintBlockEntity)blockEntity;
@@ -78,20 +78,21 @@ public class CoinMintBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.COIN_MINT);
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 	
-	private static class CoinMintMenuProvider implements MenuProvider
+	private static class CoinMintMenuProvider implements INamedContainerProvider
 	{
 		private final CoinMintBlockEntity tileEntity;
 		public CoinMintMenuProvider(CoinMintBlockEntity tileEntity) { this.tileEntity = tileEntity; }
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new MintMenu(id, inventory, this.tileEntity); }
+		public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) { return new MintMenu(id, inventory, this.tileEntity); }
+		@Nonnull
 		@Override
-		public Component getDisplayName() { return TITLE; }
+		public ITextComponent getDisplayName() { return TITLE; }
 	}
 	
 }

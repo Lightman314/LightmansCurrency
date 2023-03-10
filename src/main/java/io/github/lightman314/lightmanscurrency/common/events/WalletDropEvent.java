@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.events;
 import java.util.Collection;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
@@ -23,7 +23,7 @@ public class WalletDropEvent extends PlayerEvent{
 	public final boolean keepWallet;
 	public final int coinDropPercent;
 	
-	public WalletDropEvent(Player player, IWalletHandler walletHandler, DamageSource source, Collection<ItemEntity> walletDrops, boolean keepWallet, int coinDropPercent)
+	public WalletDropEvent(PlayerEntity player, IWalletHandler walletHandler, DamageSource source, Collection<ItemEntity> walletDrops, boolean keepWallet, int coinDropPercent)
 	{
 		super(player);
 		this.walletHandler = walletHandler;
@@ -34,7 +34,7 @@ public class WalletDropEvent extends PlayerEvent{
 		this.coinDropPercent = coinDropPercent;
 	}
 	
-	public WalletDropEvent(Player player, ItemStack walletStack, DamageSource source, Collection<ItemEntity> walletDrops, boolean keepWallet, int coinDropPercent)
+	public WalletDropEvent(PlayerEntity player, ItemStack walletStack, DamageSource source, Collection<ItemEntity> walletDrops, boolean keepWallet, int coinDropPercent)
 	{
 		super(player);
 		this.walletHandler = null;

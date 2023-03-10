@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.crafting.*;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModRecipes {
 	
@@ -19,7 +19,7 @@ public class ModRecipes {
 		
 	}
 	
-	public static final RegistryObject<RecipeSerializer<WalletUpgradeRecipe>> WALLET_UPGRADE;
-	public static final RegistryObject<RecipeSerializer<CoinMintRecipe>> COIN_MINT;
+	public static final RegistryObject<IRecipeSerializer<WalletUpgradeRecipe>> WALLET_UPGRADE;
+	public static final RegistryObject<IRecipeSerializer<CoinMintRecipe>> COIN_MINT;
 	
 }

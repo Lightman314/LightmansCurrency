@@ -14,10 +14,10 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class Team {
@@ -32,9 +32,9 @@ public class Team {
 	private long id;
 	public long getID() { return this.id; }
 	public void overrideID(long newID) { this.id = newID; }
-	PlayerReference owner = null;
+	PlayerReference owner;
 	public PlayerReference getOwner() { return this.owner; }
-	String teamName = "Some Team";
+	String teamName;
 	public String getName() { return this.teamName; }
 	
 	private boolean isClient = false;
@@ -69,7 +69,7 @@ public class Team {
 	public int getBankLimit() { return this.bankAccountLimit; }
 	BankAccount bankAccount = null;
 	public boolean hasBankAccount() { return this.bankAccount != null; }
-	public boolean canAccessBankAccount(Player player) {
+	public boolean canAccessBankAccount(PlayerEntity player) {
 		if(this.bankAccountLimit < 1)
 			return this.isMember(player);
 		else if(this.bankAccountLimit < 2)
@@ -83,7 +83,7 @@ public class Team {
 	 * Determines if the given player is the owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isOwner(Player player) { return (this.owner != null && this.owner.is(player)) || CommandLCAdmin.isAdminPlayer(player); }
+	public boolean isOwner(PlayerEntity player) { return (this.owner != null && this.owner.is(player)) || CommandLCAdmin.isAdminPlayer(player); }
 	/**
 	 * Determines if the given player is the owner of this team.
 	 */
@@ -92,7 +92,7 @@ public class Team {
 	 * Determines if the given player is an admin or owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isAdmin(Player player) { return PlayerReference.listContains(this.admins, player.getUUID()) || this.isOwner(player); }
+	public boolean isAdmin(PlayerEntity player) { return PlayerReference.listContains(this.admins, player.getUUID()) || this.isOwner(player); }
 	/**
 	 * Determines if the given player is an admin or owner of this team.
 	 */
@@ -101,18 +101,18 @@ public class Team {
 	 * Determines if the given player is a member, admin, or owner of this team.
 	 * Also returns true if the player is in admin mode.
 	 */
-	public boolean isMember(Player player) { return PlayerReference.listContains(this.members, player.getUUID()) || this.isAdmin(player); }
+	public boolean isMember(PlayerEntity player) { return PlayerReference.listContains(this.members, player.getUUID()) || this.isAdmin(player); }
 	/**
 	 * Determines if the given player is a member, admin, or owner of this team.
 	 */
 	public boolean isMember(UUID playerID) { return PlayerReference.listContains(this.members, playerID) || this.isAdmin(playerID); }
 	
-	public void changeAddMember(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_MEMBER); }
-	public void changeAddAdmin(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_ADMIN); }
-	public void changeRemoveMember(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_REMOVE); }
-	public void changeOwner(Player requestor, String name) { this.changeAny(requestor, name, CATEGORY_OWNER); }
+	public void changeAddMember(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_MEMBER); }
+	public void changeAddAdmin(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_ADMIN); }
+	public void changeRemoveMember(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_REMOVE); }
+	public void changeOwner(PlayerEntity requestor, String name) { this.changeAny(requestor, name, CATEGORY_OWNER); }
 	
-	public void changeName(Player requestor, String newName)
+	public void changeName(PlayerEntity requestor, String newName)
 	{
 		if(this.isAdmin(requestor))
 		{
@@ -123,7 +123,7 @@ public class Team {
 		}
 	}
 	
-	public void changeAny(Player requestor, String playerName, String category)
+	public void changeAny(PlayerEntity requestor, String playerName, String category)
 	{
 		PlayerReference player = PlayerReference.of(this.isClient, playerName);
 		if(player == null)
@@ -208,11 +208,11 @@ public class Team {
 		}
 	}
 	
-	public void createBankAccount(Player requestor)
+	public void createBankAccount(PlayerEntity requestor)
 	{
 		if(this.hasBankAccount() || !isOwner(requestor))
 			return;
-		this.bankAccount = new BankAccount(() -> this.markDirty());
+		this.bankAccount = new BankAccount(this::markDirty);
 		this.bankAccount.updateOwnersName(this.teamName);
 		this.bankAccount.setNotificationConsumer(this::notificationSender);
 		this.markDirty();
@@ -234,7 +234,7 @@ public class Team {
 		}
 	}
 	
-	public void changeBankLimit(Player requestor, int newLimit)
+	public void changeBankLimit(PlayerEntity requestor, int newLimit)
 	{
 		if(isOwner(requestor) && this.bankAccountLimit != newLimit)
 		{
@@ -251,7 +251,7 @@ public class Team {
 		return result;
 	}
 	
-	private Team(@Nonnull long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
+	private Team(long teamID, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		this.id = teamID;
 		this.owner = owner;
@@ -264,26 +264,24 @@ public class Team {
 			TeamSaveData.MarkTeamDirty(this.id);
 	}
 	
-	public CompoundTag save()
+	public CompoundNBT save()
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		compound.putLong("ID", this.id);
 		if(this.owner != null)
 			compound.put("Owner", this.owner.save());
 		compound.putString("Name", this.teamName);
 		
-		ListTag memberList = new ListTag();
-		for(int i = 0; i < this.members.size(); ++i)
-		{
-			CompoundTag thisMember = this.members.get(i).save();
+		ListNBT memberList = new ListNBT();
+		for (PlayerReference member : this.members) {
+			CompoundNBT thisMember = member.save();
 			memberList.add(thisMember);
 		}
 		compound.put("Members", memberList);
-		
-		ListTag adminList = new ListTag();
-		for(int i = 0; i < this.admins.size(); ++i)
-		{
-			CompoundTag thisAdmin = this.admins.get(i).save();
+
+		ListNBT adminList = new ListNBT();
+		for (PlayerReference admin : this.admins) {
+			CompoundNBT thisAdmin = admin.save();
 			adminList.add(thisAdmin);
 		}
 		compound.put("Admins", adminList);
@@ -298,13 +296,13 @@ public class Team {
 		return compound;
 	}
 	
-	public static Team load(@Nonnull CompoundTag compound)
+	public static Team load(@Nonnull CompoundNBT compound)
 	{
 		PlayerReference owner = null;
 		long id = -1;
 		if(compound.contains("ID"))
 			id = compound.getLong("ID");
-		if(compound.contains("Owner", Tag.TAG_COMPOUND))
+		if(compound.contains("Owner", Constants.NBT.TAG_COMPOUND))
 			owner = PlayerReference.load(compound.getCompound("Owner"));
 		String name = compound.getString("Name");
 		
@@ -312,7 +310,7 @@ public class Team {
 		{
 			Team team = of(id, owner, name);
 			
-			ListTag adminList = compound.getList("Admins", Tag.TAG_COMPOUND);
+			ListNBT adminList = compound.getList("Admins", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < adminList.size(); ++i)
 			{
 				PlayerReference admin = PlayerReference.load(adminList.getCompound(i));
@@ -320,7 +318,7 @@ public class Team {
 					team.admins.add(admin);
 			}
 			
-			ListTag memberList = compound.getList("Members", Tag.TAG_COMPOUND);
+			ListNBT memberList = compound.getList("Members", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < memberList.size(); ++i)
 			{
 				PlayerReference member = PlayerReference.load(memberList.getCompound(i));
@@ -328,10 +326,10 @@ public class Team {
 					team.members.add(member);
 			}
 			
-			if(compound.contains("BankAccount", Tag.TAG_COMPOUND))
+			if(compound.contains("BankAccount", Constants.NBT.TAG_COMPOUND))
 			{
 				team.bankAccount = new BankAccount(team::markDirty, compound.getCompound("BankAccount"));
-				if(compound.contains("BankLimit", Tag.TAG_INT))
+				if(compound.contains("BankLimit", Constants.NBT.TAG_INT))
 					team.bankAccountLimit = compound.getInt("BankLimit");
 				team.bankAccount.updateOwnersName(team.teamName);
 				team.bankAccount.setNotificationConsumer(team::notificationSender);
@@ -344,12 +342,12 @@ public class Team {
 		
 	}
 	
-	public static Team of(@Nonnull long id, @Nonnull PlayerReference owner, @Nonnull String name)
+	public static Team of(long id, @Nonnull PlayerReference owner, @Nonnull String name)
 	{
 		return new Team(id, owner, name);
 	}
 	
-	public static Comparator<Team> sorterFor(Player player)
+	public static Comparator<Team> sorterFor(PlayerEntity player)
 	{
 		return new TeamSorter(player);
 	}
@@ -357,9 +355,9 @@ public class Team {
 	private static class TeamSorter implements Comparator<Team>
 	{
 
-		private final Player player;
+		private final PlayerEntity player;
 		
-		private TeamSorter(Player player) { this.player = player; }
+		private TeamSorter(PlayerEntity player) { this.player = player; }
 		
 		@Override
 		public int compare(Team o1, Team o2) {

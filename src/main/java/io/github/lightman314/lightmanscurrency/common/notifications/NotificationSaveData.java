@@ -9,33 +9,34 @@ import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientNotifications;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageClientNotification;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class NotificationSaveData extends SavedData {
+public class NotificationSaveData extends WorldSavedData {
 
-	private NotificationSaveData() {}
+	private NotificationSaveData() { super("lightmanscurrency_notification_data"); }
 	
-	private NotificationSaveData(CompoundTag compound) {
+	public void load(CompoundNBT compound) {
 		
-		ListTag notificationData = compound.getList("PlayerNotifications", Tag.TAG_COMPOUND);
+		ListNBT notificationData = compound.getList("PlayerNotifications", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < notificationData.size(); ++i)
 		{
-			CompoundTag tag = notificationData.getCompound(i);
+			CompoundNBT tag = notificationData.getCompound(i);
 			UUID id = tag.getUUID("Player");
 			NotificationData data = NotificationData.loadFrom(tag);
 			if(id != null && data != null)
@@ -46,12 +47,13 @@ public class NotificationSaveData extends SavedData {
 	
 	private final Map<UUID,NotificationData> playerNotifications = new HashMap<>();
 	
+	@Nonnull
 	@Override
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundNBT save(CompoundNBT compound) {
 		
-		ListTag notificationData = new ListTag();
+		ListNBT notificationData = new ListNBT();
 		this.playerNotifications.forEach((id,data) -> {
-			CompoundTag tag = data.save();
+			CompoundNBT tag = data.save();
 			tag.putUUID("Player", id);
 			notificationData.add(tag);
 		});
@@ -64,14 +66,15 @@ public class NotificationSaveData extends SavedData {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(NotificationSaveData::new, NotificationSaveData::new, "lightmanscurrency_notification_data");
+				return level.getDataStorage().computeIfAbsent(NotificationSaveData::new, "lightmanscurrency_notification_data");
 		}
 		return null;
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer notification data from the old Trading Office. */
+
+	/** @deprecated Use only to transfer notification data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldNotificationData(UUID player, NotificationData notifications) {
 		NotificationSaveData nsd = get();
 		if(nsd != null)
@@ -81,7 +84,7 @@ public class NotificationSaveData extends SavedData {
 		}
 	}
 	
-	public static NotificationData GetNotifications(Player player) { return player == null ? new NotificationData() : GetNotifications(player.getUUID()); }
+	public static NotificationData GetNotifications(PlayerEntity player) { return player == null ? new NotificationData() : GetNotifications(player.getUUID()); }
 	
 	public static NotificationData GetNotifications(UUID playerID) {
 		if(playerID == null)
@@ -107,7 +110,7 @@ public class NotificationSaveData extends SavedData {
 			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 			if(server != null)
 			{
-				ServerPlayer player = server.getPlayerList().getPlayer(playerID);
+				ServerPlayerEntity player = server.getPlayerList().getPlayer(playerID);
 				if(player != null)
 					LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageUpdateClientNotifications(GetNotifications(playerID)));
 			}
@@ -143,7 +146,7 @@ public class NotificationSaveData extends SavedData {
 				MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 				if(server != null)
 				{
-					ServerPlayer player = server.getPlayerList().getPlayer(playerID);
+					ServerPlayerEntity player = server.getPlayerList().getPlayer(playerID);
 					if(player != null)
 						LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), new MessageClientNotification(notification));
 				}
@@ -157,7 +160,7 @@ public class NotificationSaveData extends SavedData {
 	@SubscribeEvent
 	public static void OnPlayerLogin(PlayerLoggedInEvent event)
 	{
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+		PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 		
 		//Only send their personal notifications
 		NotificationData notifications = GetNotifications(event.getPlayer());

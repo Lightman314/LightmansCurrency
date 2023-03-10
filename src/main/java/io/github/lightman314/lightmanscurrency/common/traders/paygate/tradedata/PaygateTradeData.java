@@ -18,14 +18,14 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class PaygateTradeData extends TradeData {
 
@@ -57,36 +57,36 @@ public class PaygateTradeData extends TradeData {
 		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid());
 	}
 
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data)
+	public static void saveAllData(CompoundNBT nbt, List<PaygateTradeData> data)
 	{
 		saveAllData(nbt, data, DEFAULT_KEY);
 	}
 
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key)
+	public static void saveAllData(CompoundNBT nbt, List<PaygateTradeData> data, String key)
 	{
-		ListTag listNBT = new ListTag();
+		ListNBT listNBT = new ListNBT();
 
-		for (PaygateTradeData datum : data)
-			listNBT.add(datum.getAsNBT());
+		for (PaygateTradeData datu : data)
+			listNBT.add(datu.getAsNBT());
 
 		if(listNBT.size() > 0)
 			nbt.put(key, listNBT);
 	}
 
-	public static PaygateTradeData loadData(CompoundTag nbt) {
+	public static PaygateTradeData loadData(CompoundNBT nbt) {
 		PaygateTradeData trade = new PaygateTradeData();
 		trade.loadFromNBT(nbt);
 		return trade;
 	}
 
-	public static List<PaygateTradeData> loadAllData(CompoundTag nbt)
+	public static List<PaygateTradeData> loadAllData(CompoundNBT nbt)
 	{
 		return loadAllData(DEFAULT_KEY, nbt);
 	}
 
-	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt)
+	public static List<PaygateTradeData> loadAllData(String key, CompoundNBT nbt)
 	{
-		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
+		ListNBT listNBT = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
 
 		List<PaygateTradeData> data = listOfSize(listNBT.size());
 
@@ -105,24 +105,30 @@ public class PaygateTradeData extends TradeData {
 	}
 
 	@Override
-	public CompoundTag getAsNBT() {
-		CompoundTag compound = super.getAsNBT();
+	public CompoundNBT getAsNBT() {
+		CompoundNBT compound = super.getAsNBT();
 
 		compound.putInt("Duration", this.getDuration());
 		if(this.ticketID >= -1)
+		{
 			compound.putLong("TicketID", this.ticketID);
+			compound.putInt("TicketColor", this.ticketColor);
+		}
+
 
 		return compound;
 	}
 
 	@Override
-	protected void loadFromNBT(CompoundTag compound) {
+	protected void loadFromNBT(CompoundNBT compound) {
 		super.loadFromNBT(compound);
 
 		this.duration = compound.getInt("Duration");
 
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");
+		if(compound.contains("TicketColor"))
+			this.ticketColor = compound.getInt("TicketColor");
 		else if(compound.contains("Ticket"))
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else
@@ -143,41 +149,30 @@ public class PaygateTradeData extends TradeData {
 	}
 
 	@Override
-	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
+	public List<ITextComponent> GetDifferenceWarnings(TradeComparisonResult differences) {
 		LightmansCurrency.LogWarning("Attempting to get warnings for different paygate trades, but paygate trades do not support this interaction.");
 		return Lists.newArrayList();
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-	public static MutableComponent formatDurationShort(int duration) {
+	public static IFormattableTextComponent formatDurationShort(int duration) {
 
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = EasyText.empty();
+		IFormattableTextComponent result = EasyText.empty();
 		if(hours > 0)
 			result.append(EasyText.translatable("tooltip.lightmanscurrency.paygate.duration.hours.short", hours));
 		if(minutes > 0)
 			result.append(EasyText.translatable("tooltip.lightmanscurrency.paygate.duration.minutes.short", minutes));
 		if(seconds > 0)
 			result.append(EasyText.translatable("tooltip.lightmanscurrency.paygate.duration.seconds.short", seconds));
-		if(ticks > 0 || result.getString().isBlank())
+		if(ticks > 0 || result.getString().isEmpty())
 			result.append(EasyText.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks));
 		return result;
 	}
 
-	public static MutableComponent formatDurationDisplay(int duration) {
+	public static IFormattableTextComponent formatDurationDisplay(int duration) {
 
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
@@ -192,13 +187,13 @@ public class PaygateTradeData extends TradeData {
 		return EasyText.translatable("tooltip.lightmanscurrency.paygate.duration.ticks.short", ticks);
 	}
 
-	public static MutableComponent formatDuration(int duration) {
+	public static IFormattableTextComponent formatDuration(int duration) {
 
 		int ticks = duration % 20;
 		int seconds = (duration / 20) % 60;
 		int minutes = (duration / 1200 ) % 60;
 		int hours = (duration / 72000);
-		MutableComponent result = EasyText.empty();
+		IFormattableTextComponent result = EasyText.empty();
 		boolean addSpacer = false;
 		if(hours > 0)
 		{
@@ -248,8 +243,9 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
+		if(tab.menu.getTrader() instanceof PaygateTraderData)
 		{
+			PaygateTraderData paygate = (PaygateTraderData)tab.menu.getTrader();
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
@@ -262,7 +258,7 @@ public class PaygateTradeData extends TradeData {
 			}
 			else
 			{
-				CompoundTag extraData = new CompoundTag();
+				CompoundNBT extraData = new CompoundNBT();
 				extraData.putInt("TradeIndex", tradeIndex);
 				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 			}
@@ -271,12 +267,13 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
+		if(tab.menu.getTrader() instanceof PaygateTraderData)
 		{
+			PaygateTraderData paygate = (PaygateTraderData)tab.menu.getTrader();
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 		}
@@ -285,12 +282,13 @@ public class PaygateTradeData extends TradeData {
 	@Override
 	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
 
-		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
+		if(tab.menu.getTrader() instanceof PaygateTraderData)
 		{
+			PaygateTraderData paygate = (PaygateTraderData)tab.menu.getTrader();
 			int tradeIndex = paygate.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 		}

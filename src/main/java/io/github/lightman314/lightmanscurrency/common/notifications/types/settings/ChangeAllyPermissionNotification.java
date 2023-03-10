@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class ChangeAllyPermissionNotification extends Notification {
 
@@ -26,7 +26,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 		this.oldValue = oldValue;
 	}
 	
-	public ChangeAllyPermissionNotification(CompoundTag compound) { this.load(compound); }
+	public ChangeAllyPermissionNotification(CompoundNBT compound) { this.load(compound); }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -35,15 +35,15 @@ public class ChangeAllyPermissionNotification extends Notification {
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		if(this.oldValue == 0)
-			return new TranslatableComponent("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
+			return EasyText.translatable("log.settings.permission.ally.simple", this.player.getName(true), this.permission, this.newValue);
 		else
-			return new TranslatableComponent("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
+			return EasyText.translatable("log.settings.permission.ally", this.player.getName(true), this.permission, this.oldValue, this.newValue);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("Player", this.player.save());
 		compound.putString("Permission", this.permission);
 		compound.putInt("NewValue", this.newValue);
@@ -51,7 +51,7 @@ public class ChangeAllyPermissionNotification extends Notification {
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.permission = compound.getString("Permission");
 		this.newValue = compound.getInt("NewValue");

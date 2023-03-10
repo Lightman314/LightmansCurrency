@@ -23,17 +23,17 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeData extends TradeData implements IBarterTrade {
 
@@ -55,7 +55,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
-	SimpleContainer items = new SimpleContainer(4);
+	Inventory items = new Inventory(4);
 	final List<Boolean> enforceNBT = Lists.newArrayList(true, true, true, true);
 	private void resetNBTList() { for(int i = 0; i < 4; ++i) this.enforceNBT.set(i, true); }
 	ItemTradeType tradeType = ItemTradeType.SALE;
@@ -153,29 +153,29 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	public String getCustomName(int index)
 	{
-		return switch (index) {
-			case 0 -> this.customName1;
-			case 1 -> this.customName2;
-			default -> "";
-		};
+		switch (index) {
+			case 0: return this.customName1;
+			case 1: return this.customName2;
+			default: return "";
+		}
 	}
 
 	public void setCustomName(int index, String customName)
 	{
 		switch (index) {
-			case 0 -> this.customName1 = customName;
-			case 1 -> this.customName2 = customName;
+			case 0: this.customName1 = customName; return;
+			case 1: this.customName2 = customName;
 		}
 	}
 
 	@Override
 	public TradeDirection getTradeDirection()
 	{
-		return switch (this.tradeType) {
-			case SALE -> TradeDirection.SALE;
-			case PURCHASE -> TradeDirection.PURCHASE;
-			default -> TradeDirection.NONE;
-		};
+		switch (this.tradeType) {
+			case SALE: return TradeDirection.SALE;
+			case PURCHASE: return TradeDirection.PURCHASE;
+			default: return TradeDirection.NONE;
+		}
 	}
 
 	public ItemTradeType getTradeType() { return this.tradeType; }
@@ -225,10 +225,11 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	public boolean hasSpace(ItemTraderData trader, List<ItemStack> collectableItems)
 	{
-		return switch (this.tradeType) {
-			case PURCHASE, BARTER -> trader.getStorage().canFitItems(collectableItems);
-			default -> true;
-		};
+		switch (this.tradeType) {
+			case PURCHASE:
+			case BARTER: return trader.getStorage().canFitItems(collectableItems);
+			default: return true;
+		}
 	}
 
 	public int stockCount(ItemTraderData trader)
@@ -259,8 +260,10 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		if(!this.sellItemsDefined())
 			return 0;
 
-		if(!context.hasTrader() || !(context.getTrader() instanceof ItemTraderData trader))
+		if(!context.hasTrader() || !(context.getTrader() instanceof ItemTraderData))
 			return 0;
+
+		ItemTraderData trader = (ItemTraderData)context.getTrader();
 
 		if(trader.isCreative())
 			return 1;
@@ -299,8 +302,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	public CompoundTag getAsNBT() {
-		CompoundTag tradeNBT = super.getAsNBT();
+	public CompoundNBT getAsNBT() {
+		CompoundNBT tradeNBT = super.getAsNBT();
 		InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("CustomName1", this.customName1);
@@ -316,14 +319,14 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		return tradeNBT;
 	}
 
-	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data)
+	public static void saveAllData(CompoundNBT nbt, List<ItemTradeData> data)
 	{
 		saveAllData(nbt, data, DEFAULT_KEY);
 	}
 
-	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data, String key)
+	public static void saveAllData(CompoundNBT nbt, List<ItemTradeData> data, String key)
 	{
-		ListTag listNBT = new ListTag();
+		ListNBT listNBT = new ListNBT();
 
 		for (ItemTradeData datum : data) {
 			listNBT.add(datum.getAsNBT());
@@ -332,22 +335,22 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		nbt.put(key, listNBT);
 	}
 
-	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules) {
+	public static ItemTradeData loadData(CompoundNBT compound, boolean validateRules) {
 		ItemTradeData trade = new ItemTradeData(validateRules);
 		trade.loadFromNBT(compound);
 		return trade;
 	}
 
-	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(CompoundNBT nbt, boolean validateRules)
 	{
 		return loadAllData(DEFAULT_KEY, nbt, validateRules);
 	}
 
-	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(String key, CompoundNBT compound, boolean validateRules)
 	{
 		List<ItemTradeData> data = new ArrayList<>();
 
-		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
+		ListNBT listNBT = compound.getList(key, Constants.NBT.TAG_COMPOUND);
 
 		for(int i = 0; i < listNBT.size(); i++)
 			data.add(loadData(listNBT.getCompound(i), validateRules));
@@ -356,33 +359,33 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	public void loadFromNBT(CompoundTag nbt)
+	public void loadFromNBT(CompoundNBT nbt)
 	{
 
 		super.loadFromNBT(nbt);
 
-		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
+		if(nbt.contains("Items", Constants.NBT.TAG_LIST)) //Load Sale/Barter Items
 		{
 			this.items = InventoryUtil.loadAllItems("Items", nbt, 4);
 		}
 		else //Load from old format back when only 1 sell & barter item were allowed
 		{
-			this.items = new SimpleContainer(4);
+			this.items = new Inventory(4);
 			//Load the Sell Item
-			if(nbt.contains("SellItem", Tag.TAG_COMPOUND))
+			if(nbt.contains("SellItem", Constants.NBT.TAG_COMPOUND))
 				this.items.setItem(0, ItemStack.of(nbt.getCompound("SellItem")));
 			else //Load old format from before the bartering system was made
 				this.items.setItem(0, ItemStack.of(nbt));
 
 			//Load the Barter Item
-			if(nbt.contains("BarterItem", Tag.TAG_COMPOUND))
+			if(nbt.contains("BarterItem", Constants.NBT.TAG_COMPOUND))
 				this.items.setItem(2, ItemStack.of(nbt.getCompound("BarterItem")));
 			else
 				this.items.setItem(2, ItemStack.EMPTY);
 		}
 
 		//Set the Trade Direction
-		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
+		if(nbt.contains("TradeDirection", Constants.NBT.TAG_STRING))
 			this.tradeType = loadTradeType(nbt.getString("TradeDirection"));
 		else
 			this.tradeType = ItemTradeType.SALE;
@@ -434,8 +437,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
-		if(otherTrade instanceof ItemTradeData otherItemTrade)
+		if(otherTrade instanceof ItemTradeData)
 		{
+			ItemTradeData otherItemTrade = (ItemTradeData)otherTrade;
 			//Flag as compatible
 			result.setCompatible();
 			//Compare sell items
@@ -512,35 +516,35 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
-		List<Component> list = new ArrayList<>();
+	public List<ITextComponent> GetDifferenceWarnings(TradeComparisonResult differences) {
+		List<ITextComponent> list = new ArrayList<>();
 		//Price check
 		if(!differences.PriceMatches())
 		{
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(TextFormatting.RED));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(TextFormatting.RED));
 		}
 		for(int i = 0; i < differences.getProductResultCount(); ++i)
 		{
-			Component slotName = EasyText.translatable("gui.lightmanscurrency.interface.item.difference.product." + i);
+			ITextComponent slotName = EasyText.translatable("gui.lightmanscurrency.interface.item.difference.product." + i);
 			ProductComparisonResult productCheck = differences.getProductResult(i);
 			if(!productCheck.SameProductType())
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemtype", slotName).withStyle(TextFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT()) //Don't announce changes in NBT if the item is also different
-					list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.itemnbt").withStyle(TextFormatting.RED));
 				else if(!productCheck.SameProductQuantity()) //Don't announce changes in quantity if the item or nbt is also different
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference < 0) //More items
-						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.more", slotName, -quantityDifference).withStyle(TextFormatting.RED));
 					else //Less items
-						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lightmanscurrency.interface.item.difference.quantity.less", slotName, quantityDifference).withStyle(TextFormatting.RED));
 				}
 			}
 		}
@@ -553,14 +557,15 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof ItemTraderData it)
+		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
+			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
 			if(this.isSale())
 			{
-				CompoundTag extraData = new CompoundTag();
+				CompoundNBT extraData = new CompoundNBT();
 				extraData.putInt("TradeIndex", tradeIndex);
 				extraData.putInt("StartingSlot", -1);
 				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -572,7 +577,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
+					CompoundNBT extraData = new CompoundNBT();
 					extraData.putInt("TradeIndex", tradeIndex);
 					extraData.putInt("StartingSlot", index);
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -600,7 +605,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(barterItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
+					CompoundNBT extraData = new CompoundNBT();
 					extraData.putInt("TradeIndex", tradeIndex);
 					extraData.putInt("StartingSlot", index + 2);
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -670,8 +675,9 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	@Override
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof ItemTraderData it)
+		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
+			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
@@ -682,7 +688,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				if(sellItem.isEmpty() && heldItem.isEmpty())
 				{
 					//Open Item Edit for this slot
-					CompoundTag extraData = new CompoundTag();
+					CompoundNBT extraData = new CompoundNBT();
 					extraData.putInt("TradeIndex", tradeIndex);
 					extraData.putInt("StartingSlot", index);
 					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -705,7 +711,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 			}
 			else if(this.isPurchase())
 			{
-				CompoundTag extraData = new CompoundTag();
+				CompoundNBT extraData = new CompoundNBT();
 				extraData.putInt("TradeIndex", tradeIndex);
 				extraData.putInt("StartingSlot", -1);
 				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -716,19 +722,20 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
 	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof ItemTraderData it)
+		if(tab.menu.getTrader() instanceof ItemTraderData)
 		{
+			ItemTraderData it = (ItemTraderData)tab.menu.getTrader();
 			int tradeIndex = it.indexOfTrade(this);
 			if(tradeIndex < 0)
 				return;
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 		}
 	}
 
 	@Override
-	protected void collectRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots, List<Integer> results) {
+	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) {
 		if(this.isPurchase())
 		{
 			//Highlight purchase items

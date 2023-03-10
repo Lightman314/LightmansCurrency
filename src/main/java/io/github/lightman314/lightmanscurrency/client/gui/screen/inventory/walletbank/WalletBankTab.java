@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
@@ -13,9 +13,9 @@ public abstract class WalletBankTab implements ITab
 	
 	public abstract void init();
 	
-	public abstract void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
-	public abstract void postRender(PoseStack pose, int mouseX, int mouseY);
+	public abstract void postRender(MatrixStack pose, int mouseX, int mouseY);
 	
 	public abstract void tick();
 	

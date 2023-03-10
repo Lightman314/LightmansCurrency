@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 
 public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 
@@ -32,27 +32,27 @@ public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 		
 	}
 	
-	public AuctionHouseBuyerNotification(CompoundTag compound) { this.load(compound); }
+	public AuctionHouseBuyerNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
 
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		
-		Component itemText = getItemNames(this.items);
-		
-		Component cost = this.cost.getComponent("0");
+		ITextComponent itemText = getItemNames(this.items);
+
+		ITextComponent cost = this.cost.getComponent("0");
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.auction.buyer", itemText, cost);
+		return EasyText.translatable("notifications.message.auction.buyer", itemText, cost);
 		
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		
-		ListTag itemList = new ListTag();
+		ListNBT itemList = new ListNBT();
 		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
@@ -61,9 +61,9 @@ public class AuctionHouseBuyerNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
-		
-		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
+	protected void loadAdditional(CompoundNBT compound) {
+
+		ListNBT itemList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemData(itemList.getCompound(i)));

@@ -5,29 +5,31 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
-public class EjectionData implements Container, IClientTracker {
+import javax.annotation.Nonnull;
+
+public class EjectionData implements IInventory, IClientTracker {
 
 	private final OwnerData owner = new OwnerData(this, o -> {});
-	MutableComponent traderName = new TextComponent("");
-	public MutableComponent getTraderName() { return this.traderName; }
+	IFormattableTextComponent traderName = EasyText.empty();
+	public IFormattableTextComponent getTraderName() { return this.traderName; }
 	List<ItemStack> items = new ArrayList<>();
 	
 	private boolean isClient = false;
@@ -36,13 +38,13 @@ public class EjectionData implements Container, IClientTracker {
 	
 	private EjectionData() {}
 	
-	private EjectionData(OwnerData owner, MutableComponent traderName, List<ItemStack> items) {
+	private EjectionData(OwnerData owner, IFormattableTextComponent traderName, List<ItemStack> items) {
 		this.owner.copyFrom(owner);
 		this.traderName = traderName;
 		this.items = items;
 	}
 	
-	public boolean canAccess(Player player) {
+	public boolean canAccess(PlayerEntity player) {
 		if(CommandLCAdmin.isAdminPlayer(player))
 			return true;
 		if(this.owner == null)
@@ -50,25 +52,24 @@ public class EjectionData implements Container, IClientTracker {
 		return this.owner.isMember(player);
 	}
 	
-	public CompoundTag save() {
-		
-		CompoundTag compound = new CompoundTag();
+	public CompoundNBT save() {
+
+		CompoundNBT compound = new CompoundNBT();
 		
 		compound.put("Owner", this.owner.save());
 		
-		compound.putString("Name", Component.Serializer.toJson(this.traderName));
+		compound.putString("Name", ITextComponent.Serializer.toJson(this.traderName));
 		
-		ListTag itemList = new ListTag();
-		for(int i = 0; i < this.items.size(); ++i)
-		{
-			itemList.add(this.items.get(i).save(new CompoundTag()));
+		ListNBT itemList = new ListNBT();
+		for (ItemStack item : this.items) {
+			itemList.add(item.save(new CompoundNBT()));
 		}
 		compound.put("Items", itemList);
 		
 		return compound;
 	}
 	
-	public void load(CompoundTag compound) {
+	public void load(CompoundNBT compound) {
 		
 		//Load old owner data
 		if(compound.contains("PlayerOwned"))
@@ -85,10 +86,10 @@ public class EjectionData implements Container, IClientTracker {
 		else if(compound.contains("Owner"))
 			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
-			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));
+			this.traderName = ITextComponent.Serializer.fromJson(compound.getString("Name"));
 		if(compound.contains("Items"))
 		{
-			ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
+			ListNBT itemList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
 			this.items = new ArrayList<>();
 			for(int i = 0; i < itemList.size(); ++i)
 			{
@@ -98,15 +99,15 @@ public class EjectionData implements Container, IClientTracker {
 		
 	}
 	
-	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader) {
+	public static EjectionData create(World level, BlockPos pos, BlockState state, IDumpable trader) {
 		return create(level, pos, state, trader, true);
 	}
 	
-	public static EjectionData create(Level level, BlockPos pos, BlockState state, IDumpable trader, boolean dropBlock) {
+	public static EjectionData create(World level, BlockPos pos, BlockState state, IDumpable trader, boolean dropBlock) {
 		
 		OwnerData owner = trader.getOwner();
 		
-		MutableComponent traderName = trader.getName();
+		IFormattableTextComponent traderName = trader.getName();
 		
 		List<ItemStack> items = trader.getContents(level, pos, state, dropBlock);
 		
@@ -114,7 +115,7 @@ public class EjectionData implements Container, IClientTracker {
 		
 	}
 	
-	public static EjectionData loadData(CompoundTag compound) {
+	public static EjectionData loadData(CompoundNBT compound) {
 		EjectionData data = new EjectionData();
 		data.load(compound);
 		return data;
@@ -136,6 +137,7 @@ public class EjectionData implements Container, IClientTracker {
 		return true;
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack getItem(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -143,6 +145,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItem(int slot, int count) {
 		if(slot >= this.items.size() || slot < 0)
@@ -150,6 +153,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot).split(count);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -160,13 +164,13 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public void setItem(int slot, ItemStack item) {
+	public void setItem(int slot, @Nonnull ItemStack item) {
 		if(slot >= this.items.size() || slot < 0)
 			return;
 		this.items.set(slot, item);
 	}
 	
-	private void clearEmptySlots() { this.items.removeIf(stack -> stack.isEmpty()); }
+	private void clearEmptySlots() { this.items.removeIf(ItemStack::isEmpty); }
 
 	@Override
 	public void setChanged() {
@@ -180,7 +184,7 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@Nonnull PlayerEntity player) {
 		return this.canAccess(player);
 	}
 	

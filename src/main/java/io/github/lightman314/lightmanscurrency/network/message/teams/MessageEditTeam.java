@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageEditTeam {
 	
@@ -20,13 +20,13 @@ public class MessageEditTeam {
 		this.category = category;
 	}
 	
-	public static void encode(MessageEditTeam message, FriendlyByteBuf buffer) {
+	public static void encode(MessageEditTeam message, PacketBuffer buffer) {
 		buffer.writeLong(message.teamID);
 		buffer.writeUtf(message.playerName, 16);
 		buffer.writeUtf(message.category);
 	}
 
-	public static MessageEditTeam decode(FriendlyByteBuf buffer) {
+	public static MessageEditTeam decode(PacketBuffer buffer) {
 		return new MessageEditTeam(buffer.readLong(), buffer.readUtf(16), buffer.readUtf());
 	}
 

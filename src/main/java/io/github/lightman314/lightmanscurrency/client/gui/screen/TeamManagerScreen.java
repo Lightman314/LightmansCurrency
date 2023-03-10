@@ -3,8 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamBankAccountTab;
@@ -15,29 +14,32 @@ import io.github.lightman314.lightmanscurrency.client.gui.team.TeamOwnerTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamSelectionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.team.TeamTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ResourceLocation;
 
-public class TeamManagerScreen extends Screen{
+import javax.annotation.Nonnull;
+
+public class TeamManagerScreen extends Screen {
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/teammanager.png");
 	
 	public TeamManagerScreen() {
-		super(new TextComponent(""));
+		super(EasyText.empty());
 		this.tabs.forEach(tab -> tab.setScreen(this));
 	}
 	
-	public Player getPlayer() { return this.minecraft.player; }
-	public Font getFont() { return this.font; }
+	public PlayerEntity getPlayer() { return this.minecraft.player; }
+	public FontRenderer getFont() { return this.font; }
 	
 	public final int guiLeft() { return (this.width - this.xSize) / 2; }
 	public final int guiTop() { return (this.height - this.ySize) / 2; }
@@ -56,8 +58,8 @@ public class TeamManagerScreen extends Screen{
 	}
 	public void setActiveTeam(long teamID) { this.activeTeamID = teamID; }
 	
-	List<AbstractWidget> tabWidgets = Lists.newArrayList();
-	List<GuiEventListener> tabListeners = Lists.newArrayList();
+	List<Widget> tabWidgets = Lists.newArrayList();
+	List<IGuiEventListener> tabListeners = Lists.newArrayList();
 	
 	List<TeamTab> tabs = Lists.newArrayList(TeamSelectionTab.INSTANCE, TeamMemberListTab.INSTANCE, TeamNameTab.INSTANCE, TeamMemberEditTab.INSTANCE, TeamBankAccountTab.INSTANCE, TeamOwnerTab.INSTANCE);
 	public TeamTab currentTab() { return tabs.get(MathUtil.clamp(currentTabIndex, 0, this.tabs.size() - 1)); }
@@ -70,7 +72,7 @@ public class TeamManagerScreen extends Screen{
 		//Initialize the tab buttons
 		for(int i = 0; i < this.tabs.size(); ++i)
 		{
-			TabButton button = this.addRenderableWidget(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
+			TabButton button = this.addButton(new TabButton(this::clickedOnTab, this.font, this.tabs.get(i)));
 			button.active = i != this.currentTabIndex;
 			button.visible = this.tabs.get(i).allowViewing(this.getPlayer(), this.getActiveTeam());
 			this.tabButtons.add(button);
@@ -118,11 +120,8 @@ public class TeamManagerScreen extends Screen{
 	private void positionTabButtons()
 	{
 		int index = 0;
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			TabButton thisButton = this.tabButtons.get(i);
-			if(thisButton.visible)
-			{
+		for (TabButton thisButton : this.tabButtons) {
+			if (thisButton.visible) {
 				thisButton.reposition(this.getTabPosX(index), this.getTabPosY(index), this.getTabRotation(index));
 				index++;
 			}
@@ -130,12 +129,12 @@ public class TeamManagerScreen extends Screen{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.renderBackground(pose);
 		//Render the background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		this.blit(pose, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
 		//Render the tab buttons
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -147,14 +146,13 @@ public class TeamManagerScreen extends Screen{
 			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 			//Post-render the tab
 			this.currentTab().postRender(pose, mouseX, mouseY, partialTicks);
-		} catch(Exception e) { }
+		} catch(Exception ignored) { }
 		
 		
 		//Render the tab button tooltips
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		for (TabButton tabButton : this.tabButtons) {
+			if (tabButton.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(pose, tabButton.tab.getTooltip(), mouseX, mouseY);
 		}
 	}
 	
@@ -187,28 +185,26 @@ public class TeamManagerScreen extends Screen{
 		this.currentTab().tick();
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget)
+	public <T extends Widget> T addRenderableTabWidget(T widget)
 	{
 		this.tabWidgets.add(widget);
 		return widget;
 	}
 	
-	public void removeRenderableTabWidget(AbstractWidget widget)
+	public void removeRenderableTabWidget(Widget widget)
 	{
-		if(this.tabWidgets.contains(widget))
-			this.tabWidgets.remove(widget);
+		this.tabWidgets.remove(widget);
 	}
 	
-	public <T extends GuiEventListener> T addTabListener(T listener)
+	public <T extends IGuiEventListener> T addTabListener(T listener)
 	{
 		this.tabListeners.add(listener);
 		return listener;
 	}
 	
-	public void removeTabListener(GuiEventListener listener)
+	public void removeTabListener(IGuiEventListener listener)
 	{
-		if(this.tabListeners.contains(listener))
-			this.tabListeners.remove(listener);
+		this.tabListeners.remove(listener);
 	}
 	
 	public void changeTab(int tabIndex)
@@ -239,13 +235,13 @@ public class TeamManagerScreen extends Screen{
 		this.changeTab(tabIndex);
 	}
 	
+	@Nonnull
 	@Override
-	public List<? extends GuiEventListener> children()
+	public List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabWidgets);
 		listeners.addAll(this.tabListeners);
 		return listeners;

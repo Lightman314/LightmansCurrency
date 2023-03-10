@@ -13,10 +13,10 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -29,7 +29,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	@Override
 	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade)
 	{
-		if(sellItem.getItem() instanceof TicketItem && !customName.isBlank())
+		if(sellItem.getItem() instanceof TicketItem && !customName.isEmpty())
 			sellItem.setHoverName(EasyText.literal(customName));
 		return sellItem;
 	}
@@ -125,7 +125,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction{
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
 	{
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, TicketSlot.EMPTY_TICKET_SLOT);
+		return Pair.of(PlayerContainer.BLOCK_ATLAS, TicketSlot.EMPTY_TICKET_SLOT);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,7 +27,7 @@ public class ClientTraderData {
 	
 	public static void ClearTraders() { loadedTraders.clear(); }
 	
-	public static void UpdateTrader(CompoundTag compound)
+	public static void UpdateTrader(CompoundNBT compound)
 	{
 		long traderID = compound.getLong("ID");
 		if(loadedTraders.containsKey(traderID))

@@ -6,12 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
@@ -22,20 +32,11 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
+
+import javax.annotation.Nonnull;
 
 @IPNIgnore
-public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfaceMenu> implements IClientMessage {
+public class TraderInterfaceScreen extends ContainerScreen<TraderInterfaceMenu> implements IClientMessage {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/trader_interface.png");
 	
@@ -47,14 +48,14 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	
 	Map<Integer,TabButton> tabButtons = new HashMap<>();
 	
-	List<AbstractWidget> tabRenderables = new ArrayList<>();
-	List<GuiEventListener> tabListeners = new ArrayList<>();
+	List<Widget> tabRenderables = new ArrayList<>();
+	List<IGuiEventListener> tabListeners = new ArrayList<>();
 	
 	IconButton modeToggle;
 	
 	IconButton onlineModeToggle;
 	
-	public TraderInterfaceScreen(TraderInterfaceMenu menu, Inventory inventory, Component title) {
+	public TraderInterfaceScreen(TraderInterfaceMenu menu, PlayerInventory inventory, ITextComponent title) {
 		super(menu, inventory, title);
 		this.menu.getAllTabs().forEach((key,tab) -> this.availableTabs.put(key, tab.createClientTab(this)));
 		this.imageWidth = WIDTH;
@@ -72,28 +73,28 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		//Create the tab buttons
 		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
-			TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
+			TabButton newButton = this.addButton(new TabButton(button -> this.changeTab(key), this.font, tab));
 			if(key == this.menu.getCurrentTabIndex())
 				newButton.active = false;
 			this.tabButtons.put(key, newButton);
 		});
 		
-		this.modeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
+		this.modeToggle = this.addButton(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::ToggleMode, () -> IconAndButtonUtil.GetIcon(this.menu.getBE().getMode()), new IconAndButtonUtil.SuppliedTooltip(() -> this.getMode().getDisplayText())));
 		
-		this.onlineModeToggle = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> new TranslatableComponent("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
+		this.onlineModeToggle = this.addButton(new IconButton(this.leftPos + this.imageWidth, this.topPos + 20, this::ToggleOnlineMode, () -> this.menu.getBE().isOnlineMode() ? IconAndButtonUtil.ICON_ONLINEMODE_TRUE : IconAndButtonUtil.ICON_ONLINEMODE_FALSE, new IconAndButtonUtil.SuppliedTooltip(() -> EasyText.translatable("gui.lightmanscurrency.interface.onlinemode." + this.menu.getBE().isOnlineMode()))));
 		
 		//Initialize the current tab
 		this.currentTab().onOpen();
 		
-		this.containerTick();
+		this.tick();
 		
 	}
 
 	@Override
-	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
-		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+	protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY) {
+
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		
 		//Main BG
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -108,14 +109,14 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+	protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY) {
 		
-		this.font.draw(pose, this.playerInventoryTitle, TraderInterfaceMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
+		this.font.draw(pose, this.inventory.getName(), TraderInterfaceMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
 		
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -125,7 +126,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 			this.currentTab().renderTooltips(pose, mouseX, mouseY);
 		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), e); }
 
-		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.buttons);
 		
 		this.tabButtons.forEach((key, button) -> {
 			if(button.isMouseOver(mouseX, mouseY))
@@ -135,9 +136,10 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	@Override
-	public void containerTick()
+	public void tick()
 	{
-		
+		super.tick();
+
 		if(!this.currentTab().commonTab.canOpen(this.menu.player))
 			this.changeTab(TraderInterfaceTab.TAB_INFO);
 		
@@ -177,7 +179,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	public boolean keyPressed(int key, int scanCode, int mods) {
 		if(this.currentTab().keyPressed(key, scanCode, mods))
 			return true;
-		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
+		InputMappings.Input mouseKey = InputMappings.getKey(key, scanCode);
 		//Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
 		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.currentTab().blockInventoryClosing()) {
 			return true;
@@ -193,7 +195,7 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	
 	public void changeTab(int newTab) { this.changeTab(newTab, true, null); }
 	
-	public void changeTab(int newTab, boolean sendMessage, CompoundTag selfMessage) {
+	public void changeTab(int newTab, boolean sendMessage, CompoundNBT selfMessage) {
 		
 		if(newTab == this.menu.getCurrentTabIndex())
 			return;
@@ -231,15 +233,15 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 	}
 	
 	@Override
-	public void selfMessage(CompoundTag message) {
+	public void selfMessage(CompoundNBT message) {
 		//LightmansCurrency.LogInfo("Received self-message:\n" + message.getAsString());
-		if(message.contains("ChangeTab",Tag.TAG_INT))
+		if(message.contains("ChangeTab", Constants.NBT.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"), false, message);
 		else
 			this.currentTab().receiveSelfMessage(message);
 	}
 	
-	public <T extends AbstractWidget> T addRenderableTabWidget(T widget) {
+	public <T extends Widget> T addRenderableTabWidget(T widget) {
 		this.tabRenderables.add(widget);
 		return widget;
 	}
@@ -248,22 +250,22 @@ public class TraderInterfaceScreen extends AbstractContainerScreen<TraderInterfa
 		this.tabRenderables.remove(widget);
 	}
 	
-	public <T extends GuiEventListener> T addTabListener(T listener) {
+	public <T extends IGuiEventListener> T addTabListener(T listener) {
 		this.tabListeners.add(listener);
 		return listener;
 	}
 	
-	public <T extends GuiEventListener> void removeTabListener(T listener) {
+	public <T extends IGuiEventListener> void removeTabListener(T listener) {
 		this.tabListeners.remove(listener);
 	}
 	
+	@Nonnull
 	@Override
-	public List<? extends GuiEventListener> children()
+	public List<? extends IGuiEventListener> children()
 	{
-		List<? extends GuiEventListener> coreListeners = super.children();
-		List<GuiEventListener> listeners = Lists.newArrayList();
-		for(int i = 0; i < coreListeners.size(); ++i)
-			listeners.add(coreListeners.get(i));
+		List<? extends IGuiEventListener> coreListeners = super.children();
+		List<IGuiEventListener> listeners = Lists.newArrayList();
+		listeners.addAll(coreListeners);
 		listeners.addAll(this.tabRenderables);
 		listeners.addAll(this.tabListeners);
 		return listeners;

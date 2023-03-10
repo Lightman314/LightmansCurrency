@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -14,24 +15,24 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.Trad
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageInterfaceInteraction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.Constants;
 
-public class TraderInterfaceMenu extends AbstractContainerMenu {
+public class TraderInterfaceMenu extends Container {
 
 	private final TraderInterfaceBlockEntity blockEntity;
 	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
 	
-	public final Player player;
+	public final PlayerEntity player;
 	
 	public static final int SLOT_OFFSET = 15;
 	
-	private boolean canEditTabs = true;
+	private boolean canEditTabs;
 	Map<Integer,TraderInterfaceTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderInterfaceTab> getAllTabs() { return this.availableTabs; }
 	public void setTab(int key, TraderInterfaceTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
@@ -41,12 +42,13 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
-	public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
+	public TraderInterfaceMenu(int windowID, PlayerInventory inventory, TraderInterfaceBlockEntity blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID);
 		
 		this.player = inventory.player;
 		this.blockEntity = blockEntity;
-		
+
+		this.canEditTabs = true;
 		this.setTab(TraderInterfaceTab.TAB_INFO, new InfoTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADER_SELECT, new TraderSelectTab(this));
 		this.setTab(TraderInterfaceTab.TAB_TRADE_SELECT, new TradeSelectTab(this));
@@ -79,10 +81,10 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
+	public boolean stillValid(@Nonnull PlayerEntity player) { return this.blockEntity != null && !this.blockEntity.isRemoved() && this.blockEntity.canAccess(player); }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull PlayerEntity player) {
 		super.removed(player);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 	}
@@ -92,8 +94,9 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		return this.blockEntity.getTradeContext();
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -162,7 +165,7 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		this.blockEntity.setMode(newMode);
 		if(this.isClient())
 		{
-			CompoundTag message = new CompoundTag();
+			CompoundNBT message = new CompoundNBT();
 			message.putInt("ModeChange", newMode.index);
 			this.sendMessage(message);
 		}
@@ -172,19 +175,19 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		this.blockEntity.setOnlineMode(newMode);
 		if(this.isClient())
 		{
-			CompoundTag message = new CompoundTag();
+			CompoundNBT message = new CompoundNBT();
 			message.putBoolean("OnlineModeChange", newMode);
 			this.sendMessage(message);
 		}
 	}
 	
-	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
-		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
+	public CompoundNBT createTabChangeMessage(int newTab, @Nullable CompoundNBT extraData) {
+		CompoundNBT message = extraData == null ? new CompoundNBT() : extraData;
 		message.putInt("ChangeTab", newTab);
 		return message;
 	}
 	
-	public void sendMessage(CompoundTag message) {
+	public void sendMessage(CompoundNBT message) {
 		if(this.isClient())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageInterfaceInteraction(message));
@@ -192,20 +195,20 @@ public class TraderInterfaceMenu extends AbstractContainerMenu {
 		}
 	}
 	
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		//LightmansCurrency.LogInfo("Received nessage:\n" + message.getAsString());
-		if(message.contains("ChangeTab", Tag.TAG_INT))
+		if(message.contains("ChangeTab", Constants.NBT.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"));
 		if(message.contains("ModeChange"))
 			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
 		if(message.contains("OnlineModeChange"))
 			this.setOnlineMode(message.getBoolean("OnlineModeChange"));
 		try { this.getCurrentTab().receiveMessage(message); }
-		catch(Throwable t) { }
+		catch(Throwable ignored) { }
 	}
 	
 	public interface IClientMessage {
-		public void selfMessage(CompoundTag message);
+		void selfMessage(CompoundNBT message);
 	}
 	
 	

@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.wall
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
@@ -12,14 +12,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSelectBankAccount;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Items;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Items;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class SelectionTab extends WalletBankTab {
 
@@ -28,11 +30,12 @@ public class SelectionTab extends WalletBankTab {
 	Button buttonPersonalAccount;
 	TeamSelectWidget teamSelection;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.selection"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.selection"); }
 	
 	@Override
 	public void init() {
@@ -40,7 +43,7 @@ public class SelectionTab extends WalletBankTab {
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 79, this.screen.getGuiTop() + 15, 5, Size.NARROW, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		
-		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, new TranslatableComponent("gui.button.bank.playeraccount"), this::PressPersonalAccount));
+		this.buttonPersonalAccount = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 15, 70, 20, EasyText.translatable("gui.button.bank.playeraccount"), this::PressPersonalAccount));
 		
 		this.tick();
 		
@@ -81,7 +84,7 @@ public class SelectionTab extends WalletBankTab {
 				return;
 			AccountReference account = BankAccount.GenerateReference(true, team);
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
-		} catch(Exception e) { }
+		} catch(Exception ignored) { }
 	}
 	
 	private void PressPersonalAccount(Button button)
@@ -91,17 +94,17 @@ public class SelectionTab extends WalletBankTab {
 	}
 	
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		
 	}
 	
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY) {
 		//Render text in front of selection background
 		if(this.getTeamList().size() == 0)
-			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, new TranslatableComponent("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.x + 1, Size.NARROW.width - 2, this.teamSelection.y + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
+			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, EasyText.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.x + 1, Size.NARROW.width - 2, this.teamSelection.y + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 	}
 	
 	@Override

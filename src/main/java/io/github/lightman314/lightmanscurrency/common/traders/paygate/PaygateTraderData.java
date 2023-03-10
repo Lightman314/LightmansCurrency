@@ -29,21 +29,21 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygat
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class PaygateTraderData extends TraderData implements ITradeSource<PaygateTradeData> {
 
@@ -58,7 +58,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
 	
 	public PaygateTraderData() { super(TYPE); }
-	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
+	public PaygateTraderData(World level, BlockPos pos) { super(TYPE, level, pos); }
 
 	public int getTradeCount() { return this.trades.size(); }
 	
@@ -75,7 +75,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	public int getMaxTradeCount() { return 8; }
 	
 	@Override
-	public void addTrade(Player requestor)
+	public void addTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -96,7 +96,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	}
 	
 	@Override
-	public void removeTrade(Player requestor)
+	public void removeTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -150,10 +150,10 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel l = server.getLevel(this.getLevel());
+			ServerWorld l = server.getLevel(this.getLevel());
 			if(l != null && l.isLoaded(this.getPos()))
 			{
-				BlockEntity be = l.getBlockEntity(this.getPos());
+				TileEntity be = l.getBlockEntity(this.getPos());
 				if(be instanceof PaygateBlockEntity)
 					return (PaygateBlockEntity)be;
 			}
@@ -293,11 +293,11 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		this.saveTrades(compound);
 	}
 	
-	protected final void saveTrades(CompoundTag compound) {
+	protected final void saveTrades(CompoundNBT compound) {
 		PaygateTradeData.saveAllData(compound, this.trades);
 	}
 
@@ -305,7 +305,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	protected void saveAdditionalToJson(JsonObject json) { }
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		//Load Trades
 		if(compound.contains(PaygateTradeData.DEFAULT_KEY))
 			this.trades = PaygateTradeData.loadAllData(compound);
@@ -315,10 +315,10 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	protected void loadAdditionalFromJson(JsonObject json) { }
 
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) { }
+	protected void saveAdditionalPersistentData(CompoundNBT compound) { }
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) { }
+	protected void loadAdditionalPersistentData(CompoundNBT compound) { }
 
 	@Override
 	protected void getAdditionalContents(List<ItemStack> results) { }
@@ -342,23 +342,23 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	
 	@Override
 	@Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {}
+	protected void loadExtraOldUniversalTraderData(CompoundNBT compound) {}
 	
 	@Override
 	@Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) {
+	protected void loadExtraOldBlockEntityData(CompoundNBT compound) {
 		
 		if(compound.contains(TradeData.DEFAULT_KEY))
 			this.trades = PaygateTradeData.loadAllData(compound);
 		
 		//Load the shop logger
-		if(compound.contains("PaygateHistory", Tag.TAG_LIST))
+		if(compound.contains("PaygateHistory", Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList("PaygateHistory", Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList("PaygateHistory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); ++i)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
+				IFormattableTextComponent text = ITextComponent.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.pushLocalNotification(new TextNotification(text));
 			}
@@ -368,7 +368,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 		//BLOCK ENTITY SIDE ONLY
 		
 		//Load the trade rules
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
+		if(compound.contains("TradeRules", Constants.NBT.TAG_LIST))
 			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
 		
 	}

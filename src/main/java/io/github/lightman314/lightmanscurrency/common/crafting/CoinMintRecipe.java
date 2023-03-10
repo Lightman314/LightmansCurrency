@@ -4,18 +4,19 @@ import com.google.gson.JsonElement;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
-public class CoinMintRecipe implements Recipe<Container>{
+import javax.annotation.Nonnull;
+
+public class CoinMintRecipe implements IRecipe<IInventory> {
 
 	public enum MintType { MINT, MELT, OTHER }
 
@@ -76,7 +77,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 
 	@Override
-	public boolean matches(@NotNull Container inventory, @NotNull Level level) {
+	public boolean matches(@Nonnull IInventory inventory, @Nonnull World level) {
 		if(!this.isValid())
 			return false;
 		ItemStack firstStack = inventory.getItem(0);
@@ -84,7 +85,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 
 	@Override
-	public @NotNull ItemStack assemble(@NotNull Container inventory) {
+	public @Nonnull ItemStack assemble(@Nonnull IInventory inventory) {
 		return this.getResultItem();
 	}
 
@@ -92,14 +93,14 @@ public class CoinMintRecipe implements Recipe<Container>{
 	public boolean canCraftInDimensions(int width, int height) { return true; }
 
 	@Override
-	public @NotNull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+	public @Nonnull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	@Override
-	public @NotNull ResourceLocation getId() { return this.id; }
+	public @Nonnull ResourceLocation getId() { return this.id; }
 
 	@Override
-	public @NotNull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
+	public @Nonnull IRecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
 	@Override
-	public @NotNull RecipeType<?> getType() { return RecipeTypes.COIN_MINT; }
+	public @Nonnull IRecipeType<?> getType() { return RecipeTypes.COIN_MINT; }
 
 }

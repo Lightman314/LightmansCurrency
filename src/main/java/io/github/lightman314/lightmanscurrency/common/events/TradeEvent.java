@@ -11,9 +11,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -22,7 +22,7 @@ public abstract class TradeEvent extends Event{
 	private final PlayerReference player;
 	public final PlayerReference getPlayerReference() { return this.player; }
 	@Deprecated //Use getPlayerReference when possible
-	public final Player getPlayer() { return this.player.getPlayer(); }
+	public final PlayerEntity getPlayer() { return this.player.getPlayer(); }
 	private final TradeData trade;
 	public final TradeData getTrade() { return this.trade; }
 	public final int getTradeIndex() { return this.trader.indexOfTrade(this.trade); }
@@ -51,11 +51,10 @@ public abstract class TradeEvent extends Event{
 		 * @deprecated Use addAlert instead.
 		 */
 		@Deprecated
-		public void denyTrade(Component reason) { this.addAlert(AlertData.convert(reason), true); }
+		public void denyTrade(ITextComponent reason) { this.addAlert(AlertData.convert(reason), true); }
 		
 		/**
 		 * Adds an alert to the trade display.
-		 * 
 		 * Use addHelpful, addWarning, addError, or addDenial for easier to use templates if you don't wish to add any special formatting to your alert.
 		 * @param cancelTrade Whether to also cancel the trade/event.
 		 */
@@ -69,7 +68,7 @@ public abstract class TradeEvent extends Event{
 		 * Adds an alert to the trade with default helpful formatting (Green).
 		 * Does not cancel the trade.
 		 */
-		public void addHelpful(MutableComponent message) {
+		public void addHelpful(IFormattableTextComponent message) {
 			this.addAlert(AlertData.helpful(message), false);
 		}
 
@@ -77,7 +76,7 @@ public abstract class TradeEvent extends Event{
 		 * Adds an alert to the trade with default warning formatting (Orange).
 		 * Does not cancel the trade.
 		 */
-		public void addWarning(MutableComponent message) {
+		public void addWarning(IFormattableTextComponent message) {
 			this.addAlert(AlertData.warn(message), false);
 		}
 		
@@ -86,7 +85,7 @@ public abstract class TradeEvent extends Event{
 		 * Does not cancel the trade.
 		 * Use addDenial if you wish to cancel the trade.
 		 */
-		public void addError(MutableComponent message) {
+		public void addError(IFormattableTextComponent message) {
 			this.addAlert(AlertData.error(message), false);
 		}
 
@@ -95,7 +94,7 @@ public abstract class TradeEvent extends Event{
 		 * Also cancels the trade.
 		 * Use addError if you do not with so cancel the trade.
 		 */
-		public void addDenial(MutableComponent message) {
+		public void addDenial(IFormattableTextComponent message) {
 			this.addAlert(AlertData.error(message), true);
 		}
 
@@ -103,7 +102,7 @@ public abstract class TradeEvent extends Event{
 		 * @deprecated use getAlertInfo instead.
 		 */
 		@Deprecated
-		public List<Component> getDenialReasons() { List<Component> text = new ArrayList<>(); for(AlertData a : this.alerts) text.add(a.getFormattedMessage()); return text; }
+		public List<ITextComponent> getDenialReasons() { List<ITextComponent> text = new ArrayList<>(); for(AlertData a : this.alerts) text.add(a.getFormattedMessage()); return text; }
 
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.events;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class TraderEvent extends Event{
@@ -21,10 +21,10 @@ public abstract class TraderEvent extends Event{
 	public static class CreateNetworkTraderEvent extends TraderEvent
 	{
 		
-		private final Player player;
-		public Player getPlayer() { return this.player; }
+		private final PlayerEntity player;
+		public PlayerEntity getPlayer() { return this.player; }
 		
-		public CreateNetworkTraderEvent(long traderID, Player player)
+		public CreateNetworkTraderEvent(long traderID, PlayerEntity player)
 		{
 			super(traderID);
 			this.player = player;

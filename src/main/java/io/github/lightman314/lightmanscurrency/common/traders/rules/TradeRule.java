@@ -10,30 +10,29 @@ import java.util.function.Function;
 import com.google.common.base.Supplier;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public abstract class TradeRule {
 	
 	public final ResourceLocation type;
-	public final MutableComponent getName() { return new TranslatableComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
+	public final IFormattableTextComponent getName() { return EasyText.translatable("traderule." + type.getNamespace() + "." + type.getPath()); }
 	
 	private boolean isActive = false;
 	public boolean isActive() { return this.isActive; }
@@ -48,62 +47,59 @@ public abstract class TradeRule {
 		this.type = type;
 	}
 	
-	public CompoundTag save()
+	public CompoundNBT save()
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		compound.putString("Type", this.type.toString());
 		compound.putBoolean("Active", this.isActive);
 		this.saveAdditional(compound);
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(CompoundTag compound);
+	protected abstract void saveAdditional(CompoundNBT compound);
 	
-	public final void load(CompoundTag compound)
+	public final void load(CompoundNBT compound)
 	{
 		this.isActive = compound.getBoolean("Active");
 		this.loadAdditional(compound);
 	}
-	protected abstract void loadAdditional(CompoundTag compound);
+	protected abstract void loadAdditional(CompoundNBT compound);
 	
 	public abstract JsonObject saveToJson(JsonObject json);
 	public abstract void loadFromJson(JsonObject json);
 	
-	public abstract CompoundTag savePersistentData();
-	public abstract void loadPersistentData(CompoundTag data);
+	public abstract CompoundNBT savePersistentData();
+	public abstract void loadPersistentData(CompoundNBT data);
 	
 	public abstract IconData getButtonIcon();
 	
-	public final void receiveUpdateMessage(CompoundTag updateInfo)
+	public final void receiveUpdateMessage(CompoundNBT updateInfo)
 	{
 		if(updateInfo.contains("SetActive"))
 			this.isActive = updateInfo.getBoolean("SetActive");
 		this.handleUpdateMessage(updateInfo);
 	}
 	
-	protected abstract void handleUpdateMessage(CompoundTag updateInfo);
+	protected abstract void handleUpdateMessage(CompoundNBT updateInfo);
 	
-	public static CompoundTag saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
+	public static CompoundNBT saveRules(CompoundNBT compound, List<TradeRule> rules, String tag)
 	{
-		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); i++)
-			ruleData.add(rules.get(i).save());
+		ListNBT ruleData = new ListNBT();
+		for (TradeRule rule : rules) ruleData.add(rule.save());
 		compound.put(tag, ruleData);
 		return compound;
 	}
 	
-	public static boolean savePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
-		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			CompoundTag thisRuleData = rules.get(i).savePersistentData();
-			if(thisRuleData != null)
-			{
-				thisRuleData.putString("Type", rules.get(i).type.toString());
+	public static boolean savePersistentData(CompoundNBT compound, List<TradeRule> rules, String tag) {
+		ListNBT ruleData = new ListNBT();
+		for (TradeRule rule : rules) {
+			CompoundNBT thisRuleData = rule.savePersistentData();
+			if (thisRuleData != null) {
+				thisRuleData.putString("Type", rule.type.toString());
 				ruleData.add(thisRuleData);
 			}
 		}
-		if(ruleData.size() <= 0)
+		if(ruleData.size() == 0)
 			return false;
 		compound.put(tag, ruleData);
 		return true;
@@ -111,14 +107,11 @@ public abstract class TradeRule {
 	
 	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
 		JsonArray ruleData = new JsonArray();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			if(rules.get(i).isActive)
-			{
-				JsonObject thisRuleData = rules.get(i).saveToJson(new JsonObject());
-				if(thisRuleData != null)
-				{
-					thisRuleData.addProperty("Type", rules.get(i).type.toString());
+		for (TradeRule rule : rules) {
+			if (rule.isActive) {
+				JsonObject thisRuleData = rule.saveToJson(new JsonObject());
+				if (thisRuleData != null) {
+					thisRuleData.addProperty("Type", rule.type.toString());
 					ruleData.add(thisRuleData);
 				}
 			}
@@ -126,15 +119,15 @@ public abstract class TradeRule {
 		return ruleData;
 	}
 	
-	public static List<TradeRule> loadRules(CompoundTag compound, String tag)
+	public static List<TradeRule> loadRules(CompoundNBT compound, String tag)
 	{
 		List<TradeRule> rules = new ArrayList<>();
-		if(compound.contains(tag, Tag.TAG_LIST))
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
 		{
-			ListTag ruleData = compound.getList(tag, Tag.TAG_COMPOUND);
+			ListNBT ruleData = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < ruleData.size(); i++)
 			{
-				CompoundTag thisRuleData = ruleData.getCompound(i);
+				CompoundNBT thisRuleData = ruleData.getCompound(i);
 				TradeRule thisRule = Deserialize(thisRuleData);
 				if(thisRule != null)
 					rules.add(thisRule);
@@ -143,14 +136,14 @@ public abstract class TradeRule {
 		return rules;
 	}
 	
-	public static void loadPersistentData(CompoundTag compound, List<TradeRule> tradeRules, String tag)
+	public static void loadPersistentData(CompoundNBT compound, List<TradeRule> tradeRules, String tag)
 	{
-		if(compound.contains(tag, Tag.TAG_LIST))
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
 		{
-			ListTag ruleData = compound.getList(tag, Tag.TAG_COMPOUND);
+			ListNBT ruleData = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < ruleData.size(); ++i)
 			{
-				CompoundTag thisRuleData = ruleData.getCompound(i);
+				CompoundNBT thisRuleData = ruleData.getCompound(i);
 				boolean query = true;
 				for(int r = 0; query && r < tradeRules.size(); ++r)
 				{
@@ -225,23 +218,23 @@ public abstract class TradeRule {
 		
 		public abstract void initTab();
 		
-		public abstract void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
+		public abstract void renderTab(MatrixStack poseStack, int mouseX, int mouseY, float partialTicks);
 		
 		public abstract void onTabClose();
 		
 		public void onScreenTick() { }
 		
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
+		public <T extends Widget> T addCustomRenderable(T widget)
 		{
 			return screen.addCustomRenderable(widget);
 		}
 		
-		public <T extends GuiEventListener & NarratableEntry> T addCustomWidget(T widget)
+		public <T extends IGuiEventListener> T addCustomWidget(T widget)
 		{
 			return screen.addCustomWidget(widget);
 		}
 		
-		public <T extends GuiEventListener> void removeCustomWidget(T widget)
+		public <T extends IGuiEventListener> void removeCustomWidget(T widget)
 		{
 			screen.removeCustomWidget(widget);
 		}
@@ -293,7 +286,7 @@ public abstract class TradeRule {
 		return null;
 	}
 	
-	public static TradeRule Deserialize(CompoundTag compound)
+	public static TradeRule Deserialize(CompoundNBT compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
 		if(registeredDeserializers.containsKey(thisType))
@@ -329,10 +322,10 @@ public abstract class TradeRule {
 		return null;
 	}
 	
-	public static final CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
-	public static final CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
+	public static CompoundNBT CreateRuleMessage() { CompoundNBT tag = new CompoundNBT(); tag.putBoolean("Create", true); return tag; }
+	public static CompoundNBT RemoveRuleMessage() { CompoundNBT tag = new CompoundNBT(); tag.putBoolean("Remove", true); return tag; }
 	
-	public static final boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
-	public static final boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
+	public static boolean isCreateMessage(CompoundNBT tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
+	public static boolean isRemoveMessage(CompoundNBT tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
 	
 }

@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.network.message.ticket_machine;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TicketMachineMenu;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageCraftTicket {
 
@@ -16,18 +16,18 @@ public class MessageCraftTicket {
 		this.fullStack = fullStack;
 	}
 	
-	public static void encode(MessageCraftTicket message, FriendlyByteBuf buffer) {
+	public static void encode(MessageCraftTicket message, PacketBuffer buffer) {
 		buffer.writeBoolean(message.fullStack);
 	}
 
-	public static MessageCraftTicket decode(FriendlyByteBuf buffer) {
+	public static MessageCraftTicket decode(PacketBuffer buffer) {
 		return new MessageCraftTicket(buffer.readBoolean());
 	}
 
 	public static void handle(MessageCraftTicket message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				if(player.containerMenu instanceof TicketMachineMenu)

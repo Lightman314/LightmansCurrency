@@ -6,8 +6,8 @@ import java.util.Objects;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -58,10 +58,10 @@ public class AuctionHouseEvent extends Event {
 		
 		public static class CancelAuctionEvent extends AuctionEvent {
 
-			protected final Player player;
-			public Player getPlayer() { return this.player; }
+			protected final PlayerEntity player;
+			public PlayerEntity getPlayer() { return this.player; }
 			
-			public CancelAuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player player) {
+			public CancelAuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, PlayerEntity player) {
 				super(auctionHouse, auction);
 				this.player = player;
 			}
@@ -93,13 +93,13 @@ public class AuctionHouseEvent extends Event {
 		
 		public static class AuctionBidEvent extends AuctionEvent {
 
-			protected final Player bidder;
-			public Player getBidder() { return this.bidder; }
+			protected final PlayerEntity bidder;
+			public PlayerEntity getBidder() { return this.bidder; }
 			
 			protected CoinValue bidAmount;
 			public CoinValue getBidAmount() { return this.bidAmount; }
 			
-			protected AuctionBidEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder, CoinValue bidAmount) {
+			protected AuctionBidEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, PlayerEntity bidder, CoinValue bidAmount) {
 				super(auctionHouse, auction);
 				this.bidder = bidder;
 				this.bidAmount = bidAmount;
@@ -110,7 +110,7 @@ public class AuctionHouseEvent extends Event {
 
 				public void setBidAmount(CoinValue bidAmount) { this.bidAmount = Objects.requireNonNull(bidAmount); }
 				
-				public Pre(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder, CoinValue bidAmount) {
+				public Pre(AuctionHouseTrader auctionHouse, AuctionTradeData auction, PlayerEntity bidder, CoinValue bidAmount) {
 					super(auctionHouse, auction, bidder, bidAmount);
 				}
 				
@@ -118,7 +118,7 @@ public class AuctionHouseEvent extends Event {
 			
 			public static class Post extends AuctionBidEvent {
 				
-				public Post(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder,CoinValue bidAmount) {
+				public Post(AuctionHouseTrader auctionHouse, AuctionTradeData auction, PlayerEntity bidder,CoinValue bidAmount) {
 					super(auctionHouse, auction, bidder, bidAmount);
 				}
 			}

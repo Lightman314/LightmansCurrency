@@ -8,12 +8,17 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketMachineBlockEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TicketMachineMenu extends Container {
@@ -22,7 +27,7 @@ public class TicketMachineMenu extends Container {
 	
 	private final TicketMachineBlockEntity blockEntity;
 	
-	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity tileEntity)
+	public TicketMachineMenu(int windowId, PlayerInventory inventory, TicketMachineBlockEntity tileEntity)
 	{
 		super(ModMenus.TICKET_MACHINE.get(), windowId);
 		this.blockEntity = tileEntity;
@@ -49,20 +54,20 @@ public class TicketMachineMenu extends Container {
 	}
 	
 	@Override
-	public boolean stillValid(@NotNull Player player)
+	public boolean stillValid(@Nonnull PlayerEntity player)
 	{
 		return true;
 	}
 	
 	@Override
-	public void removed(@NotNull Player player)
+	public void removed(@Nonnull PlayerEntity player)
 	{
 		super.removed(player);
-		this.clearContainer(player,  this.output);
+		this.clearContainer(player, player.level, this.output);
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @Nonnull ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

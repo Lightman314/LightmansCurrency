@@ -2,13 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.IGuiEventListener;
 
-import javax.annotation.Nonnull;
-
-public class ScrollListener implements GuiEventListener, NarratableEntry {
+public class ScrollListener implements IGuiEventListener {
 
 	public int x;
 	public int y;
@@ -36,10 +32,4 @@ public class ScrollListener implements GuiEventListener, NarratableEntry {
 		return this.active && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
 	}
 
-	@Override
-	public void updateNarration(@Nonnull NarrationElementOutput narrator) {}
-
-	@Nonnull
-	@Override
-	public NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
 }

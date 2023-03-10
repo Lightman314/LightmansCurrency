@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.data_updating.events;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
 
 public class ConvertUniversalTraderEvent extends Event {
@@ -13,9 +13,9 @@ public class ConvertUniversalTraderEvent extends Event {
 	public void setTrader(TraderData trader) { this.trader = trader; }
 	
 	public final ResourceLocation type;
-	public final CompoundTag compound;
+	public final CompoundNBT compound;
 
-	public ConvertUniversalTraderEvent(CompoundTag compound) {
+	public ConvertUniversalTraderEvent(CompoundNBT compound) {
 		this.compound = compound;
 		if(compound.contains("type"))
 			this.type = new ResourceLocation(compound.getString("type"));

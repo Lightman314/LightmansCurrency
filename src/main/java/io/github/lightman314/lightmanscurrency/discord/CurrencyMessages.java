@@ -38,6 +38,6 @@ public class CurrencyMessages {
 	public static final MessageEntry M_CANCELAUCTION = MessageEntry.create("lightmanscurrency_cancelauction", "Announcement made in the currency bot channel when an auction is canceled.\n{player} for the person who canceled the auction.{items} for the items being sold.\n", "The auction for {items} has been cancelled!", "player","items");
 	public static final MessageEntry M_WINAUCTION = MessageEntry.create("lightmanscurrency_winauction", "Announcement made in the currency bot channel when a player wins an auction.\n{player} for the highest bidder that won the auction.\n{items} for the items being sold.\n{bid} for the amount paid to win the bid.", "{player} won the auction for {items} with a bid of {bid}!", "player","items","bid");
 	
-	public static void init() {};
+	public static void init() {}
 	
 }

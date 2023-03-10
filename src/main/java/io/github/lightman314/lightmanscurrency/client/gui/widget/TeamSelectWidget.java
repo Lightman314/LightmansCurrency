@@ -5,20 +5,21 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.Button;
 
-public class TeamSelectWidget extends AbstractWidget {
+import javax.annotation.Nonnull;
+
+public class TeamSelectWidget extends Widget {
 
 	private final int rows;
 	private final Size size;
@@ -32,7 +33,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 	
 	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, size.width, TeamButton.HEIGHT * rows, new TextComponent(""));
+		super(x, y, size.width, TeamButton.HEIGHT * rows, EasyText.empty());
 		this.rows = rows;
 		this.size = size;
 		this.teamSource = teamSource;
@@ -40,7 +41,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		this.onPress = onPress;
 	}
 	
-	public void init(Consumer<Button> addButton, Font font)
+	public void init(Consumer<Button> addButton, FontRenderer font)
 	{
 		for(int i = 0; i < this.rows; ++i)
 		{
@@ -52,7 +53,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
@@ -128,12 +129,9 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
-	
-	@Override
 	protected boolean isValidClickButton(int button) { return false; }
 	
 	@Override
-	public void playDownSound(SoundManager soundManager) { }
+	public void playDownSound(@Nonnull SoundHandler soundManager) { }
 	
 }

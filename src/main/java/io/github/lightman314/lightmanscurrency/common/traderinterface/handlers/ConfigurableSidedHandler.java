@@ -6,10 +6,9 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
-
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.util.Constants;
 
 public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	
@@ -34,7 +33,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 		this.markDirty();
 		if(this.isClient())
 		{
-			CompoundTag message = initUpdateInfo(UPDATE_INPUT_SIDE);
+			CompoundNBT message = initUpdateInfo(UPDATE_INPUT_SIDE);
 			message.putInt("side", side.get3DDataValue());
 			message.putBoolean("newValue", this.inputSides.get(side));
 			this.sendMessage(message);
@@ -42,16 +41,16 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 		
 	}
 	
-	public static CompoundTag initUpdateInfo(String updateType)
+	public static CompoundNBT initUpdateInfo(String updateType)
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		compound.putString("UpdateType", updateType);
 		return compound;
 	}
 	
-	public static boolean isUpdateType(CompoundTag updateInfo, String updateType)
+	public static boolean isUpdateType(CompoundNBT updateInfo, String updateType)
 	{
-		if(updateInfo.contains("UpdateType",Tag.TAG_STRING))
+		if(updateInfo.contains("UpdateType", Constants.NBT.TAG_STRING))
 			return updateInfo.getString("UpdateType").contentEquals(updateType);
 		return false;
 	}
@@ -62,7 +61,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 		this.markDirty();
 		if(this.isClient())
 		{
-			CompoundTag message = initUpdateInfo(UPDATE_OUTPUT_SIDE);
+			CompoundNBT message = initUpdateInfo(UPDATE_OUTPUT_SIDE);
 			message.putInt("side", side.get3DDataValue());
 			message.putBoolean("newValue", this.outputSides.get(side));
 			this.sendMessage(message);
@@ -71,7 +70,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag compound) {
+	public void receiveMessage(CompoundNBT compound) {
 		if(isUpdateType(compound, UPDATE_INPUT_SIDE))
 		{
 			Direction side = Direction.from3DDataValue(compound.getInt("side"));
@@ -88,21 +87,21 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 	}
 	
 	@Override
-	public final CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
-		compound.put("InputSides", this.inputSides.save(new CompoundTag()));
-		compound.put("OutputSides", this.outputSides.save(new CompoundTag()));
+	public final CompoundNBT save() {
+		CompoundNBT compound = new CompoundNBT();
+		compound.put("InputSides", this.inputSides.save(new CompoundNBT()));
+		compound.put("OutputSides", this.outputSides.save(new CompoundNBT()));
 		this.saveAdditional(compound);
 		return compound;
 	}
 	
-	protected void saveAdditional(CompoundTag compound) { }
+	protected void saveAdditional(CompoundNBT compound) { }
 
 	@Override
-	public void load(CompoundTag compound) {
-		if(compound.contains("InputSides", Tag.TAG_COMPOUND))
+	public void load(CompoundNBT compound) {
+		if(compound.contains("InputSides", Constants.NBT.TAG_COMPOUND))
 			this.inputSides.load(compound.getCompound("InputSides"));
-		if(compound.contains("OutputSides", Tag.TAG_COMPOUND))
+		if(compound.contains("OutputSides", Constants.NBT.TAG_COMPOUND))
 			this.outputSides.load(compound.getCompound("OutputSides"));
 	}
 	
@@ -132,7 +131,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 			this.sideValues.put(side, value);
 		}
 		
-		public CompoundTag save(CompoundTag compound)
+		public CompoundNBT save(CompoundNBT compound)
 		{
 			for(Direction side : Direction.values())
 			{
@@ -143,7 +142,7 @@ public abstract class ConfigurableSidedHandler<H> extends SidedHandler<H> {
 			return compound;
 		}
 		
-		public void load(CompoundTag compound)
+		public void load(CompoundNBT compound)
 		{
 			this.sideValues.clear();
 			for(Direction side : Direction.values())

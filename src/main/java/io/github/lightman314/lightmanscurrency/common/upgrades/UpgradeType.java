@@ -13,16 +13,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.ItemCapacityUpgrade;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.eventbus.api.Event;
 
 public abstract class UpgradeType {
@@ -33,15 +33,15 @@ public abstract class UpgradeType {
 	
 	public static final SpeedUpgrade SPEED = register(new ResourceLocation(LightmansCurrency.MODID, "speed"), new SpeedUpgrade());
 	
-	public static final Simple NETWORK = register(new ResourceLocation(LightmansCurrency.MODID, "trader_network"), new Simple(new TranslatableComponent("tooltip.lightmanscurrency.upgrade.network")));
+	public static final Simple NETWORK = register(new ResourceLocation(LightmansCurrency.MODID, "trader_network"), new Simple(EasyText.translatable("tooltip.lightmanscurrency.upgrade.network")));
 	
-	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple(new TranslatableComponent("tooltip.lightmanscurrency.upgrade.hopper")));
+	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple(EasyText.translatable("tooltip.lightmanscurrency.upgrade.hopper")));
 	
 	private ResourceLocation type;
 	
 	protected abstract List<String> getDataTags();
 	protected abstract Object defaultTagValue(String tag);
-	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
+	public List<ITextComponent> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 	
 	public UpgradeType setRegistryName(ResourceLocation name) {
@@ -57,7 +57,7 @@ public abstract class UpgradeType {
 		return UpgradeType.class;
 	}
 	
-	private static final <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
+	private static <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
 	{
 		upgradeType.setRegistryName(type);
 		UPGRADE_TYPE_REGISTRY.put(type, upgradeType);
@@ -66,8 +66,8 @@ public abstract class UpgradeType {
 	
 	public interface IUpgradeable
 	{
-		public default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
-		public boolean allowUpgrade(UpgradeType type);
+		default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
+		boolean allowUpgrade(UpgradeType type);
 	}
 	
 	public interface IUpgradeItem
@@ -139,27 +139,27 @@ public abstract class UpgradeType {
 			return "";
 		}
 		
-		public void read(CompoundTag compound)
+		public void read(CompoundNBT compound)
 		{
 			compound.getAllKeys().forEach(key ->{
 				if(this.hasKey(key))
 				{
-					if(compound.contains(key, Tag.TAG_INT))
+					if(compound.contains(key, Constants.NBT.TAG_INT))
 						this.setValue(key, compound.getInt(key));
-					else if(compound.contains(key, Tag.TAG_FLOAT))
+					else if(compound.contains(key, Constants.NBT.TAG_FLOAT))
 						this.setValue(key, compound.getFloat(key));
-					else if(compound.contains(key, Tag.TAG_STRING))
+					else if(compound.contains(key, Constants.NBT.TAG_STRING))
 						this.setValue(key, compound.getString(key));
 				}
 			});
 		}
 		
-		public CompoundTag writeToNBT() { return writeToNBT(null); }
+		public CompoundNBT writeToNBT() { return writeToNBT(null); }
 		
-		public CompoundTag writeToNBT(@Nullable UpgradeType source)
+		public CompoundNBT writeToNBT(@Nullable UpgradeType source)
 		{
 			Map<String,Object> modifiedEntries = source == null ? this.data : getModifiedEntries(this,source);
-			CompoundTag compound = new CompoundTag();
+			CompoundNBT compound = new CompoundNBT();
 			modifiedEntries.forEach((key,value) ->{
 				if(value instanceof Integer)
 					compound.putInt(key, (Integer)value);
@@ -194,7 +194,7 @@ public abstract class UpgradeType {
 	}
 	
 	
-	public static boolean hasUpgrade(UpgradeType type, Container upgradeContainer) {
+	public static boolean hasUpgrade(UpgradeType type, IInventory upgradeContainer) {
 		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
 		{
 			ItemStack stack = upgradeContainer.getItem(i);
@@ -210,8 +210,8 @@ public abstract class UpgradeType {
 	
 	public static class Simple extends UpgradeType {
 
-		private final List<Component> tooltips;
-		public Simple(Component... tooltips) { this.tooltips = Lists.newArrayList(tooltips); }
+		private final List<ITextComponent> tooltips;
+		public Simple(ITextComponent... tooltips) { this.tooltips = Lists.newArrayList(tooltips); }
 		
 		@Override
 		protected List<String> getDataTags() { return new ArrayList<>(); }
@@ -220,7 +220,7 @@ public abstract class UpgradeType {
 		protected Object defaultTagValue(String tag) { return null; }
 		
 		@Override
-		public List<Component> getTooltip(UpgradeData data) { return this.tooltips; }
+		public List<ITextComponent> getTooltip(UpgradeData data) { return this.tooltips; }
 		
 	}
 	

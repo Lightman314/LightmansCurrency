@@ -6,17 +6,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.util.Constants;
 
 public abstract class Notification {
 
-	private static final Map<String,Function<CompoundTag,Notification>> DESERIALIZERS = new HashMap<>();
+	private static final Map<String,Function<CompoundNBT,Notification>> DESERIALIZERS = new HashMap<>();
 	
 	public static void register(ResourceLocation type, Supplier<Notification> deserializer) {
 		register(type, c -> {
@@ -26,7 +26,7 @@ public abstract class Notification {
 		});
 	}
 	
-	public static void register(ResourceLocation type, Function<CompoundTag,Notification> deserializer) {
+	public static void register(ResourceLocation type, Function<CompoundNBT,Notification> deserializer) {
 		String t = type.toString();
 		if(DESERIALIZERS.containsKey(t))
 		{
@@ -41,7 +41,7 @@ public abstract class Notification {
 		DESERIALIZERS.put(t, deserializer);
 	}
 	
-	public static Notification deserialize(CompoundTag compound) {
+	public static Notification deserialize(CompoundNBT compound) {
 		if(compound.contains("Type") || compound.contains("type"))
 		{
 			String type = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
@@ -79,22 +79,22 @@ public abstract class Notification {
 	
 	public abstract NotificationCategory getCategory();
 	
-	public abstract MutableComponent getMessage();
+	public abstract IFormattableTextComponent getMessage();
 	
-	public MutableComponent getGeneralMessage() {
-		return new TranslatableComponent("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
+	public IFormattableTextComponent getGeneralMessage() {
+		return EasyText.translatable("notifications.source.general.format", this.getCategory().getName(), this.getMessage());
 	}
 	
-	public MutableComponent getChatMessage() {
-		return new TranslatableComponent("notifications.chat.format",
-				new TranslatableComponent("notifications.chat.format.title", this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
+	public IFormattableTextComponent getChatMessage() {
+		return EasyText.translatable("notifications.chat.format",
+				EasyText.translatable("notifications.chat.format.title", this.getCategory().getName()).withStyle(TextFormatting.GOLD),
 				this.getMessage());
 	}
 
-	public MutableComponent getTimeStampMessage() { return new TranslatableComponent("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
+	public IFormattableTextComponent getTimeStampMessage() { return EasyText.translatable("notifications.timestamp",TimeUtil.formatTime(this.timeStamp)); }
 	
-	public final CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
+	public final CompoundNBT save() {
+		CompoundNBT compound = new CompoundNBT();
 		if(this.seen)
 			compound.putBoolean("Seen", true);
 		compound.putInt("Count", this.count);
@@ -105,21 +105,21 @@ public abstract class Notification {
 		return compound;
 	}
 	
-	protected abstract void saveAdditional(CompoundTag compound);
+	protected abstract void saveAdditional(CompoundNBT compound);
 	
-	public final void load(CompoundTag compound) {
+	public final void load(CompoundNBT compound) {
 		if(compound.contains("Seen"))
 			this.seen = true;
-		if(compound.contains("Count", Tag.TAG_INT))
+		if(compound.contains("Count", Constants.NBT.TAG_INT))
 			this.count = compound.getInt("Count");
-		if(compound.contains("TimeStamp", Tag.TAG_LONG))
+		if(compound.contains("TimeStamp", Constants.NBT.TAG_LONG))
 			this.timeStamp = compound.getLong("TimeStamp");
 		else
 			this.timeStamp = 0;
 		this.loadAdditional(compound);
 	}
 	
-	protected abstract void loadAdditional(CompoundTag compound);
+	protected abstract void loadAdditional(CompoundNBT compound);
 	
 	/**
 	 * Determines whether the new notification should stack or not.

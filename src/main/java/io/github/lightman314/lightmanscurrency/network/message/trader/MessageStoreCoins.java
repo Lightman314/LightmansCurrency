@@ -3,22 +3,22 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageStoreCoins {
 	
-	public static void encode(MessageStoreCoins message, FriendlyByteBuf buffer) { }
+	public static void encode(MessageStoreCoins message, PacketBuffer buffer) { }
 
-	public static MessageStoreCoins decode(FriendlyByteBuf buffer) {
+	public static MessageStoreCoins decode(PacketBuffer buffer) {
 		return new MessageStoreCoins();
 	}
 
 	public static void handle(MessageStoreCoins message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				if(player.containerMenu instanceof TraderStorageMenu)

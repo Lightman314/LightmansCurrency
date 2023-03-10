@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.permissions;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class Permissions {
 
@@ -29,9 +29,9 @@ public class Permissions {
 	public static final String ADMIN_MODE = "LC_ADMIN_MODE";
 	
 	
-	public static void PermissionWarning(Player player, String action, String permission) { PermissionWarning(player, action, permission, 0, 1); }
+	public static void PermissionWarning(PlayerEntity player, String action, String permission) { PermissionWarning(player, action, permission, 0, 1); }
 	
-	public static void PermissionWarning(Player player, String action, String permission, int hasLevel, int requiredLevel)
+	public static void PermissionWarning(PlayerEntity player, String action, String permission, int hasLevel, int requiredLevel)
 	{
 		LightmansCurrency.LogWarning(player.getName().getString() + " attempted to " + action + " without the appropriate permission level.\nHas " + permission + " level " + hasLevel + ". Level " + requiredLevel + " required.");
 	}

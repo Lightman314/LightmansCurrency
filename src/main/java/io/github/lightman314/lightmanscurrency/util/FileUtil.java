@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.*;
@@ -10,9 +8,10 @@ import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.anti_ad.mc.ipnext.item.NbtUtils;
+import org.apache.commons.io.FileUtils;
 
 public class FileUtil {
 
@@ -42,22 +41,28 @@ public class FileUtil {
 				if(tag.isJsonPrimitive() && tag.getAsJsonPrimitive().isString())
 				{
 					//Parse the compound tag
-					CompoundNBT compound = NbtUtils.INSTANCE.parseNbt(tag.getAsString());
+					CompoundNBT compound = JsonToNBT.parseTag(tag.getAsString());
 					result.setTag(compound);
 				}
 				else
 				{
-					CompoundNBT compound = NbtUtils.INSTANCE.parseNbt(GSON.toJson(tag));
+					CompoundNBT compound = JsonToNBT.parseTag(GSON.toJson(tag));
 					result.setTag(compound);
 				}
 			}
 		} catch(Exception e) { LightmansCurrency.LogError("Error parsing tag data.", e); }
 		return result;
 	}
-	
+
+	public static String readString(File file) throws IOException {
+		return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+	}
+
 	public static void writeStringToFile(File file, String string) throws IOException {
 
-		PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
+		FileOutputStream fos = new FileOutputStream(file);
+		OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+		PrintWriter writer = new PrintWriter(osw);
 		
 		writer.print(string);
 		

@@ -7,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,7 +24,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 	private boolean isAdmin() { return this.menu.getBE().isOwner(this.menu.player); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.isAdmin(); }
+	public boolean canOpen(PlayerEntity player) { return this.isAdmin(); }
 
 	@Override
 	public void onTabOpen() { }
@@ -40,7 +40,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 		{
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putString("NewOwner", newOwner);
 				this.menu.sendMessage(message);
 			}
@@ -55,7 +55,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 			this.menu.getBE().setTeam(team);
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putLong("NewTeam", team);
 				this.menu.sendMessage(message);
 			}
@@ -63,7 +63,7 @@ public class OwnershipTab extends TraderInterfaceTab {
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		if(message.contains("NewOwner"))
 		{
 			this.setNewOwner(message.getString("NewOwner"));

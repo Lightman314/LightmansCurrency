@@ -1,17 +1,16 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.FontRenderer;
 
 public abstract class TraderClientTab {
 	
 	protected final TraderScreen screen;
 	protected final TraderMenu menu;
-	protected final Font font;
+	protected final FontRenderer font;
 	
 	protected TraderClientTab(TraderScreen screen) {
 		this.screen = screen;
@@ -38,12 +37,12 @@ public abstract class TraderClientTab {
 	/**
 	 * Renders background data before the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Renders tooltips after the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderTooltips(PoseStack pose, int mouseX, int mouseY);
+	public abstract void renderTooltips(MatrixStack pose, int mouseX, int mouseY);
 	
 	/**
 	 * Called when the mouse is clicked before any other click interactions are processed.

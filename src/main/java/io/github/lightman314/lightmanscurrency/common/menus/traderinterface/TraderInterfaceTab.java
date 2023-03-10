@@ -4,10 +4,10 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -29,7 +29,7 @@ public abstract class TraderInterfaceTab {
 	/**
 	 * Whether the player has permission to access this tab.
 	 */
-	public abstract boolean canOpen(Player player);
+	public abstract boolean canOpen(PlayerEntity player);
 	
 	/**
 	 * Called when the tab is opened. Use this to unhide slots.
@@ -53,6 +53,6 @@ public abstract class TraderInterfaceTab {
 	/**
 	 * Sends a message to the server to notify them about an interaction made client-side.
 	 */
-	public abstract void receiveMessage(CompoundTag message);
+	public abstract void receiveMessage(CompoundNBT message);
 	
 }

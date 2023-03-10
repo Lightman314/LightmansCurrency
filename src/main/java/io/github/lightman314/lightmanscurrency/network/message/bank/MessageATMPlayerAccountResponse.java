@@ -5,30 +5,30 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.SelectionTab;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageATMPlayerAccountResponse {
 	
-	private MutableComponent message;
+	final IFormattableTextComponent message;
 	
-	public MessageATMPlayerAccountResponse(MutableComponent message)
+	public MessageATMPlayerAccountResponse(IFormattableTextComponent message)
 	{
 		this.message = message;
 	}
 	
 	
-	public static void encode(MessageATMPlayerAccountResponse message, FriendlyByteBuf buffer) {
-		buffer.writeUtf(Component.Serializer.toJson(message.message));
+	public static void encode(MessageATMPlayerAccountResponse message, PacketBuffer buffer) {
+		buffer.writeUtf(ITextComponent.Serializer.toJson(message.message));
 	}
 
-	public static MessageATMPlayerAccountResponse decode(FriendlyByteBuf buffer) {
-		return new MessageATMPlayerAccountResponse(Component.Serializer.fromJson(buffer.readUtf()));
+	public static MessageATMPlayerAccountResponse decode(PacketBuffer buffer) {
+		return new MessageATMPlayerAccountResponse(ITextComponent.Serializer.fromJson(buffer.readUtf()));
 	}
 
-	public static void handle(MessageATMPlayerAccountResponse message, Supplier<Context> supplier) {
+	public static void handle(MessageATMPlayerAccountResponse message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
 			Minecraft mc = Minecraft.getInstance();

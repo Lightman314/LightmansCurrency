@@ -5,22 +5,23 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentData;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.EnchantedBookItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
-public class EnchantedBookForCoinsTrade implements ItemListing {
+public class EnchantedBookForCoinsTrade implements VillagerTrades.ITrade {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "enchanted_book_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
@@ -38,9 +39,9 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
     private static final int BASE_COIN_COUNT = 5;
 
     @Override
-    public MerchantOffer getOffer(@NotNull Entity trader, Random rand) {
+    public MerchantOffer getOffer(@Nonnull Entity trader, Random rand) {
 
-        List<Enchantment> list = ForgeRegistries.ENCHANTMENTS.getValues().stream().filter(Enchantment::isTradeable).toList();
+        List<Enchantment> list = ForgeRegistries.ENCHANTMENTS.getValues().stream().filter(Enchantment::isTradeable).collect(Collectors.toList());
         Enchantment enchantment = list.get(rand.nextInt(list.size()));
 
         int level = 1;
@@ -48,7 +49,7 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
             level = rand.nextInt(enchantment.getMaxLevel()) + 1;
         else
             LightmansCurrency.LogError("Enchantment of type '" + ForgeRegistries.ENCHANTMENTS.getKey(enchantment) + "' has a max enchantment level of " + enchantment.getMaxLevel() + ". Unable to properly randomize the enchantment level for a villager trade. Will default to a level 1 enchantment.");
-        ItemStack itemstack = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level));
+        ItemStack itemstack = EnchantedBookItem.createForEnchantment(new EnchantmentData(enchantment, level));
 
         long coinValue = MoneyUtil.getValue(this.baseCoin);
         long baseValue = coinValue * this.baseCoinCount;
@@ -85,9 +86,10 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
-            if(trade instanceof EnchantedBookForCoinsTrade t)
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ITrade trade) {
+            if(trade instanceof EnchantedBookForCoinsTrade)
             {
+                EnchantedBookForCoinsTrade t = (EnchantedBookForCoinsTrade)trade;
                 json.addProperty("Coin", ForgeRegistries.ITEMS.getKey(t.baseCoin).toString());
                 json.addProperty("StartCoinCount", t.baseCoinCount);
                 json.addProperty("MaxTrades", t.maxTrades);
@@ -99,7 +101,7 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
+        public VillagerTrades.ITrade deserialize(JsonObject json) throws Exception {
             Item baseCoin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.get("Coin").getAsString()));
             int baseCoinCount = json.get("StartCoinCount").getAsInt();
             int maxTrades = json.get("MaxTrades").getAsInt();

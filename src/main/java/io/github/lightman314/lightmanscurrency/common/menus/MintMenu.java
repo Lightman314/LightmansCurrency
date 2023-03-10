@@ -5,18 +5,19 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.mint.MintSlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
-public class MintMenu extends AbstractContainerMenu{
+import javax.annotation.Nonnull;
+
+public class MintMenu extends Container {
 
 	public final CoinMintBlockEntity blockEntity;
 	
-	public MintMenu(int windowId, Inventory inventory, CoinMintBlockEntity tileEntity)
+	public MintMenu(int windowId, PlayerInventory inventory, CoinMintBlockEntity tileEntity)
 	{
 		super(ModMenus.MINT.get(), windowId);
 		this.blockEntity = tileEntity;
@@ -41,19 +42,19 @@ public class MintMenu extends AbstractContainerMenu{
 	}
 	
 	@Override
-	public boolean stillValid(@NotNull Player playerIn)
+	public boolean stillValid(@Nonnull PlayerEntity playerIn)
 	{
 		return true;
 	}
 	
 	@Override
-	public void removed(@NotNull Player playerIn)
+	public void removed(@Nonnull PlayerEntity playerIn)
 	{
 		super.removed(playerIn);
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @Nonnull ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;

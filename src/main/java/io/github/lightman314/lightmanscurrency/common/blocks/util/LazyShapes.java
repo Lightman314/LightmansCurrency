@@ -3,18 +3,17 @@ package io.github.lightman314.lightmanscurrency.common.blocks.util;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class LazyShapes {
 
 	//Functions for directional only
-	public static Function<Direction,VoxelShape> lazySingleShape(VoxelShape shape) { return (facing) -> shape; }
+	public static Function<Direction, VoxelShape> lazySingleShape(VoxelShape shape) { return (facing) -> shape; }
 	public static Function<Direction,VoxelShape> lazyDirectionalShape(VoxelShape north, VoxelShape east, VoxelShape south, VoxelShape west) { return new LazyDirectionShapeHandler(north,east,south,west); }
 	public static Function<Direction,VoxelShape> lazyDirectionalShape(VoxelShape northSouth, VoxelShape eastWest) { return new LazyDirectionShapeHandler(northSouth,eastWest,northSouth,eastWest); }
 

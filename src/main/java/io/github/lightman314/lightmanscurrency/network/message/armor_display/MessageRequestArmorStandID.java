@@ -4,11 +4,11 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageRequestArmorStandID {
 
@@ -18,18 +18,18 @@ public class MessageRequestArmorStandID {
 		this.pos = pos;
 	}
 	
-	public static void encode(MessageRequestArmorStandID message, FriendlyByteBuf buffer) {
+	public static void encode(MessageRequestArmorStandID message, PacketBuffer buffer) {
 		buffer.writeBlockPos(message.pos);
 	}
 	
-	public static MessageRequestArmorStandID decode(FriendlyByteBuf buffer) {
+	public static MessageRequestArmorStandID decode(PacketBuffer buffer) {
 		return new MessageRequestArmorStandID(buffer.readBlockPos());
 	}
 	
-	public static void handle(MessageRequestArmorStandID message, Supplier<Context> source) {
+	public static void handle(MessageRequestArmorStandID message, Supplier<NetworkEvent.Context> source) {
 		source.get().enqueueWork(() ->{
-			ServerPlayer player = source.get().getSender();
-			BlockEntity be = player.level.getBlockEntity(message.pos);
+			ServerPlayerEntity player = source.get().getSender();
+			TileEntity be = player.level.getBlockEntity(message.pos);
 			if(be instanceof ArmorDisplayTraderBlockEntity) {
 				ArmorDisplayTraderBlockEntity ad = (ArmorDisplayTraderBlockEntity)be;
 				ad.sendArmorStandSyncMessageToClient(LightmansCurrencyPacketHandler.getTarget(player));

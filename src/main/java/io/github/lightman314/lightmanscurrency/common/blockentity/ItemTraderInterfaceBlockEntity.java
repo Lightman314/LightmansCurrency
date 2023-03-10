@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -23,17 +24,17 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
 	
@@ -43,8 +44,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	ItemInterfaceHandler itemHandler;
 	public ItemInterfaceHandler getItemHandler() { return this.itemHandler; }
 	
-	public ItemTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_ITEM.get(), pos, state);
+	public ItemTraderInterfaceBlockEntity() {
+		super(ModBlockEntities.TRADER_INTERFACE_ITEM.get());
 		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this, this::getItemBuffer));
 	}
 
@@ -58,8 +59,9 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		{
 			//Check trade for barter items to restock
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof ItemTradeData trade)
+			if(t instanceof ItemTradeData)
 			{
+				ItemTradeData trade = (ItemTradeData)t;
 				if(trade.isBarter())
 				{
 					for(int i = 0; i < 2; ++i)
@@ -109,14 +111,19 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		if(this.getInteractionType().trades)
 		{
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof ItemTradeData trade)
+			if(t instanceof ItemTradeData)
+			{
+				ItemTradeData trade = (ItemTradeData)t;
 				return trade.allowItemInStorage(item);
+			}
+
 		}
 		else
 		{
 			TraderData trader = this.getTrader();
-			if(trader instanceof ItemTraderData it)
+			if(trader instanceof ItemTraderData)
 			{
+				ItemTraderData it = (ItemTraderData)trader;
 				for(ItemTradeData trade : it.getTradeData())
 				{
 					if(trade.allowItemInStorage(item))
@@ -133,8 +140,9 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			if(stack.getItem() instanceof UpgradeItem)
 			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -148,15 +156,17 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	protected ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, false); } 
+	protected ItemTradeData deserializeTrade(CompoundNBT compound) { return ItemTradeData.loadData(compound, false); }
 	
-	@Override
-	protected void saveAdditional(@NotNull CompoundTag compound) {
-		super.saveAdditional(compound);
+	@Nonnull
+    @Override
+	public CompoundNBT save(@Nonnull CompoundNBT compound) {
+		compound = super.save(compound);
 		this.saveItemBuffer(compound);
+		return compound;
 	}
 	
-	protected final CompoundTag saveItemBuffer(CompoundTag compound) {
+	protected final CompoundNBT saveItemBuffer(CompoundNBT compound) {
 		this.itemBuffer.save(compound, "Storage");
 		return compound;
 	}
@@ -164,12 +174,12 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	public void setItemBufferDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveItemBuffer(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveItemBuffer(new CompoundNBT()));
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	public void load(@Nonnull BlockState state, CompoundNBT compound) {
+		super.load(state, compound);
 		if(compound.contains("Storage"))
 			this.itemBuffer.load(compound, "Storage");
 	}
@@ -280,8 +290,9 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof ItemTradeData trade)
+		if(t instanceof ItemTradeData)
 		{
+			ItemTradeData trade = (ItemTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -325,13 +336,14 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 			if(this.itemHandler.getInputSides().get(relativeSide) || this.itemHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
 				{
+					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
-				BlockEntity be = this.level.getBlockEntity(queryPos);
+				TileEntity be = this.level.getBlockEntity(queryPos);
 				if(be != null)
 				{
 					be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, actualSide.getOpposite()).ifPresent(itemHandler -> {
@@ -403,8 +415,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	public MutableComponent getName() {
-		return new TranslatableComponent("block.lightmanscurrency.item_trader_interface");
+	public IFormattableTextComponent getName() {
+		return EasyText.translatable("block.lightmanscurrency.item_trader_interface");
 	}
 	
 }

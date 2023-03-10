@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -10,26 +11,23 @@ import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
 public class PaygateBlock extends TraderBlockRotatable {
 	
@@ -45,14 +43,15 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public @Nonnull ActionResultType use(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		if(!level.isClientSide)
 		{
 			//Get the item in the players hand
-			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof PaygateBlockEntity paygate)
+			TileEntity tileEntity = level.getBlockEntity(pos);
+			if(tileEntity instanceof PaygateBlockEntity)
 			{
+				PaygateBlockEntity paygate = (PaygateBlockEntity)tileEntity;
 				int tradeIndex = paygate.getValidTicketTrade(player, player.getItemInHand(hand));
 				if(tradeIndex >= 0)
 				{
@@ -60,7 +59,7 @@ public class PaygateBlock extends TraderBlockRotatable {
 					if(trader != null)
 					{
 						trader.ExecuteTrade(TradeContext.create(trader, player).build(), tradeIndex);
-						return InteractionResult.SUCCESS;
+						return ActionResultType.SUCCESS;
 					}
 				}
 			}
@@ -69,20 +68,20 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
 	@Override
-	public boolean isSignalSource(@NotNull BlockState state)
+	public boolean isSignalSource(@Nonnull BlockState state)
 	{
 		return true;
 	}
 	
 	@Override
-	public int getSignal(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction dir) {
+	public int getSignal(BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
 		
 		if(state.getValue(POWERED))
 			return 15;
@@ -91,16 +90,13 @@ public class PaygateBlock extends TraderBlockRotatable {
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.PAYGATE);
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
 
 	@Override
-	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new PaygateBlockEntity(pos, state); }
-
-	@Override
-	protected BlockEntityType<?> traderType() { return ModBlockEntities.PAYGATE.get(); }
+	protected TileEntity makeTrader() { return new PaygateBlockEntity(); }
 	
 }

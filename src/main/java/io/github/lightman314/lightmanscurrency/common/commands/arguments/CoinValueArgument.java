@@ -9,9 +9,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.money.util.CoinValueParser;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -19,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class CoinValueArgument implements ArgumentType<CoinValue> {
 
@@ -28,7 +28,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     public static CoinValueArgument argument() { return new CoinValueArgument(); }
     public static CoinValueArgument safeArgument(RegisterCommandsEvent event) { return argument(); }
 
-    public static CoinValue getCoinValue(CommandContext<CommandSourceStack> commandContext, String name) {
+    public static CoinValue getCoinValue(CommandContext<?> commandContext, String name) {
         return commandContext.getArgument(name, CoinValue.class);
     }
 
@@ -86,7 +86,7 @@ public class CoinValueArgument implements ArgumentType<CoinValue> {
     }
 
     private List<ResourceLocation> lookupCoinList() {
-        return ForgeRegistries.ITEMS.getKeys().stream().filter(CoinValueArgument::isCoin).toList();
+        return ForgeRegistries.ITEMS.getKeys().stream().filter(CoinValueArgument::isCoin).collect(Collectors.toList());
     }
 
     private static boolean isCoin(ResourceLocation itemID)

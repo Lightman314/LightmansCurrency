@@ -4,21 +4,21 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
-public class EnchantedItemForCoinsTrade implements ItemListing
+public class EnchantedItemForCoinsTrade implements VillagerTrades.ITrade
 {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "enchanted_item_for_coins");
@@ -32,7 +32,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
     protected final float priceMult;
     protected final double basePriceModifier;
 
-    public EnchantedItemForCoinsTrade(ItemLike baseCoin, int baseCoinCount, ItemLike sellItem, int maxUses, int xpValue, float priceMultiplier, double basePriceModifier)
+    public EnchantedItemForCoinsTrade(IItemProvider baseCoin, int baseCoinCount, IItemProvider sellItem, int maxUses, int xpValue, float priceMultiplier, double basePriceModifier)
     {
         this.baseCoin = baseCoin.asItem();
         this.baseCoinCount = baseCoinCount;
@@ -45,7 +45,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
     }
 
     @Override
-    public MerchantOffer getOffer(@NotNull Entity trader, Random rand) {
+    public MerchantOffer getOffer(@Nonnull Entity trader, Random rand) {
         int i = 5 + rand.nextInt(15);
         ItemStack itemstack = EnchantmentHelper.enchantItem(rand, new ItemStack(sellItem), i, false);
 
@@ -76,9 +76,10 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade) {
-            if(trade instanceof EnchantedItemForCoinsTrade t)
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ITrade trade) {
+            if(trade instanceof EnchantedItemForCoinsTrade)
             {
+                EnchantedItemForCoinsTrade t = (EnchantedItemForCoinsTrade)trade;
                 json.addProperty("Coin", ForgeRegistries.ITEMS.getKey(t.baseCoin).toString());
                 json.addProperty("BaseCoinCount", t.baseCoinCount);
                 json.addProperty("EnchantmentValueModifier", t.basePriceModifier);
@@ -92,7 +93,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json) throws Exception {
+        public VillagerTrades.ITrade deserialize(JsonObject json) throws Exception {
             Item coin = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.get("Coin").getAsString()));
             int baseCoinCount = json.get("BaseCoinCount").getAsInt();
             double basePriceModifier = json.get("EnchantmentValueModifier").getAsDouble();

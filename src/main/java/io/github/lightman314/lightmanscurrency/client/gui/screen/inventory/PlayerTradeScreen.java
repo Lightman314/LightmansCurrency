@@ -1,25 +1,24 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.CMessagePlayerTradeInteraction;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
-public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> {
+import javax.annotation.Nonnull;
+
+public class PlayerTradeScreen extends ContainerScreen<PlayerTradeMenu> {
 
     public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/player_trading.png");
 
@@ -30,27 +29,26 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
 
     private void setShaderColorForState(int state) {
         switch (state) {
-            case 1 -> RenderSystem.setShaderColor(0f, 1f, 1f, 1f);
-            case 2 -> RenderSystem.setShaderColor(0f, 1f, 0f, 1f);
-            default -> RenderSystem.setShaderColor(139f/255f, 139f/255f, 139f/255f, 1f);
+            case 1: RenderUtil.color4f(0f, 1f, 1f, 1f); return;
+            case 2: RenderUtil.color4f(0f, 1f, 0f, 1f); return;
+            default: RenderUtil.color4f(139f/255f, 139f/255f, 139f/255f, 1f);
         }
     }
 
-    public PlayerTradeScreen(PlayerTradeMenu menu, Inventory inventory, Component title) {
+    public PlayerTradeScreen(PlayerTradeMenu menu, PlayerInventory inventory, ITextComponent title) {
         super(menu, inventory, title);
         this.imageHeight = 222 + CoinValueInput.HEIGHT;
         this.imageWidth = 176;
     }
 
     @Override
-    protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY)
+    protected void renderBg(@Nonnull MatrixStack pose, float partialTicks, int mouseX, int mouseY)
     {
 
         this.renderBackground(pose);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderUtil.bindTexture(GUI_TEXTURE);
+        RenderUtil.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         //Render BG
         this.blit(pose, this.leftPos, this.topPos + CoinValueInput.HEIGHT, 0, 0, this.imageWidth, this.imageHeight - CoinValueInput.HEIGHT);
@@ -66,11 +64,11 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack pose, int mouseX, int mouseY)
+    protected void renderLabels(@Nonnull MatrixStack pose, int mouseX, int mouseY)
     {
         //Draw names
-        Component leftName = this.menu.isHost() ? this.menu.getTradeData().getHostName() : this.menu.getTradeData().getGuestName();
-        Component rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestName() : this.menu.getTradeData().getHostName();
+        ITextComponent leftName = this.menu.isHost() ? this.menu.getTradeData().getHostName() : this.menu.getTradeData().getGuestName();
+        ITextComponent rightName = this.menu.isHost() ? this.menu.getTradeData().getGuestName() : this.menu.getTradeData().getHostName();
         this.font.draw(pose, leftName, 8f, 6f + CoinValueInput.HEIGHT, 0x404040);
         this.font.draw(pose, rightName, this.imageWidth - 8f - this.font.width(rightName), 6f + CoinValueInput.HEIGHT, 0x404040);
 
@@ -86,20 +84,20 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
     protected void init() {
         super.init();
 
-        this.valueInput = this.addRenderableWidget(new CoinValueInput(this.leftPos, this.topPos, new TextComponent(""), CoinValue.EMPTY, this.font, this::onValueChanged, this::addRenderableWidget));
+        this.valueInput = this.addButton(new CoinValueInput(this.leftPos, this.topPos, EasyText.empty(), CoinValue.EMPTY, this.font, this::onValueChanged, this::addButton));
         this.valueInput.allowFreeToggle = false;
         this.valueInput.init();
 
-        this.buttonPropose = this.addRenderableWidget(new Button(this.leftPos + 8, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, new TranslatableComponent("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
+        this.buttonPropose = this.addButton(new Button(this.leftPos + 8, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.propose"), this::OnPropose));
 
-        this.buttonAccept = this.addRenderableWidget(new Button(this.leftPos + 98, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, new TranslatableComponent("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
+        this.buttonAccept = this.addButton(new Button(this.leftPos + 98, this.topPos + 110 + CoinValueInput.HEIGHT, 70, 20, EasyText.translatable("gui.lightmanscurrency.button.player_trading.accept"), this::OnAccept));
         this.buttonAccept.active = false;
 
     }
 
     @Override
-    protected void containerTick() {
-        super.containerTick();
+    public void tick() {
+        super.tick();
 
         this.valueInput.tick();
 
@@ -109,15 +107,15 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
         this.valueInput.active = myState < 1;
         //Update Propose Button text/active state
         this.buttonPropose.active = myState < 2;
-        this.buttonPropose.setMessage(new TranslatableComponent(myState <= 0 ? "gui.lightmanscurrency.button.player_trading.propose" : "gui.lightmanscurrency.button.player_trading.cancel"));
+        this.buttonPropose.setMessage(EasyText.translatable(myState <= 0 ? "gui.lightmanscurrency.button.player_trading.propose" : "gui.lightmanscurrency.button.player_trading.cancel"));
         //Update Accept Button text/active state
         this.buttonAccept.active = myState > 0 && otherState > 0;
-        this.buttonAccept.setMessage(new TranslatableComponent(myState <= 1 ? "gui.lightmanscurrency.button.player_trading.accept" : "gui.lightmanscurrency.button.player_trading.cancel"));
+        this.buttonAccept.setMessage(EasyText.translatable(myState <= 1 ? "gui.lightmanscurrency.button.player_trading.accept" : "gui.lightmanscurrency.button.player_trading.cancel"));
 
     }
 
     private void onValueChanged(CoinValue newValue) {
-        CompoundTag message = new CompoundTag();
+        CompoundNBT message = new CompoundNBT();
         CoinValue availableFunds = this.menu.getAvailableFunds();
         if(newValue.getRawValue() > availableFunds.getRawValue())
         {
@@ -129,13 +127,13 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
     }
 
     private void OnPropose(Button button) {
-        CompoundTag message = new CompoundTag();
+        CompoundNBT message = new CompoundNBT();
         message.putBoolean("TogglePropose", true);
         LightmansCurrencyPacketHandler.instance.sendToServer(new CMessagePlayerTradeInteraction(this.menu.tradeID, message));
     }
 
     private void OnAccept(Button button) {
-        CompoundTag message = new CompoundTag();
+        CompoundNBT message = new CompoundNBT();
         message.putBoolean("ToggleActive", true);
         LightmansCurrencyPacketHandler.instance.sendToServer(new CMessagePlayerTradeInteraction(this.menu.tradeID, message));
     }

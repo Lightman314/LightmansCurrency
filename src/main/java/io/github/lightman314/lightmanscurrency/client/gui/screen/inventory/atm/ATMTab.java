@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 
 public abstract class ATMTab implements ITab
 {
@@ -14,9 +14,9 @@ public abstract class ATMTab implements ITab
 	
 	public abstract void init();
 	
-	public abstract void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
-	public abstract void postRender(PoseStack pose, int mouseX, int mouseY);
+	public abstract void postRender(MatrixStack pose, int mouseX, int mouseY);
 	
 	public abstract void tick();
 	
@@ -26,8 +26,8 @@ public abstract class ATMTab implements ITab
 	
 	public final int getColor() { return 0xFFFFFF; }
 	
-	protected final void hideCoinSlots(PoseStack pose) {
-		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
+	protected final void hideCoinSlots(MatrixStack pose) {
+		RenderUtil.bindTexture(ATMScreen.GUI_TEXTURE);
 		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 128, 7, 79, 162, 18);
 	}
 	

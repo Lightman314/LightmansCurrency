@@ -14,15 +14,15 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSl
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class ItemStorageTab extends TraderInterfaceTab{
 
@@ -33,7 +33,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new ItemStorageClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(PlayerEntity player) { return true; }
 	
 	//Eventually will add upgrade slots
 	List<SimpleSlot> slots = new ArrayList<>();
@@ -60,7 +60,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
-		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
+		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
+			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
 			if(storage.getFittableAmount(stack) > 0)
 			{
@@ -73,10 +74,11 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld, boolean leftClick) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
+			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(heldItem.isEmpty())
 			{
 				//Move item out of storage
@@ -102,14 +104,14 @@ public class ItemStorageTab extends TraderInterfaceTab{
 					if(isShiftHeld)
 					{
 						//Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
-						this.menu.player.getInventory().add(stackToRemove);
+						this.menu.player.inventory.add(stackToRemove);
 						//Determine the amount actually added to the players inventory
 						removedAmount = tempAmount - stackToRemove.getCount();
 					}
 					else
 					{
 						//Put the item into the players hand
-						this.menu.setCarried(stackToRemove);
+						this.menu.player.inventory.setCarried(stackToRemove);
 						removedAmount = tempAmount;
 					}
 					//Remove the correct amount from storage
@@ -140,7 +142,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 					{
 						heldItem.shrink(1);
 						if(heldItem.isEmpty())
-							this.menu.setCarried(ItemStack.EMPTY);
+							this.menu.player.inventory.setCarried(ItemStack.EMPTY);
 					}
 					//Mark the storage dirty
 					be.setItemBufferDirty();
@@ -148,7 +150,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			}
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("ClickedSlot", storageSlot);
 				message.putBoolean("HeldShift", isShiftHeld);
 				message.putBoolean("LeftClick", leftClick);
@@ -158,10 +160,11 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void quickTransfer(int type) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
+			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			TraderItemStorage storage = be.getItemBuffer();
-			Inventory inv = this.menu.player.getInventory();
+			PlayerInventory inv = this.menu.player.inventory;
 			boolean changed = false;
 			if(type == 0)
 			{
@@ -212,7 +215,7 @@ public class ItemStorageTab extends TraderInterfaceTab{
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("QuickTransfer", type);
 				this.menu.sendMessage(message);
 			}
@@ -221,14 +224,16 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
+			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be) {
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity) {
+			ItemTraderInterfaceBlockEntity be = (ItemTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getItemHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getItemHandler());
 		}
@@ -237,8 +242,8 @@ public class ItemStorageTab extends TraderInterfaceTab{
 	
 	
 	@Override
-	public void receiveMessage(CompoundTag message) { 
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void receiveMessage(CompoundNBT message) { 
+		if(message.contains("ClickedSlot", Constants.NBT.TAG_INT))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

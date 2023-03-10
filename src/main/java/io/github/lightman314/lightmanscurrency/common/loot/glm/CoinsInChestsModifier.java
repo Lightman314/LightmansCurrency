@@ -3,19 +3,20 @@ package io.github.lightman314.lightmanscurrency.common.loot.glm;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import javax.annotation.Nonnull;
 
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
@@ -24,7 +25,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 	}
 	
 	@Override
-	public @NotNull List<ItemStack> apply(List<ItemStack> generatedLoot, LootContext context) {
+	public @Nonnull List<ItemStack> apply(List<ItemStack> generatedLoot, LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
 		if(!Config.COMMON.enableChestLoot.get())
@@ -50,7 +51,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 	public static class Serializer extends GlobalLootModifierSerializer<CoinsInChestsModifier> {
 
 		@Override
-		public CoinsInChestsModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] ailootcondition) {
+		public CoinsInChestsModifier read(ResourceLocation location, JsonObject object, ILootCondition[] ailootcondition) {
 			return new CoinsInChestsModifier();
 		}
 

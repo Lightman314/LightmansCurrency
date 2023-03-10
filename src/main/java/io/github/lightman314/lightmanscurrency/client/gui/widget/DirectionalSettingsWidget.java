@@ -6,15 +6,15 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 
 public class DirectionalSettingsWidget {
 
@@ -36,10 +36,8 @@ public class DirectionalSettingsWidget {
 		this.currentValueSource = currentValueSource;
 		this.onPress = onPress;
 		this.directionButtons = Lists.newArrayListWithCapacity(Direction.values().length);
-		
-		for(int i = 0; i < DIRECTIONS.size(); ++i)
-		{
-			Direction side = DIRECTIONS.get(i);
+
+		for (Direction side : DIRECTIONS) {
 			boolean value = this.currentValueSource.apply(side);
 			PlainButton button = new PlainButton(x + this.getSidePosX(side), y + this.getSidePosY(side), 16, 16, this::onButtonPress, BLOCK_SIDE_TEXTURE, this.getSideU(side), value ? 32 : 0);
 			button.visible = !ignoreSides.contains(side);
@@ -49,7 +47,7 @@ public class DirectionalSettingsWidget {
 		
 	}
 	
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY, Screen screen)
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY, Screen screen)
 	{
 		for(Direction side : Direction.values())
 		{

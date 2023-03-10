@@ -5,10 +5,9 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageBankInteraction {
 	
@@ -20,19 +19,19 @@ public class MessageBankInteraction {
 		this.amount = amount;
 	}
 	
-	public static void encode(MessageBankInteraction message, FriendlyByteBuf buffer) {
+	public static void encode(MessageBankInteraction message, PacketBuffer buffer) {
 		buffer.writeBoolean(message.isDeposit);
-		buffer.writeNbt(message.amount.save(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		message.amount.encode(buffer);
 	}
 
-	public static MessageBankInteraction decode(FriendlyByteBuf buffer) {
-		return new MessageBankInteraction(buffer.readBoolean(), new CoinValue(buffer.readAnySizeNbt()));
+	public static MessageBankInteraction decode(PacketBuffer buffer) {
+		return new MessageBankInteraction(buffer.readBoolean(), CoinValue.decode(buffer));
 	}
 
-	public static void handle(MessageBankInteraction message, Supplier<Context> supplier) {
+	public static void handle(MessageBankInteraction message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				if(player.containerMenu instanceof IBankAccountMenu)

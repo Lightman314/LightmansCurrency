@@ -3,28 +3,28 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageStorageInteraction {
 
-	CompoundTag message;
+	CompoundNBT message;
 	
-	public MessageStorageInteraction(CompoundTag message) { this.message = message; }
+	public MessageStorageInteraction(CompoundNBT message) { this.message = message; }
 	
-	public static void encode(MessageStorageInteraction message, FriendlyByteBuf buffer) { 
+	public static void encode(MessageStorageInteraction message, PacketBuffer buffer) {
 		buffer.writeNbt(message.message);
 	}
 	
-	public static MessageStorageInteraction decode(FriendlyByteBuf buffer) {
+	public static MessageStorageInteraction decode(PacketBuffer buffer) {
 		return new MessageStorageInteraction(buffer.readAnySizeNbt());
 	}
 	
-	public static void handle(MessageStorageInteraction message, Supplier<Context> supplier) {
+	public static void handle(MessageStorageInteraction message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->{
-			Player player = supplier.get().getSender();
+			PlayerEntity player = supplier.get().getSender();
 			if(player != null && player.containerMenu instanceof TraderStorageMenu)
 			{
 				TraderStorageMenu menu = (TraderStorageMenu)player.containerMenu;

@@ -14,13 +14,14 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTeamData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
-import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
+import io.github.lightman314.lightmanscurrency.client.model.ModelWallet;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -35,27 +36,31 @@ import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.ClientRegistry;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nonnull;
 
@@ -71,41 +76,41 @@ public class ClientProxy extends CommonProxy{
 	public void setupClient() {
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
+		RenderTypeLookup.setRenderLayer(ModBlocks.DISPLAY_CASE.get(), RenderType.cutout());
 		
 		this.setRenderLayer(ModBlocks.VENDING_MACHINE.getAll(), RenderType.cutout());
 		
 		this.setRenderLayer(ModBlocks.VENDING_MACHINE_LARGE.getAll(), RenderType.cutout());
-    	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
+
+		RenderTypeLookup.setRenderLayer(ModBlocks.ARMOR_DISPLAY.get(), RenderType.cutout());
 		this.setRenderLayer(ModBlocks.AUCTION_STAND.getAll(), RenderType.cutout());
-    	
-    	ItemBlockRenderTypes.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
+
+		RenderTypeLookup.setRenderLayer(ModBlocks.GEM_TERMINAL.get(), RenderType.translucent());
     	
     	//Register Screens
-    	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
-    	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
-    	
-    	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
-    	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
-    	
-    	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
-    	
-    	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
-    	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
-    	MenuScreens.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
-    	
-    	MenuScreens.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
-    	
-    	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
+    	ScreenManager.register(ModMenus.ATM.get(), ATMScreen::new);
+		ScreenManager.register(ModMenus.MINT.get(), MintScreen::new);
 
-		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
+		ScreenManager.register(ModMenus.TRADER.get(), TraderScreen::new);
+		ScreenManager.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
+		ScreenManager.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
+
+		ScreenManager.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
+
+		ScreenManager.register(ModMenus.WALLET.get(), WalletScreen::new);
+		ScreenManager.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
+		ScreenManager.register(ModMenus.TICKET_MACHINE.get(), TicketMachineScreen::new);
+
+		ScreenManager.register(ModMenus.TRADER_INTERFACE.get(), TraderInterfaceScreen::new);
+
+		ScreenManager.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
+
+		ScreenManager.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
     	
     	//Register Tile Entity Renderers
-    	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
-    	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
+    	ClientRegistry.bindTileEntityRenderer(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
+		ClientRegistry.bindTileEntityRenderer(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
+		ClientRegistry.bindTileEntityRenderer(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 
 
     	//Register the key bind
@@ -113,54 +118,69 @@ public class ClientProxy extends CommonProxy{
 		ClientRegistry.registerKeyBinding(ClientEvents.KEY_PORTABLE_TERMINAL);
 
 		//Setup Item Edit blacklists
-		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
+		ItemEditWidget.BlacklistCreativeTabs(ItemGroup.TAB_HOTBAR, ItemGroup.TAB_INVENTORY, ItemGroup.TAB_SEARCH);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
 
 		//Register the Wallet Overlay
-		OverlayRegistry.registerOverlayTop("wallet_hud", WalletDisplayOverlay.INSTANCE);
+		//Not needed in 1.16, as I have to manually render in the hud render post event
+		//Overlay.registerOverlayTop("wallet_hud", WalletDisplayOverlay.INSTANCE);
+
+		//Add wallet layer the old fashioned way :P
+		Map<String, PlayerRenderer> skinMap = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap();
+		this.addWalletLayer(skinMap.get("default"));
+		this.addWalletLayer(skinMap.get("slim"));
     	
+	}
+
+	private void addWalletLayer(PlayerRenderer renderer)
+	{
+		List<LayerRenderer<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>>> layers = ObfuscationReflectionHelper.getPrivateValue(LivingRenderer.class, renderer, "field_177097_h");
+		if(layers != null)
+		{
+			layers.add(new WalletLayer<>(renderer, new ModelWallet<>()));
+		}
 	}
 	
 	private void setRenderLayer(List<Block> blocks, RenderType type) {
-		for(Block b : blocks) ItemBlockRenderTypes.setRenderLayer(b, type);
+		for(Block b : blocks) RenderTypeLookup.setRenderLayer(b, type);
 	}
 	
 	@Override
 	public void clearClientTraders() { ClientTraderData.ClearTraders(); }
 	
 	@Override
-	public void updateTrader(CompoundTag compound) { ClientTraderData.UpdateTrader(compound); }
+	public void updateTrader(CompoundNBT compound) { ClientTraderData.UpdateTrader(compound); }
 	
 	@Override
 	public void removeTrader(long traderID) { ClientTraderData.RemoveTrader(traderID); }
 	
-	public void initializeTeams(CompoundTag compound)
+	public void initializeTeams(CompoundNBT compound)
 	{
-		if(compound.contains("Teams", Tag.TAG_LIST))
+		if(compound.contains("Teams", Constants.NBT.TAG_LIST))
 		{
 			List<Team> teams = Lists.newArrayList();
-			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
-			teamList.forEach(nbt -> teams.add(Team.load((CompoundTag)nbt)));
+			ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
+			teamList.forEach(nbt -> teams.add(Team.load((CompoundNBT)nbt)));
 			ClientTeamData.InitTeams(teams);
 		}
 	}
 	
-	public void updateTeam(CompoundTag compound) { ClientTeamData.UpdateTeam(compound); }
+	public void updateTeam(CompoundNBT compound) { ClientTeamData.UpdateTeam(compound); }
 	
 	@Override
 	public void removeTeam(long teamID) { ClientTeamData.RemoveTeam(teamID); }
 	
 	@Override
-	public void initializeBankAccounts(CompoundTag compound)
+	public void initializeBankAccounts(CompoundNBT compound)
 	{
-		if(compound.contains("BankAccounts", Tag.TAG_LIST))
+		if(compound.contains("BankAccounts", Constants.NBT.TAG_LIST))
 		{
 			Map<UUID,BankAccount> bank = new HashMap<>();
-			ListTag bankList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
+			ListNBT bankList = compound.getList("BankAccounts", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < bankList.size(); ++i)
 			{
-				CompoundTag tag = bankList.getCompound(i);
+				CompoundNBT tag = bankList.getCompound(i);
 				UUID id = tag.getUUID("Player");
 				BankAccount bankAccount = new BankAccount(tag);
 				bank.put(id,bankAccount);
@@ -170,10 +190,10 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public void updateBankAccount(CompoundTag compound) { ClientBankData.UpdateBankAccount(compound); }
+	public void updateBankAccount(CompoundNBT compound) { ClientBankData.UpdateBankAccount(compound); }
 	
 	@Override
-	public void receiveEmergencyEjectionData(CompoundTag compound)
+	public void receiveEmergencyEjectionData(CompoundNBT compound)
 	{
 		ClientEjectionData.UpdateEjectionData(compound);
 	}
@@ -213,8 +233,11 @@ public class ClientProxy extends CommonProxy{
 	public void createTeamResponse(long teamID)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		if(minecraft.screen instanceof TeamManagerScreen screen)
+		if(minecraft.screen instanceof TeamManagerScreen)
+		{
+			TeamManagerScreen screen = (TeamManagerScreen)minecraft.screen;
 			screen.setActiveTeam(teamID);
+		}
 	}
 	
 	@Override
@@ -276,7 +299,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void playCoinSound() {
 		Minecraft minecraft = Minecraft.getInstance();
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ModSounds.COINS_CLINKING.get(), 1f, 0.4f));
+		minecraft.getSoundManager().play(SimpleSound.forUI(ModSounds.COINS_CLINKING, 1f, 0.4f));
 	}
 	
 	@SubscribeEvent
@@ -289,8 +312,8 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	@Nonnull
-	public Level safeGetDummyLevel() throws Exception{
-		Level level = this.getDummyLevelFromServer();
+	public World safeGetDummyLevel() throws Exception{
+		World level = this.getDummyLevelFromServer();
 		if(level == null)
 			level = Minecraft.getInstance().level;
 		if(level != null)
@@ -301,8 +324,11 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void loadPlayerTrade(ClientPlayerTrade trade) {
 		Minecraft mc = Minecraft.getInstance();
-		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)
+		if(mc.player.containerMenu instanceof PlayerTradeMenu)
+		{
+			PlayerTradeMenu menu = (PlayerTradeMenu)mc.player.containerMenu;
 			menu.reloadTrade(trade);
+		}
 	}
 	
 }

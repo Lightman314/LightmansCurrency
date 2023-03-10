@@ -10,25 +10,25 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.options.PermissionOption;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class InputTraderData extends TraderData {
 
-	public static MutableComponent getFacingName(Direction side) { return new TranslatableComponent("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
+	public static IFormattableTextComponent getFacingName(Direction side) { return EasyText.translatable("gui.lightmanscurrency.settings.side." + side.toString().toLowerCase()); }
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final Map<Direction,Boolean> inputSides = new HashMap<>();
@@ -41,8 +41,8 @@ public abstract class InputTraderData extends TraderData {
 	
 	protected InputTraderData(ResourceLocation type) { this(type, ImmutableList.of()); }
 	protected InputTraderData(ResourceLocation type, ImmutableList<Direction> ignoreSides) { super(type); this.ignoreSides = ignoreSides; }
-	protected InputTraderData(ResourceLocation type, Level level, BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
-	protected InputTraderData(ResourceLocation type, Level level, BlockPos pos, ImmutableList<Direction> ignoreSides) {
+	protected InputTraderData(ResourceLocation type, World level, BlockPos pos) { this(type, level, pos, ImmutableList.of()); }
+	protected InputTraderData(ResourceLocation type, World level, BlockPos pos, ImmutableList<Direction> ignoreSides) {
 		super(type, level, pos);
 		this.ignoreSides = ignoreSides;
 	}
@@ -77,7 +77,7 @@ public abstract class InputTraderData extends TraderData {
 		return false;
 	}
 	
-	public void setInputSide(Player player, Direction side, boolean value) {
+	public void setInputSide(PlayerEntity player, Direction side, boolean value) {
 		if(this.hasPermission(player, Permissions.InputTrader.EXTERNAL_INPUTS) && value != this.allowInputSide(side))
 		{
 			if(this.ignoreSides.contains(side))
@@ -90,7 +90,7 @@ public abstract class InputTraderData extends TraderData {
 		}
 	}
 	
-	public void setOutputSide(Player player, Direction side, boolean value) {
+	public void setOutputSide(PlayerEntity player, Direction side, boolean value) {
 		if(this.hasPermission(player, Permissions.InputTrader.EXTERNAL_INPUTS) && value != this.allowOutputSide(side))
 		{
 			if(this.ignoreSides.contains(side))
@@ -104,13 +104,13 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		this.saveInputSides(compound);
 		this.saveOutputSides(compound);
 	}
 	
-	protected final void saveInputSides(CompoundTag compound) {
-		CompoundTag tag = new CompoundTag();
+	protected final void saveInputSides(CompoundNBT compound) {
+		CompoundNBT tag = new CompoundNBT();
 		for(Direction side : Direction.values())
 		{
 			if(this.ignoreSides.contains(side))
@@ -120,8 +120,8 @@ public abstract class InputTraderData extends TraderData {
 		compound.put("InputSides", tag);
 	}
 	
-	protected final void saveOutputSides(CompoundTag compound) {
-		CompoundTag tag = new CompoundTag();
+	protected final void saveOutputSides(CompoundNBT compound) {
+		CompoundNBT tag = new CompoundNBT();
 		for(Direction side : Direction.values())
 		{
 			if(this.ignoreSides.contains(side))
@@ -132,11 +132,11 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		if(compound.contains("InputSides"))
 		{
 			this.inputSides.clear();
-			CompoundTag tag = compound.getCompound("InputSides");
+			CompoundNBT tag = compound.getCompound("InputSides");
 			for(Direction side : Direction.values())
 			{
 				if(this.ignoreSides.contains(side))
@@ -149,7 +149,7 @@ public abstract class InputTraderData extends TraderData {
 		if(compound.contains("OutputSides"))
 		{
 			this.outputSides.clear();
-			CompoundTag tag = compound.getCompound("OutputSides");
+			CompoundNBT tag = compound.getCompound("OutputSides");
 			for(Direction side : Direction.values())
 			{
 				if(this.ignoreSides.contains(side))
@@ -163,7 +163,7 @@ public abstract class InputTraderData extends TraderData {
 	@OnlyIn(Dist.CLIENT)
 	public abstract IconData inputSettingsTabIcon();
 	@OnlyIn(Dist.CLIENT)
-	public abstract MutableComponent inputSettingsTabTooltip();
+	public abstract IFormattableTextComponent inputSettingsTabTooltip();
 	@OnlyIn(Dist.CLIENT)
 	public abstract int inputSettingsTabColor();
 	@OnlyIn(Dist.CLIENT)
@@ -172,7 +172,7 @@ public abstract class InputTraderData extends TraderData {
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 	
 	@Override
-	public void receiveNetworkMessage(Player player, CompoundTag message)
+	public void receiveNetworkMessage(PlayerEntity player, CompoundNBT message)
 	{
 		super.receiveNetworkMessage(player, message);
 		
@@ -199,7 +199,7 @@ public abstract class InputTraderData extends TraderData {
 	public void addPermissionOptions(List<PermissionOption> options) { options.add(BooleanPermission.of(Permissions.InputTrader.EXTERNAL_INPUTS)); }
 
 	@Deprecated
-	protected final void loadOldInputSides(CompoundTag compound) {
+	protected final void loadOldInputSides(CompoundNBT compound) {
 		this.inputSides.clear();
 		for(Direction side : Direction.values())
 		{
@@ -211,7 +211,7 @@ public abstract class InputTraderData extends TraderData {
 	}
 	
 	@Deprecated
-	protected final void loadOldOutputSides(CompoundTag compound) {
+	protected final void loadOldOutputSides(CompoundNBT compound) {
 		this.outputSides.clear();
 		for(Direction side : Direction.values())
 		{

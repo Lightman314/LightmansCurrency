@@ -3,20 +3,19 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 import java.util.List;
 
 import com.google.common.base.Supplier;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.text.ITextComponent;
 
-public class ScrollTextDisplay extends AbstractWidget{
+public class ScrollTextDisplay extends Widget {
 
-	private Font font;
-	private final Supplier<List<? extends Component>> textSource;
+	private final FontRenderer font;
+	private final Supplier<List<? extends ITextComponent>> textSource;
 	public boolean invertText = false;
 	public int backgroundColor = 0xFF000000;
 	public int textColor = 0xFFFFFF;
@@ -24,9 +23,9 @@ public class ScrollTextDisplay extends AbstractWidget{
 	public int getColumnCount() { return this.columnCount; }
 	public void setColumnCount(int columnCount) { this.columnCount = MathUtil.clamp(columnCount, 1, Integer.MAX_VALUE); }
 	
-	public ScrollTextDisplay(int x, int y, int width, int height, Font font, Supplier<List<? extends Component>> textSource)
+	public ScrollTextDisplay(int x, int y, int width, int height, FontRenderer font, Supplier<List<? extends ITextComponent>> textSource)
 	{
-		super(x,y,width,height, new TextComponent(""));
+		super(x,y,width,height, EasyText.empty());
 		
 		this.font = font;
 		this.textSource = textSource;
@@ -35,7 +34,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	private int scroll = 0;
 	
 	@Override
-	public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks)
+	public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		if(!this.visible)
@@ -45,7 +44,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 		Screen.fill(matrix, this.x, this.y, this.x + this.width, this.y + this.height, this.backgroundColor);
 		
 		//Start rendering the text
-		List<? extends Component> text = this.textSource.get();
+		List<? extends ITextComponent> text = this.textSource.get();
 		
 		this.validateScroll(text.size());
 		int i = this.getStartingIndex(text.size());
@@ -57,7 +56,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 			for(int col = 0; col < this.columnCount && i >= 0 && i < text.size(); ++col)
 			{
 				int xPos = this.getXPos(col);
-				Component thisText = text.get(i);
+				ITextComponent thisText = text.get(i);
 				int thisHeight = this.font.wordWrapHeight(thisText.getString(), columnWidth);
 				if(yPos + thisHeight < bottom)
 				{
@@ -125,11 +124,6 @@ public class ScrollTextDisplay extends AbstractWidget{
 		}
 		
 		return true;
-	}
-	
-	@Override
-	public void updateNarration(NarrationElementOutput narrator) {
-		
 	}
 	
 	

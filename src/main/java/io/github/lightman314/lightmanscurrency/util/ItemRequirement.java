@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import com.google.common.collect.Lists;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.*;
@@ -139,7 +139,7 @@ public final class ItemRequirement implements Predicate<ItemStack> {
      * Returns null if not enough items within the container matched the requirements.
      * Does not actually remove the items from the container, this is merely a query function.
      */
-    public static List<ItemStack> getFirstItemsMatchingRequirements(Container container, ItemRequirement... requirements)
+    public static List<ItemStack> getFirstItemsMatchingRequirements(IInventory container, ItemRequirement... requirements)
     {
         List<ItemStack> results = new ArrayList<>();
         Map<Integer,Integer> consumedItems = new HashMap<>();

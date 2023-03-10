@@ -10,29 +10,29 @@ import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @Mod.EventBusSubscriber
 public class CoinMintBlockEntity extends EasyBlockEntity {
 
-	SimpleContainer storage = new SimpleContainer(2);
-	public SimpleContainer getStorage() { return this.storage; }
+	Inventory storage = new Inventory(2);
+	public Inventory getStorage() { return this.storage; }
 
 	private final MintItemCapability itemHandler = new MintItemCapability(this);
 	private final LazyOptional<IItemHandler> inventoryHandlerLazyOptional = LazyOptional.of(() -> this.itemHandler);
@@ -44,34 +44,35 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		return Lists.newArrayList();
 	}
 
-	public static List<CoinMintRecipe> getCoinMintRecipes(Level level) { return RecipeValidator.getValidRecipes(level).getCoinMintRecipes(); }
+	public static List<CoinMintRecipe> getCoinMintRecipes(World level) { return RecipeValidator.getValidRecipes(level).getCoinMintRecipes(); }
 
-	public CoinMintBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.COIN_MINT.get(), pos, state); }
+	public CoinMintBlockEntity() { this(ModBlockEntities.COIN_MINT.get()); }
 
-	protected CoinMintBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
+	protected CoinMintBlockEntity(TileEntityType<?> type)
 	{
-		super(type, pos, state);
+		super(type);
 		this.storage.addListener(container -> this.setChanged());
 	}
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
+		compound = super.save(compound);
 		InventoryUtil.saveAllItems("Storage", compound, this.storage);
-		super.saveAdditional(compound);
+		return compound;
 	}
 
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
-		super.load(compound);
+		super.load(state, compound);
 
 		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
 		this.storage.addListener(container -> this.setChanged());
 
 	}
 
-	public void dumpContents(Level world, BlockPos pos)
+	public void dumpContents(World world, BlockPos pos)
 	{
 		InventoryUtil.dumpContents(world, pos, this.storage);
 	}
@@ -81,7 +82,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 
 	public boolean validMintInput(ItemStack item)
 	{
-		Container tempInv = new SimpleContainer(1);
+		IInventory tempInv = new Inventory(1);
 		tempInv.setItem(0, item);
 		for(CoinMintRecipe recipe : this.getCoinMintRecipes())
 		{
@@ -198,7 +199,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 
 	//Item capability for hopper and item automation
 	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side)
+	public <T> @Nonnull LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side)
 	{
 		if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 			return this.inventoryHandlerLazyOptional.cast();
@@ -225,7 +226,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		}
 
 		@Override
-		public @NotNull ItemStack getStackInSlot(int slot) {
+		public @Nonnull ItemStack getStackInSlot(int slot) {
 			if(slot == 1)
 			{
 				if(this.mint.getStorage().getItem(1).isEmpty() && this.mint.getRelevantRecipe() != null)
@@ -238,7 +239,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		}
 
 		@Override
-		public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+		public @Nonnull ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
 			//Can only insert into slot 0
 			if(slot != 0)
 				return stack.copy();
@@ -288,7 +289,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		}
 
 		@Override
-		public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+		public @Nonnull ItemStack extractItem(int slot, int amount, boolean simulate) {
 			//Can only extract from slot 1
 			if(slot != 1)
 				return ItemStack.EMPTY;
@@ -351,7 +352,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		}
 
 		@Override
-		public boolean isItemValid(int slot, @NotNull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return slot == 0 && this.mint.validMintInput(stack); }
 
 	}
 

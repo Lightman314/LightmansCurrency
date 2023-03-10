@@ -3,9 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
@@ -16,14 +13,14 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -54,10 +51,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	}
 	
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FreezerTraderBlockEntity(pos, state, TRADECOUNT); }
-	
-	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.FREEZER_TRADER.get(); }
+	public TileEntity makeTrader() { return new FreezerTraderBlockEntity(TRADECOUNT); }
 	
 	@Override
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
@@ -157,6 +151,6 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public int maxRenderIndex() { return TRADECOUNT; }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
 	
 }

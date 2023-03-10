@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.world.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -107,13 +108,10 @@ public class LCCurios {
 		return false;
 	}
 
-	public static ICapabilityProvider createWalletProvider(ItemStack stack)
+	public static ICapabilityProvider createWalletProvider(ItemStack ignored)
 	{
 		return CurioItemCapability.createProvider(new ICurio()
 		{
-			
-			@Override
-			public ItemStack getStack() { return stack; }
 			
 			@Nonnull
 			@Override
@@ -123,7 +121,7 @@ public class LCCurios {
 			public boolean canEquipFromUse(SlotContext context) { return false; }
 			
 			@Override
-			public boolean canSync(SlotContext context) { return true; }
+			public boolean canSync(String identifier, int index, LivingEntity livingEntity) { return true; }
 			
 			@Override
 			public boolean canEquip(String identifier, LivingEntity livingEntity) { return livingEntity instanceof PlayerEntity; }
@@ -145,9 +143,9 @@ public class LCCurios {
 			
 			@Nonnull
 			@Override
-			public DropRule getDropRule(SlotContext context, DamageSource source, int lootingLevel, boolean recentlyHit)
+			public DropRule getDropRule(LivingEntity livingEntity)
 			{
-				GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level, ModGameRules.KEEP_WALLET);
+				GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
 				if((keepWallet != null && keepWallet.get()))
 					return DropRule.ALWAYS_KEEP;
 				else

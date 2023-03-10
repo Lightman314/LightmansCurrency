@@ -3,9 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -19,12 +21,23 @@ import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.Config;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class WalletItem extends Item {
 	
@@ -58,7 +71,7 @@ public class WalletItem extends Item {
 	}
 	
 	@Override
-	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
+	public boolean isEnchantable(@Nonnull ItemStack stack) { return true; }
 	
 	/**
 	 * Determines if the given ItemStack can be processed as a wallet.
@@ -136,42 +149,42 @@ public class WalletItem extends Item {
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		
 		if(CanPickup(this))
 		{
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.pickup").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.pickup").withStyle(TextFormatting.YELLOW));
 		}
 		if(CanConvert(this))
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = getAutoConvert(stack) ? new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(ChatFormatting.GREEN) : new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(ChatFormatting.RED);
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(ChatFormatting.YELLOW));
+				ITextComponent onOffText = getAutoConvert(stack) ? EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.on").withStyle(TextFormatting.GREEN) : EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert.off").withStyle(TextFormatting.RED);
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.autoConvert", onOffText).withStyle(TextFormatting.YELLOW));
 			}
 			else
 			{
-				tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.manualConvert").withStyle(TextFormatting.YELLOW));
 			}
 		}
 		if(HasBankAccess(this))
 		{
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.bankaccount").withStyle(TextFormatting.YELLOW));
 		}
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 		
 		CoinValue contents = new CoinValue(getWalletInventory(stack));
 		if(contents.getRawValue() > 0)
-			tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.wallet.storedmoney", new TextComponent(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.wallet.storedmoney", EasyText.literal(contents.getString()).withStyle(TextFormatting.DARK_GREEN)).withStyle(TextFormatting.YELLOW));
 		
 	}
 	
 	@Override
-	public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand)
+	public @Nonnull ActionResult<ItemStack> use(World world, PlayerEntity player, @Nonnull Hand hand)
 	{
 		
 		//CurrencyMod.LOGGER.info("Wallet was used.");
@@ -183,7 +196,7 @@ public class WalletItem extends Item {
 			//CurrencyMod.LOGGER.info("Opening Wallet UI?");
 			
 			//Determine which slot the wallet is in.
-			int walletSlot = GetWalletSlot(player.getInventory(), wallet);
+			int walletSlot = GetWalletSlot(player.inventory, wallet);
 			
 			//Open the UI
 			if(walletSlot >= 0)
@@ -209,7 +222,7 @@ public class WalletItem extends Item {
 					if(equippedWallet)
 						walletSlot = -1;
 				}
-				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+				NetworkHooks.openGui((ServerPlayerEntity) player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
 			}
 				
 			else
@@ -218,12 +231,12 @@ public class WalletItem extends Item {
 		}
 		else
 		{
-			player.level.playSound(player, player.blockPosition(), emptyOpenSound, SoundSource.PLAYERS, 0.75f, 1.25f + player.level.random.nextFloat() * 0.5f);
+			player.level.playSound(player, player.blockPosition(), emptyOpenSound, SoundCategory.PLAYERS, 0.75f, 1.25f + player.level.random.nextFloat() * 0.5f);
 			if(!isEmpty(wallet))
-				player.level.playSound(player, player.blockPosition(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
+				player.level.playSound(player, player.blockPosition(), ModSounds.COINS_CLINKING, SoundCategory.PLAYERS, 0.4f, 1f);
 		}
 		
-		return InteractionResultHolder.success(wallet);
+		return ActionResult.success(wallet);
 		
 	}
 	
@@ -241,7 +254,7 @@ public class WalletItem extends Item {
 		return true;
 	}
 	
-	private static int GetWalletSlot(Inventory inventory, ItemStack wallet)
+	private static int GetWalletSlot(IInventory inventory, ItemStack wallet)
 	{
 		for(int i = 0; i < inventory.getContainerSize(); i++)
 		{
@@ -308,14 +321,14 @@ public class WalletItem extends Item {
 		if(!(wallet.getItem() instanceof WalletItem))
 			return;
 		
-		CompoundTag compound = wallet.getOrCreateTag();
-		ListTag invList = new ListTag();
+		CompoundNBT compound = wallet.getOrCreateTag();
+		ListNBT invList = new ListNBT();
 		for(int i = 0; i < inventory.size(); i++)
 		{
 			ItemStack thisStack = inventory.get(i);
 			if(!thisStack.isEmpty())
 			{
-				CompoundTag thisItemCompound = thisStack.save(new CompoundTag());
+				CompoundNBT thisItemCompound = thisStack.save(new CompoundNBT());
 				thisItemCompound.putByte("Slot", (byte)i);
 				invList.add(thisItemCompound);
 			}
@@ -329,8 +342,8 @@ public class WalletItem extends Item {
 	 */
 	public static NonNullList<ItemStack> getWalletInventory(ItemStack wallet)
 	{
-		
-		CompoundTag compound = wallet.getOrCreateTag();
+
+		CompoundNBT compound = wallet.getOrCreateTag();
 		 if(!(wallet.getItem() instanceof WalletItem))
 			 return NonNullList.withSize(6, ItemStack.EMPTY);
 
@@ -338,10 +351,10 @@ public class WalletItem extends Item {
 		if(!compound.contains("Items"))
 			return value;
 		
-		ListTag invList = compound.getList("Items", Tag.TAG_COMPOUND);
+		ListNBT invList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < invList.size(); i++)
 		{
-			CompoundTag thisCompound = invList.getCompound(i);
+			CompoundNBT thisCompound = invList.getCompound(i);
 			ItemStack thisStack = ItemStack.of(thisCompound);
 			int j = (int)thisCompound.getByte("Slot") & 255;
 			if(j >= 0 && j < value.size())
@@ -363,8 +376,8 @@ public class WalletItem extends Item {
 		
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return false;
-		
-		CompoundTag tag = wallet.getOrCreateTag();
+
+		CompoundNBT tag = wallet.getOrCreateTag();
 		if(!tag.contains("AutoConvert"))
 		{
 			tag.putBoolean("AutoConvert", true);
@@ -387,8 +400,8 @@ public class WalletItem extends Item {
 		
 		if(!WalletItem.CanConvert((WalletItem)wallet.getItem()))
 			return;
-		
-		CompoundTag tag = wallet.getOrCreateTag();
+
+		CompoundNBT tag = wallet.getOrCreateTag();
 		boolean oldValue = WalletItem.getAutoConvert(wallet);
 		tag.putBoolean("AutoConvert", !oldValue);
 		
@@ -401,11 +414,13 @@ public class WalletItem extends Item {
 	 */
 	public static void CopyWalletContents(ItemStack walletIn, ItemStack walletOut)
 	{
-		if(!(walletIn.getItem() instanceof WalletItem walletItemIn && walletOut.getItem() instanceof WalletItem walletItemOut))
+		if(!(walletIn.getItem() instanceof WalletItem && walletOut.getItem() instanceof WalletItem))
 		{
 			LightmansCurrency.LogError("WalletItem.CopyWalletContents() -> One or both of the wallet stacks are not WalletItems.");
 			return;
 		}
+		WalletItem walletItemIn = (WalletItem)walletIn.getItem();
+		WalletItem walletItemOut = (WalletItem)walletOut.getItem();
 		NonNullList<ItemStack> walletInventory1 = getWalletInventory(walletIn);
 		NonNullList<ItemStack> walletInventory2 = getWalletInventory(walletOut);
 		if(walletInventory1.size() > walletInventory2.size())
@@ -435,7 +450,7 @@ public class WalletItem extends Item {
 		
 	}
 	
-	public static class DataWriter implements Consumer<FriendlyByteBuf>
+	public static class DataWriter implements Consumer<PacketBuffer>
 	{
 
 		private final int slotIndex;
@@ -446,7 +461,7 @@ public class WalletItem extends Item {
 		}
 		
 		@Override
-		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.slotIndex); }
+		public void accept(PacketBuffer buffer) { buffer.writeInt(this.slotIndex); }
 		
 	}
 	

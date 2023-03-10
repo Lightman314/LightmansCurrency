@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageSyncClientTime {
 	
@@ -18,11 +18,11 @@ public class MessageSyncClientTime {
 		this.time = time;
 	}
 	
-	public static void encode(MessageSyncClientTime message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSyncClientTime message, PacketBuffer buffer) {
 		buffer.writeLong(TimeUtil.getCurrentTime());
 	}
 
-	public static MessageSyncClientTime decode(FriendlyByteBuf buffer) {
+	public static MessageSyncClientTime decode(PacketBuffer buffer) {
 		return new MessageSyncClientTime(buffer.readLong());
 	}
 

@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageSyncUsers {
 	
@@ -18,12 +18,12 @@ public class MessageSyncUsers {
 		this.userCount = userCount;
 	}
 	
-	public static void encode(MessageSyncUsers message, FriendlyByteBuf buffer) {
+	public static void encode(MessageSyncUsers message, PacketBuffer buffer) {
 		buffer.writeLong(message.traderID);
 		buffer.writeInt(message.userCount);
 	}
 
-	public static MessageSyncUsers decode(FriendlyByteBuf buffer) {
+	public static MessageSyncUsers decode(PacketBuffer buffer) {
 		return new MessageSyncUsers(buffer.readLong(), buffer.readInt());
 	}
 

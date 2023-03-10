@@ -1,27 +1,27 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 
 public class TextNotification extends Notification {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "text");
 	
-	private MutableComponent text = new TextComponent("");
+	private IFormattableTextComponent text = EasyText.empty();
 	private NotificationCategory category = NullCategory.INSTANCE;
 	
-	public TextNotification(MutableComponent text){ this(text, NullCategory.INSTANCE); }
-	public TextNotification(MutableComponent text, NotificationCategory category) { this.text = text; this.category = category; }
+	public TextNotification(IFormattableTextComponent text){ this(text, NullCategory.INSTANCE); }
+	public TextNotification(IFormattableTextComponent text, NotificationCategory category) { this.text = text; this.category = category; }
 	
-	public TextNotification(CompoundTag compound) { this.load(compound); }
+	public TextNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -30,19 +30,19 @@ public class TextNotification extends Notification {
 	public NotificationCategory getCategory() { return this.category; }
 
 	@Override
-	public MutableComponent getMessage() { return text; }
+	public IFormattableTextComponent getMessage() { return text; }
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		compound.putString("Text", Component.Serializer.toJson(this.text));
+	protected void saveAdditional(CompoundNBT compound) {
+		compound.putString("Text", ITextComponent.Serializer.toJson(this.text));
 		compound.put("Category", this.category.save());
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
-		if(compound.contains("Text", Tag.TAG_STRING))
-			this.text = Component.Serializer.fromJson(compound.getString("Text"));
-		if(compound.contains("Category", Tag.TAG_COMPOUND))
+	protected void loadAdditional(CompoundNBT compound) {
+		if(compound.contains("Text", Constants.NBT.TAG_STRING))
+			this.text = ITextComponent.Serializer.fromJson(compound.getString("Text"));
+		if(compound.contains("Category", Constants.NBT.TAG_COMPOUND))
 			this.category = NotificationCategory.deserialize(compound.getCompound("Category"));
 	}
 
@@ -51,8 +51,7 @@ public class TextNotification extends Notification {
 		if(other instanceof TextNotification)
 		{
 			TextNotification otherText = (TextNotification)other;
-			if(otherText.text.getString() == this.text.getString())
-				return true;
+			return otherText.text.getString().equals(this.text.getString());
 		}
 		return false;
 	}

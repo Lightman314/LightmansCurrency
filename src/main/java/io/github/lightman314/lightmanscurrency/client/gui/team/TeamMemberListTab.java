@@ -3,17 +3,19 @@ package io.github.lightman314.lightmanscurrency.client.gui.team;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
 
 public class TeamMemberListTab extends TeamTab {
 
@@ -21,18 +23,19 @@ public class TeamMemberListTab extends TeamTab {
 	
 	private TeamMemberListTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(Items.PLAYER_HEAD);
 	}
 
 	@Override
-	public Component getTooltip() {
-		return new TranslatableComponent("tooltip.lightmanscurrency.team.members");
+	public ITextComponent getTooltip() {
+		return EasyText.translatable("tooltip.lightmanscurrency.team.members");
 	}
 
 	@Override
-	public boolean allowViewing(Player player, Team team) {
+	public boolean allowViewing(PlayerEntity player, Team team) {
 		return team != null;
 	}
 	
@@ -47,16 +50,16 @@ public class TeamMemberListTab extends TeamTab {
 		
 	}
 	
-	private List<Component> getMemberList()
+	private List<ITextComponent> getMemberList()
 	{
-		List<Component> list = Lists.newArrayList();
+		List<ITextComponent> list = Lists.newArrayList();
 		Team team = this.getActiveTeam();
 		if(team != null)
 		{
 			//List Owner
-			list.add(team.getOwner().getNameComponent(true).withStyle(ChatFormatting.GREEN));
+			list.add(team.getOwner().getNameComponent(true).withStyle(TextFormatting.GREEN));
 			//List Admins
-			team.getAdmins().forEach(admin -> list.add(admin.getNameComponent(true).withStyle(ChatFormatting.DARK_GREEN)));
+			team.getAdmins().forEach(admin -> list.add(admin.getNameComponent(true).withStyle(TextFormatting.DARK_GREEN)));
 			//List members
 			team.getMembers().forEach(member -> list.add(member.getNameComponent(true)));
 		}
@@ -65,12 +68,12 @@ public class TeamMemberListTab extends TeamTab {
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 	}
 

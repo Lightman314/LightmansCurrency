@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.core.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
@@ -9,12 +10,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
-import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
@@ -127,7 +128,6 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::imc);
         
         //Register configs
@@ -253,11 +253,16 @@ public class LightmansCurrency {
 		//Villager Trades
 		VillagerTradeManager.registerDefaultTrades();
 		ItemListingSerializer.registerDefaultSerializers();
+
+		//Register the Capabilities
+		WalletCapability.register();
+		SpawnTrackerCapability.register();
+
     }
 
 	private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
     
-    private void onConfigLoad(ModConfigEvent event)
+    private void onConfigLoad(ModConfig.ModConfigEvent event)
     {
     	if(event.getConfig().getModId().equals(MODID) && event.getConfig().getSpec() == Config.commonSpec)
     	{
@@ -272,18 +277,12 @@ public class LightmansCurrency {
     	}
     }
     
-    private void registerCapabilities(RegisterCapabilitiesEvent event)
-    {
-    	event.register(IWalletHandler.class);
-    	event.register(ISpawnTracker.class);
-    }
-    
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
     	
     	//Preload target
-    	PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+    	PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
     	//Sync time
     	LightmansCurrencyPacketHandler.instance.send(target, new MessageSyncClientTime());
     	//Sync admin list

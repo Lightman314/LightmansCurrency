@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -36,41 +37,37 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
-import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.MessageArgument;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
-import net.minecraft.commands.arguments.item.ItemArgument;
-import net.minecraft.commands.arguments.item.ItemInput;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraft.block.BlockState;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 public class CommandLCAdmin {
 
 
 	private static List<UUID> adminPlayers = new ArrayList<>();
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
+	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
+		LiteralArgumentBuilder<CommandSource> lcAdminCommand
 				= Commands.literal("lcadmin")
 				.requires((commandSource) -> commandSource.hasPermission(2))
 				.then(Commands.literal("toggleadmin")
-						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
+						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayerEntity)
 						.executes(CommandLCAdmin::toggleAdmin))
 				.then(Commands.literal("traderdata")
 						.then(Commands.literal("list")
@@ -113,13 +110,13 @@ public class CommandLCAdmin {
 
 	}
 
-	static int toggleAdmin(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
+	static int toggleAdmin(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
 
-		CommandSourceStack source = commandContext.getSource();
-		ServerPlayer sourcePlayer = source.getPlayerOrException();
+		CommandSource source = commandContext.getSource();
+		ServerPlayerEntity sourcePlayer = source.getPlayerOrException();
 
 		ToggleAdminPlayer(sourcePlayer);
-		Component enabledDisabled = isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
+		ITextComponent enabledDisabled = isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(TextFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(TextFormatting.RED);
 		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
 
 		return 1;
@@ -127,23 +124,24 @@ public class CommandLCAdmin {
 
 	private static final SimpleCommandExceptionType ERROR_BLOCK_NOT_FOUND = new SimpleCommandExceptionType(EasyText.translatable("command.trader.block.notfound"));
 
-	static int setCustomTrader(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int setCustomTrader(CommandContext<CommandSource> commandContext) throws CommandSyntaxException {
 
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(commandContext, "traderPos");
 
-		Level level = source.getLevel();
+		World level = source.getLevel();
 
 		BlockState state = level.getBlockState(pos);
-		BlockEntity be;
+		TileEntity be;
 		if(state.getBlock() instanceof ITraderBlock)
 			be = ((ITraderBlock)state.getBlock()).getBlockEntity(state, level, pos);
 		else
 			be = level.getBlockEntity(pos);
 
-		if(be instanceof TraderBlockEntity<?> t)
+		if(be instanceof TraderBlockEntity<?>)
 		{
+			TraderBlockEntity<?> t = (TraderBlockEntity<?>)be;
 			t.saveCurrentTraderAsCustomTrader();
 			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
 			return 1;
@@ -153,9 +151,9 @@ public class CommandLCAdmin {
 
 	}
 
-	static int listTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int listTraderData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException {
 
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 		List<TraderData> allTraders = TraderSaveData.GetAllTraders(false);
 
 		if(allTraders.size() > 0)
@@ -182,13 +180,13 @@ public class CommandLCAdmin {
 		return 1;
 	}
 
-	static int searchTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
+	static int searchTraderData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException{
 
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 
 		String searchText = MessageArgument.getMessage(commandContext, "searchText").getString();
 
-		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderSearchFilter.CheckFilters(trader, searchText)).toList();
+		List<TraderData> results = TraderSaveData.GetAllTraders(false).stream().filter(trader -> TraderSearchFilter.CheckFilters(trader, searchText)).collect(Collectors.toList());
 		if(results.size() > 0)
 		{
 
@@ -211,7 +209,7 @@ public class CommandLCAdmin {
 		return 1;
 	}
 
-	private static void sendTraderDataFeedback(TraderData thisTrader, CommandSourceStack source)
+	private static void sendTraderDataFeedback(TraderData thisTrader, CommandSource source)
 	{
 		//Trader ID
 		String traderID = String.valueOf(thisTrader.getID());
@@ -256,10 +254,10 @@ public class CommandLCAdmin {
 			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
 	}
 
-	static int deleteTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int deleteTraderData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 
@@ -267,34 +265,35 @@ public class CommandLCAdmin {
 		TraderSaveData.DeleteTrader(trader.getID());
 		//Send success message
 		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
-		if(source.getEntity() != null && source.getEntity() instanceof Player)
-			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((Player)source.getEntity()), new MessageDebugTrader(trader.getID()));
+		if(source.getEntity() != null && source.getEntity() instanceof PlayerEntity)
+			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((PlayerEntity)source.getEntity()), new MessageDebugTrader(trader.getID()));
 		return 1;
 
 	}
 
-	static int debugTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int debugTraderData(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 		source.sendSuccess(EasyText.literal(trader.save().getAsString()), false);
 		return 1;
 	}
 
-	static int addToTraderWhitelist(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int addToTraderWhitelist(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 
-		CommandSourceStack source = commandContext.getSource();
+		CommandSource source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 
 		TradeRule rule = TradeRule.getRule(PlayerWhitelist.TYPE, trader.getRules());
-		if(rule instanceof PlayerWhitelist whitelist)
+		if(rule instanceof PlayerWhitelist)
 		{
-			Collection<ServerPlayer> players = EntityArgument.getPlayers(commandContext, "player");
+			PlayerWhitelist whitelist = (PlayerWhitelist)rule;
+			Collection<ServerPlayerEntity> players = EntityArgument.getPlayers(commandContext, "player");
 			int count = 0;
-			for(ServerPlayer player : players)
+			for(ServerPlayerEntity player : players)
 			{
 				if(whitelist.addToWhitelist(player))
 					count++;
@@ -314,7 +313,7 @@ public class CommandLCAdmin {
 
 	}
 
-	static int giveBankAccountsMoneyAllPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int giveBankAccountsMoneyAllPlayers(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
 		int count = 0;
@@ -330,11 +329,11 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	static int giveBankAccountsMoneyAllTeams(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int giveBankAccountsMoneyAllTeams(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
 		int count = 0;
-		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
+		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).collect(Collectors.toList()))
 		{
 			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount.copy());
 			count++;
@@ -348,11 +347,11 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	static int giveBankAccountsMoneyPlayers(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int giveBankAccountsMoneyPlayers(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 		CoinValue amount = CoinValueArgument.getCoinValue(commandContext,"amount");
 		int count = 0;
-		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
+		for(PlayerEntity player : EntityArgument.getPlayers(commandContext, "players"))
 		{
 			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount.copy());
 			count++;
@@ -364,16 +363,16 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	static int replaceWalletSlotWithDefault(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	static int replaceWalletSlotWithDefault(CommandContext<CommandSource> commandContext) throws CommandSyntaxException
 	{
 		return replaceWalletSlotInternal(commandContext, true);
 	}
 
-	static int replaceWalletSlot(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+	static int replaceWalletSlot(CommandContext<CommandSource> commandContext) throws CommandSyntaxException {
 		return replaceWalletSlotInternal(commandContext, BoolArgumentType.getBool(commandContext, "keepWalletContents"));
 	}
 
-	static int replaceWalletSlotInternal(CommandContext<CommandSourceStack> commandContext, boolean keepWalletContents) throws CommandSyntaxException {
+	static int replaceWalletSlotInternal(CommandContext<CommandSource> commandContext, boolean keepWalletContents) throws CommandSyntaxException {
 		int count = 0;
 		ItemInput input = ItemArgument.getItem(commandContext,"wallet");
 		if(!(input.getItem() instanceof WalletItem) && input.getItem() != Items.AIR)
@@ -398,10 +397,10 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }
+	public static boolean isAdminPlayer(PlayerEntity player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }
 
 
-	private static void ToggleAdminPlayer(ServerPlayer player) {
+	private static void ToggleAdminPlayer(ServerPlayerEntity player) {
 		UUID playerID = player.getUUID();
 		if(adminPlayers.contains(playerID))
 			adminPlayers.remove(playerID);

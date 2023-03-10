@@ -3,24 +3,26 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinJarBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
-public class CoinJarBlock extends RotatableBlock implements EntityBlock{
+import javax.annotation.Nonnull;
+
+public class CoinJarBlock extends RotatableBlock{
 
 	public CoinJarBlock(Properties properties)
 	{
@@ -31,17 +33,20 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 	{
 		super(properties, shape);
 	}
-	
+
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
+	public boolean hasTileEntity(BlockState state) { return true; }
+
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader level)
 	{
-		return new CoinJarBlockEntity(pos, state);
+		return new CoinJarBlockEntity();
 	}
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(World level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
-		BlockEntity blockEntity = level.getBlockEntity(pos);
+		TileEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof CoinJarBlockEntity)
 		{
 			CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
@@ -49,16 +54,17 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public ActionResultType use(@Nonnull BlockState state, World level, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		if(!level.isClientSide)
 		{
 			ItemStack coinStack = player.getItemInHand(hand);
 			if(!MoneyUtil.isCoin(coinStack, false))
-				return InteractionResult.SUCCESS;
+				return ActionResultType.SUCCESS;
 			//Add coins to the bank
-			BlockEntity blockEntity = level.getBlockEntity(pos);
+			TileEntity blockEntity = level.getBlockEntity(pos);
 			if(blockEntity instanceof CoinJarBlockEntity)
 			{
 				CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
@@ -66,22 +72,21 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 					coinStack.shrink(1);
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 	}
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(World level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player)
 	{
 		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
-		BlockEntity tileEntity = level.getBlockEntity(pos);
+		TileEntity tileEntity = level.getBlockEntity(pos);
 		if(tileEntity instanceof CoinJarBlockEntity)
 		{
 			CoinJarBlockEntity jarEntity = (CoinJarBlockEntity)tileEntity;
 			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player) > 0)
 			{
 				//Drop the item for this block, with the JarData in it.
-				@SuppressWarnings("deprecation")
 				ItemStack dropStack = new ItemStack(Item.byBlock(this), 1);
 				if(jarEntity.getStorage().size() > 0)
 					jarEntity.writeItemTag(dropStack);

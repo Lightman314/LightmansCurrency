@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.network.message.auction;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +16,13 @@ public class SMessageSyncAuctionStandDisplay {
 
     public SMessageSyncAuctionStandDisplay(List<ItemStack> items) { this.items = InventoryUtil.copyList(items); }
 
-    public static void encode(SMessageSyncAuctionStandDisplay message, FriendlyByteBuf buffer) {
+    public static void encode(SMessageSyncAuctionStandDisplay message, PacketBuffer buffer) {
         buffer.writeInt(message.items.size());
         for(ItemStack item : message.items)
             buffer.writeItem(item);
     }
 
-    public static SMessageSyncAuctionStandDisplay decode(FriendlyByteBuf buffer) {
+    public static SMessageSyncAuctionStandDisplay decode(PacketBuffer buffer) {
         List<ItemStack> items = new ArrayList<>();
         int count = buffer.readInt();
         for(int i = 0; i < count; ++i)

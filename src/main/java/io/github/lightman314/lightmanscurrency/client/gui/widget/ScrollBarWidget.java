@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.ResourceLocation;
 
-public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
+import javax.annotation.Nonnull;
+
+public class ScrollBarWidget extends Widget implements IMouseListener {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/scroll.png");
 	
@@ -30,27 +30,27 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 	private int getKnobHeight() { return this.smallKnob ? SMALL_KNOB_HEIGHT : KNOB_HEIGHT; }
 	
 	public ScrollBarWidget(int x, int y, int height, IScrollable scrollable) {
-		super(x, y, WIDTH, height, new TextComponent(""));
+		super(x, y, WIDTH, height, EasyText.empty());
 		this.scrollable = scrollable;
 	}
 
 	public boolean visible() { return this.visible && this.scrollable.getMaxScroll() > this.scrollable.getMinScroll(); }
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(!this.visible() && this.isDragging)
 			this.isDragging = false;
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(!this.visible())
 			return;
 		
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		//Render the top
 		this.blit(pose, this.x, this.y, 0, 0, WIDTH, 8);
 		//Render the middle
@@ -118,9 +118,6 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		}
 		static int calculateMaxScroll(int visibleCount, int totalCount) { return Math.max(0, totalCount - visibleCount); }
 	}
-
-	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
 	
 	protected void dragKnob(double mouseY) {
 		//Cannot do anything if the scrollable cannot be scrolled
@@ -194,6 +191,6 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		return false;
 	}
 	
-	public void playDownSound(@NotNull SoundManager soundManager) { }
+	public void playDownSound(@Nonnull SoundHandler soundManager) { }
 
 }

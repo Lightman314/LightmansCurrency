@@ -49,7 +49,7 @@ public class CoinItem extends Item {
 				Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(stack.getItem());
 				if(upwardConversion != null)
 				{
-					tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), "�e" + upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(TextFormatting.YELLOW));
+					tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(TextFormatting.YELLOW));
 				}
 				break;
 			case VALUE:

@@ -2,14 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
 import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
@@ -18,16 +19,14 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class TimedSale extends TradeRule {
 
@@ -52,10 +51,10 @@ public class TimedSale extends TradeRule {
 			switch(event.getTrade().getTradeDirection())
 			{
 			case SALE:
-				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().getString()));
+				event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.timed_sale.info.sale", this.discount, this.getTimeRemaining().getString()));
 				break;
 			case PURCHASE:
-				event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().getString()));
+				event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.timed_sale.info.purchase", this.discount, this.getTimeRemaining().getString()));
 				break;
 				default: //Nothing if direction is NONE
 			}
@@ -100,7 +99,7 @@ public class TimedSale extends TradeRule {
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		
 		//Write start time
 		compound.putLong("startTime", this.startTime);
@@ -120,16 +119,16 @@ public class TimedSale extends TradeRule {
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
 		//Load start time
-		if(compound.contains("startTime", Tag.TAG_LONG))
+		if(compound.contains("startTime", Constants.NBT.TAG_LONG))
 			this.startTime = compound.getLong("startTime");
 		//Load duration
-		if(compound.contains("duration", Tag.TAG_LONG))
+		if(compound.contains("duration", Constants.NBT.TAG_LONG))
 			this.duration = compound.getLong("duration");
 		//Load discount
-		if(compound.contains("discount", Tag.TAG_INT))
+		if(compound.contains("discount", Constants.NBT.TAG_INT))
 			this.discount = compound.getInt("discount");
 		
 	}
@@ -143,7 +142,7 @@ public class TimedSale extends TradeRule {
 	}
 	
 	@Override
-	public void handleUpdateMessage(CompoundTag updateInfo) {
+	public void handleUpdateMessage(CompoundNBT updateInfo) {
 		if(updateInfo.contains("Discount"))
 		{
 			this.discount = updateInfo.getInt("Discount");
@@ -165,14 +164,14 @@ public class TimedSale extends TradeRule {
 	}
 	
 	@Override
-	public CompoundTag savePersistentData() {
-		CompoundTag compound = new CompoundTag();
+	public CompoundNBT savePersistentData() {
+		CompoundNBT compound = new CompoundNBT();
 		compound.putLong("startTime", this.startTime);
 		return compound;
 	}
 	@Override
-	public void loadPersistentData(CompoundTag data) {
-		if(data.contains("startTime", Tag.TAG_LONG))
+	public void loadPersistentData(CompoundNBT data) {
+		if(data.contains("startTime", Constants.NBT.TAG_LONG))
 			this.startTime = data.getLong("startTime");
 	}
 	
@@ -211,7 +210,7 @@ public class TimedSale extends TradeRule {
 			super(screen, rule);
 		}
 		
-		EditBox discountInput;
+		TextFieldWidget discountInput;
 		
 		Button buttonSetDiscount;
 		Button buttonStartSale;
@@ -222,10 +221,10 @@ public class TimedSale extends TradeRule {
 		public void initTab() {
 			
 			
-			this.discountInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, new TextComponent("")));
+			this.discountInput = this.addCustomRenderable(new TextFieldWidget(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, 20, 20, EasyText.empty()));
 			this.discountInput.setMaxLength(2);
 			this.discountInput.setValue(Integer.toString(this.getRule().discount));
-			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
+			this.buttonSetDiscount = this.addCustomRenderable(new Button(screen.guiLeft() + 110, screen.guiTop() + 10, 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 			
 			this.buttonStartSale = this.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 45, 156, 20, this.getButtonText(), this::PressStartButton));
 			
@@ -235,16 +234,16 @@ public class TimedSale extends TradeRule {
 		}
 		
 		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		public void renderTab(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 			
 			if(getRule() == null)
 				return;
 			
-			this.screen.getFont().draw(matrixStack, new TranslatableComponent("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
+			this.screen.getFont().draw(matrixStack, EasyText.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.x + this.discountInput.getWidth() + 4, this.discountInput.y + 3, 0xFFFFFF);
 			
-			Component infoText = new TranslatableComponent("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
+			ITextComponent infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeData(this.getRule().duration).getShortString());
 			if(this.getRule().timerActive())
-				infoText = new TranslatableComponent("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().getShortString(3));
+				infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().getShortString(3));
 			
 			this.screen.getFont().draw(matrixStack, infoText.getString(), screen.guiLeft() + 10, screen.guiTop() + 35, 0xFFFFFF);
 			
@@ -264,14 +263,14 @@ public class TimedSale extends TradeRule {
 			
 		}
 		
-		private Component getButtonText()
+		private ITextComponent getButtonText()
 		{
-			return new TranslatableComponent("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start"));
+			return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start"));
 		}
 		
-		private Component getButtonTooltip()
+		private ITextComponent getButtonTooltip()
 		{
-			return new TranslatableComponent("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start") + ".tooltip");
+			return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (this.getRule().timerActive() ? "stop" : "start") + ".tooltip");
 		}
 		
 		@Override
@@ -288,7 +287,7 @@ public class TimedSale extends TradeRule {
 		{
 			int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
 			this.getRule().discount = discount;
-			CompoundTag updateInfo = new CompoundTag();
+			CompoundNBT updateInfo = new CompoundNBT();
 			updateInfo.putInt("Discount", discount);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
 		}
@@ -297,7 +296,7 @@ public class TimedSale extends TradeRule {
 		{
 			boolean setActive = !this.getRule().timerActive();
 			this.getRule().startTime = this.getRule().timerActive() ? 0 : TimeUtil.getCurrentTime();
-			CompoundTag updateInfo = new CompoundTag();
+			CompoundNBT updateInfo = new CompoundNBT();
 			updateInfo.putBoolean("StartSale", setActive);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
 		}
@@ -305,7 +304,7 @@ public class TimedSale extends TradeRule {
 		public void onTimeSet(TimeData newTime)
 		{
 			this.getRule().duration = newTime.miliseconds;
-			CompoundTag updateInfo = new CompoundTag();
+			CompoundNBT updateInfo = new CompoundNBT();
 			updateInfo.putLong("Duration", newTime.miliseconds);
 			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
 		}

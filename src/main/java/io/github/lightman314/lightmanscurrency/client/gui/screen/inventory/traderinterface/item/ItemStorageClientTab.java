@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
@@ -15,18 +15,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
 
@@ -46,11 +46,12 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	ScrollBarWidget scrollBar;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -83,9 +84,9 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -105,30 +106,30 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					//Get the slot position
 					int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
 					//Render the slot background
-					RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+					RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+					RenderUtil.color4f(1f, 1f, 1f, 1f);
 					this.screen.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 					//Render the slots item
 					if(index < storage.getSlotCount())
 						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					if(index == hoveredSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
+						RenderUtil.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					index++;
 				}
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
 				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 			}
 			
 			//Render the input/output labels
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"));
-			this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
+			this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 		}
 		
 	}
@@ -141,18 +142,18 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		{
 			String countText = String.valueOf(count / 1000);
 			if((count % 1000) / 100 > 0)
-				countText += "." + String.valueOf((count % 1000) / 100);
+				countText += "." + ((count % 1000) / 100);
 			return countText + "k";
 		}
 		return String.valueOf(count);
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
-			if(this.screen.getMenu().getCarried().isEmpty())
+			if(this.screen.getMenu().player.inventory.getCarried().isEmpty())
 			{
 				int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 				if(hoveredSlot >= 0)
@@ -162,14 +163,14 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					if(hoveredSlot < storage.getContents().size())
 					{
 						ItemStack stack = storage.getContents().get(hoveredSlot);
-						List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-						tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+						List<ITextComponent> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
+						tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
 						if(stack.getCount() >= 64)
 						{
 							if(stack.getCount() % 64 == 0)
-								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
 							else
-								tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
 						}
 						this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
 					}	
@@ -289,8 +290,6 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		this.commonTab.toggleInputSlot(side);
 	}
 	
-	private void ToggleOutputSide(Direction side) {
-		this.commonTab.toggleOutputSlot(side);
-	}
+	private void ToggleOutputSide(Direction side) { this.commonTab.toggleOutputSlot(side); }
 	
 }

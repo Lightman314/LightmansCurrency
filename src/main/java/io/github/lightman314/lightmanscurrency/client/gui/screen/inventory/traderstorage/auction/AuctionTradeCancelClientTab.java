@@ -1,30 +1,31 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.auction;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionTradeCancelTab;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionTradeCancelTab> {
 
 	public AuctionTradeCancelClientTab(TraderStorageScreen screen, AuctionTradeCancelTab commonTab) { super(screen,commonTab); }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
-	public Component getTooltip() { return new TextComponent(""); }
+	public ITextComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -43,27 +44,27 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, b -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + (this.screen.getXSize() / 2) - 47, this.screen.getGuiTop() + 17);
 		
-		this.buttonCancelPlayerGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 60, this.screen.getXSize() - 80, 20, new TranslatableComponent("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true)));
-		this.buttonCancelStorageGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 85, this.screen.getXSize() - 80, 20, new TranslatableComponent("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false)));
+		this.buttonCancelPlayerGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 60, this.screen.getXSize() - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.self"), b -> this.commonTab.cancelAuction(true)));
+		this.buttonCancelStorageGive = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 40, this.screen.getGuiTop() + 85, this.screen.getXSize() - 80, 20, EasyText.translatable("button.lightmanscurrency.auction.cancel.storage"), b -> this.commonTab.cancelAuction(false)));
 		
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		TextRenderUtil.drawCenteredText(pose, new TranslatableComponent("tooltip.lightmanscurrency.auction.cancel"), this.screen.getGuiLeft() + (this.screen.getXSize() / 2), this.screen.getGuiTop() + 50, 0x404040);
+		TextRenderUtil.drawCenteredText(pose, EasyText.translatable("tooltip.lightmanscurrency.auction.cancel"), this.screen.getGuiLeft() + (this.screen.getXSize() / 2), this.screen.getGuiTop() + 50, 0x404040);
 		
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		
 		if(this.buttonCancelPlayerGive.isMouseOver(mouseX, mouseY))
-			this.screen.renderTooltip(pose, this.font.split(new TranslatableComponent("tooltip.lightmanscurrency.auction.cancel.self"), 160), mouseX, mouseY);
+			this.screen.renderTooltip(pose, this.font.split(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.self"), 160), mouseX, mouseY);
 		if(this.buttonCancelStorageGive.isMouseOver(mouseX, mouseY))
-			this.screen.renderTooltip(pose, this.font.split(new TranslatableComponent("tooltip.lightmanscurrency.auction.cancel.storage"), 160), mouseX, mouseY);
+			this.screen.renderTooltip(pose, this.font.split(EasyText.translatable("tooltip.lightmanscurrency.auction.cancel.storage"), 160), mouseX, mouseY);
 	}
 	
 	@Override
@@ -75,13 +76,13 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 	}
 	
 	@Override
-	public void receiveServerMessage(CompoundTag message) {
+	public void receiveServerMessage(CompoundNBT message) {
 		if(message.contains("CancelSuccess"))
 			this.screen.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
 	}

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 
 public class NetworkTraderReference {
 
@@ -24,14 +24,14 @@ public class NetworkTraderReference {
 		this.clientCheck = clientCheck;
 	}
 	
-	public CompoundTag save()
+	public CompoundNBT save()
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		compound.putLong("TraderID", this.traderID);
 		return compound;
 	}
 	
-	public void load(CompoundTag compound)
+	public void load(CompoundNBT compound)
 	{
 		//Convert old UUID to trader ID
 		if(compound.contains("traderID"))

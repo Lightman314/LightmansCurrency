@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.gson.JsonArray;
@@ -26,28 +26,25 @@ import io.github.lightman314.lightmanscurrency.network.message.data.MessageClear
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
-public class TraderSaveData extends SavedData {
+public class TraderSaveData extends WorldSavedData {
 
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/PersistentTraders.json";
 	
@@ -81,7 +78,7 @@ public class TraderSaveData extends SavedData {
 			this.traderData.put(traderID, ah);
 			this.setDirty();
 			//Send update packet to the connected clients
-			CompoundTag compound = ah.save();
+			CompoundNBT compound = ah.save();
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(compound));
 		}
 	}
@@ -102,38 +99,39 @@ public class TraderSaveData extends SavedData {
 
 	private JsonObject persistentTraderJson = new JsonObject();
 	
-	public TraderSaveData() { this.validateAuctionHouse(); this.loadPersistentTraders(); }
+	public TraderSaveData() { super("lightmanscurrency_trader_data"); this.validateAuctionHouse(); this.loadPersistentTraders(); }
 	
-	public TraderSaveData(CompoundTag compound) {
+	public void load(CompoundNBT compound)
+	{
 
 		this.nextID = compound.getLong("NextID");
 		LightmansCurrency.LogInfo("Loaded NextID (" + this.nextID + ") from tag.");
 		
-		ListTag traderData = compound.getList("TraderData", Tag.TAG_COMPOUND);
+		ListNBT traderData = compound.getList("TraderData", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < traderData.size(); ++i)
 		{
 			try {
-				CompoundTag traderTag = traderData.getCompound(i);
+				CompoundNBT traderTag = traderData.getCompound(i);
 				TraderData trader = TraderData.Deserialize(false, traderTag);
 				if(trader != null)
 				{
 					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
-					if(trader instanceof IEasyTickable t)
-						this.tickers.add(t);
+					if(trader instanceof IEasyTickable)
+						this.tickers.add((IEasyTickable)trader);
 				}
 				else
 					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading TraderData", t); }
 		}
 		
-		ListTag persistentData = compound.getList("PersistentData", Tag.TAG_COMPOUND);
+		ListNBT persistentData = compound.getList("PersistentData", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < persistentData.size(); ++i)
 		{
 			try {
-				CompoundTag c = persistentData.getCompound(i);
+				CompoundNBT c = persistentData.getCompound(i);
 				String name = c.getString("Name");
 				long id = c.getLong("ID");
-				CompoundTag tag = c.getCompound("Tag");
+				CompoundNBT tag = c.getCompound("Tag");
 				this.persistentTraderData.put(name, new PersistentData(id,tag));
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading Persistent Data", t); }
 		}
@@ -143,11 +141,11 @@ public class TraderSaveData extends SavedData {
 	}
 	
 	@Override
-	public @NotNull CompoundTag save(CompoundTag compound) {
+	public @Nonnull CompoundNBT save(CompoundNBT compound) {
 		
 		compound.putLong("NextID", this.nextID);
-		
-		ListTag traderData = new ListTag();
+
+		ListNBT traderData = new ListNBT();
 		this.traderData.forEach((id,trader) -> {
 			if(trader.isPersistent())
 			{
@@ -163,11 +161,11 @@ public class TraderSaveData extends SavedData {
 			}
 		});
 		compound.put("TraderData", traderData);
-		
-		ListTag persistentData = new ListTag();
+
+		ListNBT persistentData = new ListNBT();
 		this.persistentTraderData.forEach((id,data) -> {
 			try {
-				CompoundTag c = new CompoundTag();
+				CompoundNBT c = new CompoundNBT();
 				c.putString("Name", id);
 				c.putLong("ID", data.id);
 				c.put("Tag", data.tag);
@@ -189,7 +187,7 @@ public class TraderSaveData extends SavedData {
 		if(this.persistentTraderData.containsKey(traderID))
 			this.persistentTraderData.get(traderID).id = id;
 		else
-			this.persistentTraderData.put(traderID, new PersistentData(id, new CompoundTag()));
+			this.persistentTraderData.put(traderID, new PersistentData(id, new CompoundNBT()));
 		this.setDirty();
 	}
 	
@@ -209,27 +207,27 @@ public class TraderSaveData extends SavedData {
 		return -1;
 	}
 	
-	private CompoundTag getPersistentTag(String traderID) {
+	private CompoundNBT getPersistentTag(String traderID) {
 		if(this.persistentTraderData.containsKey(traderID))
 			return this.persistentTraderData.get(traderID).tag;
-		return new CompoundTag();
+		return new CompoundNBT();
 	}
 	
-	private void putPersistentTag(String traderID, CompoundTag tag) {
+	private void putPersistentTag(String traderID, CompoundNBT tag) {
 		if(this.persistentTraderData.containsKey(traderID))
-			this.persistentTraderData.get(traderID).tag = tag == null ? new CompoundTag() : tag;
+			this.persistentTraderData.get(traderID).tag = tag == null ? new CompoundNBT() : tag;
 		else
-			this.persistentTraderData.put(traderID, new PersistentData(-1, tag == null ? new CompoundTag() : tag));
+			this.persistentTraderData.put(traderID, new PersistentData(-1, tag == null ? new CompoundNBT() : tag));
 		this.setDirty();
 	}
 	
 	@Deprecated
-	public static void GiveOldPersistentTag(String traderID, CompoundTag tag) {
+	public static void GiveOldPersistentTag(String traderID, CompoundNBT tag) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
 			tsd.putPersistentTag(traderID, tag);
-			for(TraderData pt : tsd.traderData.values().stream().filter(trader -> trader.isPersistent() && trader.getPersistentID().equals(traderID)).toList())
+			for(TraderData pt : tsd.traderData.values().stream().filter(trader -> trader.isPersistent() && trader.getPersistentID().equals(traderID)).collect(Collectors.toList()))
 			{
 				pt.loadPersistentData(tsd.getPersistentTag(traderID));
 				MarkTraderDirty(pt.save());
@@ -306,7 +304,7 @@ public class TraderSaveData extends SavedData {
 			this.savePersistentTraderJson(ptf);
 		}
 		try { 
-			this.persistentTraderJson = GsonHelper.parse(Files.readString(ptf.toPath()));
+			this.persistentTraderJson = FileUtil.JSON_PARSER.parse(FileUtil.readString(ptf)).getAsJsonObject();
 			LightmansCurrency.LogDebug("Loading PersistentTraders.json\n" +  FileUtil.GSON.toJson(this.persistentTraderJson));
 			this.loadPersistentTrader(this.persistentTraderJson);
 		} catch(Throwable e) {
@@ -336,8 +334,8 @@ public class TraderSaveData extends SavedData {
 			this.traderData.forEach((id,trader) -> {
 				if(trader.isPersistent())
 				{
-					if(trader instanceof IEasyTickable t)
-						this.tickers.remove(t);
+					if(trader instanceof IEasyTickable)
+						this.tickers.remove((IEasyTickable)trader);
 					//Save persistent tag
 					this.putPersistentTag(trader.getPersistentID(), trader.savePersistentData());
 					removeTraderList.add(id);
@@ -382,8 +380,8 @@ public class TraderSaveData extends SavedData {
 					data.makePersistent(id, traderID);
 					
 					this.traderData.put(id, data.allowMarkingDirty());
-					if(data instanceof IEasyTickable t)
-						this.tickers.add(t);
+					if(data instanceof IEasyTickable)
+						this.tickers.add((IEasyTickable)data);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					
@@ -445,14 +443,14 @@ public class TraderSaveData extends SavedData {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(TraderSaveData::new, TraderSaveData::new, "lightmanscurrency_trader_data");
+				return level.getDataStorage().computeIfAbsent(TraderSaveData::new, "lightmanscurrency_trader_data");
 		}
 		return null;
 	}
 	
-	public static void MarkTraderDirty(CompoundTag updateMessage) {
+	public static void MarkTraderDirty(CompoundNBT updateMessage) {
 		
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -486,7 +484,7 @@ public class TraderSaveData extends SavedData {
 		return RegisterTrader(newTrader, null);
 	}
 	
-	public static long RegisterTrader(TraderData newTrader, @Nullable Player player) {
+	public static long RegisterTrader(TraderData newTrader, @Nullable PlayerEntity player) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
@@ -510,8 +508,8 @@ public class TraderSaveData extends SavedData {
 			{
 				TraderData trader = tsd.traderData.get(traderID);
 				tsd.traderData.remove(traderID);
-				if(trader instanceof IEasyTickable t)
-					tsd.tickers.remove(t);
+				if(trader instanceof IEasyTickable)
+					tsd.tickers.remove((IEasyTickable)trader);
 				tsd.setDirty();
 				LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageRemoveClientTrader(traderID));
 				if(trader.shouldAlwaysShowOnTerminal())
@@ -557,7 +555,7 @@ public class TraderSaveData extends SavedData {
 	public static TraderData GetTrader(boolean isClient, String persistentTraderID) {
 		if(isClient)
 		{
-			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t.getPersistentID().equals(persistentTraderID)).toList();
+			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t.getPersistentID().equals(persistentTraderID)).collect(Collectors.toList());
 			if(validTraders.size() > 0)
 				return validTraders.get(0);
 		}
@@ -574,7 +572,7 @@ public class TraderSaveData extends SavedData {
 	{
 		if(isClient)
 		{
-			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
+			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t instanceof AuctionHouseTrader).collect(Collectors.toList());
 			if(validTraders.size() > 0)
 				return validTraders.get(0);
 		}
@@ -583,7 +581,7 @@ public class TraderSaveData extends SavedData {
 			TraderSaveData tsd = get();
 			if(tsd != null)
 			{
-				List<TraderData> validTraders = tsd.traderData.values().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
+				List<TraderData> validTraders = tsd.traderData.values().stream().filter(t -> t instanceof AuctionHouseTrader).collect(Collectors.toList());
 				if(validTraders.size() > 0)
 					return validTraders.get(0);
 			}
@@ -611,12 +609,12 @@ public class TraderSaveData extends SavedData {
 					tsd.traderData.values().removeIf(traderData -> {
 						if(!traderData.isPersistent() && traderData.shouldRemove(server))
 						{
-							if(traderData instanceof IEasyTickable t)
-								tsd.tickers.remove(t);
+							if(traderData instanceof IEasyTickable)
+								tsd.tickers.remove((IEasyTickable)traderData);
 							if(Config.SERVER.safelyEjectIllegalBreaks.get())
 							{
 								try {
-									Level level = server.getLevel(traderData.getLevel());
+									World level = server.getLevel(traderData.getLevel());
 									BlockPos pos = traderData.getPos();
 									EjectionData e = EjectionData.create(level, pos, null, traderData, false);
 									EjectionSaveData.HandleEjectionData(Objects.requireNonNull(level), pos, e);
@@ -630,7 +628,7 @@ public class TraderSaveData extends SavedData {
 				}
 				if(server.getTickCount() % 20 == 0 && tsd.persistentAuctionData.size() > 0)
 				{
-					List<TraderData> traders = tsd.traderData.values().stream().toList();
+					List<TraderData> traders = tsd.traderData.values().stream().collect(Collectors.toList());
 					AuctionHouseTrader ah = null;
 					for(int i = 0; i < traders.size() && ah == null; ++i)
 					{
@@ -664,7 +662,7 @@ public class TraderSaveData extends SavedData {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
-			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+			PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 			
 			//Send the clear message
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
@@ -676,7 +674,7 @@ public class TraderSaveData extends SavedData {
 	
 	private void resendTraderData()
 	{
-		PacketTarget target = PacketDistributor.ALL.noArg();
+		PacketDistributor.PacketTarget target = PacketDistributor.ALL.noArg();
 		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
 		this.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
 	}
@@ -686,9 +684,9 @@ public class TraderSaveData extends SavedData {
 	{
 		
 		public long id;
-		public CompoundTag tag;
+		public CompoundNBT tag;
 		
-		public PersistentData(long id, CompoundTag tag) { this.id = id; this.tag = tag == null ? new CompoundTag() : tag; }
+		public PersistentData(long id, CompoundNBT tag) { this.id = id; this.tag = tag == null ? new CompoundNBT() : tag; }
 		
 	}
 	

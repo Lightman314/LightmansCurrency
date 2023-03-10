@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class SPacketMoneyMendingClink {
 

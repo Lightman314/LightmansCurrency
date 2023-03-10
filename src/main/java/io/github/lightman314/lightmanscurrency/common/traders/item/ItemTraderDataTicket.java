@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.TicketKioskRestriction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class ItemTraderDataTicket extends ItemTraderData {
 
@@ -13,7 +13,7 @@ public class ItemTraderDataTicket extends ItemTraderData {
 	
 	public ItemTraderDataTicket() { super(TYPE); }
 	
-	public ItemTraderDataTicket(int tradeCount, Level level, BlockPos pos) { super(TYPE, tradeCount, level, pos); }
+	public ItemTraderDataTicket(int tradeCount, World level, BlockPos pos) { super(TYPE, tradeCount, level, pos); }
 	
 	@Override
 	protected ItemTradeRestriction getTradeRestriction(int tradeIndex) { return TicketKioskRestriction.INSTANCE; }

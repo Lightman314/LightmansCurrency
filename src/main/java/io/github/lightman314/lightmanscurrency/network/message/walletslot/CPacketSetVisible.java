@@ -4,10 +4,10 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class CPacketSetVisible {
 
@@ -19,19 +19,19 @@ public class CPacketSetVisible {
 		this.visible = visible;
 	}
 	
-	public static void encode(CPacketSetVisible message, FriendlyByteBuf buffer) {
+	public static void encode(CPacketSetVisible message, PacketBuffer buffer) {
 		buffer.writeInt(message.entityID);
 		buffer.writeBoolean(message.visible);
 	}
 	
-	public static CPacketSetVisible decode(FriendlyByteBuf buffer) {
+	public static CPacketSetVisible decode(PacketBuffer buffer) {
 		return new CPacketSetVisible(buffer.readInt(), buffer.readBoolean());
 	}
 	
 	public static void handle(CPacketSetVisible message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			Entity entity = player.level.getEntity(message.entityID);
 			if(entity != null)
 			{

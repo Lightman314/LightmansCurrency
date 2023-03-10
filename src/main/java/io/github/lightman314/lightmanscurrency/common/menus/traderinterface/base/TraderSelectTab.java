@@ -7,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,7 +22,7 @@ public class TraderSelectTab extends TraderInterfaceTab {
 	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new TraderSelectClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(PlayerEntity player) { return true; }
 
 	@Override
 	public void onTabOpen() { }
@@ -38,7 +38,7 @@ public class TraderSelectTab extends TraderInterfaceTab {
 		//Don't need to mark dirty, as that's done on the BE's side automatically
 		if(this.menu.isClient())
 		{
-			CompoundTag message = new CompoundTag();
+			CompoundNBT message = new CompoundNBT();
 			if(traderID >= 0)
 				message.putLong("NewTrader", traderID);
 			else
@@ -48,7 +48,7 @@ public class TraderSelectTab extends TraderInterfaceTab {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		if(message.contains("NewTrader"))
 		{
 			this.setTrader(message.getLong("NewTrader"));

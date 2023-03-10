@@ -17,23 +17,24 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -45,9 +46,8 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
 @Mod.EventBusSubscriber
 public class EventHandler {
@@ -62,14 +62,16 @@ public class EventHandler {
 		if(coinData == null || coinData.isHidden)
 			return;
 		
-		Player player = event.getPlayer();
+		PlayerEntity player = event.getPlayer();
 		ItemStack coinStack = event.getItem().getItem();
 		WalletMenuBase activeContainer = null;
 		
 		//Check if the open container is a wallet WalletMenuBase is pickup capable
-		if(player.containerMenu instanceof WalletMenuBase container && container.isEquippedWallet())
+		if(player.containerMenu instanceof WalletMenuBase)
 		{
-			activeContainer = container;
+			WalletMenuBase container = (WalletMenuBase)player.containerMenu;
+			if(container.isEquippedWallet())
+				activeContainer = container;
 		}
 		
 		boolean cancelEvent = false;
@@ -108,10 +110,11 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onBlockBreak(BreakEvent event)
 	{
-		LevelAccessor level = event.getWorld();
+		IWorld level = event.getWorld();
 		BlockState state = event.getState();
-		if(event.getState().getBlock() instanceof IOwnableBlock block)
+		if(event.getState().getBlock() instanceof IOwnableBlock)
 		{
+			IOwnableBlock block = (IOwnableBlock)event.getState().getBlock();
 			if(!block.canBreak(event.getPlayer(), level, event.getPos(), state))
 			{
 				//CurrencyMod.LOGGER.info("onBlockBreak-Non-owner attempted to break a trader block. Aborting event!");
@@ -125,11 +128,12 @@ public class EventHandler {
 	public static void blockBreakSpeed(PlayerEvent.BreakSpeed event)
 	{
 
-		Level level = event.getPlayer().level;
+		World level = event.getPlayer().level;
 		BlockState state = event.getState();
 
-		if(event.getState().getBlock() instanceof IOwnableBlock block)
+		if(event.getState().getBlock() instanceof IOwnableBlock)
 		{
+			IOwnableBlock block = (IOwnableBlock)event.getState().getBlock();
 			if(!block.canBreak(event.getPlayer(), level, event.getPos(), state))
 				event.setCanceled(true);
 		}
@@ -139,8 +143,9 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void attachEntitiesCapabilities(AttachCapabilitiesEvent<Entity> event)
 	{
-		if(event.getObject() instanceof Player player)
+		if(event.getObject() instanceof PlayerEntity)
 		{
+			PlayerEntity player = (PlayerEntity)event.getObject();
 			event.addCapability(CurrencyCapabilities.ID_WALLET, WalletCapability.createProvider(player));
 		}
 	}
@@ -159,7 +164,7 @@ public class EventHandler {
 	public static void playerStartTracking(PlayerEvent.StartTracking event)
 	{
 		Entity target = event.getTarget();
-		Player player = event.getPlayer();
+		PlayerEntity player = event.getPlayer();
 		sendWalletUpdatePacket(target, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 	
@@ -167,11 +172,11 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerClone(PlayerEvent.Clone event)
 	{
-		Player player = event.getPlayer();
+		PlayerEntity player = event.getPlayer();
 		if(player.level.isClientSide) //Do nothing client-side
 			return;
 		
-		Player oldPlayer = event.getOriginal();
+		PlayerEntity oldPlayer = event.getOriginal();
 		oldPlayer.revive();
 		IWalletHandler oldHandler = WalletCapability.lazyGetWalletHandler(oldPlayer);
 		IWalletHandler newHandler = WalletCapability.lazyGetWalletHandler(player);
@@ -181,20 +186,17 @@ public class EventHandler {
 			newHandler.setVisible(oldHandler.visible());
 		}
 		
-		//Invalidate the capabilities now that the reason is no longer needed
-		oldPlayer.invalidateCaps();
-		
 	}
 	
 	@SubscribeEvent
 	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
-		Player player = event.getPlayer();
+		PlayerEntity player = event.getPlayer();
 		if(player.level.isClientSide)
 			return;
 		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 	
-	private static void sendWalletUpdatePacket(Entity entity, PacketTarget target) {
+	private static void sendWalletUpdatePacket(Entity entity, PacketDistributor.PacketTarget target) {
 		if(entity.level.isClientSide)
 			return;
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
@@ -223,8 +225,8 @@ public class EventHandler {
 				if(walletStack.isEmpty())
 					return;
 				
-				Collection<ItemEntity> walletDrops = Lists.newArrayList();
-				if(livingEntity instanceof Player) //Only worry about gamerules on players, otherwise it always drops the wallet.
+				Collection<ItemEntity> walletDrops = new ArrayList<>();
+				if(livingEntity instanceof PlayerEntity) //Only worry about gamerules on players, otherwise it always drops the wallet.
 				{
 					
 					boolean keepWallet = true;
@@ -249,7 +251,7 @@ public class EventHandler {
 						walletDrops.addAll(d);
 						
 						//Post the Wallet Drop Event
-						WalletDropEvent e = new WalletDropEvent((Player)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						WalletDropEvent e = new WalletDropEvent((PlayerEntity) livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
 						if(MinecraftForge.EVENT_BUS.post(e))
 							return;
 						walletDrops = e.getDrops();
@@ -262,7 +264,7 @@ public class EventHandler {
 						walletHandler.setWallet(ItemStack.EMPTY);
 						
 						//Post the Wallet Drop Event
-						WalletDropEvent e = new WalletDropEvent((Player)livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
+						WalletDropEvent e = new WalletDropEvent((PlayerEntity) livingEntity, walletHandler, event.getSource(), walletDrops, keepWallet, coinDropPercent);
 						if(MinecraftForge.EVENT_BUS.post(e))
 							return;
 						walletDrops = e.getDrops();
@@ -298,7 +300,7 @@ public class EventHandler {
 		if(droppedAmount < 1)
 			return Lists.newArrayList();
 		
-		Container walletInventory = InventoryUtil.buildInventory(walletList);
+		IInventory walletInventory = InventoryUtil.buildInventory(walletList);
 		List<ItemEntity> drops = Lists.newArrayList();
 		//Remove the dropped coins from the wallet
 		long extra = MoneyUtil.takeObjectsOfValue(droppedAmount, walletInventory, true);

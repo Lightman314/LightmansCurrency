@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
@@ -9,17 +8,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountWidg
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.Container;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class InteractionTab extends WalletBankTab implements IBankAccountWidget {
 
@@ -27,11 +23,12 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 
 	BankAccountWidget accountWidget;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD.get()); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.interact"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.interact"); }
 
 	@Override
 	public void init() {
@@ -43,8 +40,8 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		Component accountName = new TextComponent("ERROR FINDING ACCOUNT");
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
+		ITextComponent accountName = EasyText.literal("ERROR FINDING ACCOUNT");
 		if(this.screen.getMenu().getBankAccount() != null)
 			accountName = this.screen.getMenu().getBankAccount().getName();
 		this.screen.getFont().draw(pose, accountName, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + CoinValueInput.HEIGHT, 0x404040);
@@ -52,7 +49,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) { }
+	public void postRender(MatrixStack pose, int mouseX, int mouseY) { }
 
 	@Override
 	public void tick() { this.accountWidget.tick(); }
@@ -61,14 +58,12 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	public void onClose() { this.accountWidget = null; }
 
 	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
-		if(button instanceof AbstractWidget)
-			this.screen.addRenderableTabWidget((AbstractWidget)button);
-		return button;
+	public <T extends Widget> T addCustomWidget(T button) {
+		return this.screen.addRenderableTabWidget(button);
 	}
 
 	@Override
-	public Font getFont() {
+	public FontRenderer getFont() {
 		return this.screen.getFont();
 	}
 
@@ -83,7 +78,7 @@ public class InteractionTab extends WalletBankTab implements IBankAccountWidget 
 	}
 
 	@Override
-	public Container getCoinAccess() {
+	public IInventory getCoinAccess() {
 		return this.screen.getMenu().getCoinInput();
 	}
 

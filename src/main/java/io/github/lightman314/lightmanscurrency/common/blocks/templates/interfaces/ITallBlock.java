@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
 
 public interface ITallBlock {
 

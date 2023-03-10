@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -11,15 +12,13 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 
 public class ItemTradeNotification extends Notification{
 
@@ -54,7 +53,7 @@ public class ItemTradeNotification extends Notification{
 		
 	}
 	
-	public ItemTradeNotification(CompoundTag compound) { this.load(compound); }
+	public ItemTradeNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -63,13 +62,13 @@ public class ItemTradeNotification extends Notification{
 	public NotificationCategory getCategory() { return this.traderData; }
 
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
-		
-		Component itemText = getItemNames(this.items.get(0), this.items.get(1));
-		
-		Component cost;
+		ITextComponent boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
+
+		ITextComponent itemText = getItemNames(this.items.get(0), this.items.get(1));
+
+		ITextComponent cost;
 		if(this.tradeType == ItemTradeType.BARTER)
 		{
 			//Flip the cost and item text, as for barters the text is backwards "bartered *barter items* for *sold items*"
@@ -80,13 +79,13 @@ public class ItemTradeNotification extends Notification{
 			cost = this.cost.getComponent("0");
 		
 		//Create log from stored data
-		return new TranslatableComponent("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
+		return EasyText.translatable("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		
 	}
 	
-	private Component getItemNames(ItemData item1, ItemData item2) {
+	private ITextComponent getItemNames(ItemData item1, ItemData item2) {
 		if(item1.isEmpty && item2.isEmpty)
-			return new TextComponent("ERROR");
+			return EasyText.literal("ERROR");
 		else if(item2.isEmpty)
 			return item1.format();
 		else if(item1.isEmpty)
@@ -96,11 +95,11 @@ public class ItemTradeNotification extends Notification{
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
-		ListTag itemList = new ListTag();
+		ListNBT itemList = new ListNBT();
 		for(ItemData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
@@ -111,11 +110,11 @@ public class ItemTradeNotification extends Notification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = ItemTradeType.fromIndex(compound.getInt("TradeType"));
-		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
+		ListNBT itemList = compound.getList("Items", Constants.NBT.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemData(itemList.getCompound(i)));
@@ -127,8 +126,9 @@ public class ItemTradeNotification extends Notification{
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof ItemTradeNotification itn)
+		if(other instanceof ItemTradeNotification)
 		{
+			ItemTradeNotification itn = (ItemTradeNotification)other;
 			if(!itn.traderData.matches(this.traderData))
 				return false;
 			if(itn.tradeType != this.tradeType)
@@ -157,7 +157,7 @@ public class ItemTradeNotification extends Notification{
 	public static class ItemData
 	{
 		final boolean isEmpty;
-		final Component itemName;
+		final ITextComponent itemName;
 		final int count;
 		
 		public ItemData(ItemStack item) { this(item, ""); }
@@ -166,46 +166,46 @@ public class ItemTradeNotification extends Notification{
 			this.isEmpty = item.isEmpty();
 			if(this.isEmpty)
 			{
-				this.itemName = new TextComponent("");
+				this.itemName = EasyText.empty();
 				this.count = 0;
 				return;
 			}
 			if(customName.isEmpty())
 				itemName = item.getHoverName();
 			else
-				this.itemName = new TextComponent(customName);
+				this.itemName = EasyText.literal(customName);
 			this.count = item.getCount();
 		}
 		
-		public ItemData(CompoundTag compound) {
+		public ItemData(CompoundNBT compound) {
 			this.isEmpty = compound.contains("Empty");
 			if(this.isEmpty)
 			{
-				this.itemName = new TextComponent("");
+				this.itemName = EasyText.empty();
 				this.count = 0;
 				return;
 			}
-			this.itemName = Component.Serializer.fromJson(compound.getString("Name"));
+			this.itemName = ITextComponent.Serializer.fromJson(compound.getString("Name"));
 			this.count = compound.getInt("Count");
 		}
 		
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
 			if(this.isEmpty)
 			{
 				compound.putBoolean("Empty", true);
 				return compound;
 			}
-			compound.putString("Name", Component.Serializer.toJson(this.itemName));
+			compound.putString("Name", ITextComponent.Serializer.toJson(this.itemName));
 			compound.putInt("Count", this.count);
 			return compound;
 		}
 		
-		public Component format() { return new TranslatableComponent("log.shoplog.item.itemformat", this.count, this.itemName); }
+		public ITextComponent format() { return EasyText.translatable("log.shoplog.item.itemformat", this.count, this.itemName); }
 		
-		public Component formatWith(Component other) { return new TranslatableComponent("log.shoplog.and", this.format(), other); }
+		public ITextComponent formatWith(ITextComponent other) { return EasyText.translatable("log.shoplog.and", this.format(), other); }
 		
-		public Component formatWith(ItemData other) { return new TranslatableComponent("log.shoplog.and", this.format(), other.format()); }
+		public ITextComponent formatWith(ItemData other) { return EasyText.translatable("log.shoplog.and", this.format(), other.format()); }
 		
 	}
 	

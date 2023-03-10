@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.crafting.condition;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 
 public class SimpleCraftingCondition implements ICondition {
@@ -18,12 +18,9 @@ public class SimpleCraftingCondition implements ICondition {
 	
 	@Override
 	public ResourceLocation getID() { return this.id; }
-	
+
 	@Override
-	public boolean test() { return this.test(null); }
-	
-	@Override
-	public boolean test(IContext context) {
+	public boolean test() {
 		try { return test.get(); }
 		catch(Throwable t) { LightmansCurrency.LogError("SimpleCraftingCondition '" + this.id + "' encountered an error during the test.", t); return false; }
 	}

@@ -10,9 +10,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTradeManager;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.command.CommandSource;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,7 +24,7 @@ public class TradeIDArgument implements ArgumentType<Integer> {
 
     public static TradeIDArgument argument() { return new TradeIDArgument(); }
 
-    public static int getTradeID(CommandContext<CommandSourceStack> commandContext, String name) {
+    public static int getTradeID(CommandContext<?> commandContext, String name) {
         return commandContext.getArgument(name, Integer.class);
     }
 
@@ -52,11 +52,13 @@ public class TradeIDArgument implements ArgumentType<Integer> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-        if(commandContext.getSource() instanceof CommandSourceStack source)
+        if(commandContext.getSource() instanceof CommandSource)
         {
+            CommandSource source = (CommandSource)commandContext.getSource();
             Entity e = source.getEntity();
-            if(!(e instanceof ServerPlayer player))
+            if(!(e instanceof ServerPlayerEntity))
                 return suggestionsBuilder.buildFuture();
+            ServerPlayerEntity player = (ServerPlayerEntity)e;
             for(PlayerTrade trade : PlayerTradeManager.GetAllTrades())
             {
                 if(trade.isGuest(player))

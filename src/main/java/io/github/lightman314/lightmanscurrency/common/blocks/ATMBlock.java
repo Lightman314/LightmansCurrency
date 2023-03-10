@@ -2,26 +2,27 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.TallRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.inventory.container.SimpleNamedContainerProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
 public class ATMBlock extends TallRotatableBlock{
 	
@@ -30,22 +31,23 @@ public class ATMBlock extends TallRotatableBlock{
 		super(properties);
 	}
 	
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public ActionResultType use(BlockState state, @Nonnull World level, @Nonnull BlockPos pos, PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result)
 	{
 		player.openMenu(state.getMenuProvider(level, pos));
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 	}
 	
 	@Nullable
 	@Override
-	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos)
+	public INamedContainerProvider getMenuProvider(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos)
 	{
-		return new SimpleMenuProvider((windowId, playerInventory, playerEntity) -> { return new ATMMenu(windowId, playerInventory);}, new TextComponent(""));
+		return new SimpleNamedContainerProvider((windowId, playerInventory, playerEntity) -> new ATMMenu(windowId, playerInventory), EasyText.empty());
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable IBlockReader level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCTooltips.ATM);
 		super.appendHoverText(stack, level, tooltip, flagIn);

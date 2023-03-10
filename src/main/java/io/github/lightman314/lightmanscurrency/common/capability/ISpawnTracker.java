@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.capability;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.nbt.CompoundNBT;
 
 public interface ISpawnTracker {
 
-	MobSpawnType spawnReason();
-	void setSpawnReason(MobSpawnType reason);
+	SpawnReason spawnReason();
+	void setSpawnReason(SpawnReason reason);
 	
-	CompoundTag save();
-	void load(CompoundTag compound);
+	CompoundNBT save();
+	void load(CompoundNBT compound);
 	
 }

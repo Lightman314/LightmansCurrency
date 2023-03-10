@@ -13,11 +13,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -29,7 +29,7 @@ import java.util.List;
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     public static final ResourceLocation NBT_SLOT = new ResourceLocation(LightmansCurrency.MODID, "item/empty_nbt_highlight");
-    public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,NBT_SLOT);
+    public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(PlayerContainer.BLOCK_ATLAS,NBT_SLOT);
 
     public ItemTradeButtonRenderer(ItemTradeData trade) { super(trade); }
 
@@ -81,7 +81,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return entries;
     }
 
-    private List<Component> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context)
+    private List<ITextComponent> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context)
     {
         if(stack.isEmpty())
         {
@@ -90,29 +90,30 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             return null;
         }
 
-        List<Component> tooltips = this.getTooltipFromItem(stack, this.trade.isPurchase(), enforceNBT);
-        Component originalName = null;
+        List<ITextComponent> tooltips = this.getTooltipFromItem(stack, this.trade.isPurchase(), enforceNBT);
+        ITextComponent originalName = null;
         if(!customName.isEmpty() && (this.trade.isSale() || this.trade.isBarter()))
         {
             originalName = tooltips.get(0);
-            tooltips.set(0, EasyText.literal(customName).withStyle(ChatFormatting.GOLD));
+            tooltips.set(0, EasyText.literal(customName).withStyle(TextFormatting.GOLD));
         }
         //Stop here if this is in storage mode, and there's no custom name
         if(context.isStorageMode && originalName == null)
             return tooltips;
 
         //Trade Info
-        tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.info").withStyle(ChatFormatting.GOLD));
+        tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.info").withStyle(TextFormatting.GOLD));
         //Custom Name
         if(originalName != null)
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(ChatFormatting.GOLD));
+            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.originalname", originalName).withStyle(TextFormatting.GOLD));
 
         if(context.hasTrader() && context.hasPlayerReference())
         {
             //Stock
-            if(context.getTrader() instanceof ItemTraderData trader)
+            if(context.getTrader() instanceof ItemTraderData)
             {
-                tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.stockCount(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD));
+                ItemTraderData trader = (ItemTraderData)context.getTrader();
+                tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(TextFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.stockCount(context))).withStyle(TextFormatting.GOLD)).withStyle(TextFormatting.GOLD));
             }
         }
 
@@ -137,18 +138,19 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return enforceNBT ? null : NBT_BACKGROUND;
     }
 
-    private List<Component> getTooltipFromItem(ItemStack item, boolean purchase, boolean enforceNBT) {
-        List<Component> tooltip = new ArrayList<>();
+    private List<ITextComponent> getTooltipFromItem(ItemStack item, boolean purchase, boolean enforceNBT) {
+        List<ITextComponent> tooltip = new ArrayList<>();
         if(!enforceNBT)
-            tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
+            tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(TextFormatting.DARK_PURPLE, TextFormatting.BOLD));
         tooltip.addAll(ItemRenderUtil.getTooltipFromItem(item));
         return tooltip;
     }
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof ItemTraderData trader)
+        if(context.hasTrader() && context.getTrader() instanceof ItemTraderData)
         {
+            ItemTraderData trader = (ItemTraderData)context.getTrader();
             if(!trader.isCreative())
             {
                 //Check Stock

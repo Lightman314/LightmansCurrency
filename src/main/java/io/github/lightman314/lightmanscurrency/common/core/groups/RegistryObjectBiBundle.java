@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-public class RegistryObjectBiBundle<T,L,M> {
+public class RegistryObjectBiBundle<T extends IForgeRegistryEntry<? super T>,L,M> {
 
     private final Comparator<L> sorter1;
     private final Comparator<M> sorter2;
@@ -16,7 +17,7 @@ public class RegistryObjectBiBundle<T,L,M> {
 
     public RegistryObjectBiBundle(Comparator<L> sorter1, Comparator<M> sorter2) { this.sorter1 = sorter1; this.sorter2 = sorter2; }
 
-    private final Map<L, Map<M,RegistryObject<T>>> values = new HashMap<>();
+    private final Map<L, Map<M, RegistryObject<T>>> values = new HashMap<>();
 
     public void put(L key1, M key2, RegistryObject<T> value) {
         if(this.locked)
@@ -68,13 +69,13 @@ public class RegistryObjectBiBundle<T,L,M> {
 
     public List<T> getAllSorted(Comparator<L> sorter1, Comparator<M> sorter2)
     {
-        List<L> keys1 = this.values.keySet().stream().toList();
+        List<L> keys1 = new ArrayList<>(this.values.keySet());
         keys1.sort(sorter1);
 
         List<T> result = new ArrayList<>();
         for(L key1 : keys1)
         {
-            List<M> keys2 = this.values.get(key1).keySet().stream().toList();
+            List<M> keys2 = new ArrayList<>(this.values.get(key1).keySet());
             keys2.sort(sorter2);
             for(M key2 : keys2)
                 result.add(this.get(key1, key2));

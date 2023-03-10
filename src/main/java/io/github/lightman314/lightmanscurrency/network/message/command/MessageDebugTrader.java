@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageDebugTrader {
 	
@@ -14,9 +14,9 @@ public class MessageDebugTrader {
 	
 	public MessageDebugTrader(long traderID) { this.traderID = traderID; }
 	
-	public static void encode(MessageDebugTrader message, FriendlyByteBuf buffer) { buffer.writeLong(message.traderID); }
+	public static void encode(MessageDebugTrader message, PacketBuffer buffer) { buffer.writeLong(message.traderID); }
 	
-	public static MessageDebugTrader decode(FriendlyByteBuf buffer) { return new MessageDebugTrader(buffer.readLong()); }
+	public static MessageDebugTrader decode(PacketBuffer buffer) { return new MessageDebugTrader(buffer.readLong()); }
 	
 	public static void handle(MessageDebugTrader message, Supplier<Context> supplier)
 	{

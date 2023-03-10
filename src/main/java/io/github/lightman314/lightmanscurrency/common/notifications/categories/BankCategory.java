@@ -4,28 +4,31 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class BankCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank");
 	
-	private final MutableComponent name;
+	private final IFormattableTextComponent name;
 	
-	public BankCategory(MutableComponent name) { this.name = name; }
+	public BankCategory(IFormattableTextComponent name) { this.name = name; }
 	
-	public BankCategory(CompoundTag compound) {
-		this.name = Component.Serializer.fromJson(compound.getString("Name"));
+	public BankCategory(CompoundNBT compound) {
+		this.name = ITextComponent.Serializer.fromJson(compound.getString("Name"));
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override
-	public MutableComponent getName() { return this.name; }
+	public IFormattableTextComponent getName() { return this.name; }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -41,8 +44,8 @@ public class BankCategory extends NotificationCategory {
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		compound.putString("Name", Component.Serializer.toJson(this.name));
+	protected void saveAdditional(CompoundNBT compound) {
+		compound.putString("Name", ITextComponent.Serializer.toJson(this.name));
 	}
 	
 }

@@ -8,22 +8,23 @@ import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedC
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
-public class PlayerTradeMenu extends AbstractContainerMenu {
+import javax.annotation.Nonnull;
+
+public class PlayerTradeMenu extends Container {
 
 
     public final int tradeID;
     private IPlayerTrade trade;
     public final IPlayerTrade getTradeData() { return this.trade; }
 
-    public final Player player;
+    public final PlayerEntity player;
 
     public boolean isClient() { return this.player.level.isClientSide; }
     public boolean isServer() { return !this.isClient(); }
@@ -32,10 +33,10 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
     public final int myState() { return this.isHost() ? this.trade.getHostState() : this.trade.getGuestState(); }
     public final int otherState() { return this.isHost() ? this.trade.getGuestState() : this.trade.getHostState(); }
 
-    private final Container hostItems;
-    private final Container guestItems;
+    private final IInventory hostItems;
+    private final IInventory guestItems;
 
-    public PlayerTradeMenu(int windowID, Inventory inventory, int tradeID, IPlayerTrade trade) {
+    public PlayerTradeMenu(int windowID, PlayerInventory inventory, int tradeID, IPlayerTrade trade) {
         super(ModMenus.PLAYER_TRADE.get(), windowID);
         this.player = inventory.player;
         this.tradeID = tradeID;
@@ -45,8 +46,8 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
         this.hostItems = new SuppliedContainer(() -> this.trade.getHostItems());
         this.guestItems = new SuppliedContainer(() -> this.trade.getGuestItems());
 
-        Container leftSideContainer = this.isHost() ? this.hostItems : this.guestItems;
-        Container rightSideContainer = this.isHost() ? this.guestItems : this.hostItems;
+        IInventory leftSideContainer = this.isHost() ? this.hostItems : this.guestItems;
+        IInventory rightSideContainer = this.isHost() ? this.guestItems : this.hostItems;
 
         //Add Left-Side Slots (Interactable by this player)
         for(int y = 0; y < 4; ++y)
@@ -81,7 +82,7 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
+    public @Nonnull ItemStack quickMoveStack(@Nonnull PlayerEntity player, int index) {
         ItemStack clickedStack = ItemStack.EMPTY;
 
         Slot slot = this.slots.get(index);
@@ -107,16 +108,16 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@NotNull Player player) { return true; }
+    public boolean stillValid(@Nonnull PlayerEntity player) { return true; }
 
     @Override
-    public void removed(@NotNull Player player) {
+    public void removed(@Nonnull PlayerEntity player) {
         super.removed(player);
         if(this.isClient() || this.trade.isCompleted())
             return;
         LightmansCurrency.LogWarning("Player Trade Menu was closed by the " + (this.isHost() ? "host" : "guest") + ", but the trade was not completed!");
         //Give items in inventory back to player
-        this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
+        this.clearContainer(player, player.level, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 
     public CoinValue getAvailableFunds() { return WalletCapability.getWalletMoney(this.player); }

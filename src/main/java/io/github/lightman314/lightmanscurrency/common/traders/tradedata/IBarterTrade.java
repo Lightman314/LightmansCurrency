@@ -6,6 +6,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.tradedata;
  */
 public interface IBarterTrade {
 
-	public boolean isBarter();
+	boolean isBarter();
 	
 }

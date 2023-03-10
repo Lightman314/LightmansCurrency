@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
@@ -9,14 +8,14 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +28,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.edit_trades"); }
+	public IFormattableTextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.edit_trades"); }
 
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -57,7 +56,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.tradeDisplay.tick();
 		
@@ -89,9 +88,9 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getCarried().isEmpty())
+		if(this.menu.player.inventory.getCarried().isEmpty())
 			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 27 : 16), mouseX, mouseY);
 		
 	}
@@ -99,19 +98,19 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
-			trade.onInputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.getCarried());
+			trade.onInputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.player.inventory.getCarried());
 	}
 
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
-			trade.onOutputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.getCarried());
+			trade.onOutputDisplayInteraction(this.commonTab, this.screen, index, mouseButton, this.menu.player.inventory.getCarried());
 	}
 	
 	@Override
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) {
 		if(trader.hasPermission(this.menu.player, Permissions.EDIT_TRADES))
-			trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.getCarried());
+			trade.onInteraction(this.commonTab, this.screen, localMouseX, localMouseY, mouseButton, this.menu.player.inventory.getCarried());
 	}
 	
 	private void AddTrade(Button button) { this.commonTab.addTrade(); }

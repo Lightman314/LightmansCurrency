@@ -4,21 +4,21 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.VillagerTrades;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SuspiciousStewItem;
-import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.merchant.villager.VillagerTrades;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.item.SuspiciousStewItem;
+import net.minecraft.potion.Effect;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class SimpleTrade implements VillagerTrades.ItemListing
+public class SimpleTrade implements VillagerTrades.ITrade
 {
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "simple");
@@ -34,52 +34,52 @@ public class SimpleTrade implements VillagerTrades.ItemListing
     protected static final int MAX_TRADES = 12;
     protected static final float PRICE_MULT = 0.05f;
 
-    public SimpleTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem)
+    public SimpleTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
     {
         this(1, priceItem, priceCount, forsaleItem);
     }
 
-    public SimpleTrade(ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
+    public SimpleTrade(IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
     {
         this(1, priceItem, priceCount, forsaleItem, forsaleCount);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem)
+    public SimpleTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem)
     {
         this(xpValue, priceItem, priceCount, forsaleItem, 1);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem, int priceCount, ItemLike forsaleItem, int forsaleCount)
+    public SimpleTrade(int xpValue, IItemProvider priceItem, int priceCount, IItemProvider forsaleItem, int forsaleCount)
     {
         this(new ItemStack(priceItem, priceCount), ItemStack.EMPTY, new ItemStack(forsaleItem, forsaleCount), MAX_TRADES, xpValue, PRICE_MULT);
     }
 
-    public SimpleTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
+    public SimpleTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
     {
         this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem);
     }
 
-    public SimpleTrade(ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
+    public SimpleTrade(IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
     {
         this(1, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, forsaleCount);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem)
+    public SimpleTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem)
     {
         this(xpValue, priceItem1, priceCount1, priceItem2, priceCount2, forsaleItem, 1);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemLike forsaleItem, int forsaleCount)
+    public SimpleTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, IItemProvider forsaleItem, int forsaleCount)
     {
         this(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), new ItemStack(forsaleItem, forsaleCount), MAX_TRADES, xpValue, PRICE_MULT);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemStack forSaleItem)
+    public SimpleTrade(int xpValue, IItemProvider priceItem1, int priceCount1, ItemStack forSaleItem)
     {
         this(new ItemStack(priceItem1, priceCount1), ItemStack.EMPTY, forSaleItem, MAX_TRADES, xpValue, PRICE_MULT);
     }
 
-    public SimpleTrade(int xpValue, ItemLike priceItem1, int priceCount1, ItemLike priceItem2, int priceCount2, ItemStack forSaleItem)
+    public SimpleTrade(int xpValue, IItemProvider priceItem1, int priceCount1, IItemProvider priceItem2, int priceCount2, ItemStack forSaleItem)
     {
         this(new ItemStack(priceItem1, priceCount1), new ItemStack(priceItem2, priceCount2), forSaleItem, MAX_TRADES, xpValue, PRICE_MULT);
     }
@@ -98,14 +98,14 @@ public class SimpleTrade implements VillagerTrades.ItemListing
         this.priceMult = priceMult;
     }
 
-    public static ItemStack createSuspiciousStew(MobEffect effect, int duration) {
+    public static ItemStack createSuspiciousStew(Effect effect, int duration) {
         ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW, 1);
         SuspiciousStewItem.saveMobEffect(stew, effect, duration);
         return stew;
     }
 
     @Nullable
-    public MerchantOffer getOffer(@NotNull Entity villager, @NotNull Random random) {
+    public MerchantOffer getOffer(@Nonnull Entity villager, @Nonnull Random random) {
         return new MerchantOffer(this.price, this.price2, this.forSale, this.maxTrades, this.xp, this.priceMult);
     }
 
@@ -113,9 +113,10 @@ public class SimpleTrade implements VillagerTrades.ItemListing
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade) {
-            if(trade instanceof SimpleTrade t)
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ITrade trade) {
+            if(trade instanceof SimpleTrade)
             {
+                SimpleTrade t = (SimpleTrade)trade;
                 json.add("Price", FileUtil.convertItemStack(t.price));
                 if(!t.price2.isEmpty())
                     json.add("Price2", FileUtil.convertItemStack(t.price2));
@@ -128,7 +129,7 @@ public class SimpleTrade implements VillagerTrades.ItemListing
             return null;
         }
         @Override
-        public VillagerTrades.ItemListing deserialize(JsonObject json) throws Exception {
+        public VillagerTrades.ITrade deserialize(JsonObject json) throws Exception {
             ItemStack price = FileUtil.parseItemStack(json.get("Price").getAsJsonObject());
             ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(json.get("Price2").getAsJsonObject()) : ItemStack.EMPTY;
             ItemStack forSale = FileUtil.parseItemStack(json.get("Sell").getAsJsonObject());

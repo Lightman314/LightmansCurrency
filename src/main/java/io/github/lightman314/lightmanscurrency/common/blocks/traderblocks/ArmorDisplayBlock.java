@@ -3,24 +3,22 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ArmorDisplayTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -30,20 +28,21 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	}
 	
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) {
-		ArmorDisplayTraderBlockEntity trader = new ArmorDisplayTraderBlockEntity(pos, state);
+	public TileEntity makeTrader() {
+		ArmorDisplayTraderBlockEntity trader = new ArmorDisplayTraderBlockEntity();
 		trader.flagAsLoaded();
 		return trader;
 	}
 	
 	@Override
-	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
-	
-	@Override
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity trader)
+	public void onRemove(BlockState state, @Nonnull World level, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+		TileEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof ArmorDisplayTraderBlockEntity)
+		{
+			ArmorDisplayTraderBlockEntity trader = (ArmorDisplayTraderBlockEntity)blockEntity;
 			trader.destroyArmorStand();
+		}
+
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 	
@@ -63,6 +62,6 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public int maxRenderIndex() { return -1; }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_ARMOR; }
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return LCTooltips.ITEM_TRADER_ARMOR; }
 	
 }

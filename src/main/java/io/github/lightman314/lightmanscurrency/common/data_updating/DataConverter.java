@@ -17,24 +17,23 @@ import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-//Replaces the old TradingOffice class, and is used to convert & distribute the old TradingOffice data into it's new locations & types.
+//Replaces the old TradingOffice class, and is used to convert & distribute the old TradingOffice data into its new locations & types.
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID)
 @SuppressWarnings("deprecation")
-public class DataConverter extends SavedData {
+public class DataConverter extends WorldSavedData {
 
 	private static final String DATA_NAME = "lightmanscurrency_trading_office";
 	
@@ -43,19 +42,19 @@ public class DataConverter extends SavedData {
 	private static final Map<UUID,Long> newTraderIDs = new HashMap<>();
 	private static final Map<UUID,Long> newTeamIDs = new HashMap<>();
 	
-	private DataConverter() { newTraderIDs.clear(); newTeamIDs.clear(); }
-	private DataConverter(CompoundTag compound) {
-		this();
+	private DataConverter() { super(DATA_NAME); newTraderIDs.clear(); newTeamIDs.clear(); }
+	public void load(CompoundNBT compound)
+	{
 		loading = true;
 		//OLD DATA CONVERSION
-		if(compound.contains("Teams", Tag.TAG_LIST))
+		if(compound.contains("Teams", Constants.NBT.TAG_LIST))
 		{
 			//Set as dirty so that it will forcibly save and won't try to duplicate the teams
 			this.setDirty();
-			ListTag teamList = compound.getList("Teams", Tag.TAG_COMPOUND);
+			ListNBT teamList = compound.getList("Teams", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < teamList.size(); ++i)
 			{
-				CompoundTag tag = teamList.getCompound(i);
+				CompoundNBT tag = teamList.getCompound(i);
 				Team team = Team.load(tag);
 				if(team != null)
 				{
@@ -77,14 +76,14 @@ public class DataConverter extends SavedData {
 		}
 		
 		//Do traders after teams so that the traders owned by teams can get their new team ids
-		if(compound.contains("UniversalTraders", Tag.TAG_LIST))
+		if(compound.contains("UniversalTraders", Constants.NBT.TAG_LIST))
 		{
 			//Set as dirty so that it will forcibly save and won't try to duplicate the traders
 			this.setDirty();
-			ListTag universalTraderDataList = compound.getList("UniversalTraders", Tag.TAG_COMPOUND);
+			ListNBT universalTraderDataList = compound.getList("UniversalTraders", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < universalTraderDataList.size(); ++i)
 			{
-				CompoundTag traderTag = universalTraderDataList.getCompound(i);
+				CompoundNBT traderTag = universalTraderDataList.getCompound(i);
 				TraderData trader = this.convertTraderData(traderTag);
 				if(trader != null)
 				{
@@ -96,7 +95,7 @@ public class DataConverter extends SavedData {
 						UUID oldID = traderTag.getUUID("ID");
 						long newID = trader.getID();
 						newTraderIDs.put(oldID, newID);
-						LightmansCurrency.LogInfo("Successfully converted universal trader tag into TraderData.\nOld ID: " + oldID.toString() + "\nNew ID: " + newID + "\nTrader Type: " + trader.type);
+						LightmansCurrency.LogInfo("Successfully converted universal trader tag into TraderData.\nOld ID: " + oldID + "\nNew ID: " + newID + "\nTrader Type: " + trader.type);
 					}
 					else
 					{
@@ -110,12 +109,12 @@ public class DataConverter extends SavedData {
 			}
 		}
 		
-		if(compound.contains("BankAccounts", Tag.TAG_LIST))
+		if(compound.contains("BankAccounts", Constants.NBT.TAG_LIST))
 		{
-			ListTag bankAccountList = compound.getList("BankAccounts", Tag.TAG_COMPOUND);
+			ListNBT bankAccountList = compound.getList("BankAccounts", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < bankAccountList.size(); ++i)
 			{
-				CompoundTag accountCompound = bankAccountList.getCompound(i);
+				CompoundNBT accountCompound = bankAccountList.getCompound(i);
 				try {
 					UUID owner = accountCompound.getUUID("Player");
 					BankAccount bankAccount = new BankAccount(() -> BankSaveData.MarkBankAccountDirty(owner), accountCompound);
@@ -130,13 +129,13 @@ public class DataConverter extends SavedData {
 			}
 		}
 		
-		if(compound.contains("PersistentTraderIDs", Tag.TAG_LIST))
+		if(compound.contains("PersistentTraderIDs", Constants.NBT.TAG_LIST))
 		{
-			ListTag persistentIDs = compound.getList("PersistentTraderIDs", Tag.TAG_COMPOUND);
+			ListNBT persistentIDs = compound.getList("PersistentTraderIDs", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < persistentIDs.size(); ++i)
 			{
 				try {
-					CompoundTag idData = persistentIDs.getCompound(i);
+					CompoundNBT idData = persistentIDs.getCompound(i);
 					UUID uuid = idData.getUUID("UUID");
 					String traderID = idData.getString("TraderID");
 					if(uuid != null && traderID != null)
@@ -150,24 +149,24 @@ public class DataConverter extends SavedData {
 		}
 		
 		//Run this after the persistent trader ids so that we don't need to worry about overlapping id, etc.
-		if(compound.contains("PersistentTraderData", Tag.TAG_LIST))
+		if(compound.contains("PersistentTraderData", Constants.NBT.TAG_LIST))
 		{
-			ListTag persistentData = compound.getList("PersistentTraderData", Tag.TAG_COMPOUND);
+			ListNBT persistentData = compound.getList("PersistentTraderData", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < persistentData.size(); ++i)
 			{
-				CompoundTag thisData = persistentData.getCompound(i);
+				CompoundNBT thisData = persistentData.getCompound(i);
 				String traderID = thisData.getString("traderID");
 				TraderSaveData.GiveOldPersistentTag(traderID, thisData);
 				LightmansCurrency.LogInfo("Successfully transferred Persistent Trader '" + traderID + "' persistent data to the new trader data.");
 			}
 		}
 		
-		if(compound.contains("PlayerNotifications", Tag.TAG_LIST))
+		if(compound.contains("PlayerNotifications", Constants.NBT.TAG_LIST))
 		{
-			ListTag notificationData = compound.getList("PlayerNotifications", Tag.TAG_COMPOUND);
+			ListNBT notificationData = compound.getList("PlayerNotifications", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < notificationData.size(); ++i)
 			{
-				CompoundTag notData = notificationData.getCompound(i);
+				CompoundNBT notData = notificationData.getCompound(i);
 				if(notData.contains("Player"))
 				{
 					UUID playerID = notData.getUUID("Player");
@@ -181,12 +180,12 @@ public class DataConverter extends SavedData {
 			}
 		}
 		
-		if(compound.contains("LastSelectedBankAccounts", Tag.TAG_LIST))
+		if(compound.contains("LastSelectedBankAccounts", Constants.NBT.TAG_LIST))
 		{
-			ListTag selectedAccounts = compound.getList("LastSelectedBankAccounts", Tag.TAG_COMPOUND);
+			ListNBT selectedAccounts = compound.getList("LastSelectedBankAccounts", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < selectedAccounts.size(); ++i)
 			{
-				CompoundTag accountData = selectedAccounts.getCompound(i);
+				CompoundNBT accountData = selectedAccounts.getCompound(i);
 				if(accountData.contains("Player"))
 				{
 					UUID playerID = accountData.getUUID("Player");
@@ -199,9 +198,9 @@ public class DataConverter extends SavedData {
 			}
 		}
 		
-		if(compound.contains("EmergencyEjectionData", Tag.TAG_LIST))
+		if(compound.contains("EmergencyEjectionData", Constants.NBT.TAG_LIST))
 		{
-			ListTag ejectionData = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+			ListNBT ejectionData = compound.getList("EmergencyEjectionData", Constants.NBT.TAG_COMPOUND);
 			int successCount = 0;
 			for(int i = 0; i < ejectionData.size(); ++i)
 			{
@@ -213,7 +212,7 @@ public class DataConverter extends SavedData {
 						successCount++;
 					}
 						
-				} catch(Throwable t) {}
+				} catch(Throwable ignored) {}
 			}
 			if(ejectionData.size() > 0)
 			{
@@ -229,12 +228,12 @@ public class DataConverter extends SavedData {
 		
 		
 		//NEW DATA LOADING
-		if(compound.contains("NewTraderIDs", Tag.TAG_LIST))
+		if(compound.contains("NewTraderIDs", Constants.NBT.TAG_LIST))
 		{
-			ListTag traderIDList = compound.getList("NewTraderIDs", Tag.TAG_COMPOUND);
+			ListNBT traderIDList = compound.getList("NewTraderIDs", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < traderIDList.size(); ++i)
 			{
-				CompoundTag entry = traderIDList.getCompound(i);
+				CompoundNBT entry = traderIDList.getCompound(i);
 				UUID uuid = entry.getUUID("UUID");
 				long id = entry.getLong("ID");
 				if(uuid != null)
@@ -242,12 +241,12 @@ public class DataConverter extends SavedData {
 			}
 		}
 		
-		if(compound.contains("NewTeamIDs", Tag.TAG_LIST))
+		if(compound.contains("NewTeamIDs", Constants.NBT.TAG_LIST))
 		{
-			ListTag teamIDList = compound.getList("NewTeamIDs", Tag.TAG_COMPOUND);
+			ListNBT teamIDList = compound.getList("NewTeamIDs", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < teamIDList.size(); ++i)
 			{
-				CompoundTag entry = teamIDList.getCompound(i);
+				CompoundNBT entry = teamIDList.getCompound(i);
 				UUID uuid = entry.getUUID("UUID");
 				long id = entry.getLong("ID");
 				if(uuid != null)
@@ -260,20 +259,20 @@ public class DataConverter extends SavedData {
 	}
 	
 	@Override
-	public CompoundTag save(CompoundTag compound) {
-		
-		ListTag traderIDList = new ListTag();
+	public CompoundNBT save(CompoundNBT compound) {
+
+		ListNBT traderIDList = new ListNBT();
 		newTraderIDs.forEach((uuid,id) -> {
-			CompoundTag entry = new CompoundTag();
+			CompoundNBT entry = new CompoundNBT();
 			entry.putUUID("UUID", uuid);
 			entry.putLong("ID", id);
 			traderIDList.add(entry);
 		});
 		compound.put("NewTraderIDs", traderIDList);
-		
-		ListTag teamIDList = new ListTag();
+
+		ListNBT teamIDList = new ListNBT();
 		newTeamIDs.forEach((uuid,id) -> {
-			CompoundTag entry = new CompoundTag();
+			CompoundNBT entry = new CompoundNBT();
 			entry.putUUID("UUID", uuid);
 			entry.putLong("ID", id);
 			teamIDList.add(entry);
@@ -287,14 +286,14 @@ public class DataConverter extends SavedData {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(DataConverter::new, DataConverter::new, DATA_NAME);
+				return level.getDataStorage().computeIfAbsent(DataConverter::new, DATA_NAME);
 		}
 		return null;
 	}
 	
-	private TraderData convertTraderData(CompoundTag oldTraderData) {
+	private TraderData convertTraderData(CompoundNBT oldTraderData) {
 		try {
 			ConvertUniversalTraderEvent event = new ConvertUniversalTraderEvent(oldTraderData);
 			MinecraftForge.EVENT_BUS.post(event);
@@ -305,13 +304,13 @@ public class DataConverter extends SavedData {
 	public static long getNewTraderID(UUID traderID) {
 		if(!loading) //Force it to be loaded if it's not already in the middle of loading
 			get();
-		return newTraderIDs.getOrDefault(traderID, -1l);
+		return newTraderIDs.getOrDefault(traderID, -1L);
 	}
 	
 	public static long getNewTeamID(UUID teamID) {
 		if(!loading) //Force it to be loaded if it's not already in the middle of loading
 			get();
-		return newTeamIDs.getOrDefault(teamID, -1l);
+		return newTeamIDs.getOrDefault(teamID, -1L);
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)

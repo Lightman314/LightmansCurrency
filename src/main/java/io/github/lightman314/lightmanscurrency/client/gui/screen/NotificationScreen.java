@@ -2,11 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
@@ -15,19 +14,21 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageFlagNotificationsSeen;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class NotificationScreen extends Screen implements IScrollable{
 
@@ -55,19 +56,20 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	int notificationScroll = 0;
 	
-	public NotificationScreen() { super(new TextComponent("")); }
+	public NotificationScreen() { super(EasyText.empty()); }
 	
 	@Override
 	public boolean isPauseScreen() { return false; }
 	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
-		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).toList());
+		categories.addAll(this.getNotifications().getCategories().stream().filter(cat -> cat != NotificationCategory.GENERAL).collect(Collectors.toList()));
 		return categories;
 	}
 	
 	public void reinit() {
-		this.clearWidgets();
+		this.buttons.clear();
+		this.children.clear();
 		this.validateSelectedCategory();
 		this.init();
 	}
@@ -78,13 +80,13 @@ public class NotificationScreen extends Screen implements IScrollable{
 		this.tabButtons = new ArrayList<>();
 		for(NotificationCategory cat : this.getCategories())
 		{
-			this.tabButtons.add(this.addRenderableWidget(new NotificationTabButton(this::SelectTab, this.font, this::getNotifications, cat)));
+			this.tabButtons.add(this.addButton(new NotificationTabButton(this::SelectTab, this.font, this::getNotifications, cat)));
 		}
 		this.positionTabButtons();
 		
-		this.notificationScroller = this.addRenderableOnly(new ScrollBarWidget(this.guiLeft() + TabButton.SIZE + this.xSize - 15, this.guiTop() + 15, this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
+		this.notificationScroller = this.addButton(new ScrollBarWidget(this.guiLeft() + TabButton.SIZE + this.xSize - 15, this.guiTop() + 15, this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
-		this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, new TranslatableComponent("gui.button.notifications.mark_read"), this::markAsRead));
+		this.buttonMarkAsSeen = this.addButton(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead));
 		
 		this.tick();
 		
@@ -132,13 +134,13 @@ public class NotificationScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.renderBackground(pose);
 		
 		//Render the background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		int screenLeft = this.guiLeft() + TabButton.SIZE;
 		this.blit(pose, screenLeft, this.guiTop(), 0, 0, this.xSize, this.ySize);
 		
@@ -147,14 +149,14 @@ public class NotificationScreen extends Screen implements IScrollable{
 		//Render the current notifications
 		this.notificationScroll = Math.min(this.notificationScroll, this.getMaxNotificationScroll());
 		List<Notification> notifications = this.getNotifications().getNotifications(this.selectedCategory);
-		Component tooltip = null;
+		ITextComponent tooltip = null;
 		int index = this.notificationScroll;
 		for(int y = 0; y < NOTIFICATIONS_PER_PAGE && index < notifications.size(); ++y)
 		{
 			Notification not = notifications.get(index++);
 			int yPos = this.guiTop() + 15 + y * NOTIFICATION_HEIGHT;
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			
 			int vPos = not.wasSeen() ? this.ySize : this.ySize + NOTIFICATION_HEIGHT;
 			int textColor = not.wasSeen() ? 0xFFFFFF : 0x000000;
@@ -174,8 +176,8 @@ public class NotificationScreen extends Screen implements IScrollable{
 				textXPos += quantityWidth + 2;
 				textWidth -= quantityWidth + 2;
 			}
-			Component message = this.selectedCategory == NotificationCategory.GENERAL ? not.getGeneralMessage() : not.getMessage();
-			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
+			ITextComponent message = this.selectedCategory == NotificationCategory.GENERAL ? not.getGeneralMessage() : not.getMessage();
+			List<IReorderingProcessor> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
 				this.font.draw(pose, lines.get(0), textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (this.font.lineHeight / 2), textColor);
@@ -190,7 +192,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 					if(lines.size() > 2)
 					{
 						if(not.hasTimeStamp())
-							tooltip = new TextComponent("").append(not.getTimeStampMessage()).append(new TextComponent("\n")).append(message);
+							tooltip = EasyText.empty().append(not.getTimeStampMessage()).append(EasyText.literal("\n")).append(message);
 						else
 							tooltip = message;
 					}
@@ -321,7 +323,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods) {
-		InputConstants.Key mouseKey = InputConstants.getKey(key, scanCode);
+		InputMappings.Input mouseKey = InputMappings.getKey(key, scanCode);
 		//Manually close the screen when hitting the inventory key
 		if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey)) {
 			this.minecraft.setScreen(null);

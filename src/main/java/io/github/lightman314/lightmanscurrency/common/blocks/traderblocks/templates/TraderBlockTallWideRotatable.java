@@ -8,30 +8,31 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.util.TriFunction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
 	protected static final BooleanProperty ISLEFT = BlockStateProperties.ATTACHED;
-	private final TriFunction<Direction,Boolean,Boolean,VoxelShape> shape;
+	private final TriFunction<Direction,Boolean,Boolean, VoxelShape> shape;
 	
 	protected TraderBlockTallWideRotatable(Properties properties)
 	{
@@ -64,26 +65,26 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state) && this.getIsLeft(state); }
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader level, @Nonnull BlockPos pos, @Nonnull ISelectionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state), this.getIsLeft(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateContainer.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISLEFT);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISLEFT,true);
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull World level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		//Attempt to place the other three blocks
 		BlockPos rightPos = IRotatableBlock.getRightPos(pos, this.getFacing(state));
@@ -97,11 +98,11 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		{
 			//Failed placing the top block. Abort placement
 			level.setBlock(pos, Blocks.AIR.defaultBlockState(), 35);
-			if(player instanceof Player)
+			if(player instanceof PlayerEntity)
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				((Player)player).getInventory().add(giveStack);
+				((PlayerEntity)player).inventory.add(giveStack);
 			}
 		}
 		
@@ -110,14 +111,15 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull World level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player)
 	{
 		//Run base functionality first to prevent the removal of the block containing the block entity
 		this.playerWillDestroyBase(level, pos, state, player);
 		
-		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity<?> trader)
+		TileEntity blockEntity = this.getBlockEntity(state, level, pos);
+		if(blockEntity instanceof TraderBlockEntity<?>)
 		{
+			TraderBlockEntity<?> trader = (TraderBlockEntity<?>)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 		}
@@ -140,7 +142,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {
+	protected void onInvalidRemoval(BlockState state, World level, BlockPos pos, TraderData trader) {
 		super.onInvalidRemoval(state, level, pos, trader);
 		BlockPos otherPos = this.getOtherSide(pos, state, this.getFacing(state));
 		setAir(level, otherPos, null);
@@ -148,7 +150,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	}
 	
 	@Override
-	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
+	public TileEntity getBlockEntity(BlockState state, IWorld level, BlockPos pos)
 	{
 		if(level == null)
 			return null;

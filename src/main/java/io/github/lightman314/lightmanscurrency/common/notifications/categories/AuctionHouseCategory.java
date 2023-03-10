@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+
+import javax.annotation.Nonnull;
 
 public class AuctionHouseCategory extends NotificationCategory {
 
@@ -17,11 +19,12 @@ public class AuctionHouseCategory extends NotificationCategory {
 	
 	private AuctionHouseCategory() { }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return AuctionHouseTrader.ICON; }
 	
 	@Override
-	public MutableComponent getName() { return new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction"); }
+	public IFormattableTextComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 
 	@Override
 	public ResourceLocation getType() { return TYPE; }
@@ -29,7 +32,7 @@ public class AuctionHouseCategory extends NotificationCategory {
 	@Override
 	public boolean matches(NotificationCategory other) { return other == INSTANCE; }
 	
-	public void saveAdditional(CompoundTag compound) { }
+	public void saveAdditional(CompoundNBT compound) { }
 	
 	
 }

@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 public class PersistentAuctionData {
 	
@@ -52,10 +52,10 @@ public class PersistentAuctionData {
 		if(json.has("Item2"))
 			items.add(FileUtil.parseItemStack(json.getAsJsonObject("Item2")));
 		
-		if(items.size() <= 0)
+		if(items.size() == 0)
 			throw new Exception("Auction has no 'Item1' or 'Item2' entry!");
 		
-		long duration = 0;
+		long duration;
 		if(json.has("Duration"))
 			duration = Math.max(json.get("Duration").getAsLong(), AuctionTradeData.GetMinimumDuration());
 		else

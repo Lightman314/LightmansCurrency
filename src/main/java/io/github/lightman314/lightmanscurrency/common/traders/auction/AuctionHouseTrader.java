@@ -1,10 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import com.google.gson.JsonObject;
@@ -38,16 +34,15 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.auction.MessageStartBid;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
@@ -73,7 +68,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	}
 	
 	@Override
-	public MutableComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
+	public IFormattableTextComponent getName() { return EasyText.translatable("gui.lightmanscurrency.universaltrader.auction"); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
@@ -102,7 +97,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		this.markDirty(this::saveTrades);
 	}
 	
-	public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
+	public AuctionPlayerStorage getStorage(PlayerEntity player) { return getStorage(PlayerReference.of(player)); }
 	
 	public AuctionPlayerStorage getStorage(PlayerReference player) {
 		if(player == null)
@@ -155,50 +150,48 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
 	
 	@Override
-	public int getPermissionLevel(Player player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+	public int getPermissionLevel(PlayerEntity player, String permission) {
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(CompoundNBT compound) {
 		
 		this.saveTrades(compound);
 		this.saveStorage(compound);
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound) {
-		ListTag list = new ListTag();
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
-			list.add(this.trades.get(i).getAsNBT());
+	protected final void saveTrades(CompoundNBT compound) {
+		ListNBT list = new ListNBT();
+		for (AuctionTradeData trade : this.trades) {
+			list.add(trade.getAsNBT());
 		}
 		compound.put("Trades", list);
 	}
 	
-	protected final CompoundTag saveStorage(CompoundTag compound) {
-		ListTag list = new ListTag();
-		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundTag())));
+	protected final void saveStorage(CompoundNBT compound) {
+		ListNBT list = new ListNBT();
+		this.storage.forEach((player,storage) -> list.add(storage.save(new CompoundNBT())));
 		compound.put("StorageData", list);
-		return compound;
 	}
 	
 	@Override
-	public void loadAdditional(CompoundTag compound) {
+	public void loadAdditional(CompoundNBT compound) {
 		
 		//Load trades
 		if(compound.contains("Trades"))
 		{
 			this.trades.clear();
-			ListTag tradeList = compound.getList("Trades", Tag.TAG_COMPOUND);
+			ListNBT tradeList = compound.getList("Trades", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < tradeList.size(); ++i)
 				this.trades.add(new AuctionTradeData(tradeList.getCompound(i)));
 		}
@@ -207,7 +200,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		if(compound.contains("StorageData"))
 		{
 			this.storage.clear();
-			ListTag storageList = compound.getList("StorageData", Tag.TAG_COMPOUND);
+			ListNBT storageList = compound.getList("StorageData", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < storageList.size(); ++i)
 			{
 				AuctionPlayerStorage storageEntry = new AuctionPlayerStorage(storageList.getCompound(i));
@@ -217,15 +210,15 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		}
 		
 		if(!this.getOwner().hasOwner())
-			this.getOwner().SetCustomOwner(new TranslatableComponent("gui.lightmanscurrency.universaltrader.auction.owner"));
+			this.getOwner().SetCustomOwner(EasyText.translatable("gui.lightmanscurrency.universaltrader.auction.owner"));
 		
 	}
 
 	@Override
-	public void addTrade(Player requestor) { }
+	public void addTrade(PlayerEntity requestor) { }
 
 	@Override
-	public void removeTrade(Player requestor) {}
+	public void removeTrade(PlayerEntity requestor) {}
 	
 	public void addTrade(AuctionTradeData trade, boolean persistent) {
 		
@@ -260,7 +253,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		}
 	}
 	
-	public boolean makeBid(Player player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
+	public boolean makeBid(PlayerEntity player, TraderMenu menu, int tradeIndex, CoinValue bidAmount) {
 		
 		AuctionTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null)
@@ -306,10 +299,10 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public boolean canMakePersistent() { return false; }
 	
 	@Override
-	public void saveAdditionalPersistentData(CompoundTag compound) { }
+	public void saveAdditionalPersistentData(CompoundNBT compound) { }
 
 	@Override
-	public void loadAdditionalPersistentData(CompoundTag data) { }
+	public void loadAdditionalPersistentData(CompoundNBT data) { }
 
 	@Override
 	public Function<TradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) {
@@ -341,7 +334,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	public void getAdditionalContents(List<ItemStack> contents) { }
 
 	@Override
-	protected MutableComponent getDefaultName() { return this.getName(); }
+	protected IFormattableTextComponent getDefaultName() { return this.getName(); }
 
 	@Override
 	public boolean hasValidTrade() { return true; }
@@ -371,9 +364,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
 	
 	@Override @Deprecated //Just load normally, as the Auction House data didn't change much.
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) { this.loadAdditional(compound); }
+	protected void loadExtraOldUniversalTraderData(CompoundNBT compound) { this.loadAdditional(compound); }
 	
 	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) { }
+	protected void loadExtraOldBlockEntityData(CompoundNBT compound) { }
 	
 }

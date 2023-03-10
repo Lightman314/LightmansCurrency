@@ -8,10 +8,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
 
 public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler> {
 
@@ -59,13 +61,15 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 			return this.handler.getItemBuffer().getSlots();
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			return this.handler.getItemBuffer().getStackInSlot(slot);
 		}
 
+		@Nonnull
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
 			if(this.allowInputs() && this.handler.blockEntity.allowInput(stack))
 			{
 				ItemStack result = this.handler.getItemBuffer().insertItem(slot, stack, simulate);
@@ -76,6 +80,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 			return stack.copy();
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if(this.allowOutputs())

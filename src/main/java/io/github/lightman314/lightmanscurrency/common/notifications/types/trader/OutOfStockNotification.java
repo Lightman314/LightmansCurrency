@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class OutOfStockNotification extends Notification {
 
@@ -22,7 +22,7 @@ public class OutOfStockNotification extends Notification {
 		this.tradeSlot = tradeIndex + 1;
 	}
 	
-	public OutOfStockNotification(CompoundTag compound) { this.load(compound); }
+	public OutOfStockNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -31,16 +31,16 @@ public class OutOfStockNotification extends Notification {
 	public NotificationCategory getCategory() { return this.traderData; }
 
 	@Override
-	public MutableComponent getMessage() { return new TranslatableComponent("notifications.message.out_of_stock", this.traderData.getTooltip(), this.tradeSlot); }
+	public IFormattableTextComponent getMessage() { return EasyText.translatable("notifications.message.out_of_stock", this.traderData.getTooltip(), this.tradeSlot); }
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeSlot", this.tradeSlot);
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeSlot = compound.getInt("TradeSlot");
 	}

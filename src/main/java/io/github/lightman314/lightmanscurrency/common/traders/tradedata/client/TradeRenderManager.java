@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.traders.tradedata.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -87,7 +87,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
      * @param context The context of the trade.
      */
     @OnlyIn(Dist.CLIENT)
-    public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) { }
+    public void renderAdditional(Widget button, MatrixStack pose, int mouseX, int mouseY, TradeContext context) { }
 
     /**
      * Render trade-specific tooltips for the trade, such as the fluid traders drainable/fillable icons.
@@ -96,7 +96,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
      * @param mouseY The mouses Y position relative to the top edge of the button.
      * @return The list of tooltip text. Return null to display no tooltip.
      */
-    public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
+    public List<ITextComponent> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
 
 
 }

@@ -1,20 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.nbt.CompoundNBT;
 
 public abstract class TraderStorageClientTab<T extends TraderStorageTab> implements ITab{
 
 	protected final TraderStorageScreen screen;
 	protected final TraderStorageMenu menu;
 	protected final T commonTab;
-	protected final Font font;
+	protected final FontRenderer font;
 	
 	protected TraderStorageClientTab(TraderStorageScreen screen, T commonTab) {
 		this.screen = screen;
@@ -55,12 +54,12 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	/**
 	 * Renders background data before the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Renders tooltips after the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderTooltips(PoseStack pose, int mouseX, int mouseY);
+	public abstract void renderTooltips(MatrixStack pose, int mouseX, int mouseY);
 	
 	/**
 	 * Called when the mouse is clicked before any other click interactions are processed.
@@ -77,12 +76,12 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	/**
 	 * Processes a client -> client message from another tab immediately after the tab was changed.
 	 */
-	public void receiveSelfMessage(CompoundTag message) { }
+	public void receiveSelfMessage(CompoundNBT message) { }
 	
 	/**
 	 * Processes a server -> client message response to an action made on the client.
 	 */
-	public void receiveServerMessage(CompoundTag message) { }
+	public void receiveServerMessage(CompoundNBT message) { }
 	
 	/**
 	 * Called when the tab is closed.

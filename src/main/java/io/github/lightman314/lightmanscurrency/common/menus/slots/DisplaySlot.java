@@ -1,21 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slots;
 
-import javax.annotation.Nonnull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public class DisplaySlot extends SimpleSlot {
 
-	public DisplaySlot(Container inventory, int index, int x, int y) { super(inventory, index, x, y); }
+	public DisplaySlot(IInventory inventory, int index, int x, int y) { super(inventory, index, x, y); }
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack item) { return false; }
+	public boolean mayPlace(@Nonnull ItemStack item) { return false; }
 	
 	@Override
-	public boolean mayPickup(@NotNull Player player) { return false; }
+	public boolean mayPickup(@Nonnull PlayerEntity player) { return false; }
 	
 	@Override
 	public void set(@Nonnull ItemStack stack) { }

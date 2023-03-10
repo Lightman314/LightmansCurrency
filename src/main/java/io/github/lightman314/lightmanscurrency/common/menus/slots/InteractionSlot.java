@@ -7,17 +7,18 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 public class InteractionSlot extends EasyMultiBGSlot {
 	
 	public final List<InteractionSlotData> slotData;
 	
 	public InteractionSlot(List<InteractionSlotData> slotData, int x, int y) {
-		super(new SimpleContainer(1), 0, x, y);
+		super(new Inventory(1), 0, x, y);
 		this.slotData = slotData;
 	}
 	
@@ -37,7 +38,7 @@ public class InteractionSlot extends EasyMultiBGSlot {
 	public int getMaxStackSize() { return 1; }
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) {
+	public boolean mayPlace(@Nonnull ItemStack stack) {
 		return InteractionSlotData.allowItemInSlot(this.slotData, stack);
 	}
 

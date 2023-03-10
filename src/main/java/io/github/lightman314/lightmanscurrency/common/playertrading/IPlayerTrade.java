@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.util.text.ITextComponent;
 
 public interface IPlayerTrade {
 
@@ -13,16 +13,16 @@ public interface IPlayerTrade {
 
     boolean isCompleted();
 
-    boolean isHost(Player player);
+    boolean isHost(PlayerEntity player);
 
-    Component getHostName();
-    Component getGuestName();
+    ITextComponent getHostName();
+    ITextComponent getGuestName();
 
     CoinValue getHostMoney();
     CoinValue getGuestMoney();
 
-    Container getHostItems();
-    Container getGuestItems();
+    IInventory getHostItems();
+    IInventory getGuestItems();
 
     int getHostState();
     int getGuestState();

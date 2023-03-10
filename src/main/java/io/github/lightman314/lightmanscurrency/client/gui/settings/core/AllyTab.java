@@ -1,23 +1,22 @@
 package io.github.lightman314.lightmanscurrency.client.gui.settings.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Items;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class AllyTab extends SettingsTab {
 
@@ -30,19 +29,18 @@ public class AllyTab extends SettingsTab {
 		return 0xFFFFFFFF;
 	}
 	
-	EditBox nameInput;
+	TextFieldWidget nameInput;
 	Button buttonAddAlly;
 	Button buttonRemoveAlly;
 	
 	ScrollTextDisplay display;
 	
-	int scroll = 0;
-	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.settings.ally"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.settings.ally"); }
 	
 	@Override
 	public boolean canOpen() { return this.hasPermissions(Permissions.ADD_REMOVE_ALLIES); }
@@ -52,11 +50,11 @@ public class AllyTab extends SettingsTab {
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
-		this.nameInput = screen.addRenderableTabWidget(new EditBox(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, new TextComponent("")));
+		this.nameInput = screen.addRenderableTabWidget(new TextFieldWidget(screen.getFont(), screen.guiLeft() + 20, screen.guiTop() + 10, 160, 20, EasyText.empty()));
 		this.nameInput.setMaxLength(16);
 		
-		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, new TranslatableComponent("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
-		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, new TranslatableComponent("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
+		this.buttonAddAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 35, 74, 20, EasyText.translatable("gui.button.lightmanscurrency.allies.add"), this::AddAlly));
+		this.buttonRemoveAlly = screen.addRenderableTabWidget(new Button(screen.guiLeft() + screen.xSize - 93, screen.guiTop() + 35, 74, 20, EasyText.translatable("gui.button.lightmanscurrency.allies.remove"), this::RemoveAlly));
 		
 		this.display = screen.addRenderableTabWidget(new ScrollTextDisplay(screen.guiLeft() + 5, screen.guiTop() + 60, 190, 135, screen.getFont(), this::getAllyList));
 		this.display.setColumnCount(2);
@@ -64,18 +62,18 @@ public class AllyTab extends SettingsTab {
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 	}
 	
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 	}
 
-	private List<Component> getAllyList()
+	private List<ITextComponent> getAllyList()
 	{
-		List<Component> list = Lists.newArrayList();
+		List<ITextComponent> list = new ArrayList<>();
 		this.getScreen().getTrader().getAllies().forEach(ally -> list.add(ally.getNameComponent(true)));
 		return list;
 	}
@@ -93,7 +91,7 @@ public class AllyTab extends SettingsTab {
 	private void AddAlly(Button button)
 	{
 		String allyName = this.nameInput.getValue();
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putString("AddAlly", allyName);
 		this.sendNetworkMessage(message);
 		this.nameInput.setValue("");
@@ -102,7 +100,7 @@ public class AllyTab extends SettingsTab {
 	private void RemoveAlly(Button button)
 	{
 		String allyName = this.nameInput.getValue();
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putString("RemoveAlly", allyName);
 		this.sendNetworkMessage(message);
 		this.nameInput.setValue("");

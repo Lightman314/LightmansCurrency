@@ -11,13 +11,13 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class AuctionStorageTab extends TraderStorageTab {
 
@@ -28,7 +28,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionStorageClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(PlayerEntity player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }
@@ -56,18 +56,18 @@ public class AuctionStorageTab extends TraderStorageTab {
 				}
 				else
 				{
-					ItemStack heldItem = this.menu.getCarried();
+					ItemStack heldItem = this.menu.player.inventory.getCarried();
 					if(isShiftHeld)
 					{
 						//Move as much of the stored item from the slot into the players inventory
-						this.menu.player.getInventory().add(storedItem);
+						this.menu.player.inventory.add(storedItem);
 						if(storedItem.isEmpty())
 							storage.getStoredItems().remove(storageSlot);
 						trader.markStorageDirty();
 					}
 					else if(heldItem.isEmpty())
 					{
-						this.menu.setCarried(storedItem);
+						this.menu.player.inventory.setCarried(storedItem);
 						storage.getStoredItems().remove(storageSlot);
 						trader.markStorageDirty();
 					}
@@ -78,7 +78,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 						{
 							//Add to the held item
 							heldItem.grow(transferCount);
-							this.menu.setCarried(heldItem);
+							this.menu.player.inventory.setCarried(heldItem);
 							//Shrink the storage count
 							storedItem.shrink(transferCount);
 							if(storedItem.isEmpty())
@@ -90,7 +90,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			}
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("ClickedSlot", storageSlot);
 				message.putBoolean("HeldShift", isShiftHeld);
 				this.menu.sendMessage(message);
@@ -109,7 +109,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putBoolean("QuickTransfer", true);
 				this.menu.sendMessage(message);
 			}
@@ -127,7 +127,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putBoolean("CollectMoney", true);
 				this.menu.sendMessage(message);
 			}
@@ -135,8 +135,8 @@ public class AuctionStorageTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
-		if(message.contains("ClickedSlot", Tag.TAG_INT))
+	public void receiveMessage(CompoundNBT message) {
+		if(message.contains("ClickedSlot", Constants.NBT.TAG_INT))
 		{
 			int storageSlot = message.getInt("ClickedSlot");
 			boolean isShiftHeld = message.getBoolean("HeldShift");

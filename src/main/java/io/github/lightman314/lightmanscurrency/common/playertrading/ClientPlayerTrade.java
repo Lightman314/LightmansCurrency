@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.UUID;
 
@@ -17,14 +17,14 @@ public class ClientPlayerTrade implements IPlayerTrade {
 
     private final UUID hostID;
     @Override
-    public boolean isHost(Player player) { return player.getUUID().equals(this.hostID); }
+    public boolean isHost(PlayerEntity player) { return player.getUUID().equals(this.hostID); }
 
-    private final Component hostName;
+    private final ITextComponent hostName;
     @Override
-    public Component getHostName() { return this.hostName; }
-    private final Component guestName;
+    public ITextComponent getHostName() { return this.hostName; }
+    private final ITextComponent guestName;
     @Override
-    public Component getGuestName() { return this.guestName; }
+    public ITextComponent getGuestName() { return this.guestName; }
 
     private final CoinValue hostMoney;
     @Override
@@ -33,13 +33,13 @@ public class ClientPlayerTrade implements IPlayerTrade {
     @Override
     public CoinValue getGuestMoney() { return this.guestMoney; }
 
-    private final Container hostItems;
+    private final IInventory hostItems;
     @Override
-    public Container getHostItems() { return this.hostItems; }
+    public IInventory getHostItems() { return this.hostItems; }
 
-    private final Container guestItems;
+    private final IInventory guestItems;
     @Override
-    public Container getGuestItems() { return this.guestItems; }
+    public IInventory getGuestItems() { return this.guestItems; }
 
     private final int hostState;
     @Override
@@ -48,7 +48,7 @@ public class ClientPlayerTrade implements IPlayerTrade {
     @Override
     public int getGuestState() { return this.guestState; }
 
-    public ClientPlayerTrade(UUID hostID, Component hostName, Component guestName, CoinValue hostMoney, CoinValue guestMoney, Container hostItems, Container guestItems, int hostState, int guestState) {
+    public ClientPlayerTrade(UUID hostID, ITextComponent hostName, ITextComponent guestName, CoinValue hostMoney, CoinValue guestMoney, IInventory hostItems, IInventory guestItems, int hostState, int guestState) {
         this.hostID = hostID;
         this.hostName = hostName;
         this.guestName = guestName;
@@ -60,7 +60,7 @@ public class ClientPlayerTrade implements IPlayerTrade {
         this.guestState = guestState;
     }
 
-    public final void encode(FriendlyByteBuf data) {
+    public final void encode(PacketBuffer data) {
         data.writeUUID(this.hostID);
         data.writeComponent(this.hostName);
         data.writeComponent(this.guestName);
@@ -72,14 +72,14 @@ public class ClientPlayerTrade implements IPlayerTrade {
         data.writeInt(this.guestState);
     }
 
-    public static ClientPlayerTrade decode(FriendlyByteBuf data) {
+    public static ClientPlayerTrade decode(PacketBuffer data) {
         UUID hostID = data.readUUID();
-        Component hostName = data.readComponent();
-        Component guestName = data.readComponent();
+        ITextComponent hostName = data.readComponent();
+        ITextComponent guestName = data.readComponent();
         CoinValue hostMoney = CoinValue.decode(data);
         CoinValue guestMoney = CoinValue.decode(data);
-        Container hostItems = InventoryUtil.decodeItems(data);
-        Container guestItems = InventoryUtil.decodeItems(data);
+        IInventory hostItems = InventoryUtil.decodeItems(data);
+        IInventory guestItems = InventoryUtil.decodeItems(data);
         int hostState = data.readInt();
         int guestState = data.readInt();
         return new ClientPlayerTrade(hostID, hostName, guestName, hostMoney, guestMoney, hostItems, guestItems, hostState, guestState);

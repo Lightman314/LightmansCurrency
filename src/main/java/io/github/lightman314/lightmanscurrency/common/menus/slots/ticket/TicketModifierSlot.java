@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasyMultiBGSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -28,7 +29,7 @@ public class TicketModifierSlot extends EasyMultiBGSlot {
 
     @Override
     protected List<Pair<ResourceLocation, ResourceLocation>> getPossibleNoItemIcons() {
-        return ImmutableList.of(Pair.of(InventoryMenu.BLOCK_ATLAS,TicketSlot.EMPTY_TICKET_SLOT), Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_DYE_SLOT));
+        return ImmutableList.of(Pair.of(PlayerContainer.BLOCK_ATLAS,TicketSlot.EMPTY_TICKET_SLOT), Pair.of(PlayerContainer.BLOCK_ATLAS, EMPTY_DYE_SLOT));
     }
 
     @Nullable

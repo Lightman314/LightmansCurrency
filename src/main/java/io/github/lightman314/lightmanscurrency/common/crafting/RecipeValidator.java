@@ -5,20 +5,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
-
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.world.World;
 
 
 public class RecipeValidator {
 	
-	public static Results getValidRecipes(Level level)
+	public static Results getValidRecipes(World level)
 	{
 		Results results = new Results();
 		RecipeManager recipeManager = level.getRecipeManager();
-		for(Recipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT))
+		for(IRecipe<?> recipe : getRecipes(recipeManager, RecipeTypes.COIN_MINT))
 		{
 			if(recipe instanceof CoinMintRecipe)
 			{
@@ -32,7 +31,7 @@ public class RecipeValidator {
 		return results;
 	}
 	
-	private static Collection<Recipe<?>> getRecipes(RecipeManager recipeManager, RecipeType<?> recipeType)
+	private static Collection<IRecipe<?>> getRecipes(RecipeManager recipeManager, IRecipeType<?> recipeType)
 	{
 		return recipeManager.getRecipes().stream().filter(recipe -> recipe.getType() == recipeType).collect(Collectors.toSet());
 	}

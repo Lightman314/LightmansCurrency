@@ -1,30 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.menus.providers;
 
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
 
-public class WalletBankMenuProvider implements MenuProvider{
+import javax.annotation.Nonnull;
+
+public class WalletBankMenuProvider extends NamelessMenuProvider{
 
 	int walletItemIndex;
 	
-	public WalletBankMenuProvider(int walletItemIndex)
-	{
-		this.walletItemIndex = walletItemIndex;
-	}
+	public WalletBankMenuProvider(int walletItemIndex) { this.walletItemIndex = walletItemIndex; }
 	
-	public Component getDisplayName()
-	{
-		return new TranslatableComponent("");
-	}
-	
-	public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
-	{
-		return new WalletBankMenu(id, inventory, this.walletItemIndex);
-	}
+	public Container createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity) { return new WalletBankMenu(id, inventory, this.walletItemIndex); }
 	
 }

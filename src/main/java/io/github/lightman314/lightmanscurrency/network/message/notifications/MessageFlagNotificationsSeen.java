@@ -6,9 +6,9 @@ import io.github.lightman314.lightmanscurrency.common.notifications.Notification
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationSaveData;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
 
 public class MessageFlagNotificationsSeen {
 
@@ -18,17 +18,17 @@ public class MessageFlagNotificationsSeen {
 		this.category = category;
 	}
 	
-	public static void encode(MessageFlagNotificationsSeen message, FriendlyByteBuf buffer) {
+	public static void encode(MessageFlagNotificationsSeen message, PacketBuffer buffer) {
 		buffer.writeNbt(message.category.save());
 	}
 	
-	public static MessageFlagNotificationsSeen decode(FriendlyByteBuf buffer) {
+	public static MessageFlagNotificationsSeen decode(PacketBuffer buffer) {
 		return new MessageFlagNotificationsSeen(NotificationCategory.deserialize(buffer.readAnySizeNbt()));
 	}
 	
 	public static void handle(MessageFlagNotificationsSeen message, Supplier<Context> supplier) {
 		supplier.get().enqueueWork(() ->{
-			Player player = supplier.get().getSender();
+			PlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				NotificationData data = NotificationSaveData.GetNotifications(player);

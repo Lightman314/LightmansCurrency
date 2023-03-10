@@ -3,23 +3,25 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FallingBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.FallingBlock;
+import net.minecraft.entity.item.FallingBlockEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-public class CoinBlock extends FallingBlock{
+import javax.annotation.Nonnull;
+
+public class CoinBlock extends FallingBlock {
 	
-	private final Supplier<ItemLike> coinItem;
+	private final Supplier<IItemProvider> coinItem;
 	
-	public CoinBlock(Properties properties, Supplier<ItemLike> coinItem)
+	public CoinBlock(Properties properties, Supplier<IItemProvider> coinItem)
 	{
 		super(properties);
 		this.coinItem = coinItem;
@@ -30,10 +32,10 @@ public class CoinBlock extends FallingBlock{
 		return 36;
 	}
 	
-	protected SoundEvent getBreakingSound() { return ModSounds.COINS_CLINKING.get(); }
+	protected SoundEvent getBreakingSound() { return ModSounds.COINS_CLINKING; }
 	
 	@Override
-	public void onLand(Level level, BlockPos pos, BlockState fallingState, BlockState hitState, FallingBlockEntity fallingBlock) {
+	public void onLand(World level, @Nonnull BlockPos pos, @Nonnull BlockState fallingState, @Nonnull BlockState hitState, @Nonnull FallingBlockEntity fallingBlock) {
 		
 		if(!level.isClientSide)
 		{
@@ -45,7 +47,7 @@ public class CoinBlock extends FallingBlock{
 				Block.popResource(level, pos, new ItemStack(this.coinItem.get()));
 			}
 			//Play the breaking sound
-			level.playSound(null, pos, this.getBreakingSound(), SoundSource.BLOCKS, 1f, 1f);
+			level.playSound(null, pos, this.getBreakingSound(), SoundCategory.BLOCKS, 1f, 1f);
 		}
 		
 	}

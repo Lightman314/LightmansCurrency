@@ -12,9 +12,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.block.Block;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.RegistryObject;
 
 public class BlockEntityBlockHelper {
 
@@ -35,7 +35,7 @@ public class BlockEntityBlockHelper {
 					result.add(b);
 			} catch(Throwable ignored) {}
 		}
-		return result.toArray(new Block[result.size()]);
+		return result.toArray(new Block[0]);
 	}
 	
 	public static <T extends Block> void addBlockToBlockEntity(ResourceLocation beType, RegistryObject<T> block) { addBlockToBlockEntity(beType, block::get); }

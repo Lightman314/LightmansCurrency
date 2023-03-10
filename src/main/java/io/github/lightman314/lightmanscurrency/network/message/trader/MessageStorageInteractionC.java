@@ -4,25 +4,25 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageStorageInteractionC {
 
-	CompoundTag message;
+	CompoundNBT message;
 	
-	public MessageStorageInteractionC(CompoundTag message) { this.message = message; }
+	public MessageStorageInteractionC(CompoundNBT message) { this.message = message; }
 	
-	public static void encode(MessageStorageInteractionC message, FriendlyByteBuf buffer) { 
+	public static void encode(MessageStorageInteractionC message, PacketBuffer buffer) {
 		buffer.writeNbt(message.message);
 	}
 	
-	public static MessageStorageInteractionC decode(FriendlyByteBuf buffer) {
+	public static MessageStorageInteractionC decode(PacketBuffer buffer) {
 		return new MessageStorageInteractionC(buffer.readAnySizeNbt());
 	}
 	
-	public static void handle(MessageStorageInteractionC message, Supplier<Context> supplier) {
+	public static void handle(MessageStorageInteractionC message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->{
 			Minecraft mc = Minecraft.getInstance();
 			if(mc != null && mc.player != null && mc.player.containerMenu instanceof TraderStorageMenu)

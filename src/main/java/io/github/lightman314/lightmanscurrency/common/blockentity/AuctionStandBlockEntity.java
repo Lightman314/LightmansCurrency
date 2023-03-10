@@ -10,19 +10,17 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SMessageSyncAuctionStandDisplay;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.List;
 import java.util.Random;
@@ -30,40 +28,44 @@ import java.util.Random;
 @Mod.EventBusSubscriber
 public class AuctionStandBlockEntity extends EasyBlockEntity {
 
-    public AuctionStandBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.AUCTION_STAND.get(), pos, state); }
+    public AuctionStandBlockEntity() { super(ModBlockEntities.AUCTION_STAND.get()); }
 
     private static ImmutableList<ItemStack> displayItems = ImmutableList.of(ItemStack.EMPTY);
 
     @SubscribeEvent(priority = EventPriority.LOWEST) //Set to low priority so that it doesn't run before the coin list is loaded and makes the persistent traders fail to load properly.
-    public static void serverStart(ServerStartedEvent event) {
+    public static void serverStart(FMLServerStartedEvent event) {
         if(AuctionHouseTrader.isEnabled())
             RandomizeDisplayItems();
     }
 
     @SubscribeEvent
     public static void playerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if(AuctionHouseTrader.isEnabled() && event.getEntity() instanceof ServerPlayer sp)
-            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sp), new SMessageSyncAuctionStandDisplay(displayItems));
+        if(AuctionHouseTrader.isEnabled() && event.getEntity() instanceof ServerPlayerEntity)
+            LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)event.getEntity()), new SMessageSyncAuctionStandDisplay(displayItems));
     }
 
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event)
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if(AuctionHouseTrader.isEnabled() && event.haveTime() && server != null && server.getTickCount() % 1200 == 0)
+        if(AuctionHouseTrader.isEnabled() && server != null && server.getTickCount() % 1200 == 0)
             RandomizeDisplayItems();
     }
 
     private static void RandomizeDisplayItems()
     {
         TraderData trader = TraderSaveData.GetAuctionHouse(false);
-        if(trader instanceof AuctionHouseTrader ah && ah.getTradeCount() > 0)
+        if(trader instanceof AuctionHouseTrader)
         {
-            AuctionTradeData trade = ah.getTrade(new Random().nextInt(ah.getTradeCount()));
-            if(trade != null)
+            AuctionHouseTrader ah = (AuctionHouseTrader)trader;
+            if(ah.getTradeCount() > 0)
             {
-                setDisplayItems(trade.getAuctionItems());
-                return;
+                AuctionTradeData trade = ah.getTrade(new Random().nextInt(ah.getTradeCount()));
+                if(trade != null)
+                {
+                    setDisplayItems(trade.getAuctionItems());
+                    return;
+                }
             }
         }
         setDefaultDisplayItem();

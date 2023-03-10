@@ -7,12 +7,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.traders.ITradeSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.Constants;
 
 public class NetworkTradeReference extends NetworkTraderReference{
 
-	private final Function<CompoundTag,TradeData> tradeDeserializer;
+	private final Function<CompoundNBT,TradeData> tradeDeserializer;
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
@@ -44,7 +44,7 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		return this.tradeDeserializer.apply(trade.getAsNBT());
 	}
 	
-	public NetworkTradeReference(Supplier<Boolean> clientCheck, Function<CompoundTag,TradeData> tradeDeserializer) {
+	public NetworkTradeReference(Supplier<Boolean> clientCheck, Function<CompoundNBT,TradeData> tradeDeserializer) {
 		super(clientCheck);
 		this.tradeDeserializer = tradeDeserializer;
 	}
@@ -53,13 +53,17 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		if(this.tradeIndex < 0)
 			return null;
 		TraderData trader = this.getTrader();
-		if(trader instanceof ITradeSource<?> tradeSource)
+		if(trader instanceof ITradeSource<?>)
+		{
+			ITradeSource<?> tradeSource = (ITradeSource<?>)trader;
 			return tradeSource.getTrade(this.tradeIndex);
+		}
+
 		return null;
 	}
 	
-	public CompoundTag save() {
-		CompoundTag compound = super.save();
+	public CompoundNBT save() {
+		CompoundNBT compound = super.save();
 		if(this.tradeData != null && this.tradeIndex >= 0)
 		{
 			compound.putInt("TradeIndex", this.tradeIndex);
@@ -68,19 +72,19 @@ public class NetworkTradeReference extends NetworkTraderReference{
 		return compound;
 	}
 	
-	public void load(CompoundTag compound) {
+	public void load(CompoundNBT compound) {
 		super.load(compound);
 		//Load old trade index save
-		if(compound.contains("tradeIndex", Tag.TAG_INT))
+		if(compound.contains("tradeIndex", Constants.NBT.TAG_INT))
 			this.tradeIndex = compound.getInt("tradeIndex");
 		//Load new trade index save
-		if(compound.contains("TradeIndex", Tag.TAG_INT))
+		if(compound.contains("TradeIndex", Constants.NBT.TAG_INT))
 			this.tradeIndex = compound.getInt("TradeIndex");
 		//Load old trade save
-		if(compound.contains("trade", Tag.TAG_COMPOUND))
+		if(compound.contains("trade", Constants.NBT.TAG_COMPOUND))
 			this.tradeData = this.tradeDeserializer.apply(compound.getCompound("trade"));
 		//Load new trade save
-		else if(compound.contains("Trade", Tag.TAG_COMPOUND))
+		else if(compound.contains("Trade", Constants.NBT.TAG_COMPOUND))
 			this.tradeData = this.tradeDeserializer.apply(compound.getCompound("Trade"));
 	}
 	

@@ -3,20 +3,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.settings.input;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Items;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.IFormattableTextComponent;
+
+import javax.annotation.Nonnull;
 
 public class InputTab extends SettingsTab{
 
@@ -73,7 +75,8 @@ public class InputTab extends SettingsTab{
 		return 0xFFFFFF;
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		InputTraderData trader = this.getInputTrader();
 		if(trader != null)
@@ -82,11 +85,11 @@ public class InputTab extends SettingsTab{
 	}
 
 	@Override
-	public MutableComponent getTooltip() {
+	public IFormattableTextComponent getTooltip() {
 		InputTraderData trader = this.getInputTrader();
 		if(trader != null)
 			return trader.inputSettingsTabTooltip();
-		return new TranslatableComponent("tooltip.lightmanscurrency.settings.iteminput");
+		return EasyText.translatable("tooltip.lightmanscurrency.settings.iteminput");
 	}
 	
 	public List<InputTabAddon> getAddons() {
@@ -112,20 +115,20 @@ public class InputTab extends SettingsTab{
 	}
 
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
 		//Side Widget Labels
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, this.getTextColor());
-		this.getFont().draw(pose, new TranslatableComponent("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, this.getTextColor());
+		this.getFont().draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, this.getTextColor());
+		this.getFont().draw(pose, EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), screen.guiLeft() + 110, screen.guiTop() + 7, this.getTextColor());
 
 		this.getAddons().forEach(a -> a.preRender(screen, pose, mouseX, mouseY, partialTicks));
 		
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TraderSettingsScreen screen = this.getScreen();
 		
@@ -159,7 +162,7 @@ public class InputTab extends SettingsTab{
 	
 	private void ToggleInputSide(Direction side)
 	{
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putBoolean("SetInputSide", !this.getInputSideValue(side));
 		message.putInt("Side", side.get3DDataValue());
 		this.sendNetworkMessage(message);
@@ -167,7 +170,7 @@ public class InputTab extends SettingsTab{
 	
 	private void ToggleOutputSide(Direction side)
 	{
-		CompoundTag message = new CompoundTag();
+		CompoundNBT message = new CompoundNBT();
 		message.putBoolean("SetOutputSide", !this.getInputSideValue(side));
 		message.putInt("Side", side.get3DDataValue());
 		this.sendNetworkMessage(message);

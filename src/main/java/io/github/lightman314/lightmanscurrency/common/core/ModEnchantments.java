@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnchantment;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.enchantment.Enchantment.Rarity;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModEnchantments {
 	
@@ -15,9 +15,9 @@ public class ModEnchantments {
 	
 	static {
 		
-		MONEY_MENDING = ModRegistries.ENCHANTMENTS.register("money_mending", () -> new MoneyMendingEnchantment(Rarity.RARE, EquipmentSlot.values()));
+		MONEY_MENDING = ModRegistries.ENCHANTMENTS.register("money_mending", () -> new MoneyMendingEnchantment(Enchantment.Rarity.RARE, EquipmentSlotType.values()));
 		
-		COIN_MAGNET = ModRegistries.ENCHANTMENTS.register("coin_magnet", () -> new CoinMagnetEnchantment(Rarity.COMMON, EquipmentSlot.values()));
+		COIN_MAGNET = ModRegistries.ENCHANTMENTS.register("coin_magnet", () -> new CoinMagnetEnchantment(Enchantment.Rarity.COMMON, EquipmentSlotType.values()));
 		
 	}
 	

@@ -1,16 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class ChangeOwnerNotification extends Notification {
 
@@ -20,7 +20,7 @@ public class ChangeOwnerNotification extends Notification {
 	OwnershipData newOwner;
 	OwnershipData oldOwner;
 	
-	public ChangeOwnerNotification(CompoundTag compound) { this.load(compound); }
+	public ChangeOwnerNotification(CompoundNBT compound) { this.load(compound); }
 	
 	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, PlayerReference oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
 	public ChangeOwnerNotification(PlayerReference player, PlayerReference newOwner, Team oldOwner) { this(player, OwnershipData.of(newOwner), OwnershipData.of(oldOwner)); }
@@ -40,24 +40,24 @@ public class ChangeOwnerNotification extends Notification {
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		if(newOwner.is(this.player))
-			return new TranslatableComponent("log.settings.newowner.taken", this.player.getName(true), this.oldOwner.getName());
+			return EasyText.translatable("log.settings.newowner.taken", this.player.getName(true), this.oldOwner.getName());
 		if(oldOwner.is(this.player))
-			return new TranslatableComponent("log.settings.newowner.passed", this.player.getName(true), this.newOwner.getName());
+			return EasyText.translatable("log.settings.newowner.passed", this.player.getName(true), this.newOwner.getName());
 		else
-			return new TranslatableComponent("log.settings.newowner.transferred", this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
+			return EasyText.translatable("log.settings.newowner.transferred", this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		compound.put("Player", this.player.save());
 		compound.put("NewOwner", this.newOwner.save());
 		compound.put("OldOwner", this.oldOwner.save());
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.newOwner = OwnershipData.load(compound.getCompound("NewOwner"));
 		this.oldOwner = OwnershipData.load(compound.getCompound("OldOwner"));
@@ -94,8 +94,8 @@ public class ChangeOwnerNotification extends Notification {
 			return "DELETED TEAM";
 		}
 		
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
 			if(this.player != null)
 				compound.put("Player", this.player.save());
 			else
@@ -125,7 +125,7 @@ public class ChangeOwnerNotification extends Notification {
 		public static OwnershipData of(Team team) { return new OwnershipData(null, team.getID()); }
 		public static OwnershipData of(long teamID) { return new OwnershipData(null, teamID); }
 		
-		public static OwnershipData load(CompoundTag compound) {
+		public static OwnershipData load(CompoundNBT compound) {
 			if(compound.contains("Player"))
 				return of(PlayerReference.load(compound.getCompound("Player")));
 			else

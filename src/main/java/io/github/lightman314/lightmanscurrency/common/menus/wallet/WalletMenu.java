@@ -4,14 +4,17 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class WalletMenu extends WalletMenuBase {
 	
-	public WalletMenu(int windowId, Inventory inventory, int walletStackIndex)
+	public WalletMenu(int windowId, PlayerInventory inventory, int walletStackIndex)
 	{
 		
 		super(ModMenus.WALLET.get(), windowId, inventory, walletStackIndex);
@@ -46,8 +49,9 @@ public class WalletMenu extends WalletMenuBase {
 		
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		if(index + this.coinInput.getContainerSize() == this.walletStackIndex)
@@ -89,7 +93,7 @@ public class WalletMenu extends WalletMenuBase {
 	
 	public void QuickCollectCoins()
 	{
-		Inventory inv = this.player.getInventory();
+		IInventory inv = this.player.inventory;
 		for(int i = 0; i < inv.getContainerSize(); ++i)
 		{
 			ItemStack item = inv.getItem(i);

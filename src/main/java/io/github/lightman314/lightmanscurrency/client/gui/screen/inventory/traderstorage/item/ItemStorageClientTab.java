@@ -2,8 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -14,17 +13,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemStorageTab;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +47,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.storage"); }
 
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -61,25 +59,33 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	public void onOpen() {
 
 		this.columns = COLUMNS_NORMAL;
-		if(this.menu.getTrader() instanceof ItemTraderData trader && trader.isPersistent())
-			this.columns = COLUMNS_PERSISTENT;
+		if(this.menu.getTrader() instanceof ItemTraderData)
+		{
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+			if(trader.isPersistent())
+				this.columns = COLUMNS_PERSISTENT;
+		}
 
 		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * this.columns), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
 
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 
-		if(this.menu.getTrader() instanceof ItemTraderData trader && !trader.isPersistent())
+		if(this.menu.getTrader() instanceof ItemTraderData)
 		{
-			this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(0)));
-			this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(1)));
+			ItemTraderData trader = (ItemTraderData)this.menu.getTrader();
+			if(!trader.isPersistent())
+			{
+				this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(0)));
+				this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * ROWS + 8, b -> this.commonTab.quickTransfer(1)));
+			}
 		}
 
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -99,21 +105,21 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 					//Get the slot position
 					int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
 					//Render the slot background
-					RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+					RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+					RenderUtil.color4f(1f, 1f, 1f, 1f);
 					this.screen.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
 					//Render the slots item
 					if(index < storage.getSlotCount())
 						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					if(index == hoverSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
+						RenderUtil.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
 					index++;
 				}
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
 				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
@@ -137,9 +143,9 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getCarried().isEmpty())
+		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().player.inventory.getCarried().isEmpty())
 		{
 			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 			if(hoveredSlot >= 0)
@@ -149,14 +155,14 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 				if(hoveredSlot < storage.getContents().size())
 				{
 					ItemStack stack = storage.getContents().get(hoveredSlot);
-					List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-					tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+					List<ITextComponent> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
+					tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
 					if(stack.getCount() >= 64)
 					{
 						if(stack.getCount() % 64 == 0)
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+							tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
 						else
-							tooltip.add(new TranslatableComponent("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+							tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
 					}
 					this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
 				}	

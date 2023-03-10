@@ -4,24 +4,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Lists;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.NotNull;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 public class CoinJarItem extends BlockItem {
 	
@@ -31,7 +29,7 @@ public class CoinJarItem extends BlockItem {
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		List<ItemStack> jarStorage = readJarData(stack);
@@ -42,14 +40,14 @@ public class CoinJarItem extends BlockItem {
 			{
 				for (ItemStack coin : jarStorage) {
 					if (coin.getCount() > 1)
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
+						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.multiple", coin.getCount(), coin.getHoverName()));
 					else
-						tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
+						tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.storedcoins.single", coin.getHoverName()));
 				}
 			}
 			else
 			{
-				tooltip.add(new TranslatableComponent("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(ChatFormatting.YELLOW));
+				tooltip.add(EasyText.translatable("tooptip.lightmanscurrency.coinjar.holdshift").withStyle(TextFormatting.YELLOW));
 			}
 		}
 
@@ -60,16 +58,16 @@ public class CoinJarItem extends BlockItem {
 		List<ItemStack> storage = new ArrayList<>();
 		if(stack.hasTag())
 		{
-			CompoundTag compound = stack.getTag();
-			if(compound.contains("JarData", Tag.TAG_COMPOUND))
+			CompoundNBT compound = stack.getTag();
+			if(compound.contains("JarData", Constants.NBT.TAG_COMPOUND))
 			{
-				CompoundTag jarData = compound.getCompound("JarData");
+				CompoundNBT jarData = compound.getCompound("JarData");
 				if(jarData.contains("Coins"))
 				{
-					ListTag storageList = jarData.getList("Coins", Tag.TAG_COMPOUND);
+					ListNBT storageList = jarData.getList("Coins", Constants.NBT.TAG_COMPOUND);
 					for(int i = 0; i < storageList.size(); i++)
 					{
-						CompoundTag thisItem = storageList.getCompound(i);
+						CompoundNBT thisItem = storageList.getCompound(i);
 						storage.add(ItemStack.of(thisItem));
 					}
 				}
@@ -79,9 +77,9 @@ public class CoinJarItem extends BlockItem {
 	}
 
 	@Override
-	public Collection<CreativeModeTab> getCreativeTabs() {
-		List<CreativeModeTab> result = new ArrayList<>(super.getCreativeTabs());
-		result.add(CreativeModeTab.TAB_DECORATIONS);
+	public Collection<ItemGroup> getCreativeTabs() {
+		List<ItemGroup> result = new ArrayList<>(super.getCreativeTabs());
+		result.add(ItemGroup.TAB_DECORATIONS);
 		return result;
 	}
 }

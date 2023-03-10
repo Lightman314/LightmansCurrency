@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -24,27 +25,26 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.Constants;
 
-public class TraderStorageMenu extends AbstractContainerMenu {
+public class TraderStorageMenu extends Container {
 
 	public final Supplier<TraderData> traderSource;
 	public final TraderData getTrader() { return this.traderSource.get(); }
-	public final Player player;
+	public final PlayerEntity player;
 	
 	public static final int SLOT_OFFSET = 15;
 	
-	Container coinSlotContainer = new SimpleContainer(5);
+	IInventory coinSlotContainer = new Inventory(5);
 	List<CoinSlot> coinSlots = new ArrayList<>();
 	public List<CoinSlot> getCoinSlots() { return this.coinSlots; }
 	public boolean coinSlotsActive() { return this.coinSlots.get(0).isActive(); }
@@ -57,17 +57,17 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
 	
-	private final List<Consumer<CompoundTag>> listeners = new ArrayList<>();
+	private final List<Consumer<CompoundNBT>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
 	
 	public boolean isClient() { return this.player.level.isClientSide; }
 	
-	public TraderStorageMenu(int windowID, Inventory inventory, long traderID) {
+	public TraderStorageMenu(int windowID, PlayerInventory inventory, long traderID) {
 		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
 	}
 	
-	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource) {
+	protected TraderStorageMenu(ContainerType<?> type, int windowID, PlayerInventory inventory, Supplier<TraderData> traderSource) {
 		super(type, windowID);
 		this.traderSource = traderSource;
 		this.player = inventory.player;
@@ -113,9 +113,9 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	}
 	
 	@Override
-	public void removed(@NotNull Player player) {
+	public void removed(@Nonnull PlayerEntity player) {
 		super.removed(player);
-		this.clearContainer(player, this.coinSlotContainer);
+		this.clearContainer(player, player.level, this.coinSlotContainer);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
 		TraderData trader = this.getTrader();
 		if(trader != null) trader.userClose(player);
@@ -124,12 +124,12 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	/**
 	 * Public access to the AbstractContainerMenu.clearContainer(Player,Container) function.
 	 */
-	public void clearContainer(Container container) {
-		this.clearContainer(this.player, container);
+	public void clearContainer(IInventory container) {
+		this.clearContainer(this.player, this.player.level, container);
 	}
 
 	@Override
-	public boolean stillValid(@NotNull Player player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
+	public boolean stillValid(@Nonnull PlayerEntity player) { return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().hasPermission(player, Permissions.OPEN_STORAGE); }
 	
 	public void validateCoinSlots() {
 		boolean canAddCoins = this.hasCoinSlotAccess();
@@ -142,7 +142,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	}
 	
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @Nonnull ItemStack quickMoveStack(@Nonnull PlayerEntity playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -228,19 +228,19 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
 	}
 	
-	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
-		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
+	public CompoundNBT createTabChangeMessage(int newTab, @Nullable CompoundNBT extraData) {
+		CompoundNBT message = extraData == null ? new CompoundNBT() : extraData;
 		message.putInt("ChangeTab", newTab);
 		return message;
 	}
 	
-	public CompoundTag createCoinSlotActiveMessage(boolean nowActive, @Nullable CompoundTag extraData) {
-		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
+	public CompoundNBT createCoinSlotActiveMessage(boolean nowActive, @Nullable CompoundNBT extraData) {
+		CompoundNBT message = extraData == null ? new CompoundNBT() : extraData;
 		message.putBoolean("SetCoinSlotsActive", nowActive);
 		return message;
 	}
 	
-	public void sendMessage(CompoundTag message) {
+	public void sendMessage(CompoundNBT message) {
 		if(this.isClient())
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageStorageInteraction(message));
@@ -251,25 +251,25 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 		}
 	}
 	
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		//LightmansCurrency.LogInfo("Received message:\n" + message.getAsString());
-		if(message.contains("ChangeTab", Tag.TAG_INT))
+		if(message.contains("ChangeTab", Constants.NBT.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"));
 		if(message.contains("SetCoinSlotsActive"))
 			SimpleSlot.SetActive(this.coinSlots, message.getBoolean("SetCoinSlotsActive"));
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable ignored) { }
-		for(Consumer<CompoundTag> listener : this.listeners)
+		for(Consumer<CompoundNBT> listener : this.listeners)
 			try { listener.accept(message); } catch(Throwable ignored) {}
 	}
 	
-	public void addMessageListener(Consumer<CompoundTag> listener) {
+	public void addMessageListener(Consumer<CompoundNBT> listener) {
 		if(!this.listeners.contains(listener) && listener != null)
 			this.listeners.add(listener);
 	}
 	
 	public interface IClientMessage {
-		void selfMessage(CompoundTag message);
+		void selfMessage(CompoundNBT message);
 	}
 	
 	public boolean HasCoinsToAdd() { return MoneyUtil.getValue(this.coinSlotContainer) > 0; }

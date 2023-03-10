@@ -4,18 +4,38 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class SpawnTrackerCapability {
-	
+
+	public static void register() {
+		CapabilityManager.INSTANCE.register(ISpawnTracker.class,  new Capability.IStorage<ISpawnTracker>() {
+
+			@Override
+			public INBT writeNBT(Capability<ISpawnTracker> capability, ISpawnTracker instance, Direction side) {
+				return instance.save();
+			}
+
+			@Override
+			public void readNBT(Capability<ISpawnTracker> capability, ISpawnTracker instance, Direction side, INBT nbt) {
+				if(nbt instanceof CompoundNBT)
+				{
+					instance.load((CompoundNBT)nbt);
+				}
+			}
+		}, SpawnTracker::new);
+	}
+
 	public static LazyOptional<ISpawnTracker> getSpawnerTracker(@Nonnull final LivingEntity entity) {
 		return entity.getCapability(CurrencyCapabilities.SPAWN_TRACKER);
 	}
@@ -29,42 +49,34 @@ public class SpawnTrackerCapability {
 	{
 		
 		final LivingEntity entity;
-		MobSpawnType reason = MobSpawnType.NATURAL;
+		SpawnReason reason = SpawnReason.NATURAL;
 		
-		public SpawnTracker() {
-			this(null);
-		}
+		public SpawnTracker() { this(null); }
 		
-		public SpawnTracker(LivingEntity entity) {
-			this.entity = entity;
-		}
+		public SpawnTracker(LivingEntity entity) { this.entity = entity; }
 
 		@Override
-		public MobSpawnType spawnReason() {
-			return this.reason;
-		}
+		public SpawnReason spawnReason() { return this.reason; }
 		
 		@Override
-		public void setSpawnReason(MobSpawnType reason) {
-			this.reason = reason;
-		}
+		public void setSpawnReason(SpawnReason reason) { this.reason = reason; }
 
 		@Override
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
+		public CompoundNBT save() {
+			CompoundNBT compound = new CompoundNBT();
 			compound.putString("SpawnReason", this.reason.toString());
 			return compound;
 		}
 
 		@Override
-		public void load(CompoundTag compound) {
-			if(compound.contains("SpawnReason", Tag.TAG_STRING))
+		public void load(CompoundNBT compound) {
+			if(compound.contains("SpawnReason", Constants.NBT.TAG_STRING))
 				this.reason = LootManager.deserializeSpawnReason(compound.getString("SpawnReason"));
 		}
 		
 	}
 	
-	public static class Provider implements ICapabilitySerializable<Tag>{
+	public static class Provider implements ICapabilitySerializable<INBT>{
 		final LazyOptional<ISpawnTracker> optional;
 		final ISpawnTracker handler;
 		Provider(final LivingEntity entity)
@@ -80,14 +92,14 @@ public class SpawnTrackerCapability {
 		}
 		
 		@Override
-		public Tag serializeNBT() {
+		public INBT serializeNBT() {
 			return handler.save();
 		}
 		
 		@Override
-		public void deserializeNBT(Tag tag) {
-			if(tag instanceof CompoundTag)
-				handler.load((CompoundTag)tag);
+		public void deserializeNBT(INBT tag) {
+			if(tag instanceof CompoundNBT)
+				handler.load((CompoundNBT)tag);
 		}
 		
 	}

@@ -12,17 +12,17 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.command.arguments.IArgumentSerializer;
+import net.minecraft.network.PacketBuffer;
+
+import javax.annotation.Nonnull;
 
 public class TraderArgument implements ArgumentType<TraderData>{
 
-	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(new TranslatableComponent("command.argument.trader.notfound"));
+	private static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(EasyText.translatable("command.argument.trader.notfound"));
 	
 	private final boolean acceptPersistentIDs;
 	private TraderArgument(boolean acceptPersistentIDs) { this.acceptPersistentIDs = acceptPersistentIDs; }
@@ -30,7 +30,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	public static TraderArgument trader() { return new TraderArgument(false); }
 	public static TraderArgument traderWithPersistent() { return new TraderArgument(true); }
 	
-	public static TraderData getTrader(CommandContext<CommandSourceStack> commandContext, String name) {
+	public static TraderData getTrader(CommandContext<?> commandContext, String name) {
 		return commandContext.getArgument(name, TraderData.class);
 	}
 	
@@ -86,14 +86,14 @@ public class TraderArgument implements ArgumentType<TraderData>{
 		return suggestionsBuilder.buildFuture();
 	}
 	
-	public static class Info implements ArgumentSerializer<TraderArgument>
+	public static class Info implements IArgumentSerializer<TraderArgument>
 	{
 
 		@Override
-		public void serializeToNetwork(TraderArgument argument, FriendlyByteBuf buffer) { buffer.writeBoolean(argument.acceptPersistentIDs); }
+		public void serializeToNetwork(TraderArgument argument, PacketBuffer buffer) { buffer.writeBoolean(argument.acceptPersistentIDs); }
 
 		@Override
-		public @NotNull TraderArgument deserializeFromNetwork(FriendlyByteBuf buffer) { return new TraderArgument(buffer.readBoolean()); }
+		public @Nonnull TraderArgument deserializeFromNetwork(PacketBuffer buffer) { return new TraderArgument(buffer.readBoolean()); }
 
 		@Override
 		public void serializeToJson(TraderArgument argument, JsonObject json) { json.addProperty("acceptPersistentIDs", argument.acceptPersistentIDs); }

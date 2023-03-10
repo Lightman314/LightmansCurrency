@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.atm;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -11,18 +10,16 @@ import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.GsonHelper;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class ATMData {
@@ -62,8 +59,8 @@ public class ATMData {
 		JsonObject data = new JsonObject();
 		
 		JsonArray conversionButtonDataList = new JsonArray();
-		for(int i = 0; i < this.conversionButtons.size(); ++i)
-			conversionButtonDataList.add(this.conversionButtons.get(i).save());
+		for (ATMConversionButtonData conversionButton : this.conversionButtons)
+			conversionButtonDataList.add(conversionButton.save());
 		data.add("ConversionButtons", conversionButtonDataList);
 		
 		return data;
@@ -78,7 +75,7 @@ public class ATMData {
 	
 	
 	
-	public static void encode(ATMData data, FriendlyByteBuf buffer) {
+	public static void encode(ATMData data, PacketBuffer buffer) {
 		JsonObject json = data.save();
 		String jsonString = FileUtil.GSON.toJson(json);
 		int stringSize = jsonString.length();
@@ -86,17 +83,17 @@ public class ATMData {
 		buffer.writeUtf(jsonString, stringSize);
 	}
 	
-	public static ATMData decode(FriendlyByteBuf buffer) {
+	public static ATMData decode(PacketBuffer buffer) {
 		try {
 			LightmansCurrency.LogInfo("Decoding atm data packet:");
 			int stringSize = buffer.readInt();
 			String jsonString = buffer.readUtf(stringSize);
-			JsonObject json = JsonParser.parseString(jsonString).getAsJsonObject();
+			JsonObject json = FileUtil.JSON_PARSER.parse(jsonString).getAsJsonObject();
 			return new ATMData(json);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error decoding ATMData.", t); return generateDefault(); }
 	}
 	
-	public static void handle(ATMData data, Supplier<Context> source) {
+	public static void handle(ATMData data, Supplier<NetworkEvent.Context> source) {
 		source.get().enqueueWork(() ->{
 			LightmansCurrency.LogInfo("Received atm data packet from server.");
 			loadedData = data;
@@ -116,7 +113,7 @@ public class ATMData {
 			createATMDataFile(file);
 		}
 		try { 
-			JsonObject fileData = GsonHelper.parse(Files.readString(file.toPath()));
+			JsonObject fileData = FileUtil.JSON_PARSER.parse(FileUtil.readString(file)).getAsJsonObject();
 			loadedData = new ATMData(fileData);
 		} catch(Throwable e) {
 			LightmansCurrency.LogError("Error loading ATM Data. Using default values for now.", e);

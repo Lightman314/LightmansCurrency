@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -17,7 +18,7 @@ import javax.annotation.Nonnull;
 public class EasySlot extends Slot {
 
     public static final ResourceLocation EMPTY_SLOT_BG = new ResourceLocation(LightmansCurrency.MODID, "item/empty_item_slot");
-    public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
+    public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(PlayerContainer.BLOCK_ATLAS, EMPTY_SLOT_BG);
 
 
     public boolean active = true;

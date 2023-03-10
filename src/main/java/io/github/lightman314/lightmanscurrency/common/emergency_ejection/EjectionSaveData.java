@@ -11,31 +11,39 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketSyncEjectionData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 @Mod.EventBusSubscriber
-public class EjectionSaveData extends SavedData {
+public class EjectionSaveData extends WorldSavedData {
 
-	private List<EjectionData> emergencyEjectionData = new ArrayList<>();
+	private final List<EjectionData> emergencyEjectionData = new ArrayList<>();
 	
-	private EjectionSaveData() {}
-	private EjectionSaveData(CompoundTag compound) {
+	private EjectionSaveData() { super("lightmanscurrency_ejection_data"); }
+	
+	public CompoundNBT save(CompoundNBT compound) {
 		
-		ListTag ejectionData = compound.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+		ListNBT ejectionData = new ListNBT();
+		this.emergencyEjectionData.forEach(data -> ejectionData.add(data.save()));
+		compound.put("EmergencyEjectionData", ejectionData);
+		
+		return compound;
+	}
+
+	public void load(CompoundNBT compound) {
+		ListNBT ejectionData = compound.getList("EmergencyEjectionData", Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < ejectionData.size(); ++i)
 		{
 			try {
@@ -45,25 +53,15 @@ public class EjectionSaveData extends SavedData {
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading ejection data entry " + i, t); }
 		}
 		LightmansCurrency.LogDebug("Server loaded " + this.emergencyEjectionData.size() + " ejection data entries from file.");
-		
-	}
-	
-	public CompoundTag save(CompoundTag compound) {
-		
-		ListTag ejectionData = new ListTag();
-		this.emergencyEjectionData.forEach(data -> ejectionData.add(data.save()));
-		compound.put("EmergencyEjectionData", ejectionData);
-		
-		return compound;
 	}
 	
 	private static EjectionSaveData get() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
-			ServerLevel level = server.getLevel(Level.OVERWORLD);
+			ServerWorld level = server.overworld();
 			if(level != null)
-				return level.getDataStorage().computeIfAbsent(EjectionSaveData::new, EjectionSaveData::new, "lightmanscurrency_ejection_data");
+				return level.getDataStorage().computeIfAbsent(EjectionSaveData::new, "lightmanscurrency_ejection_data");
 		}
 		return null;
 	}
@@ -82,15 +80,16 @@ public class EjectionSaveData extends SavedData {
 		return new ArrayList<>();
 	}
 	
-	public static List<EjectionData> GetValidEjectionData(boolean isClient, Player player)
+	public static List<EjectionData> GetValidEjectionData(boolean isClient, PlayerEntity player)
 	{
 		List<EjectionData> ejectionData = GetEjectionData(isClient);
 		if(ejectionData != null)
 			return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
 		return new ArrayList<>();
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer ejection data from the old Trading Office. */
+
+	/** @deprecated Use only to transfer ejection data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldEjectionData(EjectionData data) {
 		EjectionSaveData esd = get();
 		if(esd != null && data != null && !data.isEmpty())
@@ -100,7 +99,7 @@ public class EjectionSaveData extends SavedData {
 		}
 	}
 	
-	public static void HandleEjectionData(Level level, BlockPos pos, EjectionData data) {
+	public static void HandleEjectionData(World level, BlockPos pos, EjectionData data) {
 		if(level.isClientSide)
 			return;
 		Objects.requireNonNull(data);
@@ -137,8 +136,8 @@ public class EjectionSaveData extends SavedData {
 		{
 			esd.setDirty();
 			//Send update packet to all connected clients
-			CompoundTag compound = new CompoundTag();
-			ListTag ejectionList = new ListTag();
+			CompoundNBT compound = new CompoundNBT();
+			ListNBT ejectionList = new ListNBT();
 			esd.emergencyEjectionData.forEach(data -> {
 				ejectionList.add(data.save());
 			});
@@ -150,12 +149,12 @@ public class EjectionSaveData extends SavedData {
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
+		PacketDistributor.PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
 		EjectionSaveData esd = get();
 		
 		//Send ejection data
-		CompoundTag compound = new CompoundTag();
-		ListTag ejectionList = new ListTag();
+		CompoundNBT compound = new CompoundNBT();
+		ListNBT ejectionList = new ListNBT();
 		esd.emergencyEjectionData.forEach(data -> {
 			ejectionList.add(data.save());
 		});

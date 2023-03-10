@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.item.Item;
+import net.minecraft.item.Rarity;
 import net.minecraftforge.fml.RegistryObject;
 
 public class ModItems {
@@ -46,9 +47,9 @@ public class ModItems {
 		PORTABLE_ATM = ModRegistries.ITEMS.register("portable_atm", () -> new PortableATMItem(new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		
 		//Item Capacity Upgrades
-		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
-		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ITEM_CAPACITY_UPGRADE_1 = ModRegistries.ITEMS.register("item_capacity_upgrade_1", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity1::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ITEM_CAPACITY_UPGRADE_2 = ModRegistries.ITEMS.register("item_capacity_upgrade_2", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity2::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ITEM_CAPACITY_UPGRADE_3 = ModRegistries.ITEMS.register("item_capacity_upgrade_3", () -> new CapacityUpgradeItem(UpgradeType.ITEM_CAPACITY, Config.SERVER.itemUpgradeCapacity3::get, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 		
 		//Speed Upgrades
 		SPEED_UPGRADE_1 = ModRegistries.ITEMS.register("speed_upgrade_1", () -> new SpeedUpgradeItem(4, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));

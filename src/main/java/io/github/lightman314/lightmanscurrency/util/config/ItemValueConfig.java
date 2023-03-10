@@ -1,19 +1,19 @@
 package io.github.lightman314.lightmanscurrency.util.config;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.item.Item;
+import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ItemValueConfig implements Supplier<Item>, ItemLike {
+public class ItemValueConfig implements Supplier<Item>, IItemProvider {
 
     private final ForgeConfigSpec.ConfigValue<String> baseConfig;
     private final Supplier<Item> defaultSupplier;
@@ -30,7 +30,7 @@ public class ItemValueConfig implements Supplier<Item>, ItemLike {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReloaded);
     }
 
-    public void onConfigReloaded(ModConfigEvent event)
+    public void onConfigReloaded(ModConfig.ModConfigEvent event)
     {
         //Check if the config contains a matching path. If so, assume that this is the correct config.
         if(event.getConfig().getSpec() == this.specSupplier.get())
@@ -51,13 +51,14 @@ public class ItemValueConfig implements Supplier<Item>, ItemLike {
     }
 
     @Override
-    public @NotNull Item asItem() { return this.get(); }
+    public @Nonnull Item asItem() { return this.get(); }
 
     private static Supplier<Item> convertDefault(ResourceLocation defaultItem) { return () -> ForgeRegistries.ITEMS.getValue(defaultItem); }
 
     private static boolean IsValidInput(Object o) {
-        if(o instanceof String s)
+        if(o instanceof String)
         {
+            String s = (String)o;
             try{
                 return ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)) != null;
             } catch(Throwable ignored) {}

@@ -3,19 +3,19 @@ package io.github.lightman314.lightmanscurrency.common.ownership;
 import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public class OwnerData {
 
-	private MutableComponent customOwner = null;
+	private IFormattableTextComponent customOwner = null;
 	private PlayerReference playerOwner = null;
 	private long teamOwner = -1;
 	
@@ -26,11 +26,11 @@ public class OwnerData {
 	
 	public boolean hasOwner() { return this.playerOwner != null || this.getTeam() != null || this.customOwner != null; }
 	
-	public CompoundTag save()
+	public CompoundNBT save()
 	{
-		CompoundTag compound = new CompoundTag();
+		CompoundNBT compound = new CompoundNBT();
 		if(this.customOwner != null)
-			compound.putString("Custom", Component.Serializer.toJson(this.customOwner));
+			compound.putString("Custom", ITextComponent.Serializer.toJson(this.customOwner));
 		if(this.playerOwner != null)
 			compound.put("Player", this.playerOwner.save());
 		if(this.teamOwner >= 0)
@@ -38,10 +38,10 @@ public class OwnerData {
 		return compound;
 	}
 	
-	public void load(CompoundTag compound)
+	public void load(CompoundNBT compound)
 	{
 		if(compound.contains("Custom"))
-			this.customOwner = Component.Serializer.fromJson(compound.getString("Custom"));
+			this.customOwner = ITextComponent.Serializer.fromJson(compound.getString("Custom"));
 		else
 			this.customOwner = null;
 		
@@ -79,7 +79,7 @@ public class OwnerData {
 		return this.playerOwner;
 	}
 	
-	public boolean isAdmin(Player player) { return CommandLCAdmin.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
+	public boolean isAdmin(PlayerEntity player) { return CommandLCAdmin.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
 	
 	public boolean isAdmin(PlayerReference player)
 	{
@@ -91,7 +91,7 @@ public class OwnerData {
 		return player.is(this.playerOwner);
 	}
 	
-	public boolean isMember(Player player) { return CommandLCAdmin.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
+	public boolean isMember(PlayerEntity player) { return CommandLCAdmin.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
 	
 	public boolean isMember(PlayerReference player) {
 		if(player == null)
@@ -114,8 +114,8 @@ public class OwnerData {
 		return "NULL";
 	}
 	
-	public void SetCustomOwner(String customOwner) { this.customOwner = new TextComponent(customOwner); }
-	public void SetCustomOwner(MutableComponent customOwner) { this.customOwner = customOwner; }
+	public void SetCustomOwner(String customOwner) { this.customOwner = EasyText.literal(customOwner); }
+	public void SetCustomOwner(IFormattableTextComponent customOwner) { this.customOwner = customOwner; }
 	
 	public void SetOwner(PlayerReference player) {
 		this.playerOwner = player;

@@ -1,20 +1,19 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderinterface;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.nbt.CompoundNBT;
 
 public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> implements ITab{
 
 	protected final TraderInterfaceScreen screen;
 	protected final TraderInterfaceMenu menu;
 	public final T commonTab;
-	protected final Font font;
+	protected final FontRenderer font;
 	
 	protected TraderInterfaceClientTab(TraderInterfaceScreen screen, T commonTab) {
 		this.screen = screen;
@@ -50,12 +49,12 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> imp
 	/**
 	 * Renders background data before the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Renders tooltips after the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderTooltips(PoseStack pose, int mouseX, int mouseY);
+	public abstract void renderTooltips(MatrixStack pose, int mouseX, int mouseY);
 	
 	/**
 	 * Called when the mouse is clicked before any other click interactions are processed.
@@ -78,7 +77,7 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> imp
 	/**
 	 * Processes a client -> client message from another tab immediately after the tab was changed.
 	 */
-	public void receiveSelfMessage(CompoundTag message) { }
+	public void receiveSelfMessage(CompoundNBT message) { }
 	
 	/**
 	 * Called when the tab is closed.

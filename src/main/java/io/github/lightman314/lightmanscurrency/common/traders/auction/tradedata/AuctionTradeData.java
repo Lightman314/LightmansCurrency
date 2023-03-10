@@ -30,14 +30,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class AuctionTradeData extends TradeData {
@@ -82,7 +82,7 @@ public class AuctionTradeData extends TradeData {
 	}
 	PlayerReference tradeOwner;
 	public PlayerReference getOwner() { return this.tradeOwner; }
-	public boolean isOwner(Player player) {
+	public boolean isOwner(PlayerEntity player) {
 		return (this.tradeOwner != null && this.tradeOwner.is(player)) || CommandLCAdmin.isAdminPlayer(player);
 	}
 
@@ -96,7 +96,7 @@ public class AuctionTradeData extends TradeData {
 
 	List<ItemStack> auctionItems = new ArrayList<>();
 	public List<ItemStack> getAuctionItems() { return this.auctionItems; }
-	public void setAuctionItems(Container auctionItems) {
+	public void setAuctionItems(IInventory auctionItems) {
 		if(this.isActive())
 			return;
 		this.auctionItems.clear();
@@ -108,9 +108,9 @@ public class AuctionTradeData extends TradeData {
 		}
 	}
 
-	public AuctionTradeData(Player owner) { super(false); this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
+	public AuctionTradeData(PlayerEntity owner) { super(false); this.tradeOwner = PlayerReference.of(owner); this.setDuration(GetDefaultDuration()); }
 
-	public AuctionTradeData(CompoundTag compound) { super(false); this.loadFromNBT(compound); }
+	public AuctionTradeData(CompoundNBT compound) { super(false); this.loadFromNBT(compound); }
 
 	/**
 	 * Used to create an auction trade from persistent auction data
@@ -156,7 +156,7 @@ public class AuctionTradeData extends TradeData {
 		return false;
 	}
 
-	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, CoinValue amount) {
+	public boolean tryMakeBid(AuctionHouseTrader trader, PlayerEntity player, CoinValue amount) {
 		if(!validateBidAmount(amount))
 			return false;
 
@@ -234,7 +234,7 @@ public class AuctionTradeData extends TradeData {
 		}
 	}
 
-	public void CancelTrade(AuctionHouseTrader trader, boolean giveToPlayer, Player player)
+	public void CancelTrade(AuctionHouseTrader trader, boolean giveToPlayer, PlayerEntity player)
 	{
 		if(this.cancelled)
 			return;
@@ -272,12 +272,12 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
-	public CompoundTag getAsNBT() {
+	public CompoundNBT getAsNBT() {
 		//Do not run super.getAsNBT() as we don't need to save the price or trade rules.
-		CompoundTag compound = new CompoundTag();
-		ListTag itemList = new ListTag();
+		CompoundNBT compound = new CompoundNBT();
+		ListNBT itemList = new ListNBT();
 		for (ItemStack auctionItem : this.auctionItems) {
-			itemList.add(auctionItem.save(new CompoundTag()));
+			itemList.add(auctionItem.save(new CompoundNBT()));
 		}
 		compound.put("SellItems", itemList);
 		this.lastBidAmount.save(compound, "LastBid");
@@ -294,7 +294,7 @@ public class AuctionTradeData extends TradeData {
 
 		compound.putBoolean("Cancelled", this.cancelled);
 
-		if(!this.persistentID.isBlank())
+		if(!this.persistentID.isEmpty())
 			compound.putString("PersistentID", this.persistentID);
 
 		return compound;
@@ -315,9 +315,9 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
-	public void loadFromNBT(CompoundTag compound) {
+	public void loadFromNBT(CompoundNBT compound) {
 		//Do not run super.loadFromNBT() as we didn't save the default data in the first place
-		ListTag itemList = compound.getList("SellItems", Tag.TAG_COMPOUND);
+		ListNBT itemList = compound.getList("SellItems", Constants.NBT.TAG_COMPOUND);
 		this.auctionItems.clear();
 		for(int i = 0; i < itemList.size(); ++i)
 		{
@@ -336,12 +336,12 @@ public class AuctionTradeData extends TradeData {
 		this.startTime = compound.getLong("StartTime");
 		this.duration = compound.getLong("Duration");
 
-		if(compound.contains("TradeOwner", Tag.TAG_COMPOUND))
+		if(compound.contains("TradeOwner", Constants.NBT.TAG_COMPOUND))
 			this.tradeOwner = PlayerReference.load(compound.getCompound("TradeOwner"));
 
 		this.cancelled = compound.getBoolean("Cancelled");
 
-		if(compound.contains("PersistentID", Tag.TAG_STRING))
+		if(compound.contains("PersistentID", Constants.NBT.TAG_STRING))
 			this.persistentID = compound.getString("PersistentID");
 
 	}
@@ -361,13 +361,14 @@ public class AuctionTradeData extends TradeData {
 	private void openCancelAuctionTab(BasicTradeEditTab tab) {
 
 		TraderData t = tab.menu.getTrader();
-		if(t instanceof AuctionHouseTrader trader)
+		if(t instanceof AuctionHouseTrader)
 		{
+			AuctionHouseTrader trader = (AuctionHouseTrader)t;
 			int tradeIndex = trader.getTradeIndex(this);
 			if(tradeIndex < 0)
 				return;
 
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 
@@ -387,6 +388,6 @@ public class AuctionTradeData extends TradeData {
 	public boolean AcceptableDifferences(TradeComparisonResult result) { return false; }
 
 	@Override
-	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return new ArrayList<>(); }
+	public List<ITextComponent> GetDifferenceWarnings(TradeComparisonResult differences) { return new ArrayList<>(); }
 
 }

@@ -4,35 +4,35 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class MessageTraderMessage {
 	
 	long traderID;
-	CompoundTag message;
+	CompoundNBT message;
 	
-	public MessageTraderMessage(long traderID, CompoundTag message)
+	public MessageTraderMessage(long traderID, CompoundNBT message)
 	{
 		this.traderID = traderID;
 		this.message = message;
 	}
 	
-	public static void encode(MessageTraderMessage message, FriendlyByteBuf buffer) {
+	public static void encode(MessageTraderMessage message, PacketBuffer buffer) {
 		buffer.writeLong(message.traderID);
 		buffer.writeNbt(message.message);
 	}
 
-	public static MessageTraderMessage decode(FriendlyByteBuf buffer) {
+	public static MessageTraderMessage decode(PacketBuffer buffer) {
 		return new MessageTraderMessage(buffer.readLong(), buffer.readAnySizeNbt());
 	}
 
-	public static void handle(MessageTraderMessage message, Supplier<Context> supplier) {
+	public static void handle(MessageTraderMessage message, Supplier<NetworkEvent.Context> supplier) {
 		supplier.get().enqueueWork(() ->
 		{
-			ServerPlayer player = supplier.get().getSender();
+			ServerPlayerEntity player = supplier.get().getSender();
 			if(player != null)
 			{
 				TraderData trader = TraderSaveData.GetTrader(false, message.traderID);

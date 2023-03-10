@@ -2,15 +2,15 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm;
 
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMConversionButtonData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.TextComponent;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.gui.widget.button.Button;
 
 import javax.annotation.Nonnull;
 
@@ -21,20 +21,20 @@ public class ATMConversionButton extends Button {
 	private final ATMConversionButtonData data;
 	
 	public ATMConversionButton(int left, int top, ATMConversionButtonData data, Consumer<String> commandHandler) {
-		super(left + data.xPos, top + data.yPos, data.width, HEIGHT, new TextComponent(""), b -> commandHandler.accept(data.command));
+		super(left + data.xPos, top + data.yPos, data.width, HEIGHT, EasyText.empty(), b -> commandHandler.accept(data.command));
 		this.data = data;
 	}
 	
 	@Override
-	public void renderButton(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Render background to width
 		int yOffset = this.isHovered ? HEIGHT : 0;
-		RenderSystem.setShaderTexture(0, ATMScreen.BUTTON_TEXTURE);
+		RenderUtil.bindTexture(ATMScreen.BUTTON_TEXTURE);
 		if(this.active)
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 		else
-			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+			RenderUtil.color4f(0.5f, 0.5f, 0.5f, 1f);
 		//Draw the left edge
 		this.blit(pose, this.x, this.y, 0, yOffset, 2, HEIGHT);
 		//Draw the middle portions

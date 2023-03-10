@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
@@ -23,13 +24,13 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Items;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.Items;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class TransferTab extends ATMTab {
 
@@ -42,7 +43,7 @@ public class TransferTab extends ATMTab {
 	
 	CoinValueInput amountWidget;
 	
-	EditBox playerInput;
+	TextFieldWidget playerInput;
 	TeamSelectWidget teamSelection;
 	
 	IconButton buttonToggleMode;
@@ -52,11 +53,12 @@ public class TransferTab extends ATMTab {
 	
 	boolean playerMode = true;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.transfer"); }
 
 	@Override
 	public void init() {
@@ -66,21 +68,21 @@ public class TransferTab extends ATMTab {
 		this.responseTimer = 0;
 		this.screen.getMenu().clearMessage();
 		
-		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), new TranslatableComponent("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
+		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), EasyText.translatable("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
 		this.amountWidget.init();
 		this.amountWidget.allowFreeToggle = false;
 		this.amountWidget.drawBG = false;
 		
-		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 64, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.team"), new TranslatableComponent("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
+		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 64, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, EasyText.translatable("tooltip.lightmanscurrency.atm.transfer.mode.team"), EasyText.translatable("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
 		
-		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 104, this.screen.getXSize() - 20, 20, new TextComponent("")));
+		this.playerInput = this.screen.addRenderableTabWidget(new TextFieldWidget(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 104, this.screen.getXSize() - 20, 20, EasyText.empty()));
 		this.playerInput.visible = this.playerMode;
 		
 		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 84, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126, this.screen.getXSize() - 20, 20, new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
+		this.buttonTransfer = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126, this.screen.getXSize() - 20, 20, EasyText.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
 		
 	}
@@ -114,7 +116,7 @@ public class TransferTab extends ATMTab {
 			if(team.getID() == this.selectedTeam)
 				return;
 			this.selectedTeam = team.getID();
-		} catch(Exception e) { }
+		} catch(Exception ignored) { }
 	}
 	
 	private void PressTransfer(Button button)
@@ -134,19 +136,19 @@ public class TransferTab extends ATMTab {
 
 	private void ToggleMode(Button button) {
 		this.playerMode = !this.playerMode;
-		this.buttonTransfer.setMessage(new TranslatableComponent(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
+		this.buttonTransfer.setMessage(EasyText.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
 		this.teamSelection.visible = !this.playerMode;
 		this.playerInput.visible = this.playerMode;
 		this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
 	}
 	
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.hideCoinSlots(pose);
 		
 		//this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
-		Component balance = this.screen.getMenu().getBankAccount() == null ? new TranslatableComponent("gui.lightmanscurrency.bank.null") : new TranslatableComponent("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getBankAccount().getCoinStorage().getString("0"));
+		ITextComponent balance = this.screen.getMenu().getBankAccount() == null ? EasyText.translatable("gui.lightmanscurrency.bank.null") : EasyText.translatable("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getBankAccount().getCoinStorage().getString("0"));
 		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 72, 0x404040);
 		
 		if(this.hasMessage())
@@ -160,7 +162,7 @@ public class TransferTab extends ATMTab {
 	}
 
 	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) {
+	public void postRender(MatrixStack pose, int mouseX, int mouseY) {
 		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonToggleMode));
 	}
 	
@@ -172,7 +174,7 @@ public class TransferTab extends ATMTab {
 		if(this.playerMode)
 		{
 			this.playerInput.tick();
-			this.buttonTransfer.active = !this.playerInput.getValue().isBlank() && this.amountWidget.getCoinValue().isValid();
+			this.buttonTransfer.active = !this.playerInput.getValue().isEmpty() && this.amountWidget.getCoinValue().isValid();
 		}
 		else
 		{
@@ -194,7 +196,7 @@ public class TransferTab extends ATMTab {
 	
 	private boolean hasMessage() { return this.screen.getMenu().hasTransferMessage(); }
 	
-	private MutableComponent getMessage() { return this.screen.getMenu().getTransferMessage(); }
+	private IFormattableTextComponent getMessage() { return this.screen.getMenu().getTransferMessage(); }
 
 	@Override
 	public void onClose() {
