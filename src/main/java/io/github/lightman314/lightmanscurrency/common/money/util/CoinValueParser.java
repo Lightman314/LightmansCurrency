@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -79,16 +80,14 @@ public class CoinValueParser {
 
     private static void TryParseCoin(CoinValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
     {
-        if(ResourceLocation.isValidResourceLocation(coinIDString))
-        {
+        try{
             ResourceLocation coinID = new ResourceLocation(coinIDString);
             Item coin = ForgeRegistries.ITEMS.getValue(coinID);
             if(!MoneyUtil.isVisibleCoin(coin))
                 throw NotACoinException(coinIDString, reader);
             result.addValue(coin, count);
-        }
-        else
-            throw NotACoinException(coinIDString, reader);
+        } catch(ResourceLocationException exception) { throw NotACoinException(coinIDString, reader); }
+
     }
 
     public static CommandSyntaxException NoValueException(StringReader reader) {

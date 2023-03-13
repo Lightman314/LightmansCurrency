@@ -4,28 +4,20 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 
@@ -34,8 +26,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	private static final int TICK_DELAY = 20;
 	
 	UUID armorStandID = null;
-	private int armorStandEntityId = -1;
-	int requestTimer = TICK_DELAY;
 	
 	int updateTimer = TICK_DELAY;
 	
@@ -54,23 +44,8 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if(this.isClient())
-			this.clientTick();
-		else
+		if(this.isServer())
 			this.serverTick();
-	}
-
-	private void clientTick() {
-		if(this.getArmorStand() == null)
-		{
-			if(this.requestTimer <= 0)
-			{
-				this.requestTimer = TICK_DELAY;
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestArmorStandID(this.worldPosition));
-			}
-			else
-				this.requestTimer--;
-		}
 	}
 
 	private void serverTick()
@@ -173,25 +148,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		}
 	}
 	
-	public void sendArmorStandSyncMessageToClient(PacketDistributor.PacketTarget target) {
-		ArmorStandEntity armorStand = this.getArmorStand();
-		if(armorStand != null)
-		{
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageSendArmorStandID(this.worldPosition, armorStand.getId()));
-		}
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	public static void receiveArmorStandID(BlockPos pos, int entityId) {
-		Minecraft mc = Minecraft.getInstance();
-		TileEntity be = mc.level.getBlockEntity(pos);
-		if(be instanceof ArmorDisplayTraderBlockEntity)
-		{
-			//LightmansCurrency.LogInfo("Received Armor Stand id " + entityId + " from the server.");
-			((ArmorDisplayTraderBlockEntity)be).armorStandEntityId = entityId;
-		}
-	}
-	
 	protected void validateArmorStandValues()
 	{
 		ArmorStandEntity armorStand = this.getArmorStand();
@@ -244,14 +200,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	
 	protected ArmorStandEntity getArmorStand()
 	{
-		Entity entity;
 		if(this.level instanceof ServerWorld)
-			entity = ((ServerWorld)level).getEntity(this.armorStandID);
-		else
-			entity = this.level.getEntity(this.armorStandEntityId);
-		
-		if(entity instanceof ArmorStandEntity)
-			return (ArmorStandEntity) entity;
+		{
+			Entity entity = ((ServerWorld)level).getEntity(this.armorStandID);
+			if(entity instanceof ArmorStandEntity)
+				return (ArmorStandEntity) entity;
+		}
 		
 		return null;
 	}
