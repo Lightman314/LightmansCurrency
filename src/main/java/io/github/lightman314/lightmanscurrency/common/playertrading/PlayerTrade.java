@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -28,11 +29,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
+    public static boolean ignoreDimension() { return Config.SERVER.maxPlayerTradingRange.get() < 0d; }
+    public static boolean ignoreDistance() { return Config.SERVER.maxPlayerTradingRange.get() <=0d; }
+    public static double enforceDistance() { return Config.SERVER.maxPlayerTradingRange.get(); }
 
     private boolean stillPending = true;
     public final long creationTime;
@@ -115,6 +120,34 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             this.hostState = 0;
             this.guestState = Math.min(this.guestState, 1);
         }
+    }
+
+    private boolean playerDistanceExceeded() {
+        return false;
+    }
+
+    /**
+     Preliminary check on whether the querying guest is in range of the host.
+     Returns the following:
+     0- Pass
+     1- Fail: Host is missing
+     2- Fail: Distance Exceeded
+     3- Fail: Wrong dimension
+     */
+    public int isGuestInRange(ServerPlayer guest) {
+        ServerPlayer host = this.getPlayer(this.hostPlayerID);
+        if(host == null)
+            return 1;
+        if(ignoreDimension())
+            return 0;
+        //Confirm that they're in the same dimension
+        if(!Objects.equals(host.level.dimension().location(),guest.level.dimension().location()))
+            return 3;
+        if(ignoreDistance())
+            return 0;
+        //Confirm that they're within the valid distance radius
+        double distance = host.position().distanceTo(guest.position());
+        return distance <= enforceDistance() ? 0 : 2;
     }
 
     private boolean playerAbandonedTrade(boolean host) {
@@ -211,7 +244,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return false;
         }
         else
-            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false);
+            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false) || this.playerDistanceExceeded();
     }
 
     public void onCancel() {

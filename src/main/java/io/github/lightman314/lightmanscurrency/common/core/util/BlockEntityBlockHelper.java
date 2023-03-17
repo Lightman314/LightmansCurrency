@@ -20,6 +20,7 @@ public class BlockEntityBlockHelper {
 
 	public static final ResourceLocation ITEM_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "item_trader");
 	public static final ResourceLocation FREEZER_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "freezer_trader");
+	public static final ResourceLocation BOOKSHELF_TRADER_TYPE = new ResourceLocation(LightmansCurrency.MODID, "bookshelf_trader");
 	public static final ResourceLocation CAPABILITY_INTERFACE_TYPE = new ResourceLocation(LightmansCurrency.MODID, "capability_interface");
 	public static final ResourceLocation AUCTION_STAND_TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_stand");
 
@@ -70,6 +71,9 @@ public class BlockEntityBlockHelper {
 
 		//Freezer Blocks
 		addBlocksToBlockEntity(FREEZER_TRADER_TYPE, ModBlocks.FREEZER);
+
+		//Bookshelf Blocks
+		addBlocksToBlockEntity(BOOKSHELF_TRADER_TYPE, ModBlocks.BOOKSHELF_TRADER);
 
 		//Multi-block Capability Interface Blocks
 		addBlocksToBlockEntity(CAPABILITY_INTERFACE_TYPE, ModBlocks.VENDING_MACHINE);

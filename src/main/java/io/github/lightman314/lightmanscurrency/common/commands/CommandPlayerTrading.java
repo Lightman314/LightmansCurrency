@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.TradeIDArgument;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTradeManager;
 import net.minecraft.ChatFormatting;
@@ -60,6 +61,12 @@ public class CommandPlayerTrading {
         PlayerTrade trade = PlayerTradeManager.GetTrade(tradeID);
         if(trade != null && trade.isGuest(guest))
         {
+            int rangeResult = trade.isGuestInRange(guest);
+            if(rangeResult > 0)
+            {
+                context.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lctradeaccept.fail." + rangeResult, PlayerTrade.enforceDistance()));
+                return 0;
+            }
             if(trade.requestAccepted(guest))
                 return 1;
             else

@@ -1,0 +1,14 @@
+{
+    "replace": false,
+    "values": [
+        "lightmanscurrency:bookshelf_trader_oak",
+        "lightmanscurrency:bookshelf_trader_birch",
+        "lightmanscurrency:bookshelf_trader_spruce",
+        "lightmanscurrency:bookshelf_trader_jungle",
+        "lightmanscurrency:bookshelf_trader_acacia",
+        "lightmanscurrency:bookshelf_trader_dark_oak",
+        "lightmanscurrency:bookshelf_trader_mangrove",
+        "lightmanscurrency:bookshelf_trader_crimson",
+        "lightmanscurrency:bookshelf_trader_warped"
+    ]
+}

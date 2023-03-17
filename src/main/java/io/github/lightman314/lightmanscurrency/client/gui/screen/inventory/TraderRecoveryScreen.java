@@ -75,7 +75,7 @@ public class TraderRecoveryScreen extends AbstractContainerScreen<TraderRecovery
 	protected void containerTick() {
 		
 		this.buttonLeft.active = this.menu.getSelectedIndex() > 0;
-		this.buttonRight.active = this.menu.getSelectedIndex() < this.menu.getValidEjectionData().size() - 2;
+		this.buttonRight.active = this.menu.getSelectedIndex() < this.menu.getValidEjectionData().size() - 1;
 		
 	}
 	

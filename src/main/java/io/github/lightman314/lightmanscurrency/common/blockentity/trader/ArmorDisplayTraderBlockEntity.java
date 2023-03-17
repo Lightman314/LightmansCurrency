@@ -3,11 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IClientTicker;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.armor_display.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -16,11 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
@@ -29,14 +21,12 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.res
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import org.jetbrains.annotations.NotNull;
 
-public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity implements IClientTicker {
+public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 
 	public static final int TRADE_COUNT = 4;
 	private static final int TICK_DELAY = 20;
 	
 	UUID armorStandID = null;
-	private int armorStandEntityId = -1;
-	int requestTimer = TICK_DELAY;
 	
 	int updateTimer = TICK_DELAY;
 	
@@ -50,21 +40,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	
 	@Override
 	public ItemTraderData buildNewTrader() { return new ItemTraderDataArmor(this.level, this.worldPosition); }
-	
-	@Override
-	public void clientTick() {
-
-		if(this.getArmorStand() == null)
-		{
-			if(this.requestTimer <= 0)
-			{
-				this.requestTimer = TICK_DELAY;
-				LightmansCurrencyPacketHandler.instance.sendToServer(new MessageRequestArmorStandID(this.worldPosition));
-			}
-			else
-				this.requestTimer--;
-		}
-	}
 	
 	@Override
 	public void serverTick()
@@ -139,9 +114,8 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 					//Trade restrictions shall determine the slot type
 					ItemTradeRestriction r = thisTrade.getRestriction();
 					EquipmentSlot slot = null;
-					if(r instanceof EquipmentRestriction)
+					if(r instanceof EquipmentRestriction er)
 					{
-						EquipmentRestriction er = (EquipmentRestriction)r;
 						slot = er.getEquipmentSlot();
 					}
 					if(slot != null)
@@ -167,25 +141,6 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 				if(as.position().equals(armorStand.position()))
 					as.remove(Entity.RemovalReason.DISCARDED);
 			});
-		}
-	}
-	
-	public void sendArmorStandSyncMessageToClient(PacketTarget target) {
-		ArmorStand armorStand = this.getArmorStand();
-		if(armorStand != null)
-		{
-			LightmansCurrencyPacketHandler.instance.send(target, new MessageSendArmorStandID(this.worldPosition, armorStand.getId()));
-		}
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	public static void receiveArmorStandID(BlockPos pos, int entityId) {
-		Minecraft mc = Minecraft.getInstance();
-		BlockEntity be = mc.level.getBlockEntity(pos);
-		if(be instanceof ArmorDisplayTraderBlockEntity)
-		{
-			//LightmansCurrency.LogInfo("Received Armor Stand id " + entityId + " from the server.");
-			((ArmorDisplayTraderBlockEntity)be).armorStandEntityId = entityId;
 		}
 	}
 	
@@ -240,14 +195,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity impleme
 	
 	protected ArmorStand getArmorStand()
 	{
-		Entity entity = null;
 		if(this.level instanceof ServerLevel)
-			entity = ((ServerLevel)level).getEntity(this.armorStandID);
-		else
-			entity = this.level.getEntity(this.armorStandEntityId);
-		
-		if(entity != null && entity instanceof ArmorStand)
-			return (ArmorStand)entity;
+		{
+			Entity entity = ((ServerLevel)level).getEntity(this.armorStandID);
+			if(entity instanceof ArmorStand)
+				return (ArmorStand)entity;
+		}
 		
 		return null;
 	}

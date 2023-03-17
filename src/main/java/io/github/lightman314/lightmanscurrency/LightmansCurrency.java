@@ -148,6 +148,7 @@ public class LightmansCurrency {
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
 		TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
 		TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
+		TraderData.register(ItemTraderDataBook.TYPE, ItemTraderDataBook::new);
 		TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
 		TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
 

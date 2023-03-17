@@ -124,6 +124,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		//Force Creative Tab content rebuild
 		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions);
 
+
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items

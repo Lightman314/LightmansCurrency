@@ -24,7 +24,7 @@ public class BankAccountWidget {
 	
 	private final IBankAccountWidget parent;
 	
-	private CoinValueInput amountSelection;
+	private final CoinValueInput amountSelection;
 	public CoinValueInput getAmountSelection() { return this.amountSelection; }
 	Button buttonDeposit;
 	Button buttonWithdraw;
@@ -97,11 +97,11 @@ public class BankAccountWidget {
 
 	public interface IBankAccountWidget
 	{
-		public <T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T widget);
-		public Font getFont();
-		public Screen getScreen();
-		public BankAccount getBankAccount();
-		public Container getCoinAccess();
+		<T extends GuiEventListener & Renderable & NarratableEntry> T addCustomWidget(T widget);
+		Font getFont();
+		Screen getScreen();
+		BankAccount getBankAccount();
+		Container getCoinAccess();
 	}
 	
 }

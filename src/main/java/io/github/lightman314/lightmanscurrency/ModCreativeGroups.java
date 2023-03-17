@@ -118,6 +118,7 @@ public class ModCreativeGroups {
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
+                    ezPop(p, ModBlocks.BOOKSHELF_TRADER);
                     //Item Traders (network)
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_1);
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_2);

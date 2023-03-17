@@ -9,8 +9,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageSetBankNotificationLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
@@ -58,16 +56,13 @@ public class NotificationTab extends ATMTab {
 	public void postRender(PoseStack pose, int mouseX, int mouseY) { }
 
 	@Override
-	public void tick() { this.notificationSelection.tick();; }
+	public void tick() { this.notificationSelection.tick(); }
 	
 	@Override
-	public void onClose() {
-		SimpleSlot.SetActive(this.screen.getMenu());
-	}
+	public void onClose() { SimpleSlot.SetActive(this.screen.getMenu()); }
 	
 	public void onValueChanged(CoinValue value) {
-		this.screen.getMenu().getBankAccount().setNotificationValue(value);
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSetBankNotificationLevel(value));
+		this.screen.getMenu().SetNotificationValueAndUpdate(value);
 	}
 
 }

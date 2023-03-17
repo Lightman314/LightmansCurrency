@@ -228,7 +228,15 @@ public class ModBlocks {
 					.sound(SoundType.METAL)
 				)
 		);
-		
+
+		//Bookshelf Traders
+		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", () -> new BookTraderBlock(
+				Block.Properties.of(Material.WOOD)
+					.strength(3.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.WOOD)
+				)
+		);
+
 		
 		
 		//Network Traders
@@ -390,6 +398,9 @@ public class ModBlocks {
 	
 	//Ticket Kiosk
 	public static final RegistryObject<Block> TICKET_KIOSK;
+
+	//Bookshelf Traders
+	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
 	
 	//Ticket Machine
 	public static final RegistryObject<Block> TICKET_STATION;

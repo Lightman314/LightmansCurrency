@@ -2,6 +2,7 @@
     "replace": false,
     "values": [
         "lightmanscurrency:armor_display",
-        "lightmanscurrency:ticket_kiosk"
+        "lightmanscurrency:ticket_kiosk",
+		"#lightmanscurrency:bookshelf"
     ]
 }

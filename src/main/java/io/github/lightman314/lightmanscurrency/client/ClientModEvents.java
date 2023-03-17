@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
@@ -25,24 +26,12 @@ public class ClientModEvents {
 		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
 	}
 
-	/* Keeping for backport to 1.19.2
-	@SubscribeEvent
-	public static void stitchTextures(TextureStitchEvent event) {
-		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
-			//Add coin/wallet slot backgrounds
-			//LightmansCurrency.LogInfo("Adding empty slot sprites to the texture atlas.");
-			event.addSprite(CoinSlot.EMPTY_COIN_SLOT);
-			event.addSprite(TicketSlot.EMPTY_TICKET_SLOT);
-			event.addSprite(WalletSlot.EMPTY_WALLET_SLOT);
-			event.addSprite(ItemRenderUtil.EMPTY_SLOT_BG);
-			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
-		}
-	}*/
-
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			event.register(block.getDoorModel());
+		event.register(NormalBookRenderer.MODEL_LOCATION);
+		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 	}
 	
 	@SubscribeEvent

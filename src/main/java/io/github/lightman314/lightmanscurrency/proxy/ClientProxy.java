@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
@@ -17,6 +18,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -90,12 +94,17 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
+
+		//Setup Book Renderers
+		BookRenderer.register(NormalBookRenderer.GENERATOR);
+		BookRenderer.register(EnchantedBookRenderer.GENERATOR);
 
 	}
 
@@ -267,13 +276,17 @@ public class ClientProxy extends CommonProxy{
 	public void onPlayerLogin(ClientPlayerNetworkEvent.LoggingIn event)
 	{
 		//Initialize the item edit widgets item list
-		Minecraft mc = Minecraft.getInstance();
-    	ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks());
+		try{
+			Minecraft mc = Minecraft.getInstance();
+			ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks());
+		} catch(Throwable t) {
+			LightmansCurrency.LogError("Error encountered while setting up the Item Edit list.\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t);
+		}
 	}
 
 	@Override
 	@Nonnull
-	public Level safeGetDummyLevel() throws Exception{
+	public Level safeGetDummyLevel() throws Exception {
 		Level level = this.getDummyLevelFromServer();
 		if(level == null)
 			level = Minecraft.getInstance().level;

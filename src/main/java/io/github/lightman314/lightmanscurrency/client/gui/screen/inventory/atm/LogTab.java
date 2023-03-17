@@ -58,8 +58,6 @@ public class LogTab extends ATMTab{
 	public void tick() { }
 
 	@Override
-	public void onClose() {
-		SimpleSlot.SetActive(this.screen.getMenu());
-	}
+	public void onClose() { SimpleSlot.SetActive(this.screen.getMenu()); }
 
 }

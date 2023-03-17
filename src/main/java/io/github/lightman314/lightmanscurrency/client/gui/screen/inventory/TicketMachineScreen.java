@@ -6,8 +6,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.ticket_machine.MessageCraftTicket;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketMachineMenu;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,6 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+
+import javax.annotation.Nonnull;
 
 @IPNIgnore
 public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMenu>{
@@ -33,22 +33,22 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 	}
 	
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(@Nonnull PoseStack pose, float partialTicks, int mouseX, int mouseY)
 	{
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
+	protected void renderLabels(@Nonnull PoseStack pose, int mouseX, int mouseY)
 	{
-		this.font.draw(poseStack, this.title, 8.0f, 6.0f, 0x404040);
-		this.font.draw(poseStack, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
+		this.font.draw(pose, this.title, 8.0f, 6.0f, 0x404040);
+		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
 	}
 	
 	@Override
@@ -70,25 +70,26 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 	}
 	
 	@Override
-	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
-		this.renderBackground(matrixStack);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderTooltip(matrixStack, mouseX,  mouseY);
+		this.renderBackground(pose);
+		super.render(pose, mouseX, mouseY, partialTicks);
+		this.renderTooltip(pose, mouseX,  mouseY);
 		
 		if(this.buttonCraft != null && this.buttonCraft.active && this.buttonCraft.isMouseOver(mouseX, mouseY))
 		{
 			if(this.menu.hasMasterTicket())
-				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
+				this.renderTooltip(pose, Component.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
 			else
-				this.renderTooltip(matrixStack, Component.translatable("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
+				this.renderTooltip(pose, Component.translatable("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
 		}
 		
 	}
 	
 	private void craftTicket(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCraftTicket(Screen.hasShiftDown()));
+		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown());
+		//LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCraftTicket(Screen.hasShiftDown()));
 	}
 	
 }

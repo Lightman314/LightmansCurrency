@@ -21,6 +21,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class TraderRecoveryMenu extends AbstractContainerMenu {
 
 	public static final MenuProvider PROVIDER = new Provider();
@@ -86,7 +88,8 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 		
 	}
 
-	public ItemStack quickMoveStack(Player player, int slotIndex) {
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
 	      ItemStack itemstack = ItemStack.EMPTY;
 	      Slot slot = this.slots.get(slotIndex);
 	      if (slot != null && slot.hasItem()) {
@@ -111,10 +114,10 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	   }
 
 	@Override
-	public boolean stillValid(Player player) { return this.getValidEjectionData().size() > 0; }
+	public boolean stillValid(@Nonnull Player player) { return true; }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		//Clear the dummy container for safety.
 		this.clearContainer(player, this.dummyContainer);
@@ -137,8 +140,9 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	private static class Provider implements MenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new TraderRecoveryMenu(id, inventory); }
+		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderRecoveryMenu(id, inventory); }
 
+		@Nonnull
 		@Override
 		public Component getDisplayName() { return Component.empty(); }
 		

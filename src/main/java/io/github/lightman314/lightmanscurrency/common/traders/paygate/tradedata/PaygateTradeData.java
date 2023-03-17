@@ -109,7 +109,11 @@ public class PaygateTradeData extends TradeData {
 		
 		compound.putInt("Duration", this.getDuration());
 		if(this.ticketID >= -1)
+		{
 			compound.putLong("TicketID", this.ticketID);
+			compound.putInt("TicketColor", this.ticketColor);
+		}
+
 		
 		return compound;
 	}
@@ -122,6 +126,8 @@ public class PaygateTradeData extends TradeData {
 
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");
+		if(compound.contains("TicketColor"))
+			this.ticketColor = compound.getInt("TicketColor");
 		else if(compound.contains("Ticket"))
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else

@@ -32,7 +32,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new BasicTradeEditClientTab<BasicTradeEditTab>(screen, this); }
+	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new BasicTradeEditClientTab<>(screen, this); }
 	
 	public void setClientHandler(TraderStorageMenu.IClientMessage clientHandler) { this.clientHandler = clientHandler; }
 	
@@ -87,7 +87,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 		message.putInt("InteractionType", INTERACTION_OTHER);
 		message.putInt("Button", button);
 		message.putInt("MouseX", mouseX);
-		message.putInt("MouseY", mouseX);
+		message.putInt("MouseY", mouseY);
 		CompoundTag itemTag = new CompoundTag();
 		heldItem.save(itemTag);
 		message.put("HeldItem", itemTag);
