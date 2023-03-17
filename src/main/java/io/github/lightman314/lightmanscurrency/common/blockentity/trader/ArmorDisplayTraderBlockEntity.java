@@ -28,7 +28,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	
 	UUID armorStandID = null;
 	
-	int updateTimer = TICK_DELAY;
+	int updateTimer = 0;
 	
 	private boolean loaded = false;
 	public void flagAsLoaded() { this.loaded = true; }

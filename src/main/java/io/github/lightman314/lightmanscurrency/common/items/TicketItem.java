@@ -85,6 +85,12 @@ public class TicketItem extends Item{
 		return ticketTag.getInt("TicketColor");
 	}
 
+	public static int GetDefaultTicketColor(long ticketID) {
+		if (ticketID == CREATIVE_TICKET_ID)
+			return Color.YELLOW.hexColor;
+		return Color.getFromIndex(ticketID).hexColor;
+	}
+
 	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }
 	
 	public static ItemStack CreateMasterTicket(long ticketID, int color)

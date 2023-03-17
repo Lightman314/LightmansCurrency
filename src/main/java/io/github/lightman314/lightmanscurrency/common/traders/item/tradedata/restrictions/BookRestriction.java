@@ -12,6 +12,7 @@ public class BookRestriction extends ItemTradeRestriction{
 
     public static BookRestriction INSTANCE = new BookRestriction();
 
+    public static final ResourceLocation EMPTY_BOOK_SLOT = new ResourceLocation("lightmanscurrency","item/empty_book_slot");
     public static final ResourceLocation BOOK_TAG = new ResourceLocation("lightmanscurrency","tradeable/book");
 
     private BookRestriction() {}
@@ -26,6 +27,6 @@ public class BookRestriction extends ItemTradeRestriction{
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Pair<ResourceLocation, ResourceLocation> getEmptySlotBG() { return Pair.of(InventoryMenu.BLOCK_ATLAS, new ResourceLocation("lightmanscurrency","item/empty_book_slot")); }
+    public Pair<ResourceLocation, ResourceLocation> getEmptySlotBG() { return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_BOOK_SLOT); }
 
 }

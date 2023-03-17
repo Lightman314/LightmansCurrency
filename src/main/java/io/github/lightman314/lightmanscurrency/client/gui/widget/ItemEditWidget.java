@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -25,7 +26,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.*;
@@ -35,6 +35,9 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
@@ -61,6 +64,13 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		if(!ITEM_BLACKLIST.contains(itemFilter))
 			ITEM_BLACKLIST.add(itemFilter);
 	}
+
+	private static final List<ItemInsertRule> ITEM_ADDITIONS = new ArrayList<>();
+	public static void AddExtraItem(ItemStack item) { ITEM_ADDITIONS.add(ItemInsertRule.atEnd(item)); }
+	public static void AddExtraItemAfter(ItemStack item, @Nonnull Item afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterItem(item, afterItem)); }
+	public static void AddExtraItemAfter(ItemStack item, @Nonnull Predicate<ItemStack> afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterCheck(item, afterItem)); }
+	public static void AddExtraItemBefore(ItemStack item, @Nonnull Item beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeItem(item, beforeItem)); }
+	public static void AddExtraItemBefore(ItemStack item, @Nonnull Predicate<ItemStack> beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeCheck(item, beforeItem)); }
 
 	public static boolean isItemAllowed(ItemStack item) {
 		for(Predicate<ItemStack> blacklist : ITEM_BLACKLIST)
@@ -97,7 +107,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	private final Font font;
 
 	public ItemEditWidget(int x, int y, int columns, int rows, IItemEditListener listener) {
-		super(x, y, columns * 18, rows * 18, Component.empty());
+		super(x, y, columns * 18, rows * 18, EasyText.empty());
 		this.listener = listener;
 
 		this.columns = columns;
@@ -124,7 +134,6 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		//Force Creative Tab content rebuild
 		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions);
 
-
 		List<ItemStack> allItems = new ArrayList<>();
 
 		//Go through all the item groups to avoid allowing sales of hidden items
@@ -139,8 +148,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 				{
 					if(isItemAllowed(stack))
 					{
-						if(notYetInList(allItems, stack))
-							allItems.add(stack);
+						addToList(allItems, stack);
 
 						if(stack.getItem() == Items.ENCHANTED_BOOK)
 						{
@@ -151,20 +159,63 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 								{
 									ItemStack newBook = new ItemStack(Items.ENCHANTED_BOOK);
 									EnchantmentHelper.setEnchantments(ImmutableMap.of(enchantment, newLevel), newBook);
-									if(notYetInList(allItems, newBook))
-										allItems.add(newBook);
+									if(isItemAllowed(newBook))
+										addToList(allItems, newBook);
 								}
 							});
 						}
 					}
+
 				}
+			}
+		}
+
+		//Add Extra Items with no before or after rules
+		for(ItemInsertRule extraItemRule : ITEM_ADDITIONS)
+		{
+			if(extraItemRule.shouldInsertAtEnd())
+			{
+				ItemStack extraItem = extraItemRule.insertStack.copy();
+				if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+					allItems.add(extraItem.copy());
 			}
 		}
 
 		preFilteredItems = new HashMap<>();
 
-		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).toList()));
+		ItemTradeRestriction.forEach((type, restriction) -> preFilteredItems.put(type, allItems.stream().filter(restriction::allowItemSelectItem).collect(Collectors.toList())));
 
+	}
+
+	private static void addToList(List<ItemStack> allItems, ItemStack stack)
+	{
+		stack = stack.copy();
+		if(notYetInList(allItems, stack))
+		{
+			//Add any before rules
+			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
+			{
+				if(insertRule.shouldInsertBefore(stack))
+				{
+					ItemStack extraItem = insertRule.insertStack.copy();
+					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+						allItems.add(extraItem);
+				}
+			}
+			//Add the item itself
+			allItems.add(stack);
+
+			//Add any after rules
+			for(ItemInsertRule insertRule : ITEM_ADDITIONS)
+			{
+				if(insertRule.shouldInsertAfter(stack))
+				{
+					ItemStack extraItem = insertRule.insertStack.copy();
+					if(isItemAllowed(extraItem) && notYetInList(allItems, extraItem))
+						allItems.add(extraItem);
+				}
+			}
+		}
 	}
 
 	private static boolean notYetInList(List<ItemStack> allItems, ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
@@ -276,7 +327,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
 
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = addWidget.apply(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
@@ -345,7 +396,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 			}
 		}
 		if(this.isMouseOverStackSizeScroll(mouseX,mouseY))
-			screen.renderTooltip(pose, Component.translatable("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
+			screen.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.item_edit.scroll"), mouseX, mouseY);
 	}
 
 	private boolean isMouseOverStackSizeScroll(int mouseX, int mouseY) {
@@ -380,7 +431,7 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+	public void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -438,6 +489,34 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	public void setScroll(int newScroll) {
 		this.scroll = newScroll;
 		this.refreshPage();
+	}
+
+	private static class ItemInsertRule
+	{
+
+		public final ItemStack insertStack;
+		private final Predicate<ItemStack> afterItemCheck;
+		private final Predicate<ItemStack> beforeItemCheck;
+
+		private final Predicate<ItemStack> NULLCHECK = (s) -> false;
+		private ItemInsertRule(ItemStack insertStack, @Nullable Predicate<ItemStack> afterItemCheck, @Nullable Predicate<ItemStack> beforeItemCheck)
+		{
+			this.insertStack = insertStack;
+			this.afterItemCheck = afterItemCheck == null ? NULLCHECK : afterItemCheck;
+			this.beforeItemCheck = beforeItemCheck == null ? NULLCHECK : beforeItemCheck;
+		}
+
+		public static ItemInsertRule atEnd(ItemStack insertStack) { return new ItemInsertRule(insertStack, null, null); }
+		public static ItemInsertRule afterItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, (s) -> s.getItem() == item, null); }
+		public static ItemInsertRule afterCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, check, null); }
+		public static ItemInsertRule beforeItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, null, (s) -> s.getItem() == item); }
+		public static ItemInsertRule beforeCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, null, check); }
+
+
+		public boolean shouldInsertBefore(ItemStack insertedItem) { return this.beforeItemCheck.test(insertedItem); }
+		public boolean shouldInsertAfter(ItemStack insertedItem) { return this.afterItemCheck.test(insertedItem); }
+		public boolean shouldInsertAtEnd() { return this.afterItemCheck == NULLCHECK && this.beforeItemCheck == null; }
+
 	}
 
 }

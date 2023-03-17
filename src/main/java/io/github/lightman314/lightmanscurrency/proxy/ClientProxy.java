@@ -47,6 +47,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -101,6 +103,8 @@ public class ClientProxy extends CommonProxy{
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
+		//Add written book to Item Edit item list (for purchase/barter possibilities with NBT enforcement turned off)
+		ItemEditWidget.AddExtraItemAfter(new ItemStack(Items.WRITTEN_BOOK), Items.WRITABLE_BOOK);
 
 		//Setup Book Renderers
 		BookRenderer.register(NormalBookRenderer.GENERATOR);

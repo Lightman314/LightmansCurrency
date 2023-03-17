@@ -43,7 +43,7 @@ public class PaygateTradeData extends TradeData {
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
-	
+
 	public boolean canAfford(TradeContext context) {
 		if(this.isTicketTrade())
 			return context.hasTicket(this.ticketID);
@@ -126,12 +126,18 @@ public class PaygateTradeData extends TradeData {
 
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");
-		if(compound.contains("TicketColor"))
-			this.ticketColor = compound.getInt("TicketColor");
 		else if(compound.contains("Ticket"))
+		{
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
+			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
+		}
 		else
 			this.ticketID = Long.MIN_VALUE;
+
+		if(compound.contains("TicketColor"))
+			this.ticketColor = compound.getInt("TicketColor");
+		else if(this.ticketID >= -1)
+			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
 		
 	}
 	
