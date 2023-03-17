@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
+import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
@@ -11,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -29,11 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
+    public static boolean ignoreDimension() { return Config.SERVER.maxPlayerTradingRange.get() < 0d; }
+    public static boolean ignoreDistance() { return Config.SERVER.maxPlayerTradingRange.get() <=0d; }
+    public static double enforceDistance() { return Config.SERVER.maxPlayerTradingRange.get(); }
 
     private boolean stillPending = true;
     public final long creationTime;
@@ -48,13 +53,13 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
     @Override
     public Component getHostName() {
         ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
-        return hostPlayer == null ? new TextComponent( "NULL") : hostPlayer.getName();
+        return hostPlayer == null ? EasyText.literal("NULL") : hostPlayer.getName();
     }
     private final UUID guestPlayerID;
     @Override
     public Component getGuestName() {
         ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
-        return guestPlayer == null ? new TextComponent("NULL") : guestPlayer.getName();
+        return guestPlayer == null ? EasyText.literal("NULL") : guestPlayer.getName();
     }
 
     private boolean playerMissing(@Nonnull UUID playerID) { return getPlayer(playerID) == null; }
@@ -116,6 +121,34 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             this.hostState = 0;
             this.guestState = Math.min(this.guestState, 1);
         }
+    }
+
+    private boolean playerDistanceExceeded() {
+        return false;
+    }
+
+    /**
+     Preliminary check on whether the querying guest is in range of the host.
+     Returns the following:
+     0- Pass
+     1- Fail: Host is missing
+     2- Fail: Distance Exceeded
+     3- Fail: Wrong dimension
+     */
+    public int isGuestInRange(ServerPlayer guest) {
+        ServerPlayer host = this.getPlayer(this.hostPlayerID);
+        if(host == null)
+            return 1;
+        if(ignoreDimension())
+            return 0;
+        //Confirm that they're in the same dimension
+        if(!Objects.equals(host.level.dimension().location(),guest.level.dimension().location()))
+            return 3;
+        if(ignoreDistance())
+            return 0;
+        //Confirm that they're within the valid distance radius
+        double distance = host.position().distanceTo(guest.position());
+        return distance <= enforceDistance() ? 0 : 2;
     }
 
     private boolean playerAbandonedTrade(boolean host) {
@@ -212,7 +245,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return false;
         }
         else
-            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false);
+            return this.playerAbandonedTrade(true) || this.playerAbandonedTrade(false) || this.playerDistanceExceeded();
     }
 
     public void onCancel() {
@@ -349,7 +382,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     //Menu Handling/Opening
     @Override
-    public @NotNull Component getDisplayName() { return new TextComponent(""); }
+    public @NotNull Component getDisplayName() { return EasyText.empty(); }
 
     @Nullable
     @Override

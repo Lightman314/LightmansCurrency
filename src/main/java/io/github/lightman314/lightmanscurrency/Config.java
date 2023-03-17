@@ -589,6 +589,9 @@ public class Config {
         public final ForgeConfigSpec.IntValue maxAuctionDuration;
         public final ForgeConfigSpec.IntValue minAuctionDuration;
 
+        //Player Trade Options
+        public final ForgeConfigSpec.DoubleValue maxPlayerTradingRange;
+
         //Discord Bot Options
         public final ForgeConfigSpec.ConfigValue<String> currencyChannel;
         public final ForgeConfigSpec.ConfigValue<String> currencyCommandPrefix;
@@ -751,6 +754,15 @@ public class Config {
 
             this.maxAuctionDuration = builder.comment("The maximum number of days an auction can be carried out.")
                     .defineInRange("maxDuration", 30, 1, Integer.MAX_VALUE);
+
+            builder.pop();
+
+            builder.comment("Player Trading Options").push("player_trading");
+
+            this.maxPlayerTradingRange = builder.comment("The maximum distance allowed between players in order for a player trade to persist.",
+                            "-1 will always allow trading regardless of dimension.",
+                            "0 will allow infinite distance but require that both players be in the same dimension.")
+                    .defineInRange("maxPlayerDistance", -1d, -1d, Double.MAX_VALUE);
 
             builder.pop();
 

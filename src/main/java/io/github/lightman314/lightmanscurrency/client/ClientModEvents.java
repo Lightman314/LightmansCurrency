@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
@@ -13,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.BookRestriction;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +48,7 @@ public class ClientModEvents {
 			event.addSprite(UpgradeInputSlot.EMPTY_UPGRADE_SLOT);
 			event.addSprite(TicketModifierSlot.EMPTY_DYE_SLOT);
 			event.addSprite(ItemTradeButtonRenderer.NBT_SLOT);
+			event.addSprite(BookRestriction.EMPTY_BOOK_SLOT);
 		}
 	}
 
@@ -52,6 +56,8 @@ public class ClientModEvents {
 	public static void registerAdditionalModels(ModelRegistryEvent event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			ForgeModelBakery.addSpecialModel(block.getDoorModel());
+		ForgeModelBakery.addSpecialModel(NormalBookRenderer.MODEL_LOCATION);
+		ForgeModelBakery.addSpecialModel(EnchantedBookRenderer.MODEL_LOCATION);
 	}
 	
 	@SubscribeEvent

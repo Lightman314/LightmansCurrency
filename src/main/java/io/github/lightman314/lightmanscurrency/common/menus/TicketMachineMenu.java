@@ -1,18 +1,17 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketMaterialSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.*;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -21,23 +20,23 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class TicketMachineMenu extends AbstractContainerMenu{
-	
+public class TicketMachineMenu extends LazyMessageMenu{
+
 	private final Container output = new SimpleContainer(1);
-	
+
 	private final TicketMachineBlockEntity blockEntity;
-	
-	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity tileEntity)
+
+	public TicketMachineMenu(int windowId, Inventory inventory, TicketMachineBlockEntity blockEntity)
 	{
-		super(ModMenus.TICKET_MACHINE.get(), windowId);
-		this.blockEntity = tileEntity;
-		
+		super(ModMenus.TICKET_MACHINE.get(), windowId, inventory);
+		this.blockEntity = blockEntity;
+
 		//Slots
 		this.addSlot(new TicketModifierSlot(this.blockEntity.getStorage(), 0, 20, 21));
 		this.addSlot(new TicketMaterialSlot(this.blockEntity.getStorage(), 1, 56, 21));
-		
+
 		this.addSlot(new OutputSlot(this.output, 0, 116, 21));
-		
+
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -52,28 +51,28 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 114));
 		}
 	}
-	
+
 	@Override
-	public boolean stillValid(@NotNull Player player)
+	public boolean stillValid(@NotNull Player playerIn)
 	{
 		return true;
 	}
-	
+
 	@Override
-	public void removed(@NotNull Player player)
+	public void removed(@NotNull Player playerIn)
 	{
-		super.removed(player);
-		this.clearContainer(player,  this.output);
+		super.removed(playerIn);
+		this.clearContainer(playerIn,  this.output);
 	}
-	
+
 	@Override
-	public @NotNull ItemStack quickMoveStack(@NotNull Player playerEntity, int index)
+	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
 	{
-		
+
 		ItemStack clickedStack = ItemStack.EMPTY;
-		
+
 		Slot slot = this.slots.get(index);
-		
+
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -90,7 +89,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			{
 				return ItemStack.EMPTY;
 			}
-			
+
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -100,17 +99,17 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 				slot.setChanged();
 			}
 		}
-		
+
 		return clickedStack;
-		
+
 	}
 
-	
+
 	public boolean validInputs()
 	{
 		return !this.blockEntity.getStorage().getItem(1).isEmpty();
 	}
-	
+
 	public boolean roomForOutput()
 	{
 		ItemStack outputStack = this.output.getItem(0);
@@ -128,13 +127,13 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			return false;
 		}
 	}
-	
+
 	public boolean hasMasterTicket()
 	{
 		ItemStack masterTicket = this.blockEntity.getStorage().getItem(0);
 		return TicketItem.isMasterTicket(masterTicket);
 	}
-	
+
 	public void craftTickets(boolean fullStack)
 	{
 		if(!validInputs())
@@ -152,7 +151,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 			int count = 1;
 			if(fullStack)
 				count = this.blockEntity.getStorage().getItem(1).getCount();
-			
+
 			//Create a normal ticket
 			ItemStack outputStack = this.output.getItem(0);
 			if(outputStack.isEmpty())
@@ -174,7 +173,7 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		else
 		{
 			//Create a master ticket
-			Color dye = this.getDyeColor();
+			Color dye = getDyeColor();
 			ItemStack newTicket = TicketItem.CreateMasterTicket(TicketSaveData.createNextID());
 			if(dye != null)
 			{
@@ -182,16 +181,16 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 				//Consume the dye
 				this.blockEntity.getStorage().removeItem(0, 1);
 			}
-			
+
 			this.output.setItem(0, newTicket);
-			
+
 			//Remove the crafting materials
 			this.blockEntity.getStorage().removeItem(1, 1);
 		}
-		
-		
+
+
 	}
-	
+
 	public long getTicketID()
 	{
 		ItemStack masterTicket = this.blockEntity.getStorage().getItem(0);
@@ -214,5 +213,16 @@ public class TicketMachineMenu extends AbstractContainerMenu{
 		ItemStack stack = this.blockEntity.getStorage().getItem(0);
 		return TicketModifierSlot.getColorFromDye(stack);
 	}
-	
+
+	public void SendCraftTicketsMessage(boolean fullStack)
+	{
+		this.SendMessageToServer(LazyPacketData.builder().setBoolean("CraftTickets", fullStack));
+	}
+
+	@Override
+	public void HandleMessage(LazyPacketData message) {
+		if(message.contains("CraftTickets"))
+			this.craftTickets(message.getBoolean("CraftTickets"));
+	}
+
 }

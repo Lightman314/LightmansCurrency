@@ -1,0 +1,4 @@
+{
+	"parent": "lightmanscurrency:block/bookshelf_trader/base",
+	"textures": { "main": "minecraft:block/crimson_planks" }
+}

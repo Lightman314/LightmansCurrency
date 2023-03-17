@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientEvents;
 import io.github.lightman314.lightmanscurrency.client.data.ClientBankData;
 import io.github.lightman314.lightmanscurrency.client.data.ClientEjectionData;
@@ -21,6 +22,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminal
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -46,6 +50,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.ClientRegistry;
@@ -105,6 +111,7 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 
 
@@ -116,6 +123,12 @@ public class ClientProxy extends CommonProxy{
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTab.TAB_HOTBAR, CreativeModeTab.TAB_INVENTORY, CreativeModeTab.TAB_SEARCH);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET);
 		ItemEditWidget.BlacklistItem(ModItems.TICKET_MASTER);
+		//Add written book to Item Edit item list (for purchase/barter possibilities with NBT enforcement turned off)
+		ItemEditWidget.AddExtraItemAfter(new ItemStack(Items.WRITTEN_BOOK), Items.WRITABLE_BOOK);
+
+		//Setup Book Renderers
+		BookRenderer.register(NormalBookRenderer.GENERATOR);
+		BookRenderer.register(EnchantedBookRenderer.GENERATOR);
 
 		//Register the Wallet Overlay
 		OverlayRegistry.registerOverlayTop("wallet_hud", WalletDisplayOverlay.INSTANCE);
@@ -281,10 +294,12 @@ public class ClientProxy extends CommonProxy{
 	
 	@SubscribeEvent
 	public void onLogin(ClientPlayerNetworkEvent.LoggedInEvent event) {
-		
 		//Initialize the item edit widgets item list
-    	ItemEditWidget.initItemList();
-		
+		try{
+			ItemEditWidget.initItemList();
+		} catch(Throwable t) {
+			LightmansCurrency.LogError("Error encountered while setting up the Item Edit list.", t);
+		}
 	}
 
 	@Override

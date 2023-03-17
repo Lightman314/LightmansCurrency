@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.common.atm.ATMConversionButtonData;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.bank.MessageATMConversion;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+
+import javax.annotation.Nonnull;
 
 public class ConversionTab extends ATMTab{
 
@@ -47,9 +47,11 @@ public class ConversionTab extends ATMTab{
 	public void onClose() { }
 	
 	private void RunConversionCommand(String command) {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageATMConversion(command));
+		this.screen.getMenu().SendCoinExchangeMessage(command);
+		//LightmansCurrencyPacketHandler.instance.sendToServer(new MessageATMConversion(command));
 	}
 
+	@Nonnull
 	@Override
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM.get()); }
 

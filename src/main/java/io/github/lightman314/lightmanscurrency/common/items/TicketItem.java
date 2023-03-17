@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -10,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -17,6 +19,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -36,6 +39,17 @@ public class TicketItem extends Item{
 	public TicketItem(Properties properties)
 	{
 		super(properties);
+	}
+
+	@Override
+	public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> itemList) {
+		if(this.allowdedIn(tab))
+		{
+			if(this == ModItems.TICKET_MASTER.get())
+				itemList.add(TicketItem.CreateMasterTicket(CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR));
+			else
+				itemList.add(TicketItem.CreateTicket(CREATIVE_TICKET_ID, CREATIVE_TICKET_COLOR));
+		}
 	}
 
 	@Override
@@ -84,6 +98,12 @@ public class TicketItem extends Item{
 		if(!ticketTag.contains("TicketColor"))
 			return 0xFFFFFF;
 		return ticketTag.getInt("TicketColor");
+	}
+
+	public static int GetDefaultTicketColor(long ticketID) {
+		if(ticketID == CREATIVE_TICKET_ID)
+			return Color.YELLOW.hexColor;
+		return Color.getFromIndex(ticketID).hexColor;
 	}
 
 	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }

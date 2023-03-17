@@ -253,7 +253,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(this.selection == -1)
 			this.priceSelection.setCoinValue(this.getTrade().getCost());
 		if(this.selection >= 0 && this.selection < 2)
+		{
+			this.itemEdit.refreshSearch();
 			this.customNameInput.setValue(this.commonTab.getTrade().getCustomName(this.selection));
+		}
 		if(this.selection >= 2)
 			this.itemEdit.refreshSearch();
 	}
@@ -287,7 +290,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 
 	private void ToggleTradeType(Button button) {
 		if(this.getTrade() != null)
+		{
 			this.commonTab.setType(this.getTrade().getTradeType().next());
+			this.itemEdit.refreshSearch();
+		}
 	}
 
 	private void ToggleNBTEnforcement(Button button) {

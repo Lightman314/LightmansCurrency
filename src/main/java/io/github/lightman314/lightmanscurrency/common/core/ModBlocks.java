@@ -251,7 +251,13 @@ public class ModBlocks {
 				)
 		);
 
-
+		//Bookshelf Traders
+		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", () -> LightmansCurrency.TRADING_GROUP, () -> new BookTraderBlock(
+						Block.Properties.of(Material.WOOD)
+								.strength(3.0f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.WOOD)
+				)
+		);
 
 		//Network Traders
 		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkItemTraderBlock(
@@ -412,6 +418,9 @@ public class ModBlocks {
 
 	//Ticket Kiosk
 	public static final RegistryObject<Block> TICKET_KIOSK;
+
+	//Bookshelf Traders
+	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
 
 	//Ticket Machine
 	public static final RegistryObject<Block> TICKET_STATION;

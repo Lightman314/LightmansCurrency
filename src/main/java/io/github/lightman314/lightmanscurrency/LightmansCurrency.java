@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataBook;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.core.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
@@ -188,6 +189,7 @@ public class LightmansCurrency {
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
 		TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
 		TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
+		TraderData.register(ItemTraderDataBook.TYPE, ItemTraderDataBook::new);
 		TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
 		TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
 

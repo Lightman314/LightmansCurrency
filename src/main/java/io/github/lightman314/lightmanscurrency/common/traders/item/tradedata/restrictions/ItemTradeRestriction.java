@@ -31,7 +31,8 @@ public class ItemTradeRestriction {
 		register("equipment_chest", EquipmentRestriction.CHEST);
 		register("equipment_legs", EquipmentRestriction.LEGS);
 		register("equipment_feet", EquipmentRestriction.FEET);
-		register("ticket_kiosk", NONE);
+		register("ticket_kiosk", TicketKioskRestriction.INSTANCE);
+		register("book", BookRestriction.INSTANCE);
 	}
 
 	private static final Map<ResourceLocation,ItemTradeRestriction> registeredRestrictions = new HashMap<>();

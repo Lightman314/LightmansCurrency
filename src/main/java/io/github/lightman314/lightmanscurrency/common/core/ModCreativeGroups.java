@@ -56,7 +56,7 @@ public class ModCreativeGroups {
                 ModBlocks.FREEZER,
                 ModBlocks.VENDING_MACHINE_LARGE,
                 //Item Traders (specialty)
-                ModBlocks.ARMOR_DISPLAY, ModBlocks.TICKET_KIOSK,
+                ModBlocks.ARMOR_DISPLAY, ModBlocks.TICKET_KIOSK, ModBlocks.BOOKSHELF_TRADER,
                 //Item Traders (network)
                 ModBlocks.ITEM_NETWORK_TRADER_1, ModBlocks.ITEM_NETWORK_TRADER_2,
                 ModBlocks.ITEM_NETWORK_TRADER_3, ModBlocks.ITEM_NETWORK_TRADER_4,

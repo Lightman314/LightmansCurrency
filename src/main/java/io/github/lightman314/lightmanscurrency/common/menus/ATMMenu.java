@@ -9,45 +9,47 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvancedMenu{
-	
-	private Player player;
+import javax.annotation.Nonnull;
+
+public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu{
+
+	private final Player player;
 	public Player getPlayer() { return this.player; }
-	
+
 	private final Container coinInput = new SimpleContainer(9);
 	public Container getCoinInput() { return this.coinInput; }
-	
+
 	private MutableComponent transferMessage = null;
-	
+
 	public ATMMenu(int windowId, Inventory inventory)
 	{
-		super(ModMenus.ATM.get(), windowId);
-		
+		super(ModMenus.ATM.get(), windowId, inventory);
+
 		this.player = inventory.player;
-		
+
 		//Coinslots
 		for(int x = 0; x < coinInput.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false));
 		}
-		
+
 		//Player inventory
 		for(int y = 0; y < 3; y++)
 		{
@@ -62,19 +64,19 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			this.addSlot(new Slot(inventory, x, 8 + x * 18, 219));
 		}
 	}
-	
+
 	@Override
-	public boolean stillValid(Player playerIn) {
+	public boolean stillValid(@Nonnull Player player) {
 		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
 		this.getBankAccountReference();
 		return true;
 	}
-	
+
 	@Override
-	public void removed(Player playerIn)
+	public void removed(@Nonnull Player player)
 	{
-		super.removed(playerIn);
-		this.clearContainer(playerIn,  this.coinInput);
+		super.removed(player);
+		this.clearContainer(player,  this.coinInput);
 		if(!this.isClient())
 		{
 			AccountReference account = this.getBankAccountReference();
@@ -88,15 +90,16 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			}
 		}
 	}
-	
+
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player playerEntity, int index)
+	public ItemStack quickMoveStack(@Nonnull Player player, int index)
 	{
-		
+
 		ItemStack clickedStack = ItemStack.EMPTY;
-		
+
 		Slot slot = this.slots.get(index);
-		
+
 		if(slot != null && slot.hasItem())
 		{
 			ItemStack slotStack = slot.getItem();
@@ -115,7 +118,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 			{
 				return ItemStack.EMPTY;
 			}
-			
+
 			if(slotStack.isEmpty())
 			{
 				slot.set(ItemStack.EMPTY);
@@ -125,11 +128,15 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 				slot.setChanged();
 			}
 		}
-		
+
 		return clickedStack;
-		
+
 	}
-	
+
+	public void SendCoinExchangeMessage(String command) {
+		this.SendMessageToServer(LazyPacketData.builder().setString("ExchangeCoinCommand", command));
+	}
+
 	public void ConvertCoins(String command)
 	{
 		///Converting Upwards
@@ -141,7 +148,7 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		//Convert defined coin upwards
 		else if(command.startsWith("convertUp-"))
 		{
-			ResourceLocation coinID = null;
+			ResourceLocation coinID;
 			String id = "";
 			try {
 				id = command.substring("convertUp-".length());
@@ -149,17 +156,17 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
 				if(coinItem == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a registered item.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
 					return;
 				}
 				if(!MoneyUtil.isCoin(coinItem))
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a coin.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
 					return;
 				}
 				if(MoneyUtil.getUpwardConversion(coinItem) == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is the largest visible coin in its chain, and thus cannot be converted any larger.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the largest visible coin in its chain, and thus cannot be converted any larger.");
 					return;
 				}
 				MoneyUtil.ConvertCoinsUp(this.coinInput, coinItem);
@@ -178,17 +185,17 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
 				if(coinItem == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a registered item.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
 					return;
 				}
 				if(!MoneyUtil.isCoin(coinItem))
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is not a coin.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
 					return;
 				}
 				if(MoneyUtil.getDownwardConversion(coinItem) == null)
 				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID.toString() + "' is the smallest known coin, and thus cannot be converted any smaller.");
+					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the smallest known coin, and thus cannot be converted any smaller.");
 					return;
 				}
 				MoneyUtil.ConvertCoinsDown(this.coinInput, coinItem);
@@ -196,37 +203,57 @@ public class ATMMenu extends AbstractContainerMenu implements IBankAccountAdvanc
 		}
 		else
 			LightmansCurrency.LogError("'" + command + "' is not a valid ATM Conversion command.");
-		
+
 	}
 
-	
+
 	public MutableComponent SetPlayerAccount(String playerName) {
-		
+
 		if(CommandLCAdmin.isAdminPlayer(this.player))
 		{
 			PlayerReference accountPlayer = PlayerReference.of(false, playerName);
 			if(accountPlayer != null)
 			{
 				BankSaveData.SetSelectedBankAccount(this.player, BankAccount.GenerateReference(false, accountPlayer));
-				return new TranslatableComponent("gui.bank.select.player.success", accountPlayer.getName(false));
+				return EasyText.translatable("gui.bank.select.player.success", accountPlayer.getName(false));
 			}
 			else
-				return new TranslatableComponent("gui.bank.transfer.error.null.to");
+				return EasyText.translatable("gui.bank.transfer.error.null.to");
 		}
-		return new TextComponent("ERROR");
-		
+		return EasyText.literal("ERROR");
+
 	}
-	
+
 	public boolean hasTransferMessage() { return this.transferMessage != null; }
-	
+
 	public MutableComponent getTransferMessage() { return this.transferMessage; }
-	
+
 	@Override
 	public void setTransferMessage(MutableComponent message) { this.transferMessage = message; }
-	
+
 	public void clearMessage() { this.transferMessage = null; }
 
 	@Override
 	public boolean isClient() { return this.player.level.isClientSide; }
-	
+
+	public void SetNotificationValueAndUpdate(CoinValue newValue)
+	{
+		BankAccount ba = this.getBankAccount();
+		if(ba != null)
+			ba.setNotificationValue(newValue);
+		this.SendMessageToServer(LazyPacketData.builder().setCoinValue("NotificationValueChange", newValue));
+	}
+
+	@Override
+	public void HandleMessage(LazyPacketData message) {
+		if(message.contains("ExchangeCoinCommand"))
+			this.ConvertCoins(message.getString("ExchangeCoinCommand"));
+		if(message.contains("NotificationValueChange"))
+		{
+			BankAccount ba = this.getBankAccount();
+			if(ba != null)
+				ba.setNotificationValue(message.getCoinValue("NotificationValueChange"));
+		}
+	}
+
 }

