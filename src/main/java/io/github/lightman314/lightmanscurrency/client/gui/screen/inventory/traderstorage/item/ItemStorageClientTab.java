@@ -26,6 +26,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
 
 	private static final int X_OFFSET = 13;
@@ -74,7 +76,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
@@ -134,7 +136,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getCarried().isEmpty())
 		{

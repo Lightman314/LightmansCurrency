@@ -7,7 +7,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
@@ -43,7 +44,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+
+import javax.annotation.Nonnull;
 
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
@@ -51,7 +56,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
 	
-	List<AuctionTradeData> trades = new ArrayList<>();
+	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
 
@@ -288,8 +293,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	}
 
-	@Override
-	public List<? extends TradeData> getTradeData() { return this.trades; }
+	@Nonnull
+    @Override
+	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
 
 	@Override
 	public IconData getIcon() { return ICON; }
@@ -344,9 +350,6 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	public int getTradeStock(int tradeIndex) { return 0; }
-
-	@Override
-	protected void addSettingsTabs(List<SettingsTab> tabs) { }
 
 	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }

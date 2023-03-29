@@ -7,6 +7,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 
 	public static final int BANK_WIDGET_SPACING = 128;
@@ -30,7 +32,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@Nonnull Player player) {
 		this.getBankAccountReference();
 		return super.stillValid(player) && this.hasBankAccess();
 	}

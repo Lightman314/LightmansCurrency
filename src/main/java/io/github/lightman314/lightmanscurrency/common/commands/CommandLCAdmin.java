@@ -33,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
@@ -303,7 +304,7 @@ public class CommandLCAdmin {
 			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", count, trader.getName()), true);
 
 			if(count > 0)
-				trader.markRulesDirty();
+				trader.markTradeRulesDirty();
 
 			return count;
 		}

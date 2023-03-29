@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -25,7 +26,7 @@ import top.theillusivec4.curios.common.capability.CurioItemCapability;
 import java.util.Map;
 
 public class LCCurios {
-	
+
 	public static final String WALLET_SLOT = "wallet";
 
 	private static ICuriosItemHandler lazyGetCuriosHelper(LivingEntity entity) {
@@ -109,49 +110,51 @@ public class LCCurios {
 	
 	public static ICapabilityProvider createWalletProvider(ItemStack stack)
 	{
-		return CurioItemCapability.createProvider(new ICurio()
-		{
-			
-			@Override
-			public ItemStack getStack() { return stack; }
-			
-			@Nonnull
-			@Override
-			public SoundInfo getEquipSound(SlotContext context) { return new SoundInfo(SoundEvents.ARMOR_EQUIP_LEATHER, 1f, 1f); }
-			
-			@Override
-			public boolean canEquipFromUse(SlotContext context) { return false; }
-			
-			@Override
-			public boolean canSync(SlotContext context) { return true; }
-			
-			@Override
-			public boolean canEquip(SlotContext context) {
-				return context.entity() instanceof Player;
-			}
-			
-			@Override
-			public boolean canUnequip(SlotContext context) {
-				if(context.entity() instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
-				{
-					//Prevent unequipping if the wallet is open in the menu.
-					return !menu.isEquippedWallet();
-				}
-				return true;
-			}
-			
-			@Nonnull
-			@Override
-			public DropRule getDropRule(SlotContext context, DamageSource source, int lootingLevel, boolean recentlyHit)
+		try{
+			return CurioItemCapability.createProvider(new ICurio()
 			{
-				GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level, ModGameRules.KEEP_WALLET);
-				if((keepWallet != null && keepWallet.get()))
-					return DropRule.ALWAYS_KEEP;
-				else
-					return DropRule.DEFAULT;
-			}
-			
-		});
+
+				@Override
+				public ItemStack getStack() { return stack; }
+
+				@Nonnull
+				@Override
+				public SoundInfo getEquipSound(SlotContext context) { return new SoundInfo(SoundEvents.ARMOR_EQUIP_LEATHER, 1f, 1f); }
+
+				@Override
+				public boolean canEquipFromUse(SlotContext context) { return false; }
+
+				@Override
+				public boolean canSync(SlotContext context) { return true; }
+
+				@Override
+				public boolean canEquip(SlotContext context) {
+					return context.entity() instanceof Player;
+				}
+
+				@Override
+				public boolean canUnequip(SlotContext context) {
+					if(context.entity() instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
+					{
+						//Prevent unequipping if the wallet is open in the menu.
+						return !menu.isEquippedWallet();
+					}
+					return true;
+				}
+
+				@Nonnull
+				@Override
+				public DropRule getDropRule(SlotContext context, DamageSource source, int lootingLevel, boolean recentlyHit)
+				{
+					GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level, ModGameRules.KEEP_WALLET);
+					if((keepWallet != null && keepWallet.get()))
+						return DropRule.ALWAYS_KEEP;
+					else
+						return DropRule.DEFAULT;
+				}
+
+			});
+		} catch(Throwable t) { return null; }
 	}
 	
 }

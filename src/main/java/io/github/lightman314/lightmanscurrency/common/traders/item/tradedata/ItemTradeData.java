@@ -183,10 +183,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public boolean isPurchase() { return this.tradeType == ItemTradeType.PURCHASE; }
 	public boolean isBarter() { return this.tradeType == ItemTradeType.BARTER; }
 	
-	public void setTradeType(ItemTradeType tradeDirection)
-	{
-		this.tradeType = tradeDirection;
-	}
+	public void setTradeType(ItemTradeType tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
 	
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
 	
@@ -747,4 +744,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 					slots, results);
 		}
 	}
+
+	@Override
+	public boolean isMoneyRelevant() { return !this.isBarter(); }
+
 }

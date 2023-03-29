@@ -3,21 +3,18 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerWhitelistTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -27,11 +24,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class PlayerWhitelist extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
 	
 	List<PlayerReference> whitelistedPlayers = new ArrayList<>();
+	public ImmutableList<PlayerReference> getWhitelistedPlayers() { return ImmutableList.copyOf(this.whitelistedPlayers); }
 	
 	public PlayerWhitelist() { super(TYPE); }
 	
@@ -127,100 +127,9 @@ public class PlayerWhitelist extends TradeRule{
 	
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_WHITELIST; }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-	{
-		return new GUIHandler(screen, rule);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private static class GUIHandler extends TradeRule.GUIHandler
-	{
-		
-		protected final PlayerWhitelist getWhitelistRule()
-		{
-			if(getRuleRaw() instanceof PlayerWhitelist)
-				return (PlayerWhitelist)getRuleRaw();
-			return null;
-		}
-		
-		GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			super(screen, rule);
-		}
-		
-		EditBox nameInput;
-		
-		Button buttonAddPlayer;
-		Button buttonRemovePlayer;
-		
-		ScrollTextDisplay playerDisplay;
-		
-		@Override
-		public void initTab() {
-			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, Component.empty()));
-			
-			this.buttonAddPlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton).pos(screen.guiLeft() + 10, screen.guiTop() + 30).size(78, 20).build());
-			this.buttonRemovePlayer = this.screen.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton).pos(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30).size(78, 20).build());
-			
-			//Player list display
-			this.playerDisplay = this.screen.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));
-			this.playerDisplay.setColumnCount(2);
-			
-		}
-		
-		private List<Component> getWhitelistedPlayers()
-		{
-			List<Component> playerList = Lists.newArrayList();
-			if(getWhitelistRule() == null)
-				return playerList;
-			for(PlayerReference player : getWhitelistRule().whitelistedPlayers)
-				playerList.add(player.getNameComponent(true));
-			return playerList;
-		}
-		
-		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) { }
-		
-		@Override
-		public void onTabClose() {
-			
-			this.removeCustomWidget(this.nameInput);
-			this.removeCustomWidget(this.buttonAddPlayer);
-			this.removeCustomWidget(this.buttonRemovePlayer);
-			this.removeCustomWidget(this.playerDisplay);
-			
-		}
-		
-		void PressWhitelistButton(Button button)
-		{
-			String name = nameInput.getValue();
-			if(!name.isBlank())
-			{
-				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
-				updateInfo.putBoolean("Add", true);
-				updateInfo.putString("Name", name);
-				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-			}
-		}
-		
-		void PressForgetButton(Button button)
-		{
-			String name = nameInput.getValue();
-			if(!name.isBlank())
-			{
-				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
-				updateInfo.putBoolean("Add", false);
-				updateInfo.putString("Name", name);
-				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-			}
-			
-		}
-		
-	}
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerWhitelistTab(parent); }
 	
 }

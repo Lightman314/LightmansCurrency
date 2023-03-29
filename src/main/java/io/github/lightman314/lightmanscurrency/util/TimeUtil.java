@@ -49,8 +49,8 @@ public class TimeUtil {
 		seconds += 60 * minutes; //60 seconds in a minute
 		return seconds * 1000;
 	}
-	
-	@Deprecated
+
+	@Deprecated(forRemoval = true)
 	public static TimeData separateDuration(long duration) { return new TimeData(duration); }
 	
 	public static class TimeData

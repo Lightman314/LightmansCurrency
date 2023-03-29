@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
@@ -17,6 +18,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public abstract class WalletMenuBase extends AbstractContainerMenu {
 
@@ -73,6 +76,14 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 		this.autoConvert = WalletItem.getAutoConvert(this.getWallet());
 		
 	}
+
+	protected final void addInventorySlot(int x, int y, int index)
+	{
+		if(index == this.walletStackIndex)
+			this.addSlot(new DisplaySlot(this.inventory, index, x, y));
+		else
+			this.addSlot(new BlacklistSlot(this.inventory, index, x, y, this.inventory, this.walletStackIndex));
+	}
 	
 	protected final void addCoinSlots(int yPosition) {
 		for(int y = 0; (y * 9) < this.coinInput.getContainerSize(); y++)
@@ -103,7 +114,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
 	
 	@Override
-	public boolean stillValid(Player playerIn) { return this.hasWallet(); }
+	public boolean stillValid(@Nonnull Player playerIn) { return this.hasWallet(); }
 	
 	public final void saveWalletContents()
 	{

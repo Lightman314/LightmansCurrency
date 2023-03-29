@@ -19,9 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements InteractionConsumer{
 
-	public BasicTradeEditClientTab(TraderStorageScreen screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen);}
+	public BasicTradeEditClientTab(TraderStorageScreen screen, T commonTab) { super(screen, commonTab); this.commonTab.setClientHandler(screen); }
 
 	@Override
 	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_TRADELIST; }
@@ -55,7 +57,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.tradeDisplay.tick();
 		
@@ -87,7 +89,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getCarried().isEmpty())
 			this.tradeDisplay.renderTooltips(this.screen, pose, this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, this.screen.getXSize() - (this.renderAddRemoveButtons() ? 27 : 16), mouseX, mouseY);

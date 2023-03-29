@@ -97,31 +97,32 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void onInventoryGuiInit(ScreenEvent.Init.Post event)
 	{
-		
+
 		Screen screen = event.getScreen();
 		
 		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
 		{
 			
 			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
-			
-			Minecraft mc = Minecraft.getInstance();
-			if(!LightmansCurrency.isCuriosValid(mc.player))
-			{
-				
-				ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-				ScreenPosition buttonPosition = slotPosition.offset(Config.CLIENT.walletButtonOffset.get());
-				
-				event.addListener(new WalletButton(gui, buttonPosition.x, buttonPosition.y, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
-				
-				event.addListener(new VisibilityToggleButton(gui, slotPosition.x, slotPosition.y, ClientEvents::toggleVisibility));
-				
-			}
-			
+
 			//Add notification button
 			event.addListener(new NotificationButton(gui));
 			event.addListener(new TeamManagerButton(gui));
 			event.addListener(new TraderRecoveryButton(gui));
+
+			Minecraft mc = Minecraft.getInstance();
+			if(LightmansCurrency.isCuriosValid(mc.player))
+				return;
+
+			//Add Wallet-Related buttons if Curios doesn't exist or is somehow broken
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			ScreenPosition buttonPosition = slotPosition.offset(Config.CLIENT.walletButtonOffset.get());
+
+			event.addListener(new WalletButton(gui, buttonPosition.x, buttonPosition.y, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
+
+			event.addListener(new VisibilityToggleButton(gui, slotPosition.x, slotPosition.y, ClientEvents::toggleVisibility));
+			
+
 			
 		}
 	}
@@ -189,24 +190,24 @@ public class ClientEvents {
 			
 			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
 				return;
-			
-			Minecraft mc = Minecraft.getInstance();
-			if(!LightmansCurrency.isCuriosValid(mc.player))
-			{
-				ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-				
-				if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
-				{
-					IWalletHandler walletHandler = getWalletHandler();
-					ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
-					if(!wallet.isEmpty())
-						screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
-				}
-			}
-			
+
 			//Render notification & team manager button tooltips
 			NotificationButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
 			TeamManagerButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
+			
+			Minecraft mc = Minecraft.getInstance();
+			if(LightmansCurrency.isCuriosValid(mc.player))
+				return;
+
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+
+			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
+			{
+				IWalletHandler walletHandler = getWalletHandler();
+				ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
+				if(!wallet.isEmpty())
+					screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
+			}
 			
 		}
 	}

@@ -38,8 +38,11 @@ public class PaygateTradeData extends TradeData {
 	public int getTicketColor() { return this.ticketColor; }
 	public boolean isTicketTrade() { return this.ticketID >= -1; }
 	public long getTicketID() { return this.ticketID; }
-	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); }
+	public void setTicket(ItemStack ticket) { this.ticketID = TicketItem.GetTicketID(ticket); this.ticketColor = TicketItem.GetTicketColor(ticket); this.validateRuleStates(); }
 
+	boolean storeTicketStubs = false;
+	public boolean shouldStoreTicketStubs() { return this.storeTicketStubs; }
+	public void setStoreTicketStubs(boolean value) { this.storeTicketStubs = value; }
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
@@ -112,6 +115,7 @@ public class PaygateTradeData extends TradeData {
 		{
 			compound.putLong("TicketID", this.ticketID);
 			compound.putInt("TicketColor", this.ticketColor);
+			compound.putBoolean("StoreTicketStubs", this.storeTicketStubs);
 		}
 
 		
@@ -138,6 +142,11 @@ public class PaygateTradeData extends TradeData {
 			this.ticketColor = compound.getInt("TicketColor");
 		else if(this.ticketID >= -1)
 			this.ticketColor = TicketItem.GetDefaultTicketColor(this.ticketID);
+
+		if(compound.contains("StoreTicketStubs"))
+			this.storeTicketStubs = compound.getBoolean("StoreTicketStubs");
+		else
+			this.storeTicketStubs = false;
 		
 	}
 	
@@ -158,17 +167,6 @@ public class PaygateTradeData extends TradeData {
 		LightmansCurrency.LogWarning("Attempting to get warnings for different paygate trades, but paygate trades do not support this interaction.");
 		return Lists.newArrayList();
 	}
-	
-
-
-
-
-
-
-
-
-
-
 	
 	public static MutableComponent formatDurationShort(int duration) { 
 		
@@ -261,7 +259,7 @@ public class PaygateTradeData extends TradeData {
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			if(heldItem.getItem() == ModItems.TICKET_MASTER.get())
@@ -284,7 +282,7 @@ public class PaygateTradeData extends TradeData {
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			CompoundTag extraData = new CompoundTag();
@@ -298,7 +296,7 @@ public class PaygateTradeData extends TradeData {
 		
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
-			int tradeIndex = paygate.getAllTrades().indexOf(this);
+			int tradeIndex = paygate.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			CompoundTag extraData = new CompoundTag();
@@ -307,5 +305,8 @@ public class PaygateTradeData extends TradeData {
 		}
 		
 	}
-	
+
+	@Override
+	public boolean isMoneyRelevant() { return !this.isTicketTrade(); }
+
 }

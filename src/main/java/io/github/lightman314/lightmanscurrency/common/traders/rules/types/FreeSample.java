@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -26,15 +27,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
-public class FreeSample extends TradeRule{
+import javax.annotation.Nonnull;
+
+public class FreeSample extends PriceTweakingTradeRule {
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
 	
 	List<UUID> memory = new ArrayList<>();
 	
 	public FreeSample() { super(TYPE); }
-	
+
+	@Override
+	protected boolean canActivate(@Nullable ITradeRuleHost host) {
+		if(host instanceof TradeData trade && trade.getTradeDirection() != TradeDirection.SALE)
+			return false;
+		return super.canActivate(host);
+	}
+
 	@Override
 	public void beforeTrade(PreTradeEvent event)
 	{
@@ -58,7 +69,7 @@ public class FreeSample extends TradeRule{
 	}
 	
 	private boolean giveDiscount(TradeEvent event) {
-		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() != TradeDirection.PURCHASE;
+		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() == TradeDirection.PURCHASE;
 	}
 	
 	private void addToMemory(UUID playerID) {
@@ -66,13 +77,9 @@ public class FreeSample extends TradeRule{
 			this.memory.add(playerID);
 	}
 	
-	public boolean giveDiscount(UUID playerID) {
-		return !this.givenFreeSample(playerID);
-	}
+	public boolean giveDiscount(UUID playerID) { return !this.givenFreeSample(playerID); }
 	
-	private boolean givenFreeSample(UUID playerID) {
-		return this.memory.contains(playerID);
-	}
+	private boolean givenFreeSample(UUID playerID) { return this.memory.contains(playerID); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
@@ -151,65 +158,9 @@ public class FreeSample extends TradeRule{
 	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_FREE_SAMPLE; }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-	{
-		return new GUIHandler(screen, rule);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private static class GUIHandler extends TradeRule.GUIHandler
-	{
-		
-		private FreeSample getRule()
-		{
-			if(getRuleRaw() instanceof FreeSample)
-				return (FreeSample)getRuleRaw();
-			return null;
-		}
-		
-		GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			super(screen, rule);
-		}
-		
-		Button buttonClearMemory;
-		
-		@Override
-		public void initTab() {
-			
-			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
-			
-		}
-
-		@Override
-		public void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-			
-			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(poseStack, Component.translatable("gui.button.lightmanscurrency.free_sample.reset.tooltip"), mouseX, mouseY);
-			
-		}
-
-		@Override
-		public void onTabClose() {
-			this.removeCustomWidget(this.buttonClearMemory);
-		}
-		
-		@Override
-		public void onScreenTick() { }
-		
-		void PressClearMemoryButton(Button button)
-		{
-			FreeSample rule = this.getRule();
-			if(rule == null)
-				return;
-			rule.memory.clear();
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putBoolean("ClearData", true);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-	}
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new FreeSampleTab(parent); }
 	
 }

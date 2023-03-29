@@ -103,6 +103,22 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		}
 	}
 
+	public void setTicketStubHandling(boolean storeTicketStubs)
+	{
+		PaygateTradeData trade = this.getTrade();
+		if(trade != null)
+		{
+			trade.setStoreTicketStubs(storeTicketStubs);
+			this.menu.getTrader().markTradesDirty();
+			if(this.menu.isClient())
+			{
+				CompoundTag message = new CompoundTag();
+				message.putBoolean("StoreTicketStubs", storeTicketStubs);
+				this.menu.sendMessage(message);
+			}
+		}
+	}
+
 	@Override
 	public void receiveMessage(CompoundTag message) {
 		if(message.contains("TradeIndex"))
@@ -125,6 +141,10 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		else if(message.contains("NewDuration"))
 		{
 			this.setDuration(message.getInt("NewDuration"));
+		}
+		else if(message.contains("StoreTicketStubs"))
+		{
+			this.setTicketStubHandling(message.getBoolean("StoreTicketStubs"));
 		}
 	}
 	

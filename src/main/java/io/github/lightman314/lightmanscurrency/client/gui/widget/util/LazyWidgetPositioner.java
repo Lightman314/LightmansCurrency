@@ -10,7 +10,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 
 public class LazyWidgetPositioner {
 
-	public static final Function<LazyWidgetPositioner, ScreenPosition> MODE_TOPDOWN = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
+	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_TOPDOWN = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
 	
 	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_BOTTOMUP = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
 	
@@ -28,10 +28,24 @@ public class LazyWidgetPositioner {
 	public int getPositionIndex() { return this.posIndex; }
 	
 	@SafeVarargs
+	@Deprecated
 	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
 		return new LazyWidgetPositioner(screen, mode, x1, y1, widgetSize, widgets);
 	}
-	
+
+	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize) {
+		return new LazyWidgetPositioner(screen, mode, x1, y1, widgetSize);
+	}
+
+	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize) {
+		this.screen = Objects.requireNonNull(screen);
+		this.mode = Objects.requireNonNull(mode);
+		this.x1 = x1;
+		this.y1 = y1;
+		this.widgetSize = widgetSize;
+		this.screen.addTickListener(this::reposition);
+	}
+
 	@SafeVarargs
 	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
 		this.screen = Objects.requireNonNull(screen);
@@ -43,9 +57,14 @@ public class LazyWidgetPositioner {
 		for(AbstractWidget w : widgets) this.addWidget(w);
 	}
 	
-	public <T extends AbstractWidget> void addWidget(T widget) {
+	public void addWidget(AbstractWidget widget) {
 		if(widget != null && !this.widgetList.contains(widget))
 			this.widgetList.add(widget);
+	}
+
+	public <T extends AbstractWidget> void addWidgets(AbstractWidget... widgets) {
+		for(AbstractWidget w : widgets)
+			this.addWidget(w);
 	}
 	
 	public void reposition() {
@@ -58,5 +77,7 @@ public class LazyWidgetPositioner {
 			}
 		}
 	}
+
+	public void clear() { this.widgetList.clear(); }
 	
 }

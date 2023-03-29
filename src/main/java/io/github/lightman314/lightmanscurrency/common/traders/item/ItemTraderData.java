@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.ITradeSource;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -59,7 +58,9 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
-public class ItemTraderData extends InputTraderData implements ITraderItemFilter, ITradeSource<ItemTradeData> {
+import javax.annotation.Nonnull;
+
+public class ItemTraderData extends InputTraderData implements ITraderItemFilter {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ITEM_CAPACITY);
 	
@@ -75,7 +76,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 	
-	protected List<ItemTradeData> trades;
+	protected List<ItemTradeData> trades = new ArrayList<>();
 	
 	@Override
 	public boolean allowAdditionalUpgradeType(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
@@ -210,8 +211,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		return this.trades.get(tradeSlot);
 	}
 	
-	@Override
-	public List<ItemTradeData> getTradeData() { return new ArrayList<>(this.trades); }
+	@Nonnull
+    @Override
+	public List<ItemTradeData> getTradeData() { return this.trades; }
 	
 	public int getTradeStock(int tradeSlot)
 	{
@@ -231,12 +233,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
-
-	@Override
-	public int inputSettingsTabColor() { return 0x00BF00; }
-	
-	@Override
-	public int inputSettingsTextColor() { return 0xD0D0D0; }
 
 	@Override
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
@@ -773,7 +769,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		
 		//Trade Rules
 		if(compound.contains("TradeRules", Tag.TAG_LIST))
-			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
+			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules", this));
 		
 		//Item Settings
 		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))

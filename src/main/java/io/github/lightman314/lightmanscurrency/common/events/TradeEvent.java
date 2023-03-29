@@ -44,12 +44,7 @@ public abstract class TradeEvent extends Event{
 		{
 			super(player, trade, trader);
 		}
-		
-		/**
-		 * @deprecated Use addAlert instead.
-		 */
-		@Deprecated
-		public void denyTrade(Component reason) { this.addAlert(AlertData.convert(reason), true); }
+
 		
 		/**
 		 * Adds an alert to the trade display.
@@ -90,18 +85,12 @@ public abstract class TradeEvent extends Event{
 		/**
 		 * Adds an alert to the trade with default error formatting (Red).
 		 * Also cancels the trade.
-		 * Use addError if you do not with so cancel the trade.
+		 * Use addError if you do not wish to cancel the trade.
 		 */
 		public void addDenial(MutableComponent message) {
 			this.addAlert(AlertData.error(message), true);
 		}
-		
-		/**
-		 * @deprecated use getAlertInfo instead.
-		 */
-		@Deprecated
-		public List<Component> getDenialReasons() { List<Component> text = new ArrayList<>(); for(AlertData a : this.alerts) text.add(a.getFormattedMessage()); return text; }
-		
+
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
 		

@@ -8,6 +8,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.registries.Registries;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,12 +25,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.core.AllyTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.core.MainTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.core.NotificationTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.core.OwnershipTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.core.PermissionsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
@@ -100,9 +101,9 @@ import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource {
+public abstract class TraderData implements IClientTracker, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost {
 	
-	public static final int GLOBAL_TRADE_LIMIT = 32;
+	public static final int GLOBAL_TRADE_LIMIT = 100;
 	
 	private boolean canMarkDirty = false;
 	public final TraderData allowMarkingDirty() { this.canMarkDirty = true; return this; }
@@ -198,7 +199,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return ImmutableList.copyOf(blockedPermissions);
 	}
 
-	protected void blockPermissionsForPersistentTrader(List<String> list) {}
+	protected void blockPermissionsForPersistentTrader(List<String> list) { }
 	
 	public int getAllyPermissionLevel(String permission) { return this.allyPermissions.getOrDefault(permission, 0); }
 	public void setAllyPermissionLevel(Player player, String permission, int level) {
@@ -374,7 +375,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	protected abstract boolean allowAdditionalUpgradeType(UpgradeType type);
 	
 	private List<TradeRule> rules = new ArrayList<>();
+	@Nonnull
+	@Override
 	public List<TradeRule> getRules() { return Lists.newArrayList(this.rules); }
+	protected void validateRules() { TradeRule.ValidateTradeRuleList(this.rules, this); }
 	
 	private boolean notificationsEnabled = false;
 	public boolean notificationsEnabled() { return this.notificationsEnabled; }
@@ -411,7 +415,6 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.type = type;
 		this.upgrades = new SimpleContainer(5);
 		this.upgrades.addListener(c -> this.markDirty(this::saveUpgrades));
-		TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
 	}
 	
 	protected TraderData(ResourceLocation type, Level level, BlockPos pos) {
@@ -546,7 +549,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	public void markTradesDirty() { this.markDirty(this::saveTrades); }
 	
-	public void markRulesDirty() { this.markDirty(this::saveRules); }
+	public void markTradeRulesDirty() { this.markDirty(this::saveRules); }
 	
 	public final JsonObject saveToJson() throws Exception
 	{
@@ -632,11 +635,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.alwaysShowOnTerminal = compound.getBoolean("AlwaysShowOnTerminal");
 		
 		if(compound.contains("RuleData"))
-		{
-			this.rules = TradeRule.loadRules(compound, "RuleData");
-			if(!this.isPersistent())
-				TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
-		}
+			this.rules = TradeRule.loadRules(compound, "RuleData", this);
 		
 		if(compound.contains("Upgrades"))
 		{
@@ -663,6 +662,17 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		//Load trader-specific data
 		this.loadAdditional(compound);
 		
+	}
+
+	/**
+	 * Code ran when the Trader is in it's fully registered/added state.
+	 * Does not promise that other traders are also fully loaded and/or registered to the Trader Save Data.
+	 * Run on both Server and Client, so ensure you check this.isClient() or this.isServer()
+	 * to confirm what logical side this trader is loaded on.
+	 */
+	public void OnRegisteredToOffice() {
+		if(this.isServer() && !this.isPersistent())
+			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
 	protected abstract void loadAdditional(CompoundTag compound);
@@ -794,7 +804,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				rule.afterTrade(event);
 		}
 		if(event.isDirty())
-			this.markRulesDirty();
+			this.markTradeRulesDirty();
 		event.clean();
 		
 		//Trades trade rules
@@ -941,16 +951,42 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(this.isClient)
 			this.userCount = userCount;
 	}
-	
+
+	@Nonnull
 	public abstract List<? extends TradeData> getTradeData();
+
+	@Nullable
+	public abstract TradeData getTrade(int tradeIndex);
+
 	
 	public int indexOfTrade(TradeData trade) { return this.getTradeData().indexOf(trade); }
 	
 	public abstract void addTrade(Player requestor);
 	
 	public abstract void removeTrade(Player requestor);
-	
-	public boolean allowTradeRule(TradeRule rule) { return true; }
+
+
+	//ITradeRuleHost Overrides
+	@Override
+	public final boolean isTrader() { return true; }
+
+	@Override
+	public final boolean isTrade() { return false; }
+
+	@Override
+	public boolean canMoneyBeRelevant() {
+		List<? extends TradeData> trades = this.getTradeData();
+		if(trades != null)
+			return trades.stream().anyMatch(TradeData::canMoneyBeRelevant);
+		return true;
+	}
+
+	//For Traders, allow rules that affect money if money can be relevant at any point.
+	@Override
+	public boolean isMoneyRelevant() { return this.canMoneyBeRelevant(); }
+
+	@Override
+	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
 	
 	public abstract TradeResult ExecuteTrade(TradeContext context, int tradeIndex);
 	
@@ -980,7 +1016,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageTraderMessage(this.id, message));
 	}
 	
-	public void receiveNetworkMessage(@NotNull Player player, @NotNull CompoundTag message)
+	public void receiveNetworkMessage(@Nonnull Player player, @Nonnull CompoundTag message)
 	{
 		if(message.contains("ChangePlayerOwner"))
 		{
@@ -1157,15 +1193,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public final List<SettingsTab> getSettingsTabs() {
-		List<SettingsTab> tabs = Lists.newArrayList(MainTab.INSTANCE, AllyTab.INSTANCE, PermissionsTab.INSTANCE, NotificationTab.INSTANCE);
-		this.addSettingsTabs(tabs);
-		tabs.add(OwnershipTab.INSTANCE);
+	public final List<SettingsSubTab> getSettingsTabs(TraderSettingsClientTab tab) {
+		//Set up defailt tabs
+		List<SettingsSubTab> tabs = Lists.newArrayList(new MainTab(tab), new AllyTab(tab), new PermissionsTab(tab), new NotificationTab(tab));
+		//Add Trader-Defined tabs
+		this.addSettingsTabs(tab, tabs);
+		//Add Ownership Tab last
+		tabs.add(new OwnershipTab(tab));
 		return tabs;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	protected abstract void addSettingsTabs(List<SettingsTab> tabs);
+	protected void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { }
 	
 	@OnlyIn(Dist.CLIENT)
 	public final List<PermissionOption> getPermissionOptions(){
@@ -1195,7 +1234,13 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	@OnlyIn(Dist.CLIENT)
 	protected abstract void addPermissionOptions(List<PermissionOption> options);
-	
+
+	@OnlyIn(Dist.CLIENT)
+	public void onScreenInit(TraderScreen screen, Consumer<AbstractWidget> addWidget) { }
+
+	@OnlyIn(Dist.CLIENT)
+	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<AbstractWidget> addWidget) { }
+
 	public final void pushLocalNotification(Notification notification)
 	{
 		if(this.isClient)
@@ -1335,7 +1380,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		this.rules = rules;
 		for(TradeRule r : this.rules)
 			r.setActive(true);
-		TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
+		TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
 	@Deprecated

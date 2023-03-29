@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;

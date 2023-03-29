@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
@@ -227,13 +228,10 @@ public class EventHandler {
 				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise, it always drops the wallet.
 				{
 
-					boolean keepWallet = true;
-					if(!LightmansCurrency.isCuriosValid(livingEntity))
-					{
-						boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
-						GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
-						keepWallet = (keepWalletVal != null && keepWalletVal.get()) || keepInventory;
-					}
+					boolean keepWallet = ModGameRules.safeGetCustomBool(livingEntity.level, ModGameRules.KEEP_WALLET, false);
+					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
+					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+						keepWallet = true;
 
 					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
 					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
@@ -255,7 +253,8 @@ public class EventHandler {
 						walletDrops = e.getDrops();
 
 					}
-					else //Drop the wallet
+					//Drop the wallet (unless curios is installed, upon which curios will handle that)
+					else if(!LightmansCurrency.isCuriosValid(livingEntity))
 					{
 
 						walletDrops.add(getDrop(livingEntity,walletStack));

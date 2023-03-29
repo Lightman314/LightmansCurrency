@@ -3,9 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.traders.tradedata;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
@@ -24,7 +26,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class TradeData {
+public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
 	
@@ -81,7 +83,7 @@ public abstract class TradeData {
 	protected TradeData(boolean validateRules) {
 		this.validateRules = validateRules;
 		if(this.validateRules)
-			TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
+			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
 	public CompoundTag getAsNBT()
@@ -103,18 +105,25 @@ public abstract class TradeData {
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
 		{
-			this.rules = TradeRule.loadRules(nbt, "TradeRules");
+			this.rules = TradeRule.loadRules(nbt, "TradeRules", this);
 			for(TradeRule r : this.rules) r.setActive(true);
 		}
 		else
-			this.rules = TradeRule.loadRules(nbt, "RuleData");
+			this.rules = TradeRule.loadRules(nbt, "RuleData", this);
 		
 		if(this.validateRules)
-			TradeRule.ValidateTradeRuleList(this.rules, this::allowTradeRule);
+			TradeRule.ValidateTradeRuleList(this.rules, this);
 		
 	}
-	
-	public boolean allowTradeRule(TradeRule rule) { return true; }
+
+	@Override
+	public final boolean isTrader() { return false; }
+
+	@Override
+	public final boolean isTrade() { return true; }
+
+	@Override
+	public boolean allowTradeRule(@Nonnull TradeRule rule) { return true; }
 	
 	public void beforeTrade(PreTradeEvent event) {
 		for(TradeRule rule : this.rules)
@@ -141,8 +150,13 @@ public abstract class TradeData {
 		}
 	}
 	
+	@Nonnull
+	@Override
 	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
-	
+
+	@Override
+	public void markTradeRulesDirty() { }
+
 	/**
 	 * Only to be used for persistent trader loading
 	 */

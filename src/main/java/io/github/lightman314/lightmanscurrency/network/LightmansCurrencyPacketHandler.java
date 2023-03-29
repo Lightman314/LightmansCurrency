@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.enchantments.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.menu.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.CMessageCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
 import io.github.lightman314.lightmanscurrency.network.message.teams.*;
@@ -82,6 +83,9 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageTraderMessage.class, MessageTraderMessage::encode, MessageTraderMessage::decode, MessageTraderMessage::handle);
 		register(MessageStorageInteraction.class, MessageStorageInteraction::encode, MessageStorageInteraction::decode, MessageStorageInteraction::handle);
 		register(MessageStorageInteractionC.class, MessageStorageInteractionC::encode, MessageStorageInteractionC::decode, MessageStorageInteractionC::handle);
+
+		//Paygate
+		register(CMessageCollectTicketStubs.class, CMessageCollectTicketStubs::encode, CMessageCollectTicketStubs::decode, CMessageCollectTicketStubs::handle);
 
 		//Wallet
 		register(MessagePlayPickupSound.class, MessagePlayPickupSound::encode, MessagePlayPickupSound::decode, MessagePlayPickupSound::handle);

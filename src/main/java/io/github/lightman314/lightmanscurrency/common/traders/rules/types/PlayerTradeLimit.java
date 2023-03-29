@@ -6,26 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.common.base.Supplier;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerTradeLimitTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
-import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -33,6 +25,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class PlayerTradeLimit extends TradeRule{
 	
@@ -46,6 +40,7 @@ public class PlayerTradeLimit extends TradeRule{
 	private long timeLimit = 0;
 	private boolean enforceTimeLimit() { return this.timeLimit > 0; }
 	public long getTimeLimit() { return this.timeLimit; }
+	public void setTimeLimit(long timeLimit) { this.timeLimit = timeLimit; }
 	
 	Map<UUID,List<Long>> memory = new HashMap<>();
 	public void resetMemory() { this.memory.clear(); }
@@ -265,117 +260,9 @@ public class PlayerTradeLimit extends TradeRule{
 	@Override
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT_PLAYER; }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-	{
-		return new GUIHandler(screen, rule);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private static class GUIHandler extends TradeRule.GUIHandler
-	{
-		
-		private PlayerTradeLimit getRule()
-		{
-			if(getRuleRaw() instanceof PlayerTradeLimit)
-				return (PlayerTradeLimit)getRuleRaw();
-			return null;
-		}
-		
-		GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			super(screen, rule);
-		}
-		
-		EditBox limitInput;
-		Button buttonSetLimit;
-		Button buttonClearMemory;
-		
-		TimeInputWidget timeInput;
-		
-		@Override
-		public void initTab() {
-			
-			this.limitInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 19, 30, 20, Component.empty()));
-			this.limitInput.setMaxLength(3);
-			PlayerTradeLimit rule = this.getRule();
-			if(rule != null)
-				this.limitInput.setValue(Integer.toString(rule.limit));
-			
-			this.buttonSetLimit = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.setlimit"), this::PressSetLimitButton).pos(screen.guiLeft() + 41, screen.guiTop() + 19).size(40, 20).build());
-			this.buttonClearMemory = this.addCustomRenderable(Button.builder(Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory"), this::PressClearMemoryButton).pos(screen.guiLeft() + 10, screen.guiTop() + 50).size(screen.xSize - 20, 20).build());
-			
-			this.timeInput = this.addCustomRenderable(new TimeInputWidget(screen.guiLeft() + 48, screen.guiTop() + 87, 10, TimeUnit.DAY, TimeUnit.MINUTE, this::addCustomRenderable, this::onTimeSet));
-			this.timeInput.setTime(this.getRule().timeLimit);
-			
-		}
-
-		@Override
-		public void renderTab(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-
-			PlayerTradeLimit rule = this.getRule();
-			if(rule != null)
-				screen.getFont().draw(pose, Component.translatable("gui.button.lightmanscurrency.playerlimit.info", rule.limit).getString(), screen.guiLeft() + 10, screen.guiTop() + 9, 0xFFFFFF);
-			
-			Component text = this.getRule().timeLimit > 0 ? Component.translatable("gui.widget.lightmanscurrency.playerlimit.duration", new TimeData(this.getRule().timeLimit).getShortString()) : Component.translatable("gui.widget.lightmanscurrency.playerlimit.noduration");
-			TextRenderUtil.drawCenteredText(pose, text, this.screen.guiLeft() + this.screen.xSize / 2, this.screen.guiTop() + 75, 0xFFFFFF);
-			
-			if(this.buttonClearMemory.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(pose, Component.translatable("gui.button.lightmanscurrency.playerlimit.clearmemory.tooltip"), mouseX, mouseY);
-			
-		}
-
-		@Override
-		public void onTabClose() {
-			
-			this.removeCustomWidget(this.limitInput);
-			this.removeCustomWidget(this.buttonSetLimit);
-			this.removeCustomWidget(this.buttonClearMemory);
-			
-			this.timeInput.removeChildren(this::removeCustomWidget);
-			this.removeCustomWidget(this.timeInput);
-			
-		}
-		
-		@Override
-		public void onScreenTick() {
-			
-			TextInputUtil.whitelistInteger(this.limitInput, 1, 100);
-			
-		}
-		
-		void PressSetLimitButton(Button button)
-		{
-			int limit = MathUtil.clamp(TextInputUtil.getIntegerValue(this.limitInput), 1, 100);
-			PlayerTradeLimit rule = this.getRule();
-			if(rule != null)
-				rule.limit = limit;
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putInt("Limit", limit);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-		void PressClearMemoryButton(Button button)
-		{
-			PlayerTradeLimit rule = this.getRule();
-			if(rule != null)
-				rule.memory.clear();
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putBoolean("ClearMemory", true);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-
-		public void onTimeSet(TimeData newTime) {
-			long timeLimit = MathUtil.clamp(newTime.miliseconds, 0, Long.MAX_VALUE);
-			PlayerTradeLimit rule = this.getRule();
-			if(rule != null)
-				rule.timeLimit = timeLimit;
-			CompoundTag updateInfo = new CompoundTag();
-			updateInfo.putLong("TimeLimit", timeLimit);
-			this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-		}
-		
-	}
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerTradeLimitTab(parent); }
 	
 }

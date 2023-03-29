@@ -421,9 +421,6 @@ public class VillagerTradeManager {
 		final ItemLike oldItem;
 		final Supplier<Item> newItem;
 
-		@Deprecated(forRemoval = true, since = "2.0.1.4")
-		public ConvertedTrade(ItemListing tradeSource, ItemLike oldItem, Item newItem) { this(tradeSource, oldItem, () -> newItem); }
-
 		/**
 		 * A modified Item Listing that takes an existing trade/listing and converts a given item into another item.
 		 * Warning: Replaced items do not keep any NBT data, so this should not be used for items that can be enchanted.

@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.nbt.CompoundTag;
@@ -20,33 +20,33 @@ public abstract class PermissionOption {
 	
 	public MutableComponent widgetName() { return Component.translatable("permission." + permission); }
 	
-	protected TraderSettingsScreen screen;
+	protected SettingsSubTab tab;
 	
 	protected final boolean hasPermission() { return this.permissionValue() > 0; }
 	
 	protected final int permissionValue()
 	{
-		if(this.screen.getTrader() == null)
+		if(this.tab.menu.getTrader() == null)
 			return 0;
-		return this.screen.getTrader().getAllyPermissionLevel(this.permission);
+		return this.tab.menu.getTrader().getAllyPermissionLevel(this.permission);
 	}
 	
 	public final void setValue(boolean newValue) { setValue(newValue ? 1 : 0); }
 	
 	public final void setValue(int newValue)
 	{
-		if(this.screen.getTrader() == null)
+		if(this.tab.menu.getTrader() == null)
 			return;
-		this.screen.getTrader().setAllyPermissionLevel(this.screen.getPlayer(), this.permission, newValue);
+		this.tab.menu.getTrader().setAllyPermissionLevel(this.tab.menu.player, this.permission, newValue);
 		CompoundTag message = new CompoundTag();
 		message.putString("ChangeAllyPermissions", this.permission);
 		message.putInt("NewLevel", newValue);
-		this.screen.getTrader().sendNetworkMessage(message);
+		this.tab.sendNetworkMessage(message);
 	}
 	
-	public final OptionWidgets initWidgets(TraderSettingsScreen screen, int x, int y)
+	public final OptionWidgets initWidgets(SettingsSubTab tab, int x, int y)
 	{
-		this.screen = screen;
+		this.tab = tab;
 		OptionWidgets widgets = new OptionWidgets();
 		this.createWidget(x, y, widgets);
 		return widgets;

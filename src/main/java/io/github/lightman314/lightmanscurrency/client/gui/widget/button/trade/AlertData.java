@@ -65,20 +65,20 @@ public class AlertData {
 	 * Should only be used to convert the results of ITradeData.getAlerts(TradeContext)
 	 */
 	@Deprecated
-	public static final AlertData convert(Component oldAlert) {
+	public static AlertData convert(Component oldAlert) {
 		if(oldAlert instanceof MutableComponent)
 			return error((MutableComponent)oldAlert);
 		else
 			return error(Component.literal(oldAlert.getString()));
 	}
 	
-	public static final AlertData helpful(MutableComponent message) { return of(message, AlertType.HELPFUL); }
-	public static final AlertData warn(MutableComponent message) { return of(message, AlertType.WARN); }
-	public static final AlertData error(MutableComponent message) { return of(message, AlertType.ERROR); }
+	public static AlertData helpful(MutableComponent message) { return of(message, AlertType.HELPFUL); }
+	public static AlertData warn(MutableComponent message) { return of(message, AlertType.WARN); }
+	public static AlertData error(MutableComponent message) { return of(message, AlertType.ERROR); }
 	
-	private static final AlertData of(MutableComponent message, AlertType type) { return of(message, type.priority, type.color, type.format); }
+	private static AlertData of(MutableComponent message, AlertType type) { return of(message, type.priority, type.color, type.format); }
 	
-	public static final AlertData of(MutableComponent message, int priority, int color, UnaryOperator<Style> style) {
+	public static AlertData of(MutableComponent message, int priority, int color, UnaryOperator<Style> style) {
 		return new AlertData(message, priority, color, style);
 	}
 	

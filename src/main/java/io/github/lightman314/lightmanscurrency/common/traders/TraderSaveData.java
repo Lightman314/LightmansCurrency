@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.network.message.data.MessageClear
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -78,11 +79,7 @@ public class TraderSaveData extends SavedData {
 			ah.setID(traderID);
 			
 			LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
-			this.traderData.put(traderID, ah);
-			this.setDirty();
-			//Send update packet to the connected clients
-			CompoundTag compound = ah.save();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(compound));
+			this.AddTraderInternal(traderID, ah);
 		}
 	}
 	
@@ -118,9 +115,7 @@ public class TraderSaveData extends SavedData {
 				TraderData trader = TraderData.Deserialize(false, traderTag);
 				if(trader != null)
 				{
-					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
-					if(trader instanceof IEasyTickable t)
-						this.tickers.add(t);
+					this.AddTraderInternal(trader.getID(), trader);
 				}
 				else
 					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
@@ -383,10 +378,8 @@ public class TraderSaveData extends SavedData {
 					}
 					//Initialize the persistence (forces creative & terminal access)
 					data.makePersistent(id, traderID);
-					
-					this.traderData.put(id, data.allowMarkingDirty());
-					if(data instanceof IEasyTickable t)
-						this.tickers.add(t);
+
+					this.AddTraderInternal(id, data);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 					
@@ -478,9 +471,7 @@ public class TraderSaveData extends SavedData {
 					if(trader instanceof AuctionHouseTrader)
 					{
 						long id = trader.getID();
-						newTrader.setID(id);
-						tsd.traderData.put(id, newTrader);
-						MarkTraderDirty(newTrader.save());
+						tsd.AddTraderInternal(id, newTrader);
 						return id;
 					}
 				}
@@ -494,15 +485,29 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			long newID = tsd.getNextID();
-			newTrader.setID(newID);
-			tsd.traderData.put(newID, newTrader.allowMarkingDirty());
-			tsd.setDirty();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(newTrader.save()));
+			tsd.AddTraderInternal(newID, newTrader);
 			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
 				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
 		}
 		return -1;
+	}
+
+	private void AddTraderInternal(long traderID, TraderData trader)
+	{
+		//Set Trader ID
+		trader.setID(traderID);
+		//Add to storage
+		this.traderData.put(traderID, trader.allowMarkingDirty());
+		this.setDirty();
+		//Trigger OnRegisteration listener
+		try{ trader.OnRegisteredToOffice();
+		} catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
+		//Send update packet to all relevant clients
+		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(trader.save()));
+		//Register tick listeners (if applicable)
+		if(trader instanceof IEasyTickable t)
+			this.tickers.add(t);
 	}
 	
 	public static void DeleteTrader(long traderID) {
@@ -522,7 +527,7 @@ public class TraderSaveData extends SavedData {
 			}
 		}
 	}
-	
+
 	public static List<TraderData> GetAllTraders(boolean isClient)
 	{
 		if(isClient)

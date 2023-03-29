@@ -10,6 +10,9 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
@@ -21,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteraction;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStorageInteractionC;
@@ -36,7 +40,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class TraderStorageMenu extends AbstractContainerMenu {
+public class TraderStorageMenu extends AbstractContainerMenu implements IClientTracker {
 
 	public final Supplier<TraderData> traderSource;
 	public final TraderData getTrader() { return this.traderSource.get(); }
@@ -45,6 +49,9 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	public static final int SLOT_OFFSET = 15;
 	
 	Container coinSlotContainer = new SimpleContainer(5);
+
+	private boolean coinSlotsVisible = true;
+	public boolean areCoinSlotsVisible() { return this.coinSlotsVisible; }
 	List<CoinSlot> coinSlots = new ArrayList<>();
 	public List<CoinSlot> getCoinSlots() { return this.coinSlots; }
 	
@@ -55,7 +62,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
-	
+
 	private final List<Consumer<CompoundTag>> listeners = new ArrayList<>();
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
@@ -74,6 +81,10 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 		this.canEditTabs = true;
 		TraderData trader = this.traderSource.get();
 		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
+		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
+		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
 		if(trader != null)
 			trader.initStorageTabs(this);
 		this.canEditTabs = false;
@@ -132,7 +143,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 	
 	public void validateCoinSlots() {
 		boolean canAddCoins = this.hasCoinSlotAccess();
-		for(CoinSlot slot : this.coinSlots) slot.active = canAddCoins;
+		for(CoinSlot slot : this.coinSlots) slot.active = canAddCoins && this.coinSlotsVisible;
 	}
 	
 	private boolean hasCoinSlotAccess() {
@@ -229,12 +240,26 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 			LightmansCurrency.LogWarning("Trader Storage Menu doesn't have a tab defined for " + key);
 	}
 	
+	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData, int newTradeIndex) {
+		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
+		message.putInt("ChangeSelectedTrade", newTradeIndex);
+		return this.createTabChangeMessage(newTab, message);
+	}
+
 	public CompoundTag createTabChangeMessage(int newTab, @Nullable CompoundTag extraData) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putInt("ChangeTab", newTab);
 		return message;
 	}
-	
+
+	public void SetCoinSlotsActive(boolean nowActive)
+	{
+		this.coinSlotsVisible = nowActive;
+		SimpleSlot.SetActive(this.coinSlots, nowActive);
+		if(this.isClient())
+			this.sendMessage(this.createCoinSlotActiveMessage(nowActive, null));
+	}
+
 	public CompoundTag createCoinSlotActiveMessage(boolean nowActive, @Nullable CompoundTag extraData) {
 		CompoundTag message = extraData == null ? new CompoundTag() : extraData;
 		message.putBoolean("SetCoinSlotsActive", nowActive);
@@ -257,7 +282,7 @@ public class TraderStorageMenu extends AbstractContainerMenu {
 		if(message.contains("ChangeTab", Tag.TAG_INT))
 			this.changeTab(message.getInt("ChangeTab"));
 		if(message.contains("SetCoinSlotsActive"))
-			SimpleSlot.SetActive(this.coinSlots, message.getBoolean("SetCoinSlotsActive"));
+			this.SetCoinSlotsActive(message.getBoolean("SetCoinSlotsActive"));
 		try { this.getCurrentTab().receiveMessage(message); }
 		catch(Throwable ignored) { }
 		for(Consumer<CompoundTag> listener : this.listeners)

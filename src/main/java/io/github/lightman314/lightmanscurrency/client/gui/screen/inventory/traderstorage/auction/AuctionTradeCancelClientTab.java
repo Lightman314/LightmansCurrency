@@ -16,6 +16,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionTradeCancelTab> {
 
 	public AuctionTradeCancelClientTab(TraderStorageScreen screen, AuctionTradeCancelTab commonTab) { super(screen,commonTab); }
@@ -49,14 +51,14 @@ public class AuctionTradeCancelClientTab extends TraderStorageClientTab<AuctionT
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TextRenderUtil.drawCenteredText(pose, Component.translatable("tooltip.lightmanscurrency.auction.cancel"), this.screen.getGuiLeft() + (this.screen.getXSize() / 2), this.screen.getGuiTop() + 50, 0x404040);
 		
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		

@@ -27,6 +27,7 @@ public class LCTooltips {
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_ARMOR = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.armor");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_TICKET = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.ticket");
+	public static final NonNullSupplier<List<Component>> ITEM_TRADER_BOOK = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.item.book");
 	public static final NonNullSupplier<List<Component>> ITEM_NETWORK_TRADER = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.trader.network.item");
 	public static final NonNullSupplier<List<Component>> ITEM_TRADER_INTERFACE = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.interface.item");
 	public static final NonNullSupplier<List<Component>> PAYGATE = () -> TooltipItem.getTooltipLines("tooltip.lightmanscurrency.paygate");

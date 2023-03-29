@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import net.minecraft.client.gui.components.Button;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
@@ -70,6 +71,8 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 	public void closeTab() { this.setTab(DEFAULT_TAB); }
 	
 	private final List<Runnable> tickListeners = new ArrayList<>();
+
+	public final LazyWidgetPositioner leftEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_BOTTOMUP, -20, TraderScreen.HEIGHT - 20, 20);
 	
 	protected boolean forceShowTerminalButton() { return false; }
 
@@ -86,13 +89,22 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		
 		this.tabRenderables.clear();
 		this.tabListeners.clear();
+		this.leftEdgePositioner.clear();
 		
 		this.buttonOpenStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 118, this::OpenStorage, () -> this.menu.isSingleTrader() && this.menu.getSingleTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)));
 		this.buttonCollectCoins = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + 138, this::CollectCoins, this.menu.player, this.menu::getSingleTrader));
 		this.buttonOpenTerminal = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos + TraderMenu.SLOT_OFFSET - 20, this.topPos + this.imageHeight - 20, this::OpenTerminal, this::showTerminalButton));
-		
-		LazyWidgetPositioner.create(this, LazyWidgetPositioner.MODE_TOPDOWN, TraderMenu.SLOT_OFFSET - 20, 118, 20, this.buttonOpenStorage, this.buttonCollectCoins);
-		
+
+		this.leftEdgePositioner.addWidgets(this.buttonOpenStorage, this.buttonCollectCoins);
+
+		//Allow traders to add custom buttons if this is a single trader
+		if(this.menu.isSingleTrader())
+		{
+			TraderData trader = this.menu.getSingleTrader();
+			if(trader != null)
+				trader.onScreenInit(this, this::addRenderableWidget);
+		}
+
 		//Initialize the current tab
 		this.currentTab.onOpen();
 		
