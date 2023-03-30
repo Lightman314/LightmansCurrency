@@ -39,7 +39,7 @@ public class ModCreativeGroups {
         COIN_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "coins"), builder ->
             builder.title(Component.translatable("itemGroup.lightmanscurrency.coins"))
                 .icon(() -> new ItemStack(ModBlocks.COINPILE_GOLD.get()))
-                .displayItems((enabledFlags, p, hasPermissions) -> {
+                .displayItems((parameters, p) -> {
                     //Coin -> Coin Pile -> Coin Block by type
                     ezPop(p, ModItems.COIN_COPPER);
                     ezPop(p, ModBlocks.COINPILE_COPPER);
@@ -74,7 +74,7 @@ public class ModCreativeGroups {
         MACHINE_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "machines"), List.of(), List.of(COIN_GROUP), builder ->
             builder.title(Component.translatable("itemGroup.lightmanscurrency.machines"))
                 .icon(() -> new ItemStack(ModBlocks.MACHINE_MINT.get()))
-                .displayItems((enabledFlags, p, hasPermissions) -> {
+                .displayItems((parameters, p) -> {
                     //Coin Mint
                     ezPop(p, ModBlocks.MACHINE_MINT);
                     //ATM
@@ -107,7 +107,7 @@ public class ModCreativeGroups {
         TRADER_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "traders"), List.of(), List.of(MACHINE_GROUP), builder ->
             builder.title(Component.translatable("itemGroup.lightmanscurrency.trading"))
                 .icon(() -> new ItemStack(ModBlocks.DISPLAY_CASE.get()))
-                .displayItems((enabledFlags, p, hasPermissions) -> {
+                .displayItems((parameters, p) -> {
                     //Item Traders (normal)
                     ezPop(p, ModBlocks.SHELF);
                     ezPop(p, ModBlocks.DISPLAY_CASE);
@@ -131,7 +131,7 @@ public class ModCreativeGroups {
         UPGRADE_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "upgrades"), List.of(), List.of(TRADER_GROUP), builder ->
             builder.title(Component.translatable("itemGroup.lightmanscurrency.upgrades"))
                 .icon(() -> new ItemStack(ModItems.ITEM_CAPACITY_UPGRADE_1.get()))
-                .displayItems((enabledFlags, p, hasPermissions) -> {
+                .displayItems((parameters, p) -> {
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_1);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_2);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_3);

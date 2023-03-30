@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client;
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import net.minecraft.client.gui.GuiComponent;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -162,16 +163,16 @@ public class ClientEvents {
 			RenderSystem.setShaderTexture(0, WALLET_SLOT_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			//Render slot background
-			screen.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x, screen.getGuiTop() + slotPosition.y, 0, 0, 18, 18);
+			GuiComponent.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x, screen.getGuiTop() + slotPosition.y, 0, 0, 18, 18);
 			//Render slot item
 			ItemStack wallet = walletHandler.getWallet();
 			if(wallet.isEmpty())
 				ItemRenderUtil.drawSlotBackground(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, WalletSlot.BACKGROUND);
 			else
-				ItemRenderUtil.drawItemStack(screen, null, wallet, screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1);
+				ItemRenderUtil.drawItemStack(event.getPoseStack(), null, wallet, screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1);
 			//Render slot highlight
 			if(isMouseOverWalletSlot(screen, event.getMouseX(), event.getMouseY(), slotPosition))
-				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, screen.getBlitOffset());
+				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, 0);
 		}
 	}
 	

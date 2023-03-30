@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -100,17 +101,17 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 						//Render the slot background
 						RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 						RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-						this.screen.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
+						GuiComponent.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
 						//Render the slots item
 						if(index < storedItems.size())
-							ItemRenderUtil.drawItemStack(this.screen, this.font, storedItems.get(index), xPos + 1, yPos + 1);
+							ItemRenderUtil.drawItemStack(pose, this.font, storedItems.get(index), xPos + 1, yPos + 1);
 						if(index == hoverSlot)
-							AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
+							AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, 0);
 						index++;
 					}
 				}
 				
-				if(storedItems.size() <= 0)
+				if(storedItems.size() == 0)
 					TextRenderUtil.drawCenteredMultilineText(pose, Component.translatable("tooltip.lightmanscurrency.auction.storage.items.none"), this.screen.getGuiLeft() + 10, this.screen.getXSize() - 20, this.screen.getGuiTop() + X_OFFSET + (18 * ROWS / 2), 0x404040);
 				
 				this.buttonCollectItems.active = storedItems.size() > 0;

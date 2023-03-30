@@ -34,7 +34,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 	private int scroll = 0;
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		if(!this.visible)
@@ -60,7 +60,7 @@ public class ScrollTextDisplay extends AbstractWidget{
 				int thisHeight = this.font.wordWrapHeight(thisText.getString(), columnWidth);
 				if(yPos + thisHeight < bottom)
 				{
-					this.font.drawWordWrap(thisText, xPos, yPos, columnWidth, this.textColor);
+					this.font.drawWordWrap(pose, thisText, xPos, yPos, columnWidth, this.textColor);
 				}
 				if(thisHeight > rowHeight)
 					rowHeight = thisHeight;

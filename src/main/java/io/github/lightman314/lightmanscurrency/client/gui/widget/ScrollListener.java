@@ -36,6 +36,12 @@ public class ScrollListener implements GuiEventListener, NarratableEntry {
 	}
 
 	@Override
+	public void setFocused(boolean p_265728_) {}
+
+	@Override
+	public boolean isFocused() { return false; }
+
+	@Override
 	public void updateNarration(@NotNull NarrationElementOutput narrator) {}
 
 	@Override

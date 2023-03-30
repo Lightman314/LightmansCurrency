@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.3-2.1.1.0'
+version = '1.19.4-2.1.1.0'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -18,7 +18,7 @@ minecraft {
     // snapshot_YYYYMMDD   Snapshot are built nightly.
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
-    mappings channel: 'official', version: '1.19.3'
+    mappings channel: 'official', version: '1.19.4'
     runs {
         client {
             workingDirectory project.file('run')
@@ -69,7 +69,7 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.29'
    	
    	//JEI when actually working on plugin
     //compileOnly fg.deobf("mezz.jei:jei-1.19.3-common-api:12.1.1.8")

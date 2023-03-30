@@ -107,8 +107,20 @@ public class IconButton extends Button{
 		super.render(pose, mouseX, mouseY, partialTicks);
 	}
 
+	//Copy/pasted from AbstractButton.getTextureY()
+	private int getTextureY() {
+		int i = 1;
+		if (!this.active) {
+			i = 0;
+		} else if (this.isHoveredOrFocused()) {
+			i = 2;
+		}
+
+		return 46 + (i * 20);
+	}
+
 	@Override
-	public void renderButton(@NotNull PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -118,14 +130,15 @@ public class IconButton extends Button{
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        int offset = this.getYImage(this.isHovered);
-        this.blit(matrixStack, this.getX(), this.getY(), 0, 46 + offset * 20, this.width / 2, this.height);
-        this.blit(matrixStack, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + offset * 20, this.width / 2, this.height);
+        blit(matrixStack, this.getX(), this.getY(), 0, this.getTextureY(), this.width / 2, this.height);
+        blit(matrixStack, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, this.getTextureY(), this.width / 2, this.height);
         if(!this.active)
             RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         
         this.iconSource.apply(this).render(matrixStack, this, Minecraft.getInstance().font, this.getX() + 2, this.getY() + 2);
-		
+
+		RenderSystem.setShaderColor(1f,1f,1f,1f);
+
 	}
 
 }

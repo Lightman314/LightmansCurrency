@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.C
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
@@ -107,12 +108,12 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					//Render the slot background
 					RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-					this.screen.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
+					GuiComponent.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 					//Render the slots item
 					if(index < storage.getSlotCount())
-						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
+						ItemRenderUtil.drawItemStack(pose, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					if(index == hoveredSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
+						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, 0);
 					index++;
 				}
 			}
@@ -122,7 +123,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
-				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
+				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 			}
 			
 			//Render the input/output labels
@@ -141,7 +142,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		{
 			String countText = String.valueOf(count / 1000);
 			if((count % 1000) / 100 > 0)
-				countText += "." + String.valueOf((count % 1000) / 100);
+				countText += "." + ((count % 1000) / 100);
 			return countText + "k";
 		}
 		return String.valueOf(count);

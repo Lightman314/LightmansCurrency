@@ -53,7 +53,7 @@ public class TeamSelectWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
@@ -122,7 +122,9 @@ public class TeamSelectWidget extends AbstractWidget {
 
 	private void onTeamSelect(Button button)
 	{
-		int index = this.teamButtons.indexOf(button);
+		int index = -1;
+		if(button instanceof TeamButton)
+			index = this.teamButtons.indexOf(button);
 		if(index < 0)
 			return;
 		this.onPress.accept(this.scroll + index);

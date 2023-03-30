@@ -43,7 +43,7 @@ public class AlertData {
 		float blue = (float)(this.color & 255) / 255.0f;
 		RenderSystem.setShaderColor(red * mult, green * mult, blue * mult, 1f);
 	}
-	
+
 	public MutableComponent getFormattedMessage() {
 		return this.message.withStyle(this.formatting);
 	}

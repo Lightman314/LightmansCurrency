@@ -21,15 +21,25 @@ public class MarkAsSeenButton extends Button {
 	}
 	
 	private static int getWidth(Component text) { return TextRenderUtil.getFont().width(text) + 4; }
-	
+
+	private int getTextureY() {
+		int i = 1;
+		if (!this.active) {
+			i = 0;
+		} else if (this.isHoveredOrFocused()) {
+			i = 2;
+		}
+
+		return 46 + i * 20;
+	}
+
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		Minecraft minecraft = Minecraft.getInstance();
 		Font font = minecraft.font;
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-		int i = this.getYImage(this.isHoveredOrFocused());
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.enableDepthTest();
@@ -37,11 +47,10 @@ public class MarkAsSeenButton extends Button {
 		int bottomSize = topSize;
 		if(this.height % 2 != 0)
 			bottomSize++;
-		this.blit(pose, this.getX(), this.getY(), 0, 46 + i * 20, this.width / 2, topSize);
-		this.blit(pose, this.getX(), this.getY() + topSize, 0, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
-		this.blit(pose, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height / 2);
-		this.blit(pose, this.getX() + this.width / 2, this.getY() + topSize, 200 - this.width / 2, 66 - bottomSize + i * 20, this.width / 2, bottomSize);
-		this.renderBg(pose, minecraft, mouseX, mouseY);
+		blit(pose, this.getX(), this.getY(), 0, this.getTextureY(), this.width / 2, topSize);
+		blit(pose, this.getX(), this.getY() + topSize, 0, 20 - bottomSize + this.getTextureY(), this.width / 2, bottomSize);
+		blit(pose, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, this.getTextureY(), this.width / 2, this.height / 2);
+		blit(pose, this.getX() + this.width / 2, this.getY() + topSize, 200 - this.width / 2, 20 - bottomSize + this.getTextureY(), this.width / 2, bottomSize);
 		int j = getFGColor();
 		drawCenteredString(pose, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
 	}

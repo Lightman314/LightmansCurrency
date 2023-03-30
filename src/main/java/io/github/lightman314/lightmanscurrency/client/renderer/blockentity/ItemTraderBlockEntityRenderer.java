@@ -11,11 +11,11 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -96,7 +96,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(0.25, 0.25, 0d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
 						
 						pose.popPose();
 						
@@ -107,12 +107,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 						pose.translate(-0.25, -0.25, 0.001d);
 						pose.scale(0.5f, 0.5f, 0.5f);
 						
-						itemRenderer.renderStatic(renderItems.get(1),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(1), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
 						
 						pose.popPose();
 					}
 					else
-						itemRenderer.renderStatic(renderItems.get(0),  ItemTransforms.TransformType.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, id);
+						itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
 				
 					pose.popPose();
 				}

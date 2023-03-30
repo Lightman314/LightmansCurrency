@@ -74,7 +74,7 @@ public class DropdownWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Draw the background
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -82,15 +82,15 @@ public class DropdownWidget extends AbstractWidget {
         int offset = this.isHovered ? this.height : 0;
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
+        blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 14)
         {
         	int xPart = Math.min(this.width - 14 - xOffset, 244);
-        	this.blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
+        	blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
         	xOffset += xPart;
         }
-        this.blit(pose, this.getX() + this.width - 12, this.getY(), 244, offset, 12, DropdownWidget.HEIGHT);
+        blit(pose, this.getX() + this.width - 12, this.getY(), 244, offset, 12, DropdownWidget.HEIGHT);
 		
         //Draw the option text
         this.font.draw(pose, this.fitString(this.options.get(this.currentlySelected).getString()), this.getX() + 2, this.getY() + 2, 0x404040);
@@ -101,7 +101,8 @@ public class DropdownWidget extends AbstractWidget {
 			for(int i = 0; i < this.optionButtons.size(); ++i)
 				this.optionButtons.get(i).active = this.optionActive.apply(i) && i != this.currentlySelected;
 		}
-		
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 	}
 	

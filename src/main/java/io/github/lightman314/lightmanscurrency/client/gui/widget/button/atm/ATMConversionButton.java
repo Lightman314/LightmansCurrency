@@ -25,7 +25,7 @@ public class ATMConversionButton extends Button {
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Render background to width
 		int yOffset = this.isHovered ? HEIGHT : 0;
@@ -35,17 +35,17 @@ public class ATMConversionButton extends Button {
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		//Draw the left edge
-		this.blit(pose, this.getX(), this.getY(), 0, yOffset, 2, HEIGHT);
+		blit(pose, this.getX(), this.getY(), 0, yOffset, 2, HEIGHT);
 		//Draw the middle portions
 		int xPos = 2;
 		while(xPos < this.width - 2)
 		{
 			int xSize = Math.min(this.width - 2 - xPos, 252);
-			this.blit(pose, this.getX() + xPos, this.getY(), 2, yOffset, xSize, HEIGHT);
+			blit(pose, this.getX() + xPos, this.getY(), 2, yOffset, xSize, HEIGHT);
 			xPos += xSize;
 		}
 		//Draw the right edge
-		this.blit(pose, this.getX() + this.width - 2, this.getY(), 254, yOffset, 2, HEIGHT);
+		blit(pose, this.getX() + this.width - 2, this.getY(), 254, yOffset, 2, HEIGHT);
 		
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())
@@ -53,6 +53,8 @@ public class ATMConversionButton extends Button {
 			try { icon.render(this, pose, this.isHovered);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
 		}
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 	}
 	

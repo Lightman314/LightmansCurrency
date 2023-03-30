@@ -75,7 +75,7 @@ public class TradeButton extends Button{
 	public void move(int x, int y) { this.setPosition(x, y); }
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
@@ -98,6 +98,8 @@ public class TradeButton extends Button{
 		this.renderAlert(pose, tr.alertPosition(context), tr.getAlertData(context));
 		
 		this.renderDisplays(pose, tr, context);
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 	}
 	
@@ -117,17 +119,18 @@ public class TradeButton extends Button{
 		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
 		
 		//Render the left
-		this.blit(pose, this.getX(), this.getY(), 0, vOffset, 4, BUTTON_HEIGHT);
+		blit(pose, this.getX(), this.getY(), 0, vOffset, 4, BUTTON_HEIGHT);
 		//Render the middle
 		int xOff = 4;
 		while(xOff < this.width - 4)
 		{
 			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-			this.blit(pose, this.getX() + xOff, this.getY(), 4, vOffset, xRend, BUTTON_HEIGHT);
+			blit(pose, this.getX() + xOff, this.getY(), 4, vOffset, xRend, BUTTON_HEIGHT);
 			xOff += xRend;
 		}
 		//Render the right
-		this.blit(pose, this.getX() + this.width - 4, this.getY(), TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
+		blit(pose, this.getX() + this.width - 4, this.getY(), TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
+
 	}
 	
 	private void renderArrow(PoseStack pose, ScreenPosition position, boolean isHovered)
@@ -141,7 +144,7 @@ public class TradeButton extends Button{
 		
 		int vOffset = isHovered ? ARROW_HEIGHT : 0;
 		
-		this.blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
+		blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}
 	
@@ -154,7 +157,7 @@ public class TradeButton extends Button{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		alerts.get(0).setShaderColor(this.active ? 1f : 0.5f);
 		
-		this.blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
+		blit(pose, this.getX() + position.x, this.getY() + position.y, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
 		
 	}
 	
@@ -385,7 +388,7 @@ public class TradeButton extends Button{
 				//Center the x & y positions
 				int left = getTopLeft(x + area.xOffset, area.width);
 				int top = getTopLeft(y + area.yOffset, area.height);
-				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
+				ItemRenderUtil.drawItemStack(pose, font, this.item, left, top);
 			}
 
 			@Override
@@ -439,7 +442,7 @@ public class TradeButton extends Button{
 				int left = getTopLeft(x + area.xOffset, area.width);
 				int top = getTopLeft(y + area.yOffset, area.height);
 				ItemRenderUtil.drawSlotBackground(pose, left + this.backgroundOffset.x, top + this.backgroundOffset.y, this.background);
-				ItemRenderUtil.drawItemStack(gui, font, this.item, left, top);
+				ItemRenderUtil.drawItemStack(pose, font, this.item, left, top);
 			}
 
 			@Override
@@ -486,6 +489,7 @@ public class TradeButton extends Button{
 				int left = this.getTextLeft(x + area.xOffset, area.width);
 				//Define the y position
 				int top = this.getTextTop(y + area.yOffset, area.height);
+				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 				//Draw the text
 				font.drawShadow(pose, this.text, left, top, this.format.color());
 			}
@@ -542,7 +546,7 @@ public class TradeButton extends Button{
 							int top = this.getTopLeft(y + pos.yOffset, pos.height);
 							ItemStack stack = new ItemStack(entries.get(i).coin);
 							stack.setCount(entries.get(i).amount);
-							ItemRenderUtil.drawItemStack(gui, this.getFont(), stack, left, top);
+							ItemRenderUtil.drawItemStack(pose, this.getFont(), stack, left, top);
 						}
 					}
 					else if(entries.size() > 0)
@@ -555,7 +559,7 @@ public class TradeButton extends Button{
 						{
 							ItemStack stack = new ItemStack(entries.get(i).coin);
 							stack.setCount(entries.get(i).amount);
-							ItemRenderUtil.drawItemStack(gui, this.getFont(), stack, left, top);
+							ItemRenderUtil.drawItemStack(pose, this.getFont(), stack, left, top);
 							left -= spacing;
 						}
 					}

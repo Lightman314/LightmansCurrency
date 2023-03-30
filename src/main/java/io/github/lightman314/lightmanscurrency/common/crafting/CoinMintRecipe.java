@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -13,7 +14,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class CoinMintRecipe implements Recipe<Container>{
 
@@ -76,7 +78,7 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	@Override
-	public boolean matches(@NotNull Container inventory, @NotNull Level level) {
+	public boolean matches(@Nonnull Container inventory, @Nonnull Level level) {
 		if(!this.isValid())
 			return false;
 		ItemStack firstStack = inventory.getItem(0);
@@ -84,22 +86,24 @@ public class CoinMintRecipe implements Recipe<Container>{
 	}
 	
 	@Override
-	public @NotNull ItemStack assemble(@NotNull Container inventory) {
-		return this.getResultItem();
+	public @Nonnull ItemStack assemble(@Nonnull Container inventory, @Nonnull RegistryAccess registryAccess) {
+		return this.getResultItem(registryAccess);
 	}
 	
 	@Override
 	public boolean canCraftInDimensions(int width, int height) { return true; }
 
-	@Override
-	public @NotNull ItemStack getResultItem() { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
+	public ItemStack getOutputItem() { return this.result.copy(); }
 
 	@Override
-	public @NotNull ResourceLocation getId() { return this.id; }
+	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) { if(this.isValid()) return this.result.copy(); return ItemStack.EMPTY; }
 
 	@Override
-	public @NotNull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
+	public @Nonnull ResourceLocation getId() { return this.id; }
+
 	@Override
-	public @NotNull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
+	public @Nonnull RecipeSerializer<?> getSerializer() { return ModRecipes.COIN_MINT.get(); }
+	@Override
+	public @Nonnull RecipeType<?> getType() { return RecipeTypes.COIN_MINT.get(); }
 	
 }

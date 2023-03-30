@@ -44,7 +44,7 @@ public class UniversalTraderButton extends Button{
 	public void SetData(TraderData data) { this.data = data; }
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set active status
 		this.active = this.data != null && !this.selected;
@@ -63,7 +63,7 @@ public class UniversalTraderButton extends Button{
 		if(this.isHovered || this.selected)
 			offset = HEIGHT;
 		//Draw Button BG
-		this.blit(pose, this.getX(), this.getY(), 0, offset, WIDTH, HEIGHT);
+		blit(pose, this.getX(), this.getY(), 0, offset, WIDTH, HEIGHT);
 		
 		//Draw the icon
 		this.data.getIcon().render(pose, this, this.font, this.getX() + 4, this.getY() + 7);
@@ -72,7 +72,9 @@ public class UniversalTraderButton extends Button{
 		Style style = this.data.isCreative() ? Style.EMPTY.applyFormat(ChatFormatting.GREEN) : Style.EMPTY;
 		this.font.draw(pose, TextRenderUtil.fitString(this.data.getName(), this.width - 26, style), this.getX() + 24f, this.getY() + 6f, 0x404040);
 		this.font.draw(pose, TextRenderUtil.fitString(this.data.getOwner().getOwnerName(true), this.width - 26), this.getX() + 24f, this.getY() + 16f, 0x404040);
-		
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
 	}
 
 }

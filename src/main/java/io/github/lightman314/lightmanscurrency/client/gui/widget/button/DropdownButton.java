@@ -26,7 +26,7 @@ public class DropdownButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		//Draw the background
 		RenderSystem.setShaderTexture(0, DropdownWidget.GUI_TEXTURE);
@@ -34,18 +34,20 @@ public class DropdownButton extends Button{
         int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
-        this.blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
+        blit(pose, this.getX(), this.getY(), 0, offset, 2, DropdownWidget.HEIGHT);
         int xOffset = 0;
         while(xOffset < this.width - 4)
         {
         	int xPart = Math.min(this.width - 4 - xOffset, 252);
-        	this.blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
+        	blit(pose, this.getX() + 2 + xOffset, this.getY(), 2, offset, xPart, DropdownWidget.HEIGHT);
         	xOffset += xPart;
         }
-        this.blit(pose, this.getX() + this.width - 2, this.getY(), 254, offset, 2, DropdownWidget.HEIGHT);
+        blit(pose, this.getX() + this.width - 2, this.getY(), 254, offset, 2, DropdownWidget.HEIGHT);
         //Draw the option text
         this.font.draw(pose, TextRenderUtil.fitString(this.optionText, this.width - 4), this.getX() + 2, this.getY() + 2, 0x404040);
-        
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
 	}
 
 }

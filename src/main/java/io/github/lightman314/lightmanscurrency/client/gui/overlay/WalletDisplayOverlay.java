@@ -42,7 +42,7 @@ public class WalletDisplayOverlay implements IGuiOverlay {
         if(!wallet.isEmpty())
         {
             //Draw the wallet
-            ItemRenderUtil.drawItemStack(gui, gui.getFont(), wallet, currentPosition.x, currentPosition.y);
+            ItemRenderUtil.drawItemStack(pose, gui.getFont(), wallet, currentPosition.x, currentPosition.y);
             if(corner.isRightSide)
                 currentPosition = currentPosition.offset(ScreenPosition.of(-17,0));
             else
@@ -58,7 +58,7 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                     List<ItemStack> contents = walletValue.getAsItemList();
                     for(ItemStack coin : contents)
                     {
-                        ItemRenderUtil.drawItemStack(gui, gui.getFont(), coin, currentPosition.x, currentPosition.y);
+                        ItemRenderUtil.drawItemStack(pose, gui.getFont(), coin, currentPosition.x, currentPosition.y);
                         if(corner.isRightSide)
                             currentPosition = currentPosition.offset(ScreenPosition.of(-offsetAmount,0));
                         else

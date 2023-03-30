@@ -31,7 +31,7 @@ public abstract class IconData {
 		@OnlyIn(Dist.CLIENT)
 		public void render(PoseStack pose, GuiComponent widget, Font font, int x, int y)
 		{
-			ItemRenderUtil.drawItemStack(widget, font, this.iconStack, x, y);
+			ItemRenderUtil.drawItemStack(pose, font, this.iconStack, x, y);
 		}
 		
 	}
@@ -52,7 +52,7 @@ public abstract class IconData {
 		public void render(PoseStack pose, GuiComponent widget, Font font, int x, int y)
 		{
 			RenderSystem.setShaderTexture(0, this.iconImage);
-			widget.blit(pose, x, y, iconImageU, iconImageV, 16, 16);
+			GuiComponent.blit(pose, x, y, iconImageU, iconImageV, 16, 16);
 		}
 		
 	}

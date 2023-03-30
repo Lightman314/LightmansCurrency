@@ -139,13 +139,13 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 		//Main BG
-		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Coin Slots
 		for(CoinSlot slot : this.menu.getCoinSlots())
 		{
 			if(slot.isActive())
-				this.blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
+				blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
 		}
 		
 		//Current tab

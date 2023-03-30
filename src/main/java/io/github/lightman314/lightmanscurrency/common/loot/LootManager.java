@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -27,7 +28,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -285,7 +286,7 @@ public class LootManager {
 	}
 
 	@SubscribeEvent
-	public static void onEntitySpawned(LivingSpawnEvent.SpecialSpawn event)
+	public static void onEntitySpawned(MobSpawnEvent.FinalizeSpawn event)
 	{
 		LivingEntity entity = event.getEntity();
 		if(entity instanceof Player)
@@ -295,14 +296,14 @@ public class LootManager {
 		if(tracker == null)
 			LightmansCurrency.LogDebug("Entity of type '" + ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString() + "' does not have a ISpawnTracker attached. Unable to flag it's SpawnReason.");
 		else
-			tracker.setSpawnReason(event.getSpawnReason());
+			tracker.setSpawnReason(event.getSpawnType());
 	}
 
 	@SubscribeEvent
 	public static void attachSpawnTrackerCapability(AttachCapabilitiesEvent<Entity> event)
 	{
 		//Attach the spawn trader capability to all LivingEntities that aren't players
-		if(event.getObject() instanceof LivingEntity && !(event.getObject() instanceof Player))
+		if(event.getObject() instanceof Mob)
 		{
 			event.addCapability(CurrencyCapabilities.ID_SPAWN_TRACKER, SpawnTrackerCapability.createProvider((LivingEntity)event.getObject()));
 		}

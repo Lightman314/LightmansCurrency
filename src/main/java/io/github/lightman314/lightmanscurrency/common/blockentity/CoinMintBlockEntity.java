@@ -101,7 +101,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		CoinMintRecipe recipe = this.getRelevantRecipe();
 		if(recipe == null)
 			return 0;
-		ItemStack mintOutput = recipe.getResultItem();
+		ItemStack mintOutput = recipe.getResultItem(this.level.registryAccess());
 		ItemStack currentOutputSlot = this.getStorage().getItem(1);
 		if(currentOutputSlot.isEmpty())
 			return mintOutput.getMaxStackSize();
@@ -131,7 +131,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		CoinMintRecipe recipe = this.getRelevantRecipe();
 		if(recipe == null)
 			return ItemStack.EMPTY;
-		ItemStack output = recipe.getResultItem();
+		ItemStack output = recipe.getResultItem(this.level.registryAccess());
 		int countPerMint = output.getCount();
 		int outputSpace = validOutputSpace();
 		//Shrink by 1, as the first input item is consumed in the starting output item count
@@ -149,7 +149,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		CoinMintRecipe recipe = this.getRelevantRecipe();
 		if(recipe == null)
 			return;
-		ItemStack mintOutput = recipe.getResultItem();
+		ItemStack mintOutput = recipe.getResultItem(this.level.registryAccess());
 		//Ignore if no valid input is present
 		if(mintOutput.isEmpty())
 			return;

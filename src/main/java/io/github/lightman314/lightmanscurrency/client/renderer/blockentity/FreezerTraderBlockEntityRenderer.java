@@ -8,13 +8,13 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.Freeze
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -56,7 +56,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			Minecraft mc = Minecraft.getInstance();
 			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 			ItemRenderer itemRenderer = mc.getItemRenderer();
-			itemRenderer.render(new ItemStack(freezerBlock), TransformType.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
+			itemRenderer.render(new ItemStack(freezerBlock), ItemDisplayContext.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);
 
 			poseStack.popPose();
 		}

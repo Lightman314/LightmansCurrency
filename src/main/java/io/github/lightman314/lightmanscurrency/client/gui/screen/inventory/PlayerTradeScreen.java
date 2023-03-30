@@ -51,15 +51,17 @@ public class PlayerTradeScreen extends AbstractContainerScreen<PlayerTradeMenu> 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         //Render BG
-        this.blit(pose, this.leftPos, this.topPos + CoinValueInput.HEIGHT, 0, 0, this.imageWidth, this.imageHeight - CoinValueInput.HEIGHT);
+        blit(pose, this.leftPos, this.topPos + CoinValueInput.HEIGHT, 0, 0, this.imageWidth, this.imageHeight - CoinValueInput.HEIGHT);
 
         //Render my arrow
         this.setShaderColorForState(this.menu.myState());
-        this.blit(pose, this.leftPos + 77, this.topPos + CoinValueInput.HEIGHT + 50, this.imageWidth, 0, 22, 15);
+        blit(pose, this.leftPos + 77, this.topPos + CoinValueInput.HEIGHT + 50, this.imageWidth, 0, 22, 15);
 
         //Render their arrow
         this.setShaderColorForState(this.menu.otherState());
-        this.blit(pose, this.leftPos + 77, this.topPos + CoinValueInput.HEIGHT + 65, this.imageWidth, 15, 22, 15);
+        blit(pose, this.leftPos + 77, this.topPos + CoinValueInput.HEIGHT + 65, this.imageWidth, 15, 22, 15);
+
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
     }
 

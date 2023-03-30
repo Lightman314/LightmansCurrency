@@ -44,7 +44,7 @@ public class TabButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set the texture & color for the button
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -56,10 +56,12 @@ public class TabButton extends Button{
         int xOffset = this.rotation < 2 ? 0 : this.width;
         int yOffset = (this.rotation % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
         //Render the background
-        this.blit(pose, this.getX(), this.getY(), 200 + xOffset, yOffset, this.width, this.height);
+        blit(pose, this.getX(), this.getY(), 200 + xOffset, yOffset, this.width, this.height);
         
         RenderSystem.setShaderColor(activeColor, activeColor, activeColor, 1f);
         this.tab.getIcon().render(pose, this, this.font, this.getX() + 4, this.getY() + 4);
+
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 	}
 	

@@ -44,7 +44,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(!this.visible())
 			return;
@@ -52,17 +52,17 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		//Render the top
-		this.blit(pose, this.getX(), this.getY(), 0, 0, WIDTH, 8);
+		blit(pose, this.getX(), this.getY(), 0, 0, WIDTH, 8);
 		//Render the middle
 		int yOffset = 8;
 		while(yOffset < this.height - 8)
 		{
 			int yPart = Math.min(this.height - 8 - yOffset, 240);
-			this.blit(pose, this.getX(), this.getY() + yOffset, 0, 8, WIDTH, yPart);
+			blit(pose, this.getX(), this.getY() + yOffset, 0, 8, WIDTH, yPart);
 			yOffset += yPart;
 		}
 		//Render the bottom
-		this.blit(pose, this.getX(), this.getY() + this.height - 8, 0, 248, WIDTH, 8);
+		blit(pose, this.getX(), this.getY() + this.height - 8, 0, 248, WIDTH, 8);
 		
 		int knobPosition;
 		if(this.isDragging)
@@ -71,7 +71,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 			knobPosition = this.getNaturalKnobPosition();
 		
 		//Render the knob
-		this.blit(pose, this.getX(), this.getY() + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
+		blit(pose, this.getX(), this.getY() + knobPosition, this.smallKnob ? WIDTH * 2 : WIDTH, 0, WIDTH, this.getKnobHeight());
 		
 	}
 	

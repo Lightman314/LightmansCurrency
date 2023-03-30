@@ -26,6 +26,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.*;
@@ -127,12 +128,12 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 
 	}
 
-	public static void initItemList(FeatureFlagSet flagSet, boolean hasPermissions) {
+	public static void initItemList(FeatureFlagSet flagSet, boolean hasPermissions, HolderLookup.Provider lookup) {
 
 		LightmansCurrency.LogInfo("Pre-filtering item list for Item Edit items.");
 
 		//Force Creative Tab content rebuild
-		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions);
+		CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup);
 
 		List<ItemStack> allItems = new ArrayList<>();
 
@@ -337,7 +338,8 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+
 		this.searchInput.visible = this.visible;
 		this.stackScrollListener.active = this.visible;
 
@@ -358,9 +360,9 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 				//Render the slot background
 				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
+				blit(pose, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
-				ItemRenderUtil.drawItemStack(this, this.font, this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
+				ItemRenderUtil.drawItemStack(pose, this.font, this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
 				index++;
 			}
 		}
@@ -368,10 +370,10 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		//Render the search field
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
+		blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
 
 		//Render the quantity scroll area
-		this.blit(pose, this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 108, 0, 18, 18);
+		blit(pose, this.getX() + this.stackSizeOffX, this.getY() + this.stackSizeOffY, 108, 0, 18, 18);
 
 	}
 

@@ -161,7 +161,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		if(this.validTrades() <= 0)
 		{
 			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.notrades"));

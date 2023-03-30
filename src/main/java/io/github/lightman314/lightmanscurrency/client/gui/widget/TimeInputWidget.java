@@ -191,7 +191,7 @@ public class TimeInputWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		for(Button b : this.buttons)
 		{
 			b.active = this.active;

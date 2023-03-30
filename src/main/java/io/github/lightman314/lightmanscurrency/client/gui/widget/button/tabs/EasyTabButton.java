@@ -50,7 +50,7 @@ public class EasyTabButton extends Button implements ITooltipWidget {
     }
 
     @Override
-    public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTick) {
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -61,10 +61,12 @@ public class EasyTabButton extends Button implements ITooltipWidget {
         RenderSystem.setShaderColor(r * activeColor, g * activeColor, b * activeColor, 1f);
 
         //Render the background
-        this.blit(pose, this.getX(), this.getY(), this.rotation.x, 0, this.width, this.height);
+        blit(pose, this.getX(), this.getY(), this.rotation.x, 0, this.width, this.height);
 
         //Render the icon
         this.tab.getTabIcon().render(pose, this, Minecraft.getInstance().font, this.getX() + 2, this.getY() + 2);
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
     }
 

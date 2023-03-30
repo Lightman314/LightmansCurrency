@@ -198,7 +198,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		//Match the buttons visibility to our visibility.
 		this.toggleFree.visible = this.allowFreeToggle && this.visible;
@@ -215,7 +215,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		if(this.drawBG)
 		{
 			//Render the background
-			this.blit(poseStack, this.getX(), this.getY(), 0, 0, DISPLAY_WIDTH, HEIGHT);
+			blit(pose, this.getX(), this.getY(), 0, 0, DISPLAY_WIDTH, HEIGHT);
 		}
 		
 		if(this.inputType == ValueType.DEFAULT)
@@ -230,11 +230,11 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			for(int x = 0; x < buttonCount; x++)
 			{
 				//Draw sprite
-				ItemRenderUtil.drawItemStack(this, this.font, new ItemStack(this.coinData.get(x + this.scroll).coinItem), startX + (x * SEGMENT_TOTAL) + 2, this.getY() + 26);
+				ItemRenderUtil.drawItemStack(pose, this.font, new ItemStack(this.coinData.get(x + this.scroll).coinItem), startX + (x * SEGMENT_TOTAL) + 2, this.getY() + 26);
 				//Draw string
 				String countString = String.valueOf(this.coinValue.getEntry(this.coinData.get(x + this.scroll).coinItem));
 				int width = this.font.width(countString);
-				this.font.draw(poseStack, countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), this.getY() + 43, 0x404040);
+				this.font.draw(pose, countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), this.getY() + 43, 0x404040);
 				
 			}
 		}
@@ -243,20 +243,20 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		{
 			
 			//Draw the prefix and postfix
-			this.font.draw(poseStack, this.prefix, this.getX() + 10, this.getY() + 26, 0xFFFFFF);
+			this.font.draw(pose, this.prefix, this.getX() + 10, this.getY() + 26, 0xFFFFFF);
 			int postfixWidth = this.font.width(this.postfix);
-			this.font.draw(poseStack, this.postfix, this.getX() + DISPLAY_WIDTH - 10 - postfixWidth, this.getY() + 26, 0xFFFFFF);
+			this.font.draw(pose, this.postfix, this.getX() + DISPLAY_WIDTH - 10 - postfixWidth, this.getY() + 26, 0xFFFFFF);
 			
 		}
 		
 		//Render the current price in the top-right corner
 		int priceWidth = this.font.width(this.coinValue.getString());
 		int freeButtonOffset = this.allowFreeToggle ? 15 : 5;
-		this.font.draw(poseStack, this.coinValue.getString(), this.getX() + this.width - freeButtonOffset - priceWidth, this.getY() + 5F, 0x404040);
+		this.font.draw(pose, this.coinValue.getString(), this.getX() + this.width - freeButtonOffset - priceWidth, this.getY() + 5F, 0x404040);
 		
 		//Render the title
 		int titleWidth = this.width - 7 - freeButtonOffset - priceWidth;
-		this.font.draw(poseStack, TextRenderUtil.fitString(this.title, titleWidth), this.getX() + 8F, this.getY() + 5F, 0x404040);
+		this.font.draw(pose, TextRenderUtil.fitString(this.title, titleWidth), this.getX() + 8F, this.getY() + 5F, 0x404040);
 		
 	}
 	
@@ -439,7 +439,7 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 	}
 
 	@Override
-	protected void updateWidgetNarration(NarrationElementOutput narrator) { }
+	protected void updateWidgetNarration(@Nonnull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return false; }

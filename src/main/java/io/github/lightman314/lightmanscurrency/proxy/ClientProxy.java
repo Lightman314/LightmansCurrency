@@ -282,7 +282,7 @@ public class ClientProxy extends CommonProxy{
 		//Initialize the item edit widgets item list
 		try{
 			Minecraft mc = Minecraft.getInstance();
-			ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks());
+			ItemEditWidget.initItemList(event.getPlayer().connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks(), event.getPlayer().getLevel().registryAccess());
 		} catch(Throwable t) {
 			LightmansCurrency.LogError("Error encountered while setting up the Item Edit list.\nPlease report this error to the relevant mod author (if another mod is mentioned in the error), not to the Lightman's Currency Dev!", t);
 		}

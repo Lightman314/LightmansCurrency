@@ -7,6 +7,7 @@ import com.google.gson.JsonParseException;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -15,7 +16,8 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 //Copy/pasted from the ShapelessRecipe
 public class WalletUpgradeRecipe implements CraftingRecipe {
@@ -34,17 +36,17 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public @NotNull ResourceLocation getId() { return this.id; }
+	public @Nonnull ResourceLocation getId() { return this.id; }
 
 	@Override
-	public @NotNull RecipeSerializer<?> getSerializer() {
+	public @Nonnull RecipeSerializer<?> getSerializer() {
 		return ModRecipes.WALLET_UPGRADE.get();
 	}
 
 	/**
 	 * Recipes with equal group are combined into one button in the recipe book
 	 */
-	public @NotNull String getGroup() {
+	public @Nonnull String getGroup() {
 		return this.group;
 	}
 
@@ -53,12 +55,12 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
 	 */
 	@Override
-	public @NotNull ItemStack getResultItem() {
+	public @Nonnull ItemStack getResultItem(@Nonnull RegistryAccess registryAccess) {
 		return this.recipeOutput;
 	}
 
 	@Override
-	public @NotNull NonNullList<Ingredient> getIngredients() {
+	public @Nonnull NonNullList<Ingredient> getIngredients() {
 		return this.ingredients;
 	}
 
@@ -66,7 +68,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * Used to check if a recipe matches current crafting inventory
 	 */
 	@Override
-	public boolean matches(CraftingContainer container, @NotNull Level level) {
+	public boolean matches(CraftingContainer container, @Nonnull Level level) {
 	      StackedContents stackedcontents = new StackedContents();
 	      java.util.List<ItemStack> inputs = new java.util.ArrayList<>();
 	      int i = 0;
@@ -88,7 +90,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	 * Returns an Item that is the result of this recipe
 	 */
 	@Override
-	public @NotNull ItemStack assemble(@NotNull CraftingContainer inv) {
+	public @Nonnull ItemStack assemble(@Nonnull CraftingContainer inv, @Nonnull RegistryAccess registryAccess) {
 		ItemStack output = this.recipeOutput.copy();
 		ItemStack walletStack = this.getWalletStack(inv);
 		if(!walletStack.isEmpty())
@@ -115,13 +117,13 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public @NotNull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
+	public @Nonnull CraftingBookCategory category() { return CraftingBookCategory.MISC; }
 
 	public static class Serializer implements RecipeSerializer<WalletUpgradeRecipe> {
 	    
 		
 		@Override
-		public @NotNull WalletUpgradeRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
+		public @Nonnull WalletUpgradeRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
 			String s = GsonHelper.getAsString(json, "group", "");
 			NonNullList<Ingredient> nonnulllist = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 			if (nonnulllist.isEmpty()) {
@@ -148,7 +150,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 		}
 
 		@Override
-    	public WalletUpgradeRecipe fromNetwork(@NotNull ResourceLocation recipeId, FriendlyByteBuf buffer) {
+    	public WalletUpgradeRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
     		String s = buffer.readUtf(32767);
     		int i = buffer.readVarInt();
     		NonNullList<Ingredient> nonnulllist = NonNullList.withSize(i, Ingredient.EMPTY);

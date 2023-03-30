@@ -5,11 +5,11 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.BookRestriction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public abstract class BookRenderer {
         Minecraft mc = Minecraft.getInstance();
         BakedModel model = mc.getModelManager().getModel(modelResource);
         ItemRenderer itemRenderer = mc.getItemRenderer();
-        itemRenderer.render(this.book, ItemTransforms.TransformType.FIXED, false, pose, buffer, lightLevel, OverlayTexture.NO_OVERLAY, model);
+        itemRenderer.render(this.book, ItemDisplayContext.FIXED, false, pose, buffer, lightLevel, OverlayTexture.NO_OVERLAY, model);
     }
 
 }

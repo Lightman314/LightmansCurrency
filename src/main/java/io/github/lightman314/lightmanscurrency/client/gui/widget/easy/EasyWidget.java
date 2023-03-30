@@ -53,6 +53,12 @@ public abstract class EasyWidget extends GuiComponent implements Renderable, Gui
     private boolean hovered;
     public boolean isHovered() { return this.hovered && this.isActive(); }
 
+    private boolean focused = false;
+    @Override
+    public void setFocused(boolean focused) { this.focused = focused; }
+    @Override
+    public boolean isFocused() { return this.focused; }
+
     private Supplier<List<Component>> tooltipSource;
     public void setTooltipSource(Supplier<List<Component>> tooltipSource) { this.tooltipSource = tooltipSource == null ? () -> null : tooltipSource; }
 

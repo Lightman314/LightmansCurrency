@@ -47,7 +47,7 @@ public class CoinMintCategory implements IRecipeCategory<CoinMintRecipe>{
 		IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 1, 5);
 		inputSlot.addIngredients(VanillaTypes.ITEM_STACK, Lists.newArrayList(SetStackCount(recipe.getIngredient().getItems(), recipe.ingredientCount)));
 		IRecipeSlotBuilder outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 5);
-		outputSlot.addIngredient(VanillaTypes.ITEM_STACK, recipe.getResultItem());
+		outputSlot.addIngredient(VanillaTypes.ITEM_STACK, recipe.getOutputItem());
 	}
 
 	private static ItemStack[] SetStackCount(ItemStack[] results, int count)

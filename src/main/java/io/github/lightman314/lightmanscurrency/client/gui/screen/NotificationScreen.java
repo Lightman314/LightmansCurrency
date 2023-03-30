@@ -138,7 +138,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		int screenLeft = this.guiLeft() + TabButton.SIZE;
-		this.blit(pose, screenLeft, this.guiTop(), 0, 0, this.xSize, this.ySize);
+		blit(pose, screenLeft, this.guiTop(), 0, 0, this.xSize, this.ySize);
 		
 		this.notificationScroller.beforeWidgetRender(mouseY);
 		
@@ -157,7 +157,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 			int vPos = not.wasSeen() ? this.ySize : this.ySize + NOTIFICATION_HEIGHT;
 			int textColor = not.wasSeen() ? 0xFFFFFF : 0x000000;
 			
-			this.blit(pose, screenLeft + 15, yPos, 0, vPos, 170, NOTIFICATION_HEIGHT);
+			blit(pose, screenLeft + 15, yPos, 0, vPos, 170, NOTIFICATION_HEIGHT);
 			int textXPos = screenLeft + 17;
 			int textWidth = 166;
 			if(not.getCount() > 1)
@@ -165,7 +165,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 				//Render quantity text
 				String countText = String.valueOf(not.getCount());
 				int quantityWidth = this.font.width(countText);
-				this.blit(pose, screenLeft + 16 + quantityWidth, yPos, 170, vPos, 3, NOTIFICATION_HEIGHT);
+				blit(pose, screenLeft + 16 + quantityWidth, yPos, 170, vPos, 3, NOTIFICATION_HEIGHT);
 				
 				this.font.draw(pose, countText, textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (font.lineHeight / 2), textColor);
 				
@@ -211,7 +211,9 @@ public class NotificationScreen extends Screen implements IScrollable{
 	}
 	
 	private void SelectTab(Button button) {
-		int tabIndex = this.tabButtons.indexOf(button);
+		int tabIndex = -1;
+		if(button instanceof NotificationTabButton)
+			tabIndex = this.tabButtons.indexOf(button);
 		if(tabIndex >= 0)
 		{
 			List<NotificationCategory> categories = this.getCategories();

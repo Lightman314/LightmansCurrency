@@ -39,8 +39,8 @@ public class TextButton extends EasyButton {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        this.blit(pose, this.getPosX(), this.getPosY(), 0, 46 + i * 20, this.getWidth() / 2, this.getHeight());
-        this.blit(pose, this.getPosX() + this.getWidth() / 2, this.getPosY(), 200 - this.getWidth() / 2, 46 + i * 20, this.getWidth() / 2, this.getHeight());
+        blit(pose, this.getPosX(), this.getPosY(), 0, 46 + i * 20, this.getWidth() / 2, this.getHeight());
+        blit(pose, this.getPosX() + this.getWidth() / 2, this.getPosY(), 200 - this.getWidth() / 2, 46 + i * 20, this.getWidth() / 2, this.getHeight());
         drawCenteredString(pose, font, this.text.get(), this.getPosX() + this.getWidth() / 2, this.getPosY() + (this.getHeight() - 8) / 2, this.getFGColor() | Mth.ceil(255f) << 24);
     }
 

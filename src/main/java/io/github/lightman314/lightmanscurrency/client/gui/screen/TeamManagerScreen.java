@@ -136,7 +136,7 @@ public class TeamManagerScreen extends Screen{
 		//Render the background
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
+		blit(pose, this.guiLeft(), this.guiTop(), 0, 0, this.xSize, this.ySize);
 		//Render the tab buttons
 		super.render(pose, mouseX, mouseY, partialTicks);
 		
@@ -147,14 +147,13 @@ public class TeamManagerScreen extends Screen{
 			this.tabWidgets.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 			//Post-render the tab
 			this.currentTab().postRender(pose, mouseX, mouseY, partialTicks);
-		} catch(Exception e) { }
+		} catch(Throwable ignored) { }
 		
 		
 		//Render the tab button tooltips
-		for(int i = 0; i < this.tabButtons.size(); ++i)
-		{
-			if(this.tabButtons.get(i).isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, this.tabButtons.get(i).tab.getTooltip(), mouseX, mouseY);
+		for (TabButton tabButton : this.tabButtons) {
+			if (tabButton.isMouseOver(mouseX, mouseY))
+				this.renderTooltip(pose, tabButton.tab.getTooltip(), mouseX, mouseY);
 		}
 	}
 	

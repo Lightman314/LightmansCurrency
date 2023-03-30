@@ -40,7 +40,7 @@ public class PlainButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.buttonResource);
@@ -49,8 +49,8 @@ public class PlainButton extends Button{
         if(!this.active)
         	RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
         Pair<Integer,Integer> resource = this.resourceSource.get();
-        this.blit(pose, this.getX(), this.getY(), resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
-		
+        blit(pose, this.getX(), this.getY(), resource.getFirst(), resource.getSecond() + offset, this.width, this.height);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 	}
 
 }

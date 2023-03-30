@@ -46,7 +46,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 	}
 
 	@Override
-	public void renderButton(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.validateScroll();
 		
 		this.tooltip = null;
@@ -65,15 +65,15 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			int vPos = n.wasSeen() && this.colorIfUnseen ? 222 : 200;
-			this.blit(pose, this.getX(), yPos, 0, vPos, 2, HEIGHT_PER_ROW);
+			blit(pose, this.getX(), yPos, 0, vPos, 2, HEIGHT_PER_ROW);
 			int xPos = this.getX() + 2;
 			while(xPos < this.getX() + this.width - 2)
 			{
 				int thisWidth = Math.min(166, this.getX() + this.width - 2 - xPos);
-				this.blit(pose, xPos, yPos, 2, vPos, thisWidth, HEIGHT_PER_ROW);
+				blit(pose, xPos, yPos, 2, vPos, thisWidth, HEIGHT_PER_ROW);
 				xPos += thisWidth;
 			}
-			this.blit(pose, this.getX() + this.width - 2, yPos, 168, 200, 2, HEIGHT_PER_ROW);
+			blit(pose, this.getX() + this.width - 2, yPos, 168, 200, 2, HEIGHT_PER_ROW);
 			
 			//Draw the text
 			int textXPos = this.getX() + 2;
@@ -84,7 +84,7 @@ public class NotificationDisplayWidget extends AbstractWidget implements IScroll
 				//Render quantity text
 				String countText = String.valueOf(n.getCount());
 				int quantityWidth = this.font.width(countText);
-				this.blit(pose, this.getX() + 1 + quantityWidth, yPos, 170, vPos, 3, HEIGHT_PER_ROW);
+				blit(pose, this.getX() + 1 + quantityWidth, yPos, 170, vPos, 3, HEIGHT_PER_ROW);
 				
 				this.font.draw(pose, countText, textXPos, yPos + (HEIGHT_PER_ROW / 2) - (this.font.lineHeight / 2), textColor);
 				

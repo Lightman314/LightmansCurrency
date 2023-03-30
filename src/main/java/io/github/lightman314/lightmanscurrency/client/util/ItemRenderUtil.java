@@ -10,7 +10,6 @@ import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -19,7 +18,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -53,17 +51,16 @@ public class ItemRenderUtil {
 	/**
 	 * Draws an ItemStack.
 	 */
-	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) { drawItemStack(gui, font, stack, x, y, null); }
+	public static void drawItemStack(PoseStack pose, Font font, ItemStack stack, int x, int y) { drawItemStack(pose, font, stack, x, y, null); }
 	
 	/**
     * Draws an ItemStack.
     */
-	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, @Nullable String customCount) {
+	public static void drawItemStack(PoseStack pose, Font font, ItemStack stack, int x, int y, @Nullable String customCount) {
 		
 		Minecraft minecraft = Minecraft.getInstance();
 		
 		ItemRenderer itemRenderer = minecraft.getItemRenderer();
-		Player player = minecraft.player;
 		Screen screen = minecraft.screen;
 		int imageWidth = 0;
 		if(screen != null)
@@ -76,17 +73,10 @@ public class ItemRenderUtil {
 		if(font == null)
 			font = minecraft.font;
 		
-		gui.setBlitOffset(ITEM_BLIT_OFFSET);
-		itemRenderer.blitOffset = ITEM_BLIT_OFFSET;
-		
 		RenderSystem.enableDepthTest();
-
-		assert player != null;
-		itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
-        itemRenderer.renderGuiItemDecorations(font, stack, x, y, customCount);
-        
-        itemRenderer.blitOffset = 0.0F;
-        gui.setBlitOffset(0);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		itemRenderer.renderAndDecorateItem(pose, stack, x, y, x + y * imageWidth);
+        itemRenderer.renderGuiItemDecorations(pose, font, stack, x, y, customCount);
         
    	}
 	

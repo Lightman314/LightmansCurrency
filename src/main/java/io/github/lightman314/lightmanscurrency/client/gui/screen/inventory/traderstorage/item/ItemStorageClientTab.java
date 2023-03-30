@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemStorageTab;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -100,12 +101,12 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 					//Render the slot background
 					RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-					this.screen.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
+					GuiComponent.blit(pose, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
 					//Render the slots item
 					if(index < storage.getSlotCount())
-						ItemRenderUtil.drawItemStack(this.screen, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
+						ItemRenderUtil.drawItemStack(pose, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					if(index == hoverSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, this.screen.getBlitOffset());
+						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, 0);
 					index++;
 				}
 			}
@@ -115,7 +116,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
-				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			}
 		}
 		
