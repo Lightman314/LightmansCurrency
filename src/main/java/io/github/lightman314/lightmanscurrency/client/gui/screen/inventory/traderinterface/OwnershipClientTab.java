@@ -24,11 +24,14 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 
 	public OwnershipClientTab(TraderInterfaceScreen screen, OwnershipTab tab) { super(screen, tab); }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
 
 	@Override

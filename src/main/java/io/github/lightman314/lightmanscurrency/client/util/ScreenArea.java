@@ -22,5 +22,7 @@ public final class ScreenArea {
     public boolean isMouseInArea(int mouseX, int mouseY) { return mouseX >= this.pos.x && mouseX < this.pos.x + this.width && mouseY >= this.pos.y && mouseY < this.pos.y + this.height; }
 
     public ScreenArea atPosition(ScreenPosition newPos) { return of(newPos, this.width, this.height); }
+    public ScreenArea ofSize(int width, int height) { return of(this.pos, width, height); }
+
 
 }

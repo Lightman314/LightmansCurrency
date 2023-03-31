@@ -33,6 +33,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
 	public InfoClientTab(TraderInterfaceScreen screen, InfoTab tab) { super(screen, tab); }
@@ -47,7 +49,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	private final ScreenArea WARNING_AREA = ScreenArea.of(ScreenPosition.ZERO, 16, 16);
 	private ScreenArea currentWarningArea;
 
-	@Override
+	@Nonnull
+    @Override
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

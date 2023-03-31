@@ -15,9 +15,18 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class SpawnTrackerCapability {
-	
+
+	@Deprecated
 	public static LazyOptional<ISpawnTracker> getSpawnerTracker(@Nonnull final LivingEntity entity) {
 		return entity.getCapability(CurrencyCapabilities.SPAWN_TRACKER);
+	}
+
+	@Nullable
+	public static ISpawnTracker lazyGetSpawnerTracker(@Nonnull final LivingEntity entity) {
+		LazyOptional<ISpawnTracker> optional = entity.getCapability(CurrencyCapabilities.SPAWN_TRACKER);
+		if(optional.isPresent())
+			return optional.orElseThrow(() -> new RuntimeException("Unexpected error occurred!"));
+		return null;
 	}
 	
 	public static ICapabilityProvider createProvider(final LivingEntity livingEntity)
@@ -30,10 +39,6 @@ public class SpawnTrackerCapability {
 		
 		final LivingEntity entity;
 		MobSpawnType reason = MobSpawnType.NATURAL;
-		
-		public SpawnTracker() {
-			this(null);
-		}
 		
 		public SpawnTracker(LivingEntity entity) {
 			this.entity = entity;

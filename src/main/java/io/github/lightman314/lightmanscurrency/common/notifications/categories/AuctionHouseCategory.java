@@ -9,6 +9,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class AuctionHouseCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"auction_house");
@@ -17,7 +19,8 @@ public class AuctionHouseCategory extends NotificationCategory {
 	
 	private AuctionHouseCategory() { }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return AuctionHouseTrader.ICON; }
 	
 	@Override

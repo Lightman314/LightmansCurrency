@@ -15,13 +15,16 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class LogTab extends ATMTab{
 
 	public LogTab(ATMScreen screen) { super(screen); }
 	
 	NotificationDisplayWidget logWidget;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
 
 	@Override

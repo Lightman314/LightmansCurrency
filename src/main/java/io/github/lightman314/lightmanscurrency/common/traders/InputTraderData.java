@@ -6,8 +6,9 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTab;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
@@ -165,11 +166,7 @@ public abstract class InputTraderData extends TraderData {
 	@OnlyIn(Dist.CLIENT)
 	public abstract MutableComponent inputSettingsTabTooltip();
 	@OnlyIn(Dist.CLIENT)
-	public abstract int inputSettingsTabColor();
-	@OnlyIn(Dist.CLIENT)
-	public abstract int inputSettingsTextColor();
-	@OnlyIn(Dist.CLIENT)
-	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
+	public List<? extends InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 	
 	@Override
 	public void receiveNetworkMessage(Player player, CompoundTag message)
@@ -192,7 +189,7 @@ public abstract class InputTraderData extends TraderData {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addSettingsTabs(List<SettingsTab> tabs) { tabs.add(InputTab.INSTANCE); }
+	public void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { tabs.add(new InputTab(tab)); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)

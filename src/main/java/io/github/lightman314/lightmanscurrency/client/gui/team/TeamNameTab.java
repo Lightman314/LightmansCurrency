@@ -14,13 +14,16 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
+
 public class TeamNameTab extends TeamTab {
 
 	public static final TeamNameTab INSTANCE = new TeamNameTab();
 	
 	private TeamNameTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(new TranslatableComponent("gui.button.lightmanscurrency.changename"));
 	}

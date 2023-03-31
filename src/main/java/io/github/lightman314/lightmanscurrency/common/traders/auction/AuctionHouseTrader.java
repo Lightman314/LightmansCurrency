@@ -1,17 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
@@ -49,13 +44,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
+import javax.annotation.Nonnull;
+
 public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house");
 	
 	public static final IconData ICON = IconData.of(new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png"), 96, 16);
-	
-	List<AuctionTradeData> trades = new ArrayList<>();
+
+	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
 	Map<UUID,AuctionPlayerStorage> storage = new HashMap<>();
 
@@ -155,14 +152,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	public int getPermissionLevel(PlayerReference player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
 	
 	@Override
 	public int getPermissionLevel(Player player, String permission) {
-		if(permission == Permissions.OPEN_STORAGE)
+		if(Objects.equals(permission, Permissions.OPEN_STORAGE))
 			return 1;
 		return 0;
 	}
@@ -177,10 +174,8 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	protected final void saveTrades(CompoundTag compound) {
 		ListTag list = new ListTag();
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
-			list.add(this.trades.get(i).getAsNBT());
-		}
+		for (AuctionTradeData trade : this.trades)
+			list.add(trade.getAsNBT());
 		compound.put("Trades", list);
 	}
 	
@@ -296,6 +291,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		
 	}
 
+	@Nonnull
 	@Override
 	public List<? extends TradeData> getTradeData() { return this.trades; }
 
@@ -314,9 +310,8 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	@Override
 	public Function<TradeData,Boolean> getStorageDisplayFilter(TraderStorageMenu menu) {
 		return trade -> {
-			if(trade instanceof AuctionTradeData)
+			if(trade instanceof AuctionTradeData at)
 			{
-				AuctionTradeData at = (AuctionTradeData)trade;
 				//Only display if the trade owner is owned by the player.
 				return at.isOwner(menu.player) && at.isValid();
 			}
@@ -360,9 +355,6 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	public int getTradeStock(int tradeIndex) { return 0; }
-
-	@Override
-	protected void addSettingsTabs(List<SettingsTab> tabs) { }
 
 	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }

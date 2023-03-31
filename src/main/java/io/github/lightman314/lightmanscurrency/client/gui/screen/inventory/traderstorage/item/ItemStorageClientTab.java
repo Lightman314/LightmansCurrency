@@ -77,7 +77,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
@@ -137,7 +137,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getCarried().isEmpty())
 		{

@@ -3,60 +3,57 @@ package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerWhitelistTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class PlayerWhitelist extends TradeRule{
-	
+
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "whitelist");
-	
+
 	List<PlayerReference> whitelistedPlayers = new ArrayList<>();
-	
+	public ImmutableList<PlayerReference> getWhitelistedPlayers() { return ImmutableList.copyOf(this.whitelistedPlayers); }
+
 	public PlayerWhitelist() { super(TYPE); }
-	
+
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
-		
+
 		if(!this.isWhitelisted(event.getPlayerReference()))
-			event.addDenial(new TranslatableComponent("traderule.lightmanscurrency.whitelist.denial"));
+			event.addDenial(EasyText.translatable("traderule.lightmanscurrency.whitelist.denial"));
 		else
-			event.addHelpful(new TranslatableComponent("traderule.lightmanscurrency.whitelist.allowed"));
-		
+			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.whitelist.allowed"));
+
 	}
-	
+
 	public boolean isWhitelisted(PlayerReference player)
 	{
-		for(int i = 0; i < this.whitelistedPlayers.size(); ++i)
-		{
-			if(this.whitelistedPlayers.get(i).is(player))
+		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers) {
+			if (whitelistedPlayer.is(player))
 				return true;
 		}
 		return false;
 	}
-	
+
 	public boolean addToWhitelist(Player player)
 	{
 		PlayerReference pr = PlayerReference.of(player);
@@ -72,19 +69,17 @@ public class PlayerWhitelist extends TradeRule{
 	protected void saveAdditional(CompoundTag compound) {
 		//Save player names
 		ListTag playerNameList = new ListTag();
-		for(int i = 0; i < this.whitelistedPlayers.size(); i++)
-		{
-			playerNameList.add(this.whitelistedPlayers.get(i).save());
-		}
+		for (PlayerReference whitelistedPlayer : this.whitelistedPlayers)
+			playerNameList.add(whitelistedPlayer.save());
 		compound.put("WhitelistedPlayers", playerNameList);
 	}
-	
+
 	@Override
 	public JsonObject saveToJson(JsonObject json) { return json; }
 
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-		
+
 		//Load whitelisted players
 		if(compound.contains("WhitelistedPlayers", Tag.TAG_LIST))
 		{
@@ -97,29 +92,12 @@ public class PlayerWhitelist extends TradeRule{
 					this.whitelistedPlayers.add(reference);
 			}
 		}
-		//Load player names (old method) and convert them to player references
-		if(compound.contains("WhitelistedPlayersNames", Tag.TAG_LIST))
-		{
-			this.whitelistedPlayers.clear();
-			ListTag playerNameList = compound.getList("WhitelistedPlayersNames", Tag.TAG_COMPOUND);
-			for(int i = 0; i < playerNameList.size(); i++)
-			{
-				CompoundTag thisCompound = playerNameList.getCompound(i);
-				if(thisCompound.contains("name", Tag.TAG_STRING))
-				{
-					PlayerReference reference = PlayerReference.of(false, thisCompound.getString("name"));
-					if(reference != null && !this.isWhitelisted(reference))
-						this.whitelistedPlayers.add(reference);
-				}
-					
-			}
-		}
-		
+
 	}
-	
+
 	@Override
 	public void loadFromJson(JsonObject json) {}
-	
+
 	@Override
 	public void handleUpdateMessage(CompoundTag updateInfo)
 	{
@@ -137,7 +115,7 @@ public class PlayerWhitelist extends TradeRule{
 			PlayerReference.removeFromList(this.whitelistedPlayers, player);
 		}
 	}
-	
+
 	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag compound = new CompoundTag();
@@ -146,103 +124,12 @@ public class PlayerWhitelist extends TradeRule{
 	}
 	@Override
 	public void loadPersistentData(CompoundTag data) { this.loadAdditional(data); }
-	
+
 	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_WHITELIST; }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TradeRule.GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-	{
-		return new GUIHandler(screen, rule);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private static class GUIHandler extends TradeRule.GUIHandler
-	{
-		
-		protected final PlayerWhitelist getWhitelistRule()
-		{
-			if(getRuleRaw() instanceof PlayerWhitelist)
-				return (PlayerWhitelist)getRuleRaw();
-			return null;
-		}
-		
-		GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			super(screen, rule);
-		}
-		
-		EditBox nameInput;
-		
-		Button buttonAddPlayer;
-		Button buttonRemovePlayer;
-		
-		ScrollTextDisplay playerDisplay;
-		
-		@Override
-		public void initTab() {
-			
-			this.nameInput = this.addCustomRenderable(new EditBox(screen.getFont(), screen.guiLeft() + 10, screen.guiTop() + 9, screen.xSize - 20, 20, new TextComponent("")));
-			
-			this.buttonAddPlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + 10, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
-			this.buttonRemovePlayer = this.screen.addCustomRenderable(new Button(screen.guiLeft() + screen.xSize - 88, screen.guiTop() + 30, 78, 20, new TranslatableComponent("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
-			
-			//Player list display
-			this.playerDisplay = this.screen.addCustomRenderable(new ScrollTextDisplay(screen.guiLeft() + 7, screen.guiTop() + 55, this.screen.xSize - 14, 114, this.screen.getFont(), this::getWhitelistedPlayers));
-			this.playerDisplay.setColumnCount(2);
-			
-		}
-		
-		private List<Component> getWhitelistedPlayers()
-		{
-			List<Component> playerList = Lists.newArrayList();
-			if(getWhitelistRule() == null)
-				return playerList;
-			for(PlayerReference player : getWhitelistRule().whitelistedPlayers)
-				playerList.add(player.getNameComponent(true));
-			return playerList;
-		}
-		
-		@Override
-		public void renderTab(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) { }
-		
-		@Override
-		public void onTabClose() {
-			
-			this.removeCustomWidget(this.nameInput);
-			this.removeCustomWidget(this.buttonAddPlayer);
-			this.removeCustomWidget(this.buttonRemovePlayer);
-			this.removeCustomWidget(this.playerDisplay);
-			
-		}
-		
-		void PressWhitelistButton(Button button)
-		{
-			String name = nameInput.getValue();
-			if(name != "")
-			{
-				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
-				updateInfo.putBoolean("Add", true);
-				updateInfo.putString("Name", name);
-				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-			}
-		}
-		
-		void PressForgetButton(Button button)
-		{
-			String name = nameInput.getValue();
-			if(name != "")
-			{
-				nameInput.setValue("");
-				CompoundTag updateInfo = new CompoundTag();
-				updateInfo.putBoolean("Add", false);
-				updateInfo.putString("Name", name);
-				this.screen.sendUpdateMessage(this.getRuleRaw(), updateInfo);
-			}
-			
-		}
-		
-	}
-	
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerWhitelistTab(parent); }
+
 }

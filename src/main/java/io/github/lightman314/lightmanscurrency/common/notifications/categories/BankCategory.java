@@ -9,6 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class BankCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank");
@@ -21,7 +23,8 @@ public class BankCategory extends NotificationCategory {
 		this.name = Component.Serializer.fromJson(compound.getString("Name"));
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.MACHINE_ATM); }
 
 	@Override

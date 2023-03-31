@@ -38,7 +38,10 @@ public class ClientTraderData {
 		{
 			TraderData trader = TraderData.Deserialize(true, compound);
 			if(trader != null)
+			{
 				loadedTraders.put(traderID, trader);
+				trader.OnRegisteredToOffice();
+			}
 		}
 	}
 	

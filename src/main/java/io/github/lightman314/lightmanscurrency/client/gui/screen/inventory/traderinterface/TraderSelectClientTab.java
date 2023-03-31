@@ -27,11 +27,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import javax.annotation.Nonnull;
+
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
 
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override

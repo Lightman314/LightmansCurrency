@@ -109,22 +109,21 @@ public class LightmansCurrency {
 	public static final CustomCreativeTab TRADING_GROUP = new CustomCreativeTab(MODID + ".trading", ModBlocks.DISPLAY_CASE::get);
 	public static final CustomCreativeTab UPGRADE_GROUP = new CustomCreativeTab(MODID + ".upgrades", ModItems.ITEM_CAPACITY_UPGRADE_1::get);
 
-    
-    private static boolean curiosLoaded = false;
-    /**
-     * Whether the Curios API mod is installed
-     */
-    public static boolean isCuriosLoaded() { return curiosLoaded; }
-    /**
-     * Whether the Curios API mod is installed, and a valid Wallet Slot is present on the given entity.
-     */
-    public static boolean isCuriosValid(LivingEntity player) {
-    	try {
-    		if(curiosLoaded)
-        		return LCCurios.hasWalletSlot(player);
-    	} catch(Throwable ignored) {}
-    	return false;
-    }
+	/**
+	 * Whether the Curios API mod is installed
+	 */
+	public static boolean isCuriosLoaded() { return ModList.get().isLoaded("curios"); }
+
+	/**
+	 * Whether the Curios API mod is installed, and a valid Wallet Slot is present on the given entity.
+	 */
+	public static boolean isCuriosValid(LivingEntity player) {
+		try {
+			if(isCuriosLoaded())
+				return LCCurios.hasWalletSlot(player);
+		} catch(Throwable ignored) { }
+		return false;
+	}
     
 	public LightmansCurrency() {
     	
@@ -147,8 +146,6 @@ public class LightmansCurrency {
         
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
-
-        curiosLoaded = ModList.get().isLoaded("curios");
         
         if(ModList.get().isLoaded("lightmansdiscord"))
         {
@@ -165,7 +162,7 @@ public class LightmansCurrency {
 	
 	private void imc(InterModEnqueueEvent event) {
 		if(isCuriosLoaded())
-			safeEnqueueWork(event, "Error during Inter-mod Communications!", this::curiosIMC);
+			safeEnqueueWork(event, "Error during LC ==> Curios Inter-mod Communications!", this::curiosIMC);
 	}
 
 	private void curiosIMC() {

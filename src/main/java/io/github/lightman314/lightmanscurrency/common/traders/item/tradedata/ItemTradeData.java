@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -184,10 +185,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public boolean isPurchase() { return this.tradeType == ItemTradeType.PURCHASE; }
 	public boolean isBarter() { return this.tradeType == ItemTradeType.BARTER; }
 
-	public void setTradeType(ItemTradeType tradeDirection)
-	{
-		this.tradeType = tradeDirection;
-	}
+	public void setTradeType(ItemTradeType tradeDirection) { this.tradeType = tradeDirection; }
 
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
 
@@ -244,6 +242,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				return 0;
 			long coinValue = trader.getStoredMoney().getRawValue();
 			long price = this.cost.getRawValue();
+			if(price == 0)
+				return 1;
 			return (int)(coinValue / price);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
@@ -269,11 +269,12 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		{
 			if(this.cost.isFree())
 				return 1;
+			//Price not yet defined
 			if(this.cost.getRawValue() == 0)
 				return 0;
 			long coinValue = trader.getStoredMoney().getRawValue();
 			long price = this.getCost(context).getRawValue();
-			return (int)(coinValue / price);
+			return (int)MathUtil.SafeDivide(coinValue, price, 1);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{
@@ -748,4 +749,8 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 					slots, results);
 		}
 	}
+
+	@Override
+	public boolean isMoneyRelevant() { return !this.isBarter(); }
+
 }

@@ -28,6 +28,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
 
 	private static final int X_OFFSET = 13;
@@ -46,7 +48,8 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	ScrollBarWidget scrollBar;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override

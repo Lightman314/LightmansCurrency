@@ -20,10 +20,7 @@ public class DiscordPostTradeEvent extends Event{
 		this.event = event;
 		this.addPendingMessage = addPendingMessage;
 	}
-	
-	public void addPendingMessage(String message)
-	{
-		this.addPendingMessage.accept(message);
-	}
+
+	public void addPendingMessage(String message) { this.addPendingMessage.accept(message); }
 	
 }

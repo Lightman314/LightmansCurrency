@@ -35,6 +35,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import javax.annotation.Nonnull;
+
 public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreateTab> {
 
 	public static final long CLOSE_DELAY = TimeUtil.DURATION_SECOND * 5;
@@ -42,7 +44,8 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	
 	public AuctionCreateClientTab(TraderStorageScreen screen, AuctionCreateTab commonTab) { super(screen, commonTab); }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_PLUS; }
 	
 	@Override
@@ -119,7 +122,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -143,7 +146,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		

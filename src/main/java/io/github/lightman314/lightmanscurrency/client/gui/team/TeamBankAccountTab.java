@@ -15,13 +15,16 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
+
 public class TeamBankAccountTab extends TeamTab {
 
 	public static final TeamBankAccountTab INSTANCE = new TeamBankAccountTab();
 	
 	private TeamBankAccountTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(ModBlocks.COINPILE_GOLD.get());
 	}

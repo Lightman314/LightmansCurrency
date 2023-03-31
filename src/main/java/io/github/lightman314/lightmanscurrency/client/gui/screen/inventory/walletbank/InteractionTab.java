@@ -21,13 +21,16 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.Container;
 
+import javax.annotation.Nonnull;
+
 public class InteractionTab extends WalletBankTab implements IBankAccountWidget {
 
 	public InteractionTab(WalletBankScreen screen) { super(screen); }
 
 	BankAccountWidget accountWidget;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD.get()); }
 
 	@Override

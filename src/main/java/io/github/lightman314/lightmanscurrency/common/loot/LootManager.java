@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
@@ -13,7 +12,9 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
+import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
+import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigEvent;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -86,30 +87,87 @@ public class LootManager {
 		LightmansCurrency.LogWarning("Reason string \"" + reasonString + "\" could not be properly deserialized. Returning the default spawn reason.");
 		return defaultReason;
 	}
-	
-	private static final String ENTITY = "minecraft:";
-	private static final String CHEST = "minecraft:chests/";
-	
-	public static final List<String> ENTITY_DROPLIST_T1 = ImmutableList.of(ENTITY + "slime", ENTITY + "silverfish");
-	public static final List<String> ENTITY_DROPLIST_T2 = ImmutableList.of(ENTITY + "zombie", ENTITY + "skeleton", ENTITY + "creeper", ENTITY + "spider", ENTITY + "cave_spider", ENTITY + "husk", ENTITY + "stray", ENTITY + "magma_cube", ENTITY + "zombie_villager", ENTITY + "drowned");
-	public static final List<String> ENTITY_DROPLIST_T3 = ImmutableList.of(ENTITY + "guardian", ENTITY + "elder_guardian", ENTITY + "phantom", ENTITY + "blaze", ENTITY + "ghast", ENTITY + "witch", ENTITY + "hoglin", ENTITY + "piglin_brute", ENTITY + "piglin", ENTITY + "zombified_piglin");
-	public static final List<String> ENTITY_DROPLIST_T4 = ImmutableList.of(ENTITY + "enderman", ENTITY + "evoker", ENTITY + "vindicator", ENTITY + "pillager", ENTITY + "ravager", ENTITY + "shulker");
-	public static final List<String> ENTITY_DROPLIST_T5 = ImmutableList.of(ENTITY + "wither_skeleton");
-	public static final List<String> ENTITY_DROPLIST_T6 = ImmutableList.of();
-	
-	public static final List<String> BOSS_ENTITY_DROPLIST_T1 = ImmutableList.of();
-	public static final List<String> BOSS_ENTITY_DROPLIST_T2 = ImmutableList.of();
-	public static final List<String> BOSS_ENTITY_DROPLIST_T3 = ImmutableList.of();
-	public static final List<String> BOSS_ENTITY_DROPLIST_T4 = ImmutableList.of(ENTITY + "warden");
-	public static final List<String> BOSS_ENTITY_DROPLIST_T5 = ImmutableList.of(ENTITY + "ender_dragon");
-	public static final List<String> BOSS_ENTITY_DROPLIST_T6 = ImmutableList.of(ENTITY + "wither");
-	
-	public static final List<String> CHEST_DROPLIST_T1 = ImmutableList.of(CHEST + "underwater_ruin_small", CHEST + "underwater_ruin_big");
-	public static final List<String> CHEST_DROPLIST_T2 = ImmutableList.of();
-	public static final List<String> CHEST_DROPLIST_T3 = ImmutableList.of(CHEST + "jungle_temple", CHEST + "nether_bridge", CHEST + "simple_dungeon", CHEST + "ruined_portal");
-	public static final List<String> CHEST_DROPLIST_T4 = ImmutableList.of(CHEST + "stronghold_crossing", CHEST + "stronghold_corridor", CHEST + "stronghold_library", CHEST + "ancient_city");
-	public static final List<String> CHEST_DROPLIST_T5 = ImmutableList.of(CHEST + "buried_treasure", CHEST + "bastion_hoglin_stable", CHEST + "bastion_bridge", CHEST + "bastion_other", CHEST + "bastion_treasure", CHEST + "end_city_treasure");
-	public static final List<String> CHEST_DROPLIST_T6 = ImmutableList.of();
+
+	@SubscribeEvent
+	public static void AddDefaultEntityEntries(DroplistConfigEvent.Entity event)
+	{
+		switch (event.getTier())
+		{
+			case T1 -> {
+				event.addVanillaEntry("slime");
+				event.addVanillaEntry("silverfish");
+			}
+			case T2 -> {
+				event.addVanillaEntry("zombie");
+				event.addVanillaEntry("skeleton");
+				event.addVanillaEntry("creeper");
+				event.addVanillaEntry("spider");
+				event.addVanillaEntry("cave_spider");
+				event.addVanillaEntry("husk");
+				event.addVanillaEntry("stray");
+				event.addVanillaEntry("magma_cube");
+				event.addVanillaEntry("zombie_villager");
+				event.addVanillaEntry("drowned");
+			}
+			case T3 -> {
+				event.addVanillaEntry("guardian");
+				event.addVanillaEntry("elder_guardian");
+				event.addVanillaEntry("phantom");
+				event.addVanillaEntry("blaze");
+				event.addVanillaEntry("ghast");
+				event.addVanillaEntry("witch");
+				event.addVanillaEntry("hoglin");
+				event.addVanillaEntry("piglin_brute");
+				event.addVanillaEntry("piglin");
+				event.addVanillaEntry("zombified_piglin");
+			}
+			case T4 -> {
+				event.addVanillaEntry("enderman");
+				event.addVanillaEntry("evoker");
+				event.addVanillaEntry("vindicator");
+				event.addVanillaEntry("pillager");
+				event.addVanillaEntry("ravager");
+				event.addVanillaEntry("shulker");
+			}
+			case T5 -> event.addVanillaEntry("wither_skeleton");
+			case BOSS_T4 -> event.addVanillaEntry("warden");
+			case BOSS_T5 -> event.addVanillaEntry("ender_dragon");
+			case BOSS_T6 -> event.addVanillaEntry("wither");
+		}
+	}
+
+	@SubscribeEvent
+	public static void AddDefaultChestEntries(DroplistConfigEvent.Chest event)
+	{
+		switch (event.getTier())
+		{
+			case T1 -> {
+				event.addVanillaEntry("underwater_ruin_small");
+				event.addVanillaEntry("underwater_ruin_big");
+			}
+			case T3 -> {
+				event.addVanillaEntry("jungle_temple");
+				event.addVanillaEntry("nether_bridge");
+				event.addVanillaEntry("simple_dungeon");
+				event.addVanillaEntry("ruined_portal");
+			}
+			case T4 -> {
+				event.addVanillaEntry("stronghold_crossing");
+				event.addVanillaEntry("stronghold_corridor");
+				event.addVanillaEntry("stronghold_library");
+				event.addVanillaEntry("ancient_city");
+
+			}
+			case T5 -> {
+				event.addVanillaEntry("buried_treasure");
+				event.addVanillaEntry("bastion_hoglin_stable");
+				event.addVanillaEntry("bastion_bridge");
+				event.addVanillaEntry("bastion_other");
+				event.addVanillaEntry("bastion_treasure");
+				event.addVanillaEntry("end_city_treasure");
+			}
+		}
+	}
 	
 	private static final Map<String,PoolLevel> EXTERNAL_ENTITY_ENTRIES = new HashMap<>();
 	private static final Map<String,PoolLevel> EXTERNAL_CHEST_ENTRIES = new HashMap<>();
@@ -231,11 +289,13 @@ public class LootManager {
 		LivingEntity entity = event.getEntityLiving();
 		if(entity instanceof Player)
 			return;
-		
-		SpawnTrackerCapability.getSpawnerTracker(event.getEntityLiving()).ifPresent(spawnerTracker -> spawnerTracker.setSpawnReason(event.getSpawnReason()));
-		if(!SpawnTrackerCapability.getSpawnerTracker(event.getEntityLiving()).isPresent())
-			LightmansCurrency.LogWarning(event.getEntityLiving().getName().getString() + " does not have a ISpawnerTracker attached. Unable to flag it's SpawnReason.");
-		
+
+		ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(entity);
+		if(tracker == null)
+			LightmansCurrency.LogDebug("Entity of type '" + ForgeRegistries.ENTITIES.getKey(entity.getType()).toString() + "' does not have a ISpawnTracker attached. Unable to flag it's SpawnReason.");
+		else
+			tracker.setSpawnReason(event.getSpawnReason());
+
 	}
 	
 	@SubscribeEvent
@@ -254,13 +314,12 @@ public class LootManager {
 		//Check if this is the server
 		if(event.getEntityLiving().level.isClientSide)
 			return;
-		
+
 		if(!Config.COMMON.enableSpawnerEntityDrops.get())
 		{
 			//Spawner drops aren't allowed. Check if the entity was spawner-spawned
-			AtomicReference<MobSpawnType> spawnReason = new AtomicReference<>();
-			SpawnTrackerCapability.getSpawnerTracker(event.getEntityLiving()).ifPresent(spawnerTracker -> spawnReason.set(spawnerTracker.spawnReason()));
-			if(spawnReason.get() == MobSpawnType.SPAWNER)
+			ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(event.getEntityLiving());
+			if(tracker != null && tracker.spawnReason() == MobSpawnType.SPAWNER)
 			{
 				LightmansCurrency.LogDebug(event.getEntityLiving().getName().getString() + " did not drop coins, as it was spawned by a spawner.");
 				return;
@@ -619,20 +678,18 @@ public class LootManager {
 	}
 	
 	/**
-	 * Adds the given entity's loot table to the list so that it will drop coins in addition to its already given loot.
-	 * @param resource String format of the loot tables ResourceLocation (e.g. "minecraft:entities/zombie"), or of the entities id (e.g. "minecraft:sheep")
-	 * @param coinPool The highest level coin that the entity should be allowed to drop.
+	 * @deprecated Should listen to the DroplistConfigEvent.Entity event instead to add them to the config file for easier user customization.
 	 */
+	@Deprecated(since = "2.1.1.0", forRemoval = true)
 	public static void AddEntityCoinPoolToTable(String resource, PoolLevel coinPool)
 	{
 		EXTERNAL_ENTITY_ENTRIES.put(resource, coinPool);
 	}
 	
 	/**
-	 * Adds the given chest's loot table to the list so that it will spawn coins in addition to its already given loot.
-	 * @param resource String format of the loot tables ResourceLocation (e.g. "minecraft:chests/buried_treasure")
-	 * @param coinPool The highest level coin that the chest should spawn. Should not include the BOSS pool levels, as those are for entities only.
+	 * @deprecated Should listen to the DroplistConfigEvent.Chest event instead to add them to the config file for easier user customization.
 	 */
+	@Deprecated(since = "2.1.1.0", forRemoval = true)
 	public static void AddChestCoinPoolToTable(String resource, PoolLevel coinPool)
 	{
 		if(coinPool.level > PoolLevel.T6.level)

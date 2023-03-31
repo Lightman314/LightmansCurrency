@@ -20,13 +20,16 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class TeamSelectionTab extends TeamTab {
 	
 	public static final TeamSelectionTab INSTANCE = new TeamSelectionTab();
 	
 	private TeamSelectionTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

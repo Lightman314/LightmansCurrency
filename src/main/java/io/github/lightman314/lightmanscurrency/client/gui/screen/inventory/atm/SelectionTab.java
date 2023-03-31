@@ -29,6 +29,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class SelectionTab extends ATMTab{
 
 	public SelectionTab(ATMScreen screen) { super(screen); }
@@ -44,7 +46,8 @@ public class SelectionTab extends ATMTab{
 	
 	boolean adminMode = false;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

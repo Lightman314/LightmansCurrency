@@ -13,6 +13,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
+
 public class TraderCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID,"trader");
@@ -47,7 +49,8 @@ public class TraderCategory extends NotificationCategory {
 		
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(this.trader); }
 	
 	@Override

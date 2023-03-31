@@ -36,7 +36,7 @@ public class WalletCapability {
 	public static IWalletHandler lazyGetWalletHandler(@Nonnull final Entity entity) {
 		LazyOptional<IWalletHandler> optional = entity.getCapability(CurrencyCapabilities.WALLET);
 		if(optional.isPresent())
-			return optional.orElseGet(() -> { throw new RuntimeException("Unexpected error occurred!"); });
+			return optional.orElseThrow(() -> new RuntimeException("Unexpected error occurred!"));
 		return null;
 	}
 

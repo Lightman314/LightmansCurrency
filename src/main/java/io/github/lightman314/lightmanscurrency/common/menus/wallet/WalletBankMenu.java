@@ -8,6 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 
 	public static final int BANK_WIDGET_SPACING = 128;
@@ -27,8 +29,9 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	@Override
 	public boolean isClient() { return this.player.level.isClientSide; }
 
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
+	public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
 	public boolean stillValid(@NotNull Player player) {

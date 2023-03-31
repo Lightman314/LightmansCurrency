@@ -303,7 +303,7 @@ public class CommandLCAdmin {
 			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", count, trader.getName()), true);
 
 			if(count > 0)
-				trader.markRulesDirty();
+				trader.markTradeRulesDirty();
 
 			return count;
 		}

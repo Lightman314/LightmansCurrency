@@ -9,12 +9,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.nbt.CompoundTag;
 
+import javax.annotation.Nonnull;
+
 public abstract class TraderStorageClientTab<T extends TraderStorageTab> implements ITab{
 
-	protected final TraderStorageScreen screen;
-	protected final TraderStorageMenu menu;
-	protected final T commonTab;
-	protected final Font font;
+	public final TraderStorageScreen screen;
+	public final TraderStorageMenu menu;
+	public final T commonTab;
+	public final Font font;
 	
 	protected TraderStorageClientTab(TraderStorageScreen screen, T commonTab) {
 		this.screen = screen;
@@ -55,12 +57,12 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	/**
 	 * Renders background data before the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
+	public abstract void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks);
 	
 	/**
 	 * Renders tooltips after the rendering of buttons/widgets and item slots
 	 */
-	public abstract void renderTooltips(PoseStack pose, int mouseX, int mouseY);
+	public abstract void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY);
 	
 	/**
 	 * Called when the mouse is clicked before any other click interactions are processed.
@@ -88,5 +90,7 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	 * Called when the tab is closed.
 	 */
 	public void onClose() { }
+
+	public boolean shouldRenderInventoryText() { return true; }
 
 }

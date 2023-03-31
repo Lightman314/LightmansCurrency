@@ -17,13 +17,16 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class TeamOwnerTab extends TeamTab{
 
 	public static final TeamOwnerTab INSTANCE = new TeamOwnerTab();
 	
 	private TeamOwnerTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(Items.WRITABLE_BOOK);
 	}

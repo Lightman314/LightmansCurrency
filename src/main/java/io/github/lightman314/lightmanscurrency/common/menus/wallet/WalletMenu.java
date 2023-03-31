@@ -23,20 +23,14 @@ public class WalletMenu extends WalletMenuBase {
 			for(int x = 0; x < 9; x++)
 			{
 				int index = x + (y * 9) + 9;
-				if(index == this.walletStackIndex)
-					this.addSlot(new DisplaySlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18));
-				else
-					this.addSlot(new BlacklistSlot(this.inventory, index, 8 + x * 18, 32 + (y + getRowCount()) * 18, this.inventory, this.walletStackIndex));
+				this.addInventorySlot(8 + x * 18, 32 + (y + getRowCount()) * 18, index);
 			}
 		}
 		
 		//Player hotbar
 		for(int x = 0; x < 9; x++)
 		{
-			if(x == this.walletStackIndex)
-				this.addSlot(new DisplaySlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18));
-			else
-				this.addSlot(new BlacklistSlot(this.inventory, x, 8 + x * 18, 90 + getRowCount() * 18, this.inventory, this.walletStackIndex));
+			this.addInventorySlot(8 + x * 18, 90 + getRowCount() * 18, x);
 		}
 		
 		//Coin Slots last as they may vary between client and server at times.

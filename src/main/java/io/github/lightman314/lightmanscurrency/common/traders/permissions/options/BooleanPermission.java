@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.permissions.options;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.client.gui.components.Button;
 
 public class BooleanPermission extends PermissionOption{
@@ -12,12 +12,12 @@ public class BooleanPermission extends PermissionOption{
 	
 	@Override
 	protected void createWidget(int x, int y, OptionWidgets widgets) {
-		this.checkmark = widgets.addRenderableWidget(new PlainButton(x, y + 5, 10, 10, this::TogglePermission, TraderSettingsScreen.GUI_TEXTURE, 10, this.hasPermission() ? 200 : 220));
+		this.checkmark = widgets.addRenderableWidget(new PlainButton(x, y + 5, 10, 10, this::TogglePermission, IconAndButtonUtil.WIDGET_TEXTURE, 10, this.hasPermission() ? 200 : 220));
 	}
 
 	@Override
 	public void tick() {
-		this.checkmark.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, this.hasPermission() ? 200 : 220);
+		this.checkmark.setResource(IconAndButtonUtil.WIDGET_TEXTURE, 10, this.hasPermission() ? 200 : 220);
 	}
 
 	@Override

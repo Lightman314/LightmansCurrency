@@ -4,6 +4,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class BlacklistSlot extends Slot {
 
 	Container blacklistInventory;
@@ -27,7 +29,7 @@ public class BlacklistSlot extends Slot {
 	}
 	
 	@Override
-	public boolean mayPlace(ItemStack item)
+	public boolean mayPlace(@Nonnull ItemStack item)
 	{
 		if(this.blacklistIndex >= 0)
 			return item != this.getBlacklistedItem();

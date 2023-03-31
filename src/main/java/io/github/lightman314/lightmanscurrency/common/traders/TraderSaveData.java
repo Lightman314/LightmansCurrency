@@ -50,7 +50,7 @@ import org.jetbrains.annotations.NotNull;
 public class TraderSaveData extends SavedData {
 
 	public static final String PERSISTENT_TRADER_FILENAME = "config/lightmanscurrency/PersistentTraders.json";
-	
+
 	public static final String PERSISTENT_TRADER_SECTION = "Traders";
 	public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
 
@@ -70,22 +70,18 @@ public class TraderSaveData extends SavedData {
 			//Create the auction house manually
 			AuctionHouseTrader ah = new AuctionHouseTrader();
 			ah.setCreative(null, true);
-			
+
 			//Generate a trader ID
 			long traderID = this.getNextID();
-			
+
 			//Apply it to the trader
 			ah.setID(traderID);
-			
+
 			LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
-			this.traderData.put(traderID, ah);
-			this.setDirty();
-			//Send update packet to the connected clients
-			CompoundTag compound = ah.save();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(compound));
+			this.AddTraderInternal(traderID, ah);
 		}
 	}
-	
+
 	private long nextID = 0;
 	private long getNextID() {
 		long id = nextID;
@@ -94,21 +90,22 @@ public class TraderSaveData extends SavedData {
 		return id;
 	}
 	private final Map<Long,TraderData> traderData = new HashMap<>();
-	
+
 	//Persistent Data
 	private final Map<String,PersistentData> persistentTraderData = new HashMap<>();
 	private final List<PersistentAuctionData> persistentAuctionData = new ArrayList<>();
+
 	private final List<IEasyTickable> tickers = new ArrayList<>();
 
 	private JsonObject persistentTraderJson = new JsonObject();
-	
+
 	public TraderSaveData() { this.validateAuctionHouse(); this.loadPersistentTraders(); }
-	
+
 	public TraderSaveData(CompoundTag compound) {
 
 		this.nextID = compound.getLong("NextID");
 		LightmansCurrency.LogInfo("Loaded NextID (" + this.nextID + ") from tag.");
-		
+
 		ListTag traderData = compound.getList("TraderData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < traderData.size(); ++i)
 		{
@@ -117,15 +114,13 @@ public class TraderSaveData extends SavedData {
 				TraderData trader = TraderData.Deserialize(false, traderTag);
 				if(trader != null)
 				{
-					this.traderData.put(trader.getID(), trader.allowMarkingDirty());
-					if(trader instanceof IEasyTickable t)
-						this.tickers.add(t);
+					this.AddTraderInternal(trader.getID(), trader);
 				}
 				else
 					LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading TraderData", t); }
 		}
-		
+
 		ListTag persistentData = compound.getList("PersistentData", Tag.TAG_COMPOUND);
 		for(int i = 0; i < persistentData.size(); ++i)
 		{
@@ -137,16 +132,16 @@ public class TraderSaveData extends SavedData {
 				this.persistentTraderData.put(name, new PersistentData(id,tag));
 			} catch(Throwable t) { LightmansCurrency.LogError("Error loading Persistent Data", t); }
 		}
-		
+
 		this.validateAuctionHouse();
 		this.loadPersistentTraders();
 	}
-	
+
 	@Override
 	public @NotNull CompoundTag save(CompoundTag compound) {
-		
+
 		compound.putLong("NextID", this.nextID);
-		
+
 		ListTag traderData = new ListTag();
 		this.traderData.forEach((id,trader) -> {
 			if(trader.isPersistent())
@@ -163,7 +158,7 @@ public class TraderSaveData extends SavedData {
 			}
 		});
 		compound.put("TraderData", traderData);
-		
+
 		ListTag persistentData = new ListTag();
 		this.persistentTraderData.forEach((id,data) -> {
 			try {
@@ -175,16 +170,16 @@ public class TraderSaveData extends SavedData {
 			} catch(Throwable t) { LightmansCurrency.LogError("Error saving Persistent Data:", t); }
 		});
 		compound.put("PersistentData", persistentData);
-		
+
 		return compound;
 	}
-	
+
 	private long getPersistentID(String traderID) {
 		if(this.persistentTraderData.containsKey(traderID))
 			return this.persistentTraderData.get(traderID).id;
 		return -1;
 	}
-	
+
 	private void putPersistentID(String traderID, long id) {
 		if(this.persistentTraderData.containsKey(traderID))
 			this.persistentTraderData.get(traderID).id = id;
@@ -192,7 +187,8 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderData.put(traderID, new PersistentData(id, new CompoundTag()));
 		this.setDirty();
 	}
-	
+
+	/** @deprecated Use only to check for persistent ids from the old Trading Office. */
 	@Deprecated
 	public static long CheckOldPersistentID(String traderID) {
 		TraderSaveData tsd = get();
@@ -208,13 +204,13 @@ public class TraderSaveData extends SavedData {
 		}
 		return -1;
 	}
-	
+
 	private CompoundTag getPersistentTag(String traderID) {
 		if(this.persistentTraderData.containsKey(traderID))
 			return this.persistentTraderData.get(traderID).tag;
 		return new CompoundTag();
 	}
-	
+
 	private void putPersistentTag(String traderID, CompoundTag tag) {
 		if(this.persistentTraderData.containsKey(traderID))
 			this.persistentTraderData.get(traderID).tag = tag == null ? new CompoundTag() : tag;
@@ -222,7 +218,8 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderData.put(traderID, new PersistentData(-1, tag == null ? new CompoundTag() : tag));
 		this.setDirty();
 	}
-	
+
+	/** @deprecated Use only to give persistent data from the old Trading Office. */
 	@Deprecated
 	public static void GiveOldPersistentTag(String traderID, CompoundTag tag) {
 		TraderSaveData tsd = get();
@@ -236,7 +233,7 @@ public class TraderSaveData extends SavedData {
 			}
 		}
 	}
-	
+
 	public static JsonObject getPersistentTraderJson() {
 		//Force the Trader Data to be loaded.
 		TraderSaveData tsd = get();
@@ -244,7 +241,7 @@ public class TraderSaveData extends SavedData {
 			return tsd.persistentTraderJson;
 		return new JsonObject();
 	}
-	
+
 	public static JsonArray getPersistentTraderJson(String section) {
 		JsonObject json = getPersistentTraderJson();
 		if(json != null)
@@ -261,7 +258,7 @@ public class TraderSaveData extends SavedData {
 		}
 		return null;
 	}
-	
+
 	public static void setPersistentTraderJson(JsonObject newData) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -279,15 +276,15 @@ public class TraderSaveData extends SavedData {
 			tsd.resendTraderData();
 		}
 	}
-	
+
 	public static void setPersistentTraderSection(String section, JsonArray newData) {
 		JsonObject json = getPersistentTraderJson();
 		json.add(section, newData);
 		setPersistentTraderJson(json);
 	}
-	
+
 	//PERSISTENT DATA LOADING
-	
+
 	public static void ReloadPersistentTraders() {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -296,7 +293,7 @@ public class TraderSaveData extends SavedData {
 			tsd.resendTraderData();
 		}
 	}
-	
+
 	private void loadPersistentTraders() {
 		//Get JSON file
 		File ptf = new File(PERSISTENT_TRADER_FILENAME);
@@ -305,7 +302,7 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderJson = generateDefaultPersistentTraderJson();
 			this.savePersistentTraderJson(ptf);
 		}
-		try { 
+		try {
 			this.persistentTraderJson = GsonHelper.parse(Files.readString(ptf.toPath()));
 			LightmansCurrency.LogDebug("Loading PersistentTraders.json\n" +  FileUtil.GSON.toJson(this.persistentTraderJson));
 			this.loadPersistentTrader(this.persistentTraderJson);
@@ -315,7 +312,7 @@ public class TraderSaveData extends SavedData {
 			this.persistentTraderJson = generateDefaultPersistentTraderJson();
 		}
 	}
-	
+
 	private static JsonObject generateDefaultPersistentTraderJson() {
 		JsonObject fileData = new JsonObject();
 		JsonArray traderList = new JsonArray();
@@ -324,13 +321,13 @@ public class TraderSaveData extends SavedData {
 		fileData.add(PERSISTENT_AUCTION_SECTION, auctions);
 		return fileData;
 	}
-	
+
 	private void loadPersistentTrader(JsonObject fileData) throws Exception {
 		boolean hadNone = true;
 		if(fileData.has(PERSISTENT_TRADER_SECTION))
 		{
 			hadNone = false;
-			
+
 			//Remove persistent traders
 			List<Long> removeTraderList = new ArrayList<>();
 			this.traderData.forEach((id,trader) -> {
@@ -343,16 +340,16 @@ public class TraderSaveData extends SavedData {
 					removeTraderList.add(id);
 				}
 			});
-			
+
 			for(long id : removeTraderList)
 				this.traderData.remove(id);
-			
+
 			List<String> loadedIDs = new ArrayList<>();
 			JsonArray traderList = fileData.getAsJsonArray(PERSISTENT_TRADER_SECTION);
 			for(int i = 0; i < traderList.size(); ++i)
 			{
 				try {
-					
+
 					//Load the trader
 					JsonObject traderTag = traderList.get(i).getAsJsonObject();
 					String traderID;
@@ -365,10 +362,10 @@ public class TraderSaveData extends SavedData {
 					if(loadedIDs.contains(traderID))
 						throw new Exception("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
 					TraderData data = TraderData.Deserialize(traderTag);
-					
+
 					//Load the persistent data
 					data.loadPersistentData(this.getPersistentTag(traderID));
-					
+
 					//Match the persistent data with traders id
 					long id = this.getPersistentID(traderID);
 					if(id < 0) //If no ID has ever been generated for this persistent trader ID, generate one and add it to the list
@@ -376,17 +373,15 @@ public class TraderSaveData extends SavedData {
 						id = this.getNextID();
 						this.putPersistentID(traderID, id);
 						this.setDirty();
-						LightmansCurrency.LogInfo("Generated new ID for persistent trader '" + traderID + "' (" + id + ")"); 
+						LightmansCurrency.LogInfo("Generated new ID for persistent trader '" + traderID + "' (" + id + ")");
 					}
 					//Initialize the persistence (forces creative & terminal access)
 					data.makePersistent(id, traderID);
-					
-					this.traderData.put(id, data.allowMarkingDirty());
-					if(data instanceof IEasyTickable t)
-						this.tickers.add(t);
+
+					this.AddTraderInternal(id, data);
 					loadedIDs.add(traderID);
 					LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
-					
+
 				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
 			}
 		}
@@ -399,7 +394,7 @@ public class TraderSaveData extends SavedData {
 			for(int i = 0; i < auctionList.size(); ++i)
 			{
 				try {
-					
+
 					//Load the auction
 					JsonObject auctionTag = auctionList.get(i).getAsJsonObject();
 					PersistentAuctionData data = PersistentAuctionData.load(auctionTag);
@@ -407,20 +402,20 @@ public class TraderSaveData extends SavedData {
 						throw new Exception("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
 					else
 						loadedIDs.add(data.id);
-					
+
 					this.persistentAuctionData.add(data);
-					
+
 					LightmansCurrency.LogInfo("Successfully loaded persistent auction '" + data.id + "'");
-					
+
 				} catch(Throwable e) { LightmansCurrency.LogError("Error loading Persistent Auction at index " + i, e); }
-				
+
 			}
-			
+
 		}
 		if(hadNone)
 			throw new Exception("Json Data has no 'Traders' or 'Auctions' entry.");
 	}
-	
+
 	private void savePersistentTraderJson(File ptf) {
 		File dir = new File(ptf.getParent());
 		if(!dir.exists())
@@ -428,19 +423,19 @@ public class TraderSaveData extends SavedData {
 		if(dir.exists())
 		{
 			try {
-				
+
 				ptf.createNewFile();
-				
+
 				String jsonString = FileUtil.GSON.toJson(this.persistentTraderJson);
-				
+
 				FileUtil.writeStringToFile(ptf, jsonString);
-				
+
 				LightmansCurrency.LogInfo("PersistentTraders.json does not exist. Creating a fresh copy.");
-				
+
 			} catch(Throwable e) { LightmansCurrency.LogError("Error attempting to create 'persistentTraders.json' file.", e); }
 		}
 	}
-	
+
 	private static TraderSaveData get() {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
@@ -451,18 +446,18 @@ public class TraderSaveData extends SavedData {
 		}
 		return null;
 	}
-	
+
 	public static void MarkTraderDirty(CompoundTag updateMessage) {
-		
+
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
 			tsd.setDirty();
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(updateMessage));
 		}
-		
+
 	}
-	
+
 	@Deprecated
 	public static long RegisterOldTrader(TraderData newTrader) {
 		if(newTrader instanceof AuctionHouseTrader)
@@ -475,9 +470,7 @@ public class TraderSaveData extends SavedData {
 					if(trader instanceof AuctionHouseTrader)
 					{
 						long id = trader.getID();
-						newTrader.setID(id);
-						tsd.traderData.put(id, newTrader);
-						MarkTraderDirty(newTrader.save());
+						tsd.AddTraderInternal(id, newTrader);
 						return id;
 					}
 				}
@@ -485,23 +478,37 @@ public class TraderSaveData extends SavedData {
 		}
 		return RegisterTrader(newTrader, null);
 	}
-	
+
 	public static long RegisterTrader(TraderData newTrader, @Nullable Player player) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
 		{
 			long newID = tsd.getNextID();
-			newTrader.setID(newID);
-			tsd.traderData.put(newID, newTrader.allowMarkingDirty());
-			tsd.setDirty();
-			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(newTrader.save()));
+			tsd.AddTraderInternal(newID, newTrader);
 			if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
 				MinecraftForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
 			return newID;
 		}
 		return -1;
 	}
-	
+
+	private void AddTraderInternal(long traderID, TraderData trader)
+	{
+		//Set Trader ID
+		trader.setID(traderID);
+		//Add to storage
+		this.traderData.put(traderID, trader.allowMarkingDirty());
+		this.setDirty();
+		//Trigger OnRegisteration listener
+		try{ trader.OnRegisteredToOffice();
+		} catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
+		//Send update packet to all relevant clients
+		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new MessageUpdateClientTrader(trader.save()));
+		//Register tick listeners (if applicable)
+		if(trader instanceof IEasyTickable t)
+			this.tickers.add(t);
+	}
+
 	public static void DeleteTrader(long traderID) {
 		TraderSaveData tsd = get();
 		if(tsd != null)
@@ -519,7 +526,7 @@ public class TraderSaveData extends SavedData {
 			}
 		}
 	}
-	
+
 	public static List<TraderData> GetAllTraders(boolean isClient)
 	{
 		if(isClient)
@@ -534,12 +541,12 @@ public class TraderSaveData extends SavedData {
 		}
 		return new ArrayList<>();
 	}
-	
+
 	public static List<TraderData> GetAllTerminalTraders(boolean isClient)
 	{
 		return GetAllTraders(isClient).stream().filter(TraderData::showOnTerminal).collect(Collectors.toList());
 	}
-	
+
 	public static TraderData GetTrader(boolean isClient, long traderID) {
 		if(isClient)
 		{
@@ -570,8 +577,7 @@ public class TraderSaveData extends SavedData {
 		return null;
 	}
 
-	public static TraderData GetAuctionHouse(boolean isClient)
-	{
+	public static TraderData GetAuctionHouse(boolean isClient) {
 		if(isClient)
 		{
 			List<TraderData> validTraders = ClientTraderData.GetAllTraders().stream().filter(t -> t instanceof AuctionHouseTrader).toList();
@@ -590,7 +596,7 @@ public class TraderSaveData extends SavedData {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Clean up invalid traders
 	 */
@@ -599,7 +605,7 @@ public class TraderSaveData extends SavedData {
 	{
 		if(event.phase != TickEvent.Phase.START || !event.side.isServer())
 			return;
-		
+
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server != null)
 		{
@@ -648,7 +654,7 @@ public class TraderSaveData extends SavedData {
 								{
 									ah.addTrade(trade, true);
 									LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
-								}	
+								}
 							}
 						}
 					}
@@ -657,7 +663,7 @@ public class TraderSaveData extends SavedData {
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerLoggedInEvent event)
 	{
@@ -665,31 +671,31 @@ public class TraderSaveData extends SavedData {
 		if(tsd != null)
 		{
 			PacketTarget target = LightmansCurrencyPacketHandler.getTarget(event.getPlayer());
-			
+
 			//Send the clear message
 			LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
 			//Send update message to the newly connected client
 			tsd.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
-			
+
 		}
 	}
-	
+
 	private void resendTraderData()
 	{
 		PacketTarget target = PacketDistributor.ALL.noArg();
 		LightmansCurrencyPacketHandler.instance.send(target, new MessageClearClientTraders());
 		this.traderData.forEach((id,trader) -> LightmansCurrencyPacketHandler.instance.send(target, new MessageUpdateClientTrader(trader.save())));
 	}
-	
-	
+
+
 	private static class PersistentData
 	{
-		
+
 		public long id;
 		public CompoundTag tag;
-		
+
 		public PersistentData(long id, CompoundTag tag) { this.id = id; this.tag = tag == null ? new CompoundTag() : tag; }
-		
+
 	}
-	
+
 }

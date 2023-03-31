@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.events;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -11,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Cancelable;
@@ -48,14 +46,7 @@ public abstract class TradeEvent extends Event{
 		}
 		
 		/**
-		 * @deprecated Use addAlert instead.
-		 */
-		@Deprecated
-		public void denyTrade(Component reason) { this.addAlert(AlertData.convert(reason), true); }
-		
-		/**
 		 * Adds an alert to the trade display.
-		 * 
 		 * Use addHelpful, addWarning, addError, or addDenial for easier to use templates if you don't wish to add any special formatting to your alert.
 		 * @param cancelTrade Whether to also cancel the trade/event.
 		 */
@@ -93,17 +84,11 @@ public abstract class TradeEvent extends Event{
 		/**
 		 * Adds an alert to the trade with default error formatting (Red).
 		 * Also cancels the trade.
-		 * Use addError if you do not with so cancel the trade.
+		 * Use addError if you do not wish so cancel the trade.
 		 */
 		public void addDenial(MutableComponent message) {
 			this.addAlert(AlertData.error(message), true);
 		}
-
-		/**
-		 * @deprecated use getAlertInfo instead.
-		 */
-		@Deprecated
-		public List<Component> getDenialReasons() { List<Component> text = new ArrayList<>(); for(AlertData a : this.alerts) text.add(a.getFormattedMessage()); return text; }
 
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		

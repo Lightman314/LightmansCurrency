@@ -226,14 +226,11 @@ public class EventHandler {
 				Collection<ItemEntity> walletDrops = Lists.newArrayList();
 				if(livingEntity instanceof Player) //Only worry about gamerules on players, otherwise it always drops the wallet.
 				{
-					
-					boolean keepWallet = true;
-					if(!LightmansCurrency.isCuriosValid(livingEntity))
-					{
-						boolean keepInventory = livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
-						GameRules.BooleanValue keepWalletVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.KEEP_WALLET);
-						keepWallet = (keepWalletVal != null && keepWalletVal.get()) || keepInventory;
-					}
+
+					boolean keepWallet = ModGameRules.safeGetCustomBool(livingEntity.level, ModGameRules.KEEP_WALLET, false);
+					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
+					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+						keepWallet = true;
 					
 					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
 					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
@@ -255,7 +252,8 @@ public class EventHandler {
 						walletDrops = e.getDrops();
 						
 					}
-					else //Drop the wallet
+					//Drop the wallet (unless curios is installed, upon which curios will handle that)
+					else if(!LightmansCurrency.isCuriosValid(livingEntity))
 					{
 						
 						walletDrops.add(getDrop(livingEntity,walletStack));

@@ -21,6 +21,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class SelectionTab extends WalletBankTab {
 
 	public SelectionTab(WalletBankScreen screen) { super(screen); }
@@ -28,7 +30,8 @@ public class SelectionTab extends WalletBankTab {
 	Button buttonPersonalAccount;
 	TeamSelectWidget teamSelection;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.PAPER); }
 
 	@Override

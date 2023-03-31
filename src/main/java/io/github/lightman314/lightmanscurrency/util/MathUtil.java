@@ -13,7 +13,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Sum all of the Vector3f's together
+	 * Sum all the Vector3f's together
 	 */
 	public static Vector3f VectorAdd(Vector3f... vectors)
 	{
@@ -33,10 +33,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts an integer between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static int clamp(int value, int min, int max)
 	{
@@ -55,10 +51,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a float between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static float clamp(float value, float min, float max)
 	{
@@ -77,10 +69,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a double between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static double clamp(double value, double min, double max)
 	{
@@ -99,10 +87,6 @@ public class MathUtil {
 	
 	/**
 	 * Restricts a long between a min & max value
-	 * @param value
-	 * @param min
-	 * @param max
-	 * @return
 	 */
 	public static long clamp(long value, long min, long max)
 	{
@@ -117,6 +101,12 @@ public class MathUtil {
 		else if(value > max)
 			value = max;
 		return value;
+	}
+
+	public static long SafeDivide(long a, long b, long divideByZero){
+		if(b == 0)
+			return divideByZero;
+		return (a/b);
 	}
 	
 }

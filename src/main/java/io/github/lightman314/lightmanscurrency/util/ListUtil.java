@@ -5,8 +5,6 @@ import java.util.List;
 
 public class ListUtil {
 
-    public static <T> List<T> convertList(List<? extends T> list) {
-        return new ArrayList<>(list);
-    }
+    public static <T> List<T> convertList(List<? extends T> list) { return new ArrayList<>(list); }
 
 }

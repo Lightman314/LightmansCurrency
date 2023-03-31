@@ -13,13 +13,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class NotificationTab extends ATMTab {
 
 	public NotificationTab(ATMScreen screen) { super(screen); }
 	
 	CoinValueInput notificationSelection;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.ENDER_PEARL); }
 
 	@Override

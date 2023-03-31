@@ -9,6 +9,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class NullCategory extends NotificationCategory {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "null");
@@ -17,7 +19,8 @@ public class NullCategory extends NotificationCategory {
 	
 	private NullCategory() {}
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(Items.BARRIER); }
 
 	@Override

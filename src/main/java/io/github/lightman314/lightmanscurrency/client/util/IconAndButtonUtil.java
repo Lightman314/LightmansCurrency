@@ -29,6 +29,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +44,14 @@ import javax.annotation.Nonnull;
 
 public class IconAndButtonUtil {
 
+	/**
+	 * Texture file used for miscellaneous icons, most of which are refferred to in the IconData constants below.
+	 */
 	public static final ResourceLocation ICON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/icons.png");
+	/**
+	 * Texture file formerly used for the Trader Settings screen, but with the screen portion removed leaving only the widget textures.
+	 */
+	public static final ResourceLocation WIDGET_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/widgets.png");
 
 	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
 	public static final IconData ICON_STORAGE = IconData.of(Items.CHEST);
@@ -120,13 +128,9 @@ public class IconAndButtonUtil {
 
 	public static final SimpleTooltip TOOLTIP_BACK_TO_TERMINAL = new SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.trader.universaltrader.back"));
 
-	public static final Component TOOLTIP_SHOW_LOGGER = EasyText.translatable("tooltip.lightmanscurrency.trader.log.show");
-	public static final Component TOOLTIP_HIDE_LOGGER = EasyText.translatable("tooltip.lightmanscurrency.trader.log.hide");
-	public static final SimpleTooltip TOOLTIP_CLEAR_LOGGER = new SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.trader.log.clear"));
-
 	public static final SimpleTooltip TOOLTIP_TRADE_RULES = new SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.trader.traderules"));
-	public static final Component TOOLTIP_TRADE_RULES_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
-	public static final Component TOOLTIP_TRADE_RULES_TRADE = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
+	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
+	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADE = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
 	public static final SimpleTooltip TOOLTIP_OPEN_SETTINGS = new SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.trader.settings"));
 
 	public static final Component TOOLTIP_CREATIVE_ENABLE = EasyText.translatable("tooltip.lightmanscurrency.trader.creative.enable");
@@ -188,13 +192,7 @@ public class IconAndButtonUtil {
 		return button;
 	}
 
-	public static IconButton showLoggerButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isLoggerVisible) { return new IconButton(x,y,pressable, ICON_SHOW_LOGGER, new ToggleTooltip(isLoggerVisible, TOOLTIP_HIDE_LOGGER, TOOLTIP_SHOW_LOGGER)); }
-	public static IconButton clearLoggerButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_CLEAR_LOGGER, TOOLTIP_CLEAR_LOGGER); }
-
-	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, TOOLTIP_TRADE_RULES); }
-	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isTradeSelected) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new ToggleTooltip(isTradeSelected, TOOLTIP_TRADE_RULES_TRADE, TOOLTIP_TRADE_RULES_TRADER)); }
-	public static IconButton openSettingsButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_SETTINGS, TOOLTIP_OPEN_SETTINGS); }
-
+	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new SimpleTooltip(TOOLTIP_TRADE_RULES_TRADE)); }
 	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
 
 	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
@@ -203,7 +201,7 @@ public class IconAndButtonUtil {
 	public static PlainButton quickExtractButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0); }
 
 	public static PlainButton checkmarkButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) {
-		return new PlainButton(x, y, 10, 10, pressable, TraderSettingsScreen.GUI_TEXTURE, () -> Pair.of(10, isActive.get() ? 200 : 220));
+		return new PlainButton(x, y, 10, 10, pressable, WIDGET_TEXTURE, () -> Pair.of(10, isActive.get() ? 200 : 220));
 	}
 
 	//public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }

@@ -5,8 +5,8 @@ import javax.annotation.Nonnull;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -20,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class TabButton extends Button{
 	
-	public static final ResourceLocation GUI_TEXTURE = TraderSettingsScreen.GUI_TEXTURE;
+	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
 	
 	public static final int SIZE = 25;
 	
@@ -44,7 +44,7 @@ public class TabButton extends Button{
 	}
 	
 	@Override
-	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void renderButton(@Nonnull PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		//Set the texture & color for the button
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -76,9 +76,9 @@ public class TabButton extends Button{
 	public interface ITab
 	{
 		@Nonnull
-		public IconData getIcon();
-		public int getColor();
-		public Component getTooltip();
+		IconData getIcon();
+		int getColor();
+		Component getTooltip();
 		
 	}
 

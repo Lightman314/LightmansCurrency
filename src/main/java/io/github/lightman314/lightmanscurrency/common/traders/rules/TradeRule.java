@@ -5,49 +5,63 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 import com.google.common.base.Supplier;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public abstract class TradeRule {
-	
+
 	public final ResourceLocation type;
-	public final MutableComponent getName() { return new TranslatableComponent("traderule." + type.getNamespace() + "." + type.getPath()); }
-	
+	public static MutableComponent nameOfType(ResourceLocation ruleType) { return EasyText.translatable("traderule." + ruleType.getNamespace() + "." + ruleType.getPath());
+	}
+	public final MutableComponent getName() { return nameOfType(this.type); }
+
+	private ITradeRuleHost host = null;
+
 	private boolean isActive = false;
-	public boolean isActive() { return this.isActive; }
+	public boolean isActive() { return this.canActivate(this.host) && this.isActive; }
 	public void setActive(boolean active) { this.isActive = active; }
-	
+
+	protected boolean allowHost(@Nonnull ITradeRuleHost host)
+	{
+		if(this.onlyAllowOnTraders() && !host.isTrader())
+			return false;
+		if(this.onlyAllowOnTrades() && !host.isTrade())
+			return false;
+		return true;
+	}
+	public boolean canActivate() { return this.canActivate(this.host); }
+	protected boolean canActivate(@Nullable ITradeRuleHost host) { return this.allowHost(host); }
+
+	protected boolean onlyAllowOnTraders() { return false; }
+	protected boolean onlyAllowOnTrades() { return false; }
+
 	public void beforeTrade(PreTradeEvent event) {}
 	public void tradeCost(TradeCostEvent event) {}
 	public void afterTrade(PostTradeEvent event) {}
-	
-	protected TradeRule(ResourceLocation type)
-	{
-		this.type = type;
-	}
-	
+
+	protected TradeRule(ResourceLocation type) { this.type = type; }
+
 	public CompoundTag save()
 	{
 		CompoundTag compound = new CompoundTag();
@@ -56,77 +70,74 @@ public abstract class TradeRule {
 		this.saveAdditional(compound);
 		return compound;
 	}
-	
+
 	protected abstract void saveAdditional(CompoundTag compound);
-	
+
 	public final void load(CompoundTag compound)
 	{
 		this.isActive = compound.getBoolean("Active");
 		this.loadAdditional(compound);
 	}
 	protected abstract void loadAdditional(CompoundTag compound);
-	
+
 	public abstract JsonObject saveToJson(JsonObject json);
 	public abstract void loadFromJson(JsonObject json);
-	
+
 	public abstract CompoundTag savePersistentData();
 	public abstract void loadPersistentData(CompoundTag data);
-	
+
 	public abstract IconData getButtonIcon();
-	
+
 	public final void receiveUpdateMessage(CompoundTag updateInfo)
 	{
 		if(updateInfo.contains("SetActive"))
 			this.isActive = updateInfo.getBoolean("SetActive");
 		this.handleUpdateMessage(updateInfo);
 	}
-	
+
 	protected abstract void handleUpdateMessage(CompoundTag updateInfo);
-	
+
 	public static CompoundTag saveRules(CompoundTag compound, List<TradeRule> rules, String tag)
 	{
 		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); i++)
-			ruleData.add(rules.get(i).save());
+		for (TradeRule rule : rules) ruleData.add(rule.save());
 		compound.put(tag, ruleData);
 		return compound;
 	}
-	
+
 	public static boolean savePersistentData(CompoundTag compound, List<TradeRule> rules, String tag) {
 		ListTag ruleData = new ListTag();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			CompoundTag thisRuleData = rules.get(i).savePersistentData();
-			if(thisRuleData != null)
-			{
-				thisRuleData.putString("Type", rules.get(i).type.toString());
+		for (TradeRule rule : rules) {
+			CompoundTag thisRuleData = rule.savePersistentData();
+			if (thisRuleData != null) {
+				thisRuleData.putString("Type", rule.type.toString());
 				ruleData.add(thisRuleData);
 			}
 		}
-		if(ruleData.size() <= 0)
+		if(ruleData.size() == 0)
 			return false;
 		compound.put(tag, ruleData);
 		return true;
 	}
-	
+
 	public static JsonArray saveRulesToJson(List<TradeRule> rules) {
 		JsonArray ruleData = new JsonArray();
-		for(int i = 0; i < rules.size(); ++i)
-		{
-			if(rules.get(i).isActive)
-			{
-				JsonObject thisRuleData = rules.get(i).saveToJson(new JsonObject());
-				if(thisRuleData != null)
-				{
-					thisRuleData.addProperty("Type", rules.get(i).type.toString());
+		for (TradeRule rule : rules) {
+			if (rule.isActive) {
+				JsonObject thisRuleData = rule.saveToJson(new JsonObject());
+				if (thisRuleData != null) {
+					thisRuleData.addProperty("Type", rule.type.toString());
 					ruleData.add(thisRuleData);
 				}
 			}
 		}
 		return ruleData;
 	}
-	
-	public static List<TradeRule> loadRules(CompoundTag compound, String tag)
+
+	@Deprecated(since = "2.1.1.0")
+	public static List<TradeRule> loadRules(CompoundTag compound, String tag) { return loadRules(compound, tag, null); }
+
+	public static List<TradeRule> loadRules(CompoundTag compound, String tag, ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		if(compound.contains(tag, Tag.TAG_LIST))
@@ -137,12 +148,16 @@ public abstract class TradeRule {
 				CompoundTag thisRuleData = ruleData.getCompound(i);
 				TradeRule thisRule = Deserialize(thisRuleData);
 				if(thisRule != null)
+				{
 					rules.add(thisRule);
+					if(host != null)
+						thisRule.host = host;
+				}
 			}
 		}
 		return rules;
 	}
-	
+
 	public static void loadPersistentData(CompoundTag compound, List<TradeRule> tradeRules, String tag)
 	{
 		if(compound.contains(tag, Tag.TAG_LIST))
@@ -157,12 +172,13 @@ public abstract class TradeRule {
 					if(tradeRules.get(r).type.toString().contentEquals(thisRuleData.getString("Type")))
 					{
 						tradeRules.get(r).loadPersistentData(thisRuleData);
+						query = false;
 					}
 				}
 			}
 		}
 	}
-	
+
 	public static List<TradeRule> Parse(JsonArray tradeRuleData)
 	{
 		List<TradeRule> rules = new ArrayList<>();
@@ -171,31 +187,47 @@ public abstract class TradeRule {
 			try {
 				JsonObject thisRuleData = tradeRuleData.get(i).getAsJsonObject();
 				TradeRule thisRule = Deserialize(thisRuleData);
-				if(thisRule != null)
-					rules.add(thisRule);
+				rules.add(thisRule);
 			}
 			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
 		}
 		return rules;
 	}
-	
-	public static boolean ValidateTradeRuleList(List<TradeRule> rules, Function<TradeRule,Boolean> allowed)
+
+
+
+	public static boolean ValidateTradeRuleList(@Nonnull List<TradeRule> rules, @Nonnull ITradeRuleHost host)
 	{
 		boolean changed = false;
 		for(Supplier<TradeRule> ruleSource : registeredDeserializers.values())
 		{
 			TradeRule rule = ruleSource.get();
-			if(rule != null && allowed.apply(rule) && !HasTradeRule(rules,rule.type))
+			if(rule != null && host.allowTradeRule(rule) && rule.allowHost(host) && !HasTradeRule(rules,rule.type))
 			{
 				rules.add(rule);
+				rule.host = host;
 				changed = true;
 			}
 		}
 		return changed;
 	}
-	
+
+	public static boolean ValidateTradeRuleActiveStates(@Nonnull List<TradeRule> rules)
+	{
+		boolean changed = false;
+		for(TradeRule rule : rules)
+		{
+			if(rule.isActive && !rule.canActivate())
+			{
+				rule.isActive = false;
+				changed = true;
+			}
+		}
+		return changed;
+	}
+
 	public static boolean HasTradeRule(List<TradeRule> rules, ResourceLocation type) { return GetTradeRule(rules, type) != null; }
-	
+
 	public static TradeRule GetTradeRule(List<TradeRule> rules, ResourceLocation type)
 	{
 		for(TradeRule rule : rules)
@@ -205,65 +237,27 @@ public abstract class TradeRule {
 		}
 		return null;
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
-	public abstract GUIHandler createHandler(TradeRuleScreen screen, Supplier<TradeRule> rule);
-	
-	@OnlyIn(Dist.CLIENT)
-	public static abstract class GUIHandler
-	{
-		
-		protected final TradeRuleScreen screen;
-		private final Supplier<TradeRule> rule;
-		protected final TradeRule getRuleRaw() { return rule.get(); }
-		
-		protected GUIHandler(TradeRuleScreen screen, Supplier<TradeRule> rule)
-		{
-			this.screen = screen;
-			this.rule = rule;
-		}
-		
-		public abstract void initTab();
-		
-		public abstract void renderTab(PoseStack poseStack, int mouseX, int mouseY, float partialTicks);
-		
-		public abstract void onTabClose();
-		
-		public void onScreenTick() { }
-		
-		public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomRenderable(T widget)
-		{
-			return screen.addCustomRenderable(widget);
-		}
-		
-		public <T extends GuiEventListener & NarratableEntry> T addCustomWidget(T widget)
-		{
-			return screen.addCustomWidget(widget);
-		}
-		
-		public <T extends GuiEventListener> void removeCustomWidget(T widget)
-		{
-			screen.removeCustomWidget(widget);
-		}
-		
-	}
-	
+	@Nonnull
+	public abstract TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent);
+
 	/**
 	 * Trade Rule Deserialization
 	 */
 	static final Map<String,Supplier<TradeRule>> registeredDeserializers = new HashMap<>();
-	
+
 	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer)
 	{
 		RegisterDeserializer(type, deserializer, false);
 	}
-	
+
 	public static void RegisterDeserializer(ResourceLocation type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
 	{
 		RegisterDeserializer(type.toString(), deserializer, suppressDebugMessage);
-		
+
 	}
-	
+
 	private static void RegisterDeserializer(String type, Supplier<TradeRule> deserializer, boolean suppressDebugMessage)
 	{
 		if(registeredDeserializers.containsKey(type))
@@ -275,7 +269,7 @@ public abstract class TradeRule {
 		if(!suppressDebugMessage)
 			LightmansCurrency.LogInfo("Registered trade rule deserializer of type " + type);
 	}
-	
+
 	public static TradeRule CreateRule(ResourceLocation ruleType)
 	{
 		String thisType = ruleType.toString();
@@ -285,14 +279,14 @@ public abstract class TradeRule {
 			{
 				TradeRule rule = deserializer.get();
 				data.set(rule);
-			}	
+			}
 		});
 		if(data.get() != null)
 			return data.get();
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
-	
+
 	public static TradeRule Deserialize(CompoundTag compound)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
@@ -307,7 +301,7 @@ public abstract class TradeRule {
 		LightmansCurrency.LogError("Could not find a deserializer of type '" + thisType + "'. Unable to load the Trade Rule.");
 		return null;
 	}
-	
+
 	public static TradeRule Deserialize(JsonObject json) throws Exception{
 		String thisType = json.get("Type").getAsString();
 		if(registeredDeserializers.containsKey(thisType))
@@ -319,7 +313,7 @@ public abstract class TradeRule {
 		}
 		throw new Exception("Could not find a deserializer of type '" + thisType + "'.");
 	}
-	
+
 	public static TradeRule getRule(ResourceLocation type, List<TradeRule> rules) {
 		for(TradeRule rule : rules)
 		{
@@ -328,11 +322,11 @@ public abstract class TradeRule {
 		}
 		return null;
 	}
-	
-	public static final CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
-	public static final CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
-	
-	public static final boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
-	public static final boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
-	
+
+	public static CompoundTag CreateRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Create", true); return tag; }
+	public static CompoundTag RemoveRuleMessage() { CompoundTag tag = new CompoundTag(); tag.putBoolean("Remove", true); return tag; }
+
+	public static boolean isCreateMessage(CompoundTag tag) { return tag.contains("Create") && tag.getBoolean("Create"); }
+	public static boolean isRemoveMessage(CompoundTag tag) { return tag.contains("Remove") && tag.getBoolean("Remove"); }
+
 }

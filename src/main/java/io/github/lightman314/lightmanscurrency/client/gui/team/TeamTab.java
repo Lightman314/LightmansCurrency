@@ -10,10 +10,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
+
 public abstract class TeamTab implements ITab{
 
 	public int getColor() { return 0xFFFFFF; }
-	public abstract IconData getIcon();
+	@Nonnull
+    public abstract IconData getIcon();
 	public abstract Component getTooltip();
 	
 	private TeamManagerScreen screen;

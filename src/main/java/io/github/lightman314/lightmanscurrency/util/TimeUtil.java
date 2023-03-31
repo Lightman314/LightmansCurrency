@@ -50,7 +50,7 @@ public class TimeUtil {
 		return seconds * 1000;
 	}
 
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static TimeData separateDuration(long duration) { return new TimeData(duration); }
 
 	public static class TimeData

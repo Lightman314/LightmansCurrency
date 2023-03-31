@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
@@ -41,7 +42,7 @@ public class TooltipItem extends Item{
 	}
 	
 	private static TranslatableComponent getTooltipLine(String tooltipTranslation, int page) {
-		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + String.valueOf(page);
+		String tt = (tooltipTranslation.endsWith(".") ? tooltipTranslation : tooltipTranslation + ".") + page;
 		TranslatableComponent result = new TranslatableComponent(tt);
 		//Returns null if the translated text is the translation key.
 		if(result.getString().contentEquals(tt))
@@ -50,7 +51,7 @@ public class TooltipItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		addTooltip(tooltip, this.tooltips);
 		super.appendHoverText(stack, level, tooltip, flagIn);
@@ -58,7 +59,7 @@ public class TooltipItem extends Item{
 	
 	public static void addTooltip(List<Component> tooltip, NonNullSupplier<List<Component>> tooltipSource) {
 		List<Component> addableTooltips = tooltipSource.get();
-		if(addableTooltips.size() <= 0)
+		if(addableTooltips.size() == 0)
 			return;
 		if(Screen.hasShiftDown())
 			tooltip.addAll(tooltipSource.get());

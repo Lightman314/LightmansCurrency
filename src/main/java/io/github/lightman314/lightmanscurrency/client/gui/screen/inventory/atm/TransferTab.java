@@ -31,6 +31,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class TransferTab extends ATMTab {
 
 	public TransferTab(ATMScreen screen) { super(screen); }
@@ -52,7 +54,8 @@ public class TransferTab extends ATMTab {
 	
 	boolean playerMode = true;
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override

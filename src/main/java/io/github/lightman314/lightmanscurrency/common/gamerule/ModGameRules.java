@@ -10,6 +10,9 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class ModGameRules {
 
 	private static final List<RuleData<?>> GAME_RULES = Lists.newArrayList();
@@ -70,12 +73,28 @@ public class ModGameRules {
 		GAME_RULES.add(ruleData);
 		return ruleKey;
 	}
-	
-	public static <T extends GameRules.Value<T>> T getCustomValue(Level level, GameRules.Key<T> ruleKey)
+
+	public static <T extends GameRules.Value<T>> T getCustomValue(@Nonnull Level level, @Nullable GameRules.Key<T> ruleKey)
 	{
 		if(ruleKey == null)
 			return null;
 		return level.getGameRules().getRule(ruleKey);
+	}
+
+	public static boolean safeGetCustomBool(@Nonnull Level level, @Nullable GameRules.Key<GameRules.BooleanValue> ruleKey, boolean defaultValue)
+	{
+		GameRules.BooleanValue ruleVal = getCustomValue(level, ruleKey);
+		if(ruleVal != null)
+			return defaultValue;
+		return ruleVal.get();
+	}
+
+	public static int safeGetCustomInt(@Nonnull Level level, @Nullable GameRules.Key<GameRules.IntegerValue> ruleKey, int defaultValue)
+	{
+		GameRules.IntegerValue ruleVal = getCustomValue(level, ruleKey);
+		if(ruleVal != null)
+			return defaultValue;
+		return ruleVal.get();
 	}
 	
 	public static void registerRules()

@@ -16,11 +16,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import javax.annotation.Nonnull;
+
 public class TradeSelectClientTab extends TraderInterfaceClientTab<TradeSelectTab> {
 
 	public TradeSelectClientTab(TraderInterfaceScreen screen, TradeSelectTab commonTab) { super(screen, commonTab); }
 
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 
 	@Override

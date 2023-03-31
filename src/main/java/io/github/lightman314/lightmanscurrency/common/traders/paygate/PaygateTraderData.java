@@ -2,17 +2,22 @@ package io.github.lightman314.lightmanscurrency.common.traders.paygate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.ITradeSource;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -28,7 +33,10 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.paygate.CMessageCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -43,14 +51,51 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-public class PaygateTraderData extends TraderData implements ITradeSource<PaygateTradeData> {
+import javax.annotation.Nonnull;
+
+public class PaygateTraderData extends TraderData {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "paygate");
 	
 	public static final int DURATION_MIN = 1;
 	public static final int DURATION_MAX = 1200;
+
+	private int storedTicketStubs = 0;
+	public int getStoredTicketStubs() { return this.storedTicketStubs; }
+	public void addTicketStub(int count)
+	{
+		//Don't bother storing the ticket stubs if creative.
+		if(this.isCreative())
+			return;
+		this.storedTicketStubs += count;
+		this.markTicketStubsDirty();
+	}
+	public void collectTicketStubs(Player player)
+	{
+		if(this.storedTicketStubs > 0)
+		{
+			do
+			{
+				ItemStack stub = new ItemStack(ModItems.TICKET_STUB.get());
+				int addCount = Math.min(this.storedTicketStubs, stub.getMaxStackSize());
+				stub.setCount(addCount);
+				this.storedTicketStubs -= addCount;
+				ItemHandlerHelper.giveItemToPlayer(player, stub);
+			} while (this.storedTicketStubs > 0);
+			this.storedTicketStubs = 0;
+			this.markTicketStubsDirty();
+		}
+		else if(this.storedTicketStubs != 0)
+		{
+			this.storedTicketStubs = 0;
+			this.markTicketStubsDirty();
+		}
+	}
 	
 	@Override
 	public boolean canShowOnTerminal() { return false; }
@@ -139,10 +184,9 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 		return this.trades.get(tradeSlot);
 	}
 	
-	public List<PaygateTradeData> getAllTrades() { return new ArrayList<>(this.trades); }
-	
+	@Nonnull
 	@Override
-	public List<? extends TradeData> getTradeData() { return this.getAllTrades(); }
+	public List<PaygateTradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
 	
 	public int getTradeStock(int tradeIndex) { return 1; }
 	
@@ -221,7 +265,7 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 			}
 			
 			//Abort if not enough room to put the ticket stub
-			if(!context.canFitItem(new ItemStack(ModItems.TICKET_STUB.get())))
+			if(!trade.shouldStoreTicketStubs() && !context.canFitItem(new ItemStack(ModItems.TICKET_STUB.get())))
 			{
 				LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
@@ -233,23 +277,19 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 				LightmansCurrency.LogError("Unable to collect the ticket. Aborting Trade!");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
-			
-			//Give the ticket stub
-			context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
+
+			//Store the ticket stub if
+			if(trade.shouldStoreTicketStubs())
+				this.addTicketStub(1);
+			else //Give the ticket stub
+				context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
 			
 			//Activate the paygate
 			this.activate(trade.getDuration());
 			
 			//Push Notification
 			this.pushNotification(() -> new PaygateNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-			
-			//We would normally change the internal inventory here, but for ticket trades that's not needed.
-			
-			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
-			
-			return TradeResult.SUCCESS;
-			
+
 		}
 		//Process a coin trade
 		else
@@ -273,13 +313,11 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 				//Give the paid cost to storage
 				this.addStoredMoney(price);
 			}
-			
-			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
-			
-			return TradeResult.SUCCESS;
-			
+
 		}
+		//Push the post-trade event
+		this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+		return TradeResult.SUCCESS;
 	}
 	
 	@Override
@@ -295,11 +333,14 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		this.saveTrades(compound);
+		this.saveTicketStubs(compound);
 	}
-	
-	protected final void saveTrades(CompoundTag compound) {
-		PaygateTradeData.saveAllData(compound, this.trades);
-	}
+
+	protected final void saveTicketStubs(CompoundTag compound) { compound.putInt("TicketStubs", this.storedTicketStubs); }
+
+	protected final void saveTrades(CompoundTag compound) { PaygateTradeData.saveAllData(compound, this.trades); }
+
+	public void markTicketStubsDirty() { this.markDirty(this::saveTicketStubs); }
 
 	@Override
 	protected void saveAdditionalToJson(JsonObject json) { }
@@ -309,6 +350,9 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 		//Load Trades
 		if(compound.contains(PaygateTradeData.DEFAULT_KEY))
 			this.trades = PaygateTradeData.loadAllData(compound);
+		//Load Ticket Stubs
+		if(compound.contains("TicketStubs"))
+			this.storedTicketStubs = compound.getInt("TicketStubs");
 	}
 
 	@Override
@@ -333,9 +377,6 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 	public void initStorageTabs(TraderStorageMenu menu) {
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new PaygateTradeEditTab(menu));
 	}
-
-	@Override
-	protected void addSettingsTabs(List<SettingsTab> tabs) { }
 
 	@Override
 	protected void addPermissionOptions(List<PermissionOption> options) { }
@@ -369,8 +410,42 @@ public class PaygateTraderData extends TraderData implements ITradeSource<Paygat
 		
 		//Load the trade rules
 		if(compound.contains("TradeRules", Tag.TAG_LIST))
-			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
+			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules", this));
 		
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void onScreenInit(TraderScreen screen, Consumer<AbstractWidget> addWidget) {
+		super.onScreenInit(screen, addWidget);
+		//Add Collect Ticket Stub button
+		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().player);
+		addWidget.accept(button);
+		screen.leftEdgePositioner.addWidget(button);
+	}
+
+	@Override
+	@OnlyIn(Dist.CLIENT)
+	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<AbstractWidget> addWidget) {
+		super.onStorageScreenInit(screen, addWidget);
+		//Add Collect Ticket Stub button
+		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().player);
+		addWidget.accept(button);
+		screen.leftEdgePositioner.addWidget(button);
+	}
+
+
+	@OnlyIn(Dist.CLIENT)
+	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource)
+	{
+		IconButton button = new IconButton(0,0, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new CMessageCollectTicketStubs(this.getID())), IconData.of(ModItems.TICKET_STUB), new IconAndButtonUtil.ToggleTooltip2(() -> this.storedTicketStubs > 0, new IconAndButtonUtil.SuppliedTooltip(() -> EasyText.translatable("tooltip.lightmanscurrency.trader.collect_ticket_stubs", this.storedTicketStubs)), new IconAndButtonUtil.SimpleTooltip(EasyText.empty())));
+		button.setVisiblityCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE));
+		button.setActiveCheck(() -> this.storedTicketStubs > 0);
+		return button;
+	}
+
+	private boolean areTicketStubsRelevant() {
+		return this.storedTicketStubs > 0 || this.trades.stream().anyMatch(t -> t.isTicketTrade() && t.shouldStoreTicketStubs());
 	}
 	
 }

@@ -7,12 +7,15 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IBookTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,5 +58,8 @@ public class BookTraderBlock extends TraderBlockRotatable implements IBookTrader
 
     @Override
     public int maxRenderIndex() { return BOOK_COUNT; }
+
+    @Override
+    protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER_BOOK; }
 
 }

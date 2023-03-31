@@ -28,6 +28,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener {
 
 	private static final int X_OFFSET = 13;
@@ -39,7 +41,8 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		super(screen, commonTab);
 	}
 
-	@Override
+	@Nonnull
+    @Override
 	public @NotNull IconData getIcon() { return IconData.BLANK; }
 
 	@Override
@@ -107,7 +110,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void onClose() { this.selection = -1; this.itemEditScrollValue = -1; }
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 
 		if(this.getTrade() == null)
 			return;
@@ -189,7 +192,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 

@@ -14,6 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public abstract class NotificationCategory implements ITab
 {
 	
@@ -68,7 +70,8 @@ public abstract class NotificationCategory implements ITab
 	public abstract boolean matches(NotificationCategory other);
 	
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
-		@Override
+		@Nonnull
+        @Override
 		public @NotNull IconData getIcon() { return IconData.of(Items.CHEST); }
 		@Override
 		public MutableComponent getName() { return new TranslatableComponent("notifications.source.general"); }

@@ -15,13 +15,16 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 
+import javax.annotation.Nonnull;
+
 public class TeamMemberListTab extends TeamTab {
 
 	public static final TeamMemberListTab INSTANCE = new TeamMemberListTab();
 	
 	private TeamMemberListTab() { }
 	
-	@Override
+	@Nonnull
+    @Override
 	public IconData getIcon() {
 		return IconData.of(Items.PLAYER_HEAD);
 	}
