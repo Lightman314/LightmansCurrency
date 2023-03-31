@@ -295,7 +295,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Nonnull
     @Override
-	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
+	public List<AuctionTradeData> getTradeData() { return this.trades; }
 
 	@Override
 	public IconData getIcon() { return ICON; }
