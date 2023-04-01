@@ -22,7 +22,7 @@ public class MathUtil {
 	}
 	
 	/**
-	 * Sum all of the Vector3f's together
+	 * Sum all the Vector3f's together
 	 */
 	public static Vector3f VectorAdd(Vector3f... vectors)
 	{
