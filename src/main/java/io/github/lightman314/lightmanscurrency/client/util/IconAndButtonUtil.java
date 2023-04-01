@@ -190,11 +190,9 @@ public class IconAndButtonUtil {
 		button.setVisiblityCheck(visibilityCheck);
 		return button;
 	}
-	
-	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, TOOLTIP_TRADE_RULES); }
-	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isTradeSelected) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new SimpleTooltip(TOOLTIP_TRADE_RULES_TRADE)); }
-	public static IconButton openSettingsButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_SETTINGS, TOOLTIP_OPEN_SETTINGS); }
-	
+
+	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new SimpleTooltip(TOOLTIP_TRADE_RULES_TRADE)); }
+
 	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
 	
 	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }

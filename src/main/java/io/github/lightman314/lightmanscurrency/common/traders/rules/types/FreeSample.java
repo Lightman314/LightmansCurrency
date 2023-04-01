@@ -69,7 +69,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	}
 	
 	private boolean giveDiscount(TradeEvent event) {
-		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() == TradeDirection.PURCHASE;
+		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() == TradeDirection.SALE;
 	}
 	
 	private void addToMemory(UUID playerID) {

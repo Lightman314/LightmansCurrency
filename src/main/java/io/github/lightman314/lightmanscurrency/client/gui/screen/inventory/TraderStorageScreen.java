@@ -114,7 +114,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		this.buttonStoreMoney = this.addRenderableWidget(IconAndButtonUtil.storeCoinButton(this.leftPos + 71, this.topPos + 120, this::PressStoreCoinsButton));
 		this.buttonStoreMoney.visible = false;
 
-		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(this.leftPos + this.imageWidth, this.topPos, this::PressTradeRulesButton, () -> this.currentTab().getTradeRuleTradeIndex() >= 0));
+		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(this.leftPos + this.imageWidth, this.topPos, this::PressTradeRulesButton));
 		this.buttonTradeRules.visible = false;
 
 

@@ -189,7 +189,7 @@ public class PaygateTraderData extends TraderData {
 	
 	@Nonnull
 	@Override
-	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }
+	public List<PaygateTradeData> getTradeData() { return this.trades; }
 	
 	public int getTradeStock(int tradeIndex) { return 1; }
 	
