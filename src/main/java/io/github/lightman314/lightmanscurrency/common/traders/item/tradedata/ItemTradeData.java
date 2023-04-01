@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -269,7 +270,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				return 0;
 			long coinValue = trader.getStoredMoney().getRawValue();
 			long price = this.getCost(context).getRawValue();
-			return (int)(coinValue / price);
+			return (int)MathUtil.SafeDivide(coinValue, price, 1);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
 		{

@@ -111,5 +111,11 @@ public class MathUtil {
 			value = max;
 		return value;
 	}
+
+	public static long SafeDivide(long a, long b, long divideByZero){
+		if(b == 0)
+			return divideByZero;
+		return (a/b);
+	}
 	
 }
