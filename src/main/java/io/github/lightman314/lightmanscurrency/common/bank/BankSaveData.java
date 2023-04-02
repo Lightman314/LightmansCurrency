@@ -128,8 +128,9 @@ public class BankSaveData extends SavedData {
 			return null;
 		}
 	}
-	
-	@Deprecated /** @deprecated Only use to transfer bank account data from the old Trading Office. */
+
+	/** @deprecated Only use to transfer bank account data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldBankAccount(UUID player, BankAccount account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
@@ -138,6 +139,7 @@ public class BankSaveData extends SavedData {
 				bsd.playerBankData.put(player, Pair.of(account, bsd.playerBankData.get(player).getSecond()));
 			else
 				bsd.playerBankData.put(player, Pair.of(account, BankAccount.GenerateReference(false, player)));
+			MarkBankAccountDirty(player);
 		}
 	}
 	
@@ -184,8 +186,9 @@ public class BankSaveData extends SavedData {
 		}
 		return BankAccount.GenerateReference(player);
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer selected bank account from old Trading Office. */
+
+	/** @deprecated Use only to transfer selected bank account from old Trading Office. */
+	@Deprecated
 	public static void GiveOldSelectedBankAccount(UUID player, AccountReference account) {
 		BankSaveData bsd = get();
 		if(bsd != null)
