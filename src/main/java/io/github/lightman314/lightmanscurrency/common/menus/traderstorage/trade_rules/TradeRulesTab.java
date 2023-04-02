@@ -87,6 +87,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         public Trade(TraderStorageMenu menu) { super(menu); }
 
         @Override
+        @OnlyIn(Dist.CLIENT)
         public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TradeRulesClientTab.Trade(screen, this); }
 
         @Nullable
