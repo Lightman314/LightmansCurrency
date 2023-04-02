@@ -139,6 +139,7 @@ public class BankSaveData extends SavedData {
 				bsd.playerBankData.put(player, Pair.of(account, bsd.playerBankData.get(player).getSecond()));
 			else
 				bsd.playerBankData.put(player, Pair.of(account, BankAccount.GenerateReference(false, player)));
+			MarkBankAccountDirty(player);
 		}
 	}
 	
