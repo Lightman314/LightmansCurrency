@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTab;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -26,6 +26,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public abstract class InputTraderData extends TraderData {
 
@@ -169,7 +171,7 @@ public abstract class InputTraderData extends TraderData {
 	public List<? extends InputTabAddon> inputSettingsAddons() { return ImmutableList.of(); }
 	
 	@Override
-	public void receiveNetworkMessage(Player player, CompoundTag message)
+	public void receiveNetworkMessage(@Nonnull Player player, @Nonnull CompoundTag message)
 	{
 		super.receiveNetworkMessage(player, message);
 		
