@@ -159,7 +159,7 @@ public class SelectionTab extends ATMTab{
 	@Override
 	public void postRender(PoseStack pose, int mouseX, int mouseY) {
 		//Render text in front of selection background
-		if(this.getTeamList().size() == 0)
+		if(this.getTeamList().size() == 0 && !this.adminMode)
 			TextRenderUtil.drawVerticallyCenteredMultilineText(pose, Component.translatable("gui.lightmanscurrency.bank.noteamsavailable"), this.teamSelection.getX() + 1, Size.NARROW.width - 2, this.teamSelection.getY() + 1, this.teamSelection.getHeight() - 2, 0xFFFFFF);
 	}
 	

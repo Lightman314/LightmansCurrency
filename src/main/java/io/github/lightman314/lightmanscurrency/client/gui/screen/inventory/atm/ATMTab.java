@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton.ITab;
+import net.minecraft.client.gui.GuiComponent;
 
 public abstract class ATMTab implements ITab
 {
@@ -28,7 +29,7 @@ public abstract class ATMTab implements ITab
 	
 	protected final void hideCoinSlots(PoseStack pose) {
 		RenderSystem.setShaderTexture(0, ATMScreen.GUI_TEXTURE);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 128, 7, 79, 162, 18);
+		GuiComponent.blit(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 128, 7, 79, 162, 18);
 	}
 	
 }
