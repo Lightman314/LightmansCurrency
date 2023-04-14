@@ -77,7 +77,6 @@ public class ClientEvents {
 				
 				if(!LightmansCurrency.getWalletStack(player).isEmpty())
 				{
-					
 					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level.random.nextFloat() * 0.5f, 0.75f));
 					
 					ItemStack wallet = LightmansCurrency.getWalletStack(player);

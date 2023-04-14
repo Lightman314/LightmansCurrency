@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.4-2.1.1.0b'
+version = '1.19.4-2.1.1.1'
 group = 'io.github.lightman314.lightmanscurrency'
 archivesBaseName = 'lightmanscurrency'
 
@@ -72,16 +72,16 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.29'
    	
    	//JEI when actually working on plugin
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.3-common-api:12.1.1.8")
-    //compileOnly fg.deobf("mezz.jei:jei-1.19.3-forge-api:12.1.1.8")
+    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
+    //compileOnly fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:4362072")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4362072")
+    compileOnly fg.deobf("curse.maven:jei-238222:4473386")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:4473386")
     
     //Curios API
-    compileOnly fg.deobf("curse.maven:curios-309927:4440280")
+    compileOnly fg.deobf("curse.maven:curios-309927:4478589")
     //Curios Runtime
-    runtimeOnly fg.deobf("curse.maven:curios-309927:4440280")
+    //runtimeOnly fg.deobf("curse.maven:curios-309927:4478589")
 
     //Immersive Engineering API
     compileOnly fg.deobf("curse.maven:immersive-engineering-231951:3963698")

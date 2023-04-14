@@ -2,12 +2,10 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem.DataWriter;
-import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
+import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
-import net.minecraftforge.network.NetworkHooks;
 
 public class MessageOpenWallet {
 	
@@ -27,7 +25,7 @@ public class MessageOpenWallet {
 			//Don't need to check for valid wallet handlers as the wallet stack index might not be -1...
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
-				NetworkHooks.openScreen(player, new WalletMenuProvider(message.walletStackIndex), new DataWriter(message.walletStackIndex));
+				WalletMenuBase.SafeOpenWalletMenu(player, message.walletStackIndex);
 		});
 		supplier.get().setPacketHandled(true);
 	}

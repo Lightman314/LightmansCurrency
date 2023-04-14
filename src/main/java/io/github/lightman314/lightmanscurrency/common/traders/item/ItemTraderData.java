@@ -76,7 +76,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 	
-	protected List<ItemTradeData> trades = new ArrayList<>();
+	protected List<ItemTradeData> trades;
 	
 	@Override
 	public boolean allowAdditionalUpgradeType(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }

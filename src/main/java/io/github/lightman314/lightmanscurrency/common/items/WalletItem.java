@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
-import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
@@ -24,7 +22,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,7 +38,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class WalletItem extends Item{
@@ -71,7 +67,7 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public int getEnchantmentValue() { return 10; }
+	public int getEnchantmentValue(ItemStack stack) { return 10; }
 	
 	@Override
 	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
@@ -225,7 +221,7 @@ public class WalletItem extends Item{
 					if(equippedWallet)
 						walletSlot = -1;
 				}
-				NetworkHooks.openScreen((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+				WalletMenuBase.SafeOpenWalletMenu((ServerPlayer)player, walletSlot);
 			}
 				
 			else
@@ -448,25 +444,6 @@ public class WalletItem extends Item{
 		
 		//Copy enchantments
 		EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(walletIn), walletOut);
-		
-	}
-	
-	public static class DataWriter implements Consumer<FriendlyByteBuf>
-	{
-
-		private final int slotIndex;
-		
-		public DataWriter(int slotIndex)
-		{
-			this.slotIndex = slotIndex;
-		}
-		
-		@Override
-		public void accept(FriendlyByteBuf buffer) {
-			
-			buffer.writeInt(this.slotIndex);
-			
-		}
 		
 	}
 	

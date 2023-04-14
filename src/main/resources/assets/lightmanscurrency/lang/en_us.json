@@ -312,6 +312,7 @@
     "tooltip.lightmanscurrency.wallet.autoConvert.on": "ON",
     "tooltip.lightmanscurrency.wallet.autoConvert.off": "OFF",
     "tooltip.lightmanscurrency.wallet.bankaccount": "Can deposit or withdraw coins to/from your bank account in the UI.",
+    "message.lightmanscurrency.wallet.none_equipped": "No wallet equipped to your wallet slot. Cannot open wallet.",
     "tooltip.lightmanscurrency.upgrade.item_capacity":"Increases item trader storage capacity by %s.",
     "tooltip.lightmanscurrency.upgrade.speed":"Decreases the delay between interactions by %s ticks.",
     "tooltip.lightmanscurrency.upgrade.network":"Makes a trader visible from a trading terminal.",
