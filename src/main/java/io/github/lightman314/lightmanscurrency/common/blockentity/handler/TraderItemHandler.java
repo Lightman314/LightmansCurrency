@@ -6,10 +6,11 @@ import java.util.Map;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
 
 public class TraderItemHandler{
 
@@ -45,6 +46,7 @@ public class TraderItemHandler{
 			return this.getStorage().getContents().size() + 1;
 		}
 		
+		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			//If within the slot count of the storage, return the contents
@@ -60,10 +62,8 @@ public class TraderItemHandler{
 		}
 		
 		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
-			if(this.allowsInputs() && this.getStorage().allowItem(stack))
-				return true;
-			return false;
+		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+			return this.allowsInputs() && this.getStorage().allowItem(stack);
 		}
 		
 		public boolean allowExtraction(ItemStack stack) {
@@ -73,7 +73,7 @@ public class TraderItemHandler{
 				{
 					for(int i = 0; i < 2; ++i)
 					{
-						if(InventoryUtil.ItemMatches(trade.getSellItem(0),stack))
+						if(trade.getItemRequirement(i).test(stack))
 							return false;
 					}
 				}
@@ -81,6 +81,7 @@ public class TraderItemHandler{
 			return true;
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 			ItemStack copyStack = stack.copy();
@@ -102,6 +103,7 @@ public class TraderItemHandler{
 				return copyStack;
 		}
 		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			if(this.allowsOutputs())

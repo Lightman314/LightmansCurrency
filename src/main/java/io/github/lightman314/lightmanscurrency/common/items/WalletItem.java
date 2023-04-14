@@ -52,14 +52,16 @@ public class WalletItem extends Item{
 	
 	private final int level;
 	private final int storageSize;
-	
-	public WalletItem(int level, int storageSize, String modelName, Properties properties)
+
+	public WalletItem(int level, int storageSize, String modelName, Properties properties) { this(level, storageSize, new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png"), properties); }
+
+	public WalletItem(int level, int storageSize, ResourceLocation modelTexture, Properties properties)
 	{
 		super(properties.stacksTo(1));
 		this.level = level;
 		this.storageSize = storageSize;
 		WalletMenuBase.updateMaxWalletSlots(this.storageSize);
-		this.MODEL_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/entity/" + modelName + ".png");
+		this.MODEL_TEXTURE = modelTexture;
 	}
 	
 	@Nullable
@@ -72,10 +74,8 @@ public class WalletItem extends Item{
 	}
 	
 	@Override
-	public int getEnchantmentValue() {
-		return 10;
-	}
-	
+	public int getEnchantmentValue() { return 10; }
+
 	@Override
 	public boolean isEnchantable(@NotNull ItemStack stack) { return true; }
 	
@@ -228,7 +228,7 @@ public class WalletItem extends Item{
 					if(equippedWallet)
 						walletSlot = -1;
 				}
-				NetworkHooks.openGui((ServerPlayer)player, new WalletMenuProvider(walletSlot), new DataWriter(walletSlot));
+				WalletMenuBase.SafeOpenWalletMenu((ServerPlayer) player, walletSlot);
 			}
 				
 			else
@@ -454,27 +454,9 @@ public class WalletItem extends Item{
 		
 	}
 	
-	public static class DataWriter implements Consumer<FriendlyByteBuf>
-	{
-
-		private final int slotIndex;
-		
-		public DataWriter(int slotIndex)
-		{
-			this.slotIndex = slotIndex;
-		}
-		
-		@Override
-		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.slotIndex); }
-		
-	}
-	
 	/**
 	 * The wallets texture. Used to render the wallet on the players hip when equipped.
 	 */
-	public ResourceLocation getModelTexture()
-	{
-		return this.MODEL_TEXTURE;
-	}
+	public ResourceLocation getModelTexture() { return this.MODEL_TEXTURE; }
 	
 }
