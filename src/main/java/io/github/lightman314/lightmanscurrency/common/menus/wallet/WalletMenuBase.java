@@ -195,7 +195,6 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 			menu.reloadWalletContents();
 	}
 
-
 	public static void SafeOpenWalletMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
 
 	public static void SafeOpenWalletBankMenu(@Nonnull ServerPlayer player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletBankMenuProvider(walletIndex));}
