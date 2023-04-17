@@ -37,6 +37,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -347,6 +349,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override
