@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -35,6 +37,27 @@ public abstract class EasyBlockEntity extends TileEntity implements IClientTrack
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        this.load(this.getBlockState(), pkt.getTag());
+        this.loadAdditional(pkt.getTag());
     }
+
+    @Nonnull
+    @Override
+    public final CompoundNBT save(@Nonnull CompoundNBT compound) {
+        compound = super.save(compound);
+        try{
+            this.saveAdditional(compound);
+        } catch(Throwable t) { LightmansCurrency.LogError("Error loading Block Entity from tag!", t); }
+        return compound;
+    }
+
+    protected abstract void saveAdditional(@Nonnull CompoundNBT compound);
+
+    @Override
+    public final void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound) {
+        super.load(state, compound);
+        try{ this.loadAdditional(compound);
+        } catch(Throwable t) { LightmansCurrency.LogError("Error loading Block Entity from tag!", t); }
+    }
+
+    protected abstract void loadAdditional(@Nonnull CompoundNBT compound);
 }

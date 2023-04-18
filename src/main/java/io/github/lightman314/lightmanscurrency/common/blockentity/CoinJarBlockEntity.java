@@ -73,21 +73,14 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	protected int getCurrentCount()
 	{
 		int count = 0;
-		for(int i = 0; i < storage.size(); i++)
-			count += storage.get(i).getCount();
+		for (ItemStack itemStack : storage) count += itemStack.getCount();
 		return count;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
-
 		this.writeStorage(compound);
-
-		return compound;
-
 	}
 	
 	protected CompoundNBT writeStorage(CompoundNBT compound)
@@ -100,10 +93,8 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
-
 		
 		if(compound.contains("Coins"))
 		{
@@ -116,15 +107,6 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 			}
 		}
 		
-	}
-
-	@Override
-	public void onLoad()
-	{
-		if(this.level.isClientSide)
-		{
-			BlockEntityUtil.requestUpdatePacket(this);
-		}
 	}
 	
 	//For reading/writing the storage when silk touched.

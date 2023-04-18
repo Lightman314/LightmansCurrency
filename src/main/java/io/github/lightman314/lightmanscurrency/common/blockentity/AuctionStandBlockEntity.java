@@ -12,7 +12,9 @@ import io.github.lightman314.lightmanscurrency.network.message.auction.SMessageS
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -26,7 +28,7 @@ import java.util.List;
 import java.util.Random;
 
 @Mod.EventBusSubscriber
-public class AuctionStandBlockEntity extends EasyBlockEntity {
+public class AuctionStandBlockEntity extends TileEntity {
 
     public AuctionStandBlockEntity() { super(ModBlockEntities.AUCTION_STAND.get()); }
 
@@ -75,7 +77,6 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
 
     private static void setDefaultDisplayItem() { setDisplayItems(ImmutableList.of(new ItemStack(ModItems.TRADING_CORE.get()))); }
 
-
     private static void setDisplayItems(List<ItemStack> items)
     {
         displayItems = ImmutableList.copyOf(InventoryUtil.copyList(items));
@@ -85,6 +86,5 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     public static void syncItemsFromServer(List<ItemStack> items) {
         displayItems = ImmutableList.copyOf(items);
     }
-
 
 }

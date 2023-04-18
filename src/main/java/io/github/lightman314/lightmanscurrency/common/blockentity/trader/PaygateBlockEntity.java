@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -27,16 +26,13 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	protected PaygateBlockEntity(TileEntityType<?> type) { super(type); }
 	
-	
-	@Nonnull
+
     @Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
 		
-		compound = super.save(compound);
+		super.saveAdditional(compound);
 		
 		this.saveTimer(compound);
-
-		return compound;
 		
 	}
 	
@@ -46,9 +42,9 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound) {
+	protected void loadAdditional(@Nonnull CompoundNBT compound) {
 
-		super.load(state, compound);
+		super.loadAdditional(compound);
 
 		//Load the timer
 		if(compound.contains("Timer", Constants.NBT.TAG_INT))

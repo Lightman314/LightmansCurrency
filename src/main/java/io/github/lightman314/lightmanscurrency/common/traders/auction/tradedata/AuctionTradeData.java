@@ -36,6 +36,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -347,6 +349,7 @@ public class AuctionTradeData extends TradeData {
 	}
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override

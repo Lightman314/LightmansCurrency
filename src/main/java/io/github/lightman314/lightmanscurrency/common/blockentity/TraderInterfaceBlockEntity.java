@@ -152,8 +152,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		{
 			this.mode = ActiveMode.DISABLED;
 			this.owner.SetOwner(newOwner);
-
-
 		}
 	}
 	public void setTeam(long teamID) {
@@ -306,11 +304,9 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.handlers.add(handler);
 		return handler;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
-		compound = super.save(compound);
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
 		this.saveOwner(compound);
 		this.saveMode(compound);
 		this.saveOnlineMode(compound);
@@ -319,7 +315,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.saveReference(compound);
 		this.saveUpgradeSlots(compound);
 		for(SidedHandler<?> handler : this.handlers) this.saveHandler(compound, handler);
-		return compound;
 	}
 	
 	protected final CompoundNBT saveOwner(CompoundNBT compound) {
@@ -370,33 +365,31 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, CompoundNBT compound) {
-		if(compound.contains("Owner", Constants.NBT.TAG_COMPOUND))
-		{
+	protected void loadAdditional(@Nonnull CompoundNBT compound) {
+		if (compound.contains("Owner", Constants.NBT.TAG_COMPOUND)) {
 			CompoundNBT ownerTag = compound.getCompound("Owner");
-			if(ownerTag.contains("id"))
+			if (ownerTag.contains("id"))
 				this.owner.SetOwner(PlayerReference.load(ownerTag));
 			else
 				this.owner.load(ownerTag);
 		}
-		if(compound.contains("Team"))
-		{
+		if (compound.contains("Team")) {
 			Team team = TeamSaveData.GetTeam(false, DataConverter.getNewTeamID(compound.getUUID("Team")));
-			if(team != null)
+			if (team != null)
 				this.owner.SetOwner(team);
 		}
-		if(compound.contains("Mode"))
+		if (compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
-		if(compound.contains("OnlineMode"))
+		if (compound.contains("OnlineMode"))
 			this.onlineMode = compound.getBoolean("OnlineMode");
-		if(compound.contains("InteractionType", Constants.NBT.TAG_STRING))
+		if (compound.contains("InteractionType", Constants.NBT.TAG_STRING))
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
-		if(compound.contains("Trade", Constants.NBT.TAG_COMPOUND))
+		if (compound.contains("Trade", Constants.NBT.TAG_COMPOUND))
 			this.reference.load(compound.getCompound("Trade"));
-		if(compound.contains("Upgrades"))
+		if (compound.contains("Upgrades"))
 			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5);
-		for(SidedHandler<?> handler : this.handlers) {
-			if(compound.contains(handler.getTag(), Constants.NBT.TAG_COMPOUND))
+		for (SidedHandler<?> handler : this.handlers) {
+			if (compound.contains(handler.getTag(), Constants.NBT.TAG_COMPOUND))
 				handler.load(compound.getCompound(handler.getTag()));
 		}
 	}

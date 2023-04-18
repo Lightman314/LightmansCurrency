@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -157,13 +156,11 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	
 	@Override
 	protected ItemTradeData deserializeTrade(CompoundNBT compound) { return ItemTradeData.loadData(compound, false); }
-	
-	@Nonnull
+
     @Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
-		compound = super.save(compound);
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
+		super.saveAdditional(compound);
 		this.saveItemBuffer(compound);
-		return compound;
 	}
 	
 	protected final CompoundNBT saveItemBuffer(CompoundNBT compound) {
@@ -178,8 +175,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, CompoundNBT compound) {
-		super.load(state, compound);
+	protected void loadAdditional(@Nonnull CompoundNBT compound) {
+		super.loadAdditional(compound);
 		if(compound.contains("Storage"))
 			this.itemBuffer.load(compound, "Storage");
 	}

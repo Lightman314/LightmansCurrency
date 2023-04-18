@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -70,12 +69,10 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 		}
 		return traders;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
 		ListNBT storageList = new ListNBT();
 		for (BlockPos thisPos : positions) {
 			CompoundNBT thisEntry = new CompoundNBT();
@@ -89,14 +86,11 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 		{
 			compound.put("TraderPos", storageList);
 		}
-		return compound;
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	public void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-
-		super.load(state, compound);
 		
 		this.readPositions(compound);
 		

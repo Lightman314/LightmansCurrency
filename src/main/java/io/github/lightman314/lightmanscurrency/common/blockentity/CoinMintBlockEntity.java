@@ -54,22 +54,17 @@ public class CoinMintBlockEntity extends EasyBlockEntity {
 		this.storage.addListener(container -> this.setChanged());
 	}
 
-	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+    @Override
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
 		InventoryUtil.saveAllItems("Storage", compound, this.storage);
-		return compound;
 	}
 
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
-
 		this.storage = InventoryUtil.loadAllItems("Storage", compound, 2);
 		this.storage.addListener(container -> this.setChanged());
-
 	}
 
 	public void dumpContents(World world, BlockPos pos)

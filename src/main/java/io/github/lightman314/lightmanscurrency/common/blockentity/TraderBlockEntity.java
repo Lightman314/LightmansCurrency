@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -122,20 +121,17 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return (D)rawData;
 		} catch(Throwable t) { t.printStackTrace(); return null; }
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
-		compound = super.save(compound);
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
 		compound.putLong("TraderID", this.traderID);
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
-		return compound;
 	}
-	
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+
+	@Override
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
 		if(compound.contains("TraderID", Constants.NBT.TAG_LONG))
 			this.traderID = compound.getLong("TraderID");
 		if(compound.contains("CustomTrader"))
@@ -144,7 +140,6 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		//Convert from old trader types
 		if(compound.contains("CoreSettings") || compound.contains("ID"))
 			this.loadFromOldTag = compound;
-		
 	}
 	
 	@Override

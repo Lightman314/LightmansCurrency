@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -172,15 +171,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 			armorStand.load(compound);
 		}
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
+		super.saveAdditional(compound);
 		this.writeArmorStandData(compound);
-		
-		return compound;
 	}
 	
 	protected void writeArmorStandData(CompoundNBT compound)
@@ -190,9 +186,9 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
+		super.loadAdditional(compound);
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))
 			this.armorStandID = compound.getUUID("ArmorStand");

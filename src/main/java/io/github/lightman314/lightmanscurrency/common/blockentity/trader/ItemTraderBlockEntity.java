@@ -6,13 +6,11 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.vector.Quaternion;
@@ -114,21 +112,19 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		else
 			return 0;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
+		super.saveAdditional(compound);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
-		return compound;
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
+		super.loadAdditional(compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
