@@ -183,6 +183,10 @@ public class Config {
         public final ForgeConfigSpec.IntValue notificationAndTeamButtonXCreative;
         public final ForgeConfigSpec.IntValue notificationAndTeamButtonYCreative;
 
+        //Chest Button Options
+        public final ForgeConfigSpec.BooleanValue chestButtonVisible;
+        public final ForgeConfigSpec.BooleanValue chestButtonAllowHidden;
+
         //Sound Options
         public final ForgeConfigSpec.BooleanValue moneyMendingClink;
 
@@ -259,6 +263,19 @@ public class Config {
             this.notificationAndTeamButtonYCreative = builder
                     .comment("The y position that the notification & team manager buttons will be placed at in the players creative inventory.")
                     .defineInRange("buttonCreativeY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+            builder.pop();
+
+            builder.comment("Chest Button Settings").push("chest_buttons");
+
+            this.chestButtonVisible = builder
+                    .comment("Whether the 'Move Coins into Wallet' button will appear in the top-right corner of the Chest Screen if there are coins in the chest that can be collected.")
+                    .define("enabled", true);
+
+            this.chestButtonAllowHidden = builder
+                    .comment("Whether the 'Move Coins into Wallet' button should collect coins flagged as 'hidde'",
+                            "By default these would be the coin pile and coin block variants of the coins.")
+                    .define("allowHiddenCollection", false);
 
             builder.pop();
 

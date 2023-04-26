@@ -14,11 +14,8 @@ public class MessageWalletQuickCollect {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof WalletMenu)
-				{
-					WalletMenu menu = (WalletMenu) player.containerMenu;
+				if(player.containerMenu instanceof WalletMenu menu)
 					menu.QuickCollectCoins();
-				}
 			}
 		});
 		supplier.get().setPacketHandled(true);

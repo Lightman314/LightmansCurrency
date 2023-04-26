@@ -300,6 +300,9 @@ public class LightmansCurrency {
      */
     public static ItemStack getWalletStack(Player player)
     {
+
+		if(player == null)
+			return ItemStack.EMPTY;
     	
     	ItemStack wallet = ItemStack.EMPTY;
 

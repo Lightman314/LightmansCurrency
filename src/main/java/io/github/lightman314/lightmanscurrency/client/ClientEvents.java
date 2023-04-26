@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -125,6 +127,12 @@ public class ClientEvents {
 			event.addListener(new VisibilityToggleButton(gui, slotPosition.x, slotPosition.y, ClientEvents::toggleVisibility));
 
 		}
+		else if(screen instanceof ContainerScreen chestScreen)
+		{
+			//Add Chest Quick-Collect Button
+			event.addListener(new ChestCoinCollectButton(chestScreen));
+		}
+
 	}
 	
 	private static void toggleVisibility(Button button) {
@@ -211,6 +219,10 @@ public class ClientEvents {
 					screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
 			}
 			
+		}
+		else if(screen instanceof ContainerScreen)
+		{
+			ChestCoinCollectButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
 		}
 	}
 	

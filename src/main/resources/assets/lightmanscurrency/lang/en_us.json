@@ -448,6 +448,7 @@
     
     "tooltip.button.notification": "Open Notifications",
     "tooltip.button.team_manager": "Open Team Manager",
+    "tooltip.button.chest.coin_collection": "Move coins into Wallet",
     "notifications.source.general" : "General",
     "notifications.timestamp" : "%s",
     "notifications.source.general.format": "%1$s: %2$s",
