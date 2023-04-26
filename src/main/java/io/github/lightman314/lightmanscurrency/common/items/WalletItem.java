@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
@@ -91,10 +92,7 @@ public class WalletItem extends Item{
 	/**
 	 * Determines if the given Item is a WalletItem
 	 */
-	public static boolean isWallet(Item item)
-	{
-		return item instanceof WalletItem;
-	}
+	public static boolean isWallet(Item item) { return item instanceof WalletItem; }
 	
 	/**
 	 * Whether the WalletItem is capable of converting coins to coins of higher value.
@@ -446,13 +444,32 @@ public class WalletItem extends Item{
 		EnchantmentHelper.setEnchantments(EnchantmentHelper.getEnchantments(walletIn), walletOut);
 		
 	}
-	
+
+	/*
+	  Automatically collects all coins from the given container into the players equipped wallet.
+	 */
+	public static void QuickCollect(Player player, Container container) { QuickCollect(player, container, false); }
+
+	public static void QuickCollect(Player player, Container container, boolean allowHidden)
+	{
+		ItemStack wallet = LightmansCurrency.getWalletStack(player);
+		if(isWallet(wallet))
+		{
+			for(int i = 0; i < container.getContainerSize(); ++i)
+			{
+				ItemStack stack = container.getItem(i);
+				if(MoneyUtil.isCoin(stack, allowHidden))
+				{
+					stack = PickupCoin(wallet, stack);
+					container.setItem(i, stack);
+				}
+			}
+		}
+	}
+
 	/**
 	 * The wallets texture. Used to render the wallet on the players hip when equipped.
 	 */
-	public ResourceLocation getModelTexture()
-	{
-		return this.MODEL_TEXTURE;
-	}
+	public ResourceLocation getModelTexture() { return this.MODEL_TEXTURE; }
 	
 }

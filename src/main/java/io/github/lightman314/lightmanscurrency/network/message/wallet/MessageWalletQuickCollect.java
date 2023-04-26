@@ -2,8 +2,10 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageWalletQuickCollect {
@@ -14,11 +16,8 @@ public class MessageWalletQuickCollect {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof WalletMenu)
-				{
-					WalletMenu menu = (WalletMenu) player.containerMenu;
+				if(player.containerMenu instanceof WalletMenu menu)
 					menu.QuickCollectCoins();
-				}
 			}
 		});
 		supplier.get().setPacketHandled(true);

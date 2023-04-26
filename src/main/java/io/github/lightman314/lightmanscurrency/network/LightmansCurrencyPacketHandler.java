@@ -94,7 +94,8 @@ public class LightmansCurrencyPacketHandler {
 		register(MessageOpenWallet.class, MessageOpenWallet::encode, MessageOpenWallet::decode, MessageOpenWallet::handle);
 		register(MessageOpenWalletBank.class, MessageOpenWalletBank::encode, MessageOpenWalletBank::decode, MessageOpenWalletBank::handle);
 		register(MessageWalletQuickCollect.class, LazyEncoders::emptyEncode, LazyEncoders.emptyDecode(MessageWalletQuickCollect::new), MessageWalletQuickCollect::handle);
-		
+		register(MessageChestQuickCollect.class, MessageChestQuickCollect::encode, MessageChestQuickCollect::decode, MessageChestQuickCollect::handle);
+
 		//Wallet Inventory Slot
 		register(SPacketSyncWallet.class, SPacketSyncWallet::encode, SPacketSyncWallet::decode, SPacketSyncWallet::handle);
 		register(CPacketSetVisible.class, CPacketSetVisible::encode, CPacketSetVisible::decode, CPacketSetVisible::handle);
