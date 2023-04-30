@@ -416,6 +416,7 @@
     "gui.button.lightmanscurrency.timed_sale.stop.tooltip": "Stop the Sale early",
     "gui.button.lightmanscurrency.timed_sale.info.active": "%s until the sale ends.",
     "gui.button.lightmanscurrency.timed_sale.info.inactive": "Pending Duration: %s",
+    "gui.lightmanscurrency.free_sample.player_count": "%s player(s) have claimed a free sample!",
     "gui.button.lightmanscurrency.free_sample.reset": "Reset Free Samples",
     "gui.button.lightmanscurrency.free_sample.reset.tooltip": "Forgets who has received their free sample so that they may receive it again.",
     "gui.button.lightmanscurrency.price_fluctuation.info": "Randomly increases or decreases the price by up to %1$s%% of the base price every %2$s.",

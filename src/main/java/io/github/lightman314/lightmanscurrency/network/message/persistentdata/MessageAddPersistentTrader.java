@@ -31,13 +31,6 @@ public class MessageAddPersistentTrader {
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 	
-	private JsonObject getTraderJson(TraderData trader, String id) throws Exception {
-		JsonObject traderJson = trader.saveToJson();
-		traderJson.addProperty("ID", id);
-		traderJson.addProperty("OwnerName", this.owner);
-		return traderJson;
-	}
-	
 	public static void encode(MessageAddPersistentTrader message, FriendlyByteBuf buffer) {
 		buffer.writeLong(message.traderID);
 		buffer.writeUtf(message.id);
@@ -63,7 +56,7 @@ public class MessageAddPersistentTrader {
 					if(!generateID)
 					{
 						try {
-							JsonObject traderJson = message.getTraderJson(trader, message.id);
+							JsonObject traderJson = trader.saveToJson(message.id, message.owner);
 							
 							JsonArray persistentTraders = TraderSaveData.getPersistentTraderJson(TraderSaveData.PERSISTENT_TRADER_SECTION);
 							//Check for traders with the same id, and replace any entries that match
@@ -105,10 +98,10 @@ public class MessageAddPersistentTrader {
 							//Check trader_1 -> trader_2147483646 to find an available id
 							for(int i = 1; i < Integer.MAX_VALUE; ++i)
 							{
-								String genID = GENERATE_ID_FORMAT + String.valueOf(i);
+								String genID = GENERATE_ID_FORMAT + i;
 								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 								{
-									persistentTraders.add(message.getTraderJson(trader, genID));
+									persistentTraders.add(trader.saveToJson(genID, message.owner));
 									TraderSaveData.setPersistentTraderSection(TraderSaveData.PERSISTENT_TRADER_SECTION, persistentTraders);
 									player.sendMessage(new TranslatableComponent("lightmanscurrency.message.persistent.trader.add", genID), new UUID(0,0));
 									return;

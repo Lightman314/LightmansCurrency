@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
 import net.minecraft.client.gui.components.Button;
@@ -26,7 +27,7 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
     @Override
     public void onOpen() {
 
-        this.buttonClearMemory = this.addWidget(EasyButton.builder(EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 50).size(screen.getXSize() - 20, 20).build());
+        this.buttonClearMemory = this.addWidget(EasyButton.builder(EasyText.translatable("gui.button.lightmanscurrency.free_sample.reset"), this::PressClearMemoryButton).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 60).size(screen.getXSize() - 20, 20).build());
 
     }
 
@@ -37,7 +38,9 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
     @Override
     public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-
+        FreeSample rule = this.getRule();
+        if(rule != null)
+            TextRenderUtil.drawCenteredMultilineText(pose, EasyText.translatable("gui.lightmanscurrency.free_sample.player_count", rule.getSampleCount()), this.screen.getGuiLeft() + 10, this.screen.getXSize() - 20, this.screen.getGuiTop() + 20, 0x404040);
     }
 
     @Override

@@ -361,6 +361,8 @@ public class TraderSaveData extends SavedData {
 						throw new Exception("Trader has no defined id.");
 					if(loadedIDs.contains(traderID))
 						throw new Exception("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
+					if(traderID.isBlank())
+						throw new Exception("Trader cannot have a blank id!");
 					TraderData data = TraderData.Deserialize(traderTag);
 
 					//Load the persistent data

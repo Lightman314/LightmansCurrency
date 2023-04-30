@@ -36,6 +36,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
 
 	List<UUID> memory = new ArrayList<>();
+	public int getSampleCount() { return this.memory.size(); }
 
 	public FreeSample() { super(TYPE); }
 

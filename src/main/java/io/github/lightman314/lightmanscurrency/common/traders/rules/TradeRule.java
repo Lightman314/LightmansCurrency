@@ -179,7 +179,13 @@ public abstract class TradeRule {
 		}
 	}
 
-	public static List<TradeRule> Parse(JsonArray tradeRuleData)
+	/**
+	 * @deprecated Use host sensitive version to avoid issues.
+	 */
+	@Deprecated(since = "2.1.1.3")
+	public static List<TradeRule> Parse(JsonArray tradeRuleData) { return Parse(tradeRuleData, null); }
+
+	public static List<TradeRule> Parse(JsonArray tradeRuleData, ITradeRuleHost host)
 	{
 		List<TradeRule> rules = new ArrayList<>();
 		for(int i = 0; i < tradeRuleData.size(); ++i)
@@ -187,6 +193,7 @@ public abstract class TradeRule {
 			try {
 				JsonObject thisRuleData = tradeRuleData.get(i).getAsJsonObject();
 				TradeRule thisRule = Deserialize(thisRuleData);
+				thisRule.host = host;
 				rules.add(thisRule);
 			}
 			catch(Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule at index " + i + ".", t); }
