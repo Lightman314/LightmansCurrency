@@ -31,7 +31,7 @@ public class FreeSample extends TradeRule{
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
 	
-	List<UUID> memory = new ArrayList<>();
+	private final List<UUID> memory = new ArrayList<>();
 	
 	public FreeSample() { super(TYPE); }
 	
@@ -58,7 +58,7 @@ public class FreeSample extends TradeRule{
 	}
 	
 	private boolean giveDiscount(TradeEvent event) {
-		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() != TradeDirection.SALE;
+		return this.giveDiscount(event.getPlayerReference().id) && event.getTrade().getTradeDirection() == TradeDirection.SALE;
 	}
 	
 	private void addToMemory(UUID playerID) {
@@ -66,13 +66,9 @@ public class FreeSample extends TradeRule{
 			this.memory.add(playerID);
 	}
 	
-	public boolean giveDiscount(UUID playerID) {
-		return !this.givenFreeSample(playerID);
-	}
+	public boolean giveDiscount(UUID playerID) { return !this.givenFreeSample(playerID); }
 	
-	private boolean givenFreeSample(UUID playerID) {
-		return this.memory.contains(playerID);
-	}
+	private boolean givenFreeSample(UUID playerID) { return this.memory.contains(playerID); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
