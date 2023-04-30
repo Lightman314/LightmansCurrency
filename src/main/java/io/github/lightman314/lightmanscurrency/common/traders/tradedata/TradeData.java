@@ -56,15 +56,9 @@ public abstract class TradeData implements ITradeRuleHost {
 		return this.cost.isFree() || cost.getRawValue() > 0;
 	}
 	
-	public boolean isValid()
-	{
-		return validCost();
-	}
+	public boolean isValid() { return validCost(); }
 	
-	public CoinValue getCost()
-	{
-		return this.cost;
-	}
+	public CoinValue getCost() { return this.cost.copy(); }
 	
 	public CoinValue getCost(TradeContext context)
 	{

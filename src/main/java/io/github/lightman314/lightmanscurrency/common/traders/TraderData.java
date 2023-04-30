@@ -551,7 +551,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	public void markTradeRulesDirty() { this.markDirty(this::saveRules); }
 	
-	public final JsonObject saveToJson() throws Exception
+	public final JsonObject saveToJson(String id, String ownerName) throws Exception
 	{
 		if(!this.canMakePersistent())
 			throw new Exception("Trader of type '" + this.type.toString() + "' cannot be saved to JSON!");
@@ -559,8 +559,9 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		JsonObject json = new JsonObject();
 		
 		json.addProperty("Type", this.type.toString());
-		
+		json.addProperty("ID", id);
 		json.addProperty("Name", this.hasCustomName() ? this.customName : "Trader");
+		json.addProperty("OwnerName", ownerName);
 		
 		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules);
 		if(ruleData.size() > 0)
@@ -688,7 +689,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			this.customName = json.get("Name").getAsString();
 		
 		if(json.has("Rules"))
-			this.rules = TradeRule.Parse(json.getAsJsonArray("Rules"));
+			this.rules = TradeRule.Parse(json.getAsJsonArray("Rules"), this);
 		
 		this.loadAdditionalFromJson(json);
 	}

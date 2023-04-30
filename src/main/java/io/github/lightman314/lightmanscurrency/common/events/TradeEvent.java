@@ -111,7 +111,7 @@ public abstract class TradeEvent extends Event{
 		public TradeCostEvent(PlayerReference player, TradeData trade, TraderData trader)
 		{
 			super(player, trade, trader);
-			this.costMultiplier = 1f;
+			this.costMultiplier = 1d;
 			this.currentCost = trade.getCost();
 		}
 	}

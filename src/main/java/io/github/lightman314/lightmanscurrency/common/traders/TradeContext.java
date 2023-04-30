@@ -149,6 +149,8 @@ public class TradeContext {
 	
 	public boolean hasFunds(CoinValue price)
 	{
+		if(price.isFree() || price.getRawValue() <= 0)
+			return true;
 		return this.getAvailableFunds() >= price.getRawValue();
 	}
 	
@@ -202,6 +204,8 @@ public class TradeContext {
 	
 	public boolean getPayment(CoinValue price)
 	{
+		if(price.isFree() || price.getRawValue() <= 0)
+			return true;
 		if(this.hasFunds(price))
 		{
 			if(this.moneyListener != null)
@@ -266,6 +270,8 @@ public class TradeContext {
 	
 	public boolean givePayment(CoinValue price)
 	{
+		if(price.isFree())
+			return true;
 		if(this.moneyListener != null)
 			this.moneyListener.accept(price, true);
 		if(this.hasBankAccount())

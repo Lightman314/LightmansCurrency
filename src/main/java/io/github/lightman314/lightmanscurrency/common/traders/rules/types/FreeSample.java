@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -36,6 +37,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "free_sample");
 	
 	List<UUID> memory = new ArrayList<>();
+	public int getSampleCount() { return this.memory.size(); }
 	
 	public FreeSample() { super(TYPE); }
 
@@ -50,7 +52,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	public void beforeTrade(PreTradeEvent event)
 	{
 		if(this.giveDiscount(event))
-			event.addHelpful(Component.translatable("traderule.lightmanscurrency.free_sample.alert"));
+			event.addHelpful(EasyText.translatable("traderule.lightmanscurrency.free_sample.alert"));
 	}
 	
 	@Override

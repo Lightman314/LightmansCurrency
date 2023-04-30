@@ -395,7 +395,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				if(tradeData.has("DisplayName2"))
 					newTrade.setCustomName(1, tradeData.get("DisplayName2").getAsString());
 				if(tradeData.has("Rules"))
-					newTrade.setRules(TradeRule.Parse(tradeData.get("Rules").getAsJsonArray()));
+					newTrade.setRules(TradeRule.Parse(tradeData.get("Rules").getAsJsonArray(), newTrade));
 				if(tradeData.has("IgnoreNBT"))
 				{
 					JsonArray ignoreNBTData = tradeData.getAsJsonArray("IgnoreNBT");
@@ -515,7 +515,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			
 			if(!context.getPayment(price))
 			{
-				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
+				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
+						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + new CoinValue(context.getAvailableFunds()).getString("0"));
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
