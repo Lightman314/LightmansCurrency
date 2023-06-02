@@ -46,6 +46,8 @@ public class ModBlockEntities {
 
 		AUCTION_STAND = ModRegistries.BLOCK_ENTITIES.register("auction_stand", () -> BlockEntityType.Builder.of(AuctionStandBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.AUCTION_STAND_TYPE)).build(null));
 
+		COIN_CHEST = ModRegistries.BLOCK_ENTITIES.register("coin_chest", () -> BlockEntityType.Builder.of(CoinChestBlockEntity::new, ModBlocks.COIN_CHEST.get()).build(null));
+
 		//Remove in MC 1.20
 		OLD_ITEM_TRADER = ModRegistries.BLOCK_ENTITIES.register("trader", () -> BlockEntityType.Builder.of(OldItemTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.ITEM_TRADER_TYPE)).build(null));
 		
@@ -90,6 +92,8 @@ public class ModBlockEntities {
 
 	//Auction Stand
 	public static final RegistryObject<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
+
+	public static final RegistryObject<BlockEntityType<CoinChestBlockEntity>> COIN_CHEST;
 
 	//Old Item Trader ID
 	@Deprecated

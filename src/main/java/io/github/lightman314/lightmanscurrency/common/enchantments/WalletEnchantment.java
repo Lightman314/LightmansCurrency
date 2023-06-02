@@ -17,8 +17,8 @@ public abstract class WalletEnchantment extends Enchantment {
 	
 	public static void addWalletEnchantmentTooltips(List<Component> tooltip, ItemStack item) {
 		EnchantmentHelper.getEnchantments(item).forEach((e,l) -> {
-			if(e instanceof WalletEnchantment && l > 0)
-				((WalletEnchantment)e).addWalletTooltips(tooltip, l, item);
+			if(e instanceof WalletEnchantment we && l > 0)
+				we.addWalletTooltips(tooltip, l, item);
 		});
 	}
 	

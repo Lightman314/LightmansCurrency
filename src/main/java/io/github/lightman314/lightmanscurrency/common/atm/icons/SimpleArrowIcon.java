@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +28,7 @@ public class SimpleArrowIcon extends ATMIconData {
 		static ArrowType parse(String value) {
 			for(ArrowType type : ArrowType.values())
 			{
-				if(type.name().equals(value))
+				if(type.name().equalsIgnoreCase(value))
 					return type;
 			}
 			return ArrowType.RIGHT;
@@ -67,7 +68,7 @@ public class SimpleArrowIcon extends ATMIconData {
 	@OnlyIn(Dist.CLIENT)
 	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
 		RenderSystem.setShaderTexture(0, ATMScreen.BUTTON_TEXTURE);
-		button.blit(pose, button.getX() + this.xPos, button.getY() + this.yPos, this.direction.uOffset, ATMConversionButton.HEIGHT * 2, 6, 6);
+		GuiComponent.blit(pose, button.getX() + this.xPos, button.getY() + this.yPos, this.direction.uOffset, ATMConversionButton.HEIGHT * 2, 6, 6);
 	}
 	
 }

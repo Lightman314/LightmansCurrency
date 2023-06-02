@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.Nonnull;
+
 public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 
 	public CoinJarBlock(Properties properties)
@@ -33,24 +35,19 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
-	{
-		return new CoinJarBlockEntity(pos, state);
-	}
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinJarBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof CoinJarBlockEntity)
-		{
-			CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
+		if(blockEntity instanceof CoinJarBlockEntity jar)
 			jar.readItemTag(stack);
-		}
 	}
 	
+	@Nonnull
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
+	public InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -59,9 +56,8 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 				return InteractionResult.SUCCESS;
 			//Add coins to the bank
 			BlockEntity blockEntity = level.getBlockEntity(pos);
-			if(blockEntity instanceof CoinJarBlockEntity)
+			if(blockEntity instanceof CoinJarBlockEntity jar)
 			{
-				CoinJarBlockEntity jar = (CoinJarBlockEntity)blockEntity;
 				if(jar.addCoin(coinStack))
 					coinStack.shrink(1);
 			}
@@ -70,14 +66,13 @@ public class CoinJarBlock extends RotatableBlock implements EntityBlock{
 	}
 	
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
+	public void playerWillDestroy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		
 		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
 		BlockEntity tileEntity = level.getBlockEntity(pos);
-		if(tileEntity instanceof CoinJarBlockEntity)
+		if(tileEntity instanceof CoinJarBlockEntity jarEntity)
 		{
-			CoinJarBlockEntity jarEntity = (CoinJarBlockEntity)tileEntity;
 			if(EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player) > 0)
 			{
 				//Drop the item for this block, with the JarData in it.

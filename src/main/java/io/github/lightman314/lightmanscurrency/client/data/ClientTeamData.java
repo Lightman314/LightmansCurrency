@@ -12,6 +12,8 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nullable;
+
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTeamData {
 
@@ -21,12 +23,11 @@ public class ClientTeamData {
 	{
 		return new ArrayList<>(loadedTeams.values());
 	}
-	
+
+	@Nullable
 	public static Team GetTeam(long teamID)
 	{
-		if(loadedTeams.containsKey(teamID))
-			return loadedTeams.get(teamID);
-		return null;
+		return loadedTeams.getOrDefault(teamID, null);
 	}
 	
 	public static void InitTeams(List<Team> teams)
@@ -43,8 +44,7 @@ public class ClientTeamData {
 	
 	public static void RemoveTeam(long teamID)
 	{
-		if(loadedTeams.containsKey(teamID))
-			loadedTeams.remove(teamID);
+		loadedTeams.remove(teamID);
 	}
 	
 	@SubscribeEvent

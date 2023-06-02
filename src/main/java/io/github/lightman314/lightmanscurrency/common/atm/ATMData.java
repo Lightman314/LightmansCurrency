@@ -37,19 +37,22 @@ public class ATMData {
 		//LightmansCurrency.LogInfo("Loading ATM Data from json:\n" + FileUtil.GSON.toJson(jsonData));
 		
 		this.conversionButtons = new ArrayList<>();
-		if(jsonData.has("ConversionButtons"))
+		if(jsonData.has("ConversionButtons") || jsonData.has("ExchangeButtons"))
 		{
-			JsonArray conversionButtonDataList = jsonData.getAsJsonArray("ConversionButtons");
+			JsonArray conversionButtonDataList;
+			if(jsonData.has("ConversionButtons"))
+				conversionButtonDataList = jsonData.getAsJsonArray("ConversionButtons");
+			else
+				conversionButtonDataList = jsonData.getAsJsonArray("ExchangeButtons");
 			for(int i = 0; i < conversionButtonDataList.size(); ++i)
 			{
-				try {
-					this.conversionButtons.add(ATMConversionButtonData.parse(conversionButtonDataList.get(i).getAsJsonObject()));
-				} catch(Exception e) { LightmansCurrency.LogError("Error parsing Conversion Button #" + String.valueOf(i + 1) + ".", e); }
+				try { this.conversionButtons.add(ATMConversionButtonData.parse(conversionButtonDataList.get(i).getAsJsonObject()));
+				} catch(Throwable e) { LightmansCurrency.LogError("Error parsing Exchange Button #" + String.valueOf(i + 1) + ".", e); }
 			}
 		}
 		else
 		{
-			LightmansCurrency.LogWarning("ATM Data has no 'ConversionButtons' list entry. Conversion tab will have no buttons.");
+			throw new RuntimeException("ATM Data has no 'ExchangeButtons' list entry!");
 		}
 		
 	}
@@ -64,7 +67,7 @@ public class ATMData {
 		JsonArray conversionButtonDataList = new JsonArray();
 		for(int i = 0; i < this.conversionButtons.size(); ++i)
 			conversionButtonDataList.add(this.conversionButtons.get(i).save());
-		data.add("ConversionButtons", conversionButtonDataList);
+		data.add("ExchangeButtons", conversionButtonDataList);
 		
 		return data;
 	}

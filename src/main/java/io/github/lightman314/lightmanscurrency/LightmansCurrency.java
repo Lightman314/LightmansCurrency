@@ -63,6 +63,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 
+import java.util.function.Consumer;
+
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
 	
@@ -90,6 +92,8 @@ public class LightmansCurrency {
     
 	public LightmansCurrency() {
 
+		LootManager.registerDroplistListeners();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
@@ -99,7 +103,7 @@ public class LightmansCurrency {
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.commonSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
+		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -134,7 +138,8 @@ public class LightmansCurrency {
     
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
-	private void commonSetupWork() {
+	private void commonSetupWork(FMLCommonSetupEvent event) {
+
 		LightmansCurrencyPacketHandler.init();
 
 		//Register Crafting Conditions
@@ -315,6 +320,16 @@ public class LightmansCurrency {
 		event.enqueueWork(() -> {
 			try{
 				work.run();
+			} catch(Throwable t) {
+				LogError(errorMessage, t);
+			}
+		});
+	}
+
+	public static <T extends ParallelDispatchEvent> void safeEnqueueWork(T event, String errorMessage, Consumer<T> work) {
+		event.enqueueWork(() -> {
+			try{
+				work.accept(event);
 			} catch(Throwable t) {
 				LogError(errorMessage, t);
 			}

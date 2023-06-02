@@ -53,7 +53,12 @@ public class ModMenus {
 		TRADER_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> CreateType((IContainerFactory<TraderRecoveryMenu>)(id, playerInventory, data) -> new TraderRecoveryMenu(id, playerInventory)));
 
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> CreateType((IContainerFactory<PlayerTradeMenu>)(id, playerInventory, data) -> new PlayerTradeMenu(id, playerInventory, data.readInt(), ClientPlayerTrade.decode(data))));
-		
+
+		COIN_CHEST = ModRegistries.MENUS.register("coin_chest", () -> CreateType((IContainerFactory<CoinChestMenu>)(id,playerInventory,data) -> {
+			CoinChestBlockEntity blockEntity = (CoinChestBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			return new CoinChestMenu(id, playerInventory, blockEntity);
+		}));
+
 	}
 	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
@@ -78,6 +83,8 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TraderRecoveryMenu>> TRADER_RECOVERY;
 
 	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
+
+	public static final RegistryObject<MenuType<CoinChestMenu>> COIN_CHEST;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 

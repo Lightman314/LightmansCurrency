@@ -35,7 +35,7 @@ public class FileUtil {
 	
 	public static ItemStack parseItemStack(JsonObject json) {
 		String id = json.get("ID").getAsString();
-		int count = json.get("Count").getAsInt();
+		int count = json.has("Count") ? json.get("Count").getAsInt() : 1;
 		ItemStack result = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(id)), count);
 		try {
 			if(json.has("Tag"))

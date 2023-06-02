@@ -22,6 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nonnull;
+
 public class EjectionData implements Container, IClientTracker {
 
 	private final OwnerData owner = new OwnerData(this, o -> {});
@@ -58,10 +60,8 @@ public class EjectionData implements Container, IClientTracker {
 		compound.putString("Name", Component.Serializer.toJson(this.traderName));
 		
 		ListTag itemList = new ListTag();
-		for(int i = 0; i < this.items.size(); ++i)
-		{
-			itemList.add(this.items.get(i).save(new CompoundTag()));
-		}
+		for (ItemStack item : this.items)
+			itemList.add(item.save(new CompoundTag()));
 		compound.put("Items", itemList);
 		
 		return compound;
@@ -135,6 +135,7 @@ public class EjectionData implements Container, IClientTracker {
 		return true;
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack getItem(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -142,6 +143,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItem(int slot, int count) {
 		if(slot >= this.items.size() || slot < 0)
@@ -149,6 +151,7 @@ public class EjectionData implements Container, IClientTracker {
 		return this.items.get(slot).split(count);
 	}
 
+	@Nonnull
 	@Override
 	public ItemStack removeItemNoUpdate(int slot) {
 		if(slot >= this.items.size() || slot < 0)
@@ -159,13 +162,13 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public void setItem(int slot, ItemStack item) {
+	public void setItem(int slot, @Nonnull ItemStack item) {
 		if(slot >= this.items.size() || slot < 0)
 			return;
 		this.items.set(slot, item);
 	}
 	
-	private void clearEmptySlots() { this.items.removeIf(stack -> stack.isEmpty()); }
+	private void clearEmptySlots() { this.items.removeIf(ItemStack::isEmpty); }
 
 	@Override
 	public void setChanged() {
@@ -179,7 +182,7 @@ public class EjectionData implements Container, IClientTracker {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@Nonnull Player player) {
 		return this.canAccess(player);
 	}
 	

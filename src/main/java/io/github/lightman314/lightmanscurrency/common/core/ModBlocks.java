@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.CashRegisterItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.common.items.CustomBlockModelItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -32,13 +33,8 @@ public class ModBlocks {
 	 */
 	public static void init() { }
 	
-	private static Function<Block,Item> getDefaultGenerator() {
-		return block -> {
-			Item.Properties properties = new Item.Properties();
-			return new BlockItem(block, properties);
-		};
-	}
-	private static Function<Block,Item> getCoinGenerator(boolean fireResistant) {
+	private static Function<Block,Item> getDefaultGenerator() { return block -> new BlockItem(block, new Item.Properties()); }
+	private static Function<Block,Item> getCoinGenerator(final boolean fireResistant) {
 		return block -> {
 			Item.Properties properties = new Item.Properties();
 			if(fireResistant)
@@ -47,11 +43,12 @@ public class ModBlocks {
 		};
 	}
 	private static Function<Block,Item> getCoinJarGenerator() {
-		return block -> {
-			Item.Properties properties = new Item.Properties();
-			return new CoinJarItem(block, properties);
-		};
+		return block ->  new CoinJarItem(block, new Item.Properties());
 	}
+	private static Function<Block,Item> getCustomRendererGenerator() {
+		return block -> new CustomBlockModelItem(block, new Item.Properties());
+	}
+
 	
 	static {
 		//Coin Piles
@@ -310,7 +307,15 @@ public class ModBlocks {
 					.sound(SoundType.METAL)
 				)
 		);
-		
+
+		//Coin Chest
+		COIN_CHEST = register("coin_chest", getCustomRendererGenerator(), () -> new CoinChestBlock(
+				Block.Properties.of(Material.WOOD)
+					.strength(2.5f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.WOOD)
+				)
+		);
+
 		//Coin Jars
 		PIGGY_BANK = register("piggy_bank", getCoinJarGenerator(), () -> new CoinJarBlock(
 				Block.Properties.of(Material.STONE)
@@ -404,12 +409,15 @@ public class ModBlocks {
 	
 	//Ticket Machine
 	public static final RegistryObject<Block> TICKET_STATION;
-	
+
+	//Coin Chest
+	public static final RegistryObject<Block> COIN_CHEST;
+
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;
 	public static final RegistryObject<Block> COINJAR_BLUE;
 
-	//Auciton Stants
+	//Auciton Stands
 	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
 	
 	

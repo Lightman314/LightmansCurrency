@@ -23,6 +23,8 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.Nonnull;
+
 public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 
 	public static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
@@ -56,14 +58,14 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISBOTTOM);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}

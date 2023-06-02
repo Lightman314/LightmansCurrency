@@ -2,39 +2,62 @@ package io.github.lightman314.lightmanscurrency.common.events;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.PoolLevel;
+import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.Event;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 /**
- * Used for collecting the default config entries for each tier of coin drops
+ * Used for collecting the default config entries for each tier of coin drops.
+ * Note: This is called when my mod is first loaded, so in order to register your own listeners
+ * you will need to make sure your mod loads before mine.
  */
-public abstract class DroplistConfigEvent extends Event {
+public abstract class DroplistConfigGenerator {
 
-    public static List<String> CollectDefaultEntityDrops(PoolLevel level)
+    private final static List<Consumer<Entity>> entityListeners = new ArrayList<>();
+    public static void registerEntityListener(@Nonnull Consumer<Entity> listener) { if(!entityListeners.contains(listener)) entityListeners.add(listener); }
+    private final static List<Consumer<Chest>> chestListeners = new ArrayList<>();
+    public static void registerChestListener(@Nonnull Consumer<Chest> listener) { if(!chestListeners.contains(listener)) chestListeners.add(listener); }
+
+    public static List<String> CollectDefaultEntityDrops(EntityPoolLevel level)
     {
-        Entity event = new Entity(level);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.collectEntries();
+        Entity generator = new Entity(level);
+        for(Consumer<Entity> listener : entityListeners)
+        {
+            try { listener.accept(generator);
+            } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default entity drops.", t); }
+        }
+        return debugEntries(generator.collectEntries(), "Collected Default Entity drops of type '" + level.toString() + "'!\n_VALUE_");
     }
 
-    public static List<String> CollectDefaultChestDrops(PoolLevel level)
+    public static List<String> CollectDefaultChestDrops(ChestPoolLevel level)
     {
-        if(level.level > PoolLevel.T6.level)
+        Chest generator = new Chest(level);
+        for(Consumer<Chest> listener : chestListeners)
         {
-            LightmansCurrency.LogError("Cannot collect boos-level config entries for a Chest input.");
-            return new ArrayList<>();
+            try { listener.accept(generator);
+            } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default chest drops.", t); }
         }
-        Chest event = new Chest(level);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.collectEntries();
+        return debugEntries(generator.collectEntries(), "Collected Default Chest drops of type '" + level.toString() + "'!\n_VALUE_");
+    }
+
+    private static List<String> debugEntries(List<String> results, String message)
+    {
+        StringBuilder builder = new StringBuilder("[");
+        for(String result : results)
+        {
+            if(results.indexOf(result) > 0)
+                builder.append(",");
+            builder.append('"').append(result).append('"');
+        }
+        builder.append(']');
+
+        LightmansCurrency.LogDebug(message.replace("_VALUE_", builder.toString()));
+        return results;
     }
 
     private String defaultNamespace = "minecraft";
@@ -42,14 +65,11 @@ public abstract class DroplistConfigEvent extends Event {
     public final void setDefaultNamespace(@Nonnull String namespace) { this.defaultNamespace = namespace; }
     public final String getDefaultNamespace() { return this.defaultNamespace; }
 
-    private final PoolLevel level;
-    public final PoolLevel getTier() { return this.level; }
-
     private final List<ResourceLocation> entries = new ArrayList<>();
     public final ImmutableList<ResourceLocation> getEntries() { return ImmutableList.copyOf(this.entries); }
-    protected final List<String> collectEntries() { return this.entries.stream().map(ResourceLocation::toString).collect(Collectors.toList()); }
+    protected final List<String> collectEntries() { return this.entries.stream().map(ResourceLocation::toString).toList(); }
 
-    protected DroplistConfigEvent(PoolLevel level) { this.level = level; }
+    protected DroplistConfigGenerator() { }
 
     protected abstract ResourceLocation createEntry(String modid, String entry);
 
@@ -87,20 +107,26 @@ public abstract class DroplistConfigEvent extends Event {
      */
     public final void removeEntry(ResourceLocation entry) { this.entries.remove(entry); }
 
-    public static class Chest extends DroplistConfigEvent
+    public static class Chest extends DroplistConfigGenerator
     {
 
-        protected Chest(PoolLevel level) { super(level); }
+        private final ChestPoolLevel level;
+        public final ChestPoolLevel getTier() { return this.level; }
+
+        protected Chest(ChestPoolLevel level) { this.level = level; }
 
         @Override
         protected ResourceLocation createEntry(String modid, String entry) { return new ResourceLocation(modid, "chests/" + entry); }
 
     }
 
-    public static class Entity extends DroplistConfigEvent
+    public static class Entity extends DroplistConfigGenerator
     {
 
-        protected Entity(PoolLevel level) { super(level); }
+        private final EntityPoolLevel level;
+        public final EntityPoolLevel getTier() { return this.level; }
+
+        protected Entity(EntityPoolLevel level) { this.level = level; }
 
         @Override
         protected ResourceLocation createEntry(String modid, String entry) { return new ResourceLocation(modid, entry); }

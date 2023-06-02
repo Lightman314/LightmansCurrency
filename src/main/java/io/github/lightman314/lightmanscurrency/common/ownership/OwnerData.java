@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.ownership;
 import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
@@ -110,7 +111,7 @@ public class OwnerData {
 			return team.getName();
 		if(this.playerOwner != null)
 			return this.playerOwner.getName(isClient);
-		return "NULL";
+		return EasyText.translatable("gui.button.lightmanscurrency.team.owner.null").getString();
 	}
 	
 	public void SetCustomOwner(String customOwner) { this.customOwner = Component.literal(customOwner); }

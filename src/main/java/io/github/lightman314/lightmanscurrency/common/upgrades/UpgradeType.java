@@ -14,8 +14,9 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
-import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.ItemCapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.*;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.*;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -35,7 +36,14 @@ public abstract class UpgradeType {
 	public static final Simple NETWORK = register(new ResourceLocation(LightmansCurrency.MODID, "trader_network"), new Simple(Component.translatable("tooltip.lightmanscurrency.upgrade.network")));
 	
 	public static final Simple HOPPER = register(new ResourceLocation(LightmansCurrency.MODID, "hopper"), new Simple(Component.translatable("tooltip.lightmanscurrency.upgrade.hopper")));
-	
+
+	//Coin Chest Upgrades
+	public static final CoinChestExchangeUpgrade COIN_CHEST_EXCHANGE = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_exchange"), new CoinChestExchangeUpgrade());
+	public static final CoinChestBankUpgrade COIN_CHEST_BANK = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_bank"), new CoinChestBankUpgrade());
+	public static final CoinChestMagnetUpgrade COIN_CHEST_MAGNET = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_magnet"), new CoinChestMagnetUpgrade());
+	public static final CoinChestSecurityUpgrade COIN_CHEST_SECURITY = register(new ResourceLocation(LightmansCurrency.MODID, "coin_chest_security"), new CoinChestSecurityUpgrade());
+
+
 	private ResourceLocation type;
 	
 	protected abstract List<String> getDataTags();
@@ -43,7 +51,7 @@ public abstract class UpgradeType {
 	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 
-	public UpgradeType setRegistryName(ResourceLocation name) {
+	public final UpgradeType setRegistryName(ResourceLocation name) {
 		this.type = name;
 		return this;
 	}
@@ -55,11 +63,12 @@ public abstract class UpgradeType {
 	public Class<UpgradeType> getRegistryType() {
 		return UpgradeType.class;
 	}
-	
+
+	public void clearDataFromStack(CompoundTag itemTag) {}
+
 	private static <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
 	{
-		upgradeType.setRegistryName(type);
-		UPGRADE_TYPE_REGISTRY.put(type, upgradeType);
+		UPGRADE_TYPE_REGISTRY.put(type, upgradeType.setRegistryName(type));
 		return upgradeType;
 	}
 	
@@ -75,7 +84,7 @@ public abstract class UpgradeType {
 		UpgradeData getDefaultUpgradeData();
 		default void onApplied(IUpgradeable target) { }
 	}
-	
+
 	public static class UpgradeData
 	{
 
@@ -113,11 +122,25 @@ public abstract class UpgradeType {
 				return data.get(tag);
 			return null;
 		}
-		
+
+		public boolean getBooleanValue(String tag)
+		{
+			if(getValue(tag) instanceof Boolean b)
+				return b;
+			return false;
+		}
+
 		public int getIntValue(String tag)
 		{
 			if(getValue(tag) instanceof Integer i)
 				return i;
+			return 0;
+		}
+
+		public long getLongValue(String tag)
+		{
+			if(getValue(tag) instanceof Long l)
+				return l;
 			return 0;
 		}
 		
@@ -134,18 +157,31 @@ public abstract class UpgradeType {
 				return s;
 			return "";
 		}
+
+		public CompoundTag getCompoundValue(String tag)
+		{
+			if(getValue(tag) instanceof CompoundTag c)
+				return c;
+			return new CompoundTag();
+		}
 		
 		public void read(CompoundTag compound)
 		{
 			compound.getAllKeys().forEach(key ->{
 				if(this.hasKey(key))
 				{
-					if(compound.contains(key, Tag.TAG_INT))
+					if(compound.contains(key, Tag.TAG_BYTE))
+						this.setValue(key, compound.getBoolean(key));
+					else if(compound.contains(key, Tag.TAG_INT))
 						this.setValue(key, compound.getInt(key));
+					else if(compound.contains(key, Tag.TAG_LONG))
+						this.setValue(key, compound.getLong(key));
 					else if(compound.contains(key, Tag.TAG_FLOAT))
 						this.setValue(key, compound.getFloat(key));
 					else if(compound.contains(key, Tag.TAG_STRING))
 						this.setValue(key, compound.getString(key));
+					else if(compound.contains(key, Tag.TAG_COMPOUND))
+						this.setValue(key, compound.getCompound(key));
 				}
 			});
 		}
@@ -157,12 +193,18 @@ public abstract class UpgradeType {
 			Map<String,Object> modifiedEntries = source == null ? this.data : getModifiedEntries(this,source);
 			CompoundTag compound = new CompoundTag();
 			modifiedEntries.forEach((key,value) ->{
+				if(value instanceof Boolean)
+					compound.putBoolean(key,(Boolean)value);
 				if(value instanceof Integer)
 					compound.putInt(key, (Integer)value);
 				else if(value instanceof Float)
 					compound.putFloat(key, (Float)value);
+				else if(value instanceof Long)
+					compound.putLong(key, (Long)value);
 				else if(value instanceof String)
 					compound.putString(key, (String)value);
+				else if(value instanceof CompoundTag)
+					compound.put(key, (CompoundTag)value);
 			});
 			return compound;
 		}
@@ -176,8 +218,6 @@ public abstract class UpgradeType {
 			});
 			return modifiedEntries;
 		}
-		
-		
 		
 	}
 	

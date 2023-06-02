@@ -98,7 +98,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 	
 	public static Component getCollectionRangeDisplay(int enchantLevel) {
 		float range = getCollectionRange(enchantLevel);
-		String display = range %1f > 0f ? String.valueOf(range) : String.valueOf(Math.round(range));
+		String display = range % 1f > 0f ? String.valueOf(range) : String.valueOf(Math.round(range));
 		return Component.literal(display).withStyle(ChatFormatting.GREEN);
 	}
 	

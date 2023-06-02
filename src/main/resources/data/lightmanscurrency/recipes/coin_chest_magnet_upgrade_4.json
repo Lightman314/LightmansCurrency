@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "lightmanscurrency:coin_chest_magnet_upgrade_3"
+  },
+  "addition": {
+    "tag": "forge:gems/emerald"
+  },
+  "result": {
+    "item": "lightmanscurrency:coin_chest_magnet_upgrade_4"
+  }
+}

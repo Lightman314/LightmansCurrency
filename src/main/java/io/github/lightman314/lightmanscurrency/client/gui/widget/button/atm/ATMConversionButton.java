@@ -17,7 +17,9 @@ public class ATMConversionButton extends Button {
 	
 	public static final int HEIGHT = 18;
 	
-	private final ATMConversionButtonData data;
+	public final ATMConversionButtonData data;
+
+	public boolean selected = false;
 	
 	public ATMConversionButton(int left, int top, ATMConversionButtonData data, Consumer<String> commandHandler) {
 		super(left + data.xPos, top + data.yPos, data.width, HEIGHT, Component.empty(), b -> commandHandler.accept(data.command), Button.DEFAULT_NARRATION);
@@ -28,7 +30,7 @@ public class ATMConversionButton extends Button {
 	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		//Render background to width
-		int yOffset = this.isHovered ? HEIGHT : 0;
+		int yOffset = this.isHovered != this.selected ? HEIGHT : 0;
 		RenderSystem.setShaderTexture(0, ATMScreen.BUTTON_TEXTURE);
 		if(this.active)
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

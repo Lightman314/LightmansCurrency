@@ -98,6 +98,8 @@ public class ModCreativeGroups {
                     p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
                     //Ticket Stub
                     ezPop(p, ModItems.TICKET_STUB);
+                    //Coin Chest
+                    ezPop(p, ModBlocks.COIN_CHEST);
                     //Coin Jars
                     ezPop(p, ModBlocks.PIGGY_BANK);
                     ezPop(p, ModBlocks.COINJAR_BLUE);
@@ -142,6 +144,13 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.SPEED_UPGRADE_5);
                     ezPop(p, ModItems.NETWORK_UPGRADE);
                     ezPop(p, ModItems.HOPPER_UPGRADE);
+                    ezPop(p, ModItems.COIN_CHEST_EXCHANGE_UPGRADE);
+                    //ezPop(p, ModItems.COIN_CHEST_BANK_UPGRADE);
+                    ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_1);
+                    ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_2);
+                    ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
+                    ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
+                    ezPop(p, ModItems.COIN_CHEST_SECURITY_UPGRADE);
             }));
     }
 
@@ -165,8 +174,8 @@ public class ModCreativeGroups {
     }
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
-    public static <L> void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike, L> bundle) { bundle.getAllSorted().forEach(populator::accept); }
-    public static <L,M> void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike, L,M> bundle) { bundle.getAllSorted().forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();

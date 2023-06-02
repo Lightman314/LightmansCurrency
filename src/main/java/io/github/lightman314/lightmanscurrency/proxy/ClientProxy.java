@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -17,31 +19,31 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientTraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
+import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
 import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -50,6 +52,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -64,8 +68,9 @@ public class ClientProxy extends CommonProxy{
 	boolean openTerminal = false;
 	boolean openTeamManager = false;
 	boolean openNotifications = false;
-	
 	private long timeOffset = 0;
+
+	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
 
 	@Override
 	public void setupClient() {
@@ -76,11 +81,11 @@ public class ClientProxy extends CommonProxy{
     	//Register Screens
     	MenuScreens.register(ModMenus.ATM.get(), ATMScreen::new);
     	MenuScreens.register(ModMenus.MINT.get(), MintScreen::new);
-    	
+
     	MenuScreens.register(ModMenus.TRADER.get(), TraderScreen::new);
     	MenuScreens.register(ModMenus.TRADER_BLOCK.get(), TraderScreen::new);
     	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
-    	
+
     	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
     	
     	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
@@ -92,12 +97,15 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
 
 		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
+
+		MenuScreens.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
 
 		//Setup Item Edit blacklists
 		ItemEditWidget.BlacklistCreativeTabs(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH, CreativeModeTabs.OP_BLOCKS);
@@ -110,6 +118,16 @@ public class ClientProxy extends CommonProxy{
 		BookRenderer.register(NormalBookRenderer.GENERATOR);
 		BookRenderer.register(EnchantedBookRenderer.GENERATOR);
 
+		//Setup custom item renderers
+		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
+
+	}
+
+	private BlockEntity checkForCoinChest(Block block)
+	{
+		if(block == ModBlocks.COIN_CHEST.get())
+			return coinChestBE.get();
+		return null;
 	}
 
 	@Override

@@ -10,6 +10,15 @@ public class EasyText {
     public static MutableComponent literal(String text) { return Component.literal(text); }
     public static MutableComponent translatable(String translation, Object... children) { return Component.translatable(translation, children); }
 
+    public static MutableComponent makeMutable(Component text)
+    {
+        if(text instanceof MutableComponent mc)
+            return mc;
+        return EasyText.empty().append(text);
+    }
+
     public static void sendMessage(ServerPlayer player, Component message) { player.sendSystemMessage(message); }
+
+
 
 }
