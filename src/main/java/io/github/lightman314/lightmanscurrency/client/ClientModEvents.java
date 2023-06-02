@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.CoinChestRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketM
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.BookRestriction;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +51,11 @@ public class ClientModEvents {
 			event.addSprite(TicketModifierSlot.EMPTY_DYE_SLOT);
 			event.addSprite(ItemTradeButtonRenderer.NBT_SLOT);
 			event.addSprite(BookRestriction.EMPTY_BOOK_SLOT);
+		}
+		else if(event.getAtlas().location() == Sheets.CHEST_SHEET)
+		{
+			//Add custom chest texture
+			event.addSprite(CoinChestRenderer.COIN_CHEST_TEXTURE);
 		}
 	}
 

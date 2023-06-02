@@ -25,4 +25,12 @@ public class NumberUtil {
         return defaultValue;
     }
 
+    public static String getAsStringOfLength(int i, int length)
+    {
+        String value = Integer.toString(i);
+        while(value.length() < length)
+            value = "0" + value;
+        return value;
+    }
+
 }

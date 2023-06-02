@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.Config;
@@ -21,10 +23,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScre
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
+import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -45,6 +49,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -54,6 +59,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.gui.OverlayRegistry;
@@ -72,6 +78,8 @@ public class ClientProxy extends CommonProxy{
 	boolean openNotifications = false;
 	
 	private long timeOffset = 0;
+
+	private final Supplier<CoinChestBlockEntity> coinChestBE = Suppliers.memoize(() -> new CoinChestBlockEntity(BlockPos.ZERO, ModBlocks.COIN_CHEST.get().defaultBlockState()));
 	
 	@Override
 	public void setupClient() {
@@ -107,13 +115,15 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_RECOVERY.get(), TraderRecoveryScreen::new);
 
 		MenuScreens.register(ModMenus.PLAYER_TRADE.get(), PlayerTradeScreen::new);
+
+		MenuScreens.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
     	
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
-
+		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
 
     	//Register the key bind
     	ClientRegistry.registerKeyBinding(ClientEvents.KEY_WALLET);
@@ -130,9 +140,19 @@ public class ClientProxy extends CommonProxy{
 		BookRenderer.register(NormalBookRenderer.GENERATOR);
 		BookRenderer.register(EnchantedBookRenderer.GENERATOR);
 
+		//Setup custom item renderers
+		LCItemRenderer.registerBlockEntitySource(this::checkForCoinChest);
+
 		//Register the Wallet Overlay
 		OverlayRegistry.registerOverlayTop("wallet_hud", WalletDisplayOverlay.INSTANCE);
     	
+	}
+
+	private BlockEntity checkForCoinChest(Block block)
+	{
+		if(block == ModBlocks.COIN_CHEST.get())
+			return coinChestBE.get();
+		return null;
 	}
 	
 	private void setRenderLayer(List<Block> blocks, RenderType type) {

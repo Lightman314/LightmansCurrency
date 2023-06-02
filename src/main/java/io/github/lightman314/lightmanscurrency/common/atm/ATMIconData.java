@@ -32,7 +32,6 @@ public abstract class ATMIconData {
 		register(ItemIcon.TYPE);
 		register(SimpleArrowIcon.TYPE);
 		register(SpriteIcon.TYPE);
-		
 	}
 	
 	/**

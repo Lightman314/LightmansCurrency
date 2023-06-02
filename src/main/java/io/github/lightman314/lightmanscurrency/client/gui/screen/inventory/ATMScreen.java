@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,7 +33,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 	public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/atm_buttons.png");
 	
 	int currentTabIndex = 0;
-	List<ATMTab> tabs = Lists.newArrayList(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this), new NotificationTab(this), new LogTab(this), new TransferTab(this));
+	List<ATMTab> tabs = ImmutableList.of(new ConversionTab(this), new SelectionTab(this), new InteractionTab(this), new NotificationTab(this), new LogTab(this), new TransferTab(this));
 	public List<ATMTab> getTabs() { return this.tabs; }
 	public ATMTab currentTab() { return tabs.get(this.currentTabIndex); }
 	
@@ -175,9 +176,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu>{
 		this.tabListeners.remove(listener);
 	}
 	
-	public Font getFont() {
-		return this.font;
-	}
+	public Font getFont() { return this.font; }
 	
 	@Override
 	public List<? extends GuiEventListener> children()

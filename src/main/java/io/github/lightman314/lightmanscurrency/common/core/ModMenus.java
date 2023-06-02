@@ -52,6 +52,11 @@ public class ModMenus {
 
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> new MenuType<>((IContainerFactory<PlayerTradeMenu>)(id, playerInventory, data) -> new PlayerTradeMenu(id, playerInventory, data.readInt(), ClientPlayerTrade.decode(data))));
 
+		COIN_CHEST = ModRegistries.MENUS.register("coin_chest", () -> new MenuType<>((IContainerFactory<CoinChestMenu>)(id,playerInventory,data) -> {
+			CoinChestBlockEntity blockEntity = (CoinChestBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			return new CoinChestMenu(id, playerInventory, blockEntity);
+		}));
+
 	}
 	
 	public static final RegistryObject<MenuType<ATMMenu>> ATM;
@@ -76,5 +81,7 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TraderRecoveryMenu>> TRADER_RECOVERY;
 
 	public static final RegistryObject<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
+
+	public static final RegistryObject<MenuType<CoinChestMenu>> COIN_CHEST;
 	
 }

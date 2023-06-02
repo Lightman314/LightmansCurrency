@@ -32,7 +32,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		
 		String lootTable = context.getQueriedLootTableId().toString();
 		
-		LootManager.PoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
+		LootManager.ChestPoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
 		
 		if(lootLevel != null)
 		{

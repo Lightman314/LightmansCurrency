@@ -95,6 +95,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 
+import java.util.function.Consumer;
+
 @Mod("lightmanscurrency")
 public class LightmansCurrency {
 	
@@ -126,7 +128,9 @@ public class LightmansCurrency {
 	}
     
 	public LightmansCurrency() {
-    	
+
+		LootManager.registerDroplistListeners();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);
@@ -173,7 +177,7 @@ public class LightmansCurrency {
 
 	private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
-	private void commonSetupWork()
+	private void commonSetupWork(FMLCommonSetupEvent event)
     {
 		LightmansCurrencyPacketHandler.init();
 
@@ -358,6 +362,16 @@ public class LightmansCurrency {
 		event.enqueueWork(() -> {
 			try{
 				work.run();
+			} catch(Throwable t) {
+				LogError(errorMessage, t);
+			}
+		});
+	}
+
+	public static <T extends ParallelDispatchEvent> void safeEnqueueWork(T event, String errorMessage, Consumer<T> work) {
+		event.enqueueWork(() -> {
+			try{
+				work.accept(event);
 			} catch(Throwable t) {
 				LogError(errorMessage, t);
 			}

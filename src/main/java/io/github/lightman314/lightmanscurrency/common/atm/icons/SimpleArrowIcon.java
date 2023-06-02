@@ -27,7 +27,7 @@ public class SimpleArrowIcon extends ATMIconData {
 		static ArrowType parse(String value) {
 			for(ArrowType type : ArrowType.values())
 			{
-				if(type.name().equals(value))
+				if(type.name().equalsIgnoreCase(value))
 					return type;
 			}
 			return ArrowType.RIGHT;

@@ -14,10 +14,9 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.refere
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.*;
-import io.github.lightman314.lightmanscurrency.common.items.CashRegisterItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.items.CustomBlockModelItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -66,6 +65,17 @@ public class ModBlocks {
 			return new CoinJarItem(block, properties);
 		};
 	}
+	private static BiFunction<Block,CreativeModeTab,Item> getCustomRendererGenerator() {
+		return (block,tab) -> {
+			Item.Properties properties = new Item.Properties();
+			if(tab != null)
+				properties.tab(tab);
+			else
+				LightmansCurrency.LogWarning("Block item for block '" + block.getName().getString() + "' does not have a creative mode tab!");
+			return new CustomBlockModelItem(block, properties);
+		};
+	}
+
 
 	static {
 		//Coin Piles
@@ -331,6 +341,14 @@ public class ModBlocks {
 				)
 		);
 
+		//Coin Chest
+		COIN_CHEST = register("coin_chest", () -> LightmansCurrency.MACHINE_GROUP, getCustomRendererGenerator(), () -> new CoinChestBlock(
+						Block.Properties.of(Material.WOOD)
+								.strength(2.5f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.WOOD)
+				)
+		);
+
 		//Coin Jars
 		PIGGY_BANK = register("piggy_bank", () -> LightmansCurrency.MACHINE_GROUP, getCoinJarGenerator(), () -> new CoinJarBlock(
 						Block.Properties.of(Material.STONE)
@@ -424,6 +442,9 @@ public class ModBlocks {
 
 	//Ticket Machine
 	public static final RegistryObject<Block> TICKET_STATION;
+
+	//Coin Chest
+	public static final RegistryObject<Block> COIN_CHEST;
 
 	//Coin Jars
 	public static final RegistryObject<Block> PIGGY_BANK;

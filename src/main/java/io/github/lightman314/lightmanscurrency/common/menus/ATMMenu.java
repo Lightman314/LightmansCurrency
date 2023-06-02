@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
@@ -11,20 +10,17 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountTy
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -104,16 +100,15 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
+			//Move items from the coin slots into the inventory
 			if(index < this.coinInput.getContainerSize())
 			{
-				if(MoneyUtil.isCoin(slotStack.getItem()))
+				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
 				{
-					if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
-					{
-						return ItemStack.EMPTY;
-					}
+					return ItemStack.EMPTY;
 				}
 			}
+			//Move items from the inventory into the coin slots
 			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize(), false))
 			{
 				return ItemStack.EMPTY;
@@ -139,71 +134,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public void ConvertCoins(String command)
 	{
-		///Converting Upwards
-		//Converting All Upwards
-		if(command.contentEquals("convertAllUp"))
-		{
-			MoneyUtil.ConvertAllCoinsUp(this.coinInput);
-		}
-		//Convert defined coin upwards
-		else if(command.startsWith("convertUp-"))
-		{
-			ResourceLocation coinID;
-			String id = "";
-			try {
-				id = command.substring("convertUp-".length());
-				coinID = new ResourceLocation(id);
-				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
-				if(coinItem == null)
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
-					return;
-				}
-				if(!MoneyUtil.isCoin(coinItem))
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
-					return;
-				}
-				if(MoneyUtil.getUpwardConversion(coinItem) == null)
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the largest visible coin in its chain, and thus cannot be converted any larger.");
-					return;
-				}
-				MoneyUtil.ConvertCoinsUp(this.coinInput, coinItem);
-			} catch(Exception e) { LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e);}
-		}
-		else if(command.contentEquals("convertAllDown"))
-		{
-			MoneyUtil.ConvertAllCoinsDown(this.coinInput);
-		}
-		else if(command.startsWith("convertDown-"))
-		{
-			String id = "";
-			try {
-				id = command.substring("convertDown-".length());
-				ResourceLocation coinID = new ResourceLocation(id);
-				Item coinItem = ForgeRegistries.ITEMS.getValue(coinID);
-				if(coinItem == null)
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a registered item.");
-					return;
-				}
-				if(!MoneyUtil.isCoin(coinItem))
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is not a coin.");
-					return;
-				}
-				if(MoneyUtil.getDownwardConversion(coinItem) == null)
-				{
-					LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + coinID + "' is the smallest known coin, and thus cannot be converted any smaller.");
-					return;
-				}
-				MoneyUtil.ConvertCoinsDown(this.coinInput, coinItem);
-			} catch(Exception e) { LightmansCurrency.LogError("Error handling ATM Conversion command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e);}
-		}
-		else
-			LightmansCurrency.LogError("'" + command + "' is not a valid ATM Conversion command.");
-
+		ATMUtil.ExecuteATMExchangeCommand(this.coinInput, command);
 	}
 
 

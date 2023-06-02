@@ -45,6 +45,13 @@
     "item.lightmanscurrency.speed_upgrade_5": "Speed Upgrade (Netherite)",
     "item.lightmanscurrency.network_upgrade": "Network Upgrade",
     "item.lightmanscurrency.hopper_upgrade": "Hopper Upgrade",
+    "item.lightmanscurrency.coin_chest_exchange_upgrade": "Coin Exchange Upgrade",
+    "item.lightmanscurrency.coin_chest_bank_upgrade": "Bank Upgrade",
+    "item.lightmanscurrency.coin_chest_magnet_upgrade_1": "Magnet Upgrade (Copper)",
+    "item.lightmanscurrency.coin_chest_magnet_upgrade_2": "Magnet Upgrade (Iron)",
+    "item.lightmanscurrency.coin_chest_magnet_upgrade_3": "Magnet Upgrade (Gold)",
+    "item.lightmanscurrency.coin_chest_magnet_upgrade_4": "Magnet Upgrade (Emerald)",
+    "item.lightmanscurrency.coin_chest_security_upgrade": "Security Upgrade",
     
     "item.lightmanscurrency.generic.plural": "%ss",
     
@@ -182,6 +189,8 @@
     "block.lightmanscurrency.auction_stand_mangrove": "Mangrove Auction Stand",
     "block.lightmanscurrency.auction_stand_crimson": "Crimson Auction Stand",
     "block.lightmanscurrency.auction_stand_warped": "Warped Auction Stand",
+	
+    "block.lightmanscurrency.coin_chest": "Money Chest",
     
     "enchantment.lightmanscurrency.money_mending": "Money Mending",
     "enchantment.lightmanscurrency.money_mending.desc": "Repairs the item using money from your wallet.",
@@ -317,6 +326,14 @@
     "tooltip.lightmanscurrency.upgrade.speed":"Decreases the delay between interactions by %s ticks.",
     "tooltip.lightmanscurrency.upgrade.network":"Makes a trader visible from a trading terminal.",
     "tooltip.lightmanscurrency.upgrade.hopper":"Allows the block to collect inputs from its neighboring containers.",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.exchange":"Allows the Money Chest to automatically exchange coins upon insertion.",
+    "button.lightmanscurrency.upgrade.coin_chest.exchange.while_open.y":"Always Allowed",
+    "button.lightmanscurrency.upgrade.coin_chest.exchange.while_open.n":"Block When Open",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.bank":"Allows the Money Chest to automatically Deposit or Withdraw from a Bank Account of choice.",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.magnet":"Allows the Money Chest to collect coin items up to %sm away.",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.protection.1":"Allows the Money Chest to be protected from destruction by other players, and blocks access from other players as well.",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.protection.2":"Requires set-up, will not function automatically.",
+    "tooltip.lightmanscurrency.upgrade.coin_chest.protection.warning":"You do not have permission to access the chest.",
     "tooltip.lightmanscurrency.credit": "%s",
     "tooltip.lightmanscurrency.outofstock": "No Stock",
     "tooltip.lightmanscurrency.outofspace": "Full",
@@ -479,6 +496,7 @@
     "tooltip.lightmanscurrency.settings.owner": "Transfer Ownership",
     "tooltip.lightmanscurrency.settings.owner.player": "Transfer To Player",
     "tooltip.lightmanscurrency.settings.owner.team": "Transfer To Team",
+    "tooltip.lightmanscurrency.settings.owner.self": "Set as Self",
     "tooltip.lightmanscurrency.settings.notifications": "Trader Notifications",
     "tooltip.lightmanscurrency.warning": "WARNING: Cannot be undone.",
     
@@ -568,6 +586,7 @@
     "gui.lightmanscurrency.team.create": "Create New Team",
     "gui.lightmanscurrency.team.name.current": "Current Name: %s",
     "gui.button.lightmanscurrency.team.owner": "Current Owner: %s",
+    "gui.button.lightmanscurrency.team.owner.null": "UNDEFINED",
     
     
     "gui.lightmanscurrency.bank.null": "No account selected.",
@@ -603,6 +622,10 @@
     "tooltip.lightmanscurrency.atm.transfer.mode.player": "Select From Players",
     "tooltip.lightmanscurrency.atm.transfer.mode.team": "Select From Teams",
     "tooltip.lightmanscurrency.atm.notification": "Account Balance Notification",
+	
+	"tooltip.lightmanscurrency.coin_chest.tab.main": "Upgrades and Interaction",
+	"tooltip.lightmanscurrency.coin_chest.tab.exchange": "Coin Exchange Options",
+	"tooltip.lightmanscurrency.coin_chest.tab.security": "Chest Security Options",
     
     "gui.button.lightmanscurrency.team.owner": "Owner: %s",
     "gui.button.lightmanscurrency.team.create": "Create",

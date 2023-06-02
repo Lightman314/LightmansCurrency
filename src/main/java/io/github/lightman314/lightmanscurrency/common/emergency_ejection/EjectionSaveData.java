@@ -27,10 +27,12 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nonnull;
+
 @Mod.EventBusSubscriber
 public class EjectionSaveData extends SavedData {
 
-	private List<EjectionData> emergencyEjectionData = new ArrayList<>();
+	private final List<EjectionData> emergencyEjectionData = new ArrayList<>();
 	
 	private EjectionSaveData() {}
 	private EjectionSaveData(CompoundTag compound) {
@@ -48,6 +50,7 @@ public class EjectionSaveData extends SavedData {
 		
 	}
 	
+	@Nonnull
 	public CompoundTag save(CompoundTag compound) {
 		
 		ListTag ejectionData = new ListTag();
@@ -89,8 +92,9 @@ public class EjectionSaveData extends SavedData {
 			return ejectionData.stream().filter(e -> e.canAccess(player)).collect(Collectors.toList());
 		return new ArrayList<>();
 	}
-	
-	@Deprecated /** @deprecated Use only to transfer ejection data from the old Trading Office. */
+
+	/** @deprecated Use only to transfer ejection data from the old Trading Office. */
+	@Deprecated
 	public static void GiveOldEjectionData(EjectionData data) {
 		EjectionSaveData esd = get();
 		if(esd != null && data != null && !data.isEmpty())
@@ -139,9 +143,7 @@ public class EjectionSaveData extends SavedData {
 			//Send update packet to all connected clients
 			CompoundTag compound = new CompoundTag();
 			ListTag ejectionList = new ListTag();
-			esd.emergencyEjectionData.forEach(data -> {
-				ejectionList.add(data.save());
-			});
+			esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save()));
 			compound.put("EmergencyEjectionData", ejectionList);
 			LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SPacketSyncEjectionData(compound));
 		}
@@ -156,9 +158,7 @@ public class EjectionSaveData extends SavedData {
 		//Send ejection data
 		CompoundTag compound = new CompoundTag();
 		ListTag ejectionList = new ListTag();
-		esd.emergencyEjectionData.forEach(data -> {
-			ejectionList.add(data.save());
-		});
+		esd.emergencyEjectionData.forEach(data -> ejectionList.add(data.save()));
 		compound.put("EmergencyEjectionData", ejectionList);
 		LightmansCurrencyPacketHandler.instance.send(target, new SPacketSyncEjectionData(compound));
 	}

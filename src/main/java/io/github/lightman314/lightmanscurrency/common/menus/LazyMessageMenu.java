@@ -19,12 +19,12 @@ public abstract class LazyMessageMenu extends AbstractContainerMenu implements I
 
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id); this.player = inventory.player; }
 
-
-
     public void SendMessage(LazyPacketData.Builder message)
     {
         if(this.isClient())
             this.SendMessageToServer(message);
+        else
+            this.SendMessageToClient(message);
     }
 
     public void SendMessageToServer(LazyPacketData.Builder message)

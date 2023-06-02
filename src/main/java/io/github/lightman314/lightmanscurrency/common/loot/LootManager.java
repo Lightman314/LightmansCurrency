@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
@@ -14,11 +12,13 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.ISpawnTracker;
 import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCapability;
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigEvent;
+import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -48,35 +48,44 @@ import net.minecraft.world.level.storage.loot.LootPool;
 @Mod.EventBusSubscriber
 public class LootManager {
 
-	public static final float LOOTING_MODIFIER = 0.01f;
-	
-	public enum PoolLevel
+	public static void registerDroplistListeners()
 	{
-		T1(0, true),
-		T2(1, true),
-		T3(2, true),
-		T4(3, true),
-		T5(4, true),
-		T6(5, true),
-		BOSS_T1(6, false),
-		BOSS_T2(7, false),
-		BOSS_T3(8, false),
-		BOSS_T4(9, false),
-		BOSS_T5(10, false),
-		BOSS_T6(11, false);
-		
-		public final int level;
-		private final boolean requiresPlayerKill;
-		
-		PoolLevel(int level, boolean requiresPlayerKill) { this.level = level; this.requiresPlayerKill = requiresPlayerKill; }
-		
+		//Register vanilla entry listeners
+		DroplistConfigGenerator.registerEntityListener(LootManager::AddDefaultEntityEntries);
+		DroplistConfigGenerator.registerChestListener(LootManager::AddDefaultChestEntries);
+		//Register compat listeners
+		LCAlexsMobs.registerDroplistListeners();
 	}
-	
+
+	public static final float LOOTING_MODIFIER = 0.01f;
+
+	public enum EntityPoolLevel
+	{
+		T1(false),
+		T2(false),
+		T3(false),
+		T4(false),
+		T5(false),
+		T6(false),
+		BOSS_T1(true),
+		BOSS_T2(true),
+		BOSS_T3(true),
+		BOSS_T4(true),
+		BOSS_T5(true),
+		BOSS_T6(true);
+
+		public final boolean isBoss;
+		EntityPoolLevel(boolean isBoss) { this.isBoss = isBoss; }
+
+	}
+
+	public enum ChestPoolLevel { T1,T2,T3,T4,T5,T6 }
+
 	public static MobSpawnType deserializeSpawnReason(String reasonString)
 	{
 		return deserializeSpawnReason(reasonString, MobSpawnType.NATURAL);
 	}
-	
+
 	public static MobSpawnType deserializeSpawnReason(String reasonString, MobSpawnType defaultReason)
 	{
 		for(MobSpawnType reason : MobSpawnType.values())
@@ -88,8 +97,7 @@ public class LootManager {
 		return defaultReason;
 	}
 
-	@SubscribeEvent
-	public static void AddDefaultEntityEntries(DroplistConfigEvent.Entity event)
+	public static void AddDefaultEntityEntries(DroplistConfigGenerator.Entity event)
 	{
 		switch (event.getTier())
 		{
@@ -136,9 +144,9 @@ public class LootManager {
 		}
 	}
 
-	@SubscribeEvent
-	public static void AddDefaultChestEntries(DroplistConfigEvent.Chest event)
+	public static void AddDefaultChestEntries(DroplistConfigGenerator.Chest event)
 	{
+		LightmansCurrency.LogDebug("Adding default vanilla chest entries of tier '" + event.getTier().toString() + "'");
 		switch (event.getTier())
 		{
 			case T1 -> {
@@ -168,12 +176,9 @@ public class LootManager {
 			}
 		}
 	}
-	
-	private static final Map<String,PoolLevel> EXTERNAL_ENTITY_ENTRIES = new HashMap<>();
-	private static final Map<String,PoolLevel> EXTERNAL_CHEST_ENTRIES = new HashMap<>();
-	
+
 	private static boolean lootTablesBuilt = false;
-	
+
 	//Normal entity loot
 	private static Builder ENTITY_LOOT_T1 = null;
 	private static Builder ENTITY_LOOT_T2 = null;
@@ -181,7 +186,7 @@ public class LootManager {
 	private static Builder ENTITY_LOOT_T4 = null;
 	private static Builder ENTITY_LOOT_T5 = null;
 	private static Builder ENTITY_LOOT_T6 = null;
-	
+
 	//Boss loot
 	private static List<Builder> ENTITY_LOOT_BOSS_T1 = null;
 	private static List<Builder> ENTITY_LOOT_BOSS_T2 = null;
@@ -189,7 +194,7 @@ public class LootManager {
 	private static List<Builder> ENTITY_LOOT_BOSS_T4 = null;
 	private static List<Builder> ENTITY_LOOT_BOSS_T5 = null;
 	private static List<Builder> ENTITY_LOOT_BOSS_T6 = null;
-	
+
 	//Chest loot
 	private static Builder CHEST_LOOT_T1 = null;
 	private static Builder CHEST_LOOT_T2 = null;
@@ -238,10 +243,11 @@ public class LootManager {
 		CHEST_LOOT_T6 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD, ChestLootEntryData.DIAMOND, ChestLootEntryData.NETHERITE}, 3, 6, "lightmanscurrency:chestloot_netherite");
 
 		lootTablesBuilt = true;
+
 	}
 
 
-	
+
 	private static String getValueList(ConfigValue<List<? extends String>> config) {
 		StringBuilder buffer = new StringBuilder();
 		List<? extends String> list = config.get();
@@ -253,9 +259,9 @@ public class LootManager {
 		}
 		return buffer.toString();
 	}
-	
+
 	public static void debugLootConfigs() {
-		
+
 		LightmansCurrency.LogDebug("Lightman's Currency common configs have been loaded. Coin loot values are as follows.");
 		//Chests
 		LightmansCurrency.LogDebug("Chest T1: " + getValueList(Config.COMMON.chestDropsT1));
@@ -264,7 +270,7 @@ public class LootManager {
 		LightmansCurrency.LogDebug("Chest T4: " + getValueList(Config.COMMON.chestDropsT4));
 		LightmansCurrency.LogDebug("Chest T5: " + getValueList(Config.COMMON.chestDropsT5));
 		LightmansCurrency.LogDebug("Chest T6: " + getValueList(Config.COMMON.chestDropsT6));
-		
+
 		//Entity (normal)
 		LightmansCurrency.LogDebug("Entity T1: " + getValueList(Config.COMMON.entityDropsT1));
 		LightmansCurrency.LogDebug("Entity T2: " + getValueList(Config.COMMON.entityDropsT2));
@@ -272,7 +278,7 @@ public class LootManager {
 		LightmansCurrency.LogDebug("Entity T4: " + getValueList(Config.COMMON.entityDropsT4));
 		LightmansCurrency.LogDebug("Entity T5: " + getValueList(Config.COMMON.entityDropsT5));
 		LightmansCurrency.LogDebug("Entity T6: " + getValueList(Config.COMMON.entityDropsT6));
-		
+
 		//Entity (boss)
 		LightmansCurrency.LogDebug("Boss Entity T1: " + getValueList(Config.COMMON.bossEntityDropsT1));
 		LightmansCurrency.LogDebug("Entity Iron (Boss): " + getValueList(Config.COMMON.bossEntityDropsT2));
@@ -280,9 +286,9 @@ public class LootManager {
 		LightmansCurrency.LogDebug("Entity Emerald (Boss): " + getValueList(Config.COMMON.bossEntityDropsT4));
 		LightmansCurrency.LogDebug("Entity Diamond (Boss): " + getValueList(Config.COMMON.bossEntityDropsT5));
 		LightmansCurrency.LogDebug("Entity Netherite (Boss): " + getValueList(Config.COMMON.bossEntityDropsT6));
-		
+
 	}
-	
+
 	@SubscribeEvent
 	public static void onEntitySpawned(LivingSpawnEvent.SpecialSpawn event)
 	{
@@ -295,39 +301,39 @@ public class LootManager {
 			LightmansCurrency.LogDebug("Entity of type '" + ForgeRegistries.ENTITIES.getKey(entity.getType()).toString() + "' does not have a ISpawnTracker attached. Unable to flag it's SpawnReason.");
 		else
 			tracker.setSpawnReason(event.getSpawnReason());
-
 	}
-	
+
 	@SubscribeEvent
 	public static void attachSpawnTrackerCapability(AttachCapabilitiesEvent<Entity> event)
 	{
 		//Attach the spawn trader capability to all LivingEntities that aren't players
-		if(event.getObject() instanceof LivingEntity && !(event.getObject() instanceof Player))
+		if(event.getObject() instanceof Mob)
 		{
 			event.addCapability(CurrencyCapabilities.ID_SPAWN_TRACKER, SpawnTrackerCapability.createProvider((LivingEntity)event.getObject()));
 		}
 	}
-	
+
 	@SubscribeEvent
 	public static void onEntityDeath(LivingDeathEvent event)
 	{
+		LivingEntity entity = event.getEntityLiving();
 		//Check if this is the server
-		if(event.getEntityLiving().level.isClientSide)
+		if(entity.level.isClientSide)
 			return;
 
 		if(!Config.COMMON.enableSpawnerEntityDrops.get())
 		{
 			//Spawner drops aren't allowed. Check if the entity was spawner-spawned
-			ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(event.getEntityLiving());
+			ISpawnTracker tracker = SpawnTrackerCapability.lazyGetSpawnerTracker(entity);
 			if(tracker != null && tracker.spawnReason() == MobSpawnType.SPAWNER)
 			{
-				LightmansCurrency.LogDebug(event.getEntityLiving().getName().getString() + " did not drop coins, as it was spawned by a spawner.");
+				LightmansCurrency.LogDebug(entity.getName().getString() + " did not drop coins, as it was spawned by a spawner.");
 				return;
 			}
 		}
-		
-		String name = ForgeRegistries.ENTITIES.getKey(event.getEntityLiving().getType()).toString();
-		
+
+		String name = ForgeRegistries.ENTITIES.getKey(entity.getType()).toString();
+
 		if(event.getSource().getDirectEntity() instanceof Player || event.getSource().getEntity() instanceof Player)
 		{
 			//Assign the player that killed it
@@ -336,100 +342,84 @@ public class LootManager {
 			//Block coin drops if the killer was a fake player and fake player coin drops aren't allowed.
 			if(player instanceof FakePlayer && !Config.COMMON.allowFakePlayerCoinDrops.get())
 				return;
-			
+
 			if(Config.COMMON.entityDropsT1.get().contains(name))
-	    	{
-				DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T1);
-	    	}
-	    	else if(Config.COMMON.entityDropsT2.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T2);
-	    	}
-	    	else if(Config.COMMON.entityDropsT3.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T3);
-	    	}
-	    	else if(Config.COMMON.entityDropsT4.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T4);
-	    	}
-	    	else if(Config.COMMON.entityDropsT5.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T5);
-	    	}
-	    	else if(Config.COMMON.entityDropsT6.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.T6);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT1.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T1);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT2.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T2);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT3.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T3);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT4.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T4);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT5.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T5);
-	    	}
-	    	else if(Config.COMMON.bossEntityDropsT6.get().contains(name))
-	    	{
-	    		DropEntityLoot(event.getEntityLiving(), player, PoolLevel.BOSS_T6);
-	    	}
-	    	else
-	    	{
-	    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
-	    			if(entity.equals(name))
-	    				DropEntityLoot(event.getEntityLiving(), player, level);
-	    		});
-	    	}
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T1);
+			}
+			else if(Config.COMMON.entityDropsT2.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T2);
+			}
+			else if(Config.COMMON.entityDropsT3.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T3);
+			}
+			else if(Config.COMMON.entityDropsT4.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T4);
+			}
+			else if(Config.COMMON.entityDropsT5.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T5);
+			}
+			else if(Config.COMMON.entityDropsT6.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.T6);
+			}
+			else if(Config.COMMON.bossEntityDropsT1.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T1);
+			}
+			else if(Config.COMMON.bossEntityDropsT2.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T2);
+			}
+			else if(Config.COMMON.bossEntityDropsT3.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T3);
+			}
+			else if(Config.COMMON.bossEntityDropsT4.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T4);
+			}
+			else if(Config.COMMON.bossEntityDropsT5.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T5);
+			}
+			else if(Config.COMMON.bossEntityDropsT6.get().contains(name))
+			{
+				DropEntityLoot(entity, player, EntityPoolLevel.BOSS_T6);
+			}
 			return;
 		}
 		//Boss deaths don't require a player kill to drop coins
-    	if(Config.COMMON.bossEntityDropsT1.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T1);
-    	}
-    	else if(Config.COMMON.bossEntityDropsT2.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T2);
-    	}
-    	else if(Config.COMMON.bossEntityDropsT3.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T3);
-    	}
-    	else if(Config.COMMON.bossEntityDropsT4.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T4);
-    	}
-    	else if(Config.COMMON.bossEntityDropsT5.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T5);
-    	}
-    	else if(Config.COMMON.bossEntityDropsT6.get().contains(name))
-    	{
-    		DropEntityLoot(event.getEntityLiving(), null, PoolLevel.BOSS_T6);
-    	}
-    	else
-    	{
-    		EXTERNAL_ENTITY_ENTRIES.forEach((entity,level) -> {
-    			if(entity.equals(name) && !level.requiresPlayerKill)
-    			{
-    				DropEntityLoot(event.getEntityLiving(), null, level);
-    			}
-    		});
-    	}
+		if(Config.COMMON.bossEntityDropsT1.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T1);
+		}
+		else if(Config.COMMON.bossEntityDropsT2.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T2);
+		}
+		else if(Config.COMMON.bossEntityDropsT3.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T3);
+		}
+		else if(Config.COMMON.bossEntityDropsT4.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T4);
+		}
+		else if(Config.COMMON.bossEntityDropsT5.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T5);
+		}
+		else if(Config.COMMON.bossEntityDropsT6.get().contains(name))
+		{
+			DropEntityLoot(entity, null, EntityPoolLevel.BOSS_T6);
+		}
 	}
-	
+
 	public static void validateEntityDropList()
 	{
 		validateDropList(Config.COMMON.entityDropsT1);
@@ -445,7 +435,7 @@ public class LootManager {
 		validateDropList(Config.COMMON.bossEntityDropsT5);
 		validateDropList(Config.COMMON.bossEntityDropsT6);
 	}
-	
+
 	private static void validateDropList(ConfigValue<List<? extends String>> config)
 	{
 		List<? extends String> configList = config.get();
@@ -471,160 +461,160 @@ public class LootManager {
 		if(modified)
 			config.set(list);
 	}
-	
-	private static void DropEntityLoot(Entity entity, Player player, PoolLevel coinPool)
+
+	private static void DropEntityLoot(Entity entity, Player player, EntityPoolLevel coinPool)
 	{
-		
+
 		if(!Config.COMMON.enableEntityDrops.get())
 			return;
-		
+
 		confirmLootTablesGenerated();
-		
+
 		//LightmansCurrency.LOGGER.info("Dropping entity loot level " + coinPool);
-		
+
 		LootTable table = LootTable.lootTable().build();
 		LootContext.Builder contextBuilder = new LootContext.Builder((ServerLevel)entity.level);
 		//Add the KilledByPlayer condition to the Loot Context
 		if(player != null)
 			contextBuilder.withParameter(LootContextParams.KILLER_ENTITY, player)
-			.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player);
-		
+					.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player);
+
 		LootContext context = contextBuilder.create(new LootContextParamSet.Builder().optional(LootContextParams.LAST_DAMAGE_PLAYER).optional(LootContextParams.KILLER_ENTITY).build());
-		
+
 		try {
-			
+
 			//Boss loot done separately due to loops and exclusiveness.
-			if(coinPool == PoolLevel.BOSS_T1)
+			if(coinPool == EntityPoolLevel.BOSS_T1)
 			{
 				//Drop copper boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T1)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			else if(coinPool == PoolLevel.BOSS_T2)
+			else if(coinPool == EntityPoolLevel.BOSS_T2)
 			{
 				//Drop iron boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T2)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			else if(coinPool == PoolLevel.BOSS_T3)
+			else if(coinPool == EntityPoolLevel.BOSS_T3)
 			{
 				//Drop gold boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T3)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			else if(coinPool == PoolLevel.BOSS_T4)
+			else if(coinPool == EntityPoolLevel.BOSS_T4)
 			{
 				//Drop emerald boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T4)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			else if(coinPool == PoolLevel.BOSS_T5)
+			else if(coinPool == EntityPoolLevel.BOSS_T5)
 			{
 				//Drop diamond boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T5)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			else if(coinPool == PoolLevel.BOSS_T6)
+			else if(coinPool == EntityPoolLevel.BOSS_T6)
 			{
 				//Drop netherite boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T6)
 				{
 					table.addPool(builder.build());
 				}
-				//Generate the loot 
+				//Generate the loot
 				SpawnLootDrops(entity, table.getRandomItems(context));
 				return;
 			}
-			
+
 			//LightmansCurrency.LOGGER.debug("Added " + coinPool + " level entity loot to the " + name + " loot entry.");
 			table.addPool(ENTITY_LOOT_T1.build());
-			if(coinPool != PoolLevel.T1)
+			if(coinPool != EntityPoolLevel.T1)
 			{
 				table.addPool(ENTITY_LOOT_T2.build());
-				if(coinPool != PoolLevel.T2)
+				if(coinPool != EntityPoolLevel.T2)
 				{
 					table.addPool(ENTITY_LOOT_T3.build());
-					if(coinPool != PoolLevel.T3)
+					if(coinPool != EntityPoolLevel.T3)
 					{
 						table.addPool(ENTITY_LOOT_T4.build());
-						if(coinPool != PoolLevel.T4)
+						if(coinPool != EntityPoolLevel.T4)
 						{
 							table.addPool(ENTITY_LOOT_T5.build());
-							if(coinPool != PoolLevel.T5)
+							if(coinPool != EntityPoolLevel.T5)
 								table.addPool(ENTITY_LOOT_T6.build());
 						}
 					}
 				}
 			}
-			
+
 			SpawnLootDrops(entity, table.getRandomItems(context));
-		
+
 		} catch(Exception e) { LightmansCurrency.LogError("Error spawning coin drops!", e); }
-		
+
 	}
-	
-	public static List<ItemStack> GetRandomChestLoot(PoolLevel coinPool, LootContext context) {
+
+	public static List<ItemStack> GetRandomChestLoot(ChestPoolLevel coinPool, LootContext context) {
 
 		confirmLootTablesGenerated();
 
 		try {
 
-			if(coinPool == PoolLevel.T1)
+			if(coinPool == ChestPoolLevel.T1)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T1.build());
 				return safelyGetResults(table, context);
 			}
-			else if(coinPool == PoolLevel.T2)
+			else if(coinPool == ChestPoolLevel.T2)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T2.build());
 				return safelyGetResults(table, context);
 			}
-			else if(coinPool == PoolLevel.T3)
+			else if(coinPool == ChestPoolLevel.T3)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T3.build());
 				return safelyGetResults(table, context);
 			}
-			else if(coinPool == PoolLevel.T4)
+			else if(coinPool == ChestPoolLevel.T4)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T4.build());
 				return safelyGetResults(table, context);
 			}
-			else if(coinPool == PoolLevel.T5)
+			else if(coinPool == ChestPoolLevel.T5)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T5.build());
 				return safelyGetResults(table, context);
 			}
-			else if(coinPool == PoolLevel.T6)
+			else if(coinPool == ChestPoolLevel.T6)
 			{
 				LootTable table = LootTable.lootTable().build();
 				table.addPool(CHEST_LOOT_T6.build());
@@ -641,7 +631,7 @@ public class LootManager {
 			return new ArrayList<>();
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private static List<ItemStack> safelyGetResults(LootTable table, LootContext context) {
 		List<ItemStack> results = new ArrayList<>();
@@ -650,92 +640,64 @@ public class LootManager {
 		return results;
 	}
 
-	public static PoolLevel GetChestPoolLevel(String lootTable) {
+	public static ChestPoolLevel GetChestPoolLevel(String lootTable) {
 		if(Config.COMMON.chestDropsT1.get().contains(lootTable))
-			return PoolLevel.T1;
+			return ChestPoolLevel.T1;
 		if(Config.COMMON.chestDropsT2.get().contains(lootTable))
-			return PoolLevel.T2;
+			return ChestPoolLevel.T2;
 		if(Config.COMMON.chestDropsT3.get().contains(lootTable))
-			return PoolLevel.T3;
+			return ChestPoolLevel.T3;
 		if(Config.COMMON.chestDropsT4.get().contains(lootTable))
-			return PoolLevel.T4;
+			return ChestPoolLevel.T4;
 		if(Config.COMMON.chestDropsT5.get().contains(lootTable))
-			return PoolLevel.T5;
+			return ChestPoolLevel.T5;
 		if(Config.COMMON.chestDropsT6.get().contains(lootTable))
-			return PoolLevel.T6;
-		for(String chest : EXTERNAL_CHEST_ENTRIES.keySet())
-		{
-			if(chest.equals(lootTable))
-				return EXTERNAL_CHEST_ENTRIES.get(chest);
-		}
+			return ChestPoolLevel.T6;
 		return null;
 	}
-	
+
 	private static void SpawnLootDrops(Entity entity, List<ItemStack> lootDrops)
 	{
 		//LightmansCurrency.LOGGER.info("Spawning " + lootDrops.size() + " coin drops.");
 		InventoryUtil.dumpContents(entity.level, entity.blockPosition(), lootDrops);
 	}
-	
-	/**
-	 * @deprecated Should listen to the DroplistConfigEvent.Entity event instead to add them to the config file for easier user customization.
-	 */
-	@Deprecated(since = "2.1.1.0", forRemoval = true)
-	public static void AddEntityCoinPoolToTable(String resource, PoolLevel coinPool)
-	{
-		EXTERNAL_ENTITY_ENTRIES.put(resource, coinPool);
-	}
-	
-	/**
-	 * @deprecated Should listen to the DroplistConfigEvent.Chest event instead to add them to the config file for easier user customization.
-	 */
-	@Deprecated(since = "2.1.1.0", forRemoval = true)
-	public static void AddChestCoinPoolToTable(String resource, PoolLevel coinPool)
-	{
-		if(coinPool.level > PoolLevel.T6.level)
-		{
-			LightmansCurrency.LogError("Attempted to add a chest to the coin pool at level " + coinPool.name() + ", but that level is not valid for chests.");
-			return;
-		}
-		EXTERNAL_CHEST_ENTRIES.put(resource, coinPool);
-	}
-	
-	
+
+
 	private static Builder GenerateEntityCoinPool(Item item, float min, float max, float chance, String name, boolean requirePlayerKill)
 	{
-		
+
 		Builder lootPoolBuilder = LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(1))
 				.add(LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max))).apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0f, 1f))))
 				.name(name);
-		
+
 		//Require that the player killed it (usually only disabled for bosses)
 		if(requirePlayerKill)
 			lootPoolBuilder.when(LootItemKilledByPlayerCondition.killedByPlayer());
 		//Add a random chance to the loot (if applicable, usually only disabled for bosses)
 		if(chance < 1.0f)
 			lootPoolBuilder.when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(chance, LOOTING_MODIFIER));
-		
+
 		return lootPoolBuilder;
-		
+
 	}
-	
-	
+
+
 	private static Builder GenerateChestCoinPool(ChestLootEntryData[] lootEntries, float minRolls, float maxRolls, String name)
 	{
-		
+
 		Builder lootPoolBuilder = LootPool.lootPool()
 				.setRolls(UniformGenerator.between(minRolls, maxRolls))
 				.name(name);
-		
+
 		//Add each loot entry
 		for(ChestLootEntryData entry : lootEntries)
 		{
 			lootPoolBuilder.add(LootItem.lootTableItem(entry.item.get()).apply(SetItemCountFunction.setCount(UniformGenerator.between(entry.minCount, entry.maxCount))).setWeight(entry.weight));
 		}
-		
+
 		return lootPoolBuilder;
-		
+
 	}
 
 	private record ChestLootEntryData(Supplier<Item> item, float minCount, float maxCount, int weight) {
@@ -748,7 +710,5 @@ public class LootManager {
 		public static ChestLootEntryData NETHERITE = new ChestLootEntryData(Config.COMMON.lootItem6, 1, 3, 6);
 
 	}
-	
-	
-	
+
 }

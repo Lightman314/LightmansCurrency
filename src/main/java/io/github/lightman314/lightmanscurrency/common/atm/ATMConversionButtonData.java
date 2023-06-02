@@ -13,7 +13,9 @@ import io.github.lightman314.lightmanscurrency.common.atm.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.common.atm.icons.SimpleArrowIcon.ArrowType;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.money.ATMUtil;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ATMConversionButtonData {
 
@@ -30,7 +32,7 @@ public class ATMConversionButtonData {
 		this.xPos = data.get("x").getAsInt();
 		this.yPos = data.get("y").getAsInt();
 		this.width = data.get("width").getAsInt();
-		this.command = data.get("command").getAsString();
+		this.command = ATMUtil.UpdateCommand(data.get("command").getAsString());
 		
 		this.icons = new ArrayList<>();
 		if(data.has("icons"))
@@ -41,7 +43,7 @@ public class ATMConversionButtonData {
 				try {
 					JsonObject iconData = iconListData.get(i).getAsJsonObject();
 					this.icons.add(ATMIconData.parse(iconData));
-				} catch(Exception e) { LightmansCurrency.LogError("Error parsing ATM Icon #" + String.valueOf(i + 1) + ".", e);}
+				} catch(Exception e) { LightmansCurrency.LogError("Error parsing ATM Icon #" + (i + 1) + ".", e);}
 			}
 		}
 		else
@@ -54,7 +56,7 @@ public class ATMConversionButtonData {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.width = width;
-		this.command = command;
+		this.command = ATMUtil.UpdateCommand(command);
 		this.icons = icons;
 	}
 	
@@ -67,8 +69,8 @@ public class ATMConversionButtonData {
 		data.addProperty("command", this.command);
 		
 		JsonArray iconListData = new JsonArray();
-		for(int i = 0; i < this.icons.size(); ++i)
-			iconListData.add(this.icons.get(i).save());
+		for (ATMIconData icon : this.icons)
+			iconListData.add(icon.save());
 		data.add("icons", iconListData);
 		
 		return data;
@@ -77,28 +79,28 @@ public class ATMConversionButtonData {
 	public static List<ATMConversionButtonData> generateDefault() {
 		return Lists.newArrayList(
 				//Convert All
-				convertAllUpDefault(5,34),
-				convertAllDownDefault(89,34),
+				exchangeAllUpDefault(5,34),
+				exchangeAllDownDefault(89,34),
 				//Copper <-> Iron
-				convertSingle(6, 61, ModItems.COIN_IRON.get(), ModItems.COIN_COPPER.get(), "convertDown-lightmanscurrency:coin_iron"),
-				convertSingle(6, 88, ModItems.COIN_COPPER.get(), ModItems.COIN_IRON.get(), "convertUp-lightmanscurrency:coin_copper"),
+				exchangeSingle(6, 61, ModItems.COIN_IRON, ModItems.COIN_COPPER, "exchangeDown-lightmanscurrency:coin_iron"),
+				exchangeSingle(6, 88, ModItems.COIN_COPPER, ModItems.COIN_IRON, "exchangeUp-lightmanscurrency:coin_copper"),
 				//Iron <-> Gold
-				convertSingle(41, 61, ModItems.COIN_GOLD.get(), ModItems.COIN_IRON.get(), "convertDown-lightmanscurrency:coin_gold"),
-				convertSingle(41, 88, ModItems.COIN_IRON.get(), ModItems.COIN_GOLD.get(), "convertUp-lightmanscurrency:coin_iron"),
+				exchangeSingle(41, 61, ModItems.COIN_GOLD, ModItems.COIN_IRON, "exchangeDown-lightmanscurrency:coin_gold"),
+				exchangeSingle(41, 88, ModItems.COIN_IRON, ModItems.COIN_GOLD, "exchangeUp-lightmanscurrency:coin_iron"),
 				//Gold <-> Emerald
-				convertSingle(75, 61, ModItems.COIN_EMERALD.get(), ModItems.COIN_GOLD.get(), "convertDown-lightmanscurrency:coin_emerald"),
-				convertSingle(75, 88, ModItems.COIN_GOLD.get(), ModItems.COIN_EMERALD.get(), "convertUp-lightmanscurrency:coin_gold"),
+				exchangeSingle(75, 61, ModItems.COIN_EMERALD, ModItems.COIN_GOLD, "exchangeDown-lightmanscurrency:coin_emerald"),
+				exchangeSingle(75, 88, ModItems.COIN_GOLD, ModItems.COIN_EMERALD, "exchangeUp-lightmanscurrency:coin_gold"),
 				//Emerald <-> Diamond
-				convertSingle(109, 61, ModItems.COIN_DIAMOND.get(), ModItems.COIN_EMERALD.get(), "convertDown-lightmanscurrency:coin_diamond"),
-				convertSingle(109, 88, ModItems.COIN_EMERALD.get(), ModItems.COIN_DIAMOND.get(), "convertUp-lightmanscurrency:coin_emerald"),
+				exchangeSingle(109, 61, ModItems.COIN_DIAMOND, ModItems.COIN_EMERALD, "exchangeDown-lightmanscurrency:coin_diamond"),
+				exchangeSingle(109, 88, ModItems.COIN_EMERALD, ModItems.COIN_DIAMOND, "exchangeUp-lightmanscurrency:coin_emerald"),
 				//Diamond <-> Netherite
-				convertSingle(144, 61, ModItems.COIN_NETHERITE.get(), ModItems.COIN_DIAMOND.get(), "convertDown-lightmanscurrency:coin_netherite"),
-				convertSingle(144, 88, ModItems.COIN_DIAMOND.get(), ModItems.COIN_NETHERITE.get(), "convertUp-lightmanscurrency:coin_diamond")
+				exchangeSingle(144, 61, ModItems.COIN_NETHERITE, ModItems.COIN_DIAMOND, "exchangeDown-lightmanscurrency:coin_netherite"),
+				exchangeSingle(144, 88, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, "exchangeUp-lightmanscurrency:coin_diamond")
 			);
 	}
 	
-	private static ATMConversionButtonData convertAllUpDefault(int x, int y) {
-		return new ATMConversionButtonData(x, y, 82, "convertAllUp",
+	private static ATMConversionButtonData exchangeAllUpDefault(int x, int y) {
+		return new ATMConversionButtonData(x, y, 82, "exchangeAllUp",
 			Lists.newArrayList(
 				new ItemIcon(-2,1,ModItems.COIN_COPPER.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
@@ -115,8 +117,8 @@ public class ATMConversionButtonData {
 		);
 	}
 	
-	private static ATMConversionButtonData convertAllDownDefault(int x, int y) {
-		return new ATMConversionButtonData(x, y, 82, "convertAllDown",
+	private static ATMConversionButtonData exchangeAllDownDefault(int x, int y) {
+		return new ATMConversionButtonData(x, y, 82, "exchangeAllDown",
 			Lists.newArrayList(
 				new ItemIcon(-2,1,ModItems.COIN_NETHERITE.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
@@ -133,12 +135,12 @@ public class ATMConversionButtonData {
 		);
 	}
 	
-	private static ATMConversionButtonData convertSingle(int x, int y, ItemLike from, ItemLike to, String command) {
+	private static ATMConversionButtonData exchangeSingle(int x, int y, RegistryObject<? extends ItemLike> from, RegistryObject<? extends ItemLike> to, String command) {
 		return new ATMConversionButtonData(x, y, 26, command,
 			Lists.newArrayList(
-				new ItemIcon(-2,1,from),
+				new ItemIcon(-2,1,from.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,to)
+				new ItemIcon(12,1,to.get())
 			)
 		);
 	}

@@ -42,6 +42,8 @@ public class ModCreativeGroups {
                 ModItems.TICKET_MASTER,
                 ModItems.TICKET,
                 ModItems.TICKET_STUB,
+                //Coin Chest
+                ModBlocks.COIN_CHEST,
                 //Coin Jars
                 ModBlocks.PIGGY_BANK,
                 ModBlocks.COINJAR_BLUE
@@ -71,7 +73,12 @@ public class ModCreativeGroups {
                 ModItems.SPEED_UPGRADE_1, ModItems.SPEED_UPGRADE_2, ModItems.SPEED_UPGRADE_3,
                 ModItems.SPEED_UPGRADE_4, ModItems.SPEED_UPGRADE_5,
                 //Extra
-                ModItems.NETWORK_UPGRADE, ModItems.HOPPER_UPGRADE
+                ModItems.NETWORK_UPGRADE, ModItems.HOPPER_UPGRADE,
+                ModItems.COIN_CHEST_EXCHANGE_UPGRADE,
+                ModItems.COIN_CHEST_BANK_UPGRADE,
+                ModItems.COIN_CHEST_MAGNET_UPGRADE_1, ModItems.COIN_CHEST_MAGNET_UPGRADE_2,
+                ModItems.COIN_CHEST_MAGNET_UPGRADE_3, ModItems.COIN_CHEST_MAGNET_UPGRADE_4,
+                ModItems.COIN_CHEST_SECURITY_UPGRADE
         ).build();
 
     }

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.alexsmobs;
 
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigEvent;
+import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
@@ -8,13 +8,13 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * Mostly just adds their mobs to the default coin drop configs.
  */
-@Mod.EventBusSubscriber
 public class LCAlexsMobs {
 
     public static boolean isLoaded() { return ModList.get().isLoaded("alexsmobs"); }
 
-    @SubscribeEvent
-    public static void AddEntityLoot(DroplistConfigEvent.Entity event)
+    public static void registerDroplistListeners() { DroplistConfigGenerator.registerEntityListener(LCAlexsMobs::AddEntityLoot); }
+
+    public static void AddEntityLoot(DroplistConfigGenerator.Entity event)
     {
         event.setDefaultNamespace("alexsmobs");
         switch (event.getTier())

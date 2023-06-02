@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigEvent;
+import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.util.config.CoinValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ItemValueConfig;
 import io.github.lightman314.lightmanscurrency.util.config.ScreenPositionConfig;
@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.PoolLevel;
+import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -474,47 +474,47 @@ public class Config {
             //Copper
             this.entityDropsT1 = builder
                     .comment("Entities that will occasionally drop T1 loot.")
-                    .defineList("entityListT1", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T1), o -> o instanceof String);
+                    .defineList("entityListT1", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T1), o -> o instanceof String);
             //Iron
             this.entityDropsT2 = builder
                     .comment("Entities that will occasionally drop T1 -> T2 loot.")
-                    .defineList("entityListT2", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T2), o -> o instanceof String);
+                    .defineList("entityListT2", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T2), o -> o instanceof String);
             //Gold
             this.entityDropsT3 = builder
                     .comment("Entities that will occasionally drop T1 -> T3 loot.")
-                    .defineList("entityListT3", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T3), o -> o instanceof String);
+                    .defineList("entityListT3", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T3), o -> o instanceof String);
             //Emerald
             this.entityDropsT4 = builder
                     .comment("Entities that will occasionally drop T1 -> T4 loot.")
-                    .defineList("entityListT4", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T4), o -> o instanceof String);
+                    .defineList("entityListT4", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T4), o -> o instanceof String);
             //Diamond
             this.entityDropsT5 = builder
                     .comment("Entities that will occasionally drop T1 -> T5 loot.")
-                    .defineList("entityListT5", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T5), o -> o instanceof String);
+                    .defineList("entityListT5", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T5), o -> o instanceof String);
             //Netherite
             this.entityDropsT6 = builder
                     .comment("Entities that will occasionally drop T1 -> T6 loot.")
-                    .defineList("entityListT6", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.T6), o -> o instanceof String);
+                    .defineList("entityListT6", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T6), o -> o instanceof String);
 
             //Boss
             this.bossEntityDropsT1 = builder
                     .comment("Entities that will drop a large amount of T1 loot.")
-                    .defineList("bossEntityListT1", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T1), o -> o instanceof String);
+                    .defineList("bossEntityListT1", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T1), o -> o instanceof String);
             this.bossEntityDropsT2 = builder
                     .comment("Entities that will drop a large amount of T1 -> T2 loot.")
-                    .defineList("bossEntityListT2", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T2), o -> o instanceof String);
+                    .defineList("bossEntityListT2", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T2), o -> o instanceof String);
             this.bossEntityDropsT3 = builder
                     .comment("Entities that will drop a large amount of T1 -> T3 loot.")
-                    .defineList("bossEntityListT3", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T3), o -> o instanceof String);
+                    .defineList("bossEntityListT3", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T3), o -> o instanceof String);
             this.bossEntityDropsT4 = builder
                     .comment("Entities that will drop a large amount of T1 -> T4 loot.")
-                    .defineList("bossEntityListT4", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T4), o -> o instanceof String);
+                    .defineList("bossEntityListT4", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T4), o -> o instanceof String);
             this.bossEntityDropsT5 = builder
                     .comment("Entities that will drop a large amount of T1 -> T5 loot.")
-                    .defineList("bossEntityListT5", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T5), o -> o instanceof String);
+                    .defineList("bossEntityListT5", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T5), o -> o instanceof String);
             this.bossEntityDropsT6 = builder
                     .comment("Entities that will drop a large amount of T1 -> T6 loot.")
-                    .defineList("bossEntityListT6", DroplistConfigEvent.CollectDefaultEntityDrops(PoolLevel.BOSS_T6), o -> o instanceof String);
+                    .defineList("bossEntityListT6", DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T6), o -> o instanceof String);
 
             builder.pop();
 
@@ -524,22 +524,22 @@ public class Config {
                     .define("enableChestLoot", true);
             this.chestDropsT1 = builder
                     .comment("Chests that will occasionally spawn T1 loot.")
-                    .defineList("chestListT1", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T1), o -> o instanceof String);
+                    .defineList("chestListT1", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T1), o -> o instanceof String);
             this.chestDropsT2 = builder
                     .comment("Chests that will occasionally spawn T1 -> T2 loot.")
-                    .defineList("chestListT2", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T2), o -> o instanceof String);
+                    .defineList("chestListT2", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T2), o -> o instanceof String);
             this.chestDropsT3 = builder
                     .comment("Chests that will occasionally spawn T1 -> T3 loot.")
-                    .defineList("chestListT3", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T3), o -> o instanceof String);
+                    .defineList("chestListT3", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T3), o -> o instanceof String);
             this.chestDropsT4 = builder
                     .comment("Chests that will occasionally spawn T1 -> T4 loot.")
-                    .defineList("chestListT4", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T4), o -> o instanceof String);
+                    .defineList("chestListT4", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T4), o -> o instanceof String);
             this.chestDropsT5 = builder
                     .comment("Chests that will occasionally spawn T1 -> T5 loot.")
-                    .defineList("chestListT5", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T5), o -> o instanceof String);
+                    .defineList("chestListT5", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T5), o -> o instanceof String);
             this.chestDropsT6 = builder
                     .comment("Chests that will occasionally spawn T1 -> T6 loot.")
-                    .defineList("chestListT6", DroplistConfigEvent.CollectDefaultChestDrops(PoolLevel.T6), o -> o instanceof String);
+                    .defineList("chestListT6", DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6), o -> o instanceof String);
 
             builder.pop();
 
@@ -606,6 +606,12 @@ public class Config {
         public final ForgeConfigSpec.BooleanValue auctionHouseOnTerminal;
         public final ForgeConfigSpec.IntValue maxAuctionDuration;
         public final ForgeConfigSpec.IntValue minAuctionDuration;
+
+        //Money Chest Upgrade Options
+        public final ForgeConfigSpec.IntValue coinChestMagnetRange1;
+        public final ForgeConfigSpec.IntValue coinChestMagnetRange2;
+        public final ForgeConfigSpec.IntValue coinChestMagnetRange3;
+        public final ForgeConfigSpec.IntValue coinChestMagnetRange4;
 
         //Player Trade Options
         public final ForgeConfigSpec.DoubleValue maxPlayerTradingRange;
@@ -740,6 +746,19 @@ public class Config {
                     .defineInRange("upgradeCapacity2", 6 * 64, 1, 1728);
             this.itemUpgradeCapacity3 = builder.comment("The amount of item storage added by the third Item Capacity upgrade (Diamond).")
                     .defineInRange("upgradeCapacity3", 9 * 64, 1, 1728);
+
+            builder.pop();
+
+            builder.comment("Money Chest Upgrade Settings").push("money_chest_upgrades");
+
+            this.coinChestMagnetRange1 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Copper)'s coin collection.")
+                    .defineInRange("magnetRange1", 4, 1, 50);
+            this.coinChestMagnetRange2 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Iron)'s coin collection.")
+                    .defineInRange("magnetRange2", 6, 1, 50);
+            this.coinChestMagnetRange3 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Gold)'s coin collection.")
+                    .defineInRange("magnetRange3", 8, 1, 50);
+            this.coinChestMagnetRange4 = builder.comment("The radius (in meters) of the Money Chest Magnet Upgrade (Emerald)'s coin collection.")
+                    .defineInRange("magnetRange4", 10, 1, 50);
 
             builder.pop();
 

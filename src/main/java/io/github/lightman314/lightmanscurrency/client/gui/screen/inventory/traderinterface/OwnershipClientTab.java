@@ -136,9 +136,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab>{
 		
 	}
 	
-	private void toggleMode(Button button) {
-		this.playerMode = !this.playerMode;
-	}
+	private void toggleMode(Button button) { this.playerMode = !this.playerMode; }
 	
 	private void setOwner(Button button)
 	{

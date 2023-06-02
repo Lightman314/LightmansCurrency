@@ -8,11 +8,8 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 public class CapacityUpgradeItem extends UpgradeItem{
 
 	private final Supplier<Integer> capacityAmount;
-	
-	public CapacityUpgradeItem(CapacityUpgrade upgradeType, int capacityAmount, Properties properties)
-	{
-		this(upgradeType, () -> capacityAmount, properties);
-	}
+
+	public CapacityUpgradeItem(CapacityUpgrade upgradeType, int capacityAmount, Properties properties) { this(upgradeType, () -> capacityAmount, properties); }
 	
 	public CapacityUpgradeItem(CapacityUpgrade upgradeType, Supplier<Integer> capacityAmount, Properties properties)
 	{
