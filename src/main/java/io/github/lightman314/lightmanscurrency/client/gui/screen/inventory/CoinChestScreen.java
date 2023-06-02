@@ -54,6 +54,12 @@ public class CoinChestScreen extends AbstractContainerScreen<CoinChestMenu> {
         this.imageWidth = 176;
     }
 
+    private void safeAddTab(Object tab)
+    {
+        if(tab instanceof CoinChestTab t)
+            this.tabs.add(t);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -81,7 +87,7 @@ public class CoinChestScreen extends AbstractContainerScreen<CoinChestMenu> {
 
         this.tabs = Lists.newArrayList(new DefaultTab(this));
         for(CoinChestUpgradeData data : this.menu.be.getChestUpgrades())
-            data.upgrade.addClientTabs(data, this, this.tabs::add);
+            data.upgrade.addClientTabs(data, this, this::safeAddTab);
 
         if(oldTabType != null)
         {
