@@ -90,6 +90,8 @@ public class LightmansCurrency {
     
 	public LightmansCurrency() {
 
+		LootManager.registerDroplistListeners();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigLoad);

@@ -12,7 +12,7 @@ import com.mojang.serialization.DynamicOps;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import io.github.lightman314.lightmanscurrency.common.loot.LootManager.PoolLevel;
+import io.github.lightman314.lightmanscurrency.common.loot.LootManager.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -32,7 +32,7 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		
 		String lootTable = context.getQueriedLootTableId().toString();
 		
-		PoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
+		ChestPoolLevel lootLevel = LootManager.GetChestPoolLevel(lootTable);
 		
 		if(lootLevel != null)
 		{
