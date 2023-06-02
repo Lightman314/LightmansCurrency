@@ -129,10 +129,6 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.1"),EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.protection.2")); }
 
     @Override
-    public void clearDataFromStack(CompoundTag itemTag)
-    {
-        itemTag.remove("Owner");
-        itemTag.remove("BreakIsValid");
-    }
+    public boolean clearDataFromStack(CompoundTag itemTag) { return this.clearTags(itemTag, "Owner", "BreakIsValid"); }
 
 }

@@ -45,14 +45,17 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		if(stack.hasTag() && player.isCrouching())
 		{
 			CompoundTag tag = stack.getTag();
-			this.upgradeType.clearDataFromStack(tag);
+			boolean success = this.upgradeType.clearDataFromStack(tag);
 			if(tag.contains("UpgradeData"))
 			{
 				tag.remove("UpgradeData");
+				success = true;
+			}
+			if(success)
+			{
 				level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (level.random.nextFloat() - level.random.nextFloat()) * 0.35F + 0.9F, false);
 				return InteractionResultHolder.success(stack);
 			}
-
 		}
 		return super.use(level, player, hand);
 	}

@@ -5,10 +5,12 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlock
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public abstract class CoinChestUpgrade extends UpgradeType {
@@ -30,5 +32,17 @@ public abstract class CoinChestUpgrade extends UpgradeType {
 
     @Override
     protected Object defaultTagValue(String tag) { return null; }
+
+    protected final boolean clearTags(CompoundTag itemTag, String... tags)
+    {
+        AtomicBoolean flag = new AtomicBoolean(false);
+        for(String tag : tags)
+        {
+            if(itemTag.contains(tag))
+                flag.set(true);
+            itemTag.remove(tag);
+        }
+        return flag.get();
+    }
 
 }

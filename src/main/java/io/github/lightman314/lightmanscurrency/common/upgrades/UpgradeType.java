@@ -64,7 +64,7 @@ public abstract class UpgradeType {
 		return UpgradeType.class;
 	}
 
-	public void clearDataFromStack(CompoundTag itemTag) {}
+	public boolean clearDataFromStack(CompoundTag itemTag) { return false; }
 
 	private static <T extends UpgradeType> T register(ResourceLocation type, T upgradeType)
 	{

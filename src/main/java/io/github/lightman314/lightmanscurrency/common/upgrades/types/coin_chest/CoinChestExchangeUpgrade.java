@@ -98,9 +98,6 @@ public class CoinChestExchangeUpgrade extends CoinChestUpgrade {
     public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.upgrade.coin_chest.exchange")); }
 
     @Override
-    public void clearDataFromStack(CompoundTag itemTag) {
-        itemTag.remove("ExchangeCommand");
-        itemTag.remove("ExchangeWhileOpen");
-    }
+    public boolean clearDataFromStack(CompoundTag itemTag) { return this.clearTags(itemTag, "ExchangeCommand", "ExchangeWhileOpen"); }
 
 }
