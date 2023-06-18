@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 
 public enum Color {
 
