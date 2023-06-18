@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -24,6 +26,10 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/ticket_machine.png");
 	
 	private Button buttonCraft;
+
+	private PlainButton buttonTogglePass;
+
+	private boolean craftPass = false;
 	
 	public TicketMachineScreen(TicketMachineMenu container, Inventory inventory, Component title)
 	{
@@ -40,7 +46,7 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		
-		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 	}
 	
@@ -49,6 +55,13 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 	{
 		this.font.draw(pose, this.title, 8.0f, 6.0f, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8.0f, (this.imageHeight - 94), 0x404040);
+
+		if(this.buttonTogglePass.visible)
+		{
+			int textWidth = this.font.width(EasyText.translatable("gui.button.lightmanscurrency.craft_pass.option"));
+			this.font.draw(pose, EasyText.translatable("gui.button.lightmanscurrency.craft_pass.option"), this.imageWidth - 14 - textWidth, 6f, 0x404040);
+		}
+
 	}
 	
 	@Override
@@ -58,14 +71,18 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 		
 		this.buttonCraft = this.addRenderableWidget(new PlainButton(this.leftPos + 79, this.topPos + 21, 24, 16, this::craftTicket, GUI_TEXTURE, this.imageWidth, 0));
 		this.buttonCraft.visible = false;
-		
+
+		this.buttonTogglePass = this.addRenderableWidget(IconAndButtonUtil.checkmarkButton(this.leftPos + this.imageWidth - 14, this.topPos + 5, this::togglePassCraft, () -> this.craftPass));
+		this.buttonTogglePass.visible = false;
+
 	}
 	
 	@Override
 	public void containerTick()
 	{
 		
-		this.buttonCraft.visible = this.menu.validInputs() && this.menu.roomForOutput();
+		this.buttonCraft.visible = this.menu.validInputs() && this.menu.roomForOutput(this.craftPass);
+		this.buttonTogglePass.visible = this.menu.hasMasterTicket();
 		
 	}
 	
@@ -79,16 +96,23 @@ public class TicketMachineScreen extends AbstractContainerScreen<TicketMachineMe
 		if(this.buttonCraft != null && this.buttonCraft.active && this.buttonCraft.isMouseOver(mouseX, mouseY))
 		{
 			if(this.menu.hasMasterTicket())
-				this.renderTooltip(pose, Component.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
+			{
+				this.renderTooltip(pose, this.craftPass ? EasyText.translatable("gui.button.lightmanscurrency.craft_pass") : EasyText.translatable("gui.button.lightmanscurrency.craft_ticket"), mouseX, mouseY);
+			}
 			else
 				this.renderTooltip(pose, Component.translatable("gui.button.lightmanscurrency.craft_master_ticket"), mouseX, mouseY);
 		}
 		
 	}
-	
+
+	private void togglePassCraft(Button button)
+	{
+		this.craftPass = !this.craftPass;
+	}
+
 	private void craftTicket(Button button)
 	{
-		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown());
+		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(), this.craftPass);
 		//LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCraftTicket(Screen.hasShiftDown()));
 	}
 	

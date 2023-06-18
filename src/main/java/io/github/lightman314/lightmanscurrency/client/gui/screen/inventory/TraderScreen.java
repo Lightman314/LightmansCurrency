@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import org.anti_ad.mc.ipn.api.IPNIgnore;
 
@@ -124,21 +125,21 @@ public class TraderScreen extends AbstractContainerScreen<TraderMenu> implements
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 		//Main BG
-		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
 		//Info widget
-		this.blit(pose, this.leftPos + INFO_WIDGET_POSITION.x, this.topPos + INFO_WIDGET_POSITION.y, this.imageWidth + 38, 0, 10, 10);
+		blit(pose, this.leftPos + INFO_WIDGET_POSITION.x, this.topPos + INFO_WIDGET_POSITION.y, this.imageWidth + 38, 0, 10, 10);
 
 		//Coin Slots
 		for(Slot slot : this.menu.getCoinSlots())
 		{
-			this.blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
+			blit(pose, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, this.imageWidth, 0, 18, 18);
 		}
 
 
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
-			this.blit(pose, this.leftPos + this.menu.getInteractionSlot().x - 1, this.topPos + this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
+			blit(pose, this.leftPos + this.menu.getInteractionSlot().x - 1, this.topPos + this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
 		
 		try {
 			this.currentTab.renderBG(pose, mouseX, mouseY, partialTicks);

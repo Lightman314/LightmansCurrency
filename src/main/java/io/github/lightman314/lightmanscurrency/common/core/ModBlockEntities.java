@@ -29,6 +29,8 @@ public class ModBlockEntities {
 
 		BOOK_TRADER = ModRegistries.BLOCK_ENTITIES.register("book_trader", () -> BlockEntityType.Builder.of(BookTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.BOOKSHELF_TRADER_TYPE)).build(null));
 
+		SLOT_MACHINE_TRADER = ModRegistries.BLOCK_ENTITIES.register("slot_machine_trader", () -> BlockEntityType.Builder.of(SlotMachineTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.SLOT_MACHINE_TRADER_TYPE)).build(null));
+
 		CAPABILITY_INTERFACE = ModRegistries.BLOCK_ENTITIES.register("capability_interface", () -> BlockEntityType.Builder.of(CapabilityInterfaceBlockEntity::new,
 				BlockEntityBlockHelper.getBlocksForBlockEntity(BlockEntityBlockHelper.CAPABILITY_INTERFACE_TYPE)).build(null));
 		
@@ -68,7 +70,10 @@ public class ModBlockEntities {
 	public static final RegistryObject<BlockEntityType<FreezerTraderBlockEntity>> FREEZER_TRADER;
 	//Ticket variant of the trader
 	public static final RegistryObject<BlockEntityType<TicketTraderBlockEntity>> TICKET_TRADER;
+	//Book variant of the trader
 	public static final RegistryObject<BlockEntityType<BookTraderBlockEntity>> BOOK_TRADER;
+	//Slot Machine variant of the trader
+	public static final RegistryObject<BlockEntityType<SlotMachineTraderBlockEntity>> SLOT_MACHINE_TRADER;
 
 	//Item Interface for multi-block traders
 	public static final RegistryObject<BlockEntityType<CapabilityInterfaceBlockEntity>> CAPABILITY_INTERFACE;

@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 
 public enum Color {
 
     WHITE(0, 0xFFFFFF),
-    LIGHT_GRAY(1, 0x9D9D97, "LIGHTGRAY"),
+    LIGHT_GRAY(1, 0x9D9D97, "lightgray"),
     GRAY(2, 0x646464),
     BLACK(3, 0x141414),
     BROWN(4, 0x835432),
@@ -15,7 +16,7 @@ public enum Color {
     LIME(8, 0x86CC26),
     GREEN(9, 0x007F00),
     CYAN(10, 0x169B9C),
-    LIGHT_BLUE(11, 0x00FFFF, "LIGHTBLUE"),
+    LIGHT_BLUE(11, 0x00FFFF, "lightblue"),
     BLUE(12, 0x0000FF),
     PURPLE(13, 0x9743CD),
     MAGENTA(14, 0xD660D1),
@@ -25,6 +26,8 @@ public enum Color {
     public final int hexColor;
     private final String oldName;
     public final String getOldName() { return this.oldName == null ? this.toString() : this.oldName; }
+    public final String getResourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }
+    public final String getResourceSafeOldName() { return this.getOldName().toLowerCase(Locale.ENGLISH); }
     Color(int sortIndex, int hexColor) { this.sortIndex = sortIndex; this.hexColor = hexColor; this.oldName = null; }
     Color(int sortIndex, int hexColor, String oldName) { this.sortIndex = sortIndex; this.hexColor = hexColor; this.oldName = oldName; }
 

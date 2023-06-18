@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:coin_chest_craftable"}],
   "type": "minecraft:crafting_shaped",
   "pattern":[
     "ppp",

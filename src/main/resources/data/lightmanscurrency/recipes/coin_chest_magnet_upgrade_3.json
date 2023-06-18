@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:coin_chest_magnet_craftable"}],
   "type": "minecraft:smithing",
   "base": {
     "item": "lightmanscurrency:coin_chest_magnet_upgrade_2"

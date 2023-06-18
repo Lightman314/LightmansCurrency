@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
@@ -235,7 +236,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lightmanscurrency.settings.iteminput"); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
+	public IconData getIcon() { return IconAndButtonUtil.ICON_TRADER; }
 
 	@Override
 	public boolean hasValidTrade() {

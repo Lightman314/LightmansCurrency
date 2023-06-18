@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.MutableComponent;
@@ -43,9 +44,6 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
 
     @Override
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.settings"); }
-
-    @Override
-    public boolean tabButtonVisible() { return true; }
 
     @Override
     public boolean blockInventoryClosing() { return true; }

@@ -31,20 +31,16 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
-	protected TraderBlockTallRotatable(Properties properties)
-	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
-	}
+	protected TraderBlockTallRotatable(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE_T); }
 	
-	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape)
-	{
-		this(properties, LazyShapes.lazyTallSingleShape(shape));
-	}
+	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazyTallSingleShape(shape)); }
 	
 	protected TraderBlockTallRotatable(Properties properties, BiFunction<Direction,Boolean,VoxelShape> shape)
 	{
@@ -79,8 +75,9 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
+	@Nonnull
 	@Override
-	public PushReaction getPistonPushReaction(BlockState state)
+	public PushReaction getPistonPushReaction(@Nonnull BlockState state)
 	{
 		return PushReaction.BLOCK;
 	}
@@ -126,9 +123,8 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		this.playerWillDestroyBase(level, pos, state, player);
 		
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
-		if(blockEntity instanceof TraderBlockEntity<?>)
+		if(blockEntity instanceof TraderBlockEntity<?> trader)
 		{
-			TraderBlockEntity<?> trader = (TraderBlockEntity<?>)blockEntity;
 			if(!trader.canBreak(player))
 				return;
 		}

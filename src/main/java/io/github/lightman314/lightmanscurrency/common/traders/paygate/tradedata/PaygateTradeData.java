@@ -49,7 +49,7 @@ public class PaygateTradeData extends TradeData {
 
 	public boolean canAfford(TradeContext context) {
 		if(this.isTicketTrade())
-			return context.hasTicket(this.ticketID);
+			return context.hasTicket(this.ticketID) || context.hasPass(this.ticketID);
 		else
 			return context.hasFunds(this.cost);
 	}

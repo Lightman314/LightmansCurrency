@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs.TraderLogTab;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -27,9 +28,6 @@ public class TraderLogClientTab extends TraderStorageClientTab<TraderLogTab> {
 
     @Override
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.log"); }
-
-    @Override
-    public boolean tabButtonVisible() { return true; }
 
     @Override
     public boolean blockInventoryClosing() { return false; }

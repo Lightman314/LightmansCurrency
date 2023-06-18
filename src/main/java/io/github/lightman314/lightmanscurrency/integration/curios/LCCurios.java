@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.curios;
 import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;

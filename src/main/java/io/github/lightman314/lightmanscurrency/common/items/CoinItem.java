@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Pair;
@@ -26,7 +27,7 @@ public class CoinItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		addCoinTooltips(stack, tooltip);
@@ -37,26 +38,24 @@ public class CoinItem extends Item{
 		CoinData coinData = MoneyUtil.getData(stack.getItem());
 		if(coinData != null)
 		{
-			switch(Config.SERVER.coinTooltipType.get())
-			{
-			case DEFAULT:
-				if(coinData.convertsDownwards())
-				{
-					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.down", coinData.getDownwardConversion().getSecond(), MoneyUtil.getPluralName(coinData.getDownwardConversion().getFirst()).getString()).withStyle(ChatFormatting.YELLOW));
+			switch (Config.SERVER.coinTooltipType.get()) {
+				case DEFAULT -> {
+					if (coinData.convertsDownwards()) {
+						tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.down", coinData.getDownwardConversion().getSecond(), MoneyUtil.getPluralName(coinData.getDownwardConversion().getFirst()).getString()).withStyle(ChatFormatting.YELLOW));
+					}
+					Pair<Item, Integer> upwardConversion = MoneyUtil.getUpwardConversion(stack.getItem());
+					if (upwardConversion != null) {
+						tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(ChatFormatting.YELLOW));
+					}
 				}
-				Pair<Item,Integer> upwardConversion = MoneyUtil.getUpwardConversion(stack.getItem());
-				if(upwardConversion != null)
-				{
-					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.up", upwardConversion.getSecond(), upwardConversion.getFirst().getName(new ItemStack(upwardConversion.getFirst())).getString()).withStyle(ChatFormatting.YELLOW));
+				case VALUE -> {
+					double value = coinData.getDisplayValue();
+					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value", Config.formatValueDisplay(value)).withStyle(ChatFormatting.YELLOW));
+					if (stack.getCount() > 1)
+						tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value.stack", Config.formatValueDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
 				}
-				break;
-			case VALUE:
-				double value = coinData.getDisplayValue();
-				tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value", Config.formatValueDisplay(value)).withStyle(ChatFormatting.YELLOW));
-				if(stack.getCount() > 1)
-					tooltip.add(Component.translatable("tooltip.lightmanscurrency.coinworth.value.stack", Config.formatValueDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
-				break;
-				default: //Default is NONE
+				default -> {
+				} //Default is NONE
 			}
 		}
 	}

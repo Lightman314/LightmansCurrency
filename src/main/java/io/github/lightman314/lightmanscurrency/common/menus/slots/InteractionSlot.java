@@ -37,9 +37,7 @@ public class InteractionSlot extends EasyMultiBGSlot {
 	public int getMaxStackSize() { return 1; }
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack) {
-		return InteractionSlotData.allowItemInSlot(this.slotData, stack);
-	}
+	public boolean mayPlace(@NotNull ItemStack stack) { return InteractionSlotData.allowItemInSlot(this.slotData, stack); }
 
 	@Override
 	protected List<Pair<ResourceLocation,ResourceLocation>> getPossibleNoItemIcons() {

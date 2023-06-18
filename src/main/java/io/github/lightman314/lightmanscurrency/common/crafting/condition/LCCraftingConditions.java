@@ -53,5 +53,80 @@ public class LCCraftingConditions {
 			public ResourceLocation getID() { return TYPE; }
 		}
 	}
+
+	public static class CoinChest extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_craftable");
+		private static final CoinChest INSTANCE = new CoinChest();
+		public static final IConditionSerializer<CoinChest> SERIALIZER = new Serializer();
+		private CoinChest() { super(TYPE, Config.COMMON.canCraftCoinChest); }
+		private static class Serializer implements IConditionSerializer<CoinChest> {
+			@Override
+			public void write(JsonObject json, CoinChest value) {}
+			@Override
+			public CoinChest read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
+	public static class CoinChestUpgradeExchange extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_exchange_craftable");
+		private static final CoinChestUpgradeExchange INSTANCE = new CoinChestUpgradeExchange();
+		public static final IConditionSerializer<CoinChestUpgradeExchange> SERIALIZER = new Serializer();
+		private CoinChestUpgradeExchange() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeExchange); }
+		private static class Serializer implements IConditionSerializer<CoinChestUpgradeExchange> {
+			@Override
+			public void write(JsonObject json, CoinChestUpgradeExchange value) {}
+			@Override
+			public CoinChestUpgradeExchange read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
+	public static class CoinChestUpgradeBank extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_bank_craftable");
+		private static final CoinChestUpgradeBank INSTANCE = new CoinChestUpgradeBank();
+		public static final IConditionSerializer<CoinChestUpgradeBank> SERIALIZER = new Serializer();
+		private CoinChestUpgradeBank() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeExchange); }
+		private static class Serializer implements IConditionSerializer<CoinChestUpgradeBank> {
+			@Override
+			public void write(JsonObject json, CoinChestUpgradeBank value) {}
+			@Override
+			public CoinChestUpgradeBank read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
+	public static class CoinChestUpgradeMagnet extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_magnet_craftable");
+		private static final CoinChestUpgradeMagnet INSTANCE = new CoinChestUpgradeMagnet();
+		public static final IConditionSerializer<CoinChestUpgradeMagnet> SERIALIZER = new Serializer();
+		private CoinChestUpgradeMagnet() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeSecurity); }
+		private static class Serializer implements IConditionSerializer<CoinChestUpgradeMagnet> {
+			@Override
+			public void write(JsonObject json, CoinChestUpgradeMagnet value) {}
+			@Override
+			public CoinChestUpgradeMagnet read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
+
+	public static class CoinChestUpgradeSecurity extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "coin_chest_security_craftable");
+		private static final CoinChestUpgradeSecurity INSTANCE = new CoinChestUpgradeSecurity();
+		public static final IConditionSerializer<CoinChestUpgradeSecurity> SERIALIZER = new Serializer();
+		private CoinChestUpgradeSecurity() { super(TYPE, Config.COMMON.canCraftCoinChestUpgradeSecurity); }
+		private static class Serializer implements IConditionSerializer<CoinChestUpgradeSecurity> {
+			@Override
+			public void write(JsonObject json, CoinChestUpgradeSecurity value) {}
+			@Override
+			public CoinChestUpgradeSecurity read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
 	
 }

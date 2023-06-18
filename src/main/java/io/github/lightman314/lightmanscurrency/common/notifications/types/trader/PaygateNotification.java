@@ -20,15 +20,17 @@ public class PaygateNotification extends Notification{
 	TraderCategory traderData;
 	
 	long ticketID = Long.MIN_VALUE;
+	boolean usedPass = false;
 	CoinValue cost = new CoinValue();
 	
 	int duration = 0;
 	
 	String customer;
 	
-	public PaygateNotification(PaygateTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData) {
+	public PaygateNotification(PaygateTradeData trade, CoinValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData) {
 		
 		this.traderData = traderData;
+		this.usedPass = usedPass;
 		this.ticketID = trade.getTicketID();
 		
 		if(trade.isTicketTrade())
@@ -54,7 +56,12 @@ public class PaygateNotification extends Notification{
 	public MutableComponent getMessage() {
 		
 		if(this.ticketID >= -1)
-			return Component.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+		{
+			if(this.usedPass)
+				return Component.translatable("notifications.message.paygate_trade.pass", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+			else
+				return Component.translatable("notifications.message.paygate_trade.ticket", this.customer, this.ticketID, PaygateTradeData.formatDurationShort(this.duration));
+		}
 		else
 			return Component.translatable("notifications.message.paygate_trade.coin", this.customer, this.cost.getString(), PaygateTradeData.formatDurationShort(this.duration));
 		
@@ -62,11 +69,14 @@ public class PaygateNotification extends Notification{
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-		
+
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("Duration", this.duration);
 		if(this.ticketID >= -1)
+		{
 			compound.putLong("TicketID", this.ticketID);
+			compound.putBoolean("UsedPass", this.usedPass);
+		}
 		else
 			this.cost.save(compound, "Price");
 		compound.putString("Customer", this.customer);
@@ -84,6 +94,8 @@ public class PaygateNotification extends Notification{
 			this.ticketID = TicketSaveData.getConvertedID(compound.getUUID("Ticket"));
 		else if(compound.contains("Price"))
 			this.cost.load(compound, "Price");
+		if(compound.contains("UsedPass"))
+			this.usedPass = compound.getBoolean("UsedPass");
 		this.customer = compound.getString("Customer");
 		
 	}
@@ -95,6 +107,8 @@ public class PaygateNotification extends Notification{
 			if(!pn.traderData.matches(this.traderData))
 				return false;
 			if(pn.ticketID != this.ticketID)
+				return false;
+			if(pn.usedPass != this.usedPass)
 				return false;
 			if(pn.duration != this.duration)
 				return false;

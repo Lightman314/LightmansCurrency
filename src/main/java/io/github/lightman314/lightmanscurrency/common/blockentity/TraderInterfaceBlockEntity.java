@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.MessageHandlerMessage;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
@@ -283,7 +282,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
 	public TradeContext getTradeContext() {
 		if(this.interaction.trades)
-			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference()).withMoneyListener(this::trackMoneyInteraction)).build();
+			return this.buildTradeContext(TradeContext.create(this.getTrader(), this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
 		return TradeContext.createStorageMode(this.getTrader());
 	}
 	
@@ -444,10 +443,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 			this.lastResult = TradeResult.FAIL_NULL;
 		this.setLastResultDirty();
 		return this.lastResult;
-	}
-	
-	protected void trackMoneyInteraction(CoinValue price, boolean isDeposit) {
-		
 	}
 	
 	public boolean isActive() {

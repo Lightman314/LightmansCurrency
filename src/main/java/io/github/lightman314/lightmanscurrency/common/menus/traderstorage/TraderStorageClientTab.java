@@ -35,7 +35,7 @@ public abstract class TraderStorageClientTab<T extends TraderStorageTab> impleme
 	/**
 	 * Whether the tab button for this tab should be visible. Used to hide the advanced trade tab from the screen, to only be opened when needed.
 	 */
-	public abstract boolean tabButtonVisible();
+	public boolean tabButtonVisible() { return true; }
 	
 	/**
 	 * Whether this tab being open should prevent the inventory button from closing the screen. Use this when typing is used on this tab.

@@ -44,7 +44,7 @@ public interface IWalletHandler{
 	/**
 	 * Gets the entity this wallet handler is attached to.
 	 */
-	LivingEntity getEntity();
+	LivingEntity entity();
 	
 	/**
 	 * Returns true if the wallet has been changed, and needs to send an update packet

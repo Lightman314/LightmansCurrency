@@ -28,7 +28,7 @@ public class AuctionStorageTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionStorageClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(Player player) { return true; }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) { }

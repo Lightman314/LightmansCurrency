@@ -49,9 +49,6 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.auction.create"); }
 	
 	@Override
-	public boolean tabButtonVisible() { return true; }
-	
-	@Override
 	public boolean blockInventoryClosing() { return CommandLCAdmin.isAdminPlayer(this.screen.getMenu().player); }
 	
 	AuctionTradeData pendingAuction;

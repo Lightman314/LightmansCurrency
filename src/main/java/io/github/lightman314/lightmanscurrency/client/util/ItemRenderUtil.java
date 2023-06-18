@@ -8,8 +8,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.IScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -22,9 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 
-public class ItemRenderUtil {
-
-	public static final int ITEM_BLIT_OFFSET = 100;
+public class ItemRenderUtil extends GuiComponent{
 	
 	private static ItemStack alexHead = null;
 	
@@ -66,8 +66,10 @@ public class ItemRenderUtil {
 		if(screen != null)
 		{
 			imageWidth = screen.width;
-			if(screen instanceof AbstractContainerScreen<?>)
-				imageWidth = ((AbstractContainerScreen<?>)screen).getXSize();
+			if(screen instanceof AbstractContainerScreen<?> s)
+				imageWidth = s.getXSize();
+			else if(screen instanceof IScreen s)
+				imageWidth = s.getXSize();
 		}
 		
 		if(font == null)
@@ -91,7 +93,7 @@ public class ItemRenderUtil {
 		TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(background.getFirst()).apply(background.getSecond());
 		RenderSystem.setShaderColor(1f,1f,1f,1f);
 		RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
-        Screen.blit(matrixStack, x, y, ITEM_BLIT_OFFSET, 16, 16, textureatlassprite);
+        blit(matrixStack, x, y, 100, 16, 16, textureatlassprite);
 	}
 	
 	/**
@@ -101,5 +103,12 @@ public class ItemRenderUtil {
 		Minecraft minecraft = Minecraft.getInstance();
 		return stack.getTooltipLines(minecraft.player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
 	}
+
+	/**
+	 * Translates the pose so that textures will be rendered in front of items.
+	 * Recommended to run pose.pushPose(), and then run pose.popPose() after
+	 * you are done rendering what you desire to be drawn in front.
+	 */
+	public static void TranslateToForeground(PoseStack pose) { pose.translate(0d, 0d, 250d);}
 	
 }

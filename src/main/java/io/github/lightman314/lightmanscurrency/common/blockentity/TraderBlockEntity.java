@@ -96,6 +96,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			this.markDirty();
 		}
 	}
+
+	@Nullable
+	private CompoundTag getCurrentTraderAsTag() {
+		TraderData trader = this.getTraderData();
+		if(trader != null)
+			return trader.save();
+		return null;
+	}
 	
 	public void initialize(Player owner, ItemStack placementStack)
 	{
@@ -237,5 +245,5 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 		return super.getRenderBoundingBox();
 	}
-	
+
 }

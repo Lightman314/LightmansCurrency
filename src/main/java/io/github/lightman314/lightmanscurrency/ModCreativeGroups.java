@@ -95,6 +95,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.TICKET_STATION);
                     //Tickets (with a creative default UUID)
                     p.accept(TicketItem.CreateMasterTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
+                    p.accept(TicketItem.CreatePass(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
                     p.accept(TicketItem.CreateTicket(TicketItem.CREATIVE_TICKET_ID, TicketItem.CREATIVE_TICKET_COLOR));
                     //Ticket Stub
                     ezPop(p, ModItems.TICKET_STUB);
@@ -121,6 +122,8 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
                     ezPop(p, ModBlocks.BOOKSHELF_TRADER);
+                    //Slot Machine Trader
+                    ezPop(p, ModBlocks.SLOT_MACHINE);
                     //Item Traders (network)
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_1);
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_2);

@@ -25,7 +25,7 @@ public class AuctionTradeCancelTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionTradeCancelClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(Player player) { return true; }
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }

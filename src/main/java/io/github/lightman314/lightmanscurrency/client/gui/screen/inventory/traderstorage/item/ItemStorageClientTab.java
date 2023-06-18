@@ -50,9 +50,6 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }
-
-	@Override
-	public boolean tabButtonVisible() { return true; }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }

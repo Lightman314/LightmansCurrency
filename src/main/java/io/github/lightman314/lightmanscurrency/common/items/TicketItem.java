@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.tickets.TicketSaveData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
@@ -40,6 +41,8 @@ public class TicketItem extends Item{
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
 	{
+		if(isPass(stack))
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.pass"));
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -1)
 			tooltip.add(Component.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
@@ -48,13 +51,36 @@ public class TicketItem extends Item{
 	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
 		GetTicketID(stack);
 	}
-	
+
+	public static boolean isTicket(ItemStack ticket)
+	{
+		if(ticket.isEmpty() || !ticket.hasTag())
+			return false;
+		return ticket.getItem() == ModItems.TICKET.get();
+	}
+
+	public static boolean isPass(ItemStack ticket)
+	{
+		if(ticket.isEmpty() || !ticket.hasTag())
+			return false;
+		return ticket.getItem() == ModItems.TICKET_PASS.get();
+	}
+
+	public static boolean isTicketOrPass(ItemStack ticket)
+	{
+		if(ticket.isEmpty() || !ticket.hasTag())
+			return false;
+		return ticket.getItem() == ModItems.TICKET.get() || ticket.getItem() == ModItems.TICKET_PASS.get();
+	}
+
 	public static boolean isMasterTicket(ItemStack ticket)
 	{
 		if(ticket.isEmpty() || !ticket.hasTag())
 			return false;
 		return ticket.getItem() == ModItems.TICKET_MASTER.get();
 	}
+
+
 
 	public static long GetTicketID(ItemStack ticket)
 	{
@@ -93,14 +119,7 @@ public class TicketItem extends Item{
 
 	public static ItemStack CreateMasterTicket(long ticketID) { return CreateMasterTicket(ticketID, Color.getFromIndex(ticketID).hexColor); }
 	
-	public static ItemStack CreateMasterTicket(long ticketID, int color)
-	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET_MASTER.get());
-		CompoundTag tag = ticket.getOrCreateTag();
-		tag.putLong("TicketID", ticketID);
-		tag.putInt("TicketColor", color);
-		return ticket;
-	}
+	public static ItemStack CreateMasterTicket(long ticketID, int color) { return CreateTicketInternal(ModItems.TICKET_MASTER.get(), ticketID, color, 1); }
 
 	public static ItemStack CreateTicket(ItemStack master)
 	{
@@ -108,15 +127,17 @@ public class TicketItem extends Item{
 			return CreateTicket(GetTicketID(master), GetTicketColor(master));
 		return ItemStack.EMPTY;
 	}
+
+	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
+	public static ItemStack CreatePass(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET_PASS.get(), ticketID, color,count); }
+
+	public static ItemStack CreateTicket(long ticketID, int color) { return CreateTicket(ticketID, color,1); }
 	
-	public static ItemStack CreateTicket(long ticketID, int color)
+	public static ItemStack CreateTicket(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET.get(), ticketID, color, count); }
+
+	private static ItemStack CreateTicketInternal(Item item, long ticketID, int color, int count)
 	{
-		return CreateTicket(ticketID, color,1);
-	}
-	
-	public static ItemStack CreateTicket(long ticketID, int color, int count)
-	{
-		ItemStack ticket = new ItemStack(ModItems.TICKET.get(), count);
+		ItemStack ticket = new ItemStack(item, count);
 		CompoundTag tag = ticket.getOrCreateTag();
 		tag.putLong("TicketID", ticketID);
 		tag.putInt("TicketColor", color);

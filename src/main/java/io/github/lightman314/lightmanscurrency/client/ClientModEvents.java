@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -24,13 +25,14 @@ public class ClientModEvents {
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
 	{
 		//LightmansCurrency.LogInfo("Registering Item Colors for Ticket Items");
-		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_MASTER.get());
+		event.register(new TicketColor(), ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
 	}
 
 	@SubscribeEvent
 	public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			event.register(block.getDoorModel());
+		event.register(SlotMachineBlock.LIGHT_MODEL_LOCATION);
 		event.register(NormalBookRenderer.MODEL_LOCATION);
 		event.register(EnchantedBookRenderer.MODEL_LOCATION);
 	}

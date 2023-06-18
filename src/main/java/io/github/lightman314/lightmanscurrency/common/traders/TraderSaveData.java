@@ -26,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.network.message.data.MessageClear
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageRemoveClientTrader;
 import io.github.lightman314.lightmanscurrency.network.message.data.MessageUpdateClientTrader;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

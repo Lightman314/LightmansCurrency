@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -10,8 +9,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -220,7 +217,7 @@ public class PaygateTraderData extends TraderData {
 		if(be != null)
 			be.activate(duration);
 	}
-	
+
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
 		
@@ -266,33 +263,38 @@ public class PaygateTraderData extends TraderData {
 				LightmansCurrency.LogDebug("Ticket ID " + trade.getTicketID() + " could not be found in the players inventory to pay for trade " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
-			
-			//Abort if not enough room to put the ticket stub
-			if(!trade.shouldStoreTicketStubs() && !context.canFitItem(new ItemStack(ModItems.TICKET_STUB.get())))
-			{
-				LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
-				return TradeResult.FAIL_NO_OUTPUT_SPACE;
-			}
-			
-			//Trade is valid, collect the ticket
-			if(!context.collectTicket(trade.getTicketID()))
-			{
-				LightmansCurrency.LogError("Unable to collect the ticket. Aborting Trade!");
-				return TradeResult.FAIL_CANNOT_AFFORD;
-			}
-			
 
-			//Store the ticket stub if
-			if(trade.shouldStoreTicketStubs())
-				this.addTicketStub(1);
-			else //Give the ticket stub
-				context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
+			boolean hasPass = context.hasPass(trade.getTicketID());
+
+			if(!hasPass)
+			{
+				//Abort if not enough room to put the ticket stub
+				if(!trade.shouldStoreTicketStubs() && !context.canFitItem(new ItemStack(ModItems.TICKET_STUB.get())))
+				{
+					LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
+					return TradeResult.FAIL_NO_OUTPUT_SPACE;
+				}
+
+				//Trade is valid, collect the ticket
+				if(!context.collectTicket(trade.getTicketID()))
+				{
+					LightmansCurrency.LogError("Unable to collect the ticket. Aborting Trade!");
+					return TradeResult.FAIL_CANNOT_AFFORD;
+				}
+
+				//Store the ticket stub if flagged to do so
+				if(trade.shouldStoreTicketStubs())
+					this.addTicketStub(1);
+				else //Give the ticket stub
+					context.putItem(new ItemStack(ModItems.TICKET_STUB.get()));
+
+			}
 			
 			//Activate the paygate
 			this.activate(trade.getDuration());
 			
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(() -> new PaygateNotification(trade, price, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
 
 		}
 		//Process a coin trade
@@ -309,7 +311,7 @@ public class PaygateTraderData extends TraderData {
 			this.activate(trade.getDuration());
 			
 			//Push Notification
-			this.pushNotification(() -> new PaygateNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			this.pushNotification(() -> new PaygateNotification(trade, price, false, context.getPlayerReference(), this.getNotificationCategory()));
 			
 			//Don't store money if the trader is creative
 			if(!this.isCreative())

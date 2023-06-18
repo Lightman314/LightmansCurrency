@@ -90,6 +90,9 @@ public abstract class TradeRulesTab extends TraderStorageTab {
         @OnlyIn(Dist.CLIENT)
         public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TradeRulesClientTab.Trade(screen, this); }
 
+        @Override
+        public boolean canOpen(Player player) { return super.canOpen(player) && this.menu.hasPermission(Permissions.EDIT_TRADES); }
+
         @Nullable
         @Override
         public ITradeRuleHost getHost() {

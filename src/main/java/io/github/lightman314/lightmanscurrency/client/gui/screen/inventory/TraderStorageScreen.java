@@ -89,21 +89,12 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		//Create the tab buttons
 		this.tabButtons.clear();
 		this.availableTabs.forEach((key,tab) ->{
-			if(tab.tabButtonVisible()) {
-				TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
-				if(key == this.menu.getCurrentTabIndex())
-					newButton.active = false;
-				this.tabButtons.put(key, newButton);
-			}
+			TabButton newButton = this.addRenderableWidget(new TabButton(button -> this.changeTab(key), this.font, tab));
+			if(key == this.menu.getCurrentTabIndex())
+				newButton.active = false;
+			this.tabButtons.put(key, newButton);
 		});
-		//Position the tab buttons
-		int xPos = this.leftPos - TabButton.SIZE;
-		AtomicInteger index = new AtomicInteger(0);
-		this.tabButtons.forEach((key,button) -> {
-			int yPos = this.topPos + TabButton.SIZE * index.get();
-			button.reposition(xPos, yPos, 3);
-			index.set(index.get() + 1);
-		});
+		this.tickTabButtons();
 
 		//Other buttons
 		this.buttonShowTrades = this.addRenderableWidget(IconAndButtonUtil.traderButton(0, 0, this::PressTradesButton));
@@ -132,12 +123,31 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		
 	}
 
+	private void tickTabButtons()
+	{
+		//Position the tab buttons
+		int xPos = this.leftPos - TabButton.SIZE;
+		AtomicInteger index = new AtomicInteger(0);
+		this.tabButtons.forEach((key,button) -> {
+			TraderStorageClientTab<?> tab = this.availableTabs.get(key);
+			button.visible = tab != null && tab.tabButtonVisible() && tab.commonTab.canOpen(this.menu.player);
+			if(button.visible)
+			{
+				int yPos = this.topPos + TabButton.SIZE * index.get();
+				button.reposition(xPos, yPos, 3);
+				index.set(index.get() + 1);
+			}
+		});
+	}
+
 	@Override
 	protected void renderBg(@NotNull PoseStack pose, float partialTicks, int mouseX, int mouseY) {
-		
+
+		this.tickTabButtons();
+
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		
+
 		//Main BG
 		blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
@@ -153,7 +163,6 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 			this.currentTab().renderBG(pose, mouseX, mouseY, partialTicks);
 			this.tabRenderables.forEach(widget -> widget.render(pose, mouseX, mouseY, partialTicks));
 		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab " + this.currentTab().getClass().getName(), e); }
-		
 		
 	}
 	
@@ -177,8 +186,7 @@ public class TraderStorageScreen extends AbstractContainerScreen<TraderStorageMe
 		super.render(pose, mouseX, mouseY, partialTicks);
 		this.renderTooltip(pose, mouseX, mouseY);
 		
-		try {
-			this.currentTab().renderTooltips(pose, mouseX, mouseY);
+		try { this.currentTab().renderTooltips(pose, mouseX, mouseY);
 		} catch(Exception e) { LightmansCurrency.LogError("Error rendering trader storage tab tooltips " + this.currentTab().getClass().getName(), e); }
 		
 		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);

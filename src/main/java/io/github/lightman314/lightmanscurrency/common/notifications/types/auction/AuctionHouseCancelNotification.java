@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification.ItemData;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,13 +17,13 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house_canceled");
 	
-	List<ItemData> items;
+	List<ItemWriteData> items;
 	
 	public AuctionHouseCancelNotification(AuctionTradeData trade) {
 		
 		this.items = new ArrayList<>();
 		for(int i = 0; i < trade.getAuctionItems().size(); ++i)
-			this.items.add(new ItemData(trade.getAuctionItems().get(i)));
+			this.items.add(new ItemWriteData(trade.getAuctionItems().get(i)));
 		
 	}
 	
@@ -46,7 +46,7 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 	protected void saveAdditional(CompoundTag compound) {
 		
 		ListTag itemList = new ListTag();
-		for(ItemData item : this.items)
+		for(ItemWriteData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		
@@ -58,7 +58,7 @@ public class AuctionHouseCancelNotification extends AuctionHouseNotification{
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemData(itemList.getCompound(i)));
+			this.items.add(new ItemWriteData(itemList.getCompound(i)));
 		
 	}
 	

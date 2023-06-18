@@ -55,9 +55,6 @@ public class AuctionStorageClientTab extends TraderStorageClientTab<AuctionStora
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.auction.storage"); }
 	
 	@Override
-	public boolean tabButtonVisible() { return true; }
-	
-	@Override
 	public boolean blockInventoryClosing() { return false; }
 	
 	@Override

@@ -142,25 +142,38 @@ public class TimeInputWidget extends AbstractWidget {
 			case DAY -> this.days = Math.max(0, this.days - 1);
 			case HOUR -> {
 				this.hours--;
-				if (this.hours < 0 && this.days > 0) {
-					this.removeTimeInternal(TimeUnit.DAY);
-					this.hours += 24;
-				} else
-					this.hours = 0;
+				if (this.hours < 0) {
+					if(this.days > 0)
+					{
+						this.removeTimeInternal(TimeUnit.DAY);
+						this.hours += 24;
+					}
+					else
+						this.hours = 0;
+				}
 			}
 			case MINUTE -> {
 				this.minutes--;
-				if (this.minutes < 0 && (this.hours > 0 || this.days > 0)) {
-					this.removeTimeInternal(TimeUnit.HOUR);
-					this.minutes += 60;
-				} else
-					this.minutes = 0;
+				if (this.minutes < 0) {
+					if(this.hours > 0 || this.days > 0)
+					{
+						this.removeTimeInternal(TimeUnit.HOUR);
+						this.minutes += 60;
+					}
+					else
+						this.minutes = 0;
+				}
 			}
 			case SECOND -> {
 				this.seconds--;
-				if (this.seconds < 0 && (this.minutes > 0 || this.hours > 0 || this.days > 0)) {
-					this.removeTimeInternal(TimeUnit.MINUTE);
-					this.seconds += 60;
+				if (this.seconds < 0) {
+					if(this.minutes > 0 || this.hours > 0 || this.days > 0)
+					{
+						this.removeTimeInternal(TimeUnit.MINUTE);
+						this.seconds += 60;
+					}
+					else
+						this.seconds = 0;
 				}
 			}
 		}
