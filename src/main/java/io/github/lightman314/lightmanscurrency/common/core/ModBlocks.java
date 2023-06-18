@@ -453,7 +453,7 @@ public class ModBlocks {
 		{
 			String thisName = name;
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
-				thisName += "_" + color.getOldName().toLowerCase();
+				thisName += "_" + color.getResourceSafeOldName();
 			//Register the block normally
 			bundle.put(color, register(thisName, itemGroup, itemGenerator, block));
 		}
@@ -472,7 +472,7 @@ public class ModBlocks {
 		{
 			String thisName = name;
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
-				thisName += "_" + color.toString().toLowerCase();
+				thisName += "_" + color.getResourceSafeName();
 			//Register the block normally
 			bundle.put(color, register(thisName, itemGroup, itemGenerator, block));
 		}

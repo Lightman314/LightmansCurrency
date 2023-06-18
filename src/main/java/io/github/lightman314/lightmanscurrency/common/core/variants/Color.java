@@ -25,6 +25,8 @@ public enum Color {
     public final int hexColor;
     private final String oldName;
     public final String getOldName() { return this.oldName == null ? this.toString() : this.oldName; }
+    public final String getResourceSafeName() { return this.toString().toLowerCase(Locale.ENGLISH); }
+    public final String getResourceSafeOldName() { return this.getOldName().toLowerCase(Locale.ENGLISH); }
     Color(int sortIndex, int hexColor) { this.sortIndex = sortIndex; this.hexColor = hexColor; this.oldName = null; }
     Color(int sortIndex, int hexColor, String oldName) { this.sortIndex = sortIndex; this.hexColor = hexColor; this.oldName = oldName; }
 
