@@ -17,20 +17,20 @@ logoFile="lightman_icon.png"
 authors="Lightman314. Textures & models made by beta50test & Lightman314."
 description="Adds a simple money & shop system to the game."
 
-[[dependencies.lightmanscurrency]]
+[[dependencies.${mod_id}]]
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[45.0.0,)"
+    versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.lightmanscurrency]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.19.4,1.20)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.lightmanscurrency]]
+[[dependencies.${mod_id}]]
     modId="lightmansdiscord"
     mandatory=false
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
