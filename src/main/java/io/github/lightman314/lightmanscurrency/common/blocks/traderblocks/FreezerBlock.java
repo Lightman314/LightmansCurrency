@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -47,7 +46,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
-		return new ResourceLocation(namespace, "block/freezer/doors/" + color.toString().toLowerCase());
+		return new ResourceLocation(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}
 	
 	@Override
