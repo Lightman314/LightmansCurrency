@@ -196,10 +196,9 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 		}
 		this.tick();
 	}
-	
+
 	@Override
-	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
-	{
+	public void render(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		//Match the buttons visibility to our visibility.
 		this.toggleFree.visible = this.allowFreeToggle && this.visible;
 		this.increaseButtons.forEach(button -> button.visible = this.visible);
@@ -208,7 +207,12 @@ public class CoinValueInput extends AbstractWidget implements IScrollable{
 			this.valueInput.visible = this.visible;
 		if(!this.visible) //If not visible, render nothing
 			return;
-		
+		super.render(pose, mouseX, mouseY, partialTicks);
+	}
+
+	@Override
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	{
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f,  1f,  1f, 1f);
 		

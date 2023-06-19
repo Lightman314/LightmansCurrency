@@ -232,8 +232,26 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return getFilteredItems(ItemTradeRestriction.NONE);
 	}
 
+	private void validateItemList()
+	{
+		if(preFilteredItems == null)
+		{
+			LightmansCurrency.LogWarning("For some odd reason the item list hasn't been collected! Attempting to collect manually.");
+			try{
+				Minecraft mc = Minecraft.getInstance();
+				initItemList(mc.player.connection.enabledFeatures(), mc.options.operatorItemsTab().get() && mc.player.canUseGameMasterBlocks(), mc.player.getLevel().registryAccess());
+			} catch(Throwable ignored) {}
+			if(preFilteredItems == null)
+			{
+				preFilteredItems = new HashMap<>();
+				preFilteredItems.put(ItemTradeRestriction.NO_RESTRICTION_KEY, new ArrayList<>());
+			}
+		}
+	}
+
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
+		this.validateItemList();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
