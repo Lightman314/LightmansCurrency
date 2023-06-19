@@ -492,7 +492,7 @@ public class ModBlocks {
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
-			String thisName = name + "_" + woodType.toString().toLowerCase();
+			String thisName = name + "_" + woodType.name;
 			//Register the block normally
 			bundle.put(woodType, register(thisName, itemGroup, itemGenerator, block));
 		}
@@ -514,7 +514,7 @@ public class ModBlocks {
 		{
 			for(Color color : Color.values())
 			{
-				String thisName = name + "_" + woodType.toString().toLowerCase() + "_" + color.toString().toLowerCase();
+				String thisName = name + "_" + woodType.name + "_" + color.getResourceSafeName();
 				//Register the block normally
 				bundle.put(woodType, color, register(thisName, itemGroup, itemGenerator, block));
 			}
@@ -529,7 +529,7 @@ public class ModBlocks {
 		RegistryObjectBundle<FreezerBlock,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.values())
 		{
-			String thisName = color == Color.BLACK ? name : name + "_" + color.toString().toLowerCase();
+			String thisName = color == Color.BLACK ? name : name + "_" + color.getResourceSafeName();
 			//Register the block normally
 			bundle.put(color, register(thisName, itemGroup, itemGenerator, () -> block.apply(color)));
 		}
