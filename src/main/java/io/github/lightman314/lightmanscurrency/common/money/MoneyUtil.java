@@ -313,13 +313,13 @@ public class MoneyUtil {
 	 * Gets the total value of the items in the given ItemStack list.
 	 * @param inventory The list full of coins from which to get the value of.
 	 */
-    public static CoinValue getCoinValue(NonNullList<ItemStack> inventory) { return new CoinValue(getValue(inventory)); }
+    public static CoinValue getCoinValue(List<ItemStack> inventory) { return new CoinValue(getValue(inventory)); }
     
     /**
 	 * Gets the total value of the items in the given ItemStack list.
 	 * @param inventory The list full of coins from which to get the value of.
 	 */
-    public static long getValue(NonNullList<ItemStack> inventory)
+    public static long getValue(List<ItemStack> inventory)
 	{
     	long value = 0;
 		for (ItemStack itemStack : inventory)

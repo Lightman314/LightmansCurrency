@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.SlotMachineTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataBook;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.core.ModCreativeGroups;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.entity.merchant.villager.VillagerTradeManager;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import org.apache.logging.log4j.LogManager;
@@ -185,12 +187,18 @@ public class LightmansCurrency {
 		CraftingHelper.register(LCCraftingConditions.NetworkTrader.SERIALIZER);
 		CraftingHelper.register(LCCraftingConditions.TraderInterface.SERIALIZER);
 		CraftingHelper.register(LCCraftingConditions.AuctionStand.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.CoinChest.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeExchange.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeBank.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeMagnet.SERIALIZER);
+		CraftingHelper.register(LCCraftingConditions.CoinChestUpgradeSecurity.SERIALIZER);
 
-		//Initialize the UniversalTraderData deserializers
+		//Initialize the TraderData deserializers
 		TraderData.register(ItemTraderData.TYPE, ItemTraderData::new);
 		TraderData.register(ItemTraderDataArmor.TYPE, ItemTraderDataArmor::new);
 		TraderData.register(ItemTraderDataTicket.TYPE, ItemTraderDataTicket::new);
 		TraderData.register(ItemTraderDataBook.TYPE, ItemTraderDataBook::new);
+		TraderData.register(SlotMachineTraderData.TYPE, SlotMachineTraderData::new);
 		TraderData.register(PaygateTraderData.TYPE, PaygateTraderData::new);
 		TraderData.register(AuctionHouseTrader.TYPE, AuctionHouseTrader::new);
 
@@ -212,6 +220,7 @@ public class LightmansCurrency {
 		//Initialize the Notification deserializers
 		Notification.register(ItemTradeNotification.TYPE, ItemTradeNotification::new);
 		Notification.register(PaygateNotification.TYPE, PaygateNotification::new);
+		Notification.register(SlotMachineTradeNotification.TYPE, SlotMachineTradeNotification::new);
 		Notification.register(OutOfStockNotification.TYPE, OutOfStockNotification::new);
 		Notification.register(LowBalanceNotification.TYPE, LowBalanceNotification::new);
 		Notification.register(AuctionHouseSellerNotification.TYPE, AuctionHouseSellerNotification::new);

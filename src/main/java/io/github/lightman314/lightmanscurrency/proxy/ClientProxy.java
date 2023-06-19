@@ -43,6 +43,7 @@ import io.github.lightman314.lightmanscurrency.common.items.CoinItem;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -105,6 +106,8 @@ public class ClientProxy extends CommonProxy{
     	MenuScreens.register(ModMenus.TRADER_NETWORK_ALL.get(), TraderScreen::new);
     	
     	MenuScreens.register(ModMenus.TRADER_STORAGE.get(), TraderStorageScreen::new);
+
+		MenuScreens.register(ModMenus.SLOT_MACHINE.get(), SlotMachineScreen::new);
     	
     	MenuScreens.register(ModMenus.WALLET.get(), WalletScreen::new);
     	MenuScreens.register(ModMenus.WALLET_BANK.get(), WalletBankScreen::new);
@@ -121,6 +124,7 @@ public class ClientProxy extends CommonProxy{
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::new);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.SLOT_MACHINE_TRADER.get(), SlotMachineBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.BOOK_TRADER.get(), BookTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.AUCTION_STAND.get(), AuctionStandBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.COIN_CHEST.get(), CoinChestRenderer::new);
@@ -145,6 +149,10 @@ public class ClientProxy extends CommonProxy{
 
 		//Register the Wallet Overlay
 		OverlayRegistry.registerOverlayTop("wallet_hud", WalletDisplayOverlay.INSTANCE);
+
+		//Register Curios Render Layers
+		if(LightmansCurrency.isCuriosLoaded())
+			LCCuriosClient.registerRenderLayers();
     	
 	}
 

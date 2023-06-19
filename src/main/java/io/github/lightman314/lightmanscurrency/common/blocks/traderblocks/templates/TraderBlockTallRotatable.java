@@ -29,22 +29,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
-	protected TraderBlockTallRotatable(Properties properties)
-	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
-	}
+	protected TraderBlockTallRotatable(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE_T); }
 	
-	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape)
-	{
-		this(properties, LazyShapes.lazyTallSingleShape(shape));
-	}
+	protected TraderBlockTallRotatable(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazyTallSingleShape(shape)); }
 	
 	protected TraderBlockTallRotatable(Properties properties, BiFunction<Direction,Boolean,VoxelShape> shape)
 	{
@@ -61,32 +56,31 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state); }
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context)
+	public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISBOTTOM);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext context)
+	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
 	@Override
-	public @NotNull PushReaction getPistonPushReaction(@NotNull BlockState state)
-	{
+	public @Nonnull PushReaction getPistonPushReaction(@Nonnull BlockState state) {
 		return PushReaction.BLOCK;
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(this.getReplacable(level, pos.above(), state, player, stack))
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -119,7 +113,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		
 		//Run base functionality first to prevent the removal of the block containing the block entity

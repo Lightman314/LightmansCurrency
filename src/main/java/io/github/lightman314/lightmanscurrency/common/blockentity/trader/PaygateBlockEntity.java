@@ -83,7 +83,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	
 	public int getValidTicketTrade(Player player, ItemStack heldItem) {
 		PaygateTraderData trader = this.getTraderData();
-		if(heldItem.getItem() == ModItems.TICKET.get())
+		if(TicketItem.isTicketOrPass(heldItem))
 		{
 			long ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID >= -1)

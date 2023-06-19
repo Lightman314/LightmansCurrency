@@ -28,7 +28,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new ItemTradeEditClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
+	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
 
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }

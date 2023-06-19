@@ -31,7 +31,9 @@ public class ModMenus {
 		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> new MenuType<>((IContainerFactory<TraderMenuBlockSource>)(id, playerInventory, data) -> new TraderMenuBlockSource(id, playerInventory, data.readBlockPos())));
 		
 		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> new MenuType<>((IContainerFactory<TraderMenuAllNetwork>)(id, playerInventory,data) -> new TraderMenuAllNetwork(id, playerInventory)));
-		
+
+		SLOT_MACHINE = ModRegistries.MENUS.register("slot_machine", () -> new MenuType<>((IContainerFactory<SlotMachineMenu>)(id, playerInventory, data) -> new SlotMachineMenu(id, playerInventory, data.readLong())));
+
 		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> new MenuType<>((IContainerFactory<TraderStorageMenu>)(id, playerInventory, data) -> new TraderStorageMenu(id, playerInventory, data.readLong())));
 		
 		WALLET = ModRegistries.MENUS.register("wallet", () -> new MenuType<>((IContainerFactory<WalletMenu>)(id, playerInventory, data) -> new WalletMenu(id, playerInventory, data.readInt())));
@@ -67,6 +69,9 @@ public class ModMenus {
 	public static final RegistryObject<MenuType<TraderMenu>> TRADER;
 	public static final RegistryObject<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
 	public static final RegistryObject<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
+
+	//Slot Machine
+	public static final RegistryObject<MenuType<SlotMachineMenu>> SLOT_MACHINE;
 	
 	//Any Trader Storage
 	public static final RegistryObject<MenuType<TraderStorageMenu>> TRADER_STORAGE;

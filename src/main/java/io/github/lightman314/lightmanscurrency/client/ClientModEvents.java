@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.colors.TicketColor;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
@@ -63,6 +64,7 @@ public class ClientModEvents {
 	public static void registerAdditionalModels(ModelRegistryEvent event) {
 		for(FreezerBlock block : ModBlocks.FREEZER.getAll())
 			ForgeModelBakery.addSpecialModel(block.getDoorModel());
+		ForgeModelBakery.addSpecialModel(SlotMachineBlock.LIGHT_MODEL_LOCATION);
 		ForgeModelBakery.addSpecialModel(NormalBookRenderer.MODEL_LOCATION);
 		ForgeModelBakery.addSpecialModel(EnchantedBookRenderer.MODEL_LOCATION);
 	}

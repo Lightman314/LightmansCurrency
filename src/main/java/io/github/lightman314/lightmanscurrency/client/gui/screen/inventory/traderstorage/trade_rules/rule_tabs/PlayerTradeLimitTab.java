@@ -64,7 +64,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
         if(rule != null)
             this.font.draw(pose, EasyText.translatable("gui.button.lightmanscurrency.playerlimit.info", rule.getLimit()).getString(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 9, 0xFFFFFF);
 
-        Component text = this.getRule().getTimeLimit() > 0 ? EasyText.translatable("gui.widget.lightmanscurrency.playerlimit.duration", new TimeUtil.TimeData(this.getRule().getLimit()).getShortString()) : EasyText.translatable("gui.widget.lightmanscurrency.playerlimit.noduration");
+        Component text = this.getRule().getTimeLimit() > 0 ? EasyText.translatable("gui.widget.lightmanscurrency.playerlimit.duration", new TimeUtil.TimeData(this.getRule().getTimeLimit()).getShortString()) : EasyText.translatable("gui.widget.lightmanscurrency.playerlimit.noduration");
         TextRenderUtil.drawCenteredText(pose, text, this.screen.getGuiLeft() + this.screen.getXSize() / 2, this.screen.getGuiTop() + 75, 0xFFFFFF);
 
     }

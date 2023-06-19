@@ -40,6 +40,7 @@ public class ModCreativeGroups {
                 ModBlocks.TICKET_STATION,
                 //Tickets
                 ModItems.TICKET_MASTER,
+                ModItems.TICKET_PASS,
                 ModItems.TICKET,
                 ModItems.TICKET_STUB,
                 //Coin Chest
@@ -59,6 +60,8 @@ public class ModCreativeGroups {
                 ModBlocks.VENDING_MACHINE_LARGE,
                 //Item Traders (specialty)
                 ModBlocks.ARMOR_DISPLAY, ModBlocks.TICKET_KIOSK, ModBlocks.BOOKSHELF_TRADER,
+                //Slot Machine Trader
+                ModBlocks.SLOT_MACHINE,
                 //Item Traders (network)
                 ModBlocks.ITEM_NETWORK_TRADER_1, ModBlocks.ITEM_NETWORK_TRADER_2,
                 ModBlocks.ITEM_NETWORK_TRADER_3, ModBlocks.ITEM_NETWORK_TRADER_4,

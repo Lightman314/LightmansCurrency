@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
@@ -31,7 +32,7 @@ public class OutOfStockNotification extends Notification {
 	public NotificationCategory getCategory() { return this.traderData; }
 
 	@Override
-	public MutableComponent getMessage() { return new TranslatableComponent("notifications.message.out_of_stock", this.traderData.getTooltip(), this.tradeSlot); }
+	public MutableComponent getMessage() { return this.tradeSlot > 0 ? EasyText.translatable("notifications.message.out_of_stock", this.traderData.getTooltip(), this.tradeSlot) : EasyText.translatable("notifications.message.out_of_stock.indexless"); }
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) {

@@ -167,12 +167,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) {}
+	protected List<String> getBlockedPermissions() { return ImmutableList.of(); }
 
 	public boolean hasPermission(Player player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
 	public boolean hasPermission(PlayerReference player, String permission) { return this.getPermissionLevel(player, permission) > 0; }
 
 	public int getPermissionLevel(Player player, String permission) {
 		if(this.isPersistent() && player != null && this.persistentTraderBlockedPermissions().contains(permission))
+			return 0;
+		if(player != null && this.getBlockedPermissions().contains(permission))
 			return 0;
 		if(this.isAdmin(player))
 			return Integer.MAX_VALUE;
@@ -184,6 +187,8 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 	public int getPermissionLevel(PlayerReference player, String permission) {
 		if(this.isPersistent() && player != null && this.persistentTraderBlockedPermissions().contains(permission))
+			return 0;
+		if(player != null && this.getBlockedPermissions().contains(permission))
 			return 0;
 		if(this.isAdmin(player))
 			return Integer.MAX_VALUE;
@@ -1231,11 +1236,30 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 
 		this.addPermissionOptions(options);
 
+		this.handleBlockedPermissions(options);
+
 		return options;
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	protected abstract void addPermissionOptions(List<PermissionOption> options);
+
+	@OnlyIn(Dist.CLIENT)
+	protected final void handleBlockedPermissions(List<PermissionOption> options)
+	{
+		//Remove blocked permissions from the permissions options list.
+		for(String blockedPerm : this.getBlockedPermissions())
+		{
+			for(int i = 0; i < options.size(); i++)
+			{
+				if(Objects.equals(options.get(i).permission, blockedPerm))
+				{
+					options.remove(i);
+					i--;
+				}
+			}
+		}
+	}
 
 	@OnlyIn(Dist.CLIENT)
 	public void onScreenInit(TraderScreen screen, Consumer<AbstractWidget> addWidget) { }

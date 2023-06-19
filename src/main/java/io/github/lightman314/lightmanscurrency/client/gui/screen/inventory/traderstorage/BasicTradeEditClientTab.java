@@ -30,9 +30,6 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	@Override
 	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.edit_trades"); }
-
-	@Override
-	public boolean tabButtonVisible() { return true; }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }

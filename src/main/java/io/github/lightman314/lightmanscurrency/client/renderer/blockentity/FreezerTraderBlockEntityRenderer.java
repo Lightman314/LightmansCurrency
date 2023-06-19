@@ -22,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 
-	//public static final Item doorItem = ModItems.FREEZER_DOOR.get();
-
 	public FreezerTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 
 	@Override
@@ -52,7 +50,6 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 			poseStack.mulPose(rotation);
 
-			//Attempt at rendering the door model without creating a freezer door item.
 			Minecraft mc = Minecraft.getInstance();
 			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 			ItemRenderer itemRenderer = mc.getItemRenderer();

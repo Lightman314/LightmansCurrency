@@ -110,22 +110,23 @@ public class TicketMachineMenu extends LazyMessageMenu{
 		return !this.blockEntity.getStorage().getItem(1).isEmpty();
 	}
 
-	public boolean roomForOutput()
+	public boolean roomForOutput(boolean craftPass)
 	{
 		ItemStack outputStack = this.output.getItem(0);
 		if(outputStack.isEmpty())
 			return true;
-		if(hasMasterTicket() && outputStack.getItem() == ModItems.TICKET.get())
+		if(hasMasterTicket())
 		{
-			//Confirm that the output item has the same ticket id as the master ticket
-			long ticketID = getTicketID();
-			long outputTicketID = TicketItem.GetTicketID(outputStack);
-			return ticketID == outputTicketID;
+			if((!craftPass && outputStack.getItem() == ModItems.TICKET.get()) || (craftPass && outputStack.getItem() == ModItems.TICKET_PASS.get()))
+			{
+				//Confirm that the output item has the same ticket id as the master ticket
+				long ticketID = getTicketID();
+				long outputTicketID = TicketItem.GetTicketID(outputStack);
+				return ticketID == outputTicketID;
+			}
 		}
-		else //Not empty, and no master ticket in the slot means that no new master ticket can be placed in the output slot
-		{
-			return false;
-		}
+		//Not empty, and no master ticket in the slot means that no new master ticket can be placed in the output slot
+		return false;
 	}
 
 	public boolean hasMasterTicket()
@@ -134,14 +135,14 @@ public class TicketMachineMenu extends LazyMessageMenu{
 		return TicketItem.isMasterTicket(masterTicket);
 	}
 
-	public void craftTickets(boolean fullStack)
+	public void craftTickets(boolean fullStack, boolean craftPass)
 	{
 		if(!validInputs())
 		{
 			LightmansCurrency.LogDebug("Inputs for the Ticket Machine are not valid. Cannot craft tickets.");
 			return;
 		}
-		else if(!roomForOutput())
+		else if(!roomForOutput(craftPass))
 		{
 			LightmansCurrency.LogDebug("No room for Ticket Machine outputs. Cannot craft tickets.");
 			return;
@@ -157,7 +158,7 @@ public class TicketMachineMenu extends LazyMessageMenu{
 			if(outputStack.isEmpty())
 			{
 				//Create a new ticket stack
-				ItemStack newTicket = TicketItem.CreateTicket(this.getTicketID(), this.getTicketColor(), count);
+				ItemStack newTicket = craftPass ? TicketItem.CreatePass(this.getTicketID(), this.getTicketColor(), count) : TicketItem.CreateTicket(this.getTicketID(), this.getTicketColor(), count);
 				this.output.setItem(0, newTicket);
 			}
 			else
@@ -214,15 +215,15 @@ public class TicketMachineMenu extends LazyMessageMenu{
 		return TicketModifierSlot.getColorFromDye(stack);
 	}
 
-	public void SendCraftTicketsMessage(boolean fullStack)
+	public void SendCraftTicketsMessage(boolean fullStack, boolean craftPass)
 	{
-		this.SendMessageToServer(LazyPacketData.builder().setBoolean("CraftTickets", fullStack));
+		this.SendMessageToServer(LazyPacketData.builder().setBoolean("CraftTickets", fullStack).setBoolean("CraftPass", craftPass));
 	}
 
 	@Override
 	public void HandleMessage(LazyPacketData message) {
 		if(message.contains("CraftTickets"))
-			this.craftTickets(message.getBoolean("CraftTickets"));
+			this.craftTickets(message.getBoolean("CraftTickets"), message.getBoolean("CraftPass"));
 	}
 
 }

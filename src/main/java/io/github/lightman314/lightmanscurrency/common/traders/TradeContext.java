@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
@@ -111,8 +110,6 @@ public class TradeContext {
 	private final CoinValue storedMoney;
 	private boolean hasStoredMoney() { return this.storedMoney != null; }
 
-	private final BiConsumer<CoinValue,Boolean> moneyListener;
-
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
 	private boolean hasInteractionSlot(String type) { return this.getInteractionSlot(type) != null; }
@@ -138,7 +135,6 @@ public class TradeContext {
 		this.bankAccount = builder.bankAccount;
 		this.coinSlots = builder.coinSlots;
 		this.storedMoney = builder.storedCoins;
-		this.moneyListener = builder.moneyListener;
 		this.interactionSlot = builder.interactionSlot;
 		this.itemHandler = builder.itemHandler;
 		this.fluidTank = builder.fluidHandler;
@@ -208,8 +204,6 @@ public class TradeContext {
 			return true;
 		if(this.hasFunds(price))
 		{
-			if(this.moneyListener != null)
-				this.moneyListener.accept(price, false);
 			long amountToWithdraw = price.getRawValue();
 			if(this.hasCoinSlots() && this.hasPlayer())
 			{
@@ -229,7 +223,7 @@ public class TradeContext {
 			{
 				long removeAmount = Math.min(amountToWithdraw, this.storedMoney.getRawValue());
 				amountToWithdraw -= removeAmount;
-				storedMoney.loadFromOldValue(storedMoney.getRawValue() - removeAmount);
+				this.storedMoney.loadFromOldValue(storedMoney.getRawValue() - removeAmount);
 			}
 			if(this.hasBankAccount() && amountToWithdraw > 0)
 			{
@@ -272,8 +266,6 @@ public class TradeContext {
 	{
 		if(price.isFree())
 			return true;
-		if(this.moneyListener != null)
-			this.moneyListener.accept(price, true);
 		if(this.hasBankAccount())
 		{
 			this.bankAccount.get().depositCoins(price);
@@ -404,6 +396,40 @@ public class TradeContext {
 			{
 				ItemStack stack = inventory.getItem(i);
 				if(stack.getItem() == ModItems.TICKET.get())
+				{
+					long id = TicketItem.GetTicketID(stack);
+					if(id == ticketID)
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
+	 */
+	public boolean hasPass(long ticketID) {
+		if(this.hasItemHandler())
+		{
+			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
+			{
+				ItemStack stack = this.itemHandler.getStackInSlot(i);
+				if(stack.getItem() == ModItems.TICKET_PASS.get())
+				{
+					long id = TicketItem.GetTicketID(stack);
+					if(id == ticketID)
+						return true;
+				}
+			}
+		}
+		else if(this.hasPlayer())
+		{
+			Inventory inventory = this.player.getInventory();
+			for(int i = 0; i < inventory.getContainerSize(); ++i)
+			{
+				ItemStack stack = inventory.getItem(i);
+				if(stack.getItem() == ModItems.TICKET_PASS.get())
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -798,7 +824,6 @@ public class TradeContext {
 		private AccountReference bankAccount;
 		private Container coinSlots;
 		private CoinValue storedCoins;
-		private BiConsumer<CoinValue,Boolean> moneyListener;
 
 		//Interaction Slots
 		private InteractionSlot interactionSlot;
@@ -817,8 +842,6 @@ public class TradeContext {
 		public Builder withBankAccount(AccountReference bankAccount) { this.bankAccount = bankAccount; return this; }
 		public Builder withCoinSlots(Container coinSlots) { this.coinSlots = coinSlots; return this; }
 		public Builder withStoredCoins(CoinValue storedCoins) { this.storedCoins = storedCoins; return this; }
-
-		public Builder withMoneyListener(BiConsumer<CoinValue,Boolean> moneyListener) { this.moneyListener = moneyListener; return this; }
 
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }
 

@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:coin_chest_security_craftable"}],
   "type": "minecraft:smithing",
   "base": {
     "item": "minecraft:obsidian"

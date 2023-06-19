@@ -30,7 +30,7 @@ public class AuctionCreateTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new AuctionCreateClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader() instanceof AuctionHouseTrader; }
+	public boolean canOpen(Player player) { return true; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<SimpleSlot> getSlots() { return this.slots; }

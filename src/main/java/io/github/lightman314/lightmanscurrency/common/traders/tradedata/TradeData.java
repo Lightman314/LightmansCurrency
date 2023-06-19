@@ -63,10 +63,7 @@ public abstract class TradeData implements ITradeRuleHost {
 
 	public abstract TradeDirection getTradeDirection();
 
-	public final boolean validCost()
-	{
-		return this.cost.isFree() || cost.getRawValue() > 0;
-	}
+	public final boolean validCost() { return this.getCost().isFree() || this.getCost().getRawValue() > 0; }
 
 	public boolean isValid() { return validCost(); }
 
@@ -76,13 +73,10 @@ public abstract class TradeData implements ITradeRuleHost {
 	{
 		if(context.hasTrader() && context.hasPlayerReference())
 			return context.getTrader().runTradeCostEvent(context.getPlayerReference(), this).getCostResult();
-		return this.cost;
+		return this.getCost();
 	}
 
-	public void setCost(CoinValue value)
-	{
-		this.cost = value;
-	}
+	public void setCost(CoinValue value) { this.cost = value; }
 
 	private final boolean validateRules;
 

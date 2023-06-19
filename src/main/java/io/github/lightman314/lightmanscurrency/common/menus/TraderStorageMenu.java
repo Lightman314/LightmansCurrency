@@ -58,7 +58,8 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 	private boolean canEditTabs;
 	Map<Integer,TraderStorageTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderStorageTab> getAllTabs() { return this.availableTabs; }
-	public void setTab(int key, TraderStorageTab tab) { if(canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
+	public void setTab(int key, TraderStorageTab tab) { if(this.canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
+	public void clearTab(int key) { if(this.canEditTabs) this.availableTabs.remove(key); else LightmansCurrency.LogError("Attempted to clear the tab in " + key + " but the tabs have been locked."); }
 	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
@@ -210,9 +211,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 
 	}
 
-	public boolean hasPermission(String permission) {
-		return this.getPermissionLevel(permission) > 0;
-	}
+	public boolean hasPermission(String permission) { return this.getPermissionLevel(permission) > 0; }
 
 	public int getPermissionLevel(String permission) {
 		TraderData trader = this.getTrader();

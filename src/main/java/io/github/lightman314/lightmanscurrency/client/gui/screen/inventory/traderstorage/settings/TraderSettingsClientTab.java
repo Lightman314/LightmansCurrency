@@ -46,9 +46,6 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.settings"); }
 
     @Override
-    public boolean tabButtonVisible() { return this.menu.hasPermission(Permissions.EDIT_SETTINGS); }
-
-    @Override
     public boolean blockInventoryClosing() { return true; }
 
     @Override

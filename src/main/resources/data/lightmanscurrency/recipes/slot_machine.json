@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "slot_machine",
+  "pattern":[
+    "igi",
+    "idi",
+    "rxr"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "r": {
+      "item": "minecraft:comparator"
+    },
+    "d": {
+      "tag": "forge:dusts/glowstone"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:slot_machine"
+  }
+}

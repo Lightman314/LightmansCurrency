@@ -53,6 +53,7 @@ public class IconAndButtonUtil {
 	public static final ResourceLocation WIDGET_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/widgets.png");
 
 	public static final IconData ICON_TRADER = IconData.of(ModItems.TRADING_CORE);
+	public static final IconData ICON_TRADER_ALT = IconData.of(ICON_TEXTURE, 80, 0);
 	public static final IconData ICON_STORAGE = IconData.of(Items.CHEST);
 
 	public static final IconData ICON_COLLECT_COINS = IconData.of(ICON_TEXTURE, 0, 0);
@@ -183,6 +184,9 @@ public class IconAndButtonUtil {
 
 	public static IconButton leftButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }
 	public static IconButton rightButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
+
+	public static PlainButton plusButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20); }
+	public static PlainButton minusButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20); }
 
 	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable) { return new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL); }
 	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visibilityCheck) {

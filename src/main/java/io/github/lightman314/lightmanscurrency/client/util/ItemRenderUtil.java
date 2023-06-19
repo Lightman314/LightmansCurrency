@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
+import io.github.lightman314.lightmanscurrency.client.gui.widget.util.IScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.TooltipFlag;
 public class ItemRenderUtil {
 
 	public static final int ITEM_BLIT_OFFSET = 100;
+	public static final int OVERLAY_BLIT_OFFSET = 300;
 	
 	private static ItemStack alexHead = null;
 	
@@ -49,16 +51,24 @@ public class ItemRenderUtil {
 		alexHead.setTag(headData);
 		return alexHead;
 	}
-	
+
 	/**
 	 * Draws an ItemStack.
 	 */
-	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) { drawItemStack(gui, font, stack, x, y, null); }
-	
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y) { drawItemStack(gui, font, stack, x, y, null, ITEM_BLIT_OFFSET); }
+
+
+	/**
+	 * Draws an ItemStack.
+	 */
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, int blitOffset) { drawItemStack(gui, font, stack, x, y, null, blitOffset); }
+
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, @Nullable String customCount) { drawItemStack(gui, font, stack, x, y, customCount, ITEM_BLIT_OFFSET); }
+
 	/**
     * Draws an ItemStack.
     */
-	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, @Nullable String customCount) {
+	public static void drawItemStack(GuiComponent gui, Font font, ItemStack stack, int x, int y, @Nullable String customCount, int blitOffset) {
 		
 		Minecraft minecraft = Minecraft.getInstance();
 		
@@ -69,23 +79,27 @@ public class ItemRenderUtil {
 		if(screen != null)
 		{
 			imageWidth = screen.width;
-			if(screen instanceof AbstractContainerScreen<?>)
-				imageWidth = ((AbstractContainerScreen<?>)screen).getXSize();
+			if(screen instanceof AbstractContainerScreen<?> s)
+				imageWidth = s.getXSize();
+			else if(screen instanceof IScreen s)
+				imageWidth = s.getXSize();
 		}
 		
 		if(font == null)
 			font = minecraft.font;
-		
-		gui.setBlitOffset(ITEM_BLIT_OFFSET);
-		itemRenderer.blitOffset = ITEM_BLIT_OFFSET;
+
+		int oldOffset1 = gui.getBlitOffset();
+		gui.setBlitOffset(blitOffset);
+		float oldOffset2 = itemRenderer.blitOffset;
+		itemRenderer.blitOffset = blitOffset;
 		
 		RenderSystem.enableDepthTest();
 		
         itemRenderer.renderAndDecorateItem(player, stack, x, y, x + y * imageWidth);
         itemRenderer.renderGuiItemDecorations(font, stack, x, y, customCount);
         
-        itemRenderer.blitOffset = 0.0F;
-        gui.setBlitOffset(0);
+        itemRenderer.blitOffset = oldOffset2;
+        gui.setBlitOffset(oldOffset1);
         
    	}
 	
@@ -110,5 +124,12 @@ public class ItemRenderUtil {
 		Minecraft minecraft = Minecraft.getInstance();
 		return stack.getTooltipLines(minecraft.player, minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
 	}
+
+	/**
+	 * Translates the pose so that textures will be rendered in front of items.
+	 * Recommended to run pose.pushPose(), and then run pose.popPose() after
+	 * you are done rendering what you desire to be drawn in front.
+	 */
+	public static void TranslateToForeground(PoseStack pose) { pose.translate(0d, 0d, 500d); }
 	
 }

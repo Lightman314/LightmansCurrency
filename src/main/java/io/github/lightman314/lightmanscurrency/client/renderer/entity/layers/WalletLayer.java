@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -22,11 +23,12 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
-public class WalletLayer<T extends Player, M extends HumanoidModel<T>> extends RenderLayer<T,M>{
+import javax.annotation.Nonnull;
+
+public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T,M>{
 
 	private final ModelWallet<T> model;
 	
@@ -37,14 +39,14 @@ public class WalletLayer<T extends Player, M extends HumanoidModel<T>> extends R
 	}
 
 	@Override
-	public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, @NotNull T entity, float limbSwing,
+	public void render(@Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int light, @Nonnull T entity, float limbSwing,
 					   float limbSwingAmount,
 					   float partialTicks,
 					   float ageInTicks,
 					   float netHeadYaw,
 					   float headPitch) {
-		
-		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(entity);
+
+		IWalletHandler handler = WalletCapability.getRenderWalletHandler(entity);
 		if(handler == null || !handler.visible())
 			return;
 		

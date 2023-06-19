@@ -204,9 +204,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
         public MutableComponent getTooltip() { return IconAndButtonUtil.TOOLTIP_TRADE_RULES_TRADE; }
 
         @Override
-        public void receiveSelfMessage(CompoundTag message) {
-            this.commonTab.receiveMessage(message);
-        }
+        public void receiveSelfMessage(CompoundTag message) { this.commonTab.receiveMessage(message); }
     }
 
 }

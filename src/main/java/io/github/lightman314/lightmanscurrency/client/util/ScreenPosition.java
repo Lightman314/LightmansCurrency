@@ -22,6 +22,7 @@ public final class ScreenPosition {
 
     public boolean isMouseInArea(int mouseX, int mouseY, int width, int height) { return ScreenArea.of(this, width, height).isMouseInArea(mouseX, mouseY); }
 
+    public ScreenArea asArea(int width, int height) { return ScreenArea.of(this, width, height); }
 
     @Override
     public String toString() { return this.x + ", " + this.y; }

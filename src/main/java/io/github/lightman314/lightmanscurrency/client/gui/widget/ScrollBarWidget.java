@@ -13,6 +13,8 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/scroll.png");
@@ -120,7 +122,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 	}
 
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
+	public void updateNarration(@Nonnull NarrationElementOutput narrator) { }
 	
 	protected void dragKnob(double mouseY) {
 		//Cannot do anything if the scrollable cannot be scrolled
@@ -176,7 +178,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 		this.isDragging = false;
 		if(this.isMouseOver(mouseX, mouseY) && this.visible() && button == 0)
 		{
-			LightmansCurrency.LogInfo("Started dragging.");
+			LightmansCurrency.LogDebug("Started dragging.");
 			this.isDragging = true;
 			this.dragKnob(mouseY);
 		}
@@ -189,7 +191,7 @@ public class ScrollBarWidget extends AbstractWidget implements IMouseListener {
 			//One last drag calculation
 			this.dragKnob(mouseY);
 			this.isDragging = false;
-			LightmansCurrency.LogInfo("Stopped dragging.");
+			LightmansCurrency.LogDebug("Stopped dragging.");
 		}
 		return false;
 	}

@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemWriteData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData.ItemTradeType;
@@ -16,7 +17,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +28,7 @@ public class ItemTradeNotification extends Notification{
 	TraderCategory traderData;
 	
 	ItemTradeType tradeType;
-	List<ItemData> items;
+	List<ItemWriteData> items;
 	CoinValue cost = new CoinValue();
 	
 	String customer;
@@ -39,13 +39,13 @@ public class ItemTradeNotification extends Notification{
 		this.tradeType = trade.getTradeType();
 		
 		this.items = new ArrayList<>();
-		this.items.add(new ItemData(trade.getSellItem(0), trade.isPurchase() ? "" : trade.getCustomName(0)));
-		this.items.add(new ItemData(trade.getSellItem(1), trade.isPurchase() ? "" : trade.getCustomName(1)));
+		this.items.add(new ItemWriteData(trade.getSellItem(0), trade.isPurchase() ? "" : trade.getCustomName(0)));
+		this.items.add(new ItemWriteData(trade.getSellItem(1), trade.isPurchase() ? "" : trade.getCustomName(1)));
 		
 		if(trade.isBarter())
 		{
-			this.items.add(new ItemData(trade.getBarterItem(0),""));
-			this.items.add(new ItemData(trade.getBarterItem(1),""));
+			this.items.add(new ItemWriteData(trade.getBarterItem(0),""));
+			this.items.add(new ItemWriteData(trade.getBarterItem(1),""));
 		}
 		else
 			this.cost = cost;
@@ -67,14 +67,14 @@ public class ItemTradeNotification extends Notification{
 		
 		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
 		
-		Component itemText = getItemNames(this.items.get(0), this.items.get(1));
+		Component itemText = ItemWriteData.getItemNames(this.items.get(0), this.items.get(1));
 		
 		Component cost;
 		if(this.tradeType == ItemTradeType.BARTER)
 		{
 			//Flip the cost and item text, as for barters the text is backwards "bartered *barter items* for *sold items*"
 			cost = itemText;
-			itemText = getItemNames(this.items.get(2), this.items.get(3));
+			itemText = ItemWriteData.getItemNames(this.items.get(2), this.items.get(3));
 		}
 		else
 			cost = this.cost.getComponent("0");
@@ -83,17 +83,6 @@ public class ItemTradeNotification extends Notification{
 		return new TranslatableComponent("notifications.message.item_trade", this.customer, boughtText, itemText, cost);
 		
 	}
-	
-	private Component getItemNames(ItemData item1, ItemData item2) {
-		if(item1.isEmpty && item2.isEmpty)
-			return new TextComponent("ERROR");
-		else if(item2.isEmpty)
-			return item1.format();
-		else if(item1.isEmpty)
-			return item2.format();
-		else
-			return item1.formatWith(item2);
-	}
 
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
@@ -101,7 +90,7 @@ public class ItemTradeNotification extends Notification{
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
 		ListTag itemList = new ListTag();
-		for(ItemData item : this.items)
+		for(ItemWriteData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		if(this.tradeType != ItemTradeType.BARTER)
@@ -118,7 +107,7 @@ public class ItemTradeNotification extends Notification{
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
-			this.items.add(new ItemData(itemList.getCompound(i)));
+			this.items.add(new ItemWriteData(itemList.getCompound(i)));
 		if(this.tradeType != ItemTradeType.BARTER)
 			this.cost.load(compound, "Price");
 		this.customer = compound.getString("Customer");
@@ -137,8 +126,8 @@ public class ItemTradeNotification extends Notification{
 				return false;
 			for(int i = 0; i < this.items.size(); ++i)
 			{
-				ItemData i1 = this.items.get(i);
-				ItemData i2 = itn.items.get(i);
+				ItemWriteData i1 = this.items.get(i);
+				ItemWriteData i2 = itn.items.get(i);
 				if(!i1.itemName.getString().equals(i2.itemName.getString()))
 					return false;
 				if(i1.count != i2.count)
@@ -153,60 +142,16 @@ public class ItemTradeNotification extends Notification{
 		}
 		return false;
 	}
-	
-	public static class ItemData
-	{
-		final boolean isEmpty;
-		final Component itemName;
-		final int count;
-		
-		public ItemData(ItemStack item) { this(item, ""); }
-		
-		public ItemData(ItemStack item, String customName) {
-			this.isEmpty = item.isEmpty();
-			if(this.isEmpty)
-			{
-				this.itemName = new TextComponent("");
-				this.count = 0;
-				return;
-			}
-			if(customName.isEmpty())
-				itemName = item.getHoverName();
-			else
-				this.itemName = new TextComponent(customName);
-			this.count = item.getCount();
-		}
-		
-		public ItemData(CompoundTag compound) {
-			this.isEmpty = compound.contains("Empty");
-			if(this.isEmpty)
-			{
-				this.itemName = new TextComponent("");
-				this.count = 0;
-				return;
-			}
-			this.itemName = Component.Serializer.fromJson(compound.getString("Name"));
-			this.count = compound.getInt("Count");
-		}
-		
-		public CompoundTag save() {
-			CompoundTag compound = new CompoundTag();
-			if(this.isEmpty)
-			{
-				compound.putBoolean("Empty", true);
-				return compound;
-			}
-			compound.putString("Name", Component.Serializer.toJson(this.itemName));
-			compound.putInt("Count", this.count);
-			return compound;
-		}
-		
-		public Component format() { return new TranslatableComponent("log.shoplog.item.itemformat", this.count, this.itemName); }
-		
-		public Component formatWith(Component other) { return new TranslatableComponent("log.shoplog.and", this.format(), other); }
-		
-		public Component formatWith(ItemData other) { return new TranslatableComponent("log.shoplog.and", this.format(), other.format()); }
-		
+
+	@Deprecated(since = "v2.1.1.5")
+	public static class ItemData extends ItemWriteData {
+
+		public ItemData(ItemStack item) { super(item); }
+
+		public ItemData(ItemStack item, String customName) { super(item, customName); }
+
+		public ItemData(CompoundTag compound) { super(compound); }
+
 	}
 	
 }

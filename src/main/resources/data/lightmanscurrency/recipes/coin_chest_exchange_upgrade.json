@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:coin_chest_exchange_craftable"}],
   "type": "minecraft:smithing",
   "base": {
     "item": "lightmanscurrency:atm"

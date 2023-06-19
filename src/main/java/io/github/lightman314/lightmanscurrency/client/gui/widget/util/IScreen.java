@@ -4,6 +4,8 @@ public interface IScreen {
 
 	int getGuiLeft();
 	int getGuiTop();
+	int getXSize();
+	int getYSize();
 	void addTickListener(Runnable r);
 
 }

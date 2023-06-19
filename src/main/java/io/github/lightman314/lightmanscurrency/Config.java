@@ -187,6 +187,10 @@ public class Config {
         public final ForgeConfigSpec.BooleanValue chestButtonVisible;
         public final ForgeConfigSpec.BooleanValue chestButtonAllowHidden;
 
+        //Slot Machine Options
+        public final ForgeConfigSpec.IntValue slotMachineAnimationTime;
+        public final ForgeConfigSpec.IntValue slotMachineAnimationRestTime;
+
         //Sound Options
         public final ForgeConfigSpec.BooleanValue moneyMendingClink;
 
@@ -287,6 +291,17 @@ public class Config {
 
             builder.pop();
 
+            builder.comment("Slot Machine Animation Settings").push("slot_machine");
+
+            this.slotMachineAnimationTime = builder.comment("The number of Minecraft ticks the slot machine animation will last.",
+                            "Note: 20 ticks = 1 second",
+                            "Must be at least 20 ticks (1s) for coding reasons.")
+                    .defineInRange("animationDuration", 100, 20, 1200);
+            this.slotMachineAnimationRestTime = builder.comment("The number of Minecraft ticks the slot machine will pause before repeating the animation.")
+                    .defineInRange("animationRestDuration", 20, 0, 1200);
+
+            builder.pop();
+
             builder.comment("Sound Settings").push("sounds");
 
             this.moneyMendingClink = builder
@@ -308,6 +323,11 @@ public class Config {
         public final ForgeConfigSpec.BooleanValue canCraftNetworkTraders;
         public final ForgeConfigSpec.BooleanValue canCraftTraderInterfaces;
         public final ForgeConfigSpec.BooleanValue canCraftAuctionStands;
+        public final ForgeConfigSpec.BooleanValue canCraftCoinChest;
+        public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeExchange;
+        public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeBank;
+        public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeMagnet;
+        public final ForgeConfigSpec.BooleanValue canCraftCoinChestUpgradeSecurity;
 
         //Custom trades
         public final ForgeConfigSpec.BooleanValue addCustomWanderingTrades;
@@ -361,7 +381,7 @@ public class Config {
 
             builder.comment("Common configuration settings").push("common");
 
-            builder.comment("Crafting Settings.").push("crafting");
+            builder.comment("Crafting Settings").push("crafting");
 
             this.canCraftNetworkTraders = builder.comment("Whether Network Traders can be crafted.",
                             "Disabling will not remove any existing Network Traders from the world, nor prevent their use.",
@@ -379,9 +399,37 @@ public class Config {
                             "/reload required for changes to take effect.")
                     .define("allowAuctionStandCrafting", true);
 
+            builder.comment("Coin Chest Related Crafting Settings").push("coin_chest");
+
+            this.canCraftCoinChest = builder.comment("Whether the Coin Chest can be crafted.",
+                            "Disabling will not remove any existing Coin Chests from the world, nor prevent their use.",
+                            "Disabling does NOT disable the recipes of Coin Chest Upgrades.",
+                            "/reload required for changes to take effect.")
+                    .define("allowChestCrafting", true);
+
+            this.canCraftCoinChestUpgradeExchange = builder.comment("Whether the Coin Chest Exchange Upgrade can be crafted.",
+                            "Disabling will not remove any existing Coin Chest Exchange Upgrades from the world, nor prevent their use.",
+                            "/reload required for changes to take effect.")
+                    .define("allowExchangeUpgradeCrafting", true);
+
+            //Temporary assignment as I don't want to make a config option for a feature that isn't present yet
+            this.canCraftCoinChestUpgradeBank = this.canCraftCoinChest;
+
+            this.canCraftCoinChestUpgradeMagnet = builder.comment("Whether the Coin Chest Magnet Upgrades can be crafted.",
+                            "Disabling will not remove any existing Coin Chest Magnet Upgrades from the world, nor prevent their use.",
+                            "/reload required for changes to take effect.")
+                    .define("allowMagnetUpgradeCrafting", true);
+
+            this.canCraftCoinChestUpgradeSecurity = builder.comment("Whether the Coin Chest Security Upgrades can be crafted.",
+                            "Disabling will not remove any existing Coin Chest Security Upgrades from the world, nor prevent their use.",
+                            "/reload required for changes to take effect.")
+                    .define("allowSecurityUpgradeCrafting", true);
+
             builder.pop();
 
-            builder.comment("Villager Related Settings.","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
+            builder.pop();
+
+            builder.comment("Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
 
             this.addCustomWanderingTrades = builder
                     .comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")

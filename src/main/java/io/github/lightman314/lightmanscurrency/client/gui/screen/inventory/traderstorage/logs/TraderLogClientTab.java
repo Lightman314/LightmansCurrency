@@ -29,9 +29,6 @@ public class TraderLogClientTab extends TraderStorageClientTab<TraderLogTab> {
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.log"); }
 
     @Override
-    public boolean tabButtonVisible() { return true; }
-
-    @Override
     public boolean blockInventoryClosing() { return false; }
 
     private NotificationDisplayWidget logDisplay;
