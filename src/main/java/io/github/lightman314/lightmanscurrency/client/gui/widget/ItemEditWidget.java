@@ -182,8 +182,24 @@ public class ItemEditWidget extends AbstractWidget implements IScrollable{
 		return getFilteredItems(ItemTradeRestriction.NONE);
 	}
 
+	private void validateItemList()
+	{
+		if(preFilteredItems == null)
+		{
+			LightmansCurrency.LogWarning("For some odd reason the item list hasn't been collected! Collecting manually.");
+			try{ initItemList();
+			} catch(Throwable ignored) {}
+			if(preFilteredItems == null)
+			{
+				preFilteredItems = new HashMap<>();
+				preFilteredItems.put(ItemTradeRestriction.NO_RESTRICTION_KEY, new ArrayList<>());
+			}
+		}
+	}
+
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
+		this.validateItemList();
 		ResourceLocation type = ItemTradeRestriction.getId(restriction);
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
