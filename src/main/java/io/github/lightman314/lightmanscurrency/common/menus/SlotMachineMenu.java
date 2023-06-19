@@ -89,10 +89,48 @@ public class SlotMachineMenu extends LazyMessageMenu implements IClientTracker {
 
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) {
-        return ItemStack.EMPTY;
+    @Nonnull
+    public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+    {
+
+        ItemStack clickedStack = ItemStack.EMPTY;
+
+        Slot slot = this.slots.get(index);
+
+        if(slot != null && slot.hasItem())
+        {
+            ItemStack slotStack = slot.getItem();
+            clickedStack = slotStack.copy();
+            if(index < 36)
+            {
+                //Move from inventory to coin slots
+                if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+            else if(index < this.slots.size())
+            {
+                //Move from coin slots to inventory
+                if(!this.moveItemStackTo(slotStack, 0, 36, false))
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+
+            if(slotStack.isEmpty())
+            {
+                slot.set(ItemStack.EMPTY);
+            }
+            else
+            {
+                slot.setChanged();
+            }
+        }
+
+        return clickedStack;
+
     }
 
     @Override

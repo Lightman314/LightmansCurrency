@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
