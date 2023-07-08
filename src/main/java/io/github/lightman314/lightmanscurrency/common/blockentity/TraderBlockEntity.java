@@ -165,21 +165,12 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 					this.traderID = TraderSaveData.RegisterTrader(newTrader, null);
 					this.markDirty();
 				}
-				else
-				{
-					LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
-				}
 			}
 		}
 		if(this.customTrader != null && !this.ignoreCustomTrader)
 		{
 			//Build the custom trader
 			D customTrader = this.initCustomTrader();
-			if(customTrader == null)
-			{
-				LightmansCurrency.LogWarning("The trader block at " + this.worldPosition.toShortString() + " could not properly load it's custom trader.");
-				this.customTrader = null;
-			}
 			//Check if the custom trader is this position & dimension
 			if(customTrader.getLevel() == this.level.dimension() && this.worldPosition.equals(customTrader.getPos()))
 				this.ignoreCustomTrader = true;
@@ -191,7 +182,6 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
-				LightmansCurrency.LogInfo("Successfully loaded custom trader at " + this.worldPosition.toShortString());
 			}
 		}
 	}
