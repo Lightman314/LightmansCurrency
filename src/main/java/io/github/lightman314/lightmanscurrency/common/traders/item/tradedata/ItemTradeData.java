@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
@@ -16,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparis
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
@@ -34,6 +34,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class ItemTradeData extends TradeData implements IBarterTrade {
 	
@@ -237,10 +239,10 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		{
 			if(this.cost.isFree())
 				return 1;
-			if(this.cost.getRawValue() == 0)
+			if(this.cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
-			long price = this.cost.getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
+			long price = this.cost.getValueNumber();
 			return (int)(coinValue / price);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
@@ -266,10 +268,10 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 		{
 			if(this.cost.isFree())
 				return 1;
-			if(this.cost.getRawValue() == 0)
+			if(this.cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
-			long price = this.getCost(context).getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
+			long price = this.getCost(context).getValueNumber();
 			return (int)MathUtil.SafeDivide(coinValue, price, 1);
 		}
 		else if(this.tradeType == ItemTradeType.SALE || this.tradeType == ItemTradeType.BARTER)
@@ -442,7 +444,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 				result.addProductResults(ProductComparisonResult.CompareTwoItems(this.getBarterItem(0), this.getBarterItem(1), otherItemTrade.getBarterItem(0), otherItemTrade.getBarterItem(1)));
 			//Compare prices
 			if(!this.isBarter())
-				result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+				result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
 			//Compare types
 			result.setTypeResult(this.tradeType == otherItemTrade.tradeType);
 		}
@@ -549,7 +551,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
+	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -666,7 +668,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
+	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -712,7 +714,7 @@ public class ItemTradeData extends TradeData implements IBarterTrade {
 
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
+	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);

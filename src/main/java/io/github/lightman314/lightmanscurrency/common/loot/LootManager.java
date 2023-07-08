@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.loot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
@@ -15,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.SpawnTrackerCap
 import io.github.lightman314.lightmanscurrency.common.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -44,6 +47,8 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber
 public class LootManager {
@@ -219,28 +224,28 @@ public class LootManager {
 		Item lootItem6 = Config.COMMON.lootItem6.get();
 
 		//Normal Loot
-		ENTITY_LOOT_T1 = GenerateEntityCoinPool(lootItem1, 1, 10, 0.75f, "lightmanscurrency:entityloot_copper", true);
-		ENTITY_LOOT_T2 = GenerateEntityCoinPool(lootItem2, 1, 5, 0.5f, "lightmanscurrency:entityloot_iron", true);
-		ENTITY_LOOT_T3 = GenerateEntityCoinPool(lootItem3, 1, 5, 0.25f, "lightmanscurrency:entityloot_gold", true);
-		ENTITY_LOOT_T4 = GenerateEntityCoinPool(lootItem4, 1, 3, 0.1f, "lightmanscurrency:entityloot_emerald", true);
-		ENTITY_LOOT_T5 = GenerateEntityCoinPool(lootItem5, 1, 3, 0.05f, "lightmanscurrency:entityloot_diamond", true);
-		ENTITY_LOOT_T6 = GenerateEntityCoinPool(lootItem6, 1, 3, 0.025F, "lightmanscurrency:entityloot_netherite", true);
+		ENTITY_LOOT_T1 = GenerateEntityCoinPool(lootItem1, 1, 10, 0.75f, true);
+		ENTITY_LOOT_T2 = GenerateEntityCoinPool(lootItem2, 1, 5, 0.5f, true);
+		ENTITY_LOOT_T3 = GenerateEntityCoinPool(lootItem3, 1, 5, 0.25f, true);
+		ENTITY_LOOT_T4 = GenerateEntityCoinPool(lootItem4, 1, 3, 0.1f, true);
+		ENTITY_LOOT_T5 = GenerateEntityCoinPool(lootItem5, 1, 3, 0.05f, true);
+		ENTITY_LOOT_T6 = GenerateEntityCoinPool(lootItem6, 1, 3, 0.025F, true);
 
 		//Boss loot
-		ENTITY_LOOT_BOSS_T1 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false));
-		ENTITY_LOOT_BOSS_T2 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false));
-		ENTITY_LOOT_BOSS_T3 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false));
-		ENTITY_LOOT_BOSS_T4 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false));
-		ENTITY_LOOT_BOSS_T5 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(lootItem5, 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false));
-		ENTITY_LOOT_BOSS_T6 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f,"lightmanscurrency:entityloot_boss_copper", false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f,"lightmanscurrency:coinloot_boss_iron", false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f,"lightmanscurrency:coinloot_boss_gold", false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f,"lightmanscurrency:coinloot_boss_emerald", false),GenerateEntityCoinPool(lootItem5, 10, 30, 1.0f, "lightmanscurrency:coinloot_boss_diamond", false),GenerateEntityCoinPool(lootItem6, 1, 5, 1.0f, "lightmanscurrency:coinloot_boss_netherite", false));
+		ENTITY_LOOT_BOSS_T1 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false));
+		ENTITY_LOOT_BOSS_T2 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f, false));
+		ENTITY_LOOT_BOSS_T3 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f, false));
+		ENTITY_LOOT_BOSS_T4 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f, false));
+		ENTITY_LOOT_BOSS_T5 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem5, 10, 30, 1.0f, false));
+		ENTITY_LOOT_BOSS_T6 = ImmutableList.of(GenerateEntityCoinPool(lootItem1, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem2, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem3, 10,30,1.0f, false), GenerateEntityCoinPool(lootItem4, 10,30,1.0f, false),GenerateEntityCoinPool(lootItem5, 10, 30, 1.0f, false),GenerateEntityCoinPool(lootItem6, 1, 5, 1.0f, false));
 
 		//Chest loot
-		CHEST_LOOT_T1 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER}, 1, 5, "lightmanscurrency:chestloot_copper");
-		CHEST_LOOT_T2 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON}, 1, 5, "lightmanscurrency:chestloot_iron");
-		CHEST_LOOT_T3 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD}, 2, 6, "lightmanscurrency:chestloot_gold");
-		CHEST_LOOT_T4 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD}, 3, 6, "lightmanscurrency:chestloot_emerald");
-		CHEST_LOOT_T5 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD, ChestLootEntryData.DIAMOND}, 3, 6, "lightmanscurrency:chestloot_diamond");
-		CHEST_LOOT_T6 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD, ChestLootEntryData.DIAMOND, ChestLootEntryData.NETHERITE}, 3, 6, "lightmanscurrency:chestloot_netherite");
+		CHEST_LOOT_T1 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER}, 1, 5);
+		CHEST_LOOT_T2 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON}, 1, 5);
+		CHEST_LOOT_T3 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD}, 2, 6);
+		CHEST_LOOT_T4 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD}, 3, 6);
+		CHEST_LOOT_T5 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD, ChestLootEntryData.DIAMOND}, 3, 6);
+		CHEST_LOOT_T6 = GenerateChestCoinPool(new ChestLootEntryData[] {ChestLootEntryData.COPPER, ChestLootEntryData.IRON, ChestLootEntryData.GOLD, ChestLootEntryData.EMERALD, ChestLootEntryData.DIAMOND, ChestLootEntryData.NETHERITE}, 3, 6);
 
 		lootTablesBuilt = true;
 
@@ -318,7 +323,7 @@ public class LootManager {
 	{
 		LivingEntity entity = event.getEntity();
 		//Check if this is the server
-		if(entity.level.isClientSide)
+		if(entity.level().isClientSide)
 			return;
 
 		if(!Config.COMMON.enableSpawnerEntityDrops.get())
@@ -462,6 +467,13 @@ public class LootManager {
 			config.set(list);
 	}
 
+	private static String getSafeId(@Nonnull Entity entity) {
+		ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+		if(id == null)
+			return "null";
+		return id.toString().replace(':','_');
+	}
+
 	private static void DropEntityLoot(Entity entity, Player player, EntityPoolLevel coinPool)
 	{
 
@@ -472,14 +484,15 @@ public class LootManager {
 
 		//LightmansCurrency.LOGGER.info("Dropping entity loot level " + coinPool);
 
-		LootTable table = LootTable.lootTable().build();
-		LootContext.Builder contextBuilder = new LootContext.Builder((ServerLevel)entity.level);
+		LootTable.Builder tableBuilder = LootTable.lootTable();
+		LootParams.Builder parameterBuilder = new LootParams.Builder((ServerLevel)entity.level());
 		//Add the KilledByPlayer condition to the Loot Context
 		if(player != null)
-			contextBuilder.withParameter(LootContextParams.KILLER_ENTITY, player)
+			parameterBuilder.withParameter(LootContextParams.KILLER_ENTITY, player)
 					.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player);
 
-		LootContext context = contextBuilder.create(new LootContextParamSet.Builder().optional(LootContextParams.LAST_DAMAGE_PLAYER).optional(LootContextParams.KILLER_ENTITY).build());
+		LootParams params = parameterBuilder.create(new LootContextParamSet.Builder().optional(LootContextParams.LAST_DAMAGE_PLAYER).optional(LootContextParams.KILLER_ENTITY).build());
+		LootContext context = new LootContext.Builder(params).create(new ResourceLocation(LightmansCurrency.MODID, "generated_entity_loot/" + getSafeId(entity)));
 
 		try {
 
@@ -488,91 +501,79 @@ public class LootManager {
 			{
 				//Drop copper boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T1)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 			else if(coinPool == EntityPoolLevel.BOSS_T2)
 			{
 				//Drop iron boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T2)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 			else if(coinPool == EntityPoolLevel.BOSS_T3)
 			{
 				//Drop gold boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T3)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 			else if(coinPool == EntityPoolLevel.BOSS_T4)
 			{
 				//Drop emerald boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T4)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 			else if(coinPool == EntityPoolLevel.BOSS_T5)
 			{
 				//Drop diamond boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T5)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 			else if(coinPool == EntityPoolLevel.BOSS_T6)
 			{
 				//Drop netherite boss loot
 				for(Builder builder : ENTITY_LOOT_BOSS_T6)
-				{
-					table.addPool(builder.build());
-				}
+					tableBuilder.withPool(builder);
 				//Generate the loot
-				SpawnLootDrops(entity, table.getRandomItems(context));
+				tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 				return;
 			}
 
 			//LightmansCurrency.LOGGER.debug("Added " + coinPool + " level entity loot to the " + name + " loot entry.");
-			table.addPool(ENTITY_LOOT_T1.build());
+			tableBuilder.withPool(ENTITY_LOOT_T1);
 			if(coinPool != EntityPoolLevel.T1)
 			{
-				table.addPool(ENTITY_LOOT_T2.build());
+				tableBuilder.withPool(ENTITY_LOOT_T2);
 				if(coinPool != EntityPoolLevel.T2)
 				{
-					table.addPool(ENTITY_LOOT_T3.build());
+					tableBuilder.withPool(ENTITY_LOOT_T3);
 					if(coinPool != EntityPoolLevel.T3)
 					{
-						table.addPool(ENTITY_LOOT_T4.build());
+						tableBuilder.withPool(ENTITY_LOOT_T4);
 						if(coinPool != EntityPoolLevel.T4)
 						{
-							table.addPool(ENTITY_LOOT_T5.build());
+							tableBuilder.withPool(ENTITY_LOOT_T5);
 							if(coinPool != EntityPoolLevel.T5)
-								table.addPool(ENTITY_LOOT_T6.build());
+								tableBuilder.withPool(ENTITY_LOOT_T6);
 						}
 					}
 				}
 			}
 
-			SpawnLootDrops(entity, table.getRandomItems(context));
+			tableBuilder.build().getRandomItems(context, LootSpawner(entity));
 
 		} catch(Exception e) { LightmansCurrency.LogError("Error spawning coin drops!", e); }
 
@@ -586,38 +587,38 @@ public class LootManager {
 
 			if(coinPool == ChestPoolLevel.T1)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T1.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T1);
 				return safelyGetResults(table, context);
 			}
 			else if(coinPool == ChestPoolLevel.T2)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T2.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T2);
 				return safelyGetResults(table, context);
 			}
 			else if(coinPool == ChestPoolLevel.T3)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T3.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T3);
 				return safelyGetResults(table, context);
 			}
 			else if(coinPool == ChestPoolLevel.T4)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T4.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T4);
 				return safelyGetResults(table, context);
 			}
 			else if(coinPool == ChestPoolLevel.T5)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T5.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T5);
 				return safelyGetResults(table, context);
 			}
 			else if(coinPool == ChestPoolLevel.T6)
 			{
-				LootTable table = LootTable.lootTable().build();
-				table.addPool(CHEST_LOOT_T6.build());
+				LootTable.Builder table = LootTable.lootTable();
+				table.withPool(CHEST_LOOT_T6);
 				return safelyGetResults(table, context);
 			}
 			else
@@ -633,10 +634,10 @@ public class LootManager {
 	}
 
 	@SuppressWarnings("deprecation")
-	private static List<ItemStack> safelyGetResults(LootTable table, LootContext context) {
+	private static List<ItemStack> safelyGetResults(LootTable.Builder table, LootContext context) {
 		List<ItemStack> results = new ArrayList<>();
 		//Call getRandomItems(LootContext,Consumer<ItemStack>) to keep it from being modified by the GLM's and getting stuck in an infinite loop.
-		table.getRandomItems(context, results::add);
+		table.build().getRandomItems(context, results::add);
 		return results;
 	}
 
@@ -656,20 +657,15 @@ public class LootManager {
 		return null;
 	}
 
-	private static void SpawnLootDrops(Entity entity, List<ItemStack> lootDrops)
-	{
-		//LightmansCurrency.LOGGER.info("Spawning " + lootDrops.size() + " coin drops.");
-		InventoryUtil.dumpContents(entity.level, entity.blockPosition(), lootDrops);
-	}
+	private static Consumer<ItemStack> LootSpawner(Entity entity) { return i -> InventoryUtil.dumpContents(entity.level(), entity.blockPosition(), i); }
 
 
-	private static Builder GenerateEntityCoinPool(Item item, float min, float max, float chance, String name, boolean requirePlayerKill)
+	private static Builder GenerateEntityCoinPool(Item item, float min, float max, float chance, boolean requirePlayerKill)
 	{
 
 		Builder lootPoolBuilder = LootPool.lootPool()
 				.setRolls(ConstantValue.exactly(1))
-				.add(LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max))).apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0f, 1f))))
-				.name(name);
+				.add(LootItem.lootTableItem(item).apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max))).apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0f, 1f))));
 
 		//Require that the player killed it (usually only disabled for bosses)
 		if(requirePlayerKill)
@@ -683,12 +679,11 @@ public class LootManager {
 	}
 
 
-	private static Builder GenerateChestCoinPool(ChestLootEntryData[] lootEntries, float minRolls, float maxRolls, String name)
+	private static Builder GenerateChestCoinPool(ChestLootEntryData[] lootEntries, float minRolls, float maxRolls)
 	{
 
 		Builder lootPoolBuilder = LootPool.lootPool()
-				.setRolls(UniformGenerator.between(minRolls, maxRolls))
-				.name(name);
+				.setRolls(UniformGenerator.between(minRolls, maxRolls));
 
 		//Add each loot entry
 		for(ChestLootEntryData entry : lootEntries)

@@ -15,7 +15,7 @@ public abstract class LazyMessageMenu extends AbstractContainerMenu implements I
     public final Player player;
 
     @Override
-    public boolean isClient() { return this.player.level.isClientSide; }
+    public boolean isClient() { return this.player.level().isClientSide; }
 
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id); this.player = inventory.player; }
 

@@ -33,7 +33,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageDebugTrader;
 import io.github.lightman314.lightmanscurrency.network.message.command.MessageSyncAdminList;
@@ -122,7 +121,7 @@ public class CommandLCAdmin {
 
 		ToggleAdminPlayer(sourcePlayer);
 		Component enabledDisabled = isAdminPlayer(sourcePlayer) ? EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.enabled").withStyle(ChatFormatting.GREEN) : EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin.disabled").withStyle(ChatFormatting.RED);
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.toggleadmin", enabledDisabled), true);
 
 		return 1;
 	}
@@ -147,7 +146,7 @@ public class CommandLCAdmin {
 		if(be instanceof TraderBlockEntity<?> t)
 		{
 			t.saveCurrentTraderAsCustomTrader();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.setCustomTrader.success"), true);
 			return 1;
 		}
 
@@ -163,14 +162,14 @@ public class CommandLCAdmin {
 		if(allTraders.size() > 0)
 		{
 
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 
 			for(int i = 0; i < allTraders.size(); i++)
 			{
 				TraderData thisTrader = allTraders.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendSuccess(EasyText.empty(), true);
+					source.sendSuccess(EasyText::empty, true);
 
 				sendTraderDataFeedback(thisTrader, source);
 
@@ -178,7 +177,7 @@ public class CommandLCAdmin {
 		}
 		else
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.none"), true);
 		}
 
 		return 1;
@@ -194,20 +193,20 @@ public class CommandLCAdmin {
 		if(results.size() > 0)
 		{
 
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.title"), true);
 			for(int i = 0; i < results.size(); i++)
 			{
 				TraderData thisTrader = results.get(i);
 				//Spacer
 				if(i > 0) //No spacer on the first output
-					source.sendSuccess(EasyText.empty(), true);
+					source.sendSuccess(EasyText::empty, true);
 
 				sendTraderDataFeedback(thisTrader, source);
 			}
 		}
 		else
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.search.none"), true);
 		}
 
 		return 1;
@@ -217,13 +216,13 @@ public class CommandLCAdmin {
 	{
 		//Trader ID
 		String traderID = String.valueOf(thisTrader.getID());
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid", EasyText.translatable(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), false);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid", EasyText.translatable(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.traderid.copytooltip"))))), false);
 		//Persistent ID
 		if(thisTrader.isPersistent())
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.persistentid", thisTrader.getPersistentID()), false);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.persistentid", thisTrader.getPersistentID()), false);
 
 		//Type
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.type), false);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.type", thisTrader.type), false);
 
 		//Ignore everything else for auction houses
 		if(thisTrader instanceof AuctionHouseTrader)
@@ -232,30 +231,30 @@ public class CommandLCAdmin {
 		//Team / Team ID
 		if(thisTrader.getOwner().hasTeam())
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.team", thisTrader.getOwner().getTeam().getName(), thisTrader.getOwner().getTeam().getID()), false);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.team", thisTrader.getOwner().getTeam().getName(), thisTrader.getOwner().getTeam().getID()), false);
 		}
 		//Owner / Owner ID
 		else if(thisTrader.getOwner().hasPlayer())
 		{
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner", thisTrader.getOwner().getPlayer().getName(false), thisTrader.getOwner().getPlayer().id.toString()), false);
 		}
 		else
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.owner.custom", thisTrader.getOwner().getOwnerName(false)), false);
 
 		if(!thisTrader.isPersistent())
 		{
 			//Dimension
 			String dimension = thisTrader.getLevel().location().toString();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), false);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.dimension", dimension), false);
 			//Position
 			BlockPos pos = thisTrader.getPos();
 			String position = pos.getX() + " " + pos.getY() + " " + pos.getZ();
 			String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position", EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position", EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.position.teleporttooltip"))))), true);
 		}
 		//Custom Name (if applicable)
 		if(thisTrader.hasCustomName())
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.list.name", thisTrader.getName()), true);
 	}
 
 	static int deleteTraderData(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
@@ -268,7 +267,7 @@ public class CommandLCAdmin {
 		//Remove the trader
 		TraderSaveData.DeleteTrader(trader.getID());
 		//Send success message
-		source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.universaldata.delete.success", trader.getName()), true);
 		if(source.getEntity() != null && source.getEntity() instanceof Player)
 			LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget((Player)source.getEntity()), new MessageDebugTrader(trader.getID()));
 		return 1;
@@ -280,7 +279,7 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
-		source.sendSuccess(EasyText.literal(trader.save().getAsString()), false);
+		source.sendSuccess(() -> EasyText.literal(trader.save().getAsString()), false);
 		return 1;
 	}
 
@@ -301,7 +300,8 @@ public class CommandLCAdmin {
 				if(whitelist.addToWhitelist(player))
 					count++;
 			}
-			source.sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", count, trader.getName()), true);
+			final int c = count;
+			source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.traderdata.add_whitelist.success", c, trader.getName()), true);
 
 			if(count > 0)
 				trader.markTradeRulesDirty();
@@ -322,13 +322,14 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(BankAccount.AccountReference account : BankSaveData.GetPlayerBankAccounts())
 		{
-			BankAccount.GiftCoinsFromServer(account.get(), amount.copy());
+			BankAccount.GiftCoinsFromServer(account.get(), amount);
 			count++;
 		}
+		final int c = count;
 		if(count < 1)
 			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
 		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+			commandContext.getSource().sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), c), true);
 		return count;
 	}
 
@@ -338,14 +339,14 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(Team team : TeamSaveData.GetAllTeams(false).stream().filter(Team::hasBankAccount).toList())
 		{
-			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount.copy());
+			BankAccount.GiftCoinsFromServer(team.getBankAccount(), amount);
 			count++;
 		}
-
+		final int c = count;
 		if(count < 1)
 			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
 		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+			commandContext.getSource().sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), c), true);
 
 		return count;
 	}
@@ -356,13 +357,14 @@ public class CommandLCAdmin {
 		int count = 0;
 		for(Player player : EntityArgument.getPlayers(commandContext, "players"))
 		{
-			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount.copy());
+			BankAccount.GiftCoinsFromServer(BankSaveData.GetBankAccount(player), amount);
 			count++;
 		}
+		final int c = count;
 		if(count < 1)
 			commandContext.getSource().sendFailure(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.fail"));
 		else
-			commandContext.getSource().sendSuccess(EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), count), true);
+			commandContext.getSource().sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcadmin.giftBankAccounts.success", amount.getComponent("NULL"), c), true);
 		return count;
 	}
 

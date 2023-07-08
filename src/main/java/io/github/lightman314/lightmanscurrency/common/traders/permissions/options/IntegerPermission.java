@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.traders.permissions.optio
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
+import java.util.function.Consumer;
+
 public class IntegerPermission extends PermissionOption{
 
 	public final int maxValue;
@@ -12,7 +14,7 @@ public class IntegerPermission extends PermissionOption{
 	}
 
 	@Override
-	protected void createWidget(int x, int y, OptionWidgets widgets) {
+	protected void createWidget(int x, int y, Consumer<Object> addWidgets) {
 		LightmansCurrency.LogInfo("Integer Permission Widget is not yet built.");
 	}
 

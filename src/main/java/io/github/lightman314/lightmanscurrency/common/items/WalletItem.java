@@ -174,8 +174,8 @@ public class WalletItem extends Item{
 		
 		WalletEnchantment.addWalletEnchantmentTooltips(tooltip, stack);
 		
-		CoinValue contents = new CoinValue(getWalletInventory(stack));
-		if(contents.getRawValue() > 0)
+		CoinValue contents = CoinValue.fromInventory(getWalletInventory(stack));
+		if(contents.getValueNumber() > 0)
 			tooltip.add(Component.translatable("tooltip.lightmanscurrency.wallet.storedmoney", Component.literal(contents.getString()).withStyle(ChatFormatting.DARK_GREEN)).withStyle(ChatFormatting.YELLOW));
 		
 	}
@@ -228,9 +228,9 @@ public class WalletItem extends Item{
 		}
 		else
 		{
-			player.level.playSound(player, player.blockPosition(), emptyOpenSound, SoundSource.PLAYERS, 0.75f, 1.25f + player.level.random.nextFloat() * 0.5f);
+			player.level().playSound(player, player.blockPosition(), emptyOpenSound, SoundSource.PLAYERS, 0.75f, 1.25f + player.level().random.nextFloat() * 0.5f);
 			if(!isEmpty(wallet))
-				player.level.playSound(player, player.blockPosition(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
+				player.level().playSound(player, player.blockPosition(), ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
 		}
 		
 		return InteractionResultHolder.success(wallet);
@@ -304,7 +304,7 @@ public class WalletItem extends Item{
 	private static NonNullList<ItemStack> ConvertCoins(NonNullList<ItemStack> inventory)
 	{
 		
-		inventory = MoneyUtil.ConvertAllCoinsUp(inventory);
+		inventory = MoneyUtil.ExchangeAllCoinsUp(inventory);
 		
 		return MoneyUtil.SortCoins(inventory);
 		

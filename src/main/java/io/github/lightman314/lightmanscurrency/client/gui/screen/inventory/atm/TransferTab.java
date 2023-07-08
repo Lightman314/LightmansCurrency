@@ -3,19 +3,23 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountType;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
@@ -23,12 +27,12 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.MessageBankTransferTeam;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class TransferTab extends ATMTab {
 
@@ -45,41 +49,42 @@ public class TransferTab extends ATMTab {
 	TeamSelectWidget teamSelection;
 	
 	IconButton buttonToggleMode;
-	Button buttonTransfer;
+	EasyButton buttonTransfer;
 	
 	long selectedTeam = -1;
 	
 	boolean playerMode = true;
 	
+	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
+	public IconData getIcon() { return IconAndButtonUtil.ICON_STORE_COINS; }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.transfer"); }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.atm.transfer"); }
 
 	@Override
-	public void init() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
 		SimpleSlot.SetInactive(this.screen.getMenu());
 		
 		this.responseTimer = 0;
-		this.screen.getMenu().clearMessage();
+		if(firstOpen)
+			this.screen.getMenu().clearMessage();
 		
-		this.amountWidget = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft(), this.screen.getGuiTop(), Component.translatable("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.screen.getFont(), value -> {}, this.screen::addRenderableTabWidget));
-		this.amountWidget.init();
+		this.amountWidget = this.addChild(new CoinValueInput(screenArea.pos, EasyText.translatable("gui.lightmanscurrency.bank.transfertip"), CoinValue.EMPTY, this.getFont(), CoinValueInput.EMPTY_CONSUMER));
 		this.amountWidget.allowFreeToggle = false;
 		this.amountWidget.drawBG = false;
 		
-		this.buttonToggleMode = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - 30, this.screen.getGuiTop() + 64, this::ToggleMode, this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.ToggleTooltip(() -> this.playerMode, Component.translatable("tooltip.lightmanscurrency.atm.transfer.mode.team"), Component.translatable("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
+		this.buttonToggleMode = this.addChild(new IconButton(screenArea.pos.offset(screen.width - 30, 64), this::ToggleMode, () -> this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconAndButtonUtil.ICON_ALEX_HEAD)
+				.withAddons(EasyAddonHelper.toggleTooltip(() -> this.playerMode, EasyText.translatable("tooltip.lightmanscurrency.atm.transfer.mode.team"), EasyText.translatable("tooltip.lightmanscurrency.atm.transfer.mode.player"))));
 		
-		this.playerInput = this.screen.addRenderableTabWidget(new EditBox(this.screen.getFont(), this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 104, this.screen.getXSize() - 20, 20, Component.empty()));
+		this.playerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 104, screenArea.width - 20, 20, Component.empty()));
 		this.playerInput.visible = this.playerMode;
 		
-		this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 84, 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
-		this.teamSelection.init(this.screen::addRenderableTabWidget, this.screen.getFont());
+		this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 84), 2, Size.NORMAL, this::getTeamList, this::selectedTeam, this::SelectTeam));
 		this.teamSelection.visible = !this.playerMode;
 		
-		this.buttonTransfer = this.screen.addRenderableTabWidget(Button.builder(Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 126).size(this.screen.getXSize() - 20, 20).build());
+		this.buttonTransfer = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 126), screenArea.width - 20, 20, () -> EasyText.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"), this::PressTransfer));
 		this.buttonTransfer.active = false;
 		
 	}
@@ -116,7 +121,7 @@ public class TransferTab extends ATMTab {
 		} catch(Throwable ignored) { }
 	}
 	
-	private void PressTransfer(Button button)
+	private void PressTransfer(EasyButton button)
 	{
 		if(this.playerMode)
 		{
@@ -131,48 +136,38 @@ public class TransferTab extends ATMTab {
 		}
 	}
 
-	private void ToggleMode(Button button) {
+	private void ToggleMode(EasyButton button) {
 		this.playerMode = !this.playerMode;
 		this.buttonTransfer.setMessage(Component.translatable(this.playerMode ? "gui.button.bank.transfer.player" : "gui.button.bank.transfer.team"));
 		this.teamSelection.visible = !this.playerMode;
 		this.playerInput.visible = this.playerMode;
-		this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
+		//this.buttonToggleMode.setIcon(this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconData.of(ItemRenderUtil.getAlexHead()));
 	}
 	
 	@Override
-	public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
-		this.hideCoinSlots(pose);
+		this.hideCoinSlots(gui);
 		
 		//this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		Component balance = this.screen.getMenu().getBankAccount() == null ? Component.translatable("gui.lightmanscurrency.bank.null") : Component.translatable("gui.lightmanscurrency.bank.balance", this.screen.getMenu().getBankAccount().getCoinStorage().getString("0"));
-		this.screen.getFont().draw(pose, balance, this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 72, 0x404040);
+		gui.drawString(balance, 8, 72, 0x404040);
 		
 		if(this.hasMessage())
 		{
 			//Draw a message background
-			TextRenderUtil.drawCenteredMultilineText(pose, this.getMessage(), this.screen.getGuiLeft() + 2, this.screen.getXSize() - 4, this.screen.getGuiTop() + 5, 0x404040);
+			TextRenderUtil.drawCenteredMultilineText(gui, this.getMessage(), 2, this.screen.getXSize() - 4, 5, 0x404040);
 			this.amountWidget.visible = false;
 		}
 		else
 			this.amountWidget.visible = true;
 	}
-
-	@Override
-	public void postRender(PoseStack pose, int mouseX, int mouseY) {
-		//IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonToggleMode));
-	}
 	
 	@Override
 	public void tick() {
 		
-		this.amountWidget.tick();
-		
 		if(this.playerMode)
-		{
-			this.playerInput.tick();
 			this.buttonTransfer.active = !this.playerInput.getValue().isBlank() && this.amountWidget.getCoinValue().isValid();
-		}
 		else
 		{
 			Team team = this.selectedTeam();
@@ -196,7 +191,7 @@ public class TransferTab extends ATMTab {
 	private MutableComponent getMessage() { return this.screen.getMenu().getTransferMessage(); }
 
 	@Override
-	public void onClose() {
+	public void closeAction() {
 		SimpleSlot.SetActive(this.screen.getMenu());
 		this.responseTimer = 0;
 		this.screen.getMenu().clearMessage();

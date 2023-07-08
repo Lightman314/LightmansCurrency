@@ -44,7 +44,7 @@ public class TraderMenu extends AbstractContainerMenu {
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 	
 	public TraderMenu(int windowID, Inventory inventory, long traderID) {
-		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID));
 	}
 	
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource) {
@@ -213,7 +213,7 @@ public class TraderMenu extends AbstractContainerMenu {
 	{
 		public TraderMenuBlockSource(int windowID, Inventory inventory, BlockPos blockPosition) {
 			super(ModMenus.TRADER_BLOCK.get(), windowID, inventory, () -> {
-				BlockEntity be = inventory.player.level.getBlockEntity(blockPosition);
+				BlockEntity be = inventory.player.level().getBlockEntity(blockPosition);
 				if(be instanceof ITraderSource source)
 					return source;
 				return null;
@@ -224,7 +224,7 @@ public class TraderMenu extends AbstractContainerMenu {
 	public static class TraderMenuAllNetwork extends TraderMenu
 	{
 		public TraderMenuAllNetwork(int windowID, Inventory inventory) {
-			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level.isClientSide));
+			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.UniversalTraderSource(inventory.player.level().isClientSide));
 		}
 	}
 	

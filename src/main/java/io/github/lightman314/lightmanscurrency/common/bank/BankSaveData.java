@@ -105,7 +105,7 @@ public class BankSaveData extends SavedData {
 		return results;
 	}
 	
-	public static BankAccount GetBankAccount(Player player) { return GetBankAccount(player.level.isClientSide, player.getUUID()); }
+	public static BankAccount GetBankAccount(Player player) { return GetBankAccount(player.level().isClientSide, player.getUUID()); }
 	
 	public static BankAccount GetBankAccount(boolean isClient, UUID player) {
 		if(isClient)
@@ -158,7 +158,7 @@ public class BankSaveData extends SavedData {
 	}
 	
 	public static AccountReference GetSelectedBankAccount(Player player) {
-		if(player.level.isClientSide)
+		if(player.level().isClientSide)
 		{
 			ClientBankData.GetLastSelectedAccount();
 		}
@@ -209,7 +209,7 @@ public class BankSaveData extends SavedData {
 		//Ignore if the account is null or the player isn't allowed to access it.
 		if(account == null)
 			return;
-		if(player.level.isClientSide)
+		if(player.level().isClientSide)
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageSelectBankAccount(account));
 		}

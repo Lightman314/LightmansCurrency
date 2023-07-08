@@ -12,6 +12,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import net.minecraft.ChatFormatting;
@@ -64,20 +65,21 @@ public class CommandBalTop {
 		
 		if(startIndex >= allAccounts.size())
 		{
-			source.sendFailure(Component.translatable("command.lightmanscurrency.lcbaltop.error.page"));
+			source.sendFailure(EasyText.translatable("command.lightmanscurrency.lcbaltop.error.page"));
 			return 0;
 		}
 			
 		
-		source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
-		source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.title").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
+		source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.page", page, getMaxPage(allAccounts.size())).withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD), false);
 		for(int i = startIndex; i < startIndex + ENTRIES_PER_PAGE && i < allAccounts.size(); ++i)
 		{
 			try {
+				final int index = i;
 				BankAccount account = allAccounts.get(i).get();
 				Component name = account.getName();
 				String amount = account.getCoinStorage().getString("0");
-				source.sendSuccess(Component.translatable("command.lightmanscurrency.lcbaltop.entry", i + 1, name, amount), false);
+				source.sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcbaltop.entry", index + 1, name, amount), false);
 			} catch(Exception ignored) { }
 		}
 		
@@ -100,8 +102,8 @@ public class CommandBalTop {
 				return 1;
 			if(o2 == null)
 				return -1;
-			long bal1 = a1.getCoinStorage().getRawValue();
-			long bal2 = a2.getCoinStorage().getRawValue();
+			long bal1 = a1.getCoinStorage().getValueNumber();
+			long bal2 = a2.getCoinStorage().getValueNumber();
 			
 			if(bal1 > bal2)
 				return -1;

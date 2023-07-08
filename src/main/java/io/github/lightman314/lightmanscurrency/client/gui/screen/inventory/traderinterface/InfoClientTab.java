@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
@@ -27,11 +29,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InfoTab;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 
@@ -42,10 +45,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	
 	DropdownWidget interactionDropdown;
 	
-	Button acceptChangesButton;
+	EasyButton acceptChangesButton;
 
-	private final ScreenArea WARNING_AREA = ScreenArea.of(ScreenPosition.ZERO, 16, 16);
-	private ScreenArea currentWarningArea;
+	private final ScreenArea WARNING_AREA = ScreenArea.of(45, 69, 16, 16);
 	
 	@Override
 	public @NotNull IconData getIcon() { return IconData.of(Items.PAPER); }
@@ -57,21 +59,20 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	public boolean blockInventoryClosing() { return false; }
 
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getReferencedTrade, TradeButton.NULL_PRESS));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 47);
+		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getReferencedTrade, TradeButton.NULL_PRESS));
+		this.tradeDisplay.setPosition(screenArea.pos.offset(6, 47));
 		this.tradeDisplay.displayOnly = true;
-		this.newTradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getTrueTrade, TradeButton.NULL_PRESS));
-		this.newTradeDisplay.move(this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 91);
+		this.newTradeDisplay = this.addChild(new TradeButton(this.menu::getTradeContext, this.screen.getMenu().getBE()::getTrueTrade, TradeButton.NULL_PRESS));
+		this.newTradeDisplay.setPosition(screenArea.pos.offset(6, 91));
 		this.newTradeDisplay.visible = false;
 		this.newTradeDisplay.displayOnly = true;
-
-		this.currentWarningArea = this.WARNING_AREA.atPosition(ScreenPosition.of(45, 69).offset(this.screen));
 		
-		this.interactionDropdown = this.screen.addRenderableTabWidget(IconAndButtonUtil.interactionTypeDropdown(this.screen.getGuiLeft() + 104, this.screen.getGuiTop() + 25, 97, this.font, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.screen::addRenderableTabWidget, this.menu.getBE().getBlacklistedInteractions()));
+		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
 		
-		this.acceptChangesButton = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 181, this.screen.getGuiTop() + 90, this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK, new IconAndButtonUtil.SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
+		this.acceptChangesButton = this.addChild(new IconButton(screenArea.pos.offset(181,90), this::AcceptTradeChanges, IconAndButtonUtil.ICON_CHECKMARK)
+				.withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.interface.info.acceptchanges"))));
 		this.acceptChangesButton.visible = false;
 		
 	}
@@ -120,13 +121,13 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		if(this.menu.getBE() == null)
 			return;
 
 		//Block name
-		this.font.draw(pose, this.menu.getBE().getBlockState().getBlock().getName(), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		gui.drawString(this.menu.getBE().getBlockState().getBlock().getName(), 8, 6, 0x404040);
 		//Trader name
 		TraderData trader = this.menu.getBE().getTrader();
 		Component infoText;
@@ -139,7 +140,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			else
 				infoText = EasyText.translatable("gui.lightmanscurrency.interface.info.trader.null");
 		}
-		this.font.draw(pose, TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 16, 0x404040);
+		gui.drawString(TextRenderUtil.fitString(infoText, this.screen.getXSize() - 16), 8, 16, 0x404040);
 		
 		this.tradeDisplay.visible = this.menu.getBE().getInteractionType().trades;
 		this.newTradeDisplay.visible = this.tradeDisplay.visible && this.changeInTrades();
@@ -149,18 +150,17 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		{
 			//If no defined trade, give "No Trade Selected" message.
 			if(this.menu.getBE().getReferencedTrade() == null)
-				this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.interface.info.trade.notdefined"), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 40, 0x404040);
+				gui.drawString(EasyText.translatable("gui.lightmanscurrency.interface.info.trade.notdefined"), 6, 40, 0x404040);
 		}
 		if(this.newTradeDisplay.visible)
 		{
 			//Render the down arrow
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			this.screen.blit(pose, this.screen.getGuiLeft() - 2 + (this.tradeDisplay.getWidth() / 2), this.screen.getGuiTop() + 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
+			gui.resetColor();
+			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
 			
 			//If no found trade, give "Trade No Longer Exists" message.
 			if(this.menu.getBE().getTrueTrade() == null)
-				this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), this.screen.getGuiLeft() + 6, this.screen.getGuiTop() + 109 - this.font.lineHeight, 0x404040);
+				gui.drawString(EasyText.translatable("gui.lightmanscurrency.interface.info.trade.missing").withStyle(ChatFormatting.RED), 6, 109 - gui.font.lineHeight, 0x404040);
 			
 		}
 		
@@ -168,9 +168,9 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 		if(account != null && this.menu.getBE().getInteractionType().trades)
 		{
 			Component accountName = TextRenderUtil.fitString(account.getName(), 160);
-			this.font.draw(pose, accountName, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(accountName) / 2), this.screen.getGuiTop() + 120, 0x404040);
-			Component balanceText = EasyText.translatable("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getString("0"));
-			this.font.draw(pose, balanceText, this.screen.getGuiLeft() + TraderInterfaceMenu.SLOT_OFFSET + 88 - (this.font.width(balanceText) / 2), this.screen.getGuiTop() + 130, 0x404040);
+			gui.drawString(accountName, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(accountName) / 2), 120, 0x404040);
+			Component balanceText = EasyText.translatable("gui.lightmanscurrency.bank.balance", account.getCoinStorage().getComponent("0"));
+			gui.drawString(balanceText, TraderInterfaceMenu.SLOT_OFFSET + 88 - (gui.font.width(balanceText) / 2), 130, 0x404040);
 		}
 
 		if(this.getWarningMessages().size() > 0)
@@ -178,7 +178,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 			//Render warning widget
 			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			this.screen.blit(pose, this.currentWarningArea.x, this.currentWarningArea.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
+			gui.resetColor();
+			gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
 		}
 		
 	}
@@ -194,36 +195,26 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab>{
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
 		if(this.menu.getBE() == null)
 			return;
-		
-		//Render the currently referenced trade's tooltips (no stock or other misc stuff, just the item tooltips & original name)
-		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
-		this.newTradeDisplay.renderTooltips(pose, mouseX, mouseY);
 
-		if(this.currentWarningArea.isMouseInArea(mouseX, mouseY))
+		if(WARNING_AREA.atPosition(WARNING_AREA.pos.offset((IEasyScreen)this.screen)).isMouseInArea(gui.mousePos))
 		{
 			List<Component> warnings = this.getWarningMessages();
 			if(warnings.size() > 0)
-				this.screen.renderComponentTooltip(pose, warnings, mouseX, mouseY);
+				gui.renderComponentTooltip(warnings);
 		}
 		
 	}
-
-	@Override
-	public void tick() { }
-
-	@Override
-	public void onClose() { }
 	
 	private void onInteractionSelect(int newTypeIndex) {
 		InteractionType newType = InteractionType.fromIndex(newTypeIndex);
 		this.commonTab.changeInteractionType(newType);
 	}
 	
-	private void AcceptTradeChanges(Button button) {
+	private void AcceptTradeChanges(EasyButton button) {
 		this.commonTab.acceptTradeChanges();
 	}
 

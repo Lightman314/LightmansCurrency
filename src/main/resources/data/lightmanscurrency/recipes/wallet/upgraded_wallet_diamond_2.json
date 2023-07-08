@@ -6,10 +6,10 @@
       "item": "lightmanscurrency:wallet_gold"
     },
     {
-      "item": "lightmanscurrency:coin_emerald"
+      "tag": "forge:gems/emerald"
     },
     {
-      "item": "lightmanscurrency:coin_diamond"
+      "tag": "forge:gems/diamond"
     }
   ],
   "result": {

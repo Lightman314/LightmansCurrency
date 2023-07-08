@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,8 +30,8 @@ public class ATMData {
 	
 	public static final String ATM_FILE_LOCATION = "config/lightmanscurrency/ATMData.json";
 	
-	private final List<ATMConversionButtonData> conversionButtons;
-	public final List<ATMConversionButtonData> getConversionButtons() { return ImmutableList.copyOf(this.conversionButtons); }
+	private final List<ATMExchangeButtonData> conversionButtons;
+	public final List<ATMExchangeButtonData> getConversionButtons() { return ImmutableList.copyOf(this.conversionButtons); }
 	
 	private ATMData(JsonObject jsonData) throws Exception {
 		
@@ -46,7 +47,7 @@ public class ATMData {
 				conversionButtonDataList = jsonData.getAsJsonArray("ExchangeButtons");
 			for(int i = 0; i < conversionButtonDataList.size(); ++i)
 			{
-				try { this.conversionButtons.add(ATMConversionButtonData.parse(conversionButtonDataList.get(i).getAsJsonObject()));
+				try { this.conversionButtons.add(ATMExchangeButtonData.parse(conversionButtonDataList.get(i).getAsJsonObject()));
 				} catch(Throwable e) { LightmansCurrency.LogError("Error parsing Exchange Button #" + String.valueOf(i + 1) + ".", e); }
 			}
 		}
@@ -57,7 +58,7 @@ public class ATMData {
 		
 	}
 	
-	private ATMData(List<ATMConversionButtonData> conversionButtons) {
+	private ATMData(List<ATMExchangeButtonData> conversionButtons) {
 		this.conversionButtons = Lists.newArrayList(conversionButtons);
 	}
 	
@@ -106,7 +107,7 @@ public class ATMData {
 	}
 	
 	private static ATMData generateDefault() {
-		return new ATMData(ATMConversionButtonData.generateDefault());
+		return new ATMData(ATMExchangeButtonData.generateDefault());
 	}
 	
 	public static void reloadATMData() {
@@ -125,7 +126,12 @@ public class ATMData {
 		}
 		LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), loadedData);
 	}
-	
+
+	@SubscribeEvent
+	public static void serverStarted(ServerStartedEvent event) {
+		get();
+	}
+
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		//Send the ATM data to the player

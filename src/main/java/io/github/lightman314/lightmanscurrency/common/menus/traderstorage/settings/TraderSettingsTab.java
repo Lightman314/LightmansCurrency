@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.settings;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -22,7 +20,7 @@ public class TraderSettingsTab extends TraderStorageTab {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TraderSettingsClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new TraderSettingsClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_SETTINGS); }

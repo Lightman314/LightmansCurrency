@@ -4,6 +4,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.function.Supplier;
+
 public class EasyText {
 
     public static MutableComponent empty() { return Component.empty(); }

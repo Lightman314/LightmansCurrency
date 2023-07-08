@@ -31,7 +31,7 @@ public class TraderRecoveryMenu extends AbstractContainerMenu {
 	
 	private final Player player;
 	
-	public boolean isClient() { return this.player.level.isClientSide; }
+	public boolean isClient() { return this.player.level().isClientSide; }
 	
 	public List<EjectionData> getValidEjectionData() {
 		return EjectionSaveData.GetValidEjectionData(this.isClient(), this.player);

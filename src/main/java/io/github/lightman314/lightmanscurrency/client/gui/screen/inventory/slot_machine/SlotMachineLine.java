@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 import javax.annotation.Nonnull;
@@ -23,16 +23,16 @@ public final class SlotMachineLine {
     SlotMachineRenderBlock centerBlock = SlotMachineRenderBlock.empty();
     SlotMachineRenderBlock nextBlock = SlotMachineRenderBlock.empty();
 
-    public void render(PoseStack pose, float partialTick, int x, int y)
+    public void render(@Nonnull EasyGuiGraphics gui, int x, int y)
     {
         //Limit partial tick to be <= 1 so that the items don't clip beyond the overlay
-        partialTick = MathUtil.clamp(partialTick, 0f, 1f);
+        float partialTick = MathUtil.clamp(gui.partialTicks, 0f, 1f);
         if(this.lockDelay != 0)
             y += (int)((float)BLOCK_SIZE * partialTick);
-        this.previousBlock2.render(pose, this.parent.getFont(), ++x, ++y);
-        this.previousBlock1.render(pose, this.parent.getFont(), x, y + BLOCK_SIZE);
-        this.centerBlock.render(pose, this.parent.getFont(), x, y + (2 * BLOCK_SIZE));
-        this.nextBlock.render(pose, this.parent.getFont(), x, y + (3 * BLOCK_SIZE));
+        this.previousBlock2.render(gui, ++x, ++y);
+        this.previousBlock1.render(gui, x, y + BLOCK_SIZE);
+        this.centerBlock.render(gui, x, y + (2 * BLOCK_SIZE));
+        this.nextBlock.render(gui, x, y + (3 * BLOCK_SIZE));
     }
 
     public void initialize() { this.initialize(SlotMachineRenderBlock.empty()); }

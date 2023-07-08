@@ -10,8 +10,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
@@ -24,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCos
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -58,7 +55,7 @@ public class FreeSample extends PriceTweakingTradeRule {
 	@Override
 	public void tradeCost(TradeCostEvent event) {
 		if(this.giveDiscount(event))
-			event.applyCostMultiplier(0d);
+			event.makeFree();
 	}
 
 	@Override
@@ -156,9 +153,6 @@ public class FreeSample extends PriceTweakingTradeRule {
 		if(updateInfo.contains("ClearData"))
 			this.memory.clear();
 	}
-	
-	@Override
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_FREE_SAMPLE; }
 
 	@Nonnull
 	@Override

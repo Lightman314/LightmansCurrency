@@ -32,7 +32,7 @@ public class CPacketSetVisible {
 		supplier.get().enqueueWork(() ->
 		{
 			ServerPlayer player = supplier.get().getSender();
-			Entity entity = player.level.getEntity(message.entityID);
+			Entity entity = player.level().getEntity(message.entityID);
 			if(entity != null)
 			{
 				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);

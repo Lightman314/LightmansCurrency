@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.*;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.Config;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.RegistryObject;
@@ -73,6 +75,8 @@ public class ModItems {
 		COIN_CHEST_MAGNET_UPGRADE_4 = ModRegistries.ITEMS.register("coin_chest_magnet_upgrade_4", () -> new MagnetUpgradeItem(Config.SERVER.coinChestMagnetRange4, new Item.Properties()));
 		COIN_CHEST_SECURITY_UPGRADE = ModRegistries.ITEMS.register("coin_chest_security_upgrade", () -> new UpgradeItem.Simple(UpgradeType.COIN_CHEST_SECURITY, new Item.Properties()));
 
+		//Smithing Templates (1.20 only)
+		UPGRADE_SMITHING_TEMPLATE = ModRegistries.ITEMS.register("upgrade_smithing_template", () -> new LCUpgradeSmithingTemplateItem(EasyText.translatable("item.lightmanscurrency.upgrade_smithing_template.tooltip").withStyle(ChatFormatting.GRAY), new Item.Properties()));
 
 	}
 	
@@ -123,6 +127,6 @@ public class ModItems {
 	public static final RegistryObject<Item> COIN_CHEST_MAGNET_UPGRADE_4;
 	public static final RegistryObject<Item> COIN_CHEST_SECURITY_UPGRADE;
 
-
+	public static final RegistryObject<Item> UPGRADE_SMITHING_TEMPLATE;
 
 }

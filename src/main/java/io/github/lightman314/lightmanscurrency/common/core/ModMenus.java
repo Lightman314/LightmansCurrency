@@ -24,7 +24,7 @@ public class ModMenus {
 		ATM = ModRegistries.MENUS.register("atm", () -> CreateType((IContainerFactory<ATMMenu>)(id, inventory, data) -> new ATMMenu(id, inventory)));
 		
 		MINT = ModRegistries.MENUS.register("coinmint", () -> CreateType((IContainerFactory<MintMenu>)(id, playerInventory, data)->{
-			CoinMintBlockEntity tileEntity = (CoinMintBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			CoinMintBlockEntity tileEntity = (CoinMintBlockEntity)playerInventory.player.level().getBlockEntity(data.readBlockPos());
 			return new MintMenu(id, playerInventory, tileEntity);
 		}));
 		
@@ -43,12 +43,12 @@ public class ModMenus {
 		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> CreateType((IContainerFactory<WalletBankMenu>)(id, playerInventory, data) -> new WalletBankMenu(id, playerInventory, data.readInt())));
 		
 		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketMachineMenu>)(id, playerInventory, data)->{
-			TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			TicketMachineBlockEntity tileEntity = (TicketMachineBlockEntity)playerInventory.player.level().getBlockEntity(data.readBlockPos());
 			return new TicketMachineMenu(id, playerInventory, tileEntity);
 		}));
 		
 		TRADER_INTERFACE = ModRegistries.MENUS.register("trader_interface", () -> CreateType((IContainerFactory<TraderInterfaceMenu>)(id, playerInventory, data) ->{
-			TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)playerInventory.player.level().getBlockEntity(data.readBlockPos());
 			return new TraderInterfaceMenu(id, playerInventory, blockEntity);
 		}));
 		
@@ -57,7 +57,7 @@ public class ModMenus {
 		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> CreateType((IContainerFactory<PlayerTradeMenu>)(id, playerInventory, data) -> new PlayerTradeMenu(id, playerInventory, data.readInt(), ClientPlayerTrade.decode(data))));
 
 		COIN_CHEST = ModRegistries.MENUS.register("coin_chest", () -> CreateType((IContainerFactory<CoinChestMenu>)(id,playerInventory,data) -> {
-			CoinChestBlockEntity blockEntity = (CoinChestBlockEntity)playerInventory.player.level.getBlockEntity(data.readBlockPos());
+			CoinChestBlockEntity blockEntity = (CoinChestBlockEntity)playerInventory.player.level().getBlockEntity(data.readBlockPos());
 			return new CoinChestMenu(id, playerInventory, blockEntity);
 		}));
 

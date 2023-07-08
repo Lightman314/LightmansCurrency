@@ -5,46 +5,40 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-public class TradingTerminalScreen extends Screen implements IScrollable{
+public class TradingTerminalScreen extends EasyScreen implements IScrollable {
 	
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/trader_selection.png");
 	public static final Comparator<TraderData> TERMINAL_SORTER = new TraderSorter(true, true, true);
 	public static final Comparator<TraderData> NAME_ONLY_SORTER = new TraderSorter(false, false, false);
-
-	private final int xSize = 176;
-	private final int ySize = 187;
 	
 	private EditBox searchField;
 	private static int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
 	
-	List<UniversalTraderButton> traderButtons;
+	List<NetworkTraderButton> traderButtons;
 	
 	private List<TraderData> traderList(){
 		List<TraderData> traderList = TraderSaveData.GetAllTerminalTraders(true);
@@ -55,28 +49,20 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	}
 	private List<TraderData> filteredTraderList = new ArrayList<>();
 	
-	public TradingTerminalScreen()
-	{
-		super(Component.translatable("block.lightmanscurrency.terminal"));
-	}
+	public TradingTerminalScreen() { super(EasyText.translatable("block.lightmanscurrency.terminal")); this.resize(176,187); }
 	
 	@Override
-	protected void init()
+	protected void initialize(ScreenArea screenArea)
 	{
 		
-		super.init();
-		
-		int guiLeft = (this.width - this.xSize) / 2;
-		int guiTop = (this.height - this.ySize) / 2;
-		
-		this.searchField = this.addRenderableWidget(new EditBox(this.font, guiLeft + 28, guiTop + 6, 101, 9, Component.translatable("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		this.scrollBar = this.addRenderableWidget(new ScrollBarWidget(guiLeft + 16 + UniversalTraderButton.WIDTH, guiTop + 17, UniversalTraderButton.HEIGHT * 5 + 2, this));
+		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(16 + NetworkTraderButton.WIDTH, 17), NetworkTraderButton.HEIGHT * 5 + 2, this));
 		
-		this.initTraderButtons(guiLeft, guiTop);
+		this.initTraderButtons(screenArea);
 		
 		this.tick();
 		
@@ -89,43 +75,22 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	@Override
 	public boolean isPauseScreen() { return false; }
 	
-	private void initTraderButtons(int guiLeft, int guiTop)
+	private void initTraderButtons(ScreenArea screenArea)
 	{
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 5; y++)
 		{
-			UniversalTraderButton newButton = this.addRenderableWidget(new UniversalTraderButton(guiLeft + 15, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::OpenTrader, this.font));
+			NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(screenArea.pos.offset(15, 18 + (y * NetworkTraderButton.HEIGHT)), this::OpenTrader));
 			this.traderButtons.add(newButton);
 		}
 	}
 	
 	@Override
-	public void tick()
+	public void renderBG(@Nonnull EasyGuiGraphics gui)
 	{
-		super.tick();
-		this.searchField.tick();
-	}
-	
-	@Override
-	public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
-	{
-		if(this.minecraft == null)
-			this.minecraft = Minecraft.getInstance();
-		
-		this.renderBackground(poseStack);
-		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		
-		int startX = (this.width - this.xSize) / 2;
-		int startY = (this.height - this.ySize) / 2;
+
 		//Render the background
-		this.blit(poseStack, startX, startY, 0, 0, this.xSize, this.ySize);
-		
-		this.scrollBar.beforeWidgetRender(mouseY);
-		
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+		gui.renderNormalBackground(GUI_TEXTURE, this);
 		
 	}
 	
@@ -160,33 +125,13 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
-		return super.mouseClicked(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
-		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
-	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(scroll < this.getMaxScroll())
-				this.setScroll(scroll + 1);
-		}
-		else if(delta > 0)
-		{
-			if(scroll > 0)
-				this.setScroll(scroll - 1);
-		}
+		if(this.handleScrollWheel(delta))
+			return true;
 		return super.mouseScrolled(mouseX, mouseY, delta);
 	}
 	
-	private void OpenTrader(Button button)
+	private void OpenTrader(EasyButton button)
 	{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
@@ -195,13 +140,11 @@ public class TradingTerminalScreen extends Screen implements IScrollable{
 		}
 	}
 	
-	private int getTraderIndex(Button button)
+	private int getTraderIndex(EasyButton button)
 	{
-		if(!traderButtons.contains(button))
-			return -1;
-		int index = traderButtons.indexOf(button);
-		index += scroll;
-		return index;
+		if(button instanceof NetworkTraderButton && this.traderButtons.contains(button))
+			return traderButtons.indexOf(button) + scroll;
+		return -1;
 	}
 	
 	private void updateTraderList()

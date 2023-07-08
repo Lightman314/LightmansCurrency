@@ -30,19 +30,13 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	public static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
 	private final BiFunction<Direction,Boolean,VoxelShape> shape;
 	
-	protected TallRotatableBlock(Properties properties)
-	{
-		this(properties, LazyShapes.TALL_BOX_SHAPE_T);
-	}
+	protected TallRotatableBlock(Properties properties) { this(properties, LazyShapes.TALL_BOX_SHAPE_T); }
 	
-	protected TallRotatableBlock(Properties properties, VoxelShape shape)
-	{
-		this(properties, LazyShapes.lazyTallSingleShape(shape));
-	}
+	protected TallRotatableBlock(Properties properties, VoxelShape shape) { this(properties, LazyShapes.lazyTallSingleShape(shape)); }
 	
 	protected TallRotatableBlock(Properties properties, BiFunction<Direction,Boolean,VoxelShape> shape)
 	{
-		super(properties);
+		super(properties.pushReaction(PushReaction.BLOCK));
 		this.shape = shape;
 		this.registerDefaultState(
 			this.defaultBlockState()
@@ -51,8 +45,9 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 		);
 	}
 	
+	@Nonnull
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state));
 	}
@@ -71,13 +66,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 	}
 	
 	@Override
-	public PushReaction getPistonPushReaction(BlockState state)
-	{
-		return PushReaction.BLOCK;
-	}
-	
-	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(level.getBlockState(pos.above()).getBlock() == Blocks.AIR)
 			level.setBlockAndUpdate(pos.above(), this.defaultBlockState().setValue(ISBOTTOM, false).setValue(FACING, state.getValue(FACING)));
@@ -95,9 +84,10 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 		
 	}
 	
+	@Nonnull
 	@SuppressWarnings("deprecation")
 	@Override
-	public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+	public BlockState updateShape(@Nonnull BlockState stateIn, @Nonnull Direction facing, @Nonnull BlockState facingState, @Nonnull LevelAccessor worldIn, @Nonnull BlockPos currentPos, @Nonnull BlockPos facingPos)
 	{
 		if((facing == Direction.UP && stateIn.getValue(ISBOTTOM)) || (facing == Direction.DOWN && !stateIn.getValue(ISBOTTOM)))
 		{

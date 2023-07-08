@@ -10,8 +10,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PriceFluctuationTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -63,19 +61,18 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 		return factor;
 	}
 	
-	private double randomizePriceMultiplier(long traderSeedFactor)
+	private int randomizePriceMultiplier(long traderSeedFactor)
 	{
 		//Have the seed be constant during the given duration
 		long seed = TimeUtil.getCurrentTime() / this.duration;
 		int fluct = new Random(seed * traderSeedFactor).nextInt(-this.fluctuation, this.fluctuation + 1);
 		debugFlux(seed * traderSeedFactor, this.fluctuation, fluct);
-		
-		return 1d + ((double)fluct/100d);
+		return fluct;
 	}
 	
 	@Override
 	public void tradeCost(TradeCostEvent event) {
-		event.applyCostMultiplier(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
+		event.giveDiscount(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
 	}
 	
 	@Override
@@ -118,9 +115,6 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 	public CompoundTag savePersistentData() { return null; }
 	@Override
 	public void loadPersistentData(CompoundTag data) {}
-	
-	@Override
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_PRICE_FLUCTUATION; }
 	
 	@Override
 	protected void handleUpdateMessage(CompoundTag updateInfo) {

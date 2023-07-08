@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -29,7 +27,7 @@ public class SlotMachineStorageTab extends TraderStorageTab{
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new SlotMachineStorageClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new SlotMachineStorageClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }

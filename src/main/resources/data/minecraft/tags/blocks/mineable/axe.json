@@ -8,6 +8,8 @@
     "lightmanscurrency:shelf_acacia",
     "lightmanscurrency:shelf_dark_oak",
     "lightmanscurrency:shelf_mangrove",
+    "lightmanscurrency:shelf_cherry",
+    "lightmanscurrency:shelf_bamboo",
     "lightmanscurrency:shelf_crimson",
     "lightmanscurrency:shelf_warped",
     "lightmanscurrency:card_display_oak",
@@ -17,6 +19,8 @@
     "lightmanscurrency:card_display_acacia",
     "lightmanscurrency:card_display_dark_oak",
     "lightmanscurrency:card_display_mangrove",
+    "lightmanscurrency:card_display_cherry",
+    "lightmanscurrency:card_display_bamboo",
     "lightmanscurrency:card_display_crimson",
     "lightmanscurrency:card_display_warped",
     "lightmanscurrency:bookshelf_trader_oak",
@@ -26,8 +30,11 @@
     "lightmanscurrency:bookshelf_trader_acacia",
     "lightmanscurrency:bookshelf_trader_dark_oak",
     "lightmanscurrency:bookshelf_trader_mangrove",
+    "lightmanscurrency:bookshelf_trader_cherry",
+    "lightmanscurrency:bookshelf_trader_bamboo",
     "lightmanscurrency:bookshelf_trader_crimson",
     "lightmanscurrency:bookshelf_trader_warped",
+	"#lightmanscurrency:auction_stand",
     "lightmanscurrency:coin_chest"
   ]
 }

@@ -5,21 +5,23 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public class TeamSelectWidget extends AbstractWidget {
+import javax.annotation.Nonnull;
+
+public class TeamSelectWidget extends EasyWidgetWithChildren {
 
 	private final int rows;
 	private final Size size;
@@ -28,37 +30,42 @@ public class TeamSelectWidget extends AbstractWidget {
 	private final Consumer<Integer> onPress;
 	private final List<TeamButton> teamButtons = new ArrayList<>();
 	
+	public TeamSelectWidget(ScreenPosition pos, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, teamSource, selectedTeam, onPress); }
 	public TeamSelectWidget(int x, int y, int rows, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
 		this(x, y, rows, Size.WIDE, teamSource, selectedTeam, onPress);
 	}
 	
+	public TeamSelectWidget(ScreenPosition pos, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) { this(pos.x, pos.y, rows, size, teamSource, selectedTeam, onPress); }
 	public TeamSelectWidget(int x, int y, int rows, Size size, Supplier<List<Team>> teamSource, Supplier<Team> selectedTeam, Consumer<Integer> onPress) {
-		super(x, y, size.width, TeamButton.HEIGHT * rows, Component.empty());
+		super(x, y, size.width, TeamButton.HEIGHT * rows);
 		this.rows = rows;
 		this.size = size;
 		this.teamSource = teamSource;
 		this.selectedTeam = selectedTeam;
 		this.onPress = onPress;
 	}
-	
-	public void init(Consumer<Button> addButton, Font font)
-	{
+
+	@Override
+	public TeamSelectWidget withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
+	@Override
+	public void addChildren() {
+		this.teamButtons.clear();
 		for(int i = 0; i < this.rows; ++i)
 		{
 			int index = i;
-			TeamButton button = new TeamButton(this.getX(), this.getY() + i * TeamButton.HEIGHT, this.size, this::onTeamSelect, font, () -> this.getTeam(index), () -> this.isSelected(index));
+			TeamButton button = this.addChild(new TeamButton(this.getPosition().offset(0, i * TeamButton.HEIGHT), this.size, this::onTeamSelect, () -> this.getTeam(index), () -> this.isSelected(index)));
 			this.teamButtons.add(button);
-			addButton.accept(button);
 		}
 	}
 	
 	@Override
-	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks)
+	public void renderWidget(@Nonnull EasyGuiGraphics gui)
 	{
 		this.teamButtons.forEach(b -> b.visible = this.visible);
 		if(!this.visible)
 			return;
-		fill(pose, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF000000);
+		gui.fill(this.getArea().atPosition(ScreenPosition.ZERO), 0xFF000000);
 	}
 
 	private int scroll = 0;
@@ -120,7 +127,7 @@ public class TeamSelectWidget extends AbstractWidget {
 		return true;
 	}
 
-	private void onTeamSelect(Button button)
+	private void onTeamSelect(EasyButton button)
 	{
 		int index = -1;
 		if(button instanceof TeamButton)

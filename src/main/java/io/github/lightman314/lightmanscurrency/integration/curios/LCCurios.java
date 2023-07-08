@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.integration.curios;
 import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -147,7 +145,7 @@ public class LCCurios {
 				@Override
 				public DropRule getDropRule(SlotContext context, DamageSource source, int lootingLevel, boolean recentlyHit)
 				{
-					GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level, ModGameRules.KEEP_WALLET);
+					GameRules.BooleanValue keepWallet = ModGameRules.getCustomValue(context.entity().level(), ModGameRules.KEEP_WALLET);
 					if((keepWallet != null && keepWallet.get()))
 						return DropRule.ALWAYS_KEEP;
 					else

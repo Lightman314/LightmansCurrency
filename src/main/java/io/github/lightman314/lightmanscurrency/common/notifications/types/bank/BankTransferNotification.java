@@ -16,7 +16,7 @@ public class BankTransferNotification extends Notification {
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "bank_transfer");
 	
 	PlayerReference player;
-	CoinValue amount = new CoinValue();
+	CoinValue amount = CoinValue.EMPTY;
 	MutableComponent accountName;
 	MutableComponent otherAccount;
 	boolean wasReceived;
@@ -44,7 +44,7 @@ public class BankTransferNotification extends Notification {
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		compound.put("Player", this.player.save());
-		this.amount.save(compound, "Amount");
+		compound.put("Amount", this.amount.save());
 		compound.putString("Account", Component.Serializer.toJson(this.accountName));
 		compound.putString("Other", Component.Serializer.toJson(this.otherAccount));
 		compound.putBoolean("Received", this.wasReceived);
@@ -53,7 +53,7 @@ public class BankTransferNotification extends Notification {
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
-		this.amount.load(compound, "Amount");
+		this.amount = CoinValue.safeLoad(compound, "Amount");
 		this.accountName = Component.Serializer.fromJson(compound.getString("Account"));
 		this.otherAccount = Component.Serializer.fromJson(compound.getString("Other"));
 		this.wasReceived = compound.getBoolean("Received");
@@ -61,9 +61,8 @@ public class BankTransferNotification extends Notification {
 
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof BankTransferNotification)
+		if(other instanceof BankTransferNotification n)
 		{
-			BankTransferNotification n = (BankTransferNotification)other;
 			return n.player.is(this.player) && n.amount.equals(this.amount) && n.accountName.equals(this.accountName) && n.otherAccount.equals(this.otherAccount) && n.wasReceived == this.wasReceived;
 		}
 		return false;

@@ -8,14 +8,12 @@ import io.github.lightman314.lightmanscurrency.common.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
 import java.util.Collection;
@@ -96,7 +94,7 @@ public class EventHandler {
 			event.getItem().setItem(ItemStack.EMPTY);
 			if(!coinStack.isEmpty())
 				ItemHandlerHelper.giveItemToPlayer(player, coinStack);
-			if(!player.level.isClientSide)
+			if(!player.level().isClientSide)
 				LightmansCurrencyPacketHandler.instance.send(LightmansCurrencyPacketHandler.getTarget(player), MessagePlayPickupSound.INSTANCE);
 			event.setCanceled(true);
 			
@@ -128,7 +126,7 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void blockBreakSpeed(PlayerEvent.BreakSpeed event)
 	{
-		Level level = event.getEntity().level;
+		Level level = event.getEntity().level();
 		BlockState state = event.getState();
 
 		if(event.getState().getBlock() instanceof IOwnableBlock block)
@@ -152,7 +150,7 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerLogin(PlayerLoggedInEvent event)
 	{
-		if(event.getEntity().level.isClientSide)
+		if(event.getEntity().level().isClientSide)
 			return;
 		sendWalletUpdatePacket(event.getEntity(), LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
 	}
@@ -171,7 +169,7 @@ public class EventHandler {
 	public static void playerClone(PlayerEvent.Clone event)
 	{
 		Player player = event.getEntity();
-		if(player.level.isClientSide) //Do nothing client-side
+		if(player.level().isClientSide) //Do nothing client-side
 			return;
 		
 		Player oldPlayer = event.getOriginal();
@@ -192,13 +190,13 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
 		Player player = event.getEntity();
-		if(player.level.isClientSide)
+		if(player.level().isClientSide)
 			return;
 		sendWalletUpdatePacket(player, LightmansCurrencyPacketHandler.getTarget(player));
 	}
 	
 	private static void sendWalletUpdatePacket(Entity entity, PacketTarget target) {
-		if(entity.level.isClientSide)
+		if(entity.level().isClientSide)
 			return;
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
 		if(walletHandler != null)
@@ -210,7 +208,7 @@ public class EventHandler {
 	public static void playerDrops(LivingDropsEvent event)
 	{
 		LivingEntity livingEntity = event.getEntity();
-		if(livingEntity.level.isClientSide) //Do nothing client side
+		if(livingEntity.level().isClientSide) //Do nothing client side
 			return;
 		
 		if(!livingEntity.isSpectator())
@@ -228,13 +226,12 @@ public class EventHandler {
 				if(livingEntity instanceof Player) //Only worry about gamerules on players. Otherwise, it always drops the wallet.
 				{
 
-					boolean keepWallet = ModGameRules.safeGetCustomBool(livingEntity.level, ModGameRules.KEEP_WALLET, false);
+					boolean keepWallet = ModGameRules.safeGetCustomBool(livingEntity.level(), ModGameRules.KEEP_WALLET, false);
 					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
-					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
+					if(!LightmansCurrency.isCuriosValid(livingEntity) && livingEntity.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
 						keepWallet = true;
 
-					GameRules.IntegerValue coinDropPercentVal = ModGameRules.getCustomValue(livingEntity.level, ModGameRules.COIN_DROP_PERCENT);
-					int coinDropPercent = coinDropPercentVal == null ? 0 : coinDropPercentVal.get();
+					int coinDropPercent = ModGameRules.safeGetCustomInt(livingEntity.level(), ModGameRules.COIN_DROP_PERCENT, 0);
 
 					if(keepWallet && coinDropPercent <= 0)
 						return;
@@ -265,7 +262,6 @@ public class EventHandler {
 						if(MinecraftForge.EVENT_BUS.post(e))
 							return;
 						walletDrops = e.getDrops();
-
 					}
 
 				}
@@ -283,7 +279,7 @@ public class EventHandler {
 	
 	private static ItemEntity getDrop(LivingEntity entity, ItemStack stack)
 	{
-        return new ItemEntity(entity.level, entity.position().x, entity.position().y, entity.position().z, stack);
+        return new ItemEntity(entity.level(), entity.position().x, entity.position().y, entity.position().z, stack);
 	}
 	
 	private static List<ItemEntity> getWalletDrops(LivingEntity entity, ItemStack walletStack, int coinDropPercent)
@@ -291,7 +287,7 @@ public class EventHandler {
 		
 		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
 		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
-		long walletContents = new CoinValue(walletList).getRawValue();
+		long walletContents = MoneyUtil.getValue(walletList);
 		
 		long droppedAmount = (long)((double)walletContents * coinPercentage);
 		if(droppedAmount < 1)
@@ -340,7 +336,7 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void entityTick(LivingEvent.LivingTickEvent event) {
 		LivingEntity livingEntity = event.getEntity();
-		if(livingEntity.level.isClientSide) //Do nothing client side
+		if(livingEntity.level().isClientSide) //Do nothing client side
 			return;
 
 		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);

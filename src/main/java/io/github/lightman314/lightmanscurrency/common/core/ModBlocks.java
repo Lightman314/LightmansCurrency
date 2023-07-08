@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -23,7 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModBlocks {
@@ -51,168 +52,190 @@ public class ModBlocks {
 
 	
 	static {
+
 		//Coin Piles
 		COINPILE_COPPER = register("coinpile_copper", getCoinGenerator(false), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_ORANGE)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_COPPER
 				)
 		);
 		COINPILE_IRON = register("coinpile_iron", getCoinGenerator(false), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_IRON
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_IRON
 				)
 		);
 		COINPILE_GOLD = register("coinpile_gold", getCoinGenerator(false), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD
+				Block.Properties.of()
+					.mapColor(MapColor.GOLD)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_GOLD
 				)
 		);
 		COINPILE_EMERALD = register("coinpile_emerald", getCoinGenerator(false), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD
+				Block.Properties.of()
+					.mapColor(MapColor.EMERALD)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_EMERALD
 				)
 		);
 		COINPILE_DIAMOND = register("coinpile_diamond", getCoinGenerator(false), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND
+				Block.Properties.of()
+					.mapColor(MapColor.DIAMOND)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_DIAMOND
 				)
 		);
 		COINPILE_NETHERITE = register("coinpile_netherite", getCoinGenerator(true), () -> new CoinpileBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_BLACK)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_NETHERITE
 				)
 		);
-		
+
 		//Coin Blocks
 		COINBLOCK_COPPER = register("coinblock_copper", getCoinGenerator(false), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_COPPER
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_ORANGE)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_COPPER
 				)
 		);
+
 		COINBLOCK_IRON = register("coinblock_iron", getCoinGenerator(false), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_IRON
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_IRON
 				)
 		);
 		COINBLOCK_GOLD = register("coinblock_gold", getCoinGenerator(false), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_GOLD
+				Block.Properties.of()
+					.mapColor(MapColor.GOLD)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_GOLD
 				)
 		);
 		COINBLOCK_EMERALD = register("coinblock_emerald", getCoinGenerator(false), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_EMERALD
+				Block.Properties.of()
+					.mapColor(MapColor.EMERALD)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_EMERALD
 				)
 		);
 		COINBLOCK_DIAMOND = register("coinblock_diamond", getCoinGenerator(false), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_DIAMOND
+				Block.Properties.of()
+					.mapColor(MapColor.DIAMOND)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_DIAMOND
 				)
 		);
 		COINBLOCK_NETHERITE = register("coinblock_netherite", getCoinGenerator(true), () -> new CoinBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL),
-				ModItems.COIN_NETHERITE
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_BLACK)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL),
+					ModItems.COIN_NETHERITE
 				)
 		);
 		
 		//Machines
 		MACHINE_ATM = register("atm", () -> new ATMBlock(
-				Block.Properties.of(Material.METAL)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_GRAY)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.METAL)
 				)
 		);
 		MACHINE_MINT = register("coinmint", () -> new CoinMintBlock(
-			Block.Properties.of(Material.METAL)
-				.strength(2.0f, Float.POSITIVE_INFINITY)
-				.sound(SoundType.METAL)
-			)
+			Block.Properties.of()
+					.mapColor(MapColor.COLOR_LIGHT_BLUE)
+					.strength(2.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.METAL)
+				)
 		);
-		CASH_REGISTER = register("cash_register", block -> new CashRegisterItem(block, new Item.Properties()),
-				() -> new CashRegisterBlock(
-				Block.Properties.of(Material.METAL)
+		CASH_REGISTER = register("cash_register", block -> new CashRegisterItem(block, new Item.Properties()), () -> new CashRegisterBlock(
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_GRAY)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL),
 					Block.box(1d,0d,1d,15d,10d,15d)
 				)
 		);
-		
+
 		//Item Traders
 		//Display Case
 		DISPLAY_CASE = register("display_case", () -> new DisplayCaseBlock(
-			Block.Properties.of(Material.GLASS)
+			Block.Properties.of()
 				.strength(2.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
 			)
 		);
 		
 		//Vending Machine
-		VENDING_MACHINE = registerColoredOldNames("vending_machine", () -> new VendingMachineBlock(
-			Block.Properties.of(Material.METAL)
+		VENDING_MACHINE = registerColored("vending_machine", c -> new VendingMachineBlock(
+			Block.Properties.of()
+				.mapColor(c.mapColor)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-			)
+			), Color.WHITE
 		);
 		
 		//Large Vending Machine
-		VENDING_MACHINE_LARGE = registerColoredOldNames("vending_machine_large", () -> new VendingMachineLargeBlock(
-			Block.Properties.of(Material.METAL)
+		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", c -> new VendingMachineLargeBlock(
+			Block.Properties.of()
+				.mapColor(c.mapColor)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
-			)
+			), Color.WHITE
 		);
 		
 		//Shelves
-		SHELF = registerWooden("shelf", () -> new ShelfBlock(
-				Block.Properties.of(Material.WOOD)
+		SHELF = registerWooden("shelf", w -> new ShelfBlock(
+				Block.Properties.of()
+					.mapColor(w.mapColor)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
 				)
 		);
 		
 		//Card Display
-		CARD_DISPLAY = registerWooden("card_display", () -> new CardDisplayBlock(
-				Block.Properties.of(Material.WOOD)
+		CARD_DISPLAY = registerWooden("card_display", w -> new CardDisplayBlock(
+				Block.Properties.of()
+					.mapColor(w.mapColor)
 					.strength(2.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.WOOD)
 				)
 		);
 		
 		//Freezer
-		FREEZER = registerFreezer("freezer", (c) -> new FreezerBlock(
-				Block.Properties.of(Material.METAL)
+		FREEZER = registerFreezer("freezer", c -> new FreezerBlock(
+				Block.Properties.of()
+					.mapColor(c.mapColor)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
-				FreezerBlock.GenerateDoorModel(c)
+					FreezerBlock.GenerateDoorModel(c)
 				)
 		);
 		
 		//Armor Display
 		ARMOR_DISPLAY = register("armor_display", () -> new ArmorDisplayBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
@@ -220,15 +243,17 @@ public class ModBlocks {
 		
 		//Ticket Kiosk
 		TICKET_KIOSK = register("ticket_kiosk", () -> new TicketKioskBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
 		);
 
 		//Bookshelf Traders
-		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", () -> new BookTraderBlock(
-				Block.Properties.of(Material.WOOD)
+		BOOKSHELF_TRADER = registerWooden("bookshelf_trader", w -> new BookTraderBlock(
+				Block.Properties.of()
+					.mapColor(w.mapColor)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.WOOD)
 				)
@@ -236,7 +261,8 @@ public class ModBlocks {
 
 		//Slot Machine Trader
 		SLOT_MACHINE = register("slot_machine", () -> new SlotMachineBlock(
-				BlockBehaviour.Properties.of(Material.METAL)
+				BlockBehaviour.Properties.of()
+						.mapColor(MapColor.COLOR_YELLOW)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 				)
@@ -245,28 +271,32 @@ public class ModBlocks {
 		
 		//Network Traders
 		ITEM_NETWORK_TRADER_1 = register("item_trader_server_sml", () -> new NetworkItemTraderBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_SMALL
 				)
 		);
 		ITEM_NETWORK_TRADER_2 = register("item_trader_server_med", () -> new NetworkItemTraderBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_MEDIUM
 				)
 		);
 		ITEM_NETWORK_TRADER_3 = register("item_trader_server_lrg", () -> new NetworkItemTraderBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_LARGE
 				)
 		);
 		ITEM_NETWORK_TRADER_4 = register("item_trader_server_xlrg", () -> new NetworkItemTraderBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					NetworkItemTraderBlock.TRADER_COUNT_XLARGE
@@ -275,7 +305,8 @@ public class ModBlocks {
 		
 		//Trader Interface
 		ITEM_TRADER_INTERFACE = register("item_trader_interface", () -> new ItemTraderInterfaceBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
@@ -283,25 +314,28 @@ public class ModBlocks {
 		
 		//Terminal
 		TERMINAL = register("terminal", () -> new TerminalBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL),
 					Block.box(1d,0d,1d,15d,15d,15d)
 				)
 		);
-		
+
 		//Gem Terminal
 		GEM_TERMINAL = register("gem_terminal", () -> new TerminalBlock(
-				Block.Properties.of(Material.AMETHYST)
-				.strength(3.0f, 6.0f)
-				.sound(SoundType.AMETHYST_CLUSTER),
-				Block.box(2d, 0d, 2d, 14d, 12d, 14d)
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_PURPLE)
+					.strength(3.0f, 6.0f)
+					.sound(SoundType.AMETHYST_CLUSTER),
+					Block.box(2d, 0d, 2d, 14d, 12d, 14d)
 				)
 		);
 		
 		//Paygate
 		PAYGATE = register("paygate", () -> new PaygateBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(3.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)
 				)
@@ -309,7 +343,8 @@ public class ModBlocks {
 		
 		//Ticket Machine
 		TICKET_STATION = register("ticket_machine", () -> new TicketMachineBlock(
-				Block.Properties.of(Material.METAL)
+				Block.Properties.of()
+					.mapColor(MapColor.METAL)
 					.strength(3.0f, 6.0f)
 					.sound(SoundType.METAL)
 				)
@@ -317,7 +352,8 @@ public class ModBlocks {
 
 		//Coin Chest
 		COIN_CHEST = register("coin_chest", getCustomRendererGenerator(), () -> new CoinChestBlock(
-				Block.Properties.of(Material.WOOD)
+				Block.Properties.of()
+					.mapColor(MapColor.WOOD)
 					.strength(2.5f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.WOOD)
 				)
@@ -325,23 +361,25 @@ public class ModBlocks {
 
 		//Coin Jars
 		PIGGY_BANK = register("piggy_bank", getCoinJarGenerator(), () -> new CoinJarBlock(
-				Block.Properties.of(Material.STONE)
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_PINK)
 					.strength(0.1f, 2.0f)
 					.sound(SoundType.STONE),
 					Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
 		COINJAR_BLUE = register("coinjar_blue", getCoinJarGenerator(), () -> new CoinJarBlock(
-				Block.Properties.of(Material.STONE)
-				.strength(0.1f, 2.0f)
-				.sound(SoundType.STONE),
-				Block.box(4d, 0d, 4d, 12d, 8d, 12d)
+				Block.Properties.of()
+					.mapColor(MapColor.COLOR_BLUE)
+					.strength(0.1f, 2.0f)
+					.sound(SoundType.STONE),
+					Block.box(4d, 0d, 4d, 12d, 8d, 12d)
 				)
 		);
 
 		//Auction Stand
-		AUCTION_STAND = registerWooden("auction_stand", () ->
-			new AuctionStandBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(2.0f))
+		AUCTION_STAND = registerWooden("auction_stand", w ->
+			new AuctionStandBlock(BlockBehaviour.Properties.of().mapColor(w.mapColor).strength(2.0f))
 		);
 		
 	}
@@ -447,38 +485,11 @@ public class ModBlocks {
 	}
 
 	// Colored block registration code
-	/**
-	 * Will be removed in 1.20, and colored block ids will be renamed to include underscores for light_gray/light_blue
-	 */
-	@Deprecated(forRemoval = true, since = "1.19.3")
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerColoredOldNames(String name, Supplier<T> block)
-	{
-		return registerColoredOldNames(name, getDefaultGenerator(), block);
-	}
-
-	/**
-	 * Will be removed in 1.20, and colored block ids will be renamed to include underscores for light_gray/light_blue
-	 */
-	@Deprecated(forRemoval = true, since = "1.19.3")
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerColoredOldNames(String name, Function<Block,Item> itemGenerator, Supplier<T> block)
-	{
-		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
-		for(Color color : Color.values())
-		{
-			String thisName = name;
-			if(color != Color.WHITE) //Add the color name to the end unless this is the color flagged to not be named
-				thisName += "_" + color.getResourceSafeOldName();
-			//Register the block normally
-			bundle.put(color, register(thisName, itemGenerator, block));
-		}
-		return bundle.lock();
-	}
-
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Supplier<T> block, @Nullable Color dontNameThisColor) {
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Function<Color,T> block, @Nullable Color dontNameThisColor) {
 		return registerColored(name, getDefaultGenerator(), block, dontNameThisColor);
 	}
 
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Function<Block,Item> itemGenerator, Supplier<T> block, @Nullable Color dontNameThisColor)
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerColored(String name, Function<Block,Item> itemGenerator, Function<Color,T> block, @Nullable Color dontNameThisColor)
 	{
 		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.values())
@@ -487,7 +498,7 @@ public class ModBlocks {
 			if(color != dontNameThisColor) //Add the color name to the end unless this is the color flagged to not be named
 				thisName += "_" + color.getResourceSafeName();
 			//Register the block normally
-			bundle.put(color, register(thisName, itemGenerator, block));
+			bundle.put(color, register(thisName, itemGenerator, () -> block.apply(color)));
 		}
 		return bundle.lock();
 	}
@@ -495,19 +506,19 @@ public class ModBlocks {
 	/**
 	 * Wooden block registration code
 	 */
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Supplier<T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Function<WoodType,T> block)
 	{
 		return registerWooden(name, getDefaultGenerator(), block);
 	}
 	
-	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Function<Block,Item> itemGenerator, Supplier<T> block)
+	private static <T extends Block> RegistryObjectBundle<T,WoodType> registerWooden(String name, Function<Block,Item> itemGenerator, Function<WoodType,T> block)
 	{
 		RegistryObjectBundle<T,WoodType> bundle = new RegistryObjectBundle<>(WoodType::sortByWood);
 		for(WoodType woodType : WoodType.validValues())
 		{
 			String thisName = name + "_" + woodType.name;
 			//Register the block normally
-			bundle.put(woodType, register(thisName, itemGenerator, block));
+			bundle.put(woodType, register(thisName, itemGenerator, () -> block.apply(woodType)));
 		}
 		return bundle.lock();
 	}
@@ -515,12 +526,12 @@ public class ModBlocks {
 	/**
 	 * Wooden and colored block registration code
 	 */
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Supplier<T> block)
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, BiFunction<Color,WoodType,T> block)
 	{
 		return registerWoodenAndColored(name, getDefaultGenerator(), block);
 	}
 
-	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, Supplier<T> block)
+	private static <T extends Block> RegistryObjectBiBundle<T,WoodType,Color> registerWoodenAndColored(String name, Function<Block,Item> itemGenerator, BiFunction<Color,WoodType,T> block)
 	{
 		RegistryObjectBiBundle<T,WoodType,Color> bundle = new RegistryObjectBiBundle<>(WoodType::sortByWood, Color::sortByColor);
 		for(WoodType woodType: WoodType.validValues())
@@ -529,7 +540,7 @@ public class ModBlocks {
 			{
 				String thisName = name + "_" + woodType.name + "_" + color.getResourceSafeName();
 				//Register the block normally
-				bundle.put(woodType, color, register(thisName, itemGenerator, block));
+				bundle.put(woodType, color, register(thisName, itemGenerator, () -> block.apply(color, woodType)));
 			}
 		}
 		return bundle.lock();

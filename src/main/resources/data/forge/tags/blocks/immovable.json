@@ -1,25 +1,6 @@
 {
   "replace": false,
   "values": [
-    "lightmanscurrency:atm",
-    "lightmanscurrency:paygate",
-    "lightmanscurrency:shelf_oak","lightmanscurrency:shelf_birch","lightmanscurrency:shelf_spruce","lightmanscurrency:shelf_jungle",
-    "lightmanscurrency:shelf_acacia","lightmanscurrency:shelf_dark_oak","lightmanscurrency:shelf_crimson","lightmanscurrency:shelf_warped",
-    "lightmanscurrency:display_case",
-    "lightmanscurrency:armor_display",
-    "lightmanscurrency:card_display_oak","lightmanscurrency:card_display_birch","lightmanscurrency:card_display_spruce","lightmanscurrency:card_display_jungle",
-    "lightmanscurrency:card_display_acacia","lightmanscurrency:card_display_dark_oak","lightmanscurrency:card_display_crimson","lightmanscurrency:card_display_warped",
-    "lightmanscurrency:vending_machine","lightmanscurrency:vending_machine_orange","lightmanscurrency:vending_machine_magenta","lightmanscurrency:vending_machine_lightblue",
-    "lightmanscurrency:vending_machine_yellow","lightmanscurrency:vending_machine_lime","lightmanscurrency:vending_machine_pink","lightmanscurrency:vending_machine_gray","lightmanscurrency:vending_machine_lightgray",
-    "lightmanscurrency:vending_machine_cyan","lightmanscurrency:vending_machine_purple","lightmanscurrency:vending_machine_blue","lightmanscurrency:vending_machine_brown","lightmanscurrency:vending_machine_green",
-    "lightmanscurrency:vending_machine_red","lightmanscurrency:vending_machine_black",
-    "lightmanscurrency:freezer",
-    "lightmanscurrency:vending_machine_large","lightmanscurrency:vending_machine_large_orange","lightmanscurrency:vending_machine_large_magenta","lightmanscurrency:vending_machine_large_lightblue",
-    "lightmanscurrency:vending_machine_large_yellow","lightmanscurrency:vending_machine_large_lime","lightmanscurrency:vending_machine_large_pink","lightmanscurrency:vending_machine_large_gray",
-    "lightmanscurrency:vending_machine_large_lightgray","lightmanscurrency:vending_machine_large_cyan","lightmanscurrency:vending_machine_large_purple","lightmanscurrency:vending_machine_large_blue",
-    "lightmanscurrency:vending_machine_large_brown","lightmanscurrency:vending_machine_large_green","lightmanscurrency:vending_machine_large_red","lightmanscurrency:vending_machine_large_black",
-    "lightmanscurrency:item_trader_server_sml","lightmanscurrency:item_trader_server_med","lightmanscurrency:item_trader_server_lrg","lightmanscurrency:item_trader_server_xlrg",
-    "lightmanscurrency:ticket_kiosk",
-    "lightmanscurrency:item_trader_interface"
+    "#lightmanscurrency:protected"
   ]
 }

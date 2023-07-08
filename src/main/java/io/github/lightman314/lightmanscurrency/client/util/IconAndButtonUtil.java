@@ -3,33 +3,26 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
-
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ITooltipRenderable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -116,194 +109,123 @@ public class IconAndButtonUtil {
 	}
 	
 	public static final IconData ICON_CHECKMARK = IconData.of(ICON_TEXTURE, 0, 48);
-	
+
+	public static final IconData ICON_ALEX_HEAD;
+
+	public static final Sprite SPRITE_PLUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20, 10, 10);
+	public static final Sprite SPRITE_MINUS = Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20, 10, 10);
+
+	public static final Sprite SPRITE_CHECK_ACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE, 10, 200, 10, 10);
+	public static final Sprite SPRITE_CHECK_INACTIVE = Sprite.SimpleSprite(WIDGET_TEXTURE, 10, 220, 10, 10);
+
 	public static final IconData ICON_ONLINEMODE_TRUE = IconData.of(Items.PLAYER_HEAD);
 	public static final IconData ICON_ONLINEMODE_FALSE = ICON_CHECKMARK;
-	
-	public static final SimpleTooltip TOOLTIP_TRADER = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.opentrades"));
-	public static final SimpleTooltip TOOLTIP_STORAGE = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.openstorage"));
+
+	public static final Component TOOLTIP_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.opentrades");
+	public static final Component TOOLTIP_STORAGE = EasyText.translatable("tooltip.lightmanscurrency.trader.openstorage");
 	
 	public static final String TOOLTIP_COLLECT_COINS = "tooltip.lightmanscurrency.trader.collectcoins";
-	public static final SimpleTooltip TOOLTIP_STORE_COINS = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.storecoins"));
+	public static final Component TOOLTIP_STORE_COINS = EasyText.translatable("tooltip.lightmanscurrency.trader.storecoins");
 	
-	public static final SimpleTooltip TOOLTIP_BACK_TO_TERMINAL = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.universaltrader.back"));
+	public static final Component TOOLTIP_BACK_TO_TERMINAL = EasyText.translatable("tooltip.lightmanscurrency.trader.universaltrader.back");
 
-	public static final SimpleTooltip TOOLTIP_TRADE_RULES = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.traderules"));
-	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADER = Component.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
-	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADE = Component.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
-	public static final SimpleTooltip TOOLTIP_OPEN_SETTINGS = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.trader.settings"));
-	
-	public static final Component TOOLTIP_CREATIVE_ENABLE = Component.translatable("tooltip.lightmanscurrency.trader.creative.enable");
-	public static final Component TOOLTIP_CREATIVE_DISABLE = Component.translatable("tooltip.lightmanscurrency.trader.creative.disable");
-	
-	public static final Component TOOLTIP_INTERFACE_ENABLE = Component.translatable("tooltip.lightmanscurrency.interface.enable");
-	public static final Component TOOLTIP_INTERFACE_DISABLE = Component.translatable("tooltip.lightmanscurrency.interface.disable");
-	
-	public static final SimpleTooltip TOOLTIP_PERSISTENT_TRADER = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.persistent.add.trader"));
-	public static final SimpleTooltip TOOLTIP_PERSISTENT_AUCTION = new SimpleTooltip(Component.translatable("tooltip.lightmanscurrency.persistent.add.auction"));
+	public static final Component TOOLTIP_TRADE_RULES = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules");
+	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADER = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trader");
+	public static final MutableComponent TOOLTIP_TRADE_RULES_TRADE = EasyText.translatable("tooltip.lightmanscurrency.trader.traderules.trade");
+	public static final Component TOOLTIP_OPEN_SETTINGS = EasyText.translatable("tooltip.lightmanscurrency.trader.settings");
 
-	public static IconButton traderButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADER, TOOLTIP_TRADER); }
-	public static IconButton storageButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORAGE, TOOLTIP_STORAGE); }
-	public static IconButton storageButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visiblityCheck) {
-		IconButton button = storageButton(x,y,pressable);
-		button.setVisiblityCheck(visiblityCheck);
-		return button;
-	}
+	public static final Component TOOLTIP_CANNOT_BE_UNDONE = EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW);
+
+	public static final Component TOOLTIP_CREATIVE_ENABLE = EasyText.translatable("tooltip.lightmanscurrency.trader.creative.enable");
+	public static final Component TOOLTIP_CREATIVE_DISABLE = EasyText.translatable("tooltip.lightmanscurrency.trader.creative.disable");
 	
-	public static IconButton collectCoinButton(int x, int y, Button.OnPress pressable, Player player, Supplier<TraderData> traderSource) {
-		IconButton button = new IconButton(x, y, pressable, ICON_COLLECT_COINS,
-				new ToggleTooltip2(() -> {
+	public static final Component TOOLTIP_INTERFACE_ENABLE = EasyText.translatable("tooltip.lightmanscurrency.interface.enable");
+	public static final Component TOOLTIP_INTERFACE_DISABLE = EasyText.translatable("tooltip.lightmanscurrency.interface.disable");
+	
+	public static final Component TOOLTIP_PERSISTENT_TRADER = EasyText.translatable("tooltip.lightmanscurrency.persistent.add.trader");
+	public static final Component TOOLTIP_PERSISTENT_AUCTION = EasyText.translatable("tooltip.lightmanscurrency.persistent.add.auction");
+
+	public static IconButton traderButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADER).withAddons(EasyAddonHelper.tooltip(TOOLTIP_TRADER)); }
+	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORAGE).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORAGE)); }
+	public static IconButton storageButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visiblityCheck) { return storageButton(x,y,pressable).withAddons(EasyAddonHelper.visibleCheck(visiblityCheck)); }
+	
+	public static IconButton collectCoinButton(int x, int y, Consumer<EasyButton> pressable, Player player, Supplier<TraderData> traderSource) {
+		return new IconButton(x, y, pressable, ICON_COLLECT_COINS)
+				.withAddons(EasyAddonHelper.toggleTooltip(() -> {
 					TraderData trader = traderSource.get();
-					return trader == null || trader.getStoredMoney().getRawValue() <= 0;
-				},
-				new SimpleTooltip(EasyText.empty()),
-				new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> {
+					return trader == null || trader.getStoredMoney().getValueNumber() <= 0;
+				},EasyText::empty,
+				() -> {
 					TraderData trader = traderSource.get();
 					if(trader != null)
-						return new Object[] { trader.getStoredMoney().getString() };
-					else
-						return new Object[] {};
-				}))
-		);
-		button.setVisiblityCheck(() -> {
-			TraderData trader = traderSource.get();
-			if(trader == null)
-				return false;
-			return trader.hasPermission(player, Permissions.COLLECT_COINS) && !trader.hasBankAccount();
-		});
-		button.setActiveCheck(() -> {
-			TraderData trader = traderSource.get();
-			if(trader == null)
-				return false;
-			return trader.getInternalStoredMoney().getRawValue() > 0;
-		});
-		return button;
+						return EasyText.translatable(TOOLTIP_COLLECT_COINS, trader.getStoredMoney().getComponent());
+					return EasyText.empty();
+				}),
+				EasyAddonHelper.visibleCheck(() -> {
+					TraderData trader = traderSource.get();
+					if(trader == null)
+						return false;
+					return trader.hasPermission(player, Permissions.COLLECT_COINS) && !trader.hasBankAccount();
+				}),
+				EasyAddonHelper.activeCheck(() -> {
+					TraderData trader = traderSource.get();
+					if(trader == null)
+						return false;
+					return trader.getInternalStoredMoney().getValueNumber() > 0;
+				}));
 	}
-	public static IconButton collectCoinButtonAlt(int x, int y, Button.OnPress pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS, new AdditiveTooltip(TOOLTIP_COLLECT_COINS, () -> new Object[] { storedCoinTextSource.get() })); }
-	public static IconButton storeCoinButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS, TOOLTIP_STORE_COINS); }
+	public static IconButton collectCoinButtonAlt(int x, int y, Consumer<EasyButton> pressable, Supplier<Object> storedCoinTextSource) { return new IconButton(x, y, pressable, ICON_COLLECT_COINS).withAddons(EasyAddonHelper.additiveTooltip2(TOOLTIP_COLLECT_COINS, storedCoinTextSource)); }
+	public static IconButton storeCoinButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_STORE_COINS).withAddons(EasyAddonHelper.tooltip(TOOLTIP_STORE_COINS)); }
 	
-	public static IconButton leftButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }
-	public static IconButton rightButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
+	public static IconButton leftButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_LEFT); }
+	public static IconButton rightButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_RIGHT); }
 
-	public static PlainButton plusButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 20); }
-	public static PlainButton minusButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 20); }
+	public static PlainButton plusButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return plusButton(pos.x, pos.y, pressable); }
+	public static PlainButton plusButton(int x, int y, Consumer<EasyButton> pressable) { return new PlainButton(x, y, pressable, SPRITE_PLUS); }
+	public static PlainButton minusButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return minusButton(pos.x, pos.y, pressable); }
+	public static PlainButton minusButton(int x, int y, Consumer<EasyButton> pressable) { return new PlainButton(x, y, pressable, SPRITE_MINUS); }
 
-	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable) { return new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL); }
-	public static IconButton backToTerminalButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> visibilityCheck) {
-		IconButton button = new IconButton(x,y, pressable, ICON_BACK, TOOLTIP_BACK_TO_TERMINAL);
-		button.setVisiblityCheck(visibilityCheck);
-		return button;
-	}
+	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(TOOLTIP_BACK_TO_TERMINAL)); }
+	public static IconButton backToTerminalButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> visibilityCheck) { return new IconButton(x,y, pressable, ICON_BACK).withAddons(EasyAddonHelper.tooltip(TOOLTIP_BACK_TO_TERMINAL), EasyAddonHelper.visibleCheck(visibilityCheck)); }
 
-	public static IconButton tradeRuleButton(int x, int y, Button.OnPress pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES, new SimpleTooltip(TOOLTIP_TRADE_RULES_TRADE)); }
+	public static IconButton tradeRuleButton(int x, int y, Consumer<EasyButton> pressable) { return new IconButton(x, y, pressable, ICON_TRADE_RULES).withAddons(EasyAddonHelper.tooltip(TOOLTIP_TRADE_RULES_TRADE)); }
 
-	public static IconButton creativeToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative), new ToggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
+	public static IconButton creativeToggleButton(ScreenPosition pos, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isCreative) { return creativeToggleButton(pos.x, pos.y, pressable, isCreative); }
+	public static IconButton creativeToggleButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isCreative) { return new IconButton(x, y, pressable, ICON_CREATIVE(isCreative)).withAddons(EasyAddonHelper.toggleTooltip(isCreative, TOOLTIP_CREATIVE_DISABLE, TOOLTIP_CREATIVE_ENABLE)); }
+
+	public static IconButton interfaceActiveToggleButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive)).withAddons(EasyAddonHelper.toggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
 	
-	public static IconButton interfaceActiveToggleButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) { return new IconButton(x, y, pressable, ICON_INTERFACE_ACTIVE(isActive), new ToggleTooltip(isActive, TOOLTIP_INTERFACE_DISABLE, TOOLTIP_INTERFACE_ENABLE)); }
+	public static PlainButton quickInsertButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return new PlainButton(pos, pressable, Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0, 10, 10)); }
+	public static PlainButton quickExtractButton(ScreenPosition pos, Consumer<EasyButton> pressable) { return new PlainButton(pos, pressable,  Sprite.SimpleSprite(TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0, 10, 10)); }
 	
-	public static PlainButton quickInsertButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 18, 0); }
-	public static PlainButton quickExtractButton(int x, int y, Button.OnPress pressable) { return new PlainButton(x, y, 10, 10, pressable, TraderScreen.GUI_TEXTURE, TraderScreen.WIDTH + 28, 0); }
-	
-	public static PlainButton checkmarkButton(int x, int y, Button.OnPress pressable, NonNullSupplier<Boolean> isActive) {
-		return new PlainButton(x, y, 10, 10, pressable, WIDGET_TEXTURE, () -> Pair.of(10, isActive.get() ? 200 : 220));
-	}
-	
+	public static PlainButton checkmarkButton(ScreenPosition pos, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isActive) { return checkmarkButton(pos.x, pos.y, pressable, isActive); }
+	public static PlainButton checkmarkButton(int x, int y, Consumer<EasyButton> pressable, NonNullSupplier<Boolean> isActive) { return new PlainButton(x, y, pressable, () -> isActive.get() ? SPRITE_CHECK_ACTIVE : SPRITE_CHECK_INACTIVE); }
+
 	//public static TextLogWindow traderLogWindow(AbstractContainerScreen<?> screen, Supplier<ILoggerSupport<?>> loggerSource) { return new TextLogWindow(screen, () -> loggerSource.get().getLogger()); }
 	
-	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, Font font, InteractionType currentlySelected, Consumer<Integer> onSelect, Function<Button,Button> addButton, List<InteractionType> blacklist) {
+	public static DropdownWidget interactionTypeDropdown(ScreenPosition pos, int width, InteractionType currentlySelected, Consumer<Integer> onSelect, List<InteractionType> blacklist) { return interactionTypeDropdown(pos.x, pos.y, width, currentlySelected, onSelect, blacklist); }
+	public static DropdownWidget interactionTypeDropdown(int x, int y, int width, InteractionType currentlySelected, Consumer<Integer> onSelect, List<InteractionType> blacklist) {
 		List<Component> options = new ArrayList<>();
 		for(int i = 0; i < InteractionType.size(); ++i)
 			options.add(InteractionType.fromIndex(i).getDisplayText());
-		return new DropdownWidget(x, y, width, font, currentlySelected.index, onSelect, (index) ->  !blacklist.contains(InteractionType.fromIndex(index)), addButton, options);
+		return new DropdownWidget(x, y, width, currentlySelected.index, onSelect, (index) ->  !blacklist.contains(InteractionType.fromIndex(index)), options);
 	}
 
-	private static abstract class BaseTooltip implements Supplier<Tooltip> {
-
-		protected abstract Component getTooltip();
-
-		@Override
-		public Tooltip get() { return Tooltip.create(this.getTooltip()); }
-
+	static {
+		ItemStack alexHead = new ItemStack(Items.PLAYER_HEAD);
+		CompoundTag headData = new CompoundTag();
+		CompoundTag skullOwner = new CompoundTag();
+		skullOwner.putIntArray("Id", new int[] {-731408145, -304985227, -1778597514, 158507129 });
+		CompoundTag properties = new CompoundTag();
+		ListTag textureList = new ListTag();
+		CompoundTag texture = new CompoundTag();
+		texture.putString("Value", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjNiMDk4OTY3MzQwZGFhYzUyOTI5M2MyNGUwNDkxMDUwOWIyMDhlN2I5NDU2M2MzZWYzMWRlYzdiMzc1MCJ9fX0=");
+		textureList.add(texture);
+		properties.put("textures", textureList);
+		skullOwner.put("Properties", properties);
+		headData.put("SkullOwner", skullOwner);
+		alexHead.setTag(headData);
+		ICON_ALEX_HEAD = IconData.of(alexHead);
 	}
 
-	public static class SimpleTooltip extends BaseTooltip
-	{
-		private final Component tooltip;
-		public SimpleTooltip(Component tooltip) { this.tooltip = tooltip; }
-		@Override
-		protected Component getTooltip() { return this.tooltip; }
-	}
-
-	public static class SuppliedTooltip extends BaseTooltip
-	{
-		private final NonNullSupplier<Component> tooltipSource;
-		public SuppliedTooltip(NonNullSupplier<Component> tooltipSource) { this.tooltipSource = tooltipSource; }
-		@Override
-		protected Component getTooltip() { return this.tooltipSource.get(); }
-	}
-
-	public static class AdditiveTooltip extends BaseTooltip
-	{
-		private final String translationKey;
-		private final Supplier<Object[]> inputSource;
-		public AdditiveTooltip(String translationKey, Supplier<Object[]> inputSource) { this.translationKey = translationKey; this.inputSource = inputSource; }
-		@Override
-		protected Component getTooltip() { return Component.translatable(translationKey, inputSource.get()); }
-	}
-
-	public static class ToggleTooltip extends BaseTooltip
-	{
-		private final NonNullSupplier<Boolean> toggleSource;
-		private final Component trueTooltip;
-		private final Component falseTooltip;
-		public ToggleTooltip(NonNullSupplier<Boolean> toggleSource, Component trueTooltip, Component falseTooltip) {
-			this.toggleSource = toggleSource;
-			this.trueTooltip = trueTooltip;
-			this.falseTooltip = falseTooltip;
-		}
-		@Override
-		protected Component getTooltip() { return this.toggleSource.get() ? this.trueTooltip : this.falseTooltip; }
-	}
-
-	public static class ToggleTooltip2 implements Supplier<Tooltip>
-	{
-		private final NonNullSupplier<Boolean> toggleSource;
-		private final Supplier<Tooltip> trueTooltip;
-		private final Supplier<Tooltip> falseTooltip;
-		public ToggleTooltip2(NonNullSupplier<Boolean> toggleSource, Supplier<Tooltip> trueTooltip, Supplier<Tooltip>  falseTooltip) {
-			this.toggleSource = toggleSource;
-			this.trueTooltip = trueTooltip;
-			this.falseTooltip = falseTooltip;
-		}
-		@Override
-		public Tooltip get() { return this.toggleSource.get() ? this.trueTooltip.get() : this.falseTooltip.get(); }
-	}
-
-	public static class ChangingTooltip extends BaseTooltip
-	{
-		private final Supplier<Integer> indicator;
-		private final List<Component> tooltips;
-		public ChangingTooltip(Supplier<Integer> indicator, Component... tooltips)
-		{
-			this.indicator = indicator;
-			this.tooltips = Lists.newArrayList(tooltips);
-		}
-
-		@Override
-		protected Component getTooltip() {
-			int index = this.indicator.get();
-			return this.tooltips.get(MathUtil.clamp(index, 0, this.tooltips.size() - 1));
-		}
-
-	}
-
-	public static void ManuallyRenderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY, List<Renderable> widgets) {
-		for(Renderable widget : widgets)
-		{
-			if(widget instanceof AbstractWidget w && widget instanceof ITooltipRenderable tr && w.isMouseOver(mouseX, mouseY)) {
-				Tooltip tooltip = tr.getTooltip();
-				screen.renderTooltip(pose, tooltip.toCharSequence(screen.getMinecraft()), mouseX, mouseY);
-			}
-		}
-	}
 }

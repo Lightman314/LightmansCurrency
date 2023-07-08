@@ -210,7 +210,7 @@ public class WalletCapability {
 		
 		//LightmansCurrency.LogInfo("Wallet Slot interaction for slot " + clickedSlot + " (shift " + (heldShift ? "held" : "not held") + ") on the " + DebugUtil.getSideText(player));
 		AbstractContainerMenu menu = player.containerMenu;
-		boolean creative = player.isCreative() && !player.level.isClientSide;
+		boolean creative = player.isCreative() && !player.level().isClientSide;
 		if(!creative)
 			heldItem = menu.getCarried();
 		IWalletHandler walletHandler = lazyGetWalletHandler(player);

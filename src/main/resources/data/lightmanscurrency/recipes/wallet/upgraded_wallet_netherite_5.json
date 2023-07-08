@@ -6,19 +6,19 @@
       "item": "lightmanscurrency:wallet_copper"
     },
     {
-      "item": "lightmanscurrency:coin_iron"
+      "tag": "forge:ingots/iron"
     },
     {
-      "item": "lightmanscurrency:coin_gold"
+      "tag": "forge:ingots/gold"
     },
     {
-      "item": "lightmanscurrency:coin_emerald"
+      "tag": "forge:gems/emerald"
     },
     {
-      "item": "lightmanscurrency:coin_diamond"
+      "tag": "forge:gems/diamond"
     },
     {
-      "item": "lightmanscurrency:coin_netherite"
+      "tag": "forge:ingots/netherite"
     }
   ],
   "result": {

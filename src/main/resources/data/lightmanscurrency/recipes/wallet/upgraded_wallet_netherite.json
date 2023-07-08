@@ -6,7 +6,7 @@
       "item": "lightmanscurrency:wallet_diamond"
     },
     {
-      "item": "lightmanscurrency:coin_netherite"
+      "tag": "forge:ingots/netherite"
     }
   ],
   "result": {

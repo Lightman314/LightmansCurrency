@@ -46,13 +46,13 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.OLD_ITEM_TRADER.get()); }
+	@Override
+	public List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public List<Vector3f> GetStackRenderPos(int tradeSlot, BlockState state, boolean isDoubleTrade) {
-		List<Vector3f> posList = new ArrayList<Vector3f>(1);
+		List<Vector3f> posList = new ArrayList<>(1);
 		if(tradeSlot == 0)
 		{
 			Direction facing = this.getFacing(state);

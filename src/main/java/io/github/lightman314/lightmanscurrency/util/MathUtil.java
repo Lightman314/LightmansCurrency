@@ -117,5 +117,13 @@ public class MathUtil {
 			return divideByZero;
 		return (a/b);
 	}
+
+	public static int DivideByAndRoundUp(int a, int b)
+	{
+		int result = a/b;
+		if(((double)a/(double)b)%1d != 0d)
+			result++;
+		return result;
+	}
 	
 }

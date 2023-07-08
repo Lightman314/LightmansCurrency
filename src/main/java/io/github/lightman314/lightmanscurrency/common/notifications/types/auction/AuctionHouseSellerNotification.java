@@ -19,13 +19,13 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 	public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "auction_house_seller");
 	
 	List<ItemWriteData> items;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	String customer;
 	
 	public AuctionHouseSellerNotification(AuctionTradeData trade) {
 		
-		this.cost = trade.getLastBidAmount().copy();
+		this.cost = trade.getLastBidAmount();
 		this.customer = trade.getLastBidPlayer().getName(false);
 		
 		this.items = new ArrayList<>();
@@ -58,7 +58,7 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 		for(ItemWriteData item : this.items)
 			itemList.add(item.save());
 		compound.put("Items", itemList);
-		this.cost.save(compound, "Price");
+		compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -70,7 +70,7 @@ public class AuctionHouseSellerNotification extends AuctionHouseNotification{
 		this.items = new ArrayList<>();
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemWriteData(itemList.getCompound(i)));
-		this.cost.load(compound, "Price");
+		this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}

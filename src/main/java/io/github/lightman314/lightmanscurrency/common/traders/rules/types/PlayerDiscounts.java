@@ -37,8 +37,6 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	int discount = 10;
 	public int getDiscount() { return this.discount; }
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 0, 100); }
-	private double getDiscountMult() { return 1d - ((double)discount/100d); }
-	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
 	
 	public PlayerDiscounts() { super(TYPE); }
 	
@@ -64,8 +62,8 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		if(this.isOnList(event.getPlayerReference()))
 		{
 			switch (event.getTrade().getTradeDirection()) {
-				case SALE -> event.applyCostMultiplier(this.getDiscountMult());
-				case PURCHASE -> event.applyCostMultiplier(this.getIncreaseMult());
+				case SALE -> event.giveDiscount(this.discount);
+				case PURCHASE -> event.hikePrice(this.discount);
 				default -> {} //Nothing by default
 			}
 		}

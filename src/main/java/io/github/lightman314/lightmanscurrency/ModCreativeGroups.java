@@ -1,17 +1,19 @@
 package io.github.lightman314.lightmanscurrency;
 
+import com.google.common.base.Suppliers;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegistryObject;
@@ -19,27 +21,27 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
 public class ModCreativeGroups {
 
-    private static CreativeModeTab COIN_GROUP;
-    public static CreativeModeTab getCoinGroup() { return COIN_GROUP; }
-    private static CreativeModeTab MACHINE_GROUP;
-    public static CreativeModeTab getMachineGroup() { return MACHINE_GROUP; }
-    private static CreativeModeTab TRADER_GROUP;
-    public static CreativeModeTab getTraderGroup() { return TRADER_GROUP; }
-    private static CreativeModeTab UPGRADE_GROUP;
-    public static CreativeModeTab getUpgradeGroup() { return UPGRADE_GROUP; }
+    public static final ResourceLocation COIN_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"coins");
+    public static final ResourceLocation MACHINE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"machines");
+    public static final ResourceLocation TRADER_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"traders");
+    public static final ResourceLocation UPGRADE_GROUP_ID = new ResourceLocation(LightmansCurrency.MODID,"upgrades");
 
+    /**
+     * Placeholder function to force the static class loading
+     */
+    public static void init() { }
 
-    @SubscribeEvent
-    public static void registerCreativeModeTabs(CreativeModeTabEvent.Register event) {
-        //Coin Creative Tab
-        COIN_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "coins"), builder ->
-            builder.title(Component.translatable("itemGroup.lightmanscurrency.coins"))
-                .icon(() -> new ItemStack(ModBlocks.COINPILE_GOLD.get()))
-                .displayItems((parameters, p) -> {
+    static {
+
+        COIN_GROUP = ModRegistries.CREATIVE_TABS.register("coins", () -> CreativeModeTab.builder()
+                .title(EasyText.translatable("itemGroup.lightmanscurrency.coins"))
+                .icon(ezIcon(ModBlocks.COINPILE_GOLD))
+                .displayItems((parameters,p) -> {
                     //Coin -> Coin Pile -> Coin Block by type
                     ezPop(p, ModItems.COIN_COPPER);
                     ezPop(p, ModBlocks.COINPILE_COPPER);
@@ -68,12 +70,13 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.WALLET_NETHERITE);
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
-            }));
+                }).build()
+        );
 
-        //Misc Machine Creative Tab
-        MACHINE_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "machines"), List.of(), List.of(COIN_GROUP), builder ->
-            builder.title(Component.translatable("itemGroup.lightmanscurrency.machines"))
-                .icon(() -> new ItemStack(ModBlocks.MACHINE_MINT.get()))
+        MACHINE_GROUP = ModRegistries.CREATIVE_TABS.register("machines", () -> CreativeModeTab.builder()
+                .withTabsBefore(COIN_GROUP_ID)
+                .title(EasyText.translatable("itemGroup.lightmanscurrency.machines"))
+                .icon(ezIcon(ModBlocks.MACHINE_MINT))
                 .displayItems((parameters, p) -> {
                     //Coin Mint
                     ezPop(p, ModBlocks.MACHINE_MINT);
@@ -104,12 +107,13 @@ public class ModCreativeGroups {
                     //Coin Jars
                     ezPop(p, ModBlocks.PIGGY_BANK);
                     ezPop(p, ModBlocks.COINJAR_BLUE);
-            }));
+                }).build()
+        );
 
-        //Trader Creative Tab
-        TRADER_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "traders"), List.of(), List.of(MACHINE_GROUP), builder ->
-            builder.title(Component.translatable("itemGroup.lightmanscurrency.trading"))
-                .icon(() -> new ItemStack(ModBlocks.DISPLAY_CASE.get()))
+        TRADER_GROUP = ModRegistries.CREATIVE_TABS.register("traders", () -> CreativeModeTab.builder()
+                .withTabsBefore(MACHINE_GROUP_ID)
+                .title(EasyText.translatable("itemGroup.lightmanscurrency.trading"))
+                .icon(ezIcon(ModBlocks.DISPLAY_CASE))
                 .displayItems((parameters, p) -> {
                     //Item Traders (normal)
                     ezPop(p, ModBlocks.SHELF);
@@ -131,12 +135,15 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.ITEM_NETWORK_TRADER_4);
                     //Paygate
                     ezPop(p, ModBlocks.PAYGATE);
-            }));
+                }).build()
+        );
 
-        UPGRADE_GROUP = event.registerCreativeModeTab(new ResourceLocation(LightmansCurrency.MODID, "upgrades"), List.of(), List.of(TRADER_GROUP), builder ->
-            builder.title(Component.translatable("itemGroup.lightmanscurrency.upgrades"))
-                .icon(() -> new ItemStack(ModItems.ITEM_CAPACITY_UPGRADE_1.get()))
+        UPGRADE_GROUP = ModRegistries.CREATIVE_TABS.register("upgrades", () -> CreativeModeTab.builder()
+                .withTabsBefore(TRADER_GROUP_ID)
+                .title(EasyText.translatable("itemGroup.lightmanscurrency.upgrades"))
+                .icon(ezIcon(ModItems.ITEM_CAPACITY_UPGRADE_1))
                 .displayItems((parameters, p) -> {
+                    ezPop(p, ModItems.UPGRADE_SMITHING_TEMPLATE);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_1);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_2);
                     ezPop(p, ModItems.ITEM_CAPACITY_UPGRADE_3);
@@ -154,27 +161,31 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_3);
                     ezPop(p, ModItems.COIN_CHEST_MAGNET_UPGRADE_4);
                     ezPop(p, ModItems.COIN_CHEST_SECURITY_UPGRADE);
-            }));
+                }).build()
+        );
+
     }
 
     @SubscribeEvent
-    public static void buildVanillaTabContents(CreativeModeTabEvent.BuildContents event) {
-        if(event.getTab() == CreativeModeTabs.FUNCTIONAL_BLOCKS)
+    public static void buildVanillaTabContents(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS)
         {
             event.accept(ModBlocks.PIGGY_BANK);
             event.accept(ModBlocks.COINJAR_BLUE);
         }
-        if(event.getTab() == CreativeModeTabs.REDSTONE_BLOCKS)
+        if(event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS)
         {
             event.accept(ModBlocks.PAYGATE);
         }
-        if(event.getTab() == CreativeModeTabs.COLORED_BLOCKS)
+        if(event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS)
         {
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.VENDING_MACHINE_LARGE.getAllSorted()));
             event.acceptAll(convertToStack(ModBlocks.FREEZER.getAllSorted()));
         }
     }
+
+    private static Supplier<ItemStack> ezIcon(RegistryObject<? extends ItemLike> item) { return Suppliers.memoize(() -> new ItemStack(item.get())); }
 
     public static void ezPop(CreativeModeTab.Output populator, RegistryObject<? extends ItemLike> item)  { populator.accept(item.get()); }
     public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
@@ -185,5 +196,11 @@ public class ModCreativeGroups {
         for (ItemLike item : list) result.add(new ItemStack(item));
         return result;
     }
+
+
+    public static final RegistryObject<CreativeModeTab> COIN_GROUP;
+    public static final RegistryObject<CreativeModeTab> MACHINE_GROUP;
+    public static final RegistryObject<CreativeModeTab> TRADER_GROUP;
+    public static final RegistryObject<CreativeModeTab> UPGRADE_GROUP;
 
 }

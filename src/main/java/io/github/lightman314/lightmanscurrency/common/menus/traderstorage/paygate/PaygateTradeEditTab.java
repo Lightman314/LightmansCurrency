@@ -2,10 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.payga
 
 import java.util.function.Function;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.paygate.PaygateTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -24,7 +22,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new PaygateTradeEditClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new PaygateTradeEditClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
@@ -65,7 +63,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.save(message, "NewPrice");
+				message.put("NewPrice", price.save());
 				this.menu.sendMessage(message);
 			}
 		}
@@ -127,9 +125,7 @@ public class PaygateTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewPrice"))
 		{
-			CoinValue price = new CoinValue();
-			price.load(message, "NewPrice");
-			this.setPrice(price);
+			this.setPrice(CoinValue.load(message.getCompound("NewPrice")));
 		}
 		else if(message.contains("NewTicket"))
 		{

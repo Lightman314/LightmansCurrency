@@ -37,8 +37,6 @@ public class TimedSale extends PriceTweakingTradeRule {
 	int discount = 10;
 	public int getDiscount() { return this.discount; }
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
-	private double getDiscountMult() { return 1d - ((double)discount/100d); }
-	private double getIncreaseMult() { return 1d + ((double)discount/100d); }
 	
 	public TimedSale() { super(TYPE); }
 	
@@ -63,8 +61,8 @@ public class TimedSale extends PriceTweakingTradeRule {
 		if(timerActive() && TimeUtil.compareTime(this.duration, this.startTime))
 		{
 			switch (event.getTrade().getTradeDirection()) {
-				case SALE -> event.applyCostMultiplier(this.getDiscountMult());
-				case PURCHASE -> event.applyCostMultiplier(this.getIncreaseMult());
+				case SALE -> event.giveDiscount(this.discount);
+				case PURCHASE -> event.hikePrice(this.discount);
 				default -> {} //Nothing if direction is NONE
 			}
 		}
@@ -175,8 +173,6 @@ public class TimedSale extends PriceTweakingTradeRule {
 			return new TimeData(this.startTime + this.duration - TimeUtil.getCurrentTime());
 		}
 	}
-	
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_TIMED_SALE; }
 
 	@Nonnull
 	@Override

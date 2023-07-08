@@ -1,0 +1,16 @@
+{
+  "conditions":[{"type":"lightmanscurrency:coin_chest_exchange_craftable"}],
+  "type": "minecraft:smithing_transform",
+  "base": {
+    "item": "lightmanscurrency:atm"
+  },
+  "addition": {
+    "tag": "forge:dusts/redstone"
+  },
+  "result": {
+    "item": "lightmanscurrency:coin_chest_exchange_upgrade"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

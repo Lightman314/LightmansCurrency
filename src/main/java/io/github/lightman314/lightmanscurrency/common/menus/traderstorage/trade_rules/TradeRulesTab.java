@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trade_rules;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -71,7 +69,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
         @Override
         @OnlyIn(Dist.CLIENT)
-        public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TradeRulesClientTab.Trader(screen, this); }
+        public Object createClientTab(Object screen) { return new TradeRulesClientTab.Trader(screen, this); }
 
         @Nullable
         @Override
@@ -87,7 +85,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
 
         @Override
         @OnlyIn(Dist.CLIENT)
-        public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TradeRulesClientTab.Trade(screen, this); }
+        public Object createClientTab(Object screen) { return new TradeRulesClientTab.Trade(screen, this); }
 
         @Override
         public boolean canOpen(Player player) { return super.canOpen(player) && this.menu.hasPermission(Permissions.EDIT_TRADES); }

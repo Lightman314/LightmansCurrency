@@ -1,16 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -24,7 +26,7 @@ public class NotificationTab extends SettingsSubTab {
 
     PlainButton buttonToggleNotifications;
     PlainButton buttonToggleChatNotifications;
-    Button buttonToggleTeamLevel;
+    EasyButton buttonToggleTeamLevel;
 
     @Nonnull
     @Override
@@ -37,64 +39,50 @@ public class NotificationTab extends SettingsSubTab {
     public boolean canOpen() { return this.menu.hasPermission(Permissions.NOTIFICATION); }
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
 
-        this.buttonToggleNotifications = this.addWidget(new PlainButton(this.screen.getGuiLeft() + 35, this.screen.getGuiTop() + 35, 10, 10, this::ToggleNotifications, IconAndButtonUtil.WIDGET_TEXTURE, 10, 200));
+        this.buttonToggleNotifications = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 35), this::ToggleNotifications, this::notificationsEnabled));
 
-        this.buttonToggleChatNotifications = this.addWidget(new PlainButton(this.screen.getGuiLeft() + 35, this.screen.getGuiTop() + 55, 10, 10, this::ToggleChatNotifications, IconAndButtonUtil.WIDGET_TEXTURE, 10, 200));
+        this.buttonToggleChatNotifications = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(35, 55), this::ToggleChatNotifications, this::notificationsToChat));
 
-        this.buttonToggleTeamLevel = this.addWidget(Button.builder(Component.empty(), this::ToggleTeamNotificationLevel).pos(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 80).size(this.screen.getXSize() - 40, 20).build());
-
-        this.tick();
+        this.buttonToggleTeamLevel = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 80), screenArea.width - 40, 20, EasyText.empty(), this::ToggleTeamNotificationLevel));
 
     }
 
-    @Override
-    public void onClose() {
+    private boolean notificationsEnabled() {
+        TraderData t = this.menu.getTrader();
+        return t != null && t.notificationsEnabled();
+    }
 
+    private boolean notificationsToChat() {
+        TraderData t = this.menu.getTrader();
+        return t != null && t.notificationsToChat();
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
 
         //Render the enable notification test
-        this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notifications.enabled"), this.screen.getGuiLeft() + 47, this.screen.getGuiTop() + 35, 0x404040);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.notifications.enabled"), 47, 35, 0x404040);
 
         //Render the enable chat notification text
-        this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notifications.chat"), this.screen.getGuiLeft() + 47, this.screen.getGuiTop() + 55, 0x404040);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.notifications.chat"), 47, 55, 0x404040);
 
         this.buttonToggleTeamLevel.visible = trader.getOwner().hasTeam();
         if(this.buttonToggleTeamLevel.visible)
         {
-            Component message = Component.translatable("gui.button.lightmanscurrency.team.bank.notifications", Component.translatable("gui.button.lightmanscurrency.team.bank.limit." + trader.teamNotificationLevel()));
+            Component message = EasyText.translatable("gui.button.lightmanscurrency.team.bank.notifications", EasyText.translatable("gui.button.lightmanscurrency.team.bank.limit." + trader.teamNotificationLevel()));
             this.buttonToggleTeamLevel.setMessage(message);
         }
 
     }
 
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-    }
-
-    @Override
-    public void tick() {
-
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-        {
-            this.buttonToggleNotifications.setResource(IconAndButtonUtil.WIDGET_TEXTURE, 10, trader.notificationsEnabled() ? 200 : 220);
-            this.buttonToggleChatNotifications.setResource(IconAndButtonUtil.WIDGET_TEXTURE, 10, trader.notificationsToChat() ? 200 : 220);
-        }
-
-    }
-
-    private void ToggleNotifications(Button button) {
+    private void ToggleNotifications(EasyButton button) {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
@@ -103,7 +91,7 @@ public class NotificationTab extends SettingsSubTab {
         this.sendNetworkMessage(message);
     }
 
-    private void ToggleChatNotifications(Button button) {
+    private void ToggleChatNotifications(EasyButton button) {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
@@ -112,7 +100,7 @@ public class NotificationTab extends SettingsSubTab {
         this.sendNetworkMessage(message);
     }
 
-    private void ToggleTeamNotificationLevel(Button button) {
+    private void ToggleTeamNotificationLevel(EasyButton button) {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;

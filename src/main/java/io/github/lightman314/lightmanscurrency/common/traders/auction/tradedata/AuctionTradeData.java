@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonObject;
 
@@ -24,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.T
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
 import io.github.lightman314.lightmanscurrency.common.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -41,6 +41,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nonnull;
 
 public class AuctionTradeData extends TradeData {
 
@@ -62,7 +64,7 @@ public class AuctionTradeData extends TradeData {
 	private String persistentID = "";
 	public boolean isPersistentID(String id) { return this.persistentID.equals(id); }
 	
-	CoinValue lastBidAmount = new CoinValue();
+	CoinValue lastBidAmount = CoinValue.EMPTY;
 	public CoinValue getLastBidAmount() { return this.lastBidAmount; }
 	PlayerReference lastBidPlayer = null;
 	public PlayerReference getLastBidPlayer() { return this.lastBidPlayer; }
@@ -70,17 +72,17 @@ public class AuctionTradeData extends TradeData {
 	public void setStartingBid(CoinValue amount) {
 		if(this.isActive())
 			return;
-		this.lastBidAmount = amount.copy();
+		this.lastBidAmount = amount;
 	}
 	
-	CoinValue minBidDifference = new CoinValue(1);
+	CoinValue minBidDifference = CoinValue.fromNumber(1);
 	public CoinValue getMinBidDifference() { return this.minBidDifference; }
 	public void setMinBidDifferent(CoinValue amount) {
 		if(this.isActive())
 			return;
-		this.minBidDifference = amount.copy();
-		if(this.minBidDifference.getRawValue() <= 0)
-			this.minBidDifference = new CoinValue(1);
+		this.minBidDifference = amount;
+		if(this.minBidDifference.getValueNumber() <= 0)
+			this.minBidDifference = CoinValue.fromNumber(1);
 	}
 	PlayerReference tradeOwner;
 	public PlayerReference getOwner() { return this.tradeOwner; }
@@ -136,9 +138,9 @@ public class AuctionTradeData extends TradeData {
 			return false;
 		if(this.isActive() && this.hasExpired(TimeUtil.getCurrentTime()))
 			return false;
-		if(this.minBidDifference.getRawValue() <= 0)
+		if(this.minBidDifference.getValueNumber() <= 0)
 			return false;
-		return this.lastBidAmount.getRawValue() > 0;
+		return this.lastBidAmount.getValueNumber() > 0;
 	}
 	
 	public void startTimer() {
@@ -173,7 +175,7 @@ public class AuctionTradeData extends TradeData {
 		}
 		
 		this.lastBidPlayer = PlayerReference.of(player);
-		this.lastBidAmount = amount.copy();
+		this.lastBidAmount = amount;
 		
 		//Send notification to the previous bidder letting them know they've been out-bid.
 		if(oldBidder != null)
@@ -184,11 +186,14 @@ public class AuctionTradeData extends TradeData {
 	
 	public boolean validateBidAmount(CoinValue amount) {
 		CoinValue minAmount = this.getMinNextBid();
-		return amount.getRawValue() >= minAmount.getRawValue();
+		return amount.getValueNumber() >= minAmount.getValueNumber();
 	}
 	
 	public CoinValue getMinNextBid() {
-		return new CoinValue(this.lastBidPlayer == null ? this.lastBidAmount.getRawValue() : this.lastBidAmount.getRawValue() + this.minBidDifference.getRawValue());
+		if(this.lastBidPlayer == null)
+			return this.lastBidAmount;
+		else
+			return this.lastBidAmount.plusValue(this.minBidDifference);
 	}
 	
 	public void ExecuteTrade(AuctionHouseTrader trader) {
@@ -282,11 +287,11 @@ public class AuctionTradeData extends TradeData {
 			itemList.add(auctionItem.save(new CompoundTag()));
 		}
 		compound.put("SellItems", itemList);
-		this.lastBidAmount.save(compound, "LastBid");
+		compound.put("LastBid", this.lastBidAmount.save());
 		if(this.lastBidPlayer != null)
 			compound.put("LastBidPlayer", this.lastBidPlayer.save());
-		
-		this.minBidDifference.save(compound, "MinBid");
+
+		compound.put("MinBid", this.minBidDifference.save());
 		
 		compound.putLong("StartTime", this.startTime);
 		compound.putLong("Duration", this.duration);
@@ -327,13 +332,13 @@ public class AuctionTradeData extends TradeData {
 			if(!stack.isEmpty())
 				this.auctionItems.add(stack);
 		}
-		this.lastBidAmount.load(compound, "LastBid");
+		this.lastBidAmount = CoinValue.safeLoad(compound, "LastBid");
 		if(compound.contains("LastBidPlayer"))
 			this.lastBidPlayer = PlayerReference.load(compound.getCompound("LastBidPlayer"));
 		else
 			this.lastBidPlayer = null;
-		
-		this.minBidDifference.load(compound, "MinBid");
+
+		this.minBidDifference = CoinValue.safeLoad(compound, "MinBid");
 		
 		this.startTime = compound.getLong("StartTime");
 		this.duration = compound.getLong("Duration");
@@ -353,13 +358,13 @@ public class AuctionTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) { this.openCancelAuctionTab(tab); }
+	public void onInteraction(@Nonnull BasicTradeEditTab tab, Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }
 	
 	private void openCancelAuctionTab(BasicTradeEditTab tab) {
 		

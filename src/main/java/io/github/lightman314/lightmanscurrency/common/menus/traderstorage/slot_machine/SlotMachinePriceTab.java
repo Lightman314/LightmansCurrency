@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachinePriceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -23,7 +21,7 @@ public class SlotMachinePriceTab extends TraderStorageTab {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new SlotMachinePriceClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new SlotMachinePriceClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.EDIT_TRADES); }
@@ -45,7 +43,7 @@ public class SlotMachinePriceTab extends TraderStorageTab {
             if(this.menu.isClient())
             {
                 CompoundTag message = new CompoundTag();
-                message.put("SetPrice", newPrice.save(new CompoundTag(), "Price"));
+                message.put("SetPrice", newPrice.save());
                 this.menu.sendMessage(message);
             }
         }
@@ -55,7 +53,7 @@ public class SlotMachinePriceTab extends TraderStorageTab {
     public void receiveMessage(CompoundTag message) {
         if(message.contains("SetPrice"))
         {
-            this.SetPrice(CoinValue.from(message.getCompound("SetPrice"), "Price"));
+            this.SetPrice(CoinValue.load(message.getCompound("SetPrice")));
         }
     }
 

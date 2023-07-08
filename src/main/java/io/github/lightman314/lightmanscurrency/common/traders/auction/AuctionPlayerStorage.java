@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -19,9 +18,7 @@ public class AuctionPlayerStorage {
 	PlayerReference owner;
 	public PlayerReference getOwner() { return this.owner; }
 	
-	List<AuctionTradeData> expiredTrades = new ArrayList<>();
-	
-	CoinValue storedCoins = new CoinValue();
+	CoinValue storedCoins = CoinValue.EMPTY;
 	public CoinValue getStoredCoins() { return this.storedCoins; }
 	List<ItemStack> storedItems = new ArrayList<>();
 	public List<ItemStack> getStoredItems() { return this.storedItems; }
@@ -33,13 +30,11 @@ public class AuctionPlayerStorage {
 	public CompoundTag save(CompoundTag compound) {
 		
 		compound.put("Owner", this.owner.save());
-		
-		this.storedCoins.save(compound, "StoredMoney");
+
+		compound.put("StoredMoney", this.storedCoins.save());
 		ListTag itemList = new ListTag();
-		for(int i = 0; i < this.storedItems.size(); ++i)
-		{
-			itemList.add(this.storedItems.get(i).save(new CompoundTag()));
-		}
+		for (ItemStack storedItem : this.storedItems)
+			itemList.add(storedItem.save(new CompoundTag()));
 		compound.put("StoredItems", itemList);
 		
 		return compound;
@@ -48,8 +43,8 @@ public class AuctionPlayerStorage {
 	protected void load(CompoundTag compound) {
 		
 		this.owner = PlayerReference.load(compound.getCompound("Owner"));
-		
-		this.storedCoins.load(compound, "StoredMoney");
+
+		this.storedCoins = CoinValue.safeLoad(compound, "StoredMoney");
 		
 		this.storedItems.clear();
 		ListTag itemList = compound.getList("StoredItems", Tag.TAG_COMPOUND);
@@ -62,31 +57,11 @@ public class AuctionPlayerStorage {
 		
 	}
 	
-	public void giveMoney(CoinValue amount) {
-		this.storedCoins.addValue(amount);
-	}
-	
-	/**
-	 * Removes the given amount of money from the stored money.
-	 * Returns the money amount that was unable to be removed.
-	 */
-	public CoinValue takeMoney(CoinValue amount) {
-		long newValue = this.storedCoins.getRawValue() - amount.getRawValue();
-		if(newValue < 0)
-		{
-			this.storedCoins = new CoinValue();
-			return new CoinValue(-newValue);
-		}
-		else
-		{
-			this.storedCoins.loadFromOldValue(newValue);
-			return new CoinValue();
-		}	
-	}
+	public void giveMoney(CoinValue amount) { this.storedCoins = this.storedCoins.plusValue(amount); }
 	
 	public void collectedMoney(Player player) {
-		MoneyUtil.ProcessChange(null, player, this.storedCoins.copy());
-		this.storedCoins = new CoinValue();
+		MoneyUtil.ProcessChange(null, player, this.storedCoins);
+		this.storedCoins = CoinValue.EMPTY;
 	}
 	
 	public void giveItem(ItemStack item) {

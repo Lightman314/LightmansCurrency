@@ -1,23 +1,24 @@
 package io.github.lightman314.lightmanscurrency.common.atm.icons;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
 
 public class SimpleArrowIcon extends ATMIconData {
 
 	public static final ResourceLocation TYPE_NAME = new ResourceLocation(LightmansCurrency.MODID, "small_arrow");
 	public static final IconType TYPE = IconType.create(TYPE_NAME, SimpleArrowIcon::new);
-	
+
 	public enum ArrowType{
 		UP(0),
 		DOWN(6),
@@ -34,7 +35,7 @@ public class SimpleArrowIcon extends ATMIconData {
 			return ArrowType.RIGHT;
 		}
 	}
-	
+
 	private final ArrowType direction;
 	
 	public SimpleArrowIcon(JsonObject data) {
@@ -66,9 +67,9 @@ public class SimpleArrowIcon extends ATMIconData {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
-		RenderSystem.setShaderTexture(0, ATMScreen.BUTTON_TEXTURE);
-		GuiComponent.blit(pose, button.getX() + this.xPos, button.getY() + this.yPos, this.direction.uOffset, ATMConversionButton.HEIGHT * 2, 6, 6);
+	public void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered)
+	{
+		gui.blitSprite(Sprite.SimpleSprite(ATMScreen.BUTTON_TEXTURE, this.direction.uOffset, ATMExchangeButton.HEIGHT * 2, 6, 6), this.xPos, this.yPos, isHovered);
 	}
 	
 }

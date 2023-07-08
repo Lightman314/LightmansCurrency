@@ -1,19 +1,22 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -21,32 +24,28 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener {
+public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements InteractionConsumer, IItemEditListener, IMouseListener {
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 71;
 	private static final int COLUMNS = 10;
 	private static final int ROWS = 2;
 	
-	public ItemTradeEditClientTab(TraderStorageScreen screen, ItemTradeEditTab commonTab) {
-		super(screen, commonTab); 
-	}
+	public ItemTradeEditClientTab(Object screen, ItemTradeEditTab commonTab) { super(screen, commonTab); }
 	
+	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconData.BLANK; }
+	public IconData getIcon() { return IconData.BLANK; }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.empty(); }
+	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -64,38 +63,38 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	ItemEditWidget itemEdit;
 	ScrollBarWidget itemEditScroll;
 	
-	Button buttonToggleTradeType;
+	EasyButton buttonToggleTradeType;
 	PlainButton buttonToggleNBTEnforcement;
 	
 	private int selection = -1;
 	private int itemEditScrollValue = -1;
 	
 	@Override
-	public void onOpen() {
-		
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
+
+		this.addChild(this);
+
 		ItemTradeData trade = this.getTrade();
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + TraderScreen.WIDTH / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, Component.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
+		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
+		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
+		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(TraderScreen.WIDTH / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
-		this.priceSelection.init();
 		
-		this.itemEdit = this.screen.addRenderableTabWidget(new ItemEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
-		this.itemEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
+		this.itemEdit = this.addChild(new ItemEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this));
 		if(this.itemEditScrollValue >= 0)
 			this.itemEdit.setScroll(itemEditScrollValue);
 		
-		this.itemEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.itemEdit));
+		this.itemEditScroll = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + 18 * COLUMNS, Y_OFFSET), 18 * ROWS, this.itemEdit));
 		this.itemEditScroll.smallKnob = true;
 		
-		int labelWidth = this.font.width(Component.translatable("gui.lightmanscurrency.customname"));
-		this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 15 + labelWidth, this.screen.getGuiTop() + 38, this.screen.getXSize() - 28 - labelWidth, 18, Component.empty()));
+		int labelWidth = this.getFont().width(EasyText.translatable("gui.lightmanscurrency.customname"));
+		this.customNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 28 - labelWidth, 18, EasyText.empty()));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
-		this.buttonToggleNBTEnforcement = this.screen.addRenderableTabWidget(IconAndButtonUtil.checkmarkButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 4, this::ToggleNBTEnforcement, this::getEnforceNBTState));
+		this.buttonToggleTradeType = this.addChild(new EasyTextButton(screenArea.pos.offset(113, 15), 80, 20, EasyText.empty(), this::ToggleTradeType));
+		this.buttonToggleNBTEnforcement = this.addChild(IconAndButtonUtil.checkmarkButton(screenArea.pos.offset(113, 4), this::ToggleNBTEnforcement, this::getEnforceNBTState));
 
 	}
 
@@ -107,30 +106,28 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 	
 	@Override
-	public void onClose() { this.selection = -1; this.itemEditScrollValue = -1; }
+	public void closeAction() { this.selection = -1; this.itemEditScrollValue = -1; }
 
 	@Override
-	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		if(this.getTrade() == null)
 			return;
 		
 		this.validateRenderables();
 		
-		if(this.itemEditScroll.visible)
-			this.itemEditScroll.beforeWidgetRender(mouseY);
-		
 		//Render a down arrow over the selected position
 		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		
-		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
+		gui.resetColor();
+
+		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
 		if(this.customNameInput.visible)
-			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.customname"), this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 42, 0x404040);
+			gui.drawString(EasyText.translatable("gui.lightmanscurrency.customname"), 13, 42, 0x404040);
 
 		if(this.isNBTButtonVisible())
-			this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.blurb.nbt"), this.screen.getGuiLeft() + 124, this.screen.getGuiTop() + 5, 0x404040);
+			gui.drawString(EasyText.translatable("gui.lightmanscurrency.blurb.nbt"), 124, 5, 0x404040);
 
 	}
 	
@@ -140,21 +137,21 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		if(this.selection == -1)
 		{
 			if(trade.isSale())
-				return this.screen.getGuiLeft() + 25;
+				return 25;
 			if(trade.isPurchase())
-				return this.screen.getGuiLeft() + 81;
+				return 81;
 			else
-				return -100;
+				return -1000;
 		}
 		else
 		{
 			if(this.selection >= 2 && !trade.isBarter())
-				return -100;
+				return -1000;
 			int horizSlot = this.selection;
 			if(trade.isSale() || trade.isBarter())
 				horizSlot += 2;
 			int spacing = horizSlot % 4 >= 2 ? 20 : 0;
-			return this.screen.getGuiLeft() + 16 + (18 * (horizSlot % 4)) + spacing;
+			return 16 + (18 * (horizSlot % 4)) + spacing;
 		}
 	}
 	
@@ -167,7 +164,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
-		this.buttonToggleTradeType.setMessage(Component.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeType().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeType().name().toLowerCase()));
 	}
 	
 	@Override
@@ -189,16 +186,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 			return false;
 		else
 			return this.selection >= 0 && !trade.alwaysEnforcesNBT(this.selection);
-	}
-
-	@Override
-	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-		
-		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
-		
-		if(this.selection >= 0)
-			this.itemEdit.renderTooltips(this.screen, pose, mouseX, mouseY);
-		
 	}
 	
 	@Override
@@ -268,19 +255,15 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
-		this.itemEditScroll.onMouseClicked(mouseX, mouseY, button);
 		return false;
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.itemEditScroll.onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
-	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value.copy()); }
+	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
 
 	@Override
 	public ItemTradeData getTrade() { return this.commonTab.getTrade(); }
@@ -291,7 +274,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	@Override
 	public void onItemClicked(ItemStack item) { this.commonTab.setSelectedItem(this.selection, item); }
 	
-	private void ToggleTradeType(Button button) {
+	private void ToggleTradeType(EasyButton button) {
 		if(this.getTrade() != null)
 		{
 			this.commonTab.setType(this.getTrade().getTradeType().next());
@@ -299,7 +282,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		}
 	}
 
-	private void ToggleNBTEnforcement(Button button) {
+	private void ToggleNBTEnforcement(EasyButton button) {
 		if(this.getTrade() != null)
 			this.commonTab.setNBTEnforced(this.selection, !this.getTrade().getEnforceNBT(this.selection));
 	}

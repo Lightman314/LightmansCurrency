@@ -51,10 +51,10 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	}
 	
 	private boolean autoConvert;
-	public boolean canConvert() { return WalletItem.CanConvert(this.walletItem); }
+	public boolean canExchange() { return WalletItem.CanConvert(this.walletItem); }
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
-	public boolean getAutoConvert() { return this.autoConvert; }
+	public boolean getAutoExchange() { return this.autoConvert; }
 	public void ToggleAutoConvert() { this.autoConvert = !this.autoConvert; this.saveWalletContents(); }
 	
 	protected final Container coinInput;
@@ -156,7 +156,7 @@ public abstract class WalletMenuBase extends AbstractContainerMenu {
 	
 	public final void ConvertCoins()
 	{
-		MoneyUtil.ConvertAllCoinsUp(this.coinInput);
+		MoneyUtil.ExchangeAllCoinsUp(this.coinInput);
 		MoneyUtil.SortCoins(this.coinInput);
 		this.saveWalletContents();
 	}

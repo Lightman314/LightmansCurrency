@@ -53,6 +53,9 @@
     "item.lightmanscurrency.coin_chest_magnet_upgrade_3": "Magnet Upgrade (Gold)",
     "item.lightmanscurrency.coin_chest_magnet_upgrade_4": "Magnet Upgrade (Emerald)",
     "item.lightmanscurrency.coin_chest_security_upgrade": "Security Upgrade",
+	
+    "item.lightmanscurrency.upgrade_smithing_template": "Upgrade Smithing Template",
+    "item.lightmanscurrency.upgrade_smithing_template.tooltip": "Lightman's Currency Upgrade Template",
     
     "item.lightmanscurrency.generic.plural": "%ss",
     
@@ -87,6 +90,7 @@
 	
     "block.lightmanscurrency.vending_machine" : "Vending Machine",
 	"block.lightmanscurrency.vending_machine_lightgray" : "Light Gray Vending Machine",
+	"block.lightmanscurrency.vending_machine_light_gray" : "Light Gray Vending Machine",
 	"block.lightmanscurrency.vending_machine_gray" : "Gray Vending Machine",
 	"block.lightmanscurrency.vending_machine_black" : "Black Vending Machine",
 	"block.lightmanscurrency.vending_machine_brown" : "Brown Vending Machine",
@@ -97,6 +101,7 @@
 	"block.lightmanscurrency.vending_machine_green" : "Green Vending Machine",
 	"block.lightmanscurrency.vending_machine_cyan" : "Cyan Vending Machine",
 	"block.lightmanscurrency.vending_machine_lightblue" : "Light Blue Vending Machine",
+	"block.lightmanscurrency.vending_machine_light_blue" : "Light Blue Vending Machine",
 	"block.lightmanscurrency.vending_machine_blue" : "Blue Vending Machine",
 	"block.lightmanscurrency.vending_machine_purple" : "Purple Vending Machine",
     "block.lightmanscurrency.vending_machine_magenta" : "Magenta Vending Machine",
@@ -104,6 +109,7 @@
 	
     "block.lightmanscurrency.vending_machine_large" : "Large Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_lightgray" : "Large Light Gray Vending Machine",
+	"block.lightmanscurrency.vending_machine_large_light_gray" : "Large Light Gray Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_gray" : "Large Gray Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_black" : "Large Black Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_brown" : "Large Brown Vending Machine",
@@ -114,6 +120,7 @@
 	"block.lightmanscurrency.vending_machine_large_green" : "Large Green Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_cyan" : "Large Cyan Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_lightblue" : "Large Light Blue Vending Machine",
+	"block.lightmanscurrency.vending_machine_large_light_blue" : "Large Light Blue Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_blue" : "Large Blue Vending Machine",
 	"block.lightmanscurrency.vending_machine_large_purple" : "Large Purple Vending Machine",
     "block.lightmanscurrency.vending_machine_large_magenta" : "Large Magenta Vending Machine",
@@ -126,6 +133,8 @@
     "block.lightmanscurrency.shelf_acacia": "Acacia Shelf",
     "block.lightmanscurrency.shelf_dark_oak": "Dark Oak Shelf",
 	"block.lightmanscurrency.shelf_mangrove": "Mangrove Shelf",
+	"block.lightmanscurrency.shelf_cherry": "Cherry Shelf",
+	"block.lightmanscurrency.shelf_bamboo": "Bamboo Shelf",
     "block.lightmanscurrency.shelf_crimson": "Crimson Shelf",
     "block.lightmanscurrency.shelf_warped": "Warped Shelf",
 	
@@ -136,6 +145,8 @@
     "block.lightmanscurrency.card_display_acacia": "Acacia Card Display",
     "block.lightmanscurrency.card_display_dark_oak": "Dark Oak Card Display",
 	"block.lightmanscurrency.card_display_mangrove": "Mangrove Card Display",
+	"block.lightmanscurrency.card_display_cherry": "Cherry Card Display",
+	"block.lightmanscurrency.card_display_bamboo": "Bamboo Card Display",
     "block.lightmanscurrency.card_display_crimson": "Crimson Card Display",
     "block.lightmanscurrency.card_display_warped": "Warped Card Display",
    
@@ -167,6 +178,8 @@
 	"block.lightmanscurrency.bookshelf_trader_acacia": "Acacia Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_dark_oak": "Dark Oak Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_mangrove": "Mangrove Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_cherry": "Cherry Bookshelf Trader",
+	"block.lightmanscurrency.bookshelf_trader_bamboo": "Bamboo Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_crimson": "Crimson Bookshelf Trader",
 	"block.lightmanscurrency.bookshelf_trader_warped": "Warped Bookshelf Trader",
 	
@@ -190,6 +203,8 @@
     "block.lightmanscurrency.auction_stand_acacia": "Acacia Auction Stand",
     "block.lightmanscurrency.auction_stand_dark_oak": "Dark Oak Auction Stand",
     "block.lightmanscurrency.auction_stand_mangrove": "Mangrove Auction Stand",
+    "block.lightmanscurrency.auction_stand_cherry": "Cherry Auction Stand",
+    "block.lightmanscurrency.auction_stand_bamboo": "Bamboo Auction Stand",
     "block.lightmanscurrency.auction_stand_crimson": "Crimson Auction Stand",
     "block.lightmanscurrency.auction_stand_warped": "Warped Auction Stand",
 	
@@ -223,6 +238,9 @@
     "tooltip.lightmanscurrency.trader.network.item.1": "Item Network Trader:",
     "tooltip.lightmanscurrency.trader.network.item.2": "Can be used to Sell, Purchase, or Barter items with other players from any location.",
     "tooltip.lightmanscurrency.trader.network.item.3": "Can only be accessed via a Trading Terminal.",
+	"tooltip.lightmanscurrency.trader.slot_machine.1": "Slot Machine:",
+	"tooltip.lightmanscurrency.trader.slot_machine.2": "Can be used to Sell owner-defined random Items or Money to other players",
+	"tooltip.lightmanscurrency.trader.slot_machine.3": "with owner-defined odds of receiving each loot pool.",
     "tooltip.lightmanscurrency.terminal.1": "Can access Network Traders remotely.",
     "tooltip.lightmanscurrency.atm.1": "Can exchange coins for other coins of higher or lower values.",
     "tooltip.lightmanscurrency.atm.2": "Can deposit or withdraw coins from your bank account.",
@@ -813,6 +831,7 @@
 	"command.argument.coinvalue.novalue": "Value parsed was empty!",
     
     "lightmanscurrency.jei.info.ticket": "Crafted in the Ticket Station using a printed Master Ticket and a valid ticket material.",
+    "lightmanscurrency.jei.info.ticket.pass": "Crafted in the Ticket Station using a printed Master Ticket and a valid ticket material. Will not be consumed by Paygates.",
     "lightmanscurrency.jei.info.ticket_master": "Crafted in the Ticket Station using a valid ticket material. Each Master Ticket will have a unique id to prevent illegal ticket copying, and must be used to define ticket interactions.",
     "lightmanscurrency.jei.info.ticket_stub": "A broken ticket returned to the customer when a ticket is used on a Paygate.",
     "lightmanscurrency.jei.info.ticket_materials": "Valid Ticket Materials:%s",

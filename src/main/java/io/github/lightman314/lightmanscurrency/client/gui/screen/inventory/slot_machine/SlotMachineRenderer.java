@@ -2,26 +2,26 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class SlotMachineRenderer extends GuiComponent {
+public final class SlotMachineRenderer implements IEasyTickable {
 
     public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/container/slot_machine_overlay.png");
 
@@ -29,7 +29,7 @@ public final class SlotMachineRenderer extends GuiComponent {
     private final SlotMachineScreen screen;
     private final SlotMachineMenu menu;
     private SlotMachineTraderData getTrader() { return this.menu.getTrader(); }
-    private RandomSource getRandom() { return this.menu.player.level.random; }
+    private RandomSource getRandom() { return this.menu.player.level().random; }
 
     //public static final int ANIMATION_TIME = 100;
     public static int GetAnimationTime() { return Math.max(Config.CLIENT.slotMachineAnimationTime.get(), 20); }
@@ -195,14 +195,14 @@ public final class SlotMachineRenderer extends GuiComponent {
         }
     }
 
-    public void render(PoseStack pose, float partialTick)
+    public void render(@Nonnull EasyGuiGraphics gui)
     {
 
-        int startX = this.screen.getGuiLeft() + (this.screen.getXSize()/2) - ((SlotMachineEntry.ITEM_LIMIT * SlotMachineLine.BLOCK_SIZE)/2);
-        int y = this.screen.getGuiTop() + 10;
+        int startX = (this.screen.getXSize()/2) - ((SlotMachineEntry.ITEM_LIMIT * SlotMachineLine.BLOCK_SIZE)/2);
+        int y = 10;
         for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
         {
-            this.lines.get(i).render(pose, partialTick, startX, y);
+            this.lines.get(i).render(gui, startX, y);
             startX += SlotMachineLine.BLOCK_SIZE;
         }
 
@@ -211,10 +211,9 @@ public final class SlotMachineRenderer extends GuiComponent {
         RenderSystem.setShaderColor(1f,1f,1f,1f);
 
         //Move in from of the previously rendered lines
-        pose.pushPose();
-        ItemRenderUtil.TranslateToForeground(pose);
-        blit(pose, this.screen.getGuiLeft(), this.screen.getGuiTop(), 0, 0, this.screen.getXSize(), this.screen.getYSize());
-        pose.popPose();
+        gui.pushPose().TranslateToForeground();
+        gui.blit(GUI_TEXTURE, 0, 0, 0, 0, this.screen.getXSize(), this.screen.getYSize());
+        gui.popPose();
 
     }
 

@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.cl
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
@@ -141,7 +141,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         List<Component> tooltip = new ArrayList<>();
         if(!enforceNBT)
             tooltip.add(EasyText.translatable(purchase ? "gui.lightmanscurrency.warning.nbt.buying" : "gui.lightmanscurrency.warning.nbt.selling").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
-        tooltip.addAll(ItemRenderUtil.getTooltipFromItem(item));
+        tooltip.addAll(EasyScreenHelper.getTooltipFromItem(item));
         return tooltip;
     }
 

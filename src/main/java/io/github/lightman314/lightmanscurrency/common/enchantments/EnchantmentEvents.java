@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.enchantments;
 
+import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
+import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent;
@@ -29,12 +31,15 @@ public class EnchantmentEvents {
 
 		//Do nothing client-side
 		LivingEntity entity = event.getEntity();
-		if(!canTick || entity.level.isClientSide)
+		if(!canTick || entity.level().isClientSide)
 			return;
-		
-		MoneyMendingEnchantment.runEntityTick(entity);
-		
-		CoinMagnetEnchantment.runEntityTick(entity);
+
+		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+		if(walletHandler != null)
+		{
+			MoneyMendingEnchantment.runEntityTick(walletHandler, entity);
+			CoinMagnetEnchantment.runEntityTick(walletHandler, entity);
+		}
 		
 	}
 	

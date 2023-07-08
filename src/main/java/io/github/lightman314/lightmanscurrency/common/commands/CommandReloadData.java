@@ -6,11 +6,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.lightman314.lightmanscurrency.common.atm.ATMData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 
 public class CommandReloadData {
 	
@@ -30,7 +30,7 @@ public class CommandReloadData {
 		TraderSaveData.ReloadPersistentTraders();
 		MoneyUtil.reloadMoneyData();
 		ATMData.reloadATMData();
-		commandContext.getSource().sendSuccess(Component.translatable("command.lightmanscurrency.lcreload"), true);
+		commandContext.getSource().sendSuccess(() -> EasyText.translatable("command.lightmanscurrency.lcreload"), true);
 		return 1;
 		
 	}

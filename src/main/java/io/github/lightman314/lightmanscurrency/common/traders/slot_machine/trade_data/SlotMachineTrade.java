@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -10,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SlotMachineTrade extends TradeData {
 
@@ -48,13 +49,13 @@ public class SlotMachineTrade extends TradeData {
 
     //No Storage Menu Interactions for this Trade Type
     @Override
-    public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable TraderStorageMenu.IClientMessage clientHandler, int index, int button, ItemStack heldItem) { }
+    public void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { }
 
     @Override
-    public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable TraderStorageMenu.IClientMessage clientHandler, int index, int button, ItemStack heldItem) { }
+    public void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) { }
 
     @Override
-    public void onInteraction(BasicTradeEditTab tab, @Nullable TraderStorageMenu.IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) { }
+    public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
 
     //Block Trade-Specific Trade Rules as the Slot Machine only has 1 trade, thus trader-wide rules will suffice.
     @Override

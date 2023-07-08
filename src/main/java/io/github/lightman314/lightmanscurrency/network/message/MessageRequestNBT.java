@@ -13,15 +13,7 @@ public class MessageRequestNBT {
 
 	private final BlockPos pos;
 	
-	public MessageRequestNBT(BlockEntity tileEntity)
-	{
-		this.pos = tileEntity.getBlockPos();
-	}
-	
-	public MessageRequestNBT(BlockPos pos)
-	{
-		this.pos = pos;
-	}
+	public MessageRequestNBT(BlockPos pos) { this.pos = pos; }
 	
 	public static void encode(MessageRequestNBT message, FriendlyByteBuf buffer) { buffer.writeBlockPos(message.pos); }
 
@@ -36,7 +28,7 @@ public class MessageRequestNBT {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				BlockEntity blockEntity = player.level().getBlockEntity(message.pos);
 				if(blockEntity != null)
 				{
 					BlockEntityUtil.sendUpdatePacket(blockEntity);

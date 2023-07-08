@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -59,7 +60,18 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 	Map<Integer,TraderStorageTab> availableTabs = new HashMap<>();
 	public Map<Integer,TraderStorageTab> getAllTabs() { return this.availableTabs; }
 	public void setTab(int key, TraderStorageTab tab) { if(this.canEditTabs && tab != null) this.availableTabs.put(key, tab); else if(tab == null) LightmansCurrency.LogError("Attempted to set a null storage tab in slot " + key); else LightmansCurrency.LogError("Attempted to define the tab in " + key + " but the tabs have been locked."); }
-	public void clearTab(int key) { if(this.canEditTabs) this.availableTabs.remove(key); else LightmansCurrency.LogError("Attempted to clear the tab in " + key + " but the tabs have been locked."); }
+	public void clearTab(int key)
+	{
+		if(this.canEditTabs)
+		{
+			if(key == TraderStorageTab.TAB_TRADE_BASIC)
+				LightmansCurrency.LogError("Attempted to clear the basic trade tab!\nTabs at this index cannot be removed, as there must be one present at all times.\nIf you wish to replace this tab with your own use setTab!");
+			else
+				this.availableTabs.remove(key);
+		}
+		else
+			LightmansCurrency.LogError("Attempted to clear the tab in " + key + " but the tabs have been locked.");
+	}
 	int currentTab = TraderStorageTab.TAB_TRADE_BASIC;
 	public int getCurrentTabIndex() { return this.currentTab; }
 	public TraderStorageTab getCurrentTab() { return this.availableTabs.get(this.currentTab); }
@@ -68,10 +80,10 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 	
 	public TradeContext getContext() { return TradeContext.createStorageMode(this.traderSource.get()); }
 	
-	public boolean isClient() { return this.player.level.isClientSide; }
+	public boolean isClient() { return this.player.level().isClientSide; }
 	
 	public TraderStorageMenu(int windowID, Inventory inventory, long traderID) {
-		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level.isClientSide, traderID));
+		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderSaveData.GetTrader(inventory.player.level().isClientSide, traderID));
 	}
 	
 	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource) {
@@ -124,7 +136,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 	}
 	
 	@Override
-	public void removed(@NotNull Player player) {
+	public void removed(@Nonnull Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coinSlotContainer);
 		this.availableTabs.forEach((key, tab) -> tab.onMenuClose());
@@ -293,10 +305,6 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 			this.listeners.add(listener);
 	}
 	
-	public interface IClientMessage {
-		void selfMessage(CompoundTag message);
-	}
-	
 	public boolean HasCoinsToAdd() { return MoneyUtil.getValue(this.coinSlotContainer) > 0; }
 
 	public void CollectCoinStorage() {
@@ -310,7 +318,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 		if(trader.hasPermission(this.player, Permissions.COLLECT_COINS))
 		{
 			CoinValue storedMoney = trader.getInternalStoredMoney();
-			if(storedMoney.getRawValue() > 0)
+			if(storedMoney.getValueNumber() > 0)
 			{
 				TradeContext tempContext = TradeContext.create(trader, this.player).withCoinSlots(this.coinSlotContainer).build();
 				if(tempContext.givePayment(storedMoney))
@@ -331,7 +339,7 @@ public class TraderStorageMenu extends AbstractContainerMenu implements IClientT
 		}
 		if(trader.hasPermission(this.player, Permissions.STORE_COINS))
 		{
-			CoinValue addAmount = CoinValue.easyBuild2(this.coinSlotContainer);
+			CoinValue addAmount = CoinValue.fromInventory(this.coinSlotContainer);
 			trader.addStoredMoney(addAmount);
 			this.coinSlotContainer.clearContent();
 		}

@@ -31,8 +31,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public abstract class TraderBlockTallRotatable extends TraderBlockRotatable implements ITallBlock{
 
 	protected static final BooleanProperty ISBOTTOM = BlockStateProperties.BOTTOM;
@@ -44,7 +42,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 	
 	protected TraderBlockTallRotatable(Properties properties, BiFunction<Direction,Boolean,VoxelShape> shape)
 	{
-		super(properties);
+		super(properties.pushReaction(PushReaction.BLOCK));
 		this.shape = shape;
 		this.registerDefaultState(
 			this.defaultBlockState()
@@ -75,13 +73,6 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		return super.getStateForPlacement(context).setValue(ISBOTTOM,true);
 	}
 	
-	@Nonnull
-	@Override
-	public PushReaction getPistonPushReaction(@Nonnull BlockState state)
-	{
-		return PushReaction.BLOCK;
-	}
-	
 	@Override
 	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
 	{
@@ -102,7 +93,7 @@ public abstract class TraderBlockTallRotatable extends TraderBlockRotatable impl
 		this.setPlacedByBase(level, pos, state, player, stack);
 		
 	}
-	
+
 	public boolean getReplacable(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack) {
 		if(player instanceof Player)
 		{

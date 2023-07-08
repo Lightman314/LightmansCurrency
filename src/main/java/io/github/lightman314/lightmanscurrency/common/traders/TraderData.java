@@ -13,10 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.registries.Registries;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -29,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankSaveData;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
@@ -276,15 +274,15 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		return Component.translatable("gui.lightmanscurrency.universaltrader.default");
 	}
 	
-	private CoinValue storedMoney = new CoinValue();
+	private CoinValue storedMoney = CoinValue.EMPTY;
 	public CoinValue getStoredMoney()
 	{
 		BankAccount ba = this.getBankAccount();
 		if(ba != null)
 			return ba.getCoinStorage();
-		return this.storedMoney.copy();
+		return this.storedMoney;
 	}
-	public CoinValue getInternalStoredMoney() { return this.storedMoney.copy(); }
+	public CoinValue getInternalStoredMoney() { return this.storedMoney; }
 	public void addStoredMoney(CoinValue amount) {
 		BankAccount ba = this.getBankAccount();
 		if(ba != null)
@@ -293,22 +291,21 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 			ba.LogInteraction(this, amount, true);
 			return;
 		}
-		this.storedMoney.addValue(amount);
+		this.storedMoney = this.storedMoney.plusValue(amount);
 		this.markDirty(this::saveStoredMoney);
 	}
 	public void removeStoredMoney(CoinValue amount) {
 		BankAccount ba = this.getBankAccount();
-		if(ba != null)
-		{
+		if(ba != null) {
 			ba.withdrawCoins(amount);
 			ba.LogInteraction(this, amount, false);
 			return;
-		}	
-		this.storedMoney.removeValue(amount);
+		}
+		this.storedMoney.minusValue(amount);
 		this.markDirty(this::saveStoredMoney);
 	}
 	public void clearStoredMoney() {
-		this.storedMoney = new CoinValue();
+		this.storedMoney = CoinValue.EMPTY;
 		this.markDirty(this::saveStoredMoney);
 	}
 	
@@ -330,7 +327,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 				if(account != null)
 				{
 					account.depositCoins(this.storedMoney);
-					this.storedMoney = new CoinValue();
+					this.storedMoney = CoinValue.EMPTY;
 					this.markDirty(this::saveStoredMoney);
 				}
 				else
@@ -538,7 +535,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected final void saveUpgrades(CompoundTag compound) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades); }
 	
-	protected final void saveStoredMoney(CompoundTag compound) { this.storedMoney.save(compound, "StoredMoney"); }
+	protected final void saveStoredMoney(CompoundTag compound) { compound.put("StoredMoney", this.storedMoney.save()); }
 	
 	protected final void saveLinkedBankAccount(CompoundTag compound) { compound.putBoolean("LinkedToBank", this.linkedToBank); }
 	
@@ -652,7 +649,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		}
 		
 		if(compound.contains("StoredMoney"))
-			this.storedMoney.load(compound, "StoredMoney");
+			this.storedMoney = CoinValue.safeLoad(compound, "StoredMoney");
 		
 		if(compound.contains("LinkedToBank"))
 			this.linkedToBank = compound.getBoolean("LinkedToBank");
@@ -730,13 +727,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected MenuProvider getTraderMenuProvider() { return new TraderMenuProvider(this.id); }
 
-	private record TraderMenuProvider(long traderID) implements MenuProvider {
+	private record TraderMenuProvider(long traderID) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
-
-		@Override
-		public @NotNull Component getDisplayName() { return Component.empty(); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderMenu(windowID, inventory, this.traderID); }
 
 	}
 
@@ -749,13 +743,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	
 	protected MenuProvider getTraderStorageMenuProvider()  { return new TraderStorageMenuProvider(this.id); }
 
-	private record TraderStorageMenuProvider(long traderID) implements MenuProvider {
+	private record TraderStorageMenuProvider(long traderID) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
-
-		@Override
-		public @NotNull Component getDisplayName() { return Component.empty(); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new TraderStorageMenu(windowID, inventory, this.traderID); }
 
 	}
 
@@ -825,7 +816,7 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		MinecraftForge.EVENT_BUS.post(event);
 	}
 	
-	@NotNull
+	@Nonnull
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction relativeSide) { return LazyOptional.empty(); }
 	
 	//Content drops
@@ -1263,10 +1254,10 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public void onScreenInit(TraderScreen screen, Consumer<AbstractWidget> addWidget) { }
+	public void onScreenInit(TraderScreen screen, Consumer<Object> addWidget) { }
 
 	@OnlyIn(Dist.CLIENT)
-	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<AbstractWidget> addWidget) { }
+	public void onStorageScreenInit(TraderStorageScreen screen, Consumer<Object> addWidget) { }
 
 	public final void pushLocalNotification(Notification notification)
 	{
@@ -1312,118 +1303,18 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 	public final TraderCategory getNotificationCategory() {
 		return new TraderCategory(this.traderBlock != null ? this.traderBlock : ModItems.TRADING_CORE.get(), this.getName(), this.id);
 	}
-	
-	public final @NotNull List<TraderData> getTraders() { return Lists.newArrayList(this); }
+
+	@Nonnull
+	public final List<TraderData> getTraders() { return Lists.newArrayList(this); }
 	public final boolean isSingleTrader() { return true; }
 	
 	public static MenuProvider getTraderMenuProvider(BlockPos traderSourcePosition) { return new TraderMenuProviderBlock(traderSourcePosition); }
 
-	private record TraderMenuProviderBlock(BlockPos traderSourcePosition) implements MenuProvider {
+	private record TraderMenuProviderBlock(BlockPos traderSourcePosition) implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @NotNull Inventory inventory, @NotNull Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
-
-		@Override
-		public @NotNull Component getDisplayName() { return Component.empty(); }
+		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull  Player player) { return new TraderMenu.TraderMenuBlockSource(windowID, inventory, this.traderSourcePosition); }
 
 	}
-	
-	@Deprecated
-	public final void loadOldUniversalTraderData(CompoundTag compound) {
-		
-		//Core Settings
-		if(compound.contains("CoreSettings", Tag.TAG_COMPOUND))
-			this.loadOldCoreSettingData(compound.getCompound("CoreSettings"));
-		
-		//Position
-		if(compound.contains("x") && compound.contains("y") && compound.contains("z"))
-			this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
-		if(compound.contains("World"))
-			this.level = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("World")));
-
-		//Stored Money
-		if(compound.contains("StoredMoney"))
-			this.storedMoney.load(compound, "StoredMoney");
-		
-		this.loadExtraOldUniversalTraderData(compound);
-
-	}
-	
-	@Deprecated
-	private void loadOldCoreSettingData(CompoundTag compound) {
-		if(compound.contains("Owner",Tag.TAG_COMPOUND))
-			this.owner.SetOwner(PlayerReference.load(compound.getCompound("Owner")));
-		if(compound.contains("CustomOwnerName", Tag.TAG_STRING))
-			this.owner.SetCustomOwner(compound.getString("CustomOwnerName"));
-		if(compound.contains("Team", Tag.TAG_INT_ARRAY))
-		{
-			Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Team")));
-			if(team != null)
-				this.owner.SetOwner(team);
-		}
-		if(compound.contains("Allies"))
-		{
-			this.allies.clear();
-			this.allies.addAll(PlayerReference.loadList(compound, "Allies"));
-		}
-		if(compound.contains("AllyPermissions", Tag.TAG_LIST))
-		{
-			this.allyPermissions.clear();
-			ListTag list = compound.getList("AllyPermissions", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				CompoundTag thisCompound = list.getCompound(i);
-				String permission = thisCompound.getString("permission");
-				int level = thisCompound.getInt("level");
-				this.allyPermissions.put(permission, level);
-			}
-		}
-		if(compound.contains("CustomName", Tag.TAG_STRING))
-			this.customName = compound.getString("CustomName");
-		if(compound.contains("Creative"))
-			this.creative = compound.getBoolean("Creative");
-		if(compound.contains("BankLink"))
-			this.linkedToBank = compound.getBoolean("BankLink");
-		if(compound.contains("Notifications"))
-			this.notificationsEnabled = compound.getBoolean("Notifications");
-		if(compound.contains("ChatNotifications"))
-			this.notificationsToChat = compound.getBoolean("ChatNotifications");
-		if(compound.contains("TeamNotifications"))
-			this.teamNotificationLevel = compound.getInt("TeamNotifications");
-		//Logger
-		//Not going to bother loading the settings logger. I think this is something not worth fighting over.
-	}
-	
-	@Deprecated
-	protected final void loadOldUpgradeData(Container upgradeInventory) {
-		this.upgrades.clearContent();
-		for(int i = 0; i < this.upgrades.getContainerSize() && i < upgradeInventory.getContainerSize(); ++i)
-			this.upgrades.setItem(i, upgradeInventory.getItem(i));
-		this.upgrades.addListener(c -> this.markDirty(this::saveUpgrades));
-	}
-	
-	@Deprecated
-	protected final void loadOldTradeRuleData(List<TradeRule> rules) {
-		this.rules = rules;
-		for(TradeRule r : this.rules)
-			r.setActive(true);
-		TradeRule.ValidateTradeRuleList(this.rules, this);
-	}
-	
-	@Deprecated
-	protected abstract void loadExtraOldUniversalTraderData(CompoundTag compound);
-	
-	@Deprecated
-	public final void loadOldBlockEntityData(CompoundTag compound) {
-		if(compound.contains("CoreSettings"))
-			this.loadOldCoreSettingData(compound.getCompound("CoreSettings"));
-		
-		this.storedMoney.load(compound, "StoredMoney");
-		
-		this.loadExtraOldBlockEntityData(compound);
-	}
-	
-	@Deprecated
-	protected abstract void loadExtraOldBlockEntityData(CompoundTag compound);
 	
 }

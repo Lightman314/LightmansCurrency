@@ -5,74 +5,57 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.client.gui.components.AbstractWidget;
 
-public class LazyWidgetPositioner {
+public class LazyWidgetPositioner implements IPreRender {
 
-	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_TOPDOWN = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() + (positioner.widgetSize * positioner.getPositionIndex()));
+	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_TOPDOWN = positioner -> positioner.startPos().offset(0, positioner.widgetSize * positioner.getPositionIndex());
 	
-	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_BOTTOMUP = positioner -> ScreenPosition.of(positioner.startX(), positioner.startY() - (positioner.widgetSize * positioner.getPositionIndex()));
+	public static final Function<LazyWidgetPositioner,ScreenPosition> MODE_BOTTOMUP = positioner -> positioner.startPos().offset(0, -positioner.widgetSize * positioner.getPositionIndex());
 	
-	private final IScreen screen;
+	private final IEasyScreen screen;
 	private final Function<LazyWidgetPositioner,ScreenPosition> mode;
-	private final List<AbstractWidget> widgetList = new ArrayList<>();
-	
-	private final int x1;
-	private final int y1;
+	private final List<EasyWidget> widgetList = new ArrayList<>();
+
+	private final ScreenPosition offset;
 	public final int widgetSize;
-	public final int startX() { return this.screen.getGuiLeft() + this.x1; }
-	public final int startY() { return this.screen.getGuiTop() + this.y1; }
+	public final ScreenPosition startPos() { return this.screen.getCorner().offset(this.offset); }
 	
 	private int posIndex;
 	public int getPositionIndex() { return this.posIndex; }
-	
-	@SafeVarargs
-	@Deprecated
-	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
-		return new LazyWidgetPositioner(screen, mode, x1, y1, widgetSize, widgets);
+
+	public static LazyWidgetPositioner create(IEasyScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, ScreenPosition offset, int widgetSize) { return new LazyWidgetPositioner(screen, mode, offset, widgetSize); }
+	public static LazyWidgetPositioner create(IEasyScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize) {
+		return new LazyWidgetPositioner(screen, mode, ScreenPosition.of(x1, y1), widgetSize);
 	}
 
-	public static LazyWidgetPositioner create(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize) {
-		return new LazyWidgetPositioner(screen, mode, x1, y1, widgetSize);
-	}
-
-	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize) {
+	private LazyWidgetPositioner(IEasyScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, ScreenPosition offset, int widgetSize) {
 		this.screen = Objects.requireNonNull(screen);
 		this.mode = Objects.requireNonNull(mode);
-		this.x1 = x1;
-		this.y1 = y1;
+		this.offset = offset;
 		this.widgetSize = widgetSize;
-		this.screen.addTickListener(this::reposition);
-	}
-
-	@SafeVarargs
-	private LazyWidgetPositioner(IScreen screen, Function<LazyWidgetPositioner,ScreenPosition> mode, int x1, int y1, int widgetSize, AbstractWidget... widgets) {
-		this.screen = Objects.requireNonNull(screen);
-		this.mode = Objects.requireNonNull(mode);
-		this.x1 = x1;
-		this.y1 = y1;
-		this.widgetSize = widgetSize;
-		this.screen.addTickListener(this::reposition);
-		for(AbstractWidget w : widgets) this.addWidget(w);
 	}
 	
-	public void addWidget(AbstractWidget widget) {
+	public void addWidget(EasyWidget widget) {
 		if(widget != null && !this.widgetList.contains(widget))
 			this.widgetList.add(widget);
 	}
 
-	public <T extends AbstractWidget> void addWidgets(AbstractWidget... widgets) {
-		for(AbstractWidget w : widgets)
+	public void addWidgets(EasyWidget... widgets) {
+		for(EasyWidget w : widgets)
 			this.addWidget(w);
 	}
-	
-	public void reposition() {
+
+	@Override
+	public void preRender(EasyGuiGraphics gui) {
 		this.posIndex = 0;
-		for (AbstractWidget w : this.widgetList) {
-			if (w.visible) {
-				ScreenPosition pos = this.mode.apply(this);
-				w.setPosition(pos.x, pos.y);
+		for (EasyWidget w : this.widgetList) {
+			if (w.isVisible()) {
+				w.setPosition(this.mode.apply(this));
 				this.posIndex++;
 			}
 		}

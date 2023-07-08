@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -36,11 +37,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.NonNullSupplier;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class TraderBlockBase extends Block implements ITraderBlock, IEasyEntityBlock {
 
@@ -57,8 +58,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 		this.shape = shape != null ? shape : LazyShapes.BOX_T;
 	}
 	
+	@Nonnull
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) { return this.shape; }
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
@@ -70,13 +72,13 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return this.validTraderTypes(); }
 
 	@Override
-	public final BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+	public final BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
 		return this.makeDummy(pos, state);
 	}
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
+	public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -105,7 +107,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	}
 	
 	@Override
-	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		this.setPlacedByBase(level, pos, state, player, stack);
 	}
@@ -127,7 +129,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	}
 	
 	@Override
-	public void playerWillDestroy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public void playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		this.playerWillDestroyBase(level, pos, state, player);
 	}
@@ -157,7 +159,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public void onRemove(BlockState state, @NotNull Level level, @NotNull BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
@@ -206,7 +208,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);

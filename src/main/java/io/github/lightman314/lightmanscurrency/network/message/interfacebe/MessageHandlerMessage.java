@@ -42,10 +42,9 @@ public class MessageHandlerMessage {
 			ServerPlayer player = supplier.get().getSender();
 			if(player != null)
 			{
-				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof TraderInterfaceBlockEntity)
+				BlockEntity blockEntity = player.level().getBlockEntity(message.pos);
+				if(blockEntity instanceof TraderInterfaceBlockEntity interfaceBE)
 				{
-					TraderInterfaceBlockEntity interfaceBE = (TraderInterfaceBlockEntity)blockEntity;
 					interfaceBE.receiveHandlerMessage(message.type, player, message.updateInfo);
 				}
 			}

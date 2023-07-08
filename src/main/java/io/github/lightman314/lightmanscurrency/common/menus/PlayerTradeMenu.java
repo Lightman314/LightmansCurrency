@@ -25,7 +25,7 @@ public class PlayerTradeMenu extends AbstractContainerMenu {
 
     public final Player player;
 
-    public boolean isClient() { return this.player.level.isClientSide; }
+    public boolean isClient() { return this.player.level().isClientSide; }
     public boolean isServer() { return !this.isClient(); }
 
     public final boolean isHost() { return this.trade.isHost(this.player); }

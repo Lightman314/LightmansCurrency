@@ -21,6 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nonnull;
+
 public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	//Max enchantment level
@@ -38,48 +40,44 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 
 	public int getMaxLevel() { return MAX_LEVEL; }
 	
-	public static void runEntityTick(LivingEntity entity) {
+	public static void runEntityTick(@Nonnull IWalletHandler walletHandler, LivingEntity entity) {
 		if(entity.isSpectator())
 			return;
-		IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
-		if(walletHandler != null)
-		{
-			ItemStack wallet = walletHandler.getWallet();
-			//Don't do anything if the stack is not a waller
-			//Or if the wallet cannot pick up coins
-			if(!WalletItem.isWallet(wallet) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
-				return;
-			//Get the level (-1 to properly calculate range)
-			int enchantLevel = wallet.getEnchantmentLevel(ModEnchantments.COIN_MAGNET.get());
-			//Don't do anything if the Coin Magnet enchantment is not present.
-			if(enchantLevel <= 0)
-				return;
-			//Calculate the search radius
-			float range = getCollectionRange(enchantLevel);
-			Level level = entity.level;
+		ItemStack wallet = walletHandler.getWallet();
+		//Don't do anything if the stack is not a waller
+		//Or if the wallet cannot pick up coins
+		if(!WalletItem.isWallet(wallet) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
+			return;
+		//Get the level (-1 to properly calculate range)
+		int enchantLevel = wallet.getEnchantmentLevel(ModEnchantments.COIN_MAGNET.get());
+		//Don't do anything if the Coin Magnet enchantment is not present.
+		if(enchantLevel <= 0)
+			return;
+		//Calculate the search radius
+		float range = getCollectionRange(enchantLevel);
+		Level level = entity.level();
 
-			AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
-			boolean updateWallet = false;
-			for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
+		AABB searchBox = new AABB(entity.xo - range, entity.yo - range, entity.zo - range, entity.xo + range, entity.yo + range, entity.zo + range);
+		boolean updateWallet = false;
+		for(Entity e : level.getEntities(entity, searchBox, CoinMagnetEnchantment::coinMagnetEntityFilter))
+		{
+			ItemEntity ie = (ItemEntity)e;
+			ItemStack coinStack = ie.getItem();
+			ItemStack leftovers = WalletItem.PickupCoin(wallet, coinStack);
+			if(leftovers.getCount() != coinStack.getCount())
 			{
-				ItemEntity ie = (ItemEntity)e;
-				ItemStack coinStack = ie.getItem();
-				ItemStack leftovers = WalletItem.PickupCoin(wallet, coinStack);
-				if(leftovers.getCount() != coinStack.getCount())
-				{
-					updateWallet = true;
-					if(leftovers.isEmpty())
-						ie.discard();
-					else
-						ie.setItem(leftovers);
-					level.playSound(null, entity, ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
-				}
+				updateWallet = true;
+				if(leftovers.isEmpty())
+					ie.discard();
+				else
+					ie.setItem(leftovers);
+				level.playSound(null, entity, ModSounds.COINS_CLINKING.get(), SoundSource.PLAYERS, 0.4f, 1f);
 			}
-			if(updateWallet)
-			{
-				walletHandler.setWallet(wallet);
-				WalletMenuBase.OnWalletUpdated(entity);
-			}
+		}
+		if(updateWallet)
+		{
+			walletHandler.setWallet(wallet);
+			WalletMenuBase.OnWalletUpdated(entity);
 		}
 	}
 

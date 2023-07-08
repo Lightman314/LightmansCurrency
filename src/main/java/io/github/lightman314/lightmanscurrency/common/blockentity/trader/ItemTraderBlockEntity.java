@@ -118,13 +118,5 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
-
-	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
-		ItemTraderData newTrader = new ItemTraderData(1, this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
-	}
 	
 }
