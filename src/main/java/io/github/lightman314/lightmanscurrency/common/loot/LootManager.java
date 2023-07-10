@@ -637,7 +637,7 @@ public class LootManager {
 	private static List<ItemStack> safelyGetResults(LootTable.Builder table, LootContext context) {
 		List<ItemStack> results = new ArrayList<>();
 		//Call getRandomItems(LootContext,Consumer<ItemStack>) to keep it from being modified by the GLM's and getting stuck in an infinite loop.
-		table.build().getRandomItems(context, results::add);
+		table.build().getRandomItemsRaw(context, results::add);
 		return results;
 	}
 

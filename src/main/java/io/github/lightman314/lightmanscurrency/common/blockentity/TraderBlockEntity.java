@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -185,6 +186,13 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	{
 		if(this.level.isClientSide)
 			BlockEntityUtil.requestUpdatePacket(this);
+		else
+		{
+			//Check if this block should be replaced
+			BlockState bs = this.level.getBlockState(this.worldPosition);
+			if(bs.getBlock() instanceof IDeprecatedBlock block)
+				block.replaceBlock(this.level, this.worldPosition, bs);
+		}
 	}
 	
 	@Override

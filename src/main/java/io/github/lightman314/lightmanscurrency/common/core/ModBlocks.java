@@ -15,10 +15,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.items.CashRegisterItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinBlockItem;
-import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
-import io.github.lightman314.lightmanscurrency.common.items.CustomBlockModelItem;
+import io.github.lightman314.lightmanscurrency.common.items.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +46,91 @@ public class ModBlocks {
 	private static Function<Block,Item> getCustomRendererGenerator() {
 		return block -> new CustomBlockModelItem(block, new Item.Properties());
 	}
+
+	//Coin piles
+	public static final RegistryObject<Block> COINPILE_COPPER;
+	public static final RegistryObject<Block> COINPILE_IRON;
+	public static final RegistryObject<Block> COINPILE_GOLD;
+	public static final RegistryObject<Block> COINPILE_DIAMOND;
+	public static final RegistryObject<Block> COINPILE_EMERALD;
+	public static final RegistryObject<Block> COINPILE_NETHERITE;
+
+	//Coin blocks
+	public static final RegistryObject<Block> COINBLOCK_COPPER;
+	public static final RegistryObject<Block> COINBLOCK_IRON;
+	public static final RegistryObject<Block> COINBLOCK_GOLD;
+	public static final RegistryObject<Block> COINBLOCK_EMERALD;
+	public static final RegistryObject<Block> COINBLOCK_DIAMOND;
+	public static final RegistryObject<Block> COINBLOCK_NETHERITE;
+
+	//Machines
+	//Misc Machines
+	public static final RegistryObject<Block> MACHINE_ATM;
+	public static final RegistryObject<Block> MACHINE_MINT;
+
+	//Display Case
+	public static final RegistryObject<Block> DISPLAY_CASE;
+
+	//Vending Machines
+	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE;
+	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE_OLDCOLORS;
+
+	//Large Vending Machines
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
+	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE_OLDCOLORS;
+
+	//Wooden Shelves
+	public static final RegistryObjectBundle<Block, WoodType> SHELF;
+
+	//Card Shelves
+	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
+
+	//Armor Display
+	public static final RegistryObject<Block> ARMOR_DISPLAY;
+
+	//Freezer
+	public static final RegistryObjectBundle<FreezerBlock,Color> FREEZER;
+
+
+	//Network Traders
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_1;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_2;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_3;
+	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_4;
+
+	//Trader Interface
+	public static final RegistryObject<Block> ITEM_TRADER_INTERFACE;
+
+	//Cash Register
+	public static final RegistryObject<Block> CASH_REGISTER;
+
+	//Terminal
+	public static final RegistryObject<Block> TERMINAL;
+	public static final RegistryObject<Block> GEM_TERMINAL;
+
+	//Paygate
+	public static final RegistryObject<Block> PAYGATE;
+
+	//Ticket Kiosk
+	public static final RegistryObject<Block> TICKET_KIOSK;
+
+	//Bookshelf Traders
+	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
+
+	public static final RegistryObject<Block> SLOT_MACHINE;
+
+	//Ticket Machine
+	public static final RegistryObject<Block> TICKET_STATION;
+
+	//Coin Chest
+	public static final RegistryObject<Block> COIN_CHEST;
+
+	//Coin Jars
+	public static final RegistryObject<Block> PIGGY_BANK;
+	public static final RegistryObject<Block> COINJAR_BLUE;
+
+	//Auciton Stands
+	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
 
 	
 	static {
@@ -195,6 +277,14 @@ public class ModBlocks {
 				.sound(SoundType.METAL)
 			), Color.WHITE
 		);
+		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", VENDING_MACHINE, (c,b) -> new VendingMachineBlock.ReplaceMe(
+			Block.Properties.of()
+					.mapColor(c.mapColor)
+					.strength(5.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.METAL)
+				,b
+			)
+		);
 		
 		//Large Vending Machine
 		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", c -> new VendingMachineLargeBlock(
@@ -203,6 +293,14 @@ public class ModBlocks {
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 			), Color.WHITE
+		);
+		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", VENDING_MACHINE_LARGE, (c,b) -> new VendingMachineLargeBlock.ReplaceMe(
+			Block.Properties.of()
+					.mapColor(c.mapColor)
+					.strength(5.0f, Float.POSITIVE_INFINITY)
+					.sound(SoundType.METAL)
+				,b
+			)
 		);
 		
 		//Shelves
@@ -223,13 +321,14 @@ public class ModBlocks {
 		);
 		
 		//Freezer
-		FREEZER = registerFreezer("freezer", c -> new FreezerBlock(
+		FREEZER = registerColored("freezer", c -> new FreezerBlock(
 				Block.Properties.of()
 					.mapColor(c.mapColor)
 					.strength(5.0f, Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL),
 					FreezerBlock.GenerateDoorModel(c)
-				)
+				),
+				Color.BLACK
 		);
 		
 		//Armor Display
@@ -384,89 +483,6 @@ public class ModBlocks {
 		
 	}
 	
-	//Coin piles
-	public static final RegistryObject<Block> COINPILE_COPPER;
-	public static final RegistryObject<Block> COINPILE_IRON;
-	public static final RegistryObject<Block> COINPILE_GOLD;
-	public static final RegistryObject<Block> COINPILE_DIAMOND;
-	public static final RegistryObject<Block> COINPILE_EMERALD;
-	public static final RegistryObject<Block> COINPILE_NETHERITE;
-	
-	//Coin blocks
-	public static final RegistryObject<Block> COINBLOCK_COPPER;
-	public static final RegistryObject<Block> COINBLOCK_IRON;
-	public static final RegistryObject<Block> COINBLOCK_GOLD;
-	public static final RegistryObject<Block> COINBLOCK_EMERALD;
-	public static final RegistryObject<Block> COINBLOCK_DIAMOND;
-	public static final RegistryObject<Block> COINBLOCK_NETHERITE;
-	
-	//Machines
-	//Misc Machines
-	public static final RegistryObject<Block> MACHINE_ATM;
-	public static final RegistryObject<Block> MACHINE_MINT;
-	
-	//Display Case
-	public static final RegistryObject<Block> DISPLAY_CASE;
-	
-	//Vending Machines
-	public static final RegistryObjectBundle<Block, Color> VENDING_MACHINE;
-	
-	//Large Vending Machines
-	public static final RegistryObjectBundle<Block,Color> VENDING_MACHINE_LARGE;
-	
-	//Wooden Shelves
-	public static final RegistryObjectBundle<Block, WoodType> SHELF;
-	
-	//Card Shelves
-	public static final RegistryObjectBundle<Block,WoodType> CARD_DISPLAY;
-	
-	//Armor Display
-	public static final RegistryObject<Block> ARMOR_DISPLAY;
-	
-	//Freezer
-	public static final RegistryObjectBundle<FreezerBlock,Color> FREEZER;
-	
-	
-	//Network Traders
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_1;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_2;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_3;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_4;
-	
-	//Trader Interface
-	public static final RegistryObject<Block> ITEM_TRADER_INTERFACE;
-	
-	//Cash Register
-	public static final RegistryObject<Block> CASH_REGISTER;
-	
-	//Terminal
-	public static final RegistryObject<Block> TERMINAL;
-	public static final RegistryObject<Block> GEM_TERMINAL;
-	
-	//Paygate
-	public static final RegistryObject<Block> PAYGATE;
-	
-	//Ticket Kiosk
-	public static final RegistryObject<Block> TICKET_KIOSK;
-
-	//Bookshelf Traders
-	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
-
-	public static final RegistryObject<Block> SLOT_MACHINE;
-	
-	//Ticket Machine
-	public static final RegistryObject<Block> TICKET_STATION;
-
-	//Coin Chest
-	public static final RegistryObject<Block> COIN_CHEST;
-
-	//Coin Jars
-	public static final RegistryObject<Block> PIGGY_BANK;
-	public static final RegistryObject<Block> COINJAR_BLUE;
-
-	//Auciton Stands
-	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
-	
 	
 	/**
 	* Block Registration Code
@@ -482,6 +498,16 @@ public class ModBlocks {
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get()));
 		return block;
+	}
+
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, RegistryObjectBundle<T,Color> replacementSource, BiFunction<Color,Supplier<Block>,T> block) {
+		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
+		for(Color color : Color.deprecatedValues())
+		{
+			String thisName = name + "_" + color.getDeprecatedName();
+			bundle.put(color, register(thisName, (b) -> new DeprecatedBlockItem(b), () -> block.apply(color, () -> replacementSource.get(color))));
+		}
+		return bundle.lock();
 	}
 
 	// Colored block registration code
@@ -542,20 +568,6 @@ public class ModBlocks {
 				//Register the block normally
 				bundle.put(woodType, color, register(thisName, itemGenerator, () -> block.apply(color, woodType)));
 			}
-		}
-		return bundle.lock();
-	}
-
-	public static RegistryObjectBundle<FreezerBlock,Color> registerFreezer(String name, Function<Color,FreezerBlock> block) {
-		return registerFreezer(name, getDefaultGenerator(), block);
-	}
-	public static RegistryObjectBundle<FreezerBlock,Color> registerFreezer(String name, Function<Block,Item> itemGenerator, Function<Color,FreezerBlock> block) {
-		RegistryObjectBundle<FreezerBlock,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
-		for(Color color : Color.values())
-		{
-			String thisName = color == Color.BLACK ? name : name + "_" + color.getResourceSafeName();
-			//Register the block normally
-			bundle.put(color, register(thisName, itemGenerator, () -> block.apply(color)));
 		}
 		return bundle.lock();
 	}

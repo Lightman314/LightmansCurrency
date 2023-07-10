@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
@@ -37,7 +38,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -164,6 +164,9 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 		//Ignore if the block is the same.
 		if(state.getBlock() == newState.getBlock())
 		    return;
+		if(state.getBlock() instanceof IDeprecatedBlock db && db.acceptableReplacementState(newState))
+			return;
+
 		
 		if(!level.isClientSide)
 		{
@@ -213,5 +216,7 @@ public abstract class TraderBlockBase extends Block implements ITraderBlock, IEa
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, level, tooltip, flagIn);
 	}
+
+	protected static void replaceTraderBlock(Level level, BlockPos pos, BlockState newState) { level.setBlock(pos, newState, 35); }
 	
 }

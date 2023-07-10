@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import net.minecraft.core.registries.Registries;
@@ -83,6 +84,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -598,7 +600,14 @@ public abstract class TraderData implements IClientTracker, IDumpable, IUpgradea
 		if(compound.contains("TraderBlock"))
 		{
 			try {
-				this.traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
+				Item traderBlock = ForgeRegistries.ITEMS.getValue(new ResourceLocation(compound.getString("TraderBlock")));
+				if(traderBlock instanceof BlockItem bi && bi.getBlock() instanceof IDeprecatedBlock db)
+				{
+					Block b = db.replacementBlock();
+					if(b != null)
+						traderBlock = b.asItem();
+				}
+				this.traderBlock = traderBlock;
 			}catch (Throwable ignored) {}
 		}
 		
