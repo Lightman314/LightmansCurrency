@@ -171,6 +171,10 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		{
 			//Build the custom trader
 			D customTrader = this.initCustomTrader();
+			if(customTrader == null)
+			{
+				this.customTrader = null;
+			}
 			//Check if the custom trader is this position & dimension
 			if(customTrader.getLevel() == this.level.dimension() && this.worldPosition.equals(customTrader.getPos()))
 				this.ignoreCustomTrader = true;
