@@ -1,76 +1,48 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.EjectionSaveData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.CPacketOpenTraderRecovery;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
-public class TraderRecoveryButton extends PlainButton {
+public class TraderRecoveryButton extends InventoryButton {
 	
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/misc.png");
 	
 	private static TraderRecoveryButton lastButton = null;
 	
 	public static final int SIZE = 9;
+
+	public static final Sprite SPRITE = Sprite.SimpleSprite(GUI_TEXTURE, 0, 0, SIZE, SIZE);
+
+	public static final ScreenPosition OFFSET = ScreenPosition.of(-10, 0);
+
+	private Player getPlayer() { return this.inventoryScreen.getMinecraft().player; }
 	
-	public static final int OFFSET = -10;
-	
-	private final AbstractContainerScreen<?> screen;
-	private Player getPlayer() {
-		Minecraft mc = this.screen.getMinecraft();
-		return mc.player;
-	}
-	
-	public TraderRecoveryButton(AbstractContainerScreen<?> screen) {
-		super(getXPosition(screen), getYPosition(screen), SIZE, SIZE, b -> openTraderRecoveryMenu(), GUI_TEXTURE, 0, 0);
-		this.screen = screen;
+	public TraderRecoveryButton(AbstractContainerScreen<?> inventoryScreen) {
+		super(inventoryScreen, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketOpenTraderRecovery()), SPRITE);
 		lastButton = this;
 	}
-	
-	private static int getXPosition(AbstractContainerScreen<?> screen) {
-		return (screen instanceof CreativeModeInventoryScreen ? Config.CLIENT.notificationAndTeamButtonXCreative.get() : Config.CLIENT.notificationAndTeamButtonX.get()) + OFFSET + screen.getGuiLeft();
-	}
-	
-	private static int getYPosition(AbstractContainerScreen<?> screen) {
-		return (screen instanceof CreativeModeInventoryScreen ? Config.CLIENT.notificationAndTeamButtonYCreative.get() : Config.CLIENT.notificationAndTeamButtonY.get()) + screen.getGuiTop();
-	}
-	
-	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.setPosition(getXPosition(this.screen),getYPosition(this.screen));
 
-		if(EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0)
-		{
-			this.visible = true;
-			//Change visibility based on whether the correct tab is open
-			if(this.screen instanceof CreativeModeInventoryScreen cs)
-				this.visible = cs.isInventoryOpen();
-			super.render(pose, mouseX, mouseY, partialTicks);
-		}
-		else
-			this.visible = false;
-		
-	}
+	@Override
+	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? Config.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : Config.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
+
+	@Override
+	protected boolean canShow() { return EjectionSaveData.GetValidEjectionData(true, this.getPlayer()).size() > 0; }
+
+
 	
-	public static void tryRenderTooltip(PoseStack pose, int mouseX, int mouseY) {
+	public static void tryRenderTooltip(EasyGuiGraphics gui, int mouseX, int mouseY) {
 		if(lastButton != null && lastButton.isMouseOver(mouseX, mouseY))
-			lastButton.screen.renderTooltip(pose, Component.translatable("tooltip.button.team_manager"), mouseX, mouseY);
+			gui.renderTooltip(EasyText.translatable("tooltip.button.team_manager"), mouseX, mouseY);
 	}
-	
-	private static void openTraderRecoveryMenu() {
-		LightmansCurrencyPacketHandler.instance.sendToServer(new CPacketOpenTraderRecovery());
-	}
-	
+
 }

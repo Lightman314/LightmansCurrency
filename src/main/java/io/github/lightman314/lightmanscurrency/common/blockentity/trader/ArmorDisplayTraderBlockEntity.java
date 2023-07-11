@@ -228,12 +228,4 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		return 0f;
 	}
 	
-	@Override @Deprecated
-	protected ItemTraderData createTraderFromOldData(CompoundTag compound) {
-		ItemTraderDataArmor newTrader = new ItemTraderDataArmor(this.level, this.worldPosition);
-		newTrader.loadOldUniversalTraderData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
-	}
-	
 }

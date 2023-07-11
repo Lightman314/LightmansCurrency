@@ -28,7 +28,7 @@ public class ItemTradeNotification extends Notification{
 	
 	ItemTradeType tradeType;
 	List<ItemWriteData> items;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	String customer;
 	
@@ -93,7 +93,7 @@ public class ItemTradeNotification extends Notification{
 			itemList.add(item.save());
 		compound.put("Items", itemList);
 		if(this.tradeType != ItemTradeType.BARTER)
-			this.cost.save(compound, "Price");
+			compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -108,7 +108,7 @@ public class ItemTradeNotification extends Notification{
 		for(int i = 0; i < itemList.size(); ++i)
 			this.items.add(new ItemWriteData(itemList.getCompound(i)));
 		if(this.tradeType != ItemTradeType.BARTER)
-			this.cost.load(compound, "Price");
+			this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}
@@ -132,7 +132,7 @@ public class ItemTradeNotification extends Notification{
 				if(i1.count != i2.count)
 					return false;
 			}
-			if(itn.cost.getRawValue() != this.cost.getRawValue())
+			if(itn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!itn.customer.equals(this.customer))
 				return false;

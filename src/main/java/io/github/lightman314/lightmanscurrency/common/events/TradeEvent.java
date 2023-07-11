@@ -8,8 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Cancelable;
@@ -44,7 +42,6 @@ public abstract class TradeEvent extends Event{
 		{
 			super(player, trade, trader);
 		}
-
 		
 		/**
 		 * Adds an alert to the trade display.
@@ -69,9 +66,7 @@ public abstract class TradeEvent extends Event{
 		 * Adds an alert to the trade with default warning formatting (Orange).
 		 * Does not cancel the trade.
 		 */
-		public void addWarning(MutableComponent message) {
-			this.addAlert(AlertData.warn(message), false);
-		}
+		public void addWarning(MutableComponent message) { this.addAlert(AlertData.warn(message), false); }
 		
 		/**
 		 * Adds an alert to the trade with default error formatting (Red).
@@ -87,9 +82,7 @@ public abstract class TradeEvent extends Event{
 		 * Also cancels the trade.
 		 * Use addError if you do not wish to cancel the trade.
 		 */
-		public void addDenial(MutableComponent message) {
-			this.addAlert(AlertData.error(message), true);
-		}
+		public void addDenial(MutableComponent message) { this.addAlert(AlertData.error(message), true); }
 
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
@@ -98,20 +91,25 @@ public abstract class TradeEvent extends Event{
 	
 	public static class TradeCostEvent extends TradeEvent
 	{
-		
-		private double costMultiplier;
-		public double getCostMultiplier() { return this.costMultiplier; }
-		public void applyCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(this.costMultiplier * newCostMultiplier, 0d, 2d); }
-		public void setCostMultiplier(double newCostMultiplier) { this.costMultiplier = MathUtil.clamp(newCostMultiplier, 0d, 2d); }
-		
+
+		private boolean forceFree = false;
+		public boolean forcedFree() { return this.forceFree; }
+		public void makeFree() { this.forceFree = true; }
+		public void makeNotFree() { this.forceFree = false; }
+		private int pricePercentage;
+		public int getPricePercentage() { return this.pricePercentage; }
+		public void setPricePercentage(int pricePercentage) { this.pricePercentage = pricePercentage; }
+		public void giveDiscount(int percentage) { this.pricePercentage -=percentage; }
+		public void hikePrice(int percentage) { this.pricePercentage += percentage; }
+
 		CoinValue currentCost;
-		public CoinValue getBaseCost() { return this.currentCost.copy(); }
-		public CoinValue getCostResult() { return this.currentCost.ApplyMultiplier(this.costMultiplier); }
+		public CoinValue getBaseCost() { return this.currentCost; }
+		public CoinValue getCostResult() { return this.forceFree ? CoinValue.FREE : this.currentCost.percentageOfValue(this.pricePercentage); }
 		
 		public TradeCostEvent(PlayerReference player, TradeData trade, TraderData trader)
 		{
 			super(player, trade, trader);
-			this.costMultiplier = 1d;
+			this.pricePercentage = 100;
 			this.currentCost = trade.getCost();
 		}
 	}
@@ -121,7 +119,7 @@ public abstract class TradeEvent extends Event{
 		
 		private boolean isDirty = false;
 		private final CoinValue pricePaid;
-		public CoinValue getPricePaid() { return this.pricePaid.copy(); }
+		public CoinValue getPricePaid() { return this.pricePaid; }
 		
 		public PostTradeEvent(PlayerReference player, TradeData trade, TraderData trader, CoinValue pricePaid)
 		{

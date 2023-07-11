@@ -1,15 +1,18 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerWhitelist;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,21 +30,21 @@ public class PlayerWhitelistTab extends TradeRuleSubTab<PlayerWhitelist> {
 
     EditBox nameInput;
 
-    Button buttonAddPlayer;
-    Button buttonRemovePlayer;
+    EasyButton buttonAddPlayer;
+    EasyButton buttonRemovePlayer;
 
     ScrollTextDisplay playerDisplay;
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.nameInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 9, this.screen.getXSize() - 20, 20, Component.empty()));
+        this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 9, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 30).size(78, 20).build());
-        this.buttonRemovePlayer = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton).pos(this.screen.getGuiLeft() + this.screen.getXSize() - 88, this.screen.getGuiTop() + 30).size(78, 20).build());
+        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 30), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.whitelist.add"), this::PressWhitelistButton));
+        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 30), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.whitelist.remove"), this::PressForgetButton));
 
         //Player list display
-        this.playerDisplay = this.addWidget(new ScrollTextDisplay(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 55, this.screen.getXSize() - 14, 84, this.font, this::getWhitelistedPlayers));
+        this.playerDisplay = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 55), screenArea.width - 14, 84, this::getWhitelistedPlayers));
         this.playerDisplay.setColumnCount(2);
 
     }
@@ -58,21 +61,9 @@ public class PlayerWhitelistTab extends TradeRuleSubTab<PlayerWhitelist> {
     }
 
     @Override
-    public void onClose() {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
-    }
-
-    @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-    }
-
-    void PressWhitelistButton(Button button)
+    void PressWhitelistButton(EasyButton button)
     {
         String name = nameInput.getValue();
         if(!name.isBlank())
@@ -85,7 +76,7 @@ public class PlayerWhitelistTab extends TradeRuleSubTab<PlayerWhitelist> {
         }
     }
 
-    void PressForgetButton(Button button)
+    void PressForgetButton(EasyButton button)
     {
         String name = nameInput.getValue();
         if(!name.isBlank())

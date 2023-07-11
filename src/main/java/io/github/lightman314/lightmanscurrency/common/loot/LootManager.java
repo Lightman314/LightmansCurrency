@@ -632,11 +632,10 @@ public class LootManager {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private static List<ItemStack> safelyGetResults(LootTable table, LootContext context) {
 		List<ItemStack> results = new ArrayList<>();
 		//Call getRandomItems(LootContext,Consumer<ItemStack>) to keep it from being modified by the GLM's and getting stuck in an infinite loop.
-		table.getRandomItems(context, results::add);
+		table.getRandomItemsRaw(context, results::add);
 		return results;
 	}
 

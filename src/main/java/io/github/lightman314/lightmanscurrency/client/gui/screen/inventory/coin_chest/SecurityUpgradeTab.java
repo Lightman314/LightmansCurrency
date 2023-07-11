@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
@@ -17,11 +18,10 @@ import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestSecurityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,9 +47,9 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     public boolean titleVisible() { return false; }
 
     EditBox newOwnerInput;
-    Button buttonSetOwner;
+    EasyButton buttonSetOwner;
     TeamSelectWidget teamSelection;
-    Button buttonSetTeamOwner;
+    EasyButton buttonSetTeamOwner;
 
     long selectedTeam = -1;
     List<Team> teamList = Lists.newArrayList();
@@ -57,21 +57,23 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     IconButton buttonSetSelfOwner;
 
     @Override
-    public void init() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.newOwnerInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18, this.screen.getXSize() - 20, 20, EasyText.empty()));
+        this.newOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 18, this.screen.getXSize() - 20, 20, EasyText.empty()));
         this.newOwnerInput.setMaxLength(16);
 
-        this.buttonSetOwner = this.screen.addRenderableTabWidget(Button.builder(EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 39).size(this.screen.getXSize() - 20, 20).build());
+        this.buttonSetOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 39), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner)
+                .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
         this.buttonSetOwner.active = false;
 
-        this.teamSelection = this.screen.addRenderableTabWidget(new TeamSelectWidget(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 63, 3, TeamButton.Size.NORMAL, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
-        this.teamSelection.init(this.screen::addRenderableTabWidget, this.font);
+        this.teamSelection = this.addChild(new TeamSelectWidget(screenArea.pos.offset(10, 63), 3, TeamButton.Size.NORMAL, () -> this.teamList, this::getSelectedTeam, this::selectTeam));
 
-        this.buttonSetTeamOwner = this.screen.addRenderableTabWidget(Button.builder(EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 124).size(this.screen.getXSize() - 20, 20).build());
+        this.buttonSetTeamOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(10, 124), screenArea.width - 20, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setTeamOwner)
+                .withAddons(EasyAddonHelper.tooltip(IconAndButtonUtil.TOOLTIP_CANNOT_BE_UNDONE)));
         this.buttonSetTeamOwner.active = false;
 
-        this.buttonSetSelfOwner = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - IconButton.SIZE - 3, this.screen.getGuiTop() + 3, this::setSelfOwner, IconData.of(ItemRenderUtil.getAlexHead()), new IconAndButtonUtil.SimpleTooltip(EasyText.translatable("tooltip.lightmanscurrency.settings.owner.self"))));
+        this.buttonSetSelfOwner = this.addChild(new IconButton(this.screen.getGuiLeft() + this.screen.getXSize() - IconButton.SIZE - 3, this.screen.getGuiTop() + 3, this::setSelfOwner, IconAndButtonUtil.ICON_ALEX_HEAD)
+                .withAddons(EasyAddonHelper.tooltip(EasyText.translatable("tooltip.lightmanscurrency.settings.owner.self"))));
 
         this.tick();
 
@@ -111,26 +113,18 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     }
 
     @Override
-    public void preRender(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-        this.font.draw(pose, TextRenderUtil.fitString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getOwnerName()), this.screen.getXSize() - 20), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
-
-    }
-
-    @Override
-    public void postRender(PoseStack pose, int mouseX, int mouseY) {
-
-        if(this.buttonSetOwner.isMouseOver(mouseX, mouseY) || this.buttonSetTeamOwner.isMouseOver(mouseX, mouseY))
-            this.screen.renderTooltip(pose, EasyText.translatable("tooltip.lightmanscurrency.warning").withStyle(ChatFormatting.BOLD, ChatFormatting.YELLOW), mouseX, mouseY);
+        gui.drawString(TextRenderUtil.fitString(EasyText.translatable("gui.button.lightmanscurrency.team.owner", this.getOwnerName()), this.screen.getXSize() - 20), 8, 6, 0x404040);
 
     }
 
-    private void setSelfOwner(Button button)
+    private void setSelfOwner(EasyButton button)
     {
         this.menu.SendMessageToServer(LazyPacketData.builder().setBoolean("SetSelfOwner", true));
     }
 
-    private void setOwner(Button button)
+    private void setOwner(EasyButton button)
     {
         if(this.newOwnerInput.getValue().isBlank())
             return;
@@ -138,7 +132,7 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
         this.newOwnerInput.setValue("");
     }
 
-    private void setTeamOwner(Button button) {
+    private void setTeamOwner(EasyButton button) {
         if(this.selectedTeam < 0)
             return;
         this.menu.SendMessageToServer(LazyPacketData.builder().setLong("SetTeamOwner", this.selectedTeam));
@@ -161,8 +155,6 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     public void tick() {
         this.refreshTeamList();
 
-        this.newOwnerInput.tick();
-
         this.buttonSetOwner.active = !this.newOwnerInput.getValue().isBlank();
         this.buttonSetTeamOwner.active = this.getSelectedTeam() != null;
 
@@ -177,7 +169,7 @@ public class SecurityUpgradeTab extends CoinChestTab.Upgrade {
     }
 
     @Override
-    public void onClose() {
+    public void closeAction() {
         //Reset the selected team & team list to save space
         this.selectedTeam = -1;
         this.teamList = new ArrayList<>();

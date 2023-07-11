@@ -7,8 +7,6 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.easy.IEasyTickable;
@@ -44,8 +42,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
@@ -277,7 +273,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		long inventoryValue = MoneyUtil.getValue(menu.getCoinInventory());
 		if(!wallet.isEmpty())
 			inventoryValue += MoneyUtil.getValue(WalletItem.getWalletInventory(wallet));
-    	if(inventoryValue < bidAmount.getRawValue())
+    	if(inventoryValue < bidAmount.getValueNumber())
     		return;
 		if(trade.tryMakeBid(this, player, bidAmount))
 		{
@@ -356,11 +352,5 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	
 	@Override
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }
-	
-	@Override @Deprecated //Just load normally, as the Auction House data didn't change much.
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) { this.loadAdditional(compound); }
-	
-	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) { }
 	
 }

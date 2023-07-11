@@ -1,18 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollTextDisplay;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
@@ -31,29 +33,29 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
     EditBox nameInput;
     EditBox discountInput;
 
-    Button buttonAddPlayer;
-    Button buttonRemovePlayer;
+    EasyButton buttonAddPlayer;
+    EasyButton buttonRemovePlayer;
 
-    Button buttonSetDiscount;
+    EasyButton buttonSetDiscount;
 
     ScrollTextDisplay playerList;
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.nameInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 34, this.screen.getXSize() - 20, 20, Component.empty()));
+        this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 34, screenArea.width - 20, 20, EasyText.empty()));
 
-        this.buttonAddPlayer = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton).pos(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 55).size(78, 20).build());
-        this.buttonRemovePlayer = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton).pos(this.screen.getGuiLeft() + this.screen.getXSize() - 88, this.screen.getGuiTop() + 55).size(78, 20).build());
+        this.buttonAddPlayer = this.addChild(new EasyTextButton(screenArea.pos.offset( 10, 55), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.add"), this::PressAddButton));
+        this.buttonRemovePlayer = this.addChild(new EasyTextButton(screenArea.pos.offset(screenArea.width - 88, 55), 78, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.remove"), this::PressForgetButton));
 
-        this.discountInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 9, 20, 20, Component.empty()));
+        this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 10, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.discountInput.setMaxLength(2);
         PlayerDiscounts rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton).pos(this.screen.getGuiLeft() + 110, this.screen.getGuiTop() + 10).size(50, 20).build());
+        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(110, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 
-        this.playerList = this.addWidget(new ScrollTextDisplay(this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 78, this.screen.getXSize() - 14, 61, this.font, this::getPlayerList));
+        this.playerList = this.addChild(new ScrollTextDisplay(screenArea.pos.offset(7, 78), screenArea.width - 14, 61, this::getPlayerList));
         this.playerList.setColumnCount(2);
 
     }
@@ -70,34 +72,21 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
     }
 
     @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         if(getRule() == null)
             return;
 
-        Screen.fill(pose, this.screen.getGuiLeft() + 7, this.screen.getGuiTop() + 78, this.screen.getGuiLeft() + this.screen.width - 7, this.screen.getGuiTop() + 78 + 91, 0x000000FF);
-
-        this.font.draw(pose, Component.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.getX() + this.discountInput.getWidth() + 4, this.discountInput.getY() + 3, 0xFFFFFF);
-
+        gui.pushOffset(this.discountInput);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.discount.tooltip").getString(), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.popOffset();
 
     }
 
     @Override
-    public void tick() {
-        TextInputUtil.whitelistInteger(this.discountInput, 0, 100);
-    }
+    public void tick() { TextInputUtil.whitelistInteger(this.discountInput, 0, 100); }
 
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-    }
-
-    void PressAddButton(Button button)
+    void PressAddButton(EasyButton button)
     {
         String name = nameInput.getValue();
         if(!name.isBlank())
@@ -110,7 +99,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         }
     }
 
-    void PressForgetButton(Button button)
+    void PressForgetButton(EasyButton button)
     {
         String name = nameInput.getValue();
         if(!name.isBlank())
@@ -123,7 +112,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
         }
     }
 
-    void PressSetDiscountButton(Button button)
+    void PressSetDiscountButton(EasyButton button)
     {
         int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
         PlayerDiscounts rule = this.getRule();

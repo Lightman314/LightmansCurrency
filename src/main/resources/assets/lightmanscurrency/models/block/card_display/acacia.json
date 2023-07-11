@@ -1,0 +1,8 @@
+{
+    "parent": "lightmanscurrency:block/card_display/base",
+	"textures": {
+		"log": "minecraft:block/acacia_log",
+        "logtop": "minecraft:block/acacia_log_top",
+		"plank": "minecraft:block/acacia_planks"
+	}
+}

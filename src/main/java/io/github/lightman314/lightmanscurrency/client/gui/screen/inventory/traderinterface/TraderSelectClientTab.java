@@ -5,38 +5,42 @@ import java.util.List;
 import java.util.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.UniversalTraderButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import org.jetbrains.annotations.NotNull;
 
-public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable{
+import javax.annotation.Nonnull;
+
+public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable {
 
 	public TraderSelectClientTab(TraderInterfaceScreen screen, TraderSelectTab tab) { super(screen,tab); }
 
+	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
+	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.trader"); }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.trader"); }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -45,11 +49,13 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	
 	ScrollBarWidget scrollBar;
 	
-	List<UniversalTraderButton> traderButtons;
+	List<NetworkTraderButton> traderButtons;
 	
 	private int scroll;
 	
 	private List<TraderData> filteredTraderList = new ArrayList<>();
+
+	String previousInput = "";
 	
 	private List<TraderData> traderList() {
 		List<TraderData> traderList = this.filterTraders(TraderSaveData.GetAllTerminalTraders(true));
@@ -76,16 +82,20 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	}
 	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.searchField = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 43, this.screen.getGuiTop() + 6, 101, 9, Component.translatable("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
+		if(firstOpen)
+			this.previousInput = "";
+		else
+			this.searchField.setValue(this.previousInput);
 		
-		this.initTraderButtons(this.screen.getGuiLeft(), this.screen.getGuiTop());
+		this.initTraderButtons(screenArea.pos);
 		
-		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + 30 + UniversalTraderButton.WIDTH, this.screen.getGuiTop() + 18, UniversalTraderButton.HEIGHT * 4, this));
+		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(30 + NetworkTraderButton.WIDTH, 18), NetworkTraderButton.HEIGHT * 4, this));
 		
 		this.tick();
 		
@@ -99,34 +109,27 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 			this.updateTraderButtons();
 		}
 		
-		this.screen.addTabListener(new ScrollListener(0,0, this.screen.width, this.screen.height, this::onMouseScrolled));
+		this.addChild(new ScrollListener(0,0, this.screen.width, this.screen.height, this::onMouseScrolled));
 			
 		
 	}
 	
-	private void initTraderButtons(int guiLeft, int guiTop)
+	private void initTraderButtons(ScreenPosition corner)
 	{
 		this.traderButtons = new ArrayList<>();
 		for(int y = 0; y < 4; ++y)
 		{
-			UniversalTraderButton newButton = this.screen.addRenderableTabWidget(new UniversalTraderButton(guiLeft + 30, guiTop + 18 + (y * UniversalTraderButton.HEIGHT), this::SelectTrader, this.font));
+			NetworkTraderButton newButton = this.addChild(new NetworkTraderButton(corner.offset(30, 18 + (y * NetworkTraderButton.HEIGHT)), this::SelectTrader));
 			this.traderButtons.add(newButton);
 		}
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 28, this.screen.getGuiTop() + 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
-		
-		this.scrollBar.beforeWidgetRender(mouseY);
-		
-	}
-
-	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+		gui.blit(TraderInterfaceScreen.GUI_TEXTURE,  28, 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
 		
 	}
 	
@@ -134,48 +137,20 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	public void tick() {
 		
 		this.searchField.tick();
-		
-		for(int i = 0; i < this.traderButtons.size(); ++i)
-		{
-			UniversalTraderButton button = this.traderButtons.get(i);
-			if(button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader())
-				button.selected = true;
-			else
-				button.selected = false;
+
+		for (NetworkTraderButton button : this.traderButtons) {
+			button.selected = button.getData() != null && button.getData() == this.screen.getMenu().getBE().getTrader();
 		}
+
+		if(!Objects.equals(this.previousInput, this.searchField.getValue()))
+		{
+			this.previousInput = this.searchField.getValue();
+			this.updateTraderList();
+		}
+
 	}
 	
-	@Override
-	public boolean charTyped(char c, int code)
-	{
-		String s = this.searchField.getValue();
-		if(this.searchField.charTyped(c, code))
-		{
-			if(!Objects.equals(s, this.searchField.getValue()))
-			{
-				this.updateTraderList();
-			}
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean keyPressed(int key, int scanCode, int mods)
-	{
-		String s = this.searchField.getValue();
-		if(this.searchField.keyPressed(key, scanCode, mods))
-		{
-			if(!Objects.equals(s,  this.searchField.getValue()))
-			{
-				this.updateTraderList();
-			}
-			return true;
-		}
-		return false;
-	}
-	
-	private void SelectTrader(Button button) {
+	private void SelectTrader(EasyButton button) {
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
 		{
@@ -184,12 +159,16 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 		}
 	}
 	
-	private int getTraderIndex(Button button) {
-		if(!traderButtons.contains(button))
-			return -1;
-		int index = traderButtons.indexOf(button);
-		index += this.scroll;
-		return index;
+	private int getTraderIndex(EasyButton button) {
+		if(button instanceof NetworkTraderButton)
+		{
+			if(!traderButtons.contains(button))
+				return -1;
+			int index = traderButtons.indexOf(button);
+			index += this.scroll;
+			return index;
+		}
+		return -1;
 	}
 	
 	public int getMaxScroll() { return Math.max(this.filteredTraderList.size() - this.traderButtons.size(), 0); }

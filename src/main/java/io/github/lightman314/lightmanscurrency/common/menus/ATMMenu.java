@@ -132,7 +132,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		this.SendMessageToServer(LazyPacketData.builder().setString("ExchangeCoinCommand", command));
 	}
 
-	public void ConvertCoins(String command)
+	public void ExchangeCoins(String command)
 	{
 		ATMUtil.ExecuteATMExchangeCommand(this.coinInput, command);
 	}
@@ -178,7 +178,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	@Override
 	public void HandleMessage(LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
-			this.ConvertCoins(message.getString("ExchangeCoinCommand"));
+			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
 		if(message.contains("NotificationValueChange"))
 		{
 			BankAccount ba = this.getBankAccount();

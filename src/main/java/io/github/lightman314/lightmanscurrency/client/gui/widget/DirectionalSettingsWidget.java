@@ -1,22 +1,31 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
+
+import javax.annotation.Nonnull;
 
 public class DirectionalSettingsWidget {
+
+	private static final Map<Direction,Sprite> SPRITE_CACHE_TRUE = new HashMap<>();
+	private static final Map<Direction,Sprite> SPRITE_CACHE_FALSE = new HashMap<>();
 
 	public static final ResourceLocation BLOCK_SIDE_TEXTURE = new ResourceLocation(LightmansCurrency.MODID, "textures/gui/blocksides.png");
 	
@@ -30,91 +39,64 @@ public class DirectionalSettingsWidget {
 	
 	public boolean visible = true;
 	
-	public DirectionalSettingsWidget(int x, int y, Function<Direction,Boolean> currentValueSource, ImmutableList<Direction> ignoreSides, Consumer<Direction> onPress, Consumer<Button> addButton)
+	public DirectionalSettingsWidget(ScreenPosition pos, Function<Direction,Boolean> currentValueSource, ImmutableList<Direction> ignoreSides, Consumer<Direction> onPress, Consumer<Object> addButton) { this(pos.x, pos.y, currentValueSource, ignoreSides, onPress, addButton); }
+	public DirectionalSettingsWidget(int x, int y, Function<Direction,Boolean> currentValueSource, ImmutableList<Direction> ignoreSides, Consumer<Direction> onPress, Consumer<Object> addButton)
 	{
 		//DOWN, UP, NORTH, SOUTH, WEST, EAST
 		this.currentValueSource = currentValueSource;
 		this.onPress = onPress;
 		this.directionButtons = Lists.newArrayListWithCapacity(Direction.values().length);
-		
-		for(int i = 0; i < DIRECTIONS.size(); ++i)
-		{
-			Direction side = DIRECTIONS.get(i);
-			boolean value = this.currentValueSource.apply(side);
-			PlainButton button = new PlainButton(x + this.getSidePosX(side), y + this.getSidePosY(side), 16, 16, this::onButtonPress, BLOCK_SIDE_TEXTURE, this.getSideU(side), value ? 32 : 0);
+
+		for (Direction side : DIRECTIONS) {
+			PlainButton button = new PlainButton(x + this.getSidePosX(side), y + this.getSidePosY(side), this::onButtonPress, spriteForSide(side, () -> this.currentValueSource.apply(side)))
+					.withAddons(EasyAddonHelper.tooltip(InputTraderData.getFacingName(side)));
 			button.visible = !ignoreSides.contains(side);
 			this.directionButtons.add(button);
 			addButton.accept(button);
 		}
 		
 	}
-	
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY, Screen screen)
-	{
-		for(Direction side : Direction.values())
-		{
-			Button button = this.getButton(side);
-			if(button.isMouseOver(mouseX, mouseY))
-				screen.renderTooltip(pose, InputTraderData.getFacingName(side), mouseX, mouseY);
-		}
+
+	@Nonnull
+	private static NonNullSupplier<Sprite> spriteForSide(@Nonnull Direction side, @Nonnull NonNullSupplier<Boolean> value) { return () -> getSprite(side,value.get()); }
+
+	@Nonnull
+	private static Sprite getSprite(Direction side, boolean value) {
+		Map<Direction,Sprite> map = value ? SPRITE_CACHE_TRUE : SPRITE_CACHE_FALSE;
+		if(!map.containsKey(side))
+			map.put(side, Sprite.SimpleSprite(BLOCK_SIDE_TEXTURE, getSideU(side), value ? 32 : 0, 16, 16));
+		return map.get(side);
 	}
 	
 	private int getSidePosX(Direction side)
 	{
-		switch(side)
-		{
-		case UP:
-		case SOUTH:
-		case DOWN:
-			return SPACING;
-		case EAST:
-		case NORTH:
-			return 2 * SPACING;
-			default:
-				return 0;
-		}
+		return switch (side) {
+			case UP, SOUTH, DOWN -> SPACING;
+			case EAST, NORTH -> 2 * SPACING;
+			default -> 0;
+		};
 	}
 	
 	private int getSidePosY(Direction side)
 	{
-		switch(side)
+		return switch (side) {
+			case WEST, SOUTH, EAST -> SPACING;
+			case DOWN, NORTH -> 2 * SPACING;
+			default -> 0;
+		};
+	}
+	
+	private static int getSideU(Direction side) { return side.get3DDataValue() * 16; }
+	
+	private void onButtonPress(EasyButton button)
+	{
+		if(button instanceof PlainButton)
 		{
-		case WEST:
-		case SOUTH:
-		case EAST:
-			return SPACING;
-		case DOWN:
-		case NORTH:
-			return 2 * SPACING;
-		default:
-			return 0;
+			int index = this.directionButtons.indexOf(button);
+			if(index < 0)
+				return;
+			this.onPress.accept(Direction.from3DDataValue(index));
 		}
-	}
-	
-	private int getSideU(Direction side)
-	{
-		return side.get3DDataValue() * 16;
-	}
-	
-	public PlainButton getButton(Direction direction)
-	{
-		return this.directionButtons.get(direction.get3DDataValue());
-	}
-	
-	public void tick() {
-		for(Direction side : Direction.values())
-		{
-			PlainButton button = this.getButton(side);
-			button.setResource(BLOCK_SIDE_TEXTURE, this.getSideU(side), this.currentValueSource.apply(side) ? 32 : 0);
-		}
-	}
-	
-	private void onButtonPress(Button button)
-	{
-		int index = this.directionButtons.indexOf(button);
-		if(index < 0)
-			return;
-		this.onPress.accept(Direction.from3DDataValue(index));
 	}
 	
 }

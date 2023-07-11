@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.overlay;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -24,9 +24,11 @@ public class WalletDisplayOverlay implements IGuiOverlay {
     private WalletDisplayOverlay() {}
 
     @Override
-    public void render(ForgeGui gui, PoseStack pose, float partialTick, int screenWidth, int screenHeight) {
+    public void render(ForgeGui fgui, PoseStack pose, float partialTick, int screenWidth, int screenHeight) {
         if(!Config.CLIENT.walletOverlayEnabled.get())
             return;
+
+        EasyGuiGraphics gui = EasyGuiGraphics.create(pose, fgui.getFont(), 0, 0, partialTick);
 
         ScreenCorner corner = Config.CLIENT.walletOverlayCorner.get();
         ScreenPosition offset = Config.CLIENT.walletOverlayPosition.get();
@@ -38,11 +40,11 @@ public class WalletDisplayOverlay implements IGuiOverlay {
             currentPosition = currentPosition.offset(ScreenPosition.of(0, -16));
 
         //Draw the wallet
-        ItemStack wallet = LightmansCurrency.getWalletStack(gui.getMinecraft().player);
+        ItemStack wallet = LightmansCurrency.getWalletStack(fgui.getMinecraft().player);
         if(!wallet.isEmpty())
         {
             //Draw the wallet
-            ItemRenderUtil.drawItemStack(pose, gui.getFont(), wallet, currentPosition.x, currentPosition.y);
+            gui.renderItem(wallet, currentPosition.x, currentPosition.y);
             if(corner.isRightSide)
                 currentPosition = currentPosition.offset(ScreenPosition.of(-17,0));
             else
@@ -58,7 +60,7 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                     List<ItemStack> contents = walletValue.getAsItemList();
                     for(ItemStack coin : contents)
                     {
-                        ItemRenderUtil.drawItemStack(pose, gui.getFont(), coin, currentPosition.x, currentPosition.y);
+                        gui.renderItem(coin, currentPosition.x, currentPosition.y);
                         if(corner.isRightSide)
                             currentPosition = currentPosition.offset(ScreenPosition.of(-offsetAmount,0));
                         else
@@ -68,9 +70,9 @@ public class WalletDisplayOverlay implements IGuiOverlay {
                 case TEXT -> {
                     String valueString = walletValue.getString();
                     if(corner.isRightSide)
-                        gui.getFont().draw(pose, valueString, currentPosition.x - gui.getFont().width(valueString), currentPosition.y + 3, 0xFFFFFF);
+                        gui.drawString(valueString, currentPosition.offset(-1 * gui.font.width(valueString), 3), 0xFFFFFF);
                     else
-                        gui.getFont().draw(pose, valueString, currentPosition.x, currentPosition.y + 3, 0xFFFFFF);
+                        gui.drawString(valueString, currentPosition.offset(0,3), 0xFFFFFF);
                 }
             }
 

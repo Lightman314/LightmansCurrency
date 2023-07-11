@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountRe
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValueHolder;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
@@ -107,7 +108,7 @@ public class TradeContext {
 	private final Container coinSlots;
 	private boolean hasCoinSlots() { return this.hasPlayer() && this.coinSlots != null; }
 	
-	private final CoinValue storedMoney;
+	private final CoinValueHolder storedMoney;
 	private boolean hasStoredMoney() { return this.storedMoney != null; }
 	
 	//Interaction Slots (bucket/battery slot, etc.)
@@ -145,15 +146,15 @@ public class TradeContext {
 	
 	public boolean hasFunds(CoinValue price)
 	{
-		if(price.isFree() || price.getRawValue() <= 0)
+		if(price.isFree() || price.getValueNumber() <= 0)
 			return true;
-		return this.getAvailableFunds() >= price.getRawValue();
+		return this.getAvailableFunds() >= price.getValueNumber();
 	}
 	
 	public long getAvailableFunds() {
 		long funds = 0;
 		if(this.hasBankAccount())
-			funds += this.bankAccount.get().getCoinStorage().getRawValue();
+			funds += this.bankAccount.get().getCoinStorage().getValueNumber();
 		if(this.hasPlayer())
 		{
 			IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
@@ -165,7 +166,7 @@ public class TradeContext {
 			}
 		}
 		if(this.hasStoredMoney())
-			funds += this.storedMoney.getRawValue();
+			funds += this.storedMoney.getValue().getValueNumber();
 		if(this.hasCoinSlots() && this.hasPlayer())
 			funds += MoneyUtil.getValue(this.coinSlots);
 		return funds;
@@ -176,7 +177,7 @@ public class TradeContext {
 		if(this.hasCoinSlots() && this.hasPlayer())
 			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.slots", MoneyUtil.getCoinValue(this.coinSlots));
 		if(this.hasStoredMoney())
-			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.coin_storage", this.storedMoney);
+			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.coin_storage", this.storedMoney.getValue());
 		if(this.hasBankAccount())
 			this.addToFundsTooltip(text, "tooltip.lightmanscurrency.trader.info.money.bank", this.bankAccount.get().getCoinStorage());
 		if(this.hasPlayer())
@@ -200,11 +201,11 @@ public class TradeContext {
 	
 	public boolean getPayment(CoinValue price)
 	{
-		if(price.isFree() || price.getRawValue() <= 0)
+		if(price.isFree() || price.getValueNumber() <= 0)
 			return true;
 		if(this.hasFunds(price))
 		{
-			long amountToWithdraw = price.getRawValue();
+			long amountToWithdraw = price.getValueNumber();
 			if(this.hasCoinSlots() && this.hasPlayer())
 			{
 				amountToWithdraw = MoneyUtil.takeObjectsOfValue(amountToWithdraw, this.coinSlots, true);
@@ -221,15 +222,15 @@ public class TradeContext {
 			}
 			if(this.hasStoredMoney() && amountToWithdraw > 0)
 			{
-				long removeAmount = Math.min(amountToWithdraw, this.storedMoney.getRawValue());
+				long removeAmount = Math.min(amountToWithdraw, this.storedMoney.getValue().getValueNumber());
 				amountToWithdraw -= removeAmount;
-				this.storedMoney.loadFromOldValue(storedMoney.getRawValue() - removeAmount);
+				this.storedMoney.setValue(CoinValue.fromNumber(storedMoney.getValue().getValueNumber() - removeAmount));
 			}
 			if(this.hasBankAccount() && amountToWithdraw > 0)
 			{
-				CoinValue withdrawAmount = this.bankAccount.get().withdrawCoins(new CoinValue(amountToWithdraw));
-				amountToWithdraw -= withdrawAmount.getRawValue();
-				if(this.hasTrader() && withdrawAmount.getRawValue() > 0)
+				CoinValue withdrawAmount = this.bankAccount.get().withdrawCoins(CoinValue.fromNumber(amountToWithdraw));
+				amountToWithdraw -= withdrawAmount.getValueNumber();
+				if(this.hasTrader() && withdrawAmount.getValueNumber() > 0)
 				{
 					this.bankAccount.get().LogInteraction(this.getTrader(), withdrawAmount, false);
 				}
@@ -275,7 +276,7 @@ public class TradeContext {
 		}
 		else if(this.hasStoredMoney())
 		{
-			this.storedMoney.addValue(price);
+			this.storedMoney.setValue(this.storedMoney.getValue().plusValue(price));
 			return true;
 		}
 		else if(this.hasPlayer())
@@ -823,7 +824,7 @@ public class TradeContext {
 		//Money
 		private AccountReference bankAccount;
 		private Container coinSlots;
-		private CoinValue storedCoins;
+		private CoinValueHolder storedCoins;
 		
 		//Interaction Slots
 		private InteractionSlot interactionSlot;
@@ -841,7 +842,7 @@ public class TradeContext {
 		
 		public Builder withBankAccount(AccountReference bankAccount) { this.bankAccount = bankAccount; return this; }
 		public Builder withCoinSlots(Container coinSlots) { this.coinSlots = coinSlots; return this; }
-		public Builder withStoredCoins(CoinValue storedCoins) { this.storedCoins = storedCoins; return this; }
+		public Builder withStoredCoins(CoinValueHolder storedCoins) { this.storedCoins = storedCoins; return this; }
 
 		public Builder withInteractionSlot(InteractionSlot interactionSlot) { this.interactionSlot = interactionSlot; return this; }
 		

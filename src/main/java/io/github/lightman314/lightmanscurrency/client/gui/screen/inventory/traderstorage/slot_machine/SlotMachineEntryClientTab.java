@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryEditWidget;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine.SlotMachineEntryTab;
@@ -16,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -25,18 +25,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachineEntryTab> implements ScrollBarWidget.IScrollable, IScrollListener {
+public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachineEntryTab> implements IScrollable, IScrollListener {
 
-    public final int ENTRY_ROWS = 3;
-    public final int ENTRIES_PER_PAGE = ENTRY_ROWS * 2;
+    public static final int ENTRY_ROWS = 3;
+    public static final int ENTRY_COLUMNS = 2;
+    public static final int ENTRIES_PER_PAGE = ENTRY_ROWS * ENTRY_COLUMNS;
+
 
 
     private int scroll = 0;
-    private ScrollBarWidget scrollBar;
     private final List<SlotMachineEntryEditWidget> entryEditWidgets = new ArrayList<>();
-    private Button buttonAddEntry;
+    private EasyButton buttonAddEntry;
 
-    public SlotMachineEntryClientTab(TraderStorageScreen screen, SlotMachineEntryTab commonTab) { super(screen, commonTab); }
+    public SlotMachineEntryClientTab(Object screen, SlotMachineEntryTab commonTab) { super(screen, commonTab); }
 
     @Nonnull
     @Override
@@ -46,27 +47,24 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.slot_machine.edit_entries"); }
 
     @Override
-    public boolean blockInventoryClosing() { return false; }
-
-    @Override
-    public void onOpen()
+    public void initialize(ScreenArea screenArea, boolean firstOpen)
     {
 
         this.entryEditWidgets.clear();
+
+        this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 145, this));
 
         for(int y = 0; y < ENTRY_ROWS; ++y)
         {
             for(int x = 0; x < 2; x++)
             {
-                this.entryEditWidgets.add(this.screen.addRenderableTabWidget(new SlotMachineEntryEditWidget(this.screen.getGuiLeft() + 19 + (x * SlotMachineEntryEditWidget.WIDTH), this.screen.getGuiTop() + 10 + (y * SlotMachineEntryEditWidget.HEIGHT), this, this.supplierForIndex((y * 2) + x))));
+                this.entryEditWidgets.add(this.addChild(new SlotMachineEntryEditWidget(screenArea.pos.offset(19 + (x * SlotMachineEntryEditWidget.WIDTH), 10 + (y * SlotMachineEntryEditWidget.HEIGHT)), this, this.supplierForIndex((y * 2) + x))));
             }
         }
 
-        this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + 19 + (SlotMachineEntryEditWidget.WIDTH * 2), this.screen.getGuiTop() + 10, SlotMachineEntryEditWidget.HEIGHT * ENTRY_ROWS, this));
+        this.addChild(new ScrollBarWidget(screenArea.pos.offset(19 + (SlotMachineEntryEditWidget.WIDTH * 2), 10), SlotMachineEntryEditWidget.HEIGHT * ENTRY_ROWS, this));
 
-        this.buttonAddEntry = this.screen.addRenderableTabWidget(IconAndButtonUtil.plusButton(this.screen.getGuiLeft() + this.screen.getXSize() - 14, this.screen.getGuiTop() + 4, this::AddEntry));
-
-        this.screen.addTabListener(new ScrollListener(ScreenPosition.getScreenCorner(this.screen), this.screen.getXSize(), 145, this));
+        this.buttonAddEntry = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width - 14, 4), this::AddEntry));
 
         this.tick();
 
@@ -75,7 +73,7 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     }
 
     @Override
-    public void onClose() { this.menu.SetCoinSlotsActive(true); }
+    public void closeAction() { this.menu.SetCoinSlotsActive(true); }
 
     @Nullable
     public SlotMachineEntry getEntry(int entryIndex)
@@ -90,32 +88,20 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
         return null;
     }
 
-    private Supplier<Integer> supplierForIndex(int index) { return () -> this.scroll + index; }
+    private Supplier<Integer> supplierForIndex(int index) { return () -> (this.scroll * ENTRY_COLUMNS) + index; }
 
     @Override
     public void tick() {
-        for(SlotMachineEntryEditWidget editWidget : this.entryEditWidgets)
-            editWidget.tick();
         if(this.menu.getTrader() instanceof SlotMachineTraderData trader)
             trader.clearEntriesChangedCache();
         this.scroll = MathUtil.clamp(this.scroll, 0, this.getMaxScroll());
         this.buttonAddEntry.visible = this.menu.hasPermission(Permissions.EDIT_TRADES);
-
     }
 
     @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
 
-        this.scrollBar.beforeWidgetRender(mouseY);
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-    }
-
-    private void AddEntry(Button button) { this.commonTab.AddEntry(); }
+    private void AddEntry(EasyButton button) { this.commonTab.AddEntry(); }
 
     @Override
     public int currentScroll() { return this.scroll; }
@@ -131,7 +117,7 @@ public class SlotMachineEntryClientTab extends TraderStorageClientTab<SlotMachin
     }
 
     @Override
-    public int getMaxScroll() { return ScrollBarWidget.IScrollable.calculateMaxScroll(this.ENTRIES_PER_PAGE, this.getEntryCount()); }
+    public int getMaxScroll() { return IScrollable.calculateMaxScroll(ENTRIES_PER_PAGE, ENTRY_COLUMNS, this.getEntryCount()); }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) { return this.handleScrollWheel(delta); }

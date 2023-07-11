@@ -1,0 +1,68 @@
+{
+    "variants": {
+        "bottom=false,facing=north,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_left",
+            "y": 0
+        },
+        "bottom=false,facing=east,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_left",
+            "y": 90
+        },
+        "bottom=false,facing=south,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_left",
+            "y": 180
+        },
+        "bottom=false,facing=west,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_left",
+            "y": 270
+        },
+        "bottom=false,facing=north,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_right",
+            "y": 0
+        },
+        "bottom=false,facing=east,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_right",
+            "y": 90
+        },
+        "bottom=false,facing=south,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_right",
+            "y": 180
+        },
+        "bottom=false,facing=west,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_top_right",
+            "y": 270
+        },
+        "bottom=true,facing=north,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_right",
+            "y": 0
+        },
+        "bottom=true,facing=east,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_right",
+            "y": 90
+        },
+        "bottom=true,facing=south,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_right",
+            "y": 180
+        },
+        "bottom=true,facing=west,attached=false": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_right",
+            "y": 270
+        },
+        "bottom=true,facing=north,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_left",
+            "y": 0
+        },
+        "bottom=true,facing=east,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_left",
+            "y": 90
+        },
+        "bottom=true,facing=south,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_left",
+            "y": 180
+        },
+        "bottom=true,facing=west,attached=true": {
+            "model": "lightmanscurrency:block/large_vending_machine/light_gray_bottom_left",
+            "y": 270
+        }
+    }
+}

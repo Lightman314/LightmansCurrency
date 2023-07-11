@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,9 +33,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	public void setTraderID(long traderID) { this.traderID = traderID; }
 	
 	private CompoundTag customTrader = null;
-	private boolean ignoreCustomTrader = false; 
-	
-	private CompoundTag loadFromOldTag = null;
+	private boolean ignoreCustomTrader = false;
 	
 	private boolean legitimateBreak = false;
 	public void flagAsLegitBreak() { this.legitimateBreak = true; }
@@ -145,30 +144,12 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(compound.contains("CustomTrader"))
 			this.customTrader = compound.getCompound("CustomTrader");
 		
-		//Convert from old trader types
-		if(compound.contains("CoreSettings"))
-			this.loadFromOldTag = compound;
-		
 	}
 	
 	@Override
 	public void serverTick() {
 		if(this.level == null)
 			return;
-		if(this.loadFromOldTag != null)
-		{
-			D newTrader = this.createTraderFromOldData(this.loadFromOldTag);
-			this.loadFromOldTag = null;
-			if(newTrader != null)
-			{
-				this.traderID = TraderSaveData.RegisterTrader(newTrader, null);
-				this.markDirty();
-			}
-			else
-			{
-				LightmansCurrency.LogError("Failed to load trader from old data at " + this.worldPosition.toShortString());
-			}
-		}
 		if(this.customTrader != null && !this.ignoreCustomTrader)
 		{
 			//Build the custom trader
@@ -200,13 +181,18 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			BlockEntityUtil.sendUpdatePacket(this);
 	}
 	
-	protected abstract D createTraderFromOldData(CompoundTag compound);
-	
 	@Override
 	public void onLoad()
 	{
 		if(this.level.isClientSide)
 			BlockEntityUtil.requestUpdatePacket(this);
+		else
+		{
+			//Check if this block should be replaced
+			BlockState bs = this.level.getBlockState(this.worldPosition);
+			if(bs.getBlock() instanceof IDeprecatedBlock block)
+				block.replaceBlock(this.level, this.worldPosition, bs);
+		}
 	}
 	
 	@Override

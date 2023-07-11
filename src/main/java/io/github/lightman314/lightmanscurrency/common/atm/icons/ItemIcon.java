@@ -2,11 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.atm.icons;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMConversionButton;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.common.atm.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +14,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import javax.annotation.Nonnull;
 
 public class ItemIcon extends ATMIconData {
 	
@@ -66,8 +67,8 @@ public class ItemIcon extends ATMIconData {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(ATMConversionButton button, PoseStack pose, boolean isHovered) {
-		ItemRenderUtil.drawItemStack(pose, null, this.item, button.getX() + this.xPos, button.getY() + this.yPos, "");
+	public void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered) {
+		gui.renderItem(this.item, this.xPos, this.yPos, "");
 	}
 	
 }

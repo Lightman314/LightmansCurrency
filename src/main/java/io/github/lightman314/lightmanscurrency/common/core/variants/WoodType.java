@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.core.variants;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
@@ -17,13 +18,16 @@ public class WoodType {
     public static final WoodType BIRCH = new WoodType("birch");
     public static final WoodType JUNGLE = new WoodType("jungle");
     public static final WoodType ACACIA = new WoodType("acacia");
+
     public static final WoodType DARK_OAK = new WoodType("dark_oak");
     public static final WoodType MANGROVE = new WoodType("mangrove");
     public static final WoodType CRIMSON = new WoodType("crimson");
     public static final WoodType WARPED = new WoodType("warped");
 
     public final String name;
-    protected WoodType(String name) { this.name = name; ALL_TYPES.add(this); }
+    public final MaterialColor mapColor;
+    protected WoodType(String name) { this(name, MaterialColor.WOOD); }
+    protected WoodType(String name, MaterialColor mapColor) { this.name = name; this.mapColor = mapColor; ALL_TYPES.add(this); }
 
     public boolean isVanilla() { return true; }
     public boolean isValid() { return true; }
@@ -45,15 +49,9 @@ public class WoodType {
     public static int sortByWood(WoodType w1, WoodType w2) { return Integer.compare(ALL_TYPES.indexOf(w1), ALL_TYPES.indexOf(w2)); }
     public static class ModdedWoodType extends WoodType
     {
-
-        //BYG?
-        private static final String BYG_MOD = "byg";
-
-
-        //BOP?
-
         private final String mod;
         public ModdedWoodType(String name, String mod) { super(name); this.mod = mod; }
+        public ModdedWoodType(String name, MaterialColor mapColor, String mod) { super(name, mapColor); this.mod = mod; }
         @Override
         public boolean isVanilla() { return false; }
         @Override

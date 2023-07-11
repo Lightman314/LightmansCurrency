@@ -22,7 +22,7 @@ public class ATMUtil {
         command = UpdateCommand(command);
         if(command.contentEquals("exchangeAllUp"))
         {
-            MoneyUtil.ConvertAllCoinsUp(coinSlots);
+            MoneyUtil.ExchangeAllCoinsUp(coinSlots);
             return true;
         }
         //Convert defined coin upwards
@@ -49,13 +49,13 @@ public class ATMUtil {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is the largest visible coin in its chain, and thus cannot be exchanged any larger.");
                     return false;
                 }
-                MoneyUtil.ConvertCoinsUp(coinSlots, coinItem);
+                MoneyUtil.ExchangeCoinsUp(coinSlots, coinItem);
                 return true;
             } catch(Exception e) { LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e);}
         }
         else if(command.contentEquals("exchangeAllDown"))
         {
-            MoneyUtil.ConvertAllCoinsDown(coinSlots);
+            MoneyUtil.ExchangeAllCoinsDown(coinSlots);
             return true;
         }
         else if(command.startsWith("exchangeDown-"))
@@ -80,7 +80,7 @@ public class ATMUtil {
                     LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + coinID + "' is the smallest known coin, and thus cannot be exchanged any smaller.");
                     return false;
                 }
-                MoneyUtil.ConvertCoinsDown(coinSlots, coinItem);
+                MoneyUtil.ExchangeCoinsDown(coinSlots, coinItem);
                 return true;
             } catch(Exception e) { LightmansCurrency.LogError("Error handling ATM Exchange command '" + command + "'.\n'" + id + "' could not be parsed as an item id.", e); }
         }

@@ -27,10 +27,10 @@ public class NumberUtil {
 
     public static String getAsStringOfLength(int i, int length)
     {
-        String value = Integer.toString(i);
+        StringBuilder value = new StringBuilder(Integer.toString(i));
         while(value.length() < length)
-            value = "0" + value;
-        return value;
+            value.insert(0, "0");
+        return value.toString();
     }
 
 }

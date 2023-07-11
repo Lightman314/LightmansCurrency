@@ -2,64 +2,40 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class TraderClientTab {
+import javax.annotation.Nonnull;
+
+public abstract class TraderClientTab extends EasyTab {
 	
 	protected final TraderScreen screen;
 	protected final TraderMenu menu;
 	protected final Font font;
-	
+
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconData.BLANK; }
+
+	@Override
+	public final int getColor() { return 0xFFFFFF; }
+
+	@Nullable
+	@Override
+	public final Component getTooltip() { return EasyText.empty(); }
+
 	protected TraderClientTab(TraderScreen screen) {
+		super(screen);
 		this.screen = screen;
 		this.menu = this.screen.getMenu();
-		Minecraft mc = Minecraft.getInstance();
-		this.font = mc.font;
+		this.font = this.screen.getFont();
 	}
-	
-	/**
-	 * Whether this tab being open should prevent the inventory button from closing the screen. Use this when typing is used on this tab.
-	 */
-	public abstract boolean blockInventoryClosing();
-	
-	/**
-	 * Called when the tab is opened. Use this to initialize buttons/widgets and reset variables
-	 */
-	public abstract void onOpen();
-	
-	/**
-	 * Called every container tick
-	 */
-	public void tick() { }
-	
-	/**
-	 * Renders background data before the rendering of buttons/widgets and item slots
-	 */
-	public abstract void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks);
-	
-	/**
-	 * Renders tooltips after the rendering of buttons/widgets and item slots
-	 */
-	public abstract void renderTooltips(PoseStack pose, int mouseX, int mouseY);
-	
-	/**
-	 * Called when the mouse is clicked before any other click interactions are processed.
-	 * Return true an action was taken and other click interactions should be ignored.
-	 */
-	public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; }
-	
-	/**
-	 * Called when the mouse is clicked before any other click interactions are processed.
-	 * Return true an action was taken and other click interactions should be ignored.
-	 */
-	public boolean mouseReleased(double mouseX, double mouseY, int button) { return false; }
-	
-	/**
-	 * Called when the tab is closed.
-	 */
-	public void onClose() { }
 	
 }

@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.teams.TeamSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -69,19 +65,7 @@ public class EjectionData implements Container, IClientTracker {
 	
 	public void load(CompoundTag compound) {
 		
-		//Load old owner data
-		if(compound.contains("PlayerOwned"))
-		{
-			if(compound.getBoolean("PlayerOwned"))
-				this.owner.SetOwner(PlayerReference.of(compound.getUUID("Owner"), "UNKNOWN"));
-			else
-			{
-				Team team = TeamSaveData.GetTeam(this.isClient, DataConverter.getNewTeamID(compound.getUUID("Owner")));
-				if(team != null)
-					this.owner.SetOwner(team);
-			}
-		}
-		else if(compound.contains("Owner"))
+		if(compound.contains("Owner"))
 			this.owner.load(compound.getCompound("Owner"));
 		if(compound.contains("Name"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("Name"));

@@ -1,11 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
@@ -27,53 +31,45 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
     public IconData getIcon() { return IconAndButtonUtil.ICON_PRICE_FLUCTUATION; }
 
     EditBox fluctuationInput;
-    Button buttonSetFluctuation;
+    EasyButton buttonSetFluctuation;
 
     TimeInputWidget durationInput;
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.fluctuationInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 25, this.screen.getGuiTop() + 9, 20, 20, Component.empty()));
+        this.fluctuationInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 25, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.fluctuationInput.setMaxLength(2);
         PriceFluctuation rule = this.getRule();
         if(rule != null)
             this.fluctuationInput.setValue(Integer.toString(rule.getFluctuation()));
 
-        this.buttonSetFluctuation = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton).pos(this.screen.getGuiLeft() + 125, this.screen.getGuiTop() + 10).size(50, 20).build());
+        this.buttonSetFluctuation = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetFluctuationButton));
 
-        this.durationInput = this.addWidget(new TimeInputWidget(this.screen.getGuiLeft() + 63, this.screen.getGuiTop() + 75, 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::addWidget, this::onTimeSet));
+        this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
         this.durationInput.setTime(this.getRule().getDuration());
 
     }
 
     @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         PriceFluctuation rule = this.getRule();
         if(rule == null)
             return;
 
-        this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.getX() + this.fluctuationInput.getWidth() + 4, this.fluctuationInput.getY() + 3, 0xFFFFFF);
+        gui.pushOffset(this.fluctuationInput);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.fluctuation.tooltip"), this.fluctuationInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.popOffset();
 
-        TextRenderUtil.drawCenteredMultilineText(pose, EasyText.translatable("gui.button.lightmanscurrency.price_fluctuation.info", this.getRule().getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), this.screen.getGuiLeft() + 10, this.screen.getXSize() - 20, this.screen.getGuiTop() + 35, 0xFFFFFF);
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
+        TextRenderUtil.drawCenteredMultilineText(gui, EasyText.translatable("gui.button.lightmanscurrency.price_fluctuation.info", this.getRule().getFluctuation(), new TimeUtil.TimeData(this.getRule().getDuration()).getShortString()), 10, this.screen.getXSize() - 20, 35, 0xFFFFFF);
 
     }
 
     @Override
     public void tick() { TextInputUtil.whitelistInteger(this.fluctuationInput, 1, Integer.MAX_VALUE); }
 
-    void PressSetFluctuationButton(Button button)
+    void PressSetFluctuationButton(EasyButton button)
     {
         int fluctuation = TextInputUtil.getIntegerValue(this.fluctuationInput, 1);
         PriceFluctuation rule = this.getRule();

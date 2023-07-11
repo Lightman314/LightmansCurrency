@@ -1,13 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.traders.permissions.options;
 
-import java.util.List;
+import java.util.function.Consumer;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,42 +41,18 @@ public abstract class PermissionOption {
 		this.tab.sendNetworkMessage(message);
 	}
 	
-	public final OptionWidgets initWidgets(SettingsSubTab tab, int x, int y)
+	public final void initWidgets(SettingsSubTab tab, int x, int y, Consumer<Object> addWidgets)
 	{
 		this.tab = tab;
-		OptionWidgets widgets = new OptionWidgets();
-		this.createWidget(x, y, widgets);
-		return widgets;
+		this.createWidget(x, y, addWidgets);
 	}
 	
-	protected abstract void createWidget(int x, int y, OptionWidgets widgets);
+	protected abstract void createWidget(int x, int y, Consumer<Object> addWidgets);
 	
-	public abstract void tick();
+	public void tick() {}
 	
 	public void render(PoseStack pose, int mouseX, int mouseY) { }
 	
 	public abstract int widgetWidth();
-	
-	public static class OptionWidgets
-	{
-		List<AbstractWidget> buttons = Lists.newArrayList();
-		List<GuiEventListener> listeners = Lists.newArrayList();
-		
-		public List<AbstractWidget> getRenderableWidgets() { return this.buttons; }
-		public List<GuiEventListener> getListeners() { return this.listeners; }
-		
-		public <T extends AbstractWidget> T addRenderableWidget(T widget)
-		{
-			this.buttons.add(widget);
-			return widget;
-		}
-		
-		public <T extends GuiEventListener> T addListener(T listener)
-		{
-			this.listeners.add(listener);
-			return listener;
-		}
-		
-	}
 	
 }

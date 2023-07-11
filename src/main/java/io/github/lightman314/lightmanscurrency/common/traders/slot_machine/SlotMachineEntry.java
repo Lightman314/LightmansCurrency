@@ -31,7 +31,7 @@ public final class SlotMachineEntry {
     public boolean isValid() { return this.items.size() > 0 && this.weight > 0; }
 
     public boolean isMoney() { return this.items.size() > 0 && this.items.stream().allMatch(i -> MoneyUtil.isCoin(i, false)); }
-    public CoinValue getMoneyValue() { return this.isMoney() ? MoneyUtil.getCoinValue(this.items) : new CoinValue(); }
+    public CoinValue getMoneyValue() { return this.isMoney() ? MoneyUtil.getCoinValue(this.items) : CoinValue.EMPTY; }
 
     public List<ItemStack> getDisplayItems()
     {
@@ -93,7 +93,7 @@ public final class SlotMachineEntry {
         if(trader.isCreative())
             return true;
         if(this.isMoney())
-            return trader.getStoredMoney().getRawValue() >= this.getMoneyValue().getRawValue();
+            return trader.getStoredMoney().getValueNumber() >= this.getMoneyValue().getValueNumber();
         for(ItemStack item : InventoryUtil.combineQueryItems(this.items))
         {
             if(!trader.getStorage().hasItem(item))

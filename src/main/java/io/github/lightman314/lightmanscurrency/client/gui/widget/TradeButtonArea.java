@@ -4,19 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
@@ -25,13 +30,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.T
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
-public class TradeButtonArea extends AbstractWidget implements IScrollable{
+public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 	
 	public static final Function<TradeData,Boolean> FILTER_VALID = TradeData::isValid;
 	public static final Function<TradeData,Boolean> FILTER_ANY = trade -> true;
@@ -48,9 +49,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	private final List<TradeButton> allButtons = new ArrayList<>();
 	
 	private final Font font;
-	
-	private final Consumer<AbstractWidget> addWidget;
-	private final Consumer<TradeButton> removeButton;
+
 	private final BiConsumer<TraderData,TradeData> onPress;
 	private final Function<TradeData,Boolean> tradeFilter;
 	
@@ -58,43 +57,54 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	ScrollBarWidget scrollBar;
 	public ScrollBarWidget getScrollBar() { return this.scrollBar; }
-	
-	private int scrollBarXOffset = 0;
-	
+
+	private boolean hasTitlePosition = false;
+	private ScreenPosition titlePosition = ScreenPosition.ZERO;
+	private int titleWidth = 0;
+	private boolean renderNameOnly = false;
+	public TradeButtonArea withTitle(ScreenPosition titlePosition, int titleWidth, boolean renderNameOnly) { this.hasTitlePosition = true; this.titlePosition = titlePosition; this.titleWidth = titleWidth; this.renderNameOnly = renderNameOnly; return this; }
+
+
+	private ScreenPosition scrollBarOffset = ScreenPosition.of(-9,0);
+	public TradeButtonArea withScrollBarOffset(@Nonnull ScreenPosition scrollBarOffset) { this.scrollBarOffset = scrollBarOffset; return this; }
+
+	private int scrollBarHeight;
+	public TradeButtonArea withScrollBarHeight(int height) { this.scrollBarHeight = height; return this; }
+
 	//Variant of getAvailableWidth that assumes we'll have the smallest amount of available space.
 	//Assumption is made so that we don't get into an infinite loop calculating the whether we can scroll -> how many rows -> whether we can scroll...
-	public int getMinAvailableWidth() { return this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width; }
-	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarXOffset < 0 ? this.width + this.scrollBarXOffset : this.width) : this.width; }
+	public int getMinAvailableWidth() { return this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width; }
+	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width) : this.width; }
 	
-	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<TraderData, TradeContext> getContext, int x, int y, int width, int height, Consumer<AbstractWidget> addWidget, Consumer<TradeButton> removeButton, BiConsumer<TraderData,TradeData> onPress, Function<TradeData,Boolean> tradeFilter)
+	public TradeButtonArea(Supplier<? extends ITraderSource> traderSource, Function<TraderData, TradeContext> getContext, int x, int y, int width, int height, BiConsumer<TraderData,TradeData> onPress, Function<TradeData,Boolean> tradeFilter)
 	{
-		super(x, y, width, height, Component.empty());
+		super(x, y, width, height);
 		this.traderSource = traderSource;
 		this.getContext = getContext;
-		this.addWidget = addWidget;
-		this.removeButton = removeButton;
 		this.onPress = onPress;
 		this.tradeFilter = tradeFilter;
 		
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
-		
+
+		this.scrollBarHeight = this.height - 5;
+
 	}
-	
-	public void init() { this.init(-9, 0, this.height - 5); }
-	
-	public void init(int scrollBarXOffset, int scrollBarYOffset, int scrollBarHeight) {
-		this.scrollBarXOffset = scrollBarXOffset;
-		this.scrollBar = new ScrollBarWidget(this.getX() + this.width + scrollBarXOffset, this.getY() + scrollBarYOffset, scrollBarHeight, this);
-		this.addWidget.accept(this.scrollBar);
+
+	@Override
+	public TradeButtonArea withAddons(WidgetAddon... addons) { this.withAddonsInternal(addons); return this; }
+
+	@Override
+	public void addChildren() {
+		this.scrollBar = this.addChild(this.scrollBar = new ScrollBarWidget(this.getX() + this.width + this.scrollBarOffset.x, this.getY() + this.scrollBarOffset.y, this.scrollBarHeight, this));
 		this.resetButtons();
 	}
 
 	@Nullable
-	public TradeButton getHoveredButton(int mouseX, int mouseY) {
+	public TradeButton getHoveredButton(ScreenPosition mousePos) {
 		for(TradeButton button : this.allButtons)
 		{
-			if(button.isMouseOver(mouseX, mouseY))
+			if(button.isMouseOver(mousePos.x, mousePos.y))
 				return button;
 		}
 		return null;
@@ -161,16 +171,36 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 		if(this.validTrades() <= 0)
 		{
-			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.notrades"));
-			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.notrades"), this.getX() + (this.width / 2) - (textWidth / 2), this.getX() + (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+			int textWidth = gui.font.width(EasyText.translatable("gui.lightmanscurrency.notrades"));
+			gui.drawString(EasyText.translatable("gui.lightmanscurrency.notrades"), (this.width / 2) - (textWidth / 2), (this.height / 2) - (this.font.lineHeight / 2), 0x404040);
+		}
+		//Render title
+		if(this.hasTitlePosition)
+		{
+			ITraderSource ts = this.traderSource.get();
+			if(ts == null)
+				return;
+
+			StringBuilder text = new StringBuilder();
+			for(TraderData trader : ts.getTraders())
+			{
+				if(text.length() == 0)
+					text = new StringBuilder(this.renderNameOnly ? trader.getName().getString() : trader.getTitle().getString());
+				else
+					text.append(EasyText.translatable("gui.lightmanscurrency.trading.listseperator").getString()).append(this.renderNameOnly ? trader.getName().getString() : trader.getTitle().getString());
+			}
+
+			gui.pushOffsetZero();
+			gui.drawString(TextRenderUtil.fitString(text.toString(), this.titleWidth), this.titlePosition, 0x404040);
+			gui.popOffset();
 		}
 	}
 	
 	//Confirms each trades validity
-	public void tick() {
+	public void renderTick() {
 		this.validateScroll();
 		if(this.allButtons.size() < this.requiredButtons())
 		{
@@ -192,7 +222,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 	
 	private void resetButtons() {
 		
-		this.allButtons.forEach(this.removeButton);
+		this.allButtons.forEach(this::removeChild);
 		this.allButtons.clear();
 		
 		int requiredButtons = this.requiredButtons();
@@ -200,8 +230,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		{
 			final int di = i;
 			//Create the trade button
-			TradeButton newButton = new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di));
-			this.addWidget.accept(newButton);
+			TradeButton newButton = this.addChild(new TradeButton(() -> this.getContext.apply(this.getTradeAndTrader(di).getFirst()), () -> this.getTradeAndTrader(di).getSecond(), button -> this.OnTraderPress(di)));
 			this.allButtons.add(newButton);
 		}
 		
@@ -265,7 +294,7 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 				TradeButton button = this.allButtons.get(displayIndex);
 				if (trade.getFirst() != null && trade.getSecond() != null) {
 					TradeContext context = this.getContext.apply(trade.getFirst());
-					button.move(this.getX() + xOffset, this.getY() + yOffset);
+					button.setPosition(this.getPosition().offset(xOffset, yOffset));
 					button.visible = true;
 					button.active = !this.isSelected.apply(trade.getFirst(), trade.getSecond());
 					xOffset += trade.getSecond().getButtonRenderer().tradeButtonWidth(context) + spacing;
@@ -293,51 +322,24 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 			this.onPress.accept(data.getFirst(), data.getSecond());
 		}
 	}
-	
-	public void renderTraderName(PoseStack pose, int x, int y, int maxWidth, boolean renderTitle)
-	{
-		ITraderSource ts = this.traderSource.get();
-		if(ts == null)
-			return;
-		
-		StringBuilder text = new StringBuilder();
-		for(TraderData trader : ts.getTraders())
+
+	@Override
+	public List<Component> getTooltipText(int mouseX, int mouseY) {
+		//Don't need to render button tooltips as that's handled by the button itself now
+		if(this.hasTitlePosition)
 		{
-			if(text.length() == 0)
-				text = new StringBuilder(renderTitle ? trader.getTitle().getString() : trader.getName().getString());
-			else
-				text.append(Component.translatable("gui.lightmanscurrency.trading.listseperator").getString()).append(renderTitle ? trader.getTitle().getString() : trader.getName().getString());
+			if(this.titlePosition.isMouseInArea(mouseX, mouseY, this.titleWidth, this.font.lineHeight))
+			{
+				List<Component> tooltips = new ArrayList<>();
+				ITraderSource ts = this.traderSource.get();
+				if(ts == null)
+					return null;
+				for(TraderData trader : ts.getTraders())
+					tooltips.add(trader.getTitle());
+				return tooltips;
+			}
 		}
-		
-		this.font.draw(pose, TextRenderUtil.fitString(text.toString(), maxWidth), x, y, 0x404040);
-		
-	}
-	
-	public void renderTooltips(Screen screen, PoseStack pose, int nameX, int nameY, int nameWidth, int mouseX, int mouseY)
-	{
-		for(TradeButton button : this.allButtons)
-		{
-			button.renderTooltips(pose, mouseX, mouseY);
-		}
-		this.renderTraderNameTooltip(screen, pose, nameX, nameY, nameWidth, mouseX, mouseY);
-	}
-	
-	public void renderTraderNameTooltip(Screen screen, PoseStack pose, int x, int y, int maxWidth, int mouseX, int mouseY)
-	{
-		if(mouseX >= x && mouseX < x + maxWidth && mouseY >= y && mouseY < y + this.font.lineHeight)
-		{
-			List<Component> tooltips = new ArrayList<>();
-			ITraderSource ts = this.traderSource.get();
-			if(ts == null)
-				return;
-			for(TraderData trader : ts.getTraders())
-				tooltips.add(trader.getTitle());
-			
-			if(tooltips.size() == 0)
-				return;
-			
-			screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
-		}
+		return null;
 	}
 	
 	private boolean canScrollDown() { return this.canScrollDown(this.scroll); }
@@ -394,12 +396,6 @@ public class TradeButtonArea extends AbstractWidget implements IScrollable{
 		}
 		return false;
 	}
-
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
-
-	@Override
-	public @NotNull NarrationPriority narrationPriority() { return NarrationPriority.NONE; }
 	
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) { return true; }

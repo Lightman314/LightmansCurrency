@@ -70,12 +70,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         return null;
     }
 
-    private final CoinValue hostMoney = new CoinValue();
+    private CoinValue hostMoney = CoinValue.EMPTY;
     @Override
-    public CoinValue getHostMoney() { return this.hostMoney.copy(); }
-    private final CoinValue guestMoney = new CoinValue();
+    public CoinValue getHostMoney() { return this.hostMoney; }
+    private CoinValue guestMoney = CoinValue.EMPTY;
     @Override
-    public CoinValue getGuestMoney() { return this.guestMoney.copy(); }
+    public CoinValue getGuestMoney() { return this.guestMoney; }
 
     private final SimpleContainer hostItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
     @Override
@@ -265,15 +265,15 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return;
 
         //Confirm that payment can be taken successfully
-        if(MoneyUtil.ProcessPayment(null, host, this.hostMoney.copy()))
+        if(MoneyUtil.ProcessPayment(null, host, this.hostMoney))
         {
-            if(MoneyUtil.ProcessPayment(null, guest, this.guestMoney.copy()))
+            if(MoneyUtil.ProcessPayment(null, guest, this.guestMoney))
             {
                 //Flag trade as completed
                 completed = true;
 
                 //Give money/items to host
-                MoneyUtil.ProcessChange(null, host, this.guestMoney.copy());
+                MoneyUtil.ProcessChange(null, host, this.guestMoney);
                 for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.guestItems.getItem(i);
@@ -282,7 +282,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
                 }
 
                 //Give money/items to guest
-                MoneyUtil.ProcessChange(null, guest, this.hostMoney.copy());
+                MoneyUtil.ProcessChange(null, guest, this.hostMoney);
                 for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
                 {
                     ItemStack stack = this.hostItems.getItem(i);
@@ -295,12 +295,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
             }
             else //Refund host money if guest doesn't have enough money
-                MoneyUtil.ProcessChange(null, host, this.hostMoney.copy());
+                MoneyUtil.ProcessChange(null, host, this.hostMoney);
         }
 
     }
 
-    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney.copy(), this.guestMoney.copy(), InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
+    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
 
     public void handleInteraction(Player player, CompoundTag message) {
         if(!this.isHost(player) && !this.isGuest(player))
@@ -329,7 +329,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.hostMoney.load(message,"ChangeMoney");
+                this.hostMoney = CoinValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(true);
             }
         }
@@ -357,7 +357,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.guestMoney.load(message,"ChangeMoney");
+                this.guestMoney = CoinValue.load(message.getCompound("ChangeMoney"));
                 this.onTradeEdit(false);
             }
         }

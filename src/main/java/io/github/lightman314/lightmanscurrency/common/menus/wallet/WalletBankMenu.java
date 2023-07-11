@@ -28,8 +28,9 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	@Override
 	public boolean isClient() { return this.player.level.isClientSide; }
 
+	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
+	public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 	
 	@Override
 	public boolean stillValid(@Nonnull Player player) {
@@ -39,7 +40,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	
 	@Override
 	public void onDepositOrWithdraw() {
-		if(this.getAutoConvert()) //Don't need to save if converting, as the ConvertCoins function auto-saves.
+		if(this.getAutoExchange()) //Don't need to save if converting, as the ExchangeCoins function auto-saves.
 			this.ConvertCoins();
 		else //Save the wallet contents on bank interaction.
 			this.saveWalletContents();

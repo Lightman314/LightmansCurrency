@@ -42,6 +42,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,7 +56,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
 
     public static final ResourceLocation TYPE = new ResourceLocation(LightmansCurrency.MODID, "slot_machine_trader");
 
-    private CoinValue price = new CoinValue();
+    private CoinValue price = CoinValue.EMPTY;
     public final CoinValue getPrice() { return this.price; }
     public void setPrice(CoinValue newValue) { this.price = newValue; this.markPriceDirty(); }
     public final boolean isPriceValid() { return this.price.isValid(); }
@@ -91,7 +93,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         else
         {
             try{ level = LightmansCurrency.PROXY.safeGetDummyLevel();
-            } catch(Exception e) {
+            } catch(Throwable t) {
                 LightmansCurrency.LogError("Could not get a valid level from the trade's context or the proxy. Will have to use Java randomizer");
                 return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()) + 1);
             }
@@ -243,7 +245,7 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
         compound.put("Entries", list);
     }
 
-    protected final void savePrice(CompoundTag compound) { this.price.save(compound,"Price"); }
+    protected final void savePrice(CompoundTag compound) { compound.put("Price", this.price.save()); }
 
     @Override
     protected void loadAdditional(CompoundTag compound) {
@@ -270,10 +272,9 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
             this.entriesChanged = true;
         }
         if(compound.contains("Price"))
-            this.price.load(compound,"Price");
+            this.price = CoinValue.safeLoad(compound, "Price");
     }
 
-    //TODO make persistent variant
     @Override
     protected void saveAdditionalToJson(JsonObject json) {
         //Price
@@ -446,13 +447,8 @@ public class SlotMachineTraderData extends TraderData implements TraderItemStora
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     protected void addPermissionOptions(List<PermissionOption> options) { }
-
-    @Override
-    protected void loadExtraOldUniversalTraderData(CompoundTag compound) { }
-
-    @Override
-    protected void loadExtraOldBlockEntityData(CompoundTag compound) { }
 
     @Override
     public boolean isItemRelevant(ItemStack item) {

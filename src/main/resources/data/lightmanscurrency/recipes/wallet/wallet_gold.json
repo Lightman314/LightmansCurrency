@@ -4,11 +4,11 @@
   "ingredients": [{
       "tag": "forge:leather"
   },{
-      "item": "lightmanscurrency:coin_copper"
+      "tag": "forge:ingots/copper"
   },{
-      "item": "lightmanscurrency:coin_iron"
+      "tag": "forge:ingots/iron"
   },{
-      "item": "lightmanscurrency:coin_gold"
+      "tag": "forge:ingots/gold"
   },{
       "tag": "forge:leather"
   }],

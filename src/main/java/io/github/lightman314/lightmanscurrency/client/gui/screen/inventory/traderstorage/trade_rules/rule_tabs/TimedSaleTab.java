@@ -1,16 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,54 +30,44 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
 
     EditBox discountInput;
 
-    Button buttonSetDiscount;
-    Button buttonStartSale;
+    EasyButton buttonSetDiscount;
+    EasyButton buttonStartSale;
 
     TimeInputWidget durationInput;
 
     @Override
-    public void onOpen() {
+    public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-        this.discountInput = this.addWidget(new EditBox(this.font, this.screen.getGuiLeft() + 25, this.screen.getGuiTop() + 9, 20, 20, Component.empty()));
+        this.discountInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 25, screenArea.y + 9, 20, 20, EasyText.empty()));
         this.discountInput.setMaxLength(2);
         TimedSale rule = this.getRule();
         if(rule != null)
             this.discountInput.setValue(Integer.toString(rule.getDiscount()));
-        this.buttonSetDiscount = this.addWidget(Button.builder(Component.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton).pos(this.screen.getGuiLeft() + 125, this.screen.getGuiTop() + 10).size(50, 20).build());
+        this.buttonSetDiscount = this.addChild(new EasyTextButton(screenArea.pos.offset(125, 10), 50, 20, EasyText.translatable("gui.button.lightmanscurrency.discount.set"), this::PressSetDiscountButton));
 
-        this.buttonStartSale = this.addWidget(Button.builder(this.getButtonText(), this::PressStartButton).pos(this.screen.getGuiLeft() + 25, this.screen.getGuiTop() + 45).size(156, 20).build());
+        this.buttonStartSale = this.addChild(new EasyTextButton(screenArea.pos.offset(25, 45), 156, 20, this::getButtonText, this::PressStartButton)
+                .withAddons(EasyAddonHelper.tooltip(this::getButtonTooltip)));
 
-        this.durationInput = this.addWidget(new TimeInputWidget(this.screen.getGuiLeft() + 63, this.screen.getGuiTop() + 75, 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::addWidget, this::onTimeSet));
+        this.durationInput = this.addChild(new TimeInputWidget(screenArea.pos.offset(63, 75), 10, TimeUtil.TimeUnit.DAY, TimeUtil.TimeUnit.MINUTE, this::onTimeSet));
         this.durationInput.setTime(this.getRule().getDuration());
 
     }
 
     @Override
-    public void onClose() {
-
-    }
-
-    @Override
-    public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+    public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
         if(getRule() == null)
             return;
 
-        this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.getX() + this.discountInput.getWidth() + 4, this.discountInput.getY() + 3, 0xFFFFFF);
+        gui.pushOffset(this.discountInput);
+        gui.drawString(EasyText.translatable("gui.lightmanscurrency.discount.tooltip"), this.discountInput.getWidth() + 4, 3, 0xFFFFFF);
+        gui.popOffset();
 
         Component infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.inactive", new TimeUtil.TimeData(this.getRule().getDuration()).getShortString());
         if(this.getRule().timerActive())
             infoText = EasyText.translatable("gui.button.lightmanscurrency.timed_sale.info.active", this.getRule().getTimeRemaining().getShortString(3));
 
-        this.font.draw(pose, infoText.getString(), this.screen.getGuiLeft() + 25, this.screen.getGuiTop() + 35, 0xFFFFFF);
-
-    }
-
-    @Override
-    public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
-
-        if(this.buttonStartSale.isMouseOver(mouseX, mouseY))
-            screen.renderTooltip(pose, this.getButtonTooltip(), mouseX, mouseY);
+        gui.drawString(infoText, 25, 35, 0xFFFFFF);
 
     }
 
@@ -89,16 +82,16 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
     private Component getButtonText()
     {
         TimedSale rule = this.getRule();
-        return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start"));
+        return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start"));
     }
 
     private Component getButtonTooltip()
     {
         TimedSale rule = this.getRule();
-        return Component.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start") + ".tooltip");
+        return EasyText.translatable("gui.button.lightmanscurrency.timed_sale." + (rule != null && rule.timerActive() ? "stop" : "start") + ".tooltip");
     }
 
-    void PressSetDiscountButton(Button button)
+    void PressSetDiscountButton(EasyButton button)
     {
         int discount = TextInputUtil.getIntegerValue(this.discountInput, 1);
         TimedSale rule = this.getRule();
@@ -109,7 +102,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
         this.sendUpdateMessage(updateInfo);
     }
 
-    void PressStartButton(Button button)
+    void PressStartButton(EasyButton button)
     {
         TimedSale rule = this.getRule();
         boolean setActive = rule != null && !rule.timerActive();

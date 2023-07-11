@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparis
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.core.NonNullList;
@@ -45,7 +45,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 	}
 	
-	protected CoinValue cost = new CoinValue();
+	protected CoinValue cost = CoinValue.EMPTY;
 	
 	List<TradeRule> rules = new ArrayList<>();
 	
@@ -53,12 +53,12 @@ public abstract class TradeData implements ITradeRuleHost {
 	
 	public boolean validCost()
 	{
-		return this.getCost().isFree() || this.getCost().getRawValue() > 0;
+		return this.getCost().isFree() || this.getCost().getValueNumber() > 0;
 	}
 	
 	public boolean isValid() { return validCost(); }
 	
-	public CoinValue getCost() { return this.cost.copy(); }
+	public CoinValue getCost() { return this.cost; }
 	
 	public CoinValue getCost(TradeContext context)
 	{
@@ -80,7 +80,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag tradeNBT = new CompoundTag();
-		this.cost.save(tradeNBT,"Price");
+		tradeNBT.put("Price", this.cost.save());
 		TradeRule.saveRules(tradeNBT, this.rules, "RuleData");
 		
 		return tradeNBT;
@@ -88,10 +88,10 @@ public abstract class TradeData implements ITradeRuleHost {
 	
 	protected void loadFromNBT(CompoundTag nbt)
 	{
-		cost.load(nbt, "Price");
+		this.cost = CoinValue.safeLoad(nbt, "Price");
 		//Set whether it's free or not
-		if(nbt.contains("IsFree"))
-			this.cost.setFree(nbt.getBoolean("IsFree"));
+		if(nbt.contains("IsFree") && nbt.getBoolean("IsFree"))
+			this.cost = CoinValue.FREE;
 		
 		this.rules.clear();
 		if(nbt.contains("TradeRules"))
@@ -172,7 +172,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
+	public abstract void onInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
 	
 	/**
 	 * Called when an output display is clicked on in display mode.
@@ -184,7 +184,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int index, int button, ItemStack heldItem);
+	public abstract void onOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem);
 	
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
@@ -197,7 +197,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param button The mouse button that was clicked.
 	 * @param heldItem The item currently being held by the player.
 	 */
-	public abstract void onInteraction(BasicTradeEditTab tab, @Nullable IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem);
+	public abstract void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem);
 
 	@NotNull
 	public final List<Integer> getRelevantInventorySlots(TradeContext context, NonNullList<Slot> slots) {

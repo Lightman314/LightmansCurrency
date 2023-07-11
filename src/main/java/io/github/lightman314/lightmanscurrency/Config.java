@@ -80,7 +80,7 @@ public class Config {
 
 	private static int getMaxDecimal()
 	{
-		double minFraction = MoneyUtil.getData(new CoinValue(1).coinValues.get(0).coin).getDisplayValue() % 1d;
+		double minFraction = MoneyUtil.getData(CoinValue.fromNumber(1).coinValues.get(0).coin).getDisplayValue() % 1d;
 		if(minFraction > 0d)
 		{
 			//-2 to ignore the 0.
@@ -88,16 +88,6 @@ public class Config {
 		}
 		else
 			return 0;
-	}
-
-	@Deprecated
-	public static Item getBaseCoinItem() {
-		return Config.SERVER.valueBaseCoin.get();
-	}
-
-	@Deprecated
-	public static Item getMoneyMendingCoinItem() {
-		return Config.SERVER.moneyMendingCoinCost.get().getTradeItem().getItem();
 	}
 
 	private static Map<String,Item> traderOverrides = new HashMap<>();
@@ -178,10 +168,8 @@ public class Config {
 		public final ForgeConfigSpec.BooleanValue pushNotificationsToChat;
 
 		//Inventory Button Options
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonX;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonY;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonXCreative;
-		public final ForgeConfigSpec.IntValue notificationAndTeamButtonYCreative;
+		public final ScreenPositionConfig notificationAndTeamButtonPosition;
+		public final ScreenPositionConfig notificationAndTeamButtonCreativePosition;
 
 		//Chest Button Options
 		public final ForgeConfigSpec.BooleanValue chestButtonVisible;
@@ -254,19 +242,13 @@ public class Config {
 
 			builder.comment("Inventory Button Settings").push("inventory_buttons");
 
-			this.notificationAndTeamButtonX = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
-					.defineInRange("buttonX", 152, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationAndTeamButtonY = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players inventory.")
-					.defineInRange("buttonY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonPosition = ScreenPositionConfig.define(builder
+					.comment("The position that the notification & team manager buttons will be placed at in the players inventory."),
+					"button", ScreenPosition.of(152,3), SPEC_SUPPLIER);
 
-			this.notificationAndTeamButtonXCreative = builder
-					.comment("The x position that the notification & team manager buttons will be placed at in the players creative inventory.")
-					.defineInRange("buttonCreativeX", 171, Integer.MIN_VALUE, Integer.MAX_VALUE);
-			this.notificationAndTeamButtonYCreative = builder
-					.comment("The y position that the notification & team manager buttons will be placed at in the players creative inventory.")
-					.defineInRange("buttonCreativeY", 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			this.notificationAndTeamButtonCreativePosition = ScreenPositionConfig.define(builder
+					.comment("The position that the notification & team manager buttons will be placed at in the players creative inventory."),
+					"buttonCreative", ScreenPosition.of(171,3), SPEC_SUPPLIER);
 
 			builder.pop();
 
@@ -813,7 +795,7 @@ public class Config {
 			builder.comment("Enchantment Settings").push("enchantments");
 
 			this.moneyMendingCoinCost = CoinValueConfig.define(builder.comment("The cost required to repair a single item durability point with the Money Mending enchantment.")
-					,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", new CoinValue(1), SPEC_SUPPLIER);
+					,"moneyMendingCoinCost", "1-lightmanscurrency:coin_copper", CoinValue.fromNumber(1), SPEC_SUPPLIER);
 
 			this.coinMagnetRangeBase = builder.comment("The base radius around the player that the Coin Magnet enchantment will collect coins from.")
 					.defineInRange("coinMagnetRangeBase", 5, 0, 50);

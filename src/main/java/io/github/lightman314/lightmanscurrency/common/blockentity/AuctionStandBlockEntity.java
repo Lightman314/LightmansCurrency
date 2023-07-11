@@ -35,7 +35,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     @SubscribeEvent(priority = EventPriority.LOWEST) //Set to low priority so that it doesn't run before the coin list is loaded and makes the persistent traders fail to load properly.
     public static void serverStart(ServerStartedEvent event) {
         if(AuctionHouseTrader.isEnabled())
-            RandomizeDisplayItems();
+            AuctionStandBlockEntity.RandomizeDisplayItems();
     }
 
     @SubscribeEvent
@@ -44,11 +44,23 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
             LightmansCurrencyPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> sp), new SMessageSyncAuctionStandDisplay(displayItems));
     }
 
+    private static boolean randomizeNextOpportunity = false;
+
     @SubscribeEvent
     public static void serverTick(TickEvent.ServerTickEvent event)
     {
-        if(AuctionHouseTrader.isEnabled() && event.haveTime() && event.getServer().getTickCount() % 1200 == 0)
+        if(AuctionHouseTrader.isEnabled() && event.getServer().getTickCount() % 1200 == 0)
+        {
+            if(event.haveTime())
+                RandomizeDisplayItems();
+            else
+                randomizeNextOpportunity = true;
+        }
+        else if(event.haveTime() && randomizeNextOpportunity)
+        {
+            randomizeNextOpportunity = false;
             RandomizeDisplayItems();
+        }
     }
 
     private static void RandomizeDisplayItems()
@@ -77,9 +89,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
         LightmansCurrencyPacketHandler.instance.send(PacketDistributor.ALL.noArg(), new SMessageSyncAuctionStandDisplay(displayItems));
     }
 
-    public static void syncItemsFromServer(List<ItemStack> items) {
-        displayItems = ImmutableList.copyOf(items);
-    }
+    public static void syncItemsFromServer(List<ItemStack> items) { displayItems = ImmutableList.copyOf(items); }
 
 
 }

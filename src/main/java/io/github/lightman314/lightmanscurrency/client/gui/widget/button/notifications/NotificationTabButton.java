@@ -1,18 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import net.minecraft.client.gui.Font;
 import net.minecraftforge.common.util.NonNullSupplier;
+
+import java.util.function.Consumer;
 
 public class NotificationTabButton extends TabButton {
 
 	final NonNullSupplier<NotificationData> dataSource;
 	final NotificationCategory category;
 	
-	public NotificationTabButton(OnPress pressable, Font font, NonNullSupplier<NotificationData> dataSource, NotificationCategory category) {
-		super(pressable, font, category);
+	public NotificationTabButton(Consumer<EasyButton> pressable, NonNullSupplier<NotificationData> dataSource, NotificationCategory category) {
+		super(pressable, category);
 		this.category = category;
 		this.dataSource = dataSource;
 	}

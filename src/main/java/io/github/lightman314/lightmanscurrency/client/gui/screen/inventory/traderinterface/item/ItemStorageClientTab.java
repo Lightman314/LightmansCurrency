@@ -2,34 +2,35 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
-public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollListener, IScrollable{
+import javax.annotation.Nonnull;
+
+public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTab> implements IScrollListener, IScrollable, IMouseListener {
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
@@ -47,14 +48,12 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	
 	ScrollBarWidget scrollBar;
 	
+	@Nonnull
 	@Override
-	public @NotNull IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
+	public IconData getIcon() { return IconAndButtonUtil.ICON_STORAGE; }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.storage"); }
-	
-	@Override
-	public boolean blockInventoryClosing() { return false; }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	private DirectionalSettings getInputSettings() {
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
@@ -69,67 +68,63 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	}
 	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
+
+		this.addChild(this);
+
+		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset( X_OFFSET + (18 * COLUMNS), Y_OFFSET), ROWS * 18, this));
 		
-		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * COLUMNS), this.screen.getGuiTop() + Y_OFFSET, ROWS * 18, this));
+		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
 		
-		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
+		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
+		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getInputSettings().ignoreSides,  this::ToggleOutputSide, this::addChild);
 		
-		this.inputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this.screen::addRenderableTabWidget);
-		this.outputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 116, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getOutputSettings()::get, this.getInputSettings().ignoreSides,  this::ToggleOutputSide, this.screen::addRenderableTabWidget);
-		
-		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickInsertButton(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + Y_OFFSET + 18 * 5 + 8, b -> this.commonTab.quickTransfer(0)));
-		this.screen.addRenderableTabWidget(IconAndButtonUtil.quickExtractButton(this.screen.getGuiLeft() + 34, this.screen.getGuiTop() + Y_OFFSET + 18 * 5 + 8, b -> this.commonTab.quickTransfer(1)));
+		this.addChild(IconAndButtonUtil.quickInsertButton(screenArea.pos.offset(22, Y_OFFSET + 18 * 5 + 8), b -> this.commonTab.quickTransfer(0)));
+		this.addChild(IconAndButtonUtil.quickExtractButton(screenArea.pos.offset(34, Y_OFFSET + 18 * 5 + 8), b -> this.commonTab.quickTransfer(1)));
 		
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+
+		gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), 8, 6, 0x404040);
 		
-		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
-		
-		this.scrollBar.beforeWidgetRender(mouseY);
-		
-		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
+		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity be)
 		{
 			//Validate the scroll
 			this.validateScroll();
 			//Render each display slot
 			int index = this.scroll * COLUMNS;
-			TraderItemStorage storage = ((ItemTraderInterfaceBlockEntity)this.menu.getBE()).getItemBuffer();
-			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY) + (this.scroll * COLUMNS);
+			TraderItemStorage storage = be.getItemBuffer();
+			int hoveredSlot = this.isMouseOverSlot(gui.mousePos) + (this.scroll * COLUMNS);
 			for(int y = 0; y < ROWS; ++y)
 			{
-				int yPos = this.screen.getGuiTop() + Y_OFFSET + y * 18;
+				int yPos = Y_OFFSET + y * 18;
 				for(int x = 0; x < COLUMNS; ++x)
 				{
 					//Get the slot position
-					int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
+					int xPos = X_OFFSET + x * 18;
 					//Render the slot background
-					RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-					RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-					GuiComponent.blit(pose, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
+					gui.resetColor();
+					gui.blit(TraderInterfaceScreen.GUI_TEXTURE, xPos, yPos, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 					//Render the slots item
 					if(index < storage.getSlotCount())
-						ItemRenderUtil.drawItemStack(pose, this.font, storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
+						gui.renderItem(storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
 					if(index == hoveredSlot)
-						AbstractContainerScreen.renderSlotHighlight(pose, xPos + 1, yPos + 1, 0);
+						gui.renderSlotHighlight(xPos + 1, yPos + 1);
 					index++;
 				}
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-			{
-				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
-			}
+				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderInterfaceScreen.WIDTH, 0, 18, 18);
 			
 			//Render the input/output labels
-			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.settings.iteminput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
-			this.font.draw(pose, Component.translatable("gui.lightmanscurrency.settings.itemoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), 33, WIDGET_OFFSET, 0x404040);
+			int textWidth = gui.font.width(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
+			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
 		}
 		
 	}
@@ -148,14 +143,14 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		return String.valueOf(count);
 	}
 
-	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+
+	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
 			if(this.screen.getMenu().getCarried().isEmpty())
 			{
-				int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
+				int hoveredSlot = this.isMouseOverSlot(gui.mousePos);
 				if(hoveredSlot >= 0)
 				{
 					hoveredSlot += scroll * COLUMNS;
@@ -163,30 +158,20 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 					if(hoveredSlot < storage.getContents().size())
 					{
 						ItemStack stack = storage.getContents().get(hoveredSlot);
-						List<Component> tooltip = ItemRenderUtil.getTooltipFromItem(stack);
-						tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
+						List<Component> tooltip = EasyScreenHelper.getTooltipFromItem(stack);
+						tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage", stack.getCount()));
 						if(stack.getCount() >= 64)
 						{
 							if(stack.getCount() % 64 == 0)
-								tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
+								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.single", stack.getCount() / 64));
 							else
-								tooltip.add(Component.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
+								tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.itemstorage.stacks.multi", stack.getCount() / 64, stack.getCount() % 64));
 						}
-						this.screen.renderComponentTooltip(pose, tooltip, mouseX, mouseY);
+						gui.renderComponentTooltip(tooltip);
 					}	
 				}
 			}
-			
-			this.inputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
-			this.outputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
-			
 		}
-	}
-	
-	@Override
-	public void tick() {
-		this.inputSettings.tick();
-		this.outputSettings.tick();
 	}
 	
 	private void validateScroll() {
@@ -196,7 +181,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			this.scroll = this.getMaxScroll();
 	}
 	
-	private int isMouseOverSlot(double mouseX, double mouseY) {
+	private int isMouseOverSlot(ScreenPosition mousePos) {
 		
 		int foundColumn = -1;
 		int foundRow = -1;
@@ -205,12 +190,12 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET;
 		for(int x = 0; x < COLUMNS && foundColumn < 0; ++x)
 		{
-			if(mouseX >= leftEdge + x * 18 && mouseX < leftEdge + (x * 18) + 18)
+			if(mousePos.x >= leftEdge + x * 18 && mousePos.x < leftEdge + (x * 18) + 18)
 				foundColumn = x;
 		}
 		for(int y = 0; y < ROWS && foundRow < 0; ++y)
 		{
-			if(mouseY >= topEdge + y * 18 && mouseY < topEdge + (y * 18) + 18)
+			if(mousePos.y >= topEdge + y * 18 && mousePos.y < topEdge + (y * 18) + 18)
 				foundRow = y;
 		}
 		if(foundColumn < 0 || foundRow < 0)
@@ -250,11 +235,11 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		
 		if(this.menu.getBE() instanceof ItemTraderInterfaceBlockEntity)
 		{
-			int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
+			int hoveredSlot = this.isMouseOverSlot(ScreenPosition.of(mouseX, mouseY));
 			if(hoveredSlot >= 0)
 			{
 				hoveredSlot += this.scroll * COLUMNS;
@@ -262,15 +247,11 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 				return true;
 			}
 		}
-		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
 		return false;
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
 	@Override
 	public int currentScroll() { return this.scroll; }

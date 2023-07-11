@@ -8,14 +8,12 @@ import io.github.lightman314.lightmanscurrency.common.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessagePlayPickupSound;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.common.money.CoinData;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 
 import java.util.Collection;
@@ -291,7 +289,7 @@ public class EventHandler {
 		
 		double coinPercentage = MathUtil.clamp((double)coinDropPercent / 100d, 0d, 1d);
 		NonNullList<ItemStack> walletList = WalletItem.getWalletInventory(walletStack);
-		long walletContents = new CoinValue(walletList).getRawValue();
+		long walletContents = MoneyUtil.getValue(walletList);
 		
 		long droppedAmount = (long)((double)walletContents * coinPercentage);
 		if(droppedAmount < 1)

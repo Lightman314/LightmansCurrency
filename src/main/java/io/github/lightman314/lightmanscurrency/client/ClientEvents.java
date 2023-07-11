@@ -1,22 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.util.ScreenUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import org.lwjgl.glfw.GLFW;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.VisibilityToggleButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.wallet.VisibilityToggleButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.NotificationButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TeamManagerButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.TraderRecoveryButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.WalletButton;
-import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory.wallet.WalletButton;
 import io.github.lightman314.lightmanscurrency.common.capability.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
@@ -30,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.Config;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -117,12 +114,9 @@ public class ClientEvents {
 				return;
 
 			//Add Wallet-Related buttons if Curios doesn't exist or is somehow broken
-			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			ScreenPosition buttonPosition = slotPosition.offset(Config.CLIENT.walletButtonOffset.get());
+			event.addListener(new WalletButton(gui, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
 
-			event.addListener(new WalletButton(gui, buttonPosition.x, buttonPosition.y, b -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenWallet(-1))));
-
-			event.addListener(new VisibilityToggleButton(gui, slotPosition.x, slotPosition.y, ClientEvents::toggleVisibility));
+			event.addListener(new VisibilityToggleButton(gui, ClientEvents::toggleVisibility));
 
 		}
 		else if(screen instanceof ContainerScreen chestScreen)
@@ -133,7 +127,7 @@ public class ClientEvents {
 
 	}
 	
-	private static void toggleVisibility(Button button) {
+	private static void toggleVisibility(EasyButton button) {
 		Minecraft mc = Minecraft.getInstance();
 		Player player = mc.player;
 		IWalletHandler handler = WalletCapability.lazyGetWalletHandler(player);
@@ -164,20 +158,21 @@ public class ClientEvents {
 			IWalletHandler walletHandler = getWalletHandler(); 
 			if(walletHandler == null)
 				return;
-			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
-			RenderSystem.setShaderTexture(0, WALLET_SLOT_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+			EasyGuiGraphics gui = EasyGuiGraphics.create(event);
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen).offsetScreen(screen);
+			gui.resetColor();
 			//Render slot background
-			GuiComponent.blit(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x, screen.getGuiTop() + slotPosition.y, 0, 0, 18, 18);
+			gui.blit(WALLET_SLOT_TEXTURE, slotPosition.x, slotPosition.y, 0, 0, 18, 18);
 			//Render slot item
 			ItemStack wallet = walletHandler.getWallet();
 			if(wallet.isEmpty())
-				ItemRenderUtil.drawSlotBackground(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, WalletSlot.BACKGROUND);
+				gui.renderSlotBackground(WalletSlot.BACKGROUND, slotPosition.offset(1,1));
 			else
-				ItemRenderUtil.drawItemStack(event.getPoseStack(), null, wallet, screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1);
+				gui.renderItem(wallet, slotPosition.offset(1,1));
 			//Render slot highlight
-			if(isMouseOverWalletSlot(screen, event.getMouseX(), event.getMouseY(), slotPosition))
-				AbstractContainerScreen.renderSlotHighlight(event.getPoseStack(), screen.getGuiLeft() + slotPosition.x + 1, screen.getGuiTop() + slotPosition.y + 1, 0);
+			if(slotPosition.isMouseInArea(event.getMouseX(), event.getMouseY(), 16, 16))
+				gui.renderSlotHighlight(slotPosition.offset(1,1));
 		}
 	}
 	
@@ -185,40 +180,41 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void renderInventoryTooltips(ScreenEvent.Render.Post event)
 	{
-		Screen screen = event.getScreen();
 		
-		if(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen)
+		if(event.getScreen() instanceof InventoryScreen || event.getScreen() instanceof CreativeModeInventoryScreen)
 		{
-			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>)screen;
+			AbstractContainerScreen<?> screen = (AbstractContainerScreen<?>)event.getScreen();
 			
-			if(!gui.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
+			if(!screen.getMenu().getCarried().isEmpty()) //Don't render tooltips if the held item isn't empty
 				return;
 			
-			if(gui instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
+			if(screen instanceof CreativeModeInventoryScreen creativeScreen && !creativeScreen.isInventoryOpen())
 				return;
 
+			EasyGuiGraphics gui = EasyGuiGraphics.create(event);
+
 			//Render notification & team manager button tooltips
-			NotificationButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
-			TeamManagerButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
+			NotificationButton.tryRenderTooltip(gui);
+			TeamManagerButton.tryRenderTooltip(gui);
 			
 			Minecraft mc = Minecraft.getInstance();
 			if(LightmansCurrency.isCuriosValid(mc.player))
 				return;
 
-			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen);
+			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen).offsetScreen(screen);
 
-			if(isMouseOverWalletSlot(gui, event.getMouseX(), event.getMouseY(), slotPosition))
+			if(slotPosition.isMouseInArea(event.getMouseX(), event.getMouseY(), 16,16))
 			{
 				IWalletHandler walletHandler = getWalletHandler();
 				ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
 				if(!wallet.isEmpty())
-					screen.renderComponentTooltip(event.getPoseStack(), ItemRenderUtil.getTooltipFromItem(wallet), event.getMouseX(), event.getMouseY());
+					gui.renderTooltip(wallet, event.getMouseX(), event.getMouseY());
 			}
 			
 		}
-		else if(screen instanceof ContainerScreen)
+		else if(event.getScreen() instanceof ContainerScreen)
 		{
-			ChestCoinCollectButton.tryRenderTooltip(event.getPoseStack(), event.getMouseX(), event.getMouseY());
+			ChestCoinCollectButton.tryRenderTooltip(EasyGuiGraphics.create(event), event.getMouseX(), event.getMouseY());
 		}
 
 	}
@@ -276,12 +272,12 @@ public class ClientEvents {
 	
 	private static boolean isMouseOverWalletSlot(AbstractContainerScreen<?> gui, double mouseX, double mouseY, ScreenPosition slotPosition)
 	{
-		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offset(gui), 18, 18);
+		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offsetScreen(gui), 18, 18);
 	}
 	
 	private static boolean isMouseOverVisibilityButton(AbstractContainerScreen<?> gui, double mouseX, double mouseY, ScreenPosition slotPosition)
 	{
-		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offset(gui), VisibilityToggleButton.SIZE, VisibilityToggleButton.SIZE);
+		return ScreenUtil.isMouseOver(mouseX, mouseY, slotPosition.offsetScreen(gui), VisibilityToggleButton.SIZE, VisibilityToggleButton.SIZE);
 	}
 	
 	private static IWalletHandler getWalletHandler() {
@@ -295,8 +291,6 @@ public class ClientEvents {
 		return mc.player;
 	}
 	
-	private static ScreenPosition getWalletSlotPosition(boolean isCreative) {
-		return isCreative ? Config.CLIENT.walletSlotCreative.get() : Config.CLIENT.walletSlot.get();
-	}
+	public static ScreenPosition getWalletSlotPosition(boolean isCreative) { return isCreative ? Config.CLIENT.walletSlotCreative.get() : Config.CLIENT.walletSlot.get(); }
 	
 }

@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount.AccountReference;
-import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.common.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
@@ -363,12 +362,6 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 				this.owner.SetOwner(PlayerReference.load(ownerTag));
 			else
 				this.owner.load(ownerTag);
-		}
-		if(compound.contains("Team"))
-		{
-			Team team = TeamSaveData.GetTeam(false, DataConverter.getNewTeamID(compound.getUUID("Team")));
-			if(team != null)
-				this.owner.SetOwner(team);
 		}
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);

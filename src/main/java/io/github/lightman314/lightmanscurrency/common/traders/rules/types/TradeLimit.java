@@ -6,8 +6,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TradeLimitTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.common.events.TradeEvent.PreTradeEvent;
@@ -109,9 +107,6 @@ public class TradeLimit extends TradeRule{
 		if(data.contains("Count", Tag.TAG_INT))
 			this.count = data.getInt("Count");
 	}
-	
-	@Override
-	public IconData getButtonIcon() { return IconAndButtonUtil.ICON_COUNT; }
 
 	@Nonnull
 	@Override

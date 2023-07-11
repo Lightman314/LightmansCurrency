@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interf
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataBook;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataTicket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;

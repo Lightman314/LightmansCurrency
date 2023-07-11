@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.BasicTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -28,13 +27,13 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	public static final int INTERACTION_OUTPUT = 1;
 	public static final int INTERACTION_OTHER = 2;
 	
-	TraderStorageMenu.IClientMessage clientHandler = null;
+	Consumer<CompoundTag> clientHandler = null;
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new BasicTradeEditClientTab<>(screen, this); }
+	public Object createClientTab(Object screen) { return new BasicTradeEditClientTab<>(screen, this); }
 	
-	public void setClientHandler(TraderStorageMenu.IClientMessage clientHandler) { this.clientHandler = clientHandler; }
+	public void setClientHandler(Consumer<CompoundTag> clientHandler) { this.clientHandler = clientHandler; }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }
@@ -51,7 +50,7 @@ public class BasicTradeEditTab extends TraderStorageTab {
 	public void sendOpenTabMessage(int newTab, @Nullable CompoundTag additionalData) {
 		CompoundTag message = this.menu.createTabChangeMessage(newTab, additionalData);
 		if(this.clientHandler != null)
-			this.clientHandler.selfMessage(message);
+			this.clientHandler.accept(message);
 		this.menu.sendMessage(message);
 	}
 	

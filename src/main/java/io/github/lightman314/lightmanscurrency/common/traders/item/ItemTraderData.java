@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -14,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
@@ -30,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
@@ -40,7 +37,6 @@ import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -376,7 +372,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				else if(!newTrade.isBarter())
 				{
 					LightmansCurrency.LogWarning("Price is not defined on a non-barter trade. Price will be assumed to be free.");
-					newTrade.getCost().setFree(true);
+					newTrade.setCost(CoinValue.FREE);
 				}
 				if(tradeData.has("BarterItem"))
 				{
@@ -517,7 +513,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!context.getPayment(price))
 			{
 				LightmansCurrency.LogDebug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade." +
-						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + new CoinValue(context.getAvailableFunds()).getString("0"));
+						"\nPrice: " + price.getString("0") + "\nAvailable Funds: " + CoinValue.fromNumber(context.getAvailableFunds()).getString("0"));
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 			
@@ -737,56 +733,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	
 	@Override
-	@NotNull
-	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide){
+	@Nonnull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide){
 		return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
-	}
-	
-	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {
-		
-		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.trades = ItemTradeData.loadAllData(compound, true);
-		
-		
-		//Could check if it's still the old inventory style, but I'm going to ignore that possibility.
-		if(compound.contains("Storage", Tag.TAG_LIST))
-			this.storage.load(compound, "Storage");
-		
-		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
-			this.loadOldUpgradeData(InventoryUtil.loadAllItems("UpgradeInventory", compound, 5));
-		
-		//Load the logger
-		if(compound.contains("ItemShopHistory", Tag.TAG_LIST))
-		{
-			ListTag list = compound.getList("ItemShopHistory", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
-				if(text != null)
-					this.pushLocalNotification(new TextNotification(text));
-			}
-		}
-		
-		//Trade Rules
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
-			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules", this));
-		
-		//Item Settings
-		if(compound.contains("ItemSettings", Tag.TAG_COMPOUND))
-		{
-			CompoundTag is = compound.getCompound("ItemSettings");
-			if(is.contains("InputSides"))
-				this.loadOldInputSides(is.getCompound("InputSides"));
-			if(is.contains("OutputSides"))
-				this.loadOldOutputSides(is.getCompound("OutputSides"));
-		}
-		
-	}
-	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) {
-		this.loadExtraOldUniversalTraderData(compound);
 	}
 	
 	

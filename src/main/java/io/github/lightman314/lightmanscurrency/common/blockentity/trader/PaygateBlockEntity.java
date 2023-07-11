@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
@@ -105,14 +104,5 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 
 	@Override
 	protected PaygateTraderData buildNewTrader() { return new PaygateTraderData(this.level, this.worldPosition); }
-
-	@Override @Deprecated
-	protected PaygateTraderData createTraderFromOldData(CompoundTag compound) {
-		PaygateTraderData newTrader = new PaygateTraderData(this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		if(compound.contains("Timer"))
-			this.timer = compound.getInt("Timer");
-		return newTrader;
-	}
 	
 }

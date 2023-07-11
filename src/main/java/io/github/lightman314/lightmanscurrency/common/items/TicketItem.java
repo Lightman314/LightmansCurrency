@@ -33,10 +33,7 @@ public class TicketItem extends Item{
 	public static final long CREATIVE_TICKET_ID = -1;
 	public static final int CREATIVE_TICKET_COLOR = 0xFFFF00;
 
-	public TicketItem(Properties properties)
-	{
-		super(properties);
-	}
+	public TicketItem(Properties properties) { super(properties); }
 	
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)
@@ -45,7 +42,7 @@ public class TicketItem extends Item{
 			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.pass"));
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -1)
-			tooltip.add(Component.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
+			tooltip.add(EasyText.translatable("tooltip.lightmanscurrency.ticket.id", ticketID));
 	}
 
 	public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
@@ -121,15 +118,15 @@ public class TicketItem extends Item{
 	
 	public static ItemStack CreateMasterTicket(long ticketID, int color) { return CreateTicketInternal(ModItems.TICKET_MASTER.get(), ticketID, color, 1); }
 
+	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
+	public static ItemStack CreatePass(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET_PASS.get(), ticketID, color,count); }
+
 	public static ItemStack CreateTicket(ItemStack master)
 	{
 		if(master.getItem() == ModItems.TICKET_MASTER.get())
 			return CreateTicket(GetTicketID(master), GetTicketColor(master));
 		return ItemStack.EMPTY;
 	}
-
-	public static ItemStack CreatePass(long ticketID, int color) { return CreatePass(ticketID, color,1); }
-	public static ItemStack CreatePass(long ticketID, int color, int count) { return CreateTicketInternal(ModItems.TICKET_PASS.get(), ticketID, color,count); }
 
 	public static ItemStack CreateTicket(long ticketID, int color) { return CreateTicket(ticketID, color,1); }
 	
@@ -152,12 +149,12 @@ public class TicketItem extends Item{
 	}
 
 	public static MutableComponent getTicketMaterialsList() {
-		MutableComponent list = Component.empty();
+		MutableComponent list = EasyText.empty();
 		
 		try {
 			for(Item item : ForgeRegistries.ITEMS.tags().getTag(TICKET_MATERIAL_KEY).stream().toList())
 			{
-				list.append(Component.literal("\n")).append(new ItemStack(item).getHoverName());
+				list.append(EasyText.literal("\n")).append(new ItemStack(item).getHoverName());
 			}
 		} catch(Throwable t) { t.printStackTrace(); }
 		

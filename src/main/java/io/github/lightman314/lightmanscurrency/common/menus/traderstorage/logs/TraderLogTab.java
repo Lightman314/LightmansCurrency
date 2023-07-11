@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.logs;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.logs.TraderLogClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +18,7 @@ public class TraderLogTab extends TraderStorageTab {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new TraderLogClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new TraderLogClientTab(screen, this); }
 
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.VIEW_LOGS); }

@@ -38,8 +38,8 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	@Override
 	protected BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get(), ModBlockEntities.UNIVERSAL_ITEM_TRADER.get()); }
+	@Override
+	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ITEM_TRADER.get()); }
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)

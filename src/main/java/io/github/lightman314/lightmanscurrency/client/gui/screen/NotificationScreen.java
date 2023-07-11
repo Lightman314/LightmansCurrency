@@ -5,38 +5,40 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.data.ClientNotificationData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.MarkAsSeenButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.MessageFlagNotificationsSeen;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.NotNull;
 
-public class NotificationScreen extends Screen implements IScrollable{
+import javax.annotation.Nonnull;
+
+public class NotificationScreen extends EasyScreen implements IScrollable {
 
 	public static final ResourceLocation GUI_TEXTURE =  new ResourceLocation(LightmansCurrency.MODID, "textures/gui/notifications.png");
 	
 	public final NotificationData getNotifications() { return ClientNotificationData.GetNotifications(); }
-	
-	public final int guiLeft() { return (this.width - this.xSize - TabButton.SIZE) / 2; }
-	public final int guiTop() { return (this.height - this.ySize) / 2; }
-	public final int xSize = 200;
-	public final int ySize = 200;
+
+	private static final int SCREEN_WIDTH = 200;
+	private static final int SCREEN_HEIGHT = 200;
 	
 	public final int TABS_PER_PAGE = 8;
 	
@@ -49,14 +51,11 @@ public class NotificationScreen extends Screen implements IScrollable{
 	
 	ScrollBarWidget notificationScroller = null;
 	
-	Button buttonMarkAsSeen;
+	EasyButton buttonMarkAsSeen;
 	
 	int notificationScroll = 0;
 	
-	public NotificationScreen() { super(Component.empty()); }
-	
-	@Override
-	public boolean isPauseScreen() { return false; }
+	public NotificationScreen() { super(); this.resize(SCREEN_WIDTH + TabButton.SIZE, SCREEN_HEIGHT); }
 	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
@@ -71,18 +70,17 @@ public class NotificationScreen extends Screen implements IScrollable{
 	}
 	
 	@Override
-	public void init() {
+	protected void initialize(ScreenArea screenArea) {
 		
 		this.tabButtons = new ArrayList<>();
 		for(NotificationCategory cat : this.getCategories())
-		{
-			this.tabButtons.add(this.addRenderableWidget(new NotificationTabButton(this::SelectTab, this.font, this::getNotifications, cat)));
-		}
+			this.tabButtons.add(this.addChild(new NotificationTabButton(this::SelectTab, this::getNotifications, cat)));
 		this.positionTabButtons();
 		
-		this.notificationScroller = this.addRenderableOnly(new ScrollBarWidget(this.guiLeft() + TabButton.SIZE + this.xSize - 15, this.guiTop() + 15, this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
+		this.notificationScroller = this.addChild(new ScrollBarWidget(screenArea.pos.offset(TabButton.SIZE + screenArea.width - 15, 15), this.NOTIFICATIONS_PER_PAGE * this.NOTIFICATION_HEIGHT, this));
 		
-		this.buttonMarkAsSeen = this.addRenderableWidget(new MarkAsSeenButton(this.guiLeft() + this.xSize  + TabButton.SIZE - 15, this.guiTop() + 4, Component.translatable("gui.button.notifications.mark_read"), this::markAsRead));
+		this.buttonMarkAsSeen = this.addChild(new MarkAsSeenButton(screenArea.x + TabButton.SIZE + screenArea.width - 15, screenArea.y + 4, EasyText.translatable("gui.button.notifications.mark_read"), this::markAsRead)
+				.withAddons(EasyAddonHelper.activeCheck(() -> this.getNotifications().unseenNotification(this.selectedCategory))));
 		
 		this.tick();
 		
@@ -103,8 +101,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	private void positionTabButtons() {
 		this.tabScroll = Math.min(this.tabScroll, this.getMaxTabScroll());
 		int startIndex = this.tabScroll;
-		int xPos = this.guiLeft();
-		int yPos = this.guiTop();
+		ScreenPosition pos = this.getCorner();
 		List<NotificationCategory> categories = this.getCategories();
 		for(int i = 0; i < this.tabButtons.size(); ++i)
 		{
@@ -112,52 +109,43 @@ public class NotificationScreen extends Screen implements IScrollable{
 			if(i >= startIndex && i < startIndex + TABS_PER_PAGE)
 			{
 				tab.visible = true;
-				tab.reposition(xPos, yPos, 3);
+				tab.reposition(pos, 3);
 				if(i < categories.size()) //Use match code, as some categories are generated on get, and a new instance may have been generated due to reloading, etc.
 					tab.active = !categories.get(i).matches(this.selectedCategory);
 				else
 					tab.active = true;
-				yPos += TabButton.SIZE;
+				pos = pos.offset(0, TabButton.SIZE);
 			}
 			else
 				tab.visible = false;
 		}
 	}
-	
+
+	private Component cachedTooltip = null;
+
 	@Override
-	public void tick() {
-		this.buttonMarkAsSeen.active = this.getNotifications().unseenNotification(this.selectedCategory);
-	}
-	
-	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.renderBackground(pose);
-		
+	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+
 		//Render the background
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		int screenLeft = this.guiLeft() + TabButton.SIZE;
-		blit(pose, screenLeft, this.guiTop(), 0, 0, this.xSize, this.ySize);
-		
-		this.notificationScroller.beforeWidgetRender(mouseY);
-		
+		int screenLeft = TabButton.SIZE;
+		gui.resetColor();
+		gui.blit(GUI_TEXTURE, screenLeft, 0, 0, 0, this.getXSize(), this.getYSize());
+
 		//Render the current notifications
 		this.notificationScroll = Math.min(this.notificationScroll, this.getMaxNotificationScroll());
 		List<Notification> notifications = this.getNotifications().getNotifications(this.selectedCategory);
-		Component tooltip = null;
+		this.cachedTooltip = null;
 		int index = this.notificationScroll;
 		for(int y = 0; y < NOTIFICATIONS_PER_PAGE && index < notifications.size(); ++y)
 		{
 			Notification not = notifications.get(index++);
-			int yPos = this.guiTop() + 15 + y * NOTIFICATION_HEIGHT;
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			
-			int vPos = not.wasSeen() ? this.ySize : this.ySize + NOTIFICATION_HEIGHT;
+			int yPos = 15 + y * NOTIFICATION_HEIGHT;
+			gui.resetColor();
+
+			int vPos = not.wasSeen() ? this.getYSize() : this.getYSize() + NOTIFICATION_HEIGHT;
 			int textColor = not.wasSeen() ? 0xFFFFFF : 0x000000;
-			
-			blit(pose, screenLeft + 15, yPos, 0, vPos, 170, NOTIFICATION_HEIGHT);
+
+			gui.blit(GUI_TEXTURE, screenLeft + 15, yPos, 0, vPos, 170, NOTIFICATION_HEIGHT);
 			int textXPos = screenLeft + 17;
 			int textWidth = 166;
 			if(not.getCount() > 1)
@@ -165,10 +153,10 @@ public class NotificationScreen extends Screen implements IScrollable{
 				//Render quantity text
 				String countText = String.valueOf(not.getCount());
 				int quantityWidth = this.font.width(countText);
-				blit(pose, screenLeft + 16 + quantityWidth, yPos, 170, vPos, 3, NOTIFICATION_HEIGHT);
-				
-				this.font.draw(pose, countText, textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (font.lineHeight / 2), textColor);
-				
+				gui.blit(GUI_TEXTURE, screenLeft + 16 + quantityWidth, yPos, 170, vPos, 3, NOTIFICATION_HEIGHT);
+
+				gui.drawString(countText, textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (font.lineHeight / 2), textColor);
+
 				textXPos += quantityWidth + 2;
 				textWidth -= quantityWidth + 2;
 			}
@@ -176,41 +164,37 @@ public class NotificationScreen extends Screen implements IScrollable{
 			List<FormattedCharSequence> lines = this.font.split(message, textWidth);
 			if(lines.size() == 1)
 			{
-				this.font.draw(pose, lines.get(0), textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (this.font.lineHeight / 2), textColor);
+				gui.drawString(lines.get(0), textXPos, yPos + (NOTIFICATION_HEIGHT / 2) - (this.font.lineHeight / 2), textColor);
 			}
 			else
 			{
 				for(int l = 0; l < lines.size() && l < 2; ++l)
-					this.font.draw(pose, lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
+					gui.drawString(lines.get(l), textXPos, yPos + 2 + l * 10, textColor);
 				//Set the message as a tooltip if it's too large to fit and the mouse is hovering over the notification
-				if(tooltip == null && mouseX >= screenLeft + 15 && mouseX < screenLeft + 185 && mouseY >= yPos && mouseY < yPos + NOTIFICATION_HEIGHT)
+				if(this.cachedTooltip == null && ScreenPosition.of(screenLeft + 15, yPos).isMouseInArea(gui.mousePos, 170, NOTIFICATION_HEIGHT))
 				{
 					if(lines.size() > 2)
 					{
 						if(not.hasTimeStamp())
-							tooltip = Component.empty().append(not.getTimeStampMessage()).append(Component.literal("\n")).append(message);
+							this.cachedTooltip = Component.empty().append(not.getTimeStampMessage()).append(Component.literal("\n")).append(message);
 						else
-							tooltip = message;
+							this.cachedTooltip = message;
 					}
 					else if(not.hasTimeStamp())
-						tooltip = not.getTimeStampMessage();
+						this.cachedTooltip = not.getTimeStampMessage();
 				}
 			}
 		}
-		
-		//Render widgets
-		super.render(pose, mouseX, mouseY, partialTicks);
-		
-		//Render tooltips
-		for(NotificationTabButton tab : this.tabButtons)
-			tab.renderTooltip(pose, mouseX, mouseY, this);
-		
-		if(tooltip != null)
-			this.renderTooltip(pose, this.font.split(tooltip, 170), mouseX, mouseY);
-		
+
+	}
+
+	@Override
+	protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+		if(this.cachedTooltip != null)
+			gui.renderTooltip(gui.font.split(this.cachedTooltip, 170));
 	}
 	
-	private void SelectTab(Button button) {
+	private void SelectTab(EasyButton button) {
 		int tabIndex = -1;
 		if(button instanceof NotificationTabButton)
 			tabIndex = this.tabButtons.indexOf(button);
@@ -281,7 +265,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 		return true;
 	}
 
-	public void markAsRead(Button button) {
+	public void markAsRead(EasyButton button) {
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageFlagNotificationsSeen(this.selectedCategory));
 	}
 	
@@ -295,7 +279,7 @@ public class NotificationScreen extends Screen implements IScrollable{
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		//If mouse is over the screen, scroll the notifications
-		if(mouseX >= this.guiLeft() + TabButton.SIZE && mouseX < this.guiLeft() + this.xSize && mouseY >= this.guiTop() && mouseY < this.guiTop() + this.ySize)
+		if(this.getCorner().offset(TabButton.SIZE, 0).isMouseInArea(mouseX, mouseY, this.getXSize() - TabButton.SIZE, this.getYSize()))
 		{
 			if(this.notificationScrolled(delta))
 				return true;
@@ -305,18 +289,6 @@ public class NotificationScreen extends Screen implements IScrollable{
 		else if(this.tabScrolled(delta)) //Otherwise scroll the tabs
 			return true;
 		return super.mouseScrolled(mouseX, mouseY, delta);
-	}
-	
-	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		this.notificationScroller.onMouseClicked(mouseX, mouseY, button);
-		return super.mouseClicked(mouseX, mouseY, button);
-	}
-	
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.notificationScroller.onMouseReleased(mouseX, mouseY, button);
-		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	
 	@Override

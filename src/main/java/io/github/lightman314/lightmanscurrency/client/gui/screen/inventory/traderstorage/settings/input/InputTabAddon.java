@@ -1,18 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+
+import javax.annotation.Nonnull;
 
 public abstract class InputTabAddon {
 	
-	public abstract void onInit(SettingsSubTab tab);
+	public abstract void onOpen(@Nonnull SettingsSubTab tab, @Nonnull ScreenArea screenArea, boolean firstOpen);
 	
-	public abstract void renderBG(SettingsSubTab tab, PoseStack pose, int mouseX, int mouseY, float partialTicks);
-	public abstract void renderTooltips(SettingsSubTab tab, PoseStack pose, int mouseX, int mouseY);
+	public abstract void renderBG(@Nonnull SettingsSubTab tab, @Nonnull EasyGuiGraphics gui);
+	public abstract void renderAfterWidgets(@Nonnull SettingsSubTab tab, @Nonnull EasyGuiGraphics gui);
 	
-	public abstract void tick(SettingsSubTab tab);
+	public abstract void tick(@Nonnull SettingsSubTab tab);
 	
-	public abstract void onClose(SettingsSubTab tab);
+	public abstract void onClose(@Nonnull SettingsSubTab tab);
 	
 }

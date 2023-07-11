@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.Config;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -11,10 +12,8 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.wallet.MessageChestQuickCollect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class ChestCoinCollectButton extends IconButton {
 
@@ -61,15 +60,11 @@ public class ChestCoinCollectButton extends IconButton {
     }
 
     @Override
-    public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        //Update visibility
-        this.visible = this.shouldBeVisible();
-        super.render(pose, mouseX, mouseY, partialTicks);
-    }
+    protected void renderTick() { super.renderTick(); this.visible = this.shouldBeVisible(); }
 
-    public static void tryRenderTooltip(PoseStack pose, int mouseX, int mouseY) {
+    public static void tryRenderTooltip(EasyGuiGraphics gui, int mouseX, int mouseY) {
         if(lastButton != null && lastButton.isMouseOver(mouseX, mouseY))
-            lastButton.screen.renderTooltip(pose, EasyText.translatable("tooltip.button.chest.coin_collection"), mouseX, mouseY);
+            gui.renderTooltip(EasyText.translatable("tooltip.button.chest.coin_collection"), mouseX, mouseY);
     }
 
 }
