@@ -116,7 +116,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		this.markDirty();
 	}
 	
-	private TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
+	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
 	
 	@SuppressWarnings("unchecked")
 	public D getTraderData()

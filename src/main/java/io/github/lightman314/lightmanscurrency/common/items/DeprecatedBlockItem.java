@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -32,7 +33,9 @@ public class DeprecatedBlockItem extends BlockItem {
         if(super.getBlock() instanceof IDeprecatedBlock block && entity instanceof Player p)
         {
             ItemStack newStack = new ItemStack(block.replacementBlock(), stack.getCount());
-            newStack.setTag(stack.getTag().copy());
+            CompoundTag tag = stack.getTag();
+            if(tag != null)
+                newStack.setTag(tag.copy());
             p.getInventory().setItem(slot, newStack);
         }
     }

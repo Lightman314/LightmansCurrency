@@ -6,7 +6,9 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.Config;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import net.minecraft.client.Minecraft;
@@ -21,9 +23,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import javax.annotation.Nonnull;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity>{
@@ -31,7 +34,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public ItemTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
-	public void render(@NotNull ItemTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
+	public void render(@Nonnull ItemTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
@@ -49,76 +52,78 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
-		ItemTraderData trader = blockEntity.getTraderData();
-		if(trader == null)
-			return;
-		for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
-		{
-			
-			ItemTradeData trade = trader.getTrade(tradeSlot);
-			List<ItemStack> renderItems = GetRenderItems(trade);
-			if(renderItems.size() > 0)
+		try{
+			TraderData rawTrader = blockEntity.getRawTraderData();
+			if(!(rawTrader instanceof ItemTraderData trader))
+				return;
+			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
 			{
 
-				ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-				
-				//Get positions
-				List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
-				
-				//Get rotation
-				List<Quaternionf> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
-				
-				//Get scale
-				float scale = blockEntity.GetStackRenderScale(tradeSlot);
-
-				for(int pos = 0; pos < Config.CLIENT.itemRenderLimit.get() && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
+				ItemTradeData trade = trader.getTrade(tradeSlot);
+				List<ItemStack> renderItems = GetRenderItems(trade);
+				if(renderItems.size() > 0)
 				{
-					
-					pose.pushPose();
-					
-					Vector3f position = positions.get(pos);
-					
-					//Translate, rotate, and scale the matrix stack
-					pose.translate(position.x(), position.y(), position.z());
-					for(Quaternionf rot : rotation)
+
+					ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+
+					//Get positions
+					List<Vector3f> positions = blockEntity.GetStackRenderPos(tradeSlot, renderItems.size() > 1);
+
+					//Get rotation
+					List<Quaternionf> rotation = blockEntity.GetStackRenderRot(tradeSlot, partialTicks);
+
+					//Get scale
+					float scale = blockEntity.GetStackRenderScale(tradeSlot);
+
+					for(int pos = 0; pos < Config.CLIENT.itemRenderLimit.get() && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 					{
-						pose.mulPose(rot);
-					}
-					pose.scale(scale, scale, scale);
-					
-					//Render the item
-					if(renderItems.size() > 1)
-					{
-						//Render first item
+
 						pose.pushPose();
-						
-						//Don't base translation off of scale, as we've already been scaled down.
-						pose.translate(0.25, 0.25, 0d);
-						pose.scale(0.5f, 0.5f, 0.5f);
-						
-						itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
-						
-						pose.popPose();
-						
-						//Render second item
-						pose.pushPose();
-						
-						//Slightly offset in the Z to prevent z-fighting if there's an overlap
-						pose.translate(-0.25, -0.25, 0.001d);
-						pose.scale(0.5f, 0.5f, 0.5f);
-						
-						itemRenderer.renderStatic(renderItems.get(1), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
-						
+
+						Vector3f position = positions.get(pos);
+
+						//Translate, rotate, and scale the matrix stack
+						pose.translate(position.x(), position.y(), position.z());
+						for(Quaternionf rot : rotation)
+						{
+							pose.mulPose(rot);
+						}
+						pose.scale(scale, scale, scale);
+
+						//Render the item
+						if(renderItems.size() > 1)
+						{
+							//Render first item
+							pose.pushPose();
+
+							//Don't base translation off of scale, as we've already been scaled down.
+							pose.translate(0.25, 0.25, 0d);
+							pose.scale(0.5f, 0.5f, 0.5f);
+
+							itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+
+							pose.popPose();
+
+							//Render second item
+							pose.pushPose();
+
+							//Slightly offset in the Z to prevent z-fighting if there's an overlap
+							pose.translate(-0.25, -0.25, 0.001d);
+							pose.scale(0.5f, 0.5f, 0.5f);
+
+							itemRenderer.renderStatic(renderItems.get(1), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+
+							pose.popPose();
+						}
+						else
+							itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+
 						pose.popPose();
 					}
-					else
-						itemRenderer.renderStatic(renderItems.get(0), ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
-				
-					pose.popPose();
 				}
+
 			}
-			
-		}
+		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering an Item Trader!", t); }
 	}
 
 	private static long rotationTime = 0;

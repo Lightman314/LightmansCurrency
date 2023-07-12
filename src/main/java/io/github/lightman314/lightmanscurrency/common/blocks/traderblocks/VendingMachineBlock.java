@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -20,9 +19,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -159,11 +155,5 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 		}
 
 	}
-
-	@Override
-	public ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) {
-		return super.getDropBlockItem(level, pos, state);
-	}
-
 
 }
