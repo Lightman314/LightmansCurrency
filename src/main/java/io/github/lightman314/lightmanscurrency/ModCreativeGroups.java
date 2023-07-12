@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
@@ -120,8 +122,11 @@ public class ModCreativeGroups {
                     ezPop(p, ModBlocks.DISPLAY_CASE);
                     ezPop(p, ModBlocks.CARD_DISPLAY);
                     ezPop(p, ModBlocks.VENDING_MACHINE);
+                    debugItems(ModBlocks.VENDING_MACHINE);
+                    LightmansCurrency.LogDebug("Light Blue VM ID is " + ForgeRegistries.BLOCKS.getKey(ModBlocks.VENDING_MACHINE.get(Color.LIGHT_BLUE)));
                     ezPop(p, ModBlocks.FREEZER);
                     ezPop(p, ModBlocks.VENDING_MACHINE_LARGE);
+                    debugItems(ModBlocks.VENDING_MACHINE_LARGE);
                     //Item Traders (specialty)
                     ezPop(p, ModBlocks.ARMOR_DISPLAY);
                     ezPop(p, ModBlocks.TICKET_KIOSK);
@@ -202,5 +207,13 @@ public class ModCreativeGroups {
     public static final RegistryObject<CreativeModeTab> MACHINE_GROUP;
     public static final RegistryObject<CreativeModeTab> TRADER_GROUP;
     public static final RegistryObject<CreativeModeTab> UPGRADE_GROUP;
+
+    private static void debugItems(RegistryObjectBundle<?,?> bundle)
+    {
+        StringBuilder builder = new StringBuilder("Bundle Contains:");
+        for(ResourceLocation id : bundle.getAllKeys())
+            builder.append('\n').append(id.toString());
+        LightmansCurrency.LogDebug(builder.toString());
+    }
 
 }

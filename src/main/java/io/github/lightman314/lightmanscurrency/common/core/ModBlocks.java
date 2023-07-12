@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blocks.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.*;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.*;
@@ -277,14 +278,6 @@ public class ModBlocks {
 				.sound(SoundType.METAL)
 			), Color.WHITE
 		);
-		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", VENDING_MACHINE, (c,b) -> new VendingMachineBlock.ReplaceMe(
-			Block.Properties.of()
-					.mapColor(c.mapColor)
-					.strength(5.0f, Float.POSITIVE_INFINITY)
-					.sound(SoundType.METAL)
-				,b
-			)
-		);
 		
 		//Large Vending Machine
 		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", c -> new VendingMachineLargeBlock(
@@ -293,14 +286,6 @@ public class ModBlocks {
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 			), Color.WHITE
-		);
-		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", VENDING_MACHINE_LARGE, (c,b) -> new VendingMachineLargeBlock.ReplaceMe(
-			Block.Properties.of()
-					.mapColor(c.mapColor)
-					.strength(5.0f, Float.POSITIVE_INFINITY)
-					.sound(SoundType.METAL)
-				,b
-			)
 		);
 		
 		//Shelves
@@ -480,6 +465,24 @@ public class ModBlocks {
 		AUCTION_STAND = registerWooden("auction_stand", w ->
 			new AuctionStandBlock(BlockBehaviour.Properties.of().mapColor(w.mapColor).strength(2.0f))
 		);
+
+		//Deprecated
+		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", c -> new VendingMachineBlock.ReplaceMe(
+						Block.Properties.of()
+								.mapColor(c.mapColor)
+								.strength(5.0f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.METAL)
+						,c
+				)
+		);
+		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", c -> new VendingMachineLargeBlock.ReplaceMe(
+						Block.Properties.of()
+								.mapColor(c.mapColor)
+								.strength(5.0f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.METAL)
+						,c
+				)
+		);
 		
 	}
 	
@@ -500,12 +503,12 @@ public class ModBlocks {
 		return block;
 	}
 
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, RegistryObjectBundle<T,Color> replacementSource, BiFunction<Color,Supplier<Block>,T> block) {
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, Function<Color,T> block) {
 		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.deprecatedValues())
 		{
 			String thisName = name + "_" + color.getDeprecatedName();
-			bundle.put(color, register(thisName, (b) -> new DeprecatedBlockItem(b), () -> block.apply(color, () -> replacementSource.get(color))));
+			bundle.put(color, register(thisName, DeprecatedBlockItem::new, () -> block.apply(color)));
 		}
 		return bundle.lock();
 	}

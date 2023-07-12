@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.TeamButton.Size;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -57,6 +56,12 @@ public class TeamSelectWidget extends EasyWidgetWithChildren {
 			TeamButton button = this.addChild(new TeamButton(this.getPosition().offset(0, i * TeamButton.HEIGHT), this.size, this::onTeamSelect, () -> this.getTeam(index), () -> this.isSelected(index)));
 			this.teamButtons.add(button);
 		}
+	}
+
+	@Override
+	protected void renderTick() {
+		for(TeamButton b : this.teamButtons)
+			b.setVisible(this.visible);
 	}
 	
 	@Override

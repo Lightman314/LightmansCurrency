@@ -116,7 +116,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		this.markDirty();
 	}
 	
-	private TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
+	public TraderData getRawTraderData() { return TraderSaveData.GetTrader(this.isClient(), this.traderID); }
 	
 	@SuppressWarnings("unchecked")
 	public D getTraderData()
@@ -199,7 +199,6 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	@NotNull
 	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
-		
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{

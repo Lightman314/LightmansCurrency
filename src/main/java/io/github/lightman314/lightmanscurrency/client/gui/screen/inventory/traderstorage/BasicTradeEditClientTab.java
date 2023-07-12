@@ -42,6 +42,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		
 		this.tradeDisplay = this.addChild(new TradeButtonArea(this.menu.traderSource, t -> this.menu.getContext(), screenArea.x + 3, screenArea.y + 17, screenArea.width - 6, 100, (t1,t2) -> {}, this.menu.getTrader() == null ? TradeButtonArea.FILTER_ANY : this.menu.getTrader().getStorageDisplayFilter(this.menu)));
 		this.tradeDisplay.setInteractionConsumer(this);
+		this.tradeDisplay.withTitle(screenArea.pos.offset(6, 6), screenArea.width - (this.renderAddRemoveButtons() ? 32 : 16), true);
 		
 		this.buttonAddTrade = this.addChild(IconAndButtonUtil.plusButton(screenArea.pos.offset(screenArea.width- 25, 4), this::AddTrade));
 		this.buttonRemoveTrade = this.addChild(IconAndButtonUtil.minusButton(screenArea.pos.offset(screenArea.width- 14, 4), this::RemoveTrade));
@@ -52,7 +53,13 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) { }
-	
+
+	private boolean renderAddRemoveButtons() {
+		if(this.menu.getTrader() != null)
+			return this.menu.getTrader().canEditTradeCount();
+		return false;
+	}
+
 	@Override
 	public void tick() {
 		

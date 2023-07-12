@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -15,14 +14,13 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -132,38 +130,28 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public int maxRenderIndex()
-	{
-		return TRADECOUNT;
-	}
+	public int maxRenderIndex() { return TRADECOUNT; }
 	
 	@Override
 	protected NonNullSupplier<List<Component>> getItemTooltips() { return LCTooltips.ITEM_TRADER; }
 
 	public static class ReplaceMe extends VendingMachineBlock implements IDeprecatedBlock
 	{
-		private final Supplier<Block> replacement;
-		public ReplaceMe(Properties properties, @Nonnull Supplier<Block> replacement) { super(properties); this.replacement = replacement; }
+		private final Color color;
+		public ReplaceMe(Properties properties, Color color) { super(properties); this.color = color; }
 
 		@Override
-		public Block replacementBlock() { return this.replacement.get(); }
+		public Block replacementBlock() { return ModBlocks.VENDING_MACHINE.get(this.color); }
 
 		@Override
 		public void replaceBlock(Level level, BlockPos pos, BlockState oldState) {
-			Block newBlock = this.replacement.get();
+			Block newBlock = this.replacementBlock();
 			if(newBlock != null)
 			{
 				BlockState newState = newBlock.defaultBlockState().setValue(RotatableBlock.FACING, oldState.getValue(RotatableBlock.FACING)).setValue(TallRotatableBlock.ISBOTTOM, oldState.getValue(TallRotatableBlock.ISBOTTOM));
 				replaceTraderBlock(level, pos, newState);
 			}
 		}
-
 	}
-
-	@Override
-	public ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) {
-		return super.getDropBlockItem(level, pos, state);
-	}
-
 
 }

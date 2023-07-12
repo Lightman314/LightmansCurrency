@@ -123,7 +123,7 @@ public class ItemStorageClientTab extends TraderInterfaceClientTab<ItemStorageTa
 			
 			//Render the input/output labels
 			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.iteminput.side"), 33, WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
+			int textWidth = gui.font.width(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"));
 			gui.drawString(EasyText.translatable("gui.lightmanscurrency.settings.itemoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
 		}
 		

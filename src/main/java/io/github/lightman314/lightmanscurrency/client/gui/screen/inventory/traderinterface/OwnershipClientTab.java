@@ -55,7 +55,7 @@ public class OwnershipClientTab extends TraderInterfaceClientTab<OwnershipTab> {
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.newOwnerInput = this.addChild(new EditBox(this.font, screenArea.x + 23, screenArea.y + 26, 160, 20, EasyText.empty()));
+		this.newOwnerInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 23, screenArea.y + 26, 160, 20, EasyText.empty()));
 		this.newOwnerInput.setMaxLength(16);
 		
 		this.buttonSetOwner = this.addChild(new EasyTextButton(screenArea.pos.offset(23, 47), 160, 20, EasyText.translatable("gui.button.lightmanscurrency.set_owner"), this::setOwner)

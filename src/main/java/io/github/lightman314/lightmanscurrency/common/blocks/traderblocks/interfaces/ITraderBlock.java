@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.inter
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.ICapabilityBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.IOwnableBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IDeprecatedBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IOwnableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -22,9 +23,8 @@ public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 			return ownableBlockEntity.canBreak(player);
 		return true;
 	}
-	
-	default ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) { return state != null ? new ItemStack(state.getBlock()): ItemStack.EMPTY; }
-	
+
+	default ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) { return state == null ? ItemStack.EMPTY : new ItemStack(state.getBlock()); }
 	default BlockEntity getCapabilityBlockEntity(BlockState state, Level level, BlockPos pos) { return this.getBlockEntity(state, level, pos); }
 	
 }

@@ -84,7 +84,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
-		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 43, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
+		this.searchField = this.addChild(new EditBox(this.getFont(), screenArea.x + 43, screenArea.y + 6, 101, 9, EasyText.translatable("gui.lightmanscurrency.terminal.search")));
 		this.searchField.setBordered(false);
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);

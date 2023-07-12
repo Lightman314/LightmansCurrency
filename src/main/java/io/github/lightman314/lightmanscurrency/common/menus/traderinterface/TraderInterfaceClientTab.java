@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.menus.traderinterface;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import net.minecraft.client.gui.Font;
 import net.minecraft.nbt.CompoundTag;
 
 public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> extends EasyTab {
@@ -11,14 +10,12 @@ public abstract class TraderInterfaceClientTab<T extends TraderInterfaceTab> ext
 	protected final TraderInterfaceScreen screen;
 	protected final TraderInterfaceMenu menu;
 	public final T commonTab;
-	protected final Font font;
 	
 	protected TraderInterfaceClientTab(TraderInterfaceScreen screen, T commonTab) {
 		super(screen);
 		this.screen = screen;
 		this.menu = this.screen.getMenu();
 		this.commonTab = commonTab;
-		this.font = screen.getFont();
 	}
 	
 	@Override
