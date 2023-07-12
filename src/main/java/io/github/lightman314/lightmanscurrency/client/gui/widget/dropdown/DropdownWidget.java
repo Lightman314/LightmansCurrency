@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
@@ -122,13 +121,24 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
             	this.playDownSound(Minecraft.getInstance().getSoundManager());
             	this.open = !this.open;
             	this.optionButtons.forEach(button -> button.visible = this.open);
+				this.renderTick();
             	return true;
             }
-            else if(this.open)
+            else if(this.open && !this.isOverChild(mouseX, mouseY))
             {
             	this.open = false;
             	this.optionButtons.forEach(button -> button.visible = false);
             }
+		}
+		return false;
+	}
+
+	private boolean isOverChild(double mouseX, double mouseY)
+	{
+		for(EasyButton b : this.optionButtons)
+		{
+			if(b.isMouseOver(mouseX, mouseY))
+				return true;
 		}
 		return false;
 	}
