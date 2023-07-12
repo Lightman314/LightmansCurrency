@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blocks.traderblocks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 
@@ -14,6 +13,8 @@ import io.github.lightman314.lightmanscurrency.common.blocks.templates.interface
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.tooltips.LCTooltips;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
@@ -29,8 +30,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import javax.annotation.Nonnull;
 
 public class VendingMachineBlock extends TraderBlockTallRotatable implements IItemTraderBlock {
 	
@@ -138,15 +137,15 @@ public class VendingMachineBlock extends TraderBlockTallRotatable implements IIt
 
 	public static class ReplaceMe extends VendingMachineBlock implements IDeprecatedBlock
 	{
-		private final Supplier<Block> replacement;
-		public ReplaceMe(Properties properties, @Nonnull Supplier<Block> replacement) { super(properties); this.replacement = replacement; }
+		private final Color color;
+		public ReplaceMe(Properties properties, Color color) { super(properties); this.color = color; }
 
 		@Override
-		public Block replacementBlock() { return this.replacement.get(); }
+		public Block replacementBlock() { return ModBlocks.VENDING_MACHINE.get(this.color); }
 
 		@Override
 		public void replaceBlock(Level level, BlockPos pos, BlockState oldState) {
-			Block newBlock = this.replacement.get();
+			Block newBlock = this.replacementBlock();
 			if(newBlock != null)
 			{
 				BlockState newState = newBlock.defaultBlockState().setValue(RotatableBlock.FACING, oldState.getValue(RotatableBlock.FACING)).setValue(TallRotatableBlock.ISBOTTOM, oldState.getValue(TallRotatableBlock.ISBOTTOM));

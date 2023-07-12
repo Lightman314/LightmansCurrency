@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 
 public class RegistryObjectBundle<T,L> {
@@ -52,6 +53,7 @@ public class RegistryObjectBundle<T,L> {
 			values.add(value.get());
 		return values;
 	}
+	public List<ResourceLocation> getAllKeys() { return this.values.values().stream().map(RegistryObject::getId).toList(); }
 
 	@SafeVarargs
 	public final List<T> getSome(L... keys) {

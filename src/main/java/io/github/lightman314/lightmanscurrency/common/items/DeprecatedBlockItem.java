@@ -7,8 +7,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
@@ -17,20 +19,29 @@ public class DeprecatedBlockItem extends BlockItem {
     public DeprecatedBlockItem(Block block) { this(block, new Item.Properties()); }
     public DeprecatedBlockItem(Block block, Properties properties) { super(block, properties); }
 
-    @Nonnull
     @Override
-    public Block getBlock() {
-        if(this.getBlockRaw() instanceof IDeprecatedBlock block)
-            return block.replacementBlock();
-        return this.getBlockRaw();
+    protected BlockState getPlacementState(@Nonnull BlockPlaceContext context) {
+        IDeprecatedBlock block = this.getDeprecatedBlock();
+        if(block != null)
+        {
+            //Copy of vanilla getPlacementState, but using the replacement block instead.
+            BlockState state = block.replacementBlock().getStateForPlacement(context);
+            return state != null && this.canPlace(context, state) ? state : null;
+        }
+        return super.getPlacementState(context);
     }
 
-    @Nonnull
-    private Block getBlockRaw() { return super.getBlock(); }
+    private IDeprecatedBlock getDeprecatedBlock()
+    {
+        if(this.getBlock() instanceof IDeprecatedBlock block)
+            return block;
+        return null;
+    }
 
     @Override
     public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slot, boolean selected) {
-        if(super.getBlock() instanceof IDeprecatedBlock block && entity instanceof Player p)
+        IDeprecatedBlock block = this.getDeprecatedBlock();
+        if(block != null && entity instanceof Player p)
         {
             ItemStack newStack = new ItemStack(block.replacementBlock(), stack.getCount());
             CompoundTag tag = stack.getTag();

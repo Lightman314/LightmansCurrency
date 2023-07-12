@@ -276,14 +276,6 @@ public class ModBlocks {
 								.sound(SoundType.METAL)
 				), Color.WHITE
 		);
-		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", VENDING_MACHINE, (c,b) -> new VendingMachineBlock.ReplaceMe(
-						Block.Properties.of(Material.METAL)
-								.color(c.mapColor)
-								.strength(5.0f, Float.POSITIVE_INFINITY)
-								.sound(SoundType.METAL)
-						,b
-				)
-		);
 
 		//Large Vending Machine
 		VENDING_MACHINE_LARGE = registerColored("vending_machine_large", c -> new VendingMachineLargeBlock(
@@ -293,12 +285,12 @@ public class ModBlocks {
 								.sound(SoundType.METAL)
 				), Color.WHITE
 		);
-		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", VENDING_MACHINE_LARGE, (c,b) -> new VendingMachineLargeBlock.ReplaceMe(
+		VENDING_MACHINE_LARGE_OLDCOLORS = registerDeprecatedColored("vending_machine_large", c -> new VendingMachineLargeBlock.ReplaceMe(
 						Block.Properties.of(Material.METAL)
 								.color(c.mapColor)
 								.strength(5.0f, Float.POSITIVE_INFINITY)
 								.sound(SoundType.METAL)
-						,b
+						,c
 				)
 		);
 
@@ -480,6 +472,16 @@ public class ModBlocks {
 			new AuctionStandBlock(BlockBehaviour.Properties.of(Material.WOOD).color(w.mapColor).strength(2.0f))
 		);
 
+		//Deprecated
+		VENDING_MACHINE_OLDCOLORS = registerDeprecatedColored("vending_machine", c -> new VendingMachineBlock.ReplaceMe(
+						Block.Properties.of(Material.METAL)
+								.color(c.mapColor)
+								.strength(5.0f, Float.POSITIVE_INFINITY)
+								.sound(SoundType.METAL)
+						,c
+				)
+		);
+
 	}
 
 
@@ -500,12 +502,12 @@ public class ModBlocks {
 	}
 
 	// Colored block registration code
-	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, RegistryObjectBundle<T,Color> replacementSource, BiFunction<Color,Supplier<Block>,T> block) {
+	private static <T extends Block> RegistryObjectBundle<T,Color> registerDeprecatedColored(String name, Function<Color,T> block) {
 		RegistryObjectBundle<T,Color> bundle = new RegistryObjectBundle<>(Color::sortByColor);
 		for(Color color : Color.deprecatedValues())
 		{
 			String thisName = name + "_" + color.getDeprecatedName();
-			bundle.put(color, register(thisName, DeprecatedBlockItem::new, () -> block.apply(color, () -> replacementSource.get(color))));
+			bundle.put(color, register(thisName, DeprecatedBlockItem::new, () -> block.apply(color)));
 		}
 		return bundle.lock();
 	}
